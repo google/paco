@@ -62,6 +62,11 @@
 
   <target name="runserver" depends="build"
       description="Starts the development server.">
+    <dev_appserver war="war" address="0.0.0.0" />
+  </target>
+
+  <target name="runserver_only"
+      description="Starts the development server. Must already be built.">
     <dev_appserver war="war" />
   </target>
 
