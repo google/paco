@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery-1.5.1.min.js"></script>
+    
+ 	<script language="javascript" type="text/javascript">
+ 	  var emailer = window.email;
+ 	    function sendEmail(body, subject, tofield) {
+ 	      emailer.sendEmail(body, subject, tofield);
+ 	    }
+ 	  $(document).ready(function() {
+ 	    
+   		var experimentData = window.env.getValue("experimentalData");
+   		experimentData = eval('('+ experimentData + ')');
+      	if (!experimentData) {
+        	alert("No Data");
+        	return;
+      	} 
+      	var responsesHtml = ""; 
+      	
+  		
+  		var latestEvent = experimentData[0];  	
+  		var responses = latestEvent.responses;
+  		for (var i=0;i < responses.length;i++) {
+  		  var response = responses[i];
+      		if (response.answer == null || response.answer.length == 0) {
+        		response.answer = "No Answer";
+      		}
+      		
+      		responsesHtml += "<div>";
+      		responsesHtml += "<div style='text-align:left;line-height:1.5;font-size:20;'>";
+      		responsesHtml += response["prompt"];
+      		responsesHtml += "</div><br/>";
+      		responsesHtml += "<div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>";
+      		if (response["responseType"] == "photo") {
+        		responsesHtml += "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
+      		} else {
+        		responsesHtml += response["answer"];
+        		responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["inputId"] + "'>Chart</a>";
+      		}      
+      		responsesHtml += "</div><br/></div>";
+    	} 
+    	if (responsesHtml == "") {
+      		responsesHtml = "No responses found!";
+      	}
+      	//document.getElementById("additionsdiv").innerHTML = window.additions;
+ 	    document.body.write(window.additions);
+   		$("#responses").html(responsesHtml);
+   	});   	
+ </script>
+ </head>
+  <body style='text-align:center;color:#4272db;' >
+  
+  <div id="additionsdiv"></div>
+  
+ 
+  </body>
+</html>

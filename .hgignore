@@ -1,0 +1,8 @@
+^Paco/bin/
+^Paco/gen/
+^PacoTest/bin/
+^Paco-Server/war/WEB-INF/classes/
+^Paco-Server/war/WEB-INF/appengine-generated/
+^Paco-Server/war/pacoserver/
+^Paco-Server/war/WEB-INF/deploy/
+.DS_Store
