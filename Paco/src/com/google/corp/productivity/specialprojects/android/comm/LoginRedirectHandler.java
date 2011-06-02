@@ -64,7 +64,6 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
   private static final int LOGIN_STATUS_FAILED = 1;
   private static final int LOGIN_STATUS_ERROR = 2;
 
-  private static final String APP_ENGINE_ID_HEADER = "X-Google-AppEngine-AppId";
   private static final String DEFAULT_EMAIL_SUFFIX = "@google.com";
 
   private final String accountType;
@@ -151,11 +150,12 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
   }
 
   private boolean isTargetAnAppEngineHost(HttpResponse response) {
-    Header header = response.getFirstHeader(APP_ENGINE_ID_HEADER); 
-    if (header != null) {
-      Log.d(LOG_TAG, "Request matches appengine " + header.getValue());
-    }
-    return header != null;
+	  return true;
+//    Header header = response.getFirstHeader(APP_ENGINE_ID_HEADER); 
+//    if (header != null) {
+//      Log.d(LOG_TAG, "Request matches appengine " + header.getValue());
+//    }
+//    return header != null;
   }
 
   private void login(final HttpContext httpContext, final Context context, URI uri) {
