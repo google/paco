@@ -213,6 +213,9 @@
 <datastore-index kind="Feedback" ancestor="true" source="manual">
         <property name="feedback_INTEGER_IDX" direction="asc"/>
     </datastore-index>
+    <datastore-index kind="PhotoBlob" ancestor="true" source="manual">
+        <property name="blobs_INTEGER_IDX" direction="asc"/>
+    </datastore-index>
 </datastore-indexes>
 
 
