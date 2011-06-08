@@ -144,7 +144,10 @@ public class Feedback implements Parcelable {
 
   String getDisplayOfAnswer(Output output, Input input) {
     if (input.getResponseType().equals(Input.LIST)) {
-      return input.getListChoices().get(Integer.parseInt(output.getAnswer()) -1);
+      if (!input.isMultiselect()) {
+        return input.getListChoices().get(Integer.parseInt(output.getAnswer()) -1);
+      }
+      return output.getAnswer();
     }
     if (input.getResponseType().equals(Input.LIKERT) && output.getAnswer() != null) {
       int intAnswer = Integer.parseInt(output.getAnswer());
