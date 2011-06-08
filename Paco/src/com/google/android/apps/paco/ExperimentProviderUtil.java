@@ -711,7 +711,7 @@ public class ExperimentProviderUtil {
     if (input.getConditionExpression() != null) {
       values.put(InputColumns.CONDITIONAL_EXPRESSION, input.getConditionExpression());
     }
-    values.put(InputColumns.MULTISELECT, input.isMultiselect() ? 1 : 0);
+    values.put(InputColumns.MULTISELECT, (input.isMultiselect() != null && input.isMultiselect()) ? 1 : 0);
     return values;
   }
 
