@@ -452,9 +452,9 @@ public class InputLayout extends LinearLayout {
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         if (isChecked)
-          checkedChoices.add(which);
+          checkedChoices.add(which + 1);
         else
-          checkedChoices.remove(which);
+          checkedChoices.remove(which - 1);
       }
     };
 
