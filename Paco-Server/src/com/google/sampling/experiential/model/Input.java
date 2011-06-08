@@ -102,6 +102,10 @@ public class Input {
   
   @Persistent 
   private List<String> listChoices;
+
+  @Persistent
+  private Boolean multiselect;
+  
   /**
    * @param parse
    * @param question
@@ -128,7 +132,7 @@ public class Input {
   public Input(Key experimentKey, Long id, String name, String text, Date scheduleDate, 
       String questionType, String responseType, Integer likertSteps, Boolean mandatory, 
       Boolean conditional, String conditionalExpression, String leftSideLabel, 
-      String rightSideLabel, List<String> listChoices) {
+      String rightSideLabel, List<String> listChoices, Boolean multiselect) {
     this(scheduleDate, name, text);
     if (id != null) {
       this.id = KeyFactory.createKey(experimentKey, Input.class.getSimpleName(), id);
@@ -142,6 +146,7 @@ public class Input {
     this.leftSideLabel = leftSideLabel;
     this.rightSideLabel = rightSideLabel;
     this.listChoices = listChoices;
+    this.multiselect = multiselect;
   }
 
   public Input() {
@@ -286,6 +291,12 @@ public class Input {
   public void setListChoices(List<String> listChoices) {
     this.listChoices = listChoices;
   }
+
+  public Boolean isMultiselect() {
+    return multiselect;
+  }
   
-  
+  public void setMultiselect(Boolean multi) {
+    this.multiselect = multi;
+  }
 }

@@ -18,6 +18,9 @@
 
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -41,11 +44,24 @@ public class ListChoicesPanel extends Composite {
   /**
    * @param input
    */
-  public ListChoicesPanel(InputDAO input) {
+  public ListChoicesPanel(final InputDAO input) {
     this.input = input;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
+    
+    final CheckBox multiselect = new CheckBox("Multiple selections");
+    multiselect.setValue(input.getMultiselect());
+    multiselect.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        input.setMultiselect(multiselect.getValue());
+      }
+      
+    });
+    mainPanel.add(multiselect);
+    
     Label lblSignalTimes = new Label("List Choice (s)");
     lblSignalTimes.setStyleName("gwt-Label-Header");
     mainPanel.add(lblSignalTimes);

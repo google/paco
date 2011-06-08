@@ -563,6 +563,7 @@ public class ExperimentProviderUtil {
     int listChoiceIndex = cursor.getColumnIndex(InputColumns.LIST_CHOICES_JSON);
     int conditionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL);
     int conditionExpressionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL_EXPRESSION);
+    int multiselectIndex = cursor.getColumnIndex(InputColumns.MULTISELECT);
     
     Input input = new Input();
     
@@ -638,6 +639,9 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(conditionExpressionIndex)) {
       input.setConditionExpression(cursor.getString(conditionExpressionIndex));
     }
+    if (!cursor.isNull(multiselectIndex)) {
+      input.setMultiselect(cursor.getInt(multiselectIndex) == 1);
+    }
     return input;
   }
   
@@ -707,6 +711,7 @@ public class ExperimentProviderUtil {
     if (input.getConditionExpression() != null) {
       values.put(InputColumns.CONDITIONAL_EXPRESSION, input.getConditionExpression());
     }
+    values.put(InputColumns.MULTISELECT, input.isMultiselect() ? 1 : 0);
     return values;
   }
 

@@ -49,7 +49,7 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   private static final String DATABASE_NAME = "experiments.db";
-  private static final int DATABASE_VERSION = 8;
+  private static final int DATABASE_VERSION = 9;
   
   private static final String EXPERIMENTS_TABLE_NAME = "experiments";
   private static final String SCHEDULES_TABLE_NAME = "schedules";
@@ -154,7 +154,8 @@ public class ExperimentProvider extends ContentProvider {
           + InputColumns.RIGHT_SIDE_LABEL + " TEXT,"
           + InputColumns.LIST_CHOICES_JSON + " TEXT,"
           + InputColumns.CONDITIONAL + " INTEGER,"
-          + InputColumns.CONDITIONAL_EXPRESSION + " TEXT"
+          + InputColumns.CONDITIONAL_EXPRESSION + " TEXT,"
+          + InputColumns.MULTISELECT + " INTEGER"
           + ");");
       db.execSQL("CREATE TABLE " + EVENTS_TABLE_NAME + " ("
           + EventColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -194,20 +195,12 @@ public class ExperimentProvider extends ContentProvider {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 	  Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-		  + newVersion + ", which will destroy all old data");
+		  + newVersion + ".");
 	  
-	  // todo (bobevans): add migration logic for update to version 8
-	  // instead of just dropping tables!!!
-	  db.execSQL("DROP TABLE IF EXISTS " + EXPERIMENTS_TABLE_NAME);
-	  db.execSQL("DROP TABLE IF EXISTS " + SCHEDULES_TABLE_NAME);
-	  db.execSQL("DROP TABLE IF EXISTS " + INPUTS_TABLE_NAME);
-	  db.execSQL("DROP TABLE IF EXISTS " + OUTPUTS_TABLE_NAME);
-	  db.execSQL("DROP TABLE IF EXISTS " + EVENTS_TABLE_NAME);
-	  db.execSQL("DROP TABLE IF EXISTS " + FEEDBACK_TABLE_NAME);
-      db.execSQL("DROP TABLE IF EXISTS " + NOTIFICATION_TABLE_NAME);
-
-	  onCreate(db);
-	}
+      db.execSQL("ALTER TABLE " + INPUTS_TABLE_NAME + " ADD "
+          + InputColumns.MULTISELECT + " INTEGER default 0"
+          + ";");
+	  	}
 	
 	public void insertValues(SQLiteDatabase db) {
 	  String CurLine = "";

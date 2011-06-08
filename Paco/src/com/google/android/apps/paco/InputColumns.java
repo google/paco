@@ -37,6 +37,7 @@ public class InputColumns implements BaseColumns {
   public static final String SCHEDULED_DATE = "scheduledDate";
   public static final String CONDITIONAL = "conditional";
   public static final String CONDITIONAL_EXPRESSION = "condition_expression";
+  public static final String MULTISELECT = "multiselect";
   
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.input";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.input";

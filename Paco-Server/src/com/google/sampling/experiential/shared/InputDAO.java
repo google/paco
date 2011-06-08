@@ -61,6 +61,7 @@ public class InputDAO implements Serializable {
   private Boolean conditional = false;
   private String conditionExpression;
   private String[] listChoices;
+  private Boolean multiselect;
   
   /**
    * 
@@ -83,7 +84,8 @@ public class InputDAO implements Serializable {
    */
   public InputDAO(Long id, String name, String questionType, String responseType, String text, 
       Boolean mandatory, Long scheduleDate, Integer likertSteps, Boolean conditional, 
-      String conditionExpr, String leftSideLabel, String rightSideLabel, String[] listChoices) {
+      String conditionExpr, String leftSideLabel, String rightSideLabel, String[] listChoices,
+      Boolean multiselect) {
     this.id = id;
     this.questionType = questionType;
     this.text = text;
@@ -97,6 +99,7 @@ public class InputDAO implements Serializable {
     this.leftSideLabel = leftSideLabel;
     this.rightSideLabel = rightSideLabel;
     this.listChoices = listChoices;
+    this.multiselect = multiselect;
   }
 
   /**
@@ -106,7 +109,7 @@ public class InputDAO implements Serializable {
    */
   public InputDAO(Long id, String name, Long scheduledDate, String text) {
     this(id, name, QUESTION, LIKERT, text, false, scheduledDate, null, false, null, null, 
-        null, null);    
+        null, null, null);    
   }
 
   public InputDAO() {}
@@ -223,6 +226,14 @@ public class InputDAO implements Serializable {
    */
   public boolean isInvisibleInput() {
     return getResponseType().equals(InputDAO.LOCATION) || getResponseType().equals(InputDAO.PHOTO);
+  }
+
+  public Boolean getMultiselect() {
+    return multiselect;
+  }
+
+  public void setMultiselect(Boolean multiselect) {
+    this.multiselect = multiselect;
   }
 
   

@@ -312,7 +312,8 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
           scheduleDate, input.getQuestionType(), input.getResponseType(), input.getLikertSteps(), 
           input.getMandatory(), input.getConditional(), input.getConditionExpression(), 
           input.getLeftSideLabel(), input.getRightSideLabel(), 
-          Arrays.asList(input.getListChoices() != null ? input.getListChoices() : new String[0])));      
+          Arrays.asList(input.getListChoices() != null ? input.getListChoices() : new String[0]),
+          input.getMultiselect()));      
     }
     return inputs;
   }
@@ -499,7 +500,8 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         input.getScheduleDate() != null ? input.getScheduleDate().getTime() : null, 
         input.getLikertSteps(),
         input.getConditional(), input.getConditionalExpression(), 
-        input.getLeftSideLabel(), input.getRightSideLabel(), toStringArray(input.getListChoices()));
+        input.getLeftSideLabel(), input.getRightSideLabel(), toStringArray(input.getListChoices()), 
+        input.isMultiselect());
   }
   
   /**

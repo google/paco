@@ -64,7 +64,7 @@ public class Input implements Parcelable {
       
       input.conditional = source.readInt() == 1;
       input.conditionExpression = source.readString();
-      
+      input.multiselect = source.readInt() == 1;
       return input;
     }
 
@@ -92,6 +92,7 @@ public class Input implements Parcelable {
   private Long scheduleDate;
   private Date scheduleDateAsDate; // experimenting w/ Jackson json framework
   private String name;
+  private Boolean multiselect;
 
   @JsonIgnore
   public Date getScheduleDate() {
@@ -229,6 +230,7 @@ public class Input implements Parcelable {
     
     dest.writeInt(conditional ? 1 : 0);
     dest.writeString(conditionExpression);
+    dest.writeInt(multiselect ? 1 : 0);
   }
 
   public String getResponseType() {
@@ -274,5 +276,15 @@ public class Input implements Parcelable {
     responseType.equals(Input.LIST) || // TODO (bobevans): LIST shoudl be a categorical, not a numeric. 
     responseType.equals(Input.NUMBER);
   }
+
+	public Boolean isMultiselect() {
+		return multiselect;
+	}
+
+	public void setMultiselect(Boolean multiselect) {
+		this.multiselect = multiselect;
+	}
+	
+	
 
 }
