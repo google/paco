@@ -5,4 +5,12 @@
 ^Paco-Server/war/WEB-INF/appengine-generated/
 ^Paco-Server/war/pacoserver/
 ^Paco-Server/war/WEB-INF/deploy/
-.DS_Store
+\.DS_Store
+\.classpath
+\.nfs*
+\.gwt-log
+^Paco-Server/war/WEB-INF/lib/appengine-api-1.0-sdk-1.5.0.1.jar
+^Paco-Server/war/WEB-INF/lib/appengine-api-labs-1.5.0.1.jar
+^Paco-Server/war/WEB-INF/lib/appengine-jsr107cache-1.5.0.1.jar
+^Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
+
