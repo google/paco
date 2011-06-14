@@ -2,14 +2,17 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-<title>Google Maps JavaScript API v3 </title>
-<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Google Maps JavaScript API v3</title>
+<link
+  href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css"
+  rel="stylesheet" type="text/css" />
+<script type="text/javascript"
+  src="http://maps.google.com/maps/api/js?sensor=false"></script>
 <script language="javascript" type="text/javascript" src="jquery-1.5.1.min.js"></script>
 <script language="javascript" type="text/javascript" src="jquery.flot.min.js"></script>
 
-  <script id="source">
+<script id="source">
     
 
   function initialize() {
@@ -30,7 +33,7 @@
 
 //Function to take arrays for lats and lngs and draw markers on maps
    var minlat = 180; var minlng = 180; var maxlat = -180; var maxlng = -180;  
-   function plotPoints(arr, mapToOverlay){
+   function plotPoints(arr, labelInfo, mapToOverlay){
    var templat; var templng;
    for (var i = 0; i <arr.length; i++) {
       templat = arr[i].latitude;
@@ -45,12 +48,20 @@
          map: mapToOverlay,
          title: point+""
     });
-      google.maps.event.addListener(marker, 'click', function() {
-      alert('hi');
-    });
+    attachLabel(marker, labelInfo[i]);
     };
-         
-   };   
+  };
+  
+  function attachLabel(marker, label) {
+  //alert(label[0]);
+     var infowindow = new google.maps.InfoWindow(
+        { content: (label+""),
+          size: new google.maps.Size(90,1100)
+        });
+    google.maps.event.addListener(marker, 'click', function() {
+      infowindow.open(map,marker);
+    });
+  }
 
 
 
@@ -93,7 +104,7 @@
   }  
 
 //Get lats and lngs from data    
-  var locations = [];
+  var locations = []; var otherInfo = [];
   if (responseType == "location") {
     for (event in expdata){
       if (expdata[event].joinEvent !=true){
@@ -101,6 +112,7 @@
         var responses = expdata[event].responses;
      
         for (var r = 0; r < responses.length; r++) {
+          var tempInfo = "Also: ";
           if (responses[r].inputId == inputid) {
             if (!responses[r].answer) {
               continue;
@@ -109,10 +121,19 @@
             var lat = Number(latLngStr.substring(0, latLngStr.indexOf(',')))
             var lng = Number(latLngStr.substring(latLngStr.indexOf(',')+1))
             //lats.push(lat); lngs.push(lng); templats.push(lat); templngs.push(lng);
-            locations = locations.concat({latitude: lat, longitude: lng});};
+            locations = locations.concat({latitude: lat, longitude: lng});
+            }else{
+            if (!responses[r].answer) {
+             continue;
+              } else if (!tempInfo!=("Also: ")){
+                tempinfo = tempInfo+", "};
+             tempInfo = tempInfo+responses[r].answer;
             };
-          }
-        }
+           //alert(tempInfo); 
+          otherInfo = otherInfo.concat("latitude: "+lat+", longitude: "+ lng+ "\r" +tempInfo);
+          };
+         };
+        };
 
 
 
@@ -130,7 +151,7 @@
 
 //Take arrays for lats and lngs and draw markers on maps  
    
-  plotPoints(locations, map);
+  plotPoints(locations, otherInfo, map);
   var southWest = new google.maps.LatLng(minlat,minlng);
   var northEast = new google.maps.LatLng(maxlat,maxlng);
   var bounds = new google.maps.LatLngBounds(southWest,northEast);
