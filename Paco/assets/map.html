@@ -16,6 +16,7 @@
     
 
   function initialize() {
+/////Functions
 
 //Averaging function
 
@@ -51,9 +52,9 @@
     attachLabel(marker, labelInfo[i]);
     };
   };
+//Function to Attach Labels
   
   function attachLabel(marker, label) {
-  //alert(label[0]);
      var infowindow = new google.maps.InfoWindow(
         { content: (label+""),
           size: new google.maps.Size(90,1100)
@@ -63,7 +64,21 @@
     });
   }
 
+//Function to create new map, centered at the average lat and long given in an
+//  array of objects with lat and long - locs - and at a given zoom value
+   function newMap(locs, zoomVal) {    
+    var myLatlng = new google.maps.LatLng(average(locs));
+    var myOptions = {
+      zoom: zoomVal,
+      center: myLatlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+  
+    return new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+    }
 
+
+////Actual Code to be run
 
 //Get data from env
     var url = window.location.toString();
@@ -125,8 +140,8 @@
             }else{
             if (!responses[r].answer) {
              continue;
-              } else if (!tempInfo!=("Also: ")){
-                tempinfo = tempInfo+", "};
+              } else if (tempInfo!=("Also: ")){
+                tempInfo = tempInfo+", "};
              tempInfo = tempInfo+responses[r].answer;
             };
            //alert(tempInfo); 
@@ -137,17 +152,9 @@
 
 
 
-//Create a new map with center at the average lat and the average lng
-  var map;
-    var myLatlng = new google.maps.LatLng(average(locations));
-    var myOptions = {
-      zoom: 7,
-      center: myLatlng,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    }
-  
-    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
+//Create a new map with center at the average lat and the average lng at zoom 7
+  var map = newMap(locations, 7)
+    
 
 //Take arrays for lats and lngs and draw markers on maps  
    
