@@ -57,7 +57,7 @@
   function attachLabel(marker, label) {
      var infowindow = new google.maps.InfoWindow(
         { content: (label+""),
-          size: new google.maps.Size(90,1100)
+          size: new google.maps.Size(150,200)
         });
     google.maps.event.addListener(marker, 'click', function() {
       infowindow.open(map,marker);
@@ -135,7 +135,6 @@
             var latLngStr = responses[r].answer;
             var lat = Number(latLngStr.substring(0, latLngStr.indexOf(',')))
             var lng = Number(latLngStr.substring(latLngStr.indexOf(',')+1))
-            //lats.push(lat); lngs.push(lng); templats.push(lat); templngs.push(lng);
             locations = locations.concat({latitude: lat, longitude: lng});
             }else{
             if (!responses[r].answer) {
@@ -144,7 +143,6 @@
                 tempInfo = tempInfo+", "};
              tempInfo = tempInfo+responses[r].answer;
             };
-           //alert(tempInfo); 
           otherInfo = otherInfo.concat("latitude: "+lat+", longitude: "+ lng+ "\r" +tempInfo);
           };
          };

@@ -88,6 +88,16 @@ public class ExperimentManagerActivity extends Activity {
       }
     });
     
+    ///////////////////Arun Just Added this///////////////
+    ImageButton exploreDataButton = (ImageButton) findViewById(R.id.ExploreDataBtn);
+    exploreDataButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        startActivity(new Intent(ExperimentManagerActivity.this,
+          ExploreDataActivity.class));
+      }
+    });
+    ////////////////To here////////
+    
     ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);
     // TODO (bobevans): disable create button until we implement client side creation of experiments
     createExperimentsButton.setEnabled(false);
