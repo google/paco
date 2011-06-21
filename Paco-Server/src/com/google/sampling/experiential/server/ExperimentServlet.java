@@ -101,11 +101,6 @@ public class ExperimentServlet extends HttpServlet {
             (experiment.getPublished() == true && 
                 (experiment.getPublishedUsers().size() == 0 || 
                     experiment.getPublishedUsers().contains(email)))) {
-          if (experiment.getInformedConsentForm() != null) {
-            experiment.getInformedConsentFormText();
-            experiment.getFeedback().get(0).getLongText();
-            pm.makePersistent(experiment);
-          }
           availableExperiments.add(experiment);
         }
       }
