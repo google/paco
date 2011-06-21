@@ -70,7 +70,7 @@ public class ExploreDataActivity extends Activity {
     Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
     chooseTrends.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        kindOfDataView (1);
+        gotoVarSelection(1);
         v.setVisibility(View.INVISIBLE);
       }     
       });
@@ -78,7 +78,7 @@ public class ExploreDataActivity extends Activity {
     Button chooseRelationships = (Button)findViewById(R.id.RelationshipsButton);
     chooseRelationships.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        kindOfDataView(2);
+        gotoVarSelection(2);
         v.setVisibility(View.INVISIBLE);
       }     
       });
@@ -86,18 +86,67 @@ public class ExploreDataActivity extends Activity {
     Button chooseDistributions = (Button)findViewById(R.id.DistributionsButton);
     chooseDistributions.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        kindOfDataView(3);
+        gotoVarSelection(3);
         v.setVisibility(View.INVISIBLE);
       }     
       });
     
   }
   
-  
-
-  protected void kindOfDataView(int i) {
-    // TODO(aksaigal): Auto-generated method stub
+  protected void gotoVarSelection(int i){
+    mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.variable_choices, null);
+    setContentView(mainLayout);
+    Intent intent = getIntent();
+    intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
+    showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    
+    userPrefs = new UserPreferences(this);
+    
+    list = (ListView)findViewById(R.id.find_experiments_list);
+    
+
+    
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    
+    String selectionArgs = null;
+
+    cursor = managedQuery(getIntent().getData(), 
+        new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
+        selectionArgs, 
+            null, null);
+    
+    SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
+      android.R.layout.simple_list_item_1, cursor, 
+      new String[] { ExperimentColumns.TITLE}, 
+      new int[] { android.R.id.text1}) {
+    
+      };
+      
+      list.setAdapter(adapter);
+      list.setOnItemClickListener(new OnItemClickListener() {
+        
+        public void onItemClick(AdapterView<?> listview, View textview, int position,
+            long id) {
+          Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
+          
+          String action = getIntent().getAction();
+          if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_GET_CONTENT.equals(action)) {
+              // The caller is waiting for us to return an experiment selected by
+              // the user.  The have clicked on one, so return it now.
+              setResult(RESULT_OK, new Intent().setData(uri));
+          } else {
+              // Launch activity to view/edit or run the currently selected experiment
+//            if (showingJoinedExperiments) {
+//              if (position == 0) {
+              Intent experimentIntent = new Intent(ExploreDataActivity.this, ExperimentExecutor.class);
+              experimentIntent.setData(uri);
+              startActivity(experimentIntent);
+              finish();
+//            } 
+          }
+        }
+      });
   }
 
 
@@ -110,6 +159,11 @@ public class ExploreDataActivity extends Activity {
   public void test(){
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
     setContentView(mainLayout);
+  }
+  
+
+  protected void refreshList() {    
+    new DownloadExperimentsTask(this, cursor, userPrefs, experimentProviderUtil, null).execute();
   }
 
 }

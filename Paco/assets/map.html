@@ -27,7 +27,6 @@
       sumLat+=arr[i].latitude;
       sumLng+=arr[i].longitude;
    }
-   alert((sumLat/arr.length), (sumLng/arr.length));
    return [(sumLat/arr.length), (sumLng/arr.length)];
 }
 
@@ -55,8 +54,8 @@
 //Function to Attach Labels
   
   function attachLabel(marker, label) {
-     var infowindow = new google.maps.InfoWindow(
-        { content: (label+""),
+     var infowindow = new google.maps.InfoWindow({
+          content: (label+""),
           size: new google.maps.Size(150,200)
         });
     google.maps.event.addListener(marker, 'click', function() {
@@ -137,10 +136,10 @@
             var lng = Number(latLngStr.substring(latLngStr.indexOf(',')+1))
             locations = locations.concat({latitude: lat, longitude: lng});
             }else{
-            if (!responses[r].answer) {
-             continue;
-              } else if (tempInfo!=("Also: ")){
-                tempInfo = tempInfo+", "};
+                if (!responses[r].answer) {
+                  continue;
+                } else if (tempInfo!=("Also: ")){
+                    tempInfo = tempInfo+", "};
              tempInfo = tempInfo+responses[r].answer;
             };
           otherInfo = otherInfo.concat("latitude: "+lat+", longitude: "+ lng+ "\r" +tempInfo);
