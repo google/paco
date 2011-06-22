@@ -39,6 +39,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -71,7 +75,6 @@ public class ExploreDataActivity extends Activity {
     chooseTrends.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(1);
-        v.setVisibility(View.INVISIBLE);
       }     
       });
     
@@ -79,7 +82,6 @@ public class ExploreDataActivity extends Activity {
     chooseRelationships.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(2);
-        v.setVisibility(View.INVISIBLE);
       }     
       });
     
@@ -87,7 +89,6 @@ public class ExploreDataActivity extends Activity {
     chooseDistributions.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(3);
-        v.setVisibility(View.INVISIBLE);
       }     
       });
     
@@ -103,21 +104,16 @@ public class ExploreDataActivity extends Activity {
     
     userPrefs = new UserPreferences(this);
     
-    list = (ListView)findViewById(R.id.find_experiments_list);
-    
-
-    
+    list = (ListView)findViewById(R.id.exploreable_experiments_list);
+        
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    String selectionArgs = null;
-
     cursor = managedQuery(getIntent().getData(), 
         new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
-        selectionArgs, 
-            null, null);
+        null, null, null);
     
     SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
-      android.R.layout.simple_list_item_1, cursor, 
+      android.R.layout.simple_list_item_multiple_choice, cursor, 
       new String[] { ExperimentColumns.TITLE}, 
       new int[] { android.R.id.text1}) {
     
@@ -128,23 +124,22 @@ public class ExploreDataActivity extends Activity {
         
         public void onItemClick(AdapterView<?> listview, View textview, int position,
             long id) {
+          
           Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
           
-          String action = getIntent().getAction();
-          if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_GET_CONTENT.equals(action)) {
-              // The caller is waiting for us to return an experiment selected by
-              // the user.  The have clicked on one, so return it now.
-              setResult(RESULT_OK, new Intent().setData(uri));
-          } else {
-              // Launch activity to view/edit or run the currently selected experiment
-//            if (showingJoinedExperiments) {
-//              if (position == 0) {
-              Intent experimentIntent = new Intent(ExploreDataActivity.this, ExperimentExecutor.class);
+          View sublist = findViewById(R.id.TrialCheckBoxes);
+          if (sublist.isShown())
+            sublist.setVisibility(View.GONE);
+          else
+            sublist.setVisibility(View.VISIBLE);
+          Toast.makeText(ExploreDataActivity.this, "This feature is still in progress.",
+            Toast.LENGTH_SHORT).show();
+          
+              /*Intent experimentIntent = new Intent(ExploreDataActivity.this, GetVariablesActivity.class);
               experimentIntent.setData(uri);
               startActivity(experimentIntent);
-              finish();
-//            } 
-          }
+              finish();*/
+
         }
       });
   }
@@ -161,9 +156,5 @@ public class ExploreDataActivity extends Activity {
     setContentView(mainLayout);
   }
   
-
-  protected void refreshList() {    
-    new DownloadExperimentsTask(this, cursor, userPrefs, experimentProviderUtil, null).execute();
-  }
 
 }

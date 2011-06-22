@@ -35,9 +35,17 @@
       android:background="@drawable/list_header_background"
       android:textColor="#ffffff" />
     <ListView android:layout_width="fill_parent"
-      android:layout_height="fill_parent" android:id="@+id/find_experiments_list"
-      android:layout_gravity="center|top" />
+      android:layout_gravity="center|top" android:id="@+id/exploreable_experiments_list" android:layout_height="wrap_content"/>
+   
+   <LinearLayout
+    android:orientation="vertical" android:id="@+id/TrialCheckBoxes" android:gravity="center|top" android:layout_gravity="center|top" android:layout_width="fill_parent" android:layout_height="wrap_content"
+    android:layout_weight="0" android:visibility="gone">
+      <CheckBox android:id="@+id/checkBox1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="         CheckBox"></CheckBox>
+      <CheckBox android:id="@+id/checkBox2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="         CheckBox"></CheckBox>
+      <CheckBox android:id="@+id/checkBox3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="         CheckBox"></CheckBox>
+      <CheckBox android:id="@+id/checkBox4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="         CheckBox"></CheckBox>
   </LinearLayout>
+   </LinearLayout>
   <LinearLayout
     android:orientation="vertical" 
     android:gravity="center|top"
