@@ -36,7 +36,8 @@
       android:textColor="#ffffff" />
     <ListView android:layout_width="fill_parent"
       android:layout_gravity="center|top" android:id="@+id/exploreable_experiments_list" android:layout_height="wrap_content"/>
-   
+    <ListView android:layout_width="fill_parent"
+      android:layout_gravity="center|top" android:id="@+id/exploreable_variables_list" android:layout_height="wrap_content"/>
    <LinearLayout
     android:orientation="vertical" android:id="@+id/TrialCheckBoxes" android:gravity="center|top" android:layout_gravity="center|top" android:layout_width="fill_parent" android:layout_height="wrap_content"
     android:layout_weight="0" android:visibility="gone">

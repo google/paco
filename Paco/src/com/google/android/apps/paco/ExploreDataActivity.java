@@ -19,8 +19,11 @@
 package com.google.android.apps.paco;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -28,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,6 +39,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -64,6 +70,10 @@ public class ExploreDataActivity extends Activity {
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private int kindOfDataView;
+  
+  // Choices that have been selected on a multiselect list.
+  private List<Integer> checkedChoices = new ArrayList<Integer>();
+  private List<ChangeListener> inputChangeListeners;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +110,7 @@ public class ExploreDataActivity extends Activity {
     Intent intent = getIntent();
     intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
-    showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    //showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
     userPrefs = new UserPreferences(this);
     
@@ -113,7 +123,7 @@ public class ExploreDataActivity extends Activity {
         null, null, null);
     
     SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
-      android.R.layout.simple_list_item_multiple_choice, cursor, 
+      android.R.layout.simple_list_item_1, cursor, 
       new String[] { ExperimentColumns.TITLE}, 
       new int[] { android.R.id.text1}) {
     
@@ -127,23 +137,14 @@ public class ExploreDataActivity extends Activity {
           
           Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
           
-          View sublist = findViewById(R.id.TrialCheckBoxes);
-          if (sublist.isShown())
-            sublist.setVisibility(View.GONE);
-          else
-            sublist.setVisibility(View.VISIBLE);
-          Toast.makeText(ExploreDataActivity.this, "This feature is still in progress.",
-            Toast.LENGTH_SHORT).show();
-          
-              /*Intent experimentIntent = new Intent(ExploreDataActivity.this, GetVariablesActivity.class);
+              Intent experimentIntent = new Intent(ExploreDataActivity.this, GetVariablesActivity.class);
               experimentIntent.setData(uri);
               startActivity(experimentIntent);
-              finish();*/
+              finish();
 
         }
       });
   }
-
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
