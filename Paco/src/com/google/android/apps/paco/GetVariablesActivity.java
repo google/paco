@@ -58,25 +58,11 @@ public class GetVariablesActivity extends ListActivity{
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private List<Input> inputs;
-  private LayoutInflater inflater;
-  private LinearLayout mainLayout;
-  private Button refreshButton;
-  private OptionsMenu optionsMenu;
-  private Long scheduledTime = 0L;
-  private LinearLayout inputsScrollPane;
-  private Object updateLock = new Object();
-  private UserPreferences userPrefs;
-  private ProgressDialog p;
-  
-  private ArrayList<InputLayout> locationInputs;
-  private Location location;
-
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    userPrefs = new UserPreferences(this);
     experiment = getExperimentFromIntent();
   
     experimentProviderUtil.loadInputsForExperiment(experiment);
@@ -88,8 +74,7 @@ public class GetVariablesActivity extends ListActivity{
      for (Input inp: inputs){
        inputNames.add(inp.getName());
      }
-     //List<String> inputs = new ArrayList<String>(); inputs.add("arun"); inputs.add("has"); inputs.add("come"); inputs.add("here");
-     View sublist = findViewById(R.id.TrialCheckBoxes);
+     findViewById(R.id.TrialCheckBoxes);
 
      setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_multiple_choice, inputNames));
      Toast.makeText(GetVariablesActivity.this, experiment.getTitle()+"",

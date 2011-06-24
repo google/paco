@@ -20,6 +20,8 @@ package com.google.android.apps.paco;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
@@ -70,6 +72,9 @@ public class ExploreDataActivity extends Activity {
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private int kindOfDataView;
+  private Experiment experiment;
+  private List<Input> inputs;
+  List<String> inputNames = new ArrayList<String>();
   
   // Choices that have been selected on a multiselect list.
   private List<Integer> checkedChoices = new ArrayList<Integer>();
@@ -104,7 +109,7 @@ public class ExploreDataActivity extends Activity {
     
   }
   
-  protected void gotoVarSelection(int i){
+  protected void gotoVarSelection(int which_option){
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.variable_choices, null);
     setContentView(mainLayout);
     Intent intent = getIntent();
@@ -134,18 +139,74 @@ public class ExploreDataActivity extends Activity {
         
         public void onItemClick(AdapterView<?> listview, View textview, int position,
             long id) {
+          inputNames = new ArrayList<String>();
+          experiment = experimentProviderUtil.getExperiment(id);
           
-          Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
+          experimentProviderUtil.loadInputsForExperiment(experiment);
           
-              Intent experimentIntent = new Intent(ExploreDataActivity.this, GetVariablesActivity.class);
-              experimentIntent.setData(uri);
-              startActivity(experimentIntent);
-              finish();
+          if (experiment!= null) {
+           inputs = experiment.getInputs();
+           
+           for (Input inp: inputs){
+             inputNames.add(inp.getName());
+           }
+           renderMultiSelectListButton();
+           
+           Button varOkButton = (Button) findViewById(R.id.VarOkButton);
+           varOkButton.setVisibility(View.VISIBLE);
+           
+           varOkButton.setOnClickListener(new OnClickListener() {
+             @Override
+             public void onClick(View v) {
+               //newFunction(i, List<vars>));
+             }
+           });
 
+          }
+          else{     Toast.makeText(ExploreDataActivity.this, "still null",
+            Toast.LENGTH_SHORT).show();}
+          
         }
       });
   }
+  
+  /////Partly From inputLayout
 
+  private View renderMultiSelectListButton() {
+
+
+    DialogInterface.OnMultiChoiceClickListener multiselectListDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+        if (isChecked)
+          checkedChoices.add(which + 1);
+        else
+          checkedChoices.remove(which - 1);
+      }
+    };
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(mainLayout.getContext());
+    builder.setTitle("Make selections");
+
+    boolean[] checkedChoicesBoolArray = new boolean[inputNames.size()];
+    int count = inputNames.size();
+
+    for (int i = 0; i < count; i++) {
+      checkedChoicesBoolArray[i] = checkedChoices.contains(inputNames.get(i));
+    }
+    String[] listChoices = new String[inputNames.size()];
+    inputNames.toArray(listChoices);
+    builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
+    AlertDialog multiSelectListDialog = builder.create();
+
+
+    multiSelectListDialog.show();
+
+
+    return multiSelectListDialog.getListView();
+  }
+  
+  /////////
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
