@@ -50,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -58,27 +59,17 @@ import java.util.List;
  */
 public class ExploreDataActivity extends Activity {
 
-  private static final int DATA_EXPERIMENT_OPTION = 3;
-  private static final int STOP_EXPERIMENT_OPTION = 2;
-  private static final int EDIT_EXPERIMENT_OPTION = 1;
-  static final int JOIN_REQUEST_CODE = 1;
-  static final int JOINED_EXPERIMENT = 1;
-  
-  private boolean showingJoinedExperiments;
   private Cursor cursor;
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
-  private ProgressDialog  p;
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
-  private int kindOfDataView;
   private Experiment experiment;
   private List<Input> inputs;
   List<String> inputNames = new ArrayList<String>();
   
   // Choices that have been selected on a multiselect list.
-  private List<Integer> checkedChoices = new ArrayList<Integer>();
-  private List<ChangeListener> inputChangeListeners;
+  private HashMap<Long, List<String>> checkedChoices = new HashMap<Long, List<String>>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -112,10 +103,17 @@ public class ExploreDataActivity extends Activity {
   protected void gotoVarSelection(int which_option){
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.variable_choices, null);
     setContentView(mainLayout);
+    
+    final Button varOkButton = (Button) findViewById(R.id.VarOkButton);
+    varOkButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        //newFunction(checkedChoices));
+      }
+    });
+    
     Intent intent = getIntent();
     intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-    
-    //showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
     userPrefs = new UserPreferences(this);
     
@@ -150,63 +148,69 @@ public class ExploreDataActivity extends Activity {
            for (Input inp: inputs){
              inputNames.add(inp.getName());
            }
-           renderMultiSelectListButton();
-           
-           Button varOkButton = (Button) findViewById(R.id.VarOkButton);
+           renderMultiSelectListButton(id);
+                      
            varOkButton.setVisibility(View.VISIBLE);
-           
-           varOkButton.setOnClickListener(new OnClickListener() {
-             @Override
-             public void onClick(View v) {
-               //newFunction(i, List<vars>));
-             }
-           });
 
-          }
-          else{     Toast.makeText(ExploreDataActivity.this, "still null",
+          }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
             Toast.LENGTH_SHORT).show();}
           
         }
       });
   }
-  
-  /////Partly From inputLayout
 
-  private View renderMultiSelectListButton() {
-
+  private View renderMultiSelectListButton(long ID) {
+    
+    final Long id = ID;
 
     DialogInterface.OnMultiChoiceClickListener multiselectListDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        if (isChecked)
-          checkedChoices.add(which + 1);
+        if (isChecked){
+          if (checkedChoices.get(id) !=null){
+            checkedChoices.get(id).add(inputNames.get(which));
+          }
+          else{
+            List<String> tempList = new ArrayList<String>();
+            tempList.add(inputNames.get(which));
+            checkedChoices.put(id, tempList);
+          }
+        }
         else
-          checkedChoices.remove(which - 1);
+          checkedChoices.get(id).remove(inputNames.get(which));
       }
     };
 
+    
     AlertDialog.Builder builder = new AlertDialog.Builder(mainLayout.getContext());
     builder.setTitle("Make selections");
 
     boolean[] checkedChoicesBoolArray = new boolean[inputNames.size()];
     int count = inputNames.size();
 
-    for (int i = 0; i < count; i++) {
-      checkedChoicesBoolArray[i] = checkedChoices.contains(inputNames.get(i));
+    if (checkedChoices.get(id) !=null){
+      for (int i = 0; i < count; i++) {
+        checkedChoicesBoolArray[i] = checkedChoices.get(id).contains(inputNames.get(i));
+      }
     }
     String[] listChoices = new String[inputNames.size()];
     inputNames.toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
+    builder.setPositiveButton("OK",
+      new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog,
+              int whichButton) {
+        Toast.makeText(ExploreDataActivity.this, checkedChoices.toString(),
+          Toast.LENGTH_SHORT).show();
+
+      }
+      });
     AlertDialog multiSelectListDialog = builder.create();
-
-
     multiSelectListDialog.show();
-
-
     return multiSelectListDialog.getListView();
   }
-  
-  /////////
+
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
