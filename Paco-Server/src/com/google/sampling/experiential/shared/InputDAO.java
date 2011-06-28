@@ -37,6 +37,7 @@ public class InputDAO implements Serializable {
    */
   public static final String QUESTION = "question";
   public static final String LIKERT = "likert";
+  public static final String LIKERT_SMILEYS = "likert_smileys";  
   public static final String OPEN_TEXT = "open text";
   public static final String LIST = "list";
   public static final String NUMBER = "number";
@@ -45,7 +46,7 @@ public class InputDAO implements Serializable {
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
   
-  public static String[] RESPONSE_TYPES = {LIKERT, OPEN_TEXT, LIST, NUMBER, 
+  public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER, 
     LOCATION, PHOTO, SOUND, ACTIVITY};
 
   private Long id; 

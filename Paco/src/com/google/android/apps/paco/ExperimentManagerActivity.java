@@ -37,7 +37,7 @@ import com.google.sampling.experiential.android.lib.GoogleAccountLoginHelper;
  */
 public class ExperimentManagerActivity extends Activity {
 
-  private static final String FEEDBACK_EMAIL_ADDRESS = "paco-opensource@google.com";
+  private static final String DEFAULT_FEEDBACK_EMAIL_ADDRESS = "paco-opensource@google.com";
   private static final int ABOUT_PACO_ITEM = 3;
   private static final int DEBUG_ITEM = 4;
   private static final int SERVER_ADDRESS_ITEM = 5;
@@ -51,10 +51,16 @@ public class ExperimentManagerActivity extends Activity {
   private GoogleAccountLoginHelper loginHelper;
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
-
+  private String feedbackEmailAddress;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    feedbackEmailAddress = (String) getText(R.string.about_googlegroups);
+    if (feedbackEmailAddress == null) {
+      feedbackEmailAddress = DEFAULT_FEEDBACK_EMAIL_ADDRESS;
+    }
+    
  // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
     Experiment experiment = getExperimentFromIntent();
@@ -121,7 +127,7 @@ public class ExperimentManagerActivity extends Activity {
 
   private void createEmailIntent() {
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    String aEmailList[] = { FEEDBACK_EMAIL_ADDRESS };
+    String aEmailList[] = { feedbackEmailAddress };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
     emailIntent.setType("plain/text");

@@ -32,6 +32,7 @@ public class Input implements Parcelable {
   public static final String LIST = "list";
   public static final String LIKERT = "likert";
   public static final String OPEN_TEXT = "open text";
+  public static final String LIKERT_SMILEYS = "likert_smileys";  
   public static final String NUMBER = "number";
   public static final String LOCATION = "location";
   public static final String PHOTO = "photo";
@@ -61,7 +62,6 @@ public class Input implements Parcelable {
         input.leftSideLabel = source.readString();
         input.rightSideLabel = source.readString();
       }
-      
       input.conditional = source.readInt() == 1;
       input.conditionExpression = source.readString();
       input.multiselect = source.readInt() == 1;

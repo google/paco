@@ -88,6 +88,9 @@ public class ChartPanel extends Composite {
     } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           getLikertCategories()));
+    } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
+      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
+      getLikertSmileyCategories()));
     } else {
       verticalPanel.add(cm.createLineChart(eventList, "", input.getName()));
     }
@@ -111,6 +114,15 @@ public class ChartPanel extends Composite {
                                                    + " (" + (input.getLikertSteps()) + ")"; 
     for (int i=1;i < (input.getLikertSteps() - 1); i++) {
       choices[i] = "(" + (i + 1) + ")";
+    }
+    return choices;
+  }
+
+  private String[] getLikertSmileyCategories() {
+    final int smiley_count = 5;
+    String[] choices = new String[smiley_count];
+    for (int i=0;i < 5; i++) {
+      choices[i] = Integer.toString(i + 1);
     }
     return choices;
   }

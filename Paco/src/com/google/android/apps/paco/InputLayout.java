@@ -141,7 +141,9 @@ public class InputLayout extends LinearLayout {
     if (!isVisible()) {
       return null;
     }
-    if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+      return getGeistNowLikertValue();
+    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
       return getOpenTextValue();
     } else if (input.getResponseType().equals(Input.LIKERT)) {
       return getLikertValue();
@@ -158,7 +160,9 @@ public class InputLayout extends LinearLayout {
   }
 
   public Class getResponseType() {
-    if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+      return Integer.class;
+    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
       return String.class;
     } else if (input.getResponseType().equals(Input.LIKERT)) {
       return Integer.class;
@@ -312,7 +316,9 @@ public class InputLayout extends LinearLayout {
 
   private View getInputResponseTypeView(Input input) {
     String questionType = input.getResponseType();
-    if (questionType.equals(Input.OPEN_TEXT)) {
+    if (questionType.equals(Input.LIKERT_SMILEYS)) {
+      return renderGeistNowSmilerLikert(input.getLikertSteps());
+    } else if (questionType.equals(Input.OPEN_TEXT)) {
       return renderOpenText();
     } else if (questionType.equals(Input.LIKERT)) {
       return renderLikert(input);
@@ -646,6 +652,49 @@ public class InputLayout extends LinearLayout {
 
   private boolean isVisible() {
     return getVisibility() == VISIBLE;
+  }
+
+  private String getGeistNowLikertValue() {
+    int value = -1;
+    switch(((RadioGroup)componentWithValue).getCheckedRadioButtonId()) {
+    case R.id.RadioButton_1:
+      value = 1;
+      break;
+    case R.id.RadioButton_2:
+      value = 2;
+      break;
+    case R.id.RadioButton_3:
+      value = 3;
+      break;
+    case R.id.RadioButton_4:
+      value = 4;
+      break;
+    case R.id.RadioButton_5:
+      value = 5;
+      break;
+    default:
+      //nothing is selected;
+      // TODO (bobevans), deal with validation of mandatory inputs 
+      value = -1;
+    }
+    return Integer.toString(value);
+  }
+
+  private View renderGeistNowSmilerLikert(Integer likertSteps) {
+    // create a GeistNow radio group with # of steps and images
+    if (likertSteps != null && likertSteps != 5) {
+      throw new RuntimeException("Currently we are only doing the GeistNow 5 step likert scale.");
+    }
+    View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_geistnow, this, true);
+    RadioGroup findViewById = (RadioGroup) findViewById(R.id.GeistNowRadioGroup);
+    findViewById.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+      public void onCheckedChanged(RadioGroup group, int checkedId) {
+        notifyChangeListeners();
+      }
+      
+    });
+    return findViewById;
   }
 
 }

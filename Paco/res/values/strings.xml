@@ -19,6 +19,8 @@
     <string name="app_name">PACO</string>
     
   <string name="version">2.0.40</string>
+  <string name="server">localhost:8888</string>
+  <string name="emailSuffix">\@gmail.com</string>
   <string name="about_googlegroups">pacoserve@googlegroups.com</string>
   <string name="about_weburl">pacoserve.appspot.com</string>
   <string name="about_copyright_message">Copyright 2011 Google Inc.</string>
