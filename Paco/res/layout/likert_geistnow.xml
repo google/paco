@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content">
+   <RadioGroup android:id="@+id/GeistNowRadioGroup"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dip"
+                android:layout_width="fill_parent"
+                android:layout_gravity="center"
+                android:gravity="center">
+                <RadioButton android:id="@+id/RadioButton_1"
+                        android:layout_gravity="center" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_width="wrap_content"
+                        android:minWidth="58px" android:button="@drawable/smiley1_button" />
+                <RadioButton android:id="@+id/RadioButton_2"
+                        android:layout_gravity="center" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_width="wrap_content"
+                        android:minWidth="58px" android:button="@drawable/smiley2_button" />
+                <RadioButton android:id="@+id/RadioButton_3"
+                        android:layout_gravity="center" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_width="wrap_content"
+                        android:minWidth="58px" android:button="@drawable/smiley3_button" />
+                <RadioButton android:id="@+id/RadioButton_4"
+                        android:layout_gravity="center" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_width="wrap_content"
+                        android:minWidth="58px" android:button="@drawable/smiley4_button" />
+                <RadioButton android:id="@+id/RadioButton_5"
+                        android:layout_gravity="center" android:gravity="center"
+                        android:layout_height="wrap_content" android:layout_width="wrap_content"
+                        android:minWidth="58px" android:button="@drawable/smiley5_button" />
+        </RadioGroup>
+  
+</merge>

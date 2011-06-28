@@ -46,7 +46,6 @@ public class UserPreferences {
 
   private static final String SERVER_ADDRESS_KEY = "server_address";
 
-  private static final String DEFAULT_SERVER_ADDRESS = "quantifiedself.appspot.com";
 
   private static final String APP_PREFERENCES = "app_prefs";
 
@@ -90,7 +89,7 @@ public class UserPreferences {
   }
 
   public String getServerAddress() {
-    return getServerAddressPref().getString(SERVER_ADDRESS_KEY, DEFAULT_SERVER_ADDRESS);
+    return getServerAddressPref().getString(SERVER_ADDRESS_KEY, (String)context.getText(R.string.server));
   }
   
   SharedPreferences getAppPrefs() {
@@ -127,6 +126,11 @@ public class UserPreferences {
   public String getPhotoAddress() {
     SharedPreferences pref = getPhotoAddressPref();
     return pref.getString(LAST_PHOTO_ADDRESS, null);
+  }
+
+  public String getGoogleEmailType() {
+    return (String) context.getText(R.string.emailSuffix);
+    
   }
   
 }

@@ -93,11 +93,11 @@ public class ExperimentProvider extends ContentProvider {
    */
   private static class DatabaseHelper extends SQLiteOpenHelper {
 
-	private InputStream sqlInput;
+//	private InputStream sqlInput;
 
-	DatabaseHelper(Context context, InputStream in) {
+	DatabaseHelper(Context context/*, InputStream in*/) {
 	  super(context, DATABASE_NAME, null, DATABASE_VERSION);
-	  this.sqlInput = in;
+//	  this.sqlInput = in;
 	}
 
 	@Override
@@ -202,18 +202,18 @@ public class ExperimentProvider extends ContentProvider {
           + ";");
 	  	}
 	
-	public void insertValues(SQLiteDatabase db) {
-	  String CurLine = "";
-	  InputStreamReader converter = new InputStreamReader(sqlInput);
-	  BufferedReader in = new BufferedReader(converter);
-	  try {
-		while ((CurLine = in.readLine()) != null) {
-		  db.execSQL(CurLine);
-		}
-	  } catch (IOException e) {
-		Log.e(TAG, "error reading insert values");
-	  }
-	}
+//	public void insertValues(SQLiteDatabase db) {
+//	  String CurLine = "";
+//	  InputStreamReader converter = new InputStreamReader(sqlInput);
+//	  BufferedReader in = new BufferedReader(converter);
+//	  try {
+//		while ((CurLine = in.readLine()) != null) {
+//		  db.execSQL(CurLine);
+//		}
+//	  } catch (IOException e) {
+//		Log.e(TAG, "error reading insert values");
+//	  }
+//	}
   }
 
   private SQLiteDatabase db;
@@ -243,14 +243,9 @@ public class ExperimentProvider extends ContentProvider {
   
   @Override
   public boolean onCreate() {
-	try {
-	  DatabaseHelper dbHelper = new DatabaseHelper(getContext(),
-      	getContext().getAssets().open("insert.sql"));
-	  db = dbHelper.getWritableDatabase();
-	} catch (IOException e) {
-	  e.printStackTrace();
-	  return false;
-	}
+	DatabaseHelper dbHelper = new DatabaseHelper(getContext()/*,
+    	getContext().getAssets().open("insert.sql")*/);
+    db = dbHelper.getWritableDatabase();
 	return db != null;
   } 
 

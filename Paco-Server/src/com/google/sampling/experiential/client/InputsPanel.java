@@ -205,6 +205,7 @@ public class InputsPanel extends Composite {
     rp.add(responseTypeLabel);
 
     final ListBox responseType = new ListBox();
+    responseType.addItem(InputDAO.LIKERT_SMILEYS);    
     responseType.addItem(InputDAO.LIKERT);
     responseType.addItem(InputDAO.OPEN_TEXT);
     responseType.addItem(InputDAO.LIST);

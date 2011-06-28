@@ -54,7 +54,8 @@ public class ResponseViewPanel extends Composite {
     this.input = input;
     mainPanel.clear();
     String responseType = input.getResponseType();
-    if (responseType == null || responseType.equals(InputDAO.OPEN_TEXT)) {
+    if (responseType == null  || responseType.equals(InputDAO.LIKERT_SMILEYS)
+        || responseType.equals(InputDAO.OPEN_TEXT)) {
       mainPanel.setVisible(false);
     } else if (responseType.equals(InputDAO.LIKERT)) {
       drawLikertStepsPanel();

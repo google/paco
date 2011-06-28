@@ -300,7 +300,7 @@ public class FeedbackActivity extends Activity {
     }
     Account[] accounts = AccountManager.get(this).getAccounts();
     for (Account account : accounts) {
-      if (userEmail == null || userEmail.isEmpty()) {
+      if (userEmail == null || userEmail.length() == 0) {
         return account.name; // return first
       } 
       
