@@ -685,7 +685,7 @@ public class InputLayout extends LinearLayout {
     if (likertSteps != null && likertSteps != 5) {
       throw new RuntimeException("Currently we are only doing the GeistNow 5 step likert scale.");
     }
-    View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_geistnow, this, true);
+    View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_smiley, this, true);
     RadioGroup findViewById = (RadioGroup) findViewById(R.id.GeistNowRadioGroup);
     findViewById.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
