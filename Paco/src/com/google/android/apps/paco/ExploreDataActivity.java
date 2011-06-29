@@ -189,7 +189,7 @@ public class ExploreDataActivity extends Activity {
           if (experiment!= null) {
            //inputs = experiment.getInputs();
            inputIds = getInputIds(experiment.getInputs());
-           inpNames = inputNames(experiment.getInputs());
+           inpNames = getInputNames(experiment.getInputs());
            renderMultiSelectListButton(id);
            varOkButton.setVisibility(View.VISIBLE);
           }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
@@ -242,10 +242,11 @@ public class ExploreDataActivity extends Activity {
       @Override
       public void onClick(DialogInterface dialog,
               int whichButton) {
-        Toast.makeText(ExploreDataActivity.this, checkedChoices.values().toString(),
+        Toast.makeText(ExploreDataActivity.this, getStringValues(checkedChoices),//checkedChoices.toString(),
           Toast.LENGTH_SHORT).show();
 
       }
+
       });
     AlertDialog multiSelectListDialog = builder.create();
     multiSelectListDialog.show();
@@ -342,7 +343,7 @@ public class ExploreDataActivity extends Activity {
     Toast.makeText(ExploreDataActivity.this, "Sorry, please select exactly two variables.",
       Toast.LENGTH_SHORT).show();
     }
-  private List<String> inputNames(List<Input> i){
+  private List<String> getInputNames(List<Input> i){
     List<String> tempInputNames = new ArrayList<String>();
     for (Input inp: i){
       tempInputNames.add(inp.getName());
@@ -358,6 +359,21 @@ public class ExploreDataActivity extends Activity {
     return tempIds;
   }
   
+  
+  private String getStringValues(HashMap<Long, List<Long>> checked) {
+    String finalString = "";
+    List<Long> tempVals;
+    for (Long experimentId: checked.keySet()){
+      tempVals = checked.get(experimentId);
+      Experiment e = experimentProviderUtil.getExperiment(experimentId);
+      experimentProviderUtil.loadInputsForExperiment(e);
+      for (Long val: tempVals){
+        finalString+=(e.getInputById(val).getName()+"  ");
+      }
+    }
+    
+    return finalString;
+  }
   
 ///////Copied from FeedbackActivity\\\\\\\\\\\\
   private String convertExperimentResultsToJsonString(final Feedback feedback) {
