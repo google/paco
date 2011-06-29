@@ -183,7 +183,8 @@ public class ExperimentProviderUtil {
             insertSchedule(schedule);
             insertInputsForJoinedExperiment(existingExperiment);
             insertFeedbackForJoinedExperiment(existingExperiment);
-            
+            copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
+            updateJoinedExperiment(existingExperiment);
             // delete all feedback 
             // insert feedback
           }/* else {          
@@ -199,6 +200,18 @@ public class ExperimentProviderUtil {
     }  
   }
 
+
+  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
+    existingExperiment.setCreator(experiment.getCreator());
+    existingExperiment.setDescription(experiment.getDescription());
+    existingExperiment.setEndDate(existingExperiment.getEndDate());
+    existingExperiment.setFixedDuration(experiment.isFixedDuration());
+    existingExperiment.setIcon(experiment.getIcon());
+    existingExperiment.setInformedConsentForm(experiment.getInformedConsentForm());
+    existingExperiment.setQuestionsChange(experiment.isQuestionsChange());
+    existingExperiment.setStartDate(experiment.getStartDate());
+    existingExperiment.setTitle(experiment.getTitle());
+  }
 
   private void deleteFullExperiment(Experiment experiment2) {
     deleteScheduleForExperiment(experiment2.getId());
