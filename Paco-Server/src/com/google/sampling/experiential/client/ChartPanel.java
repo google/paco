@@ -84,13 +84,13 @@ public class ChartPanel extends Composite {
       verticalPanel.add(renderEventsOnMap());
     } else if (input.getResponseType().equals(InputDAO.LIST)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-          input.getListChoices()));
+          input.getListChoices(), input.getMultiselect()));
     } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-          getLikertCategories()));
+          getLikertCategories(), false));
     } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-      getLikertSmileyCategories()));
+      getLikertSmileyCategories(), false));
     } else {
       verticalPanel.add(cm.createLineChart(eventList, "", input.getName()));
     }

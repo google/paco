@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -713,7 +714,7 @@ public class ChartOMundo {
   }
 
   public ColumnChart createBarChartForList(List<EventDAO> eventList, String chartTitle,
-      String changingParameterKey, String[] strings) {
+      String changingParameterKey, String[] listChoices, Boolean multiselectList) {
     String xAxis = changingParameterKey;
     String yAxis = "Count";
 
@@ -728,19 +729,30 @@ public class ChartOMundo {
       if (activity == null) {
         continue;
       }
-      Integer activityCount = counts.get(activity);
-      if (activityCount == null) {
-        activityCount = 0;
+      List<String> activities = Lists.newArrayList();
+      if (multiselectList) {
+        for (String currentActivity : Splitter.on(',').split(activity)) {
+          activities.add(currentActivity);
+        }
+      } else {
+        activities.add(activity);
       }
-      counts.put(activity, activityCount + 1);
+      for (String currentActivity : activities) {
+        Integer activityCount = counts.get(currentActivity);
+        if (activityCount == null) {
+          activityCount = 0;
+        }
+        counts.put(currentActivity, activityCount + 1);  
+      }
+      
     }
 
-    data.addRows(strings.length);
+    data.addRows(listChoices.length);
 
     int row = 0;
 //    for (String key : counts.keySet()) {
-    for (int i=0; i < strings.length; i++) {
-      data.setValue(row, 0, strings[i]);
+    for (int i=0; i < listChoices.length; i++) {
+      data.setValue(row, 0, listChoices[i]);
       int countForChoice = 0;
       String iStr = Integer.toString(i + 1); 
       //everything is offset by 1 because listchoices are 1-n, not zero based
