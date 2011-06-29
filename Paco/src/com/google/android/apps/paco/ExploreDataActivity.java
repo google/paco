@@ -75,12 +75,12 @@ public class ExploreDataActivity extends Activity {
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private Experiment experiment;
-  private List<Input> inputs;
-  List<String> inputNames = new ArrayList<String>();
+  private List<Long> inputIds;
   private WebView webView;
   private Button rawDataButton;
   // Choices that have been selected on a multiselect list in a dialog.
-  private HashMap<Long, List<String>> checkedChoices = new HashMap<Long, List<String>>();
+  private HashMap<Long, List<Long>> checkedChoices = new HashMap<Long, List<Long>>();
+  List<String> inpNames;
   
   
   
@@ -183,15 +183,13 @@ public class ExploreDataActivity extends Activity {
         
         public void onItemClick(AdapterView<?> listview, View textview, int position,
             long id) {
-          inputNames = new ArrayList<String>();
           experiment = experimentProviderUtil.getExperiment(id);
           experimentProviderUtil.loadInputsForExperiment(experiment);
           
           if (experiment!= null) {
-           inputs = experiment.getInputs();
-           for (Input inp: inputs){
-             inputNames.add(inp.getName());
-           }
+           //inputs = experiment.getInputs();
+           inputIds = getInputIds(experiment.getInputs());
+           inpNames = inputNames(experiment.getInputs());
            renderMultiSelectListButton(id);
            varOkButton.setVisibility(View.VISIBLE);
           }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
@@ -210,15 +208,15 @@ public class ExploreDataActivity extends Activity {
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         if (isChecked){
           if (checkedChoices.get(id) !=null){
-            checkedChoices.get(id).add(inputNames.get(which));
+            checkedChoices.get(id).add(inputIds.get(which));
           }
           else{
-            List<String> tempList = new ArrayList<String>();
-            tempList.add(inputNames.get(which));
+            List<Long> tempList = new ArrayList<Long>();
+            tempList.add(inputIds.get(which));
             checkedChoices.put(id, tempList);
           }
         }else{
-          checkedChoices.get(id).remove(inputNames.get(which));
+          checkedChoices.get(id).remove(inputIds.get(which));
           if (checkedChoices.get(id).isEmpty())
             checkedChoices.remove(id);
         }
@@ -228,23 +226,23 @@ public class ExploreDataActivity extends Activity {
     AlertDialog.Builder builder = new AlertDialog.Builder(mainLayout.getContext());
     builder.setTitle("Make selections");
 
-    boolean[] checkedChoicesBoolArray = new boolean[inputNames.size()];
-    int count = inputNames.size();
+    boolean[] checkedChoicesBoolArray = new boolean[inputIds.size()];
+    int count = inputIds.size();
 
     if (checkedChoices.get(id) !=null){
       for (int i = 0; i < count; i++) {
-        checkedChoicesBoolArray[i] = checkedChoices.get(id).contains(inputNames.get(i));
+        checkedChoicesBoolArray[i] = checkedChoices.get(id).contains(inputIds.get(i));
       }
     }
-    String[] listChoices = new String[inputNames.size()];
-    inputNames.toArray(listChoices);
+    String[] listChoices = new String[inputIds.size()];
+    inpNames.toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton("OK",
       new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog,
               int whichButton) {
-        Toast.makeText(ExploreDataActivity.this, checkedChoices.toString(),
+        Toast.makeText(ExploreDataActivity.this, checkedChoices.values().toString(),
           Toast.LENGTH_SHORT).show();
 
       }
@@ -255,12 +253,12 @@ public class ExploreDataActivity extends Activity {
   }
   
   //When the OK button is hit, make a take the variables chosen and look at the 
-  private void analyzeData(HashMap<Long, List<String>> choices, int whichOpt) {
+  private void analyzeData(HashMap<Long, List<Long>> choices, int whichOpt) {
     if (whichOpt == 1){
-      if (!(checkedChoices.keySet().isEmpty()) && checkedChoices.keySet().size()==1){
-        for (Long key:checkedChoices.keySet()){
-          if (checkedChoices.get(key).size()==1){
-            executeTrends(key, checkedChoices.get(key).get(0));
+      if (!(choices.keySet().isEmpty()) && choices.keySet().size()==1){
+        for (Long key:choices.keySet()){
+          if (choices.get(key).size()==1){
+            executeTrends(key, choices.get(key).get(0));
           }else{
             chooseOneToast();
           }
@@ -269,10 +267,10 @@ public class ExploreDataActivity extends Activity {
         chooseOneToast();
       }
    }else if(whichOpt == 2){  /////Nothing here really works. It is more of a placeholder
-       if (!(checkedChoices.keySet().isEmpty()) && checkedChoices.keySet().size()<=2){
-         for (Long key:checkedChoices.keySet()){
-           if (checkedChoices.get(key).size()==2 && checkedChoices.keySet().size()==1){
-             executeRelationships(key, checkedChoices.get(key));
+       if (!(choices.keySet().isEmpty()) && choices.keySet().size()<=2){
+         for (Long key:choices.keySet()){
+           if (choices.get(key).size()==2 && choices.keySet().size()==1){
+             executeRelationships(key, choices.get(key));
            }else{
              chooseTwoToast();
            }
@@ -284,7 +282,7 @@ public class ExploreDataActivity extends Activity {
     
   }
 
-  private void executeTrends(Long expId, String varName) {
+  private void executeTrends(Long expId, Long inpId) {
     experiment = experimentProviderUtil.getExperiment(expId);
     if (experiment == null) {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
@@ -299,6 +297,7 @@ public class ExploreDataActivity extends Activity {
       final Map<String,String> map = new HashMap<String, String>();      
       map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
       map.put("title", experiment.getTitle());
+      map.put("chosenVar", inpId+"");
       
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
       rawDataButton.setOnClickListener(new OnClickListener() {        
@@ -319,12 +318,12 @@ public class ExploreDataActivity extends Activity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
       webView.setWebViewClient(webViewClient);
       
-      webView.loadUrl("file:///android_asset/default_feedback.html");
+      webView.loadUrl("file:///android_asset/straightToTime.html");
     }
   }
 
   ////PlaceHolder
-  private void executeRelationships(Long expId, List<String> strList) {
+  private void executeRelationships(Long expId, List<Long> list2) {
     //do things
   }
   
@@ -343,8 +342,21 @@ public class ExploreDataActivity extends Activity {
     Toast.makeText(ExploreDataActivity.this, "Sorry, please select exactly two variables.",
       Toast.LENGTH_SHORT).show();
     }
+  private List<String> inputNames(List<Input> i){
+    List<String> tempInputNames = new ArrayList<String>();
+    for (Input inp: i){
+      tempInputNames.add(inp.getName());
+    }
+    return tempInputNames;
+  }
   
-  
+  private List<Long> getInputIds(List<Input> inputs){
+    List<Long> tempIds = new ArrayList<Long>();
+    for (Input inp: inputs){
+      tempIds.add(inp.getServerId());
+    }
+    return tempIds;
+  }
   
   
 ///////Copied from FeedbackActivity\\\\\\\\\\\\
@@ -394,6 +406,56 @@ public class ExploreDataActivity extends Activity {
     String experimentDataAsJson = experimentData.toString();
     return experimentDataAsJson;
   }
+  
+  
+  private String convertSingleExperimentResultsToJsonString(final Feedback feedback, String rName) {
+    final JSONArray experimentData = new JSONArray();
+    for (Event event : experiment.getEvents()) {
+      try {
+        JSONObject eventObject = new JSONObject();
+        boolean missed = event.getResponseTime() == null;
+        eventObject.put("isMissedSignal", missed);
+        if (!missed) {
+          eventObject.put("responseTime", event.getResponseTime().getMillis());
+        }
+        
+        boolean selfReport = event.getScheduledTime() == null;
+        eventObject.put("isSelfReport", selfReport);
+        if (!selfReport) {
+          eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
+        }
+        
+        
+        
+        JSONArray responses = new JSONArray();
+        for (Output response : event.getResponses()) {
+          //if (response.getName() == rName){
+            JSONObject responseJson = new JSONObject();
+            Input input = experiment.getInputById(response.getInputServerId());     
+            if (input == null) {
+              continue;
+            }
+            responseJson.put("inputId", input.getServerId());
+            responseJson.put("inputName", input.getName());
+            responseJson.put("responseType", input.getResponseType());
+            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
+            responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
+            responseJson.put("answerOrder", response.getAnswer());  
+            responses.put(responseJson);
+          }          
+        //}
+        eventObject.put("responses", responses);
+        if (responses.length() > 0) {
+          experimentData.put(eventObject);
+        }
+      } catch (JSONException jse) {
+        // skip this event and do the next event. 
+      }
+    }
+    String experimentDataAsJson = experimentData.toString();
+    return experimentDataAsJson;
+  }
+  
   
   private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     webView.setWebChromeClient(new WebChromeClient() {
