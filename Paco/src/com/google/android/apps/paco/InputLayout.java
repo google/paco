@@ -29,6 +29,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -297,7 +298,7 @@ public class InputLayout extends LinearLayout {
       } else {
         buf.append(",");
       }
-      buf.append(choice);
+      buf.append(choice + 1);
     }
     return buf.toString();
   }
@@ -458,9 +459,9 @@ public class InputLayout extends LinearLayout {
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         if (isChecked)
-          checkedChoices.add(which + 1);
+          checkedChoices.add(new Integer(which));
         else
-          checkedChoices.remove(which - 1);
+          checkedChoices.remove(new Integer(which));
       }
     };
 
@@ -476,6 +477,14 @@ public class InputLayout extends LinearLayout {
     String[] listChoices = new String[input.getListChoices().size()];
     input.getListChoices().toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
+    builder.setPositiveButton("Done", new Dialog.OnClickListener() {
+      
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        dialog.dismiss();
+        
+      }
+    });
     final AlertDialog multiSelectListDialog = builder.create();
 
     multiSelectListButton.setOnClickListener(new OnClickListener() {
