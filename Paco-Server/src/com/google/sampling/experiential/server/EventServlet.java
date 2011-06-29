@@ -838,10 +838,10 @@ public class EventServlet extends HttpServlet {
     columns.add(4, "appId");
     columns.add(5, "pacoVersion");
     columns.add(6, "experimentName");
-    columns.add(7, "experimentId");
-    columns.add(8, "scheduledTime");
-    columns.add(9, "responseTime");
-
+    columns.add(7, "experimentId");    
+    columns.add(8, "responseTime");
+    columns.add(9, "scheduledTime");
+    
     resp.setContentType("text/csv");
     CSVWriter csvWriter = null;
     try {
