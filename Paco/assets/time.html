@@ -92,7 +92,10 @@
       }  
   
       if (responseType == "number" ||
-        (responseType == "open text" && sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer))) {
+        (responseType == "open text" && sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer))
+         || 
+        responseType == "likert" ||
+        responseType == "likert_smileys") {
 
         var trendD = [];
         var previousTrend = null;  
@@ -136,9 +139,7 @@
             yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 }
           });
         });
-      } else if (responseType == "list" || 
-        responseType == "likert" ||
-        responseType == "likert_smileys") {
+      } else if (responseType == "list") {
         var counts = []; // counts for each answer
         var orderedKeys = []; // keep track of the response value ordering (ie, ordinal likert) 
         for (var j = 0; j < expdata.length; j++) {
@@ -146,12 +147,26 @@
           for (var r = 0; r < responses.length; r++) {
             if (responses[r].inputId == inputid) {
               var answer = responses[r].answer;
-              var currentCount = counts[answer];
-              if (currentCount) {
-                counts[answer] = currentCount + 1;
+              var answers = [];
+              var answerOrders = [];
+              if (responseType == "list" && responses[r].isMultiselect) {                
+                answers = answer.split(',');
+                answerOrders = responses[r].answerOrder.split(',');                                
               } else {
-                counts[answer] = 1;
-                orderedKeys[responses[r].answerOrder] = answer;
+                answers.push(answer);
+                answerOrders.push(responses[r].answerOrder);
+              }
+              
+              for (var currentAnswerIndex in answers) if (answers.hasOwnProperty(currentAnswerIndex)) {
+               var currentAnswer = answers[currentAnswerIndex];  
+                        
+                var currentCount = counts[currentAnswer];
+                if (currentCount) {
+                    counts[currentAnswer] = currentCount + 1;
+                } else {
+                    counts[currentAnswer] = 1;
+                    orderedKeys[answerOrders[answers.indexOf(currentAnswer)]] = currentAnswer;
+                }
               } 
             }
           }
@@ -166,7 +181,6 @@
           if (!orderedKeys.hasOwnProperty(key)) {
             continue;
           }
-      
           var countForKey = counts[orderedKeys[key]];
           if (!countForKey) {
             countForKey = 0;

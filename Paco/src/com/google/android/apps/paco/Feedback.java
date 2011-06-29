@@ -21,6 +21,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.text.TextUtils.StringSplitter;
 
 public class Feedback implements Parcelable {
 
@@ -146,8 +148,21 @@ public class Feedback implements Parcelable {
     if (input.getResponseType().equals(Input.LIST)) {
       if (!input.isMultiselect()) {
         return input.getListChoices().get(Integer.parseInt(output.getAnswer()) -1);
+      } 
+      // split answer, then retrieve list choice for each and return an array!?
+      StringSplitter stringSplitter = new TextUtils.SimpleStringSplitter(',');
+      stringSplitter.setString(output.getAnswer());
+      boolean first = true;
+      StringBuilder buf = new StringBuilder();
+      for (String piece : stringSplitter) {
+        if (first) {
+          first = false;
+        } else {
+          buf.append(",");
+        }
+        buf.append(input.getListChoices().get(Integer.parseInt(piece) - 1));
       }
-      return output.getAnswer();
+      return buf.toString();
     }
     if (input.getResponseType().equals(Input.LIKERT) && output.getAnswer() != null) {
       int intAnswer = Integer.parseInt(output.getAnswer());

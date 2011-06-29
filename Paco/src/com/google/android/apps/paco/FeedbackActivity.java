@@ -234,6 +234,7 @@ public class FeedbackActivity extends Activity {
           responseJson.put("inputId", input.getServerId());
           responseJson.put("inputName", input.getName());
           responseJson.put("responseType", input.getResponseType());
+          responseJson.put("isMultiselect", input.isMultiselect());
           responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
           responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
           responseJson.put("answerOrder", response.getAnswer());  
