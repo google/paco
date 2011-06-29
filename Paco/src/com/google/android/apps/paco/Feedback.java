@@ -166,12 +166,12 @@ public class Feedback implements Parcelable {
     }
     if (input.getResponseType().equals(Input.LIKERT) && output.getAnswer() != null) {
       int intAnswer = Integer.parseInt(output.getAnswer());
-      if (intAnswer == 1 && input.getLeftSideLabel() != null && input.getLeftSideLabel().length() > 0) {
-        return input.getLeftSideLabel();
-      } 
-      if (intAnswer == input.getLikertSteps() && input.getRightSideLabel() != null && input.getRightSideLabel().length() > 0) {
-        return input.getRightSideLabel();
-      }
+//      if (intAnswer == 1 && input.getLeftSideLabel() != null && input.getLeftSideLabel().length() > 0) {
+//        return input.getLeftSideLabel();
+//      } 
+//      if (intAnswer == input.getLikertSteps() && input.getRightSideLabel() != null && input.getRightSideLabel().length() > 0) {
+//        return input.getRightSideLabel();
+//      }
       return output.getAnswer();
     }
 //    else if (input.getResponseType().equals(Input.PHOTO)) {
