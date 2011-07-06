@@ -47,8 +47,36 @@
       		responsesHtml = "No responses found!";
       	  }
       	}
-      	document.getElementById("additionsdiv").innerHTML = window.additions;
- 
+        
+        function scriptBody(customFeedback) {
+          var startIndex = customFeedback.indexOf("<script>");
+          var endIndex = customFeedback.indexOf("</"+"script>");
+          if (startIndex != -1 && endIndex != -1) {
+            return customFeedback.substring(startIndex+8,endIndex);
+          } else {
+           return "";
+          }
+        }
+        
+          function htmlBody(customFeedback) {
+          var startIndexS = customFeedback.indexOf("</"+"script>");
+          if (startIndexS != -1) {
+            return customFeedback.substring(startIndexS+9);
+          } else {
+           return customFeedback; } }
+
+        
+        var additionsDivID = document.getElementById("additionsdiv");         
+        var newScript = document.createElement('script');
+        newScript.type = 'text/javascript';
+        newScript.innerHTML = scriptBody(window.additions);
+        additionsDivID.appendChild(newScript);
+
+        var newSpan = document.createElement('span');
+        newSpan.innerHTML = htmlBody(window.additions);
+        additionsDivID.appendChild(newSpan);
+
+      	
    		$("#responses").html(responsesHtml);
    	});   	
  </script>

@@ -161,13 +161,13 @@ public class ExploreDataActivity extends Activity {
     });
     
     Intent intent = getIntent();
-    intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    //intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
     userPrefs = new UserPreferences(this);
     list = (ListView)findViewById(R.id.exploreable_experiments_list);
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    cursor = managedQuery(getIntent().getData(), 
+    cursor = managedQuery(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
         new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
         null, null, null);
     
@@ -242,11 +242,10 @@ public class ExploreDataActivity extends Activity {
       @Override
       public void onClick(DialogInterface dialog,
               int whichButton) {
-        Toast.makeText(ExploreDataActivity.this, getStringValues(checkedChoices),//checkedChoices.toString(),
+        Toast.makeText(ExploreDataActivity.this, getStringValues(checkedChoices),
           Toast.LENGTH_SHORT).show();
 
-      }
-
+        }
       });
     AlertDialog multiSelectListDialog = builder.create();
     multiSelectListDialog.show();
@@ -361,7 +360,7 @@ public class ExploreDataActivity extends Activity {
   
   
   private String getStringValues(HashMap<Long, List<Long>> checked) {
-    String finalString = "";
+    String finalString = "  ";
     List<Long> tempVals;
     for (Long experimentId: checked.keySet()){
       tempVals = checked.get(experimentId);
