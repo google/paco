@@ -444,7 +444,6 @@ public class ExploreDataActivity extends Activity {
         
         JSONArray responses = new JSONArray();
         for (Output response : event.getResponses()) {
-          //if (response.getName() == rName){
             JSONObject responseJson = new JSONObject();
             Input input = experiment.getInputById(response.getInputServerId());     
             if (input == null) {
@@ -457,8 +456,7 @@ public class ExploreDataActivity extends Activity {
             responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
             responseJson.put("answerOrder", response.getAnswer());  
             responses.put(responseJson);
-          }          
-        //}
+          }
         eventObject.put("responses", responses);
         if (responses.length() > 0) {
           experimentData.put(eventObject);
