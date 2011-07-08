@@ -242,7 +242,7 @@ public class ExploreDataActivity extends Activity {
       @Override
       public void onClick(DialogInterface dialog,
               int whichButton) {
-        Toast.makeText(ExploreDataActivity.this, getStringValues(checkedChoices),
+        Toast.makeText(ExploreDataActivity.this, getNamesOfSelectedVariables(checkedChoices),
           Toast.LENGTH_SHORT).show();
 
         }
@@ -254,27 +254,27 @@ public class ExploreDataActivity extends Activity {
   
   //When the OK button is hit, make a take the variables chosen and look at the 
   private void analyzeData(HashMap<Long, List<Long>> choices, int whichOpt) {
+    int choicesSize = 0;
+    for (Long key:choices.keySet()){
+      choicesSize+=choices.get(key).size();
+    }
     if (whichOpt == 1){
-      if (!(choices.keySet().isEmpty()) && choices.keySet().size()==1){
-        for (Long key:choices.keySet()){
-          if (choices.get(key).size()==1){
-            executeTrends(key, choices.get(key).get(0));
+          if (choicesSize==1){
+            for (Long key:choices.keySet()){
+            executeTrends(key, choices.get(key).get(0));}
           }else{
             chooseOneToast();
-          }
-        }
-      }else{
-        chooseOneToast();
       }
    }else if(whichOpt == 2){  /////Nothing here really works. It is more of a placeholder
-       if (!(choices.keySet().isEmpty()) && choices.keySet().size()<=2){
+     if (choicesSize==2){
+       if (choices.keySet().size()==1){
+         long varX, varY;
          for (Long key:choices.keySet()){
-           if (choices.get(key).size()==2 && choices.keySet().size()==1){
-             executeRelationships(key, choices.get(key));
-           }else{
-             chooseTwoToast();
-           }
+           varX = choices.get(key).get(0);
+           varY = choices.get(key).get(1);
+           executeRelationships(key, varX, varY);
          }
+       }
        }else{
          chooseTwoToast();
        }     
@@ -282,8 +282,9 @@ public class ExploreDataActivity extends Activity {
     
   }
 
+
   private void executeTrends(Long expId, Long inpId) {
-    experiment = experimentProviderUtil.getExperiment(expId);
+    experiment = getExperiment(expId);
     if (experiment == null) {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
         Toast.LENGTH_SHORT).show();
@@ -327,6 +328,41 @@ public class ExploreDataActivity extends Activity {
     //do things
   }
   
+  private void executeRelationships(Long expId, long inpX, long inpY) {
+    experiment = getExperiment(expId);
+    if (experiment == null) {
+      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+        Toast.LENGTH_SHORT).show();
+    } else {
+      setContentView(R.layout.feedback);
+      experimentProviderUtil.loadFeedbackForExperiment(experiment);
+      experimentProviderUtil.loadInputsForExperiment(experiment);
+      experimentProviderUtil.loadLatestEventForExperiment(experiment);
+      final Feedback feedback = experiment.getFeedback().get(0);
+      
+      final Map<String,String> map = new HashMap<String, String>();      
+      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
+      map.put("title", experiment.getTitle());
+      map.put("chosenVarX", inpX+"");
+      map.put("chosenVarY", inpY+"");
+      
+      rawDataButton = (Button)findViewById(R.id.rawDataButton);
+      rawDataButton.setVisibility(View.INVISIBLE);
+      
+      webView = (WebView)findViewById(R.id.feedbackText);
+      webView.getSettings().setJavaScriptEnabled(true);
+
+      final Environment env = new Environment(map);
+      webView.addJavascriptInterface(env, "env");
+      
+      setWebChromeClientThatHandlesAlertsAsDialogs();
+      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
+      webView.setWebViewClient(webViewClient);
+      
+      webView.loadUrl("file:///android_asset/relationships.html");
+    }
+  }
+  
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
@@ -359,12 +395,12 @@ public class ExploreDataActivity extends Activity {
   }
   
   
-  private String getStringValues(HashMap<Long, List<Long>> checked) {
+  private String getNamesOfSelectedVariables(HashMap<Long, List<Long>> checked) {
     String finalString = "  ";
     List<Long> tempVals;
     for (Long experimentId: checked.keySet()){
       tempVals = checked.get(experimentId);
-      Experiment e = experimentProviderUtil.getExperiment(experimentId);
+      Experiment e = getExperiment(experimentId);
       experimentProviderUtil.loadInputsForExperiment(e);
       for (Long val: tempVals){
         finalString+=(e.getInputById(val).getName()+"  ");
@@ -372,6 +408,10 @@ public class ExploreDataActivity extends Activity {
     }
     
     return finalString;
+  }
+  
+  private Experiment getExperiment(long expId){
+    return experimentProviderUtil.getExperiment(expId);
   }
   
 ///////Copied from FeedbackActivity\\\\\\\\\\\\

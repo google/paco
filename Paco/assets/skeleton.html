@@ -47,34 +47,36 @@
     	  } 
     	  if (responsesHtml == "") {
       		responsesHtml = "No responses found!";
-      	  }
       	}
+      }
         
-        function scriptBody(customFeedback) {
-          var scriptStartIndex = customFeedback.indexOf("<script>");
-          var scriptEndIndex = customFeedback.indexOf("</"+"script>");
-          if (scriptStartIndex != -1 && scriptEndIndex != -1) {
-            return customFeedback.substring(scriptStartIndex+8,scriptEndIndex);
-          } 
-          return "";
+      function scriptBody(customFeedback) {
+        var scriptStartIndex = customFeedback.indexOf("<script>");
+        var scriptEndIndex = customFeedback.indexOf("</"+"script>");
+        if (scriptStartIndex != -1 && scriptEndIndex != -1) {
+          return customFeedback.substring(scriptStartIndex+8,scriptEndIndex);
+        } 
+        return "";
+      }
+      
+      function htmlBody(customFeedback) {
+        var scriptEndIndex = customFeedback.indexOf("</"+"script>");
+        if (scriptEndIndex != -1) {
+          return customFeedback.substring(scriptEndIndex+9);
+        } else {
+         return customFeedback;
         }
-        
-          function htmlBody(customFeedback) {
-          var scriptEndIndex = customFeedback.indexOf("</"+"script>");
-          if (scriptEndIndex != -1) {
-            return customFeedback.substring(scriptEndIndex+9);
-          } else {
-           return customFeedback; } }
+      }
 
-        var additionsDivID = document.getElementById("additionsdiv");         
-        var newScript = document.createElement('script');
-        newScript.type = 'text/javascript';
-        newScript.innerHTML = scriptBody(window.additions.substring(0));
-        additionsDivID.appendChild(newScript);
+      var additionsDivID = document.getElementById("additionsdiv");         
+      var newScript = document.createElement('script');
+      newScript.type = 'text/javascript';
+      newScript.innerHTML = scriptBody(window.additions.substring(0));
+      additionsDivID.appendChild(newScript);
         
-        var newSpan = document.createElement('span');
-        newSpan.innerHTML = window.additions;//htmlBody(window.additions.substring(0));
-        additionsDivID.appendChild(newSpan);
+      var newSpan = document.createElement('span');
+      newSpan.innerHTML = window.additions;//htmlBody(window.additions.substring(0));
+      additionsDivID.appendChild(newSpan);
 
       	
    		$("#responses").html(responsesHtml);

@@ -12,10 +12,10 @@
                 // this is a no-no              
                 experimentData = eval('('+ experimentData + ')');
                 chosenVar = parseInt(chosenVar);
-             if (!experimentData) {
-                alert("No Data");
-                return;
-            } 
+                if (!experimentData) {
+                   alert("No Data");
+                   return;
+                } 
         
                 var responsesHtml = ""; 
                 
@@ -24,23 +24,23 @@
                 for ( var i = 0; i < responses.length; i++) {
                   var response = responses[i];
                   if (response["inputId"] == chosenVar){
-                if (response.answer == null || response.answer.length == 0) {
+                    if (response.answer == null || response.answer.length == 0) {
                         response.answer = "No Answer";
+                    }
+                    if (response["responseType"] == "photo") {
+                      responsesHtml= "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
+                    } else if (response["responseType"] == "location") {
+                      responsesHtml= "file:///android_asset/map.html?inputId=" + response["inputId"];
+                    } else {
+                      responsesHtml= "file:///android_asset/time.html?inputId=" + response["inputId"];
+                    }      
+                  }
                 }
-                
-
-                if (response["responseType"] == "photo") {
-                    responsesHtml= "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
-                } else if (response["responseType"] == "location") {
-                    responsesHtml= "file:///android_asset/map.html?inputId=" + response["inputId"];
-                } else {
-                    responsesHtml= "file:///android_asset/time.html?inputId=" + response["inputId"];
-                }      
-              }}
-        try{
-          document.location.href = responsesHtml;
-        } catch (err){         
-          alert("No responses found!");}
+                try{
+                  document.location.href = responsesHtml;
+                } catch (err){         
+                  alert("No responses found!");
+                }
         });     
  </script>
  </head>
