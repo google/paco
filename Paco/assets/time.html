@@ -3,9 +3,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Chart</title>
-    <script language="javascript" type="text/javascript" src="jquery-1.5.1.min.js"></script>
-    <script language="javascript" type="text/javascript" src="jquery.flot.min.js"></script>
-    
+    <script language="javascript" type="text/javascript" src="jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="jquery.flot.js""></script>
+    <script language="javascript" type="text/javascript" src="jquery.flot.stack.js"></script>
     <script language="javascript" type="text/javascript">
       $(document).ready(function() {
         winH = window.innerHeight - 16;
@@ -107,7 +107,13 @@
             if (responses[r].inputId == inputid) {
               if (!responses[r].answer) {
                 continue;
-              }  
+              }
+              try {
+                new Number(responses[r].answer);
+                }
+              catch (err) {
+                continue;
+              }
               var answer = responses[r].answer-0;
               d.push([expdata[j].responseTime, answer]);
            
@@ -130,7 +136,7 @@
         $("#trend").click(function () {
           var dataToPlot;
           if (!trendShowing) {
-            dataToPlot = [{ label : "time", data : d}, { label : "trend", data : trendD}];
+            dataToPlot = [{ label : "time", data : d}, { label : "trend", data : trendD, lines: { show: true }}];
           } else {
             dataToPlot = [{ label : "time", data : d }];
           }

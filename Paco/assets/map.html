@@ -9,26 +9,32 @@
   rel="stylesheet" type="text/css" />
 <script type="text/javascript"
   src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script language="javascript" type="text/javascript" src="jquery-1.5.1.min.js"></script>
-<script language="javascript" type="text/javascript" src="jquery.flot.min.js"></script>
+<script language="javascript" type="text/javascript" src="jquery.js"></script>
+<script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
 
 <script id="source">
     
 
   function initialize() {
+    var infoDialogBox= confirm("By pressing OK, you acknowledge that you will be sending your data to Google Maps so that it can be plotted.");
+    if (infoDialogBox==false){
+      document.location.href = "file:///android_asset/default_feedback.html";
+      return;
+    }
+
 /////Functions
 
 //Averaging function
 
-    function average(arr) {
-    var sumLat = 0;
-    var sumLng = 0;
-    for(var i=0; i<arr.length; i++) {
-      sumLat+=arr[i].latitude;
-      sumLng+=arr[i].longitude;
+   function average(arr) {
+     var sumLat = 0;
+     var sumLng = 0;
+     for(var i=0; i<arr.length; i++) {
+       sumLat+=arr[i].latitude;
+       sumLng+=arr[i].longitude;
+     }
+     return [(sumLat/arr.length), (sumLng/arr.length)];
    }
-   return [(sumLat/arr.length), (sumLng/arr.length)];
-}
 
 
 //Function to take arrays for lats and lngs and draw markers on maps

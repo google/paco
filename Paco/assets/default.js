@@ -25,7 +25,7 @@ function defaultPage(){
     if (response["responseType"] == "photo") {
       responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
     } else if (response["responseType"] == "location") {
-      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["inputId"] + "'>Go to Interwebs, Get Google Maps</a>";
+      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["inputId"] + "'>Maps</a>";
     } else {
       responsesHtml += response["answer"];
       responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["inputId"] + "'>Chart</a>";

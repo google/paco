@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -76,7 +77,7 @@ public class ExploreDataActivity extends Activity {
   public UserPreferences userPrefs;
   private Experiment experiment;
   private List<Long> inputIds;
-  private WebView webView;
+  private WebView webView = null;
   private Button rawDataButton;
   // Choices that have been selected on a multiselect list in a dialog.
   private HashMap<Long, List<Long>> checkedChoices = new HashMap<Long, List<Long>>();
@@ -106,13 +107,6 @@ public class ExploreDataActivity extends Activity {
   ////////////////
   
   
-  
-  
-  
-  
-  
-  
-
   @Override
   //Make the first screen with which choices of what to do: Trends, Relationships, or Distributions (TRD)
   protected void onCreate(Bundle savedInstanceState) {
@@ -179,23 +173,33 @@ public class ExploreDataActivity extends Activity {
       };
       
       list.setAdapter(adapter);
-      list.setOnItemClickListener(new OnItemClickListener() {
-        
-        public void onItemClick(AdapterView<?> listview, View textview, int position,
-            long id) {
-          experiment = experimentProviderUtil.getExperiment(id);
-          experimentProviderUtil.loadInputsForExperiment(experiment);
+      //if (whichOption !=3){
+        list.setOnItemClickListener(new OnItemClickListener() {
           
-          if (experiment!= null) {
-           //inputs = experiment.getInputs();
-           inputIds = getInputIds(experiment.getInputs());
-           inpNames = getInputNames(experiment.getInputs());
-           renderMultiSelectListButton(id);
-           varOkButton.setVisibility(View.VISIBLE);
-          }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
-            Toast.LENGTH_SHORT).show();}
-        }
-      });
+          public void onItemClick(AdapterView<?> listview, View textview, int position,
+              long id) {
+            experiment = experimentProviderUtil.getExperiment(id);
+            experimentProviderUtil.loadInputsForExperiment(experiment);
+            
+            if (experiment!= null) {
+             inputIds = getInputIds(experiment.getInputs());
+             inpNames = getInputNames(experiment.getInputs());
+             renderMultiSelectListButton(id);
+             varOkButton.setVisibility(View.VISIBLE);
+            }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
+              Toast.LENGTH_SHORT).show();}
+          }
+        });
+      //}
+      /*else{
+        list.setOnItemClickListener(new OnItemClickListener() {
+          
+          public void onItemClick(AdapterView<?> listview, View textview, int position,
+              long id) {
+            executeDistributions(id);
+          }
+        });        
+      }*/
   }
 
   //Make the dialog box containing variables in the experiment that is clicked on
@@ -252,7 +256,9 @@ public class ExploreDataActivity extends Activity {
     return multiSelectListDialog.getListView();
   }
   
-  //When the OK button is hit, make a take the variables chosen and look at the 
+  //When the OK button is hit, take the variables chosen and if the correct
+  //number of variables are chosen, execute trends, relationships, or distributions
+  //as indicated by the whichOpt variable
   private void analyzeData(HashMap<Long, List<Long>> choices, int whichOpt) {
     int choicesSize = 0;
     for (Long key:choices.keySet()){
@@ -265,24 +271,32 @@ public class ExploreDataActivity extends Activity {
           }else{
             chooseOneToast();
       }
-   }else if(whichOpt == 2){  /////Nothing here really works. It is more of a placeholder
+   }else if(whichOpt == 2){
      if (choicesSize==2){
-       if (choices.keySet().size()==1){
+       if (choices.keySet().size()==1){//For data from the same experiment
          long varX, varY;
          for (Long key:choices.keySet()){
            varX = choices.get(key).get(0);
            varY = choices.get(key).get(1);
            executeRelationships(key, varX, varY);
          }
+       }else if (choices.keySet().size()==2){//For data from two different experiments
+         executeRelationships(choices);
        }
        }else{
          chooseTwoToast();
        }     
+    } else if (whichOpt == 3){
+      if (choicesSize==1){
+        for (Long key:choices.keySet()){
+        executeDistributions(key, choices.get(key).get(0));}
+      }else{
+        chooseOneToast();
+      }
     }
-    
   }
 
-
+  //execute trends for one variable from one experiment
   private void executeTrends(Long expId, Long inpId) {
     experiment = getExperiment(expId);
     if (experiment == null) {
@@ -301,17 +315,11 @@ public class ExploreDataActivity extends Activity {
       map.put("chosenVar", inpId+"");
       
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
-      rawDataButton.setOnClickListener(new OnClickListener() {        
-        public void onClick(View v) {
-          Intent rawDataIntent = new Intent(ExploreDataActivity.this, RawDataActivity.class);
-          rawDataIntent.setData(getIntent().getData());
-          startActivity(rawDataIntent);
-        }
-      });
+      rawDataButton.setVisibility(View.INVISIBLE);
       
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
-
+            
       final Environment env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
       
@@ -323,11 +331,55 @@ public class ExploreDataActivity extends Activity {
     }
   }
 
-  ////PlaceHolder
-  private void executeRelationships(Long expId, List<Long> list2) {
-    //do things
+  //execute relationships for two variables from different experiments
+  private void executeRelationships(HashMap<Long, List<Long>> keyValIds) {
+    Long expXId, expYId, inpXId, inpYId;
+    Object[] idArray;
+    ArrayList<Long> temp = new ArrayList<Long>();
+    
+    for (Long key:keyValIds.keySet()){
+      temp.add(key);
+      temp.add(keyValIds.get(key).get(0));
+    }
+    
+    idArray = temp.toArray();
+    expXId = (Long) idArray[0]; inpXId = (Long) idArray[1]; expYId = (Long) idArray[2]; inpYId = (Long) idArray[3];
+    
+    experiment = getExperiment(expXId);
+    final Map<String,String> map = new HashMap<String, String>();
+
+    if (experiment == null) {
+      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+        Toast.LENGTH_SHORT).show();
+    } else {
+      map.put("expXId", expXId+"");
+      map.put("chosenVarX", inpXId+"");
+    }
+    
+    experiment = getExperiment(expYId);
+    if (experiment == null) {
+      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+        Toast.LENGTH_SHORT).show();
+    } else {
+      setContentView(R.layout.feedback);
+      map.put("expYId", expYId+"");
+      map.put("chosenVarY", inpYId+"");
+      
+      rawDataButton = (Button)findViewById(R.id.rawDataButton);
+      rawDataButton.setVisibility(View.INVISIBLE);
+      
+      webView = (WebView)findViewById(R.id.feedbackText);
+      webView.getSettings().setJavaScriptEnabled(true);
+
+      final Environment env = new Environment(map);
+      webView.addJavascriptInterface(env, "env");
+      setWebChromeClientThatHandlesAlertsAsDialogs();
+      
+      webView.loadUrl("file:///android_asset/relationshipsDifferentExperiments.html");
+    }
   }
   
+  //execute relationships for two variables within the same experiment
   private void executeRelationships(Long expId, long inpX, long inpY) {
     experiment = getExperiment(expId);
     if (experiment == null) {
@@ -363,10 +415,59 @@ public class ExploreDataActivity extends Activity {
     }
   }
   
+  //execute distributions for one experiment
+  private void executeDistributions(Long expId, Long inpId) {
+    experiment = getExperiment(expId);
+    if (experiment == null) {
+      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+        Toast.LENGTH_SHORT).show();
+    } else {
+      setContentView(R.layout.feedback);
+      experimentProviderUtil.loadFeedbackForExperiment(experiment);
+      experimentProviderUtil.loadInputsForExperiment(experiment);
+      experimentProviderUtil.loadLatestEventForExperiment(experiment);
+      final Feedback feedback = experiment.getFeedback().get(0);
+      
+      final Map<String,String> map = new HashMap<String, String>();      
+      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
+      map.put("title", experiment.getTitle());
+      map.put("chosenVar", inpId+"");
+      
+      rawDataButton = (Button)findViewById(R.id.rawDataButton);
+      rawDataButton.setVisibility(View.INVISIBLE);
+      
+      webView = (WebView)findViewById(R.id.feedbackText);
+      webView.getSettings().setJavaScriptEnabled(true);
+
+      final Environment env = new Environment(map);
+      webView.addJavascriptInterface(env, "env");
+      
+      setWebChromeClientThatHandlesAlertsAsDialogs();
+      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
+      webView.setWebViewClient(webViewClient);
+      
+      webView.loadUrl("file:///android_asset/distributions.html");
+      
+      /*
+      experimentProviderUtil.loadInputsForExperiment(experiment);
+      for (Event event : experiment.getEvents()) {
+        DateTime responseTime = event.getResponseTime();
+        if (responseTime == null) {
+          continue; // missed signal;
+        }
+        // in this case we are looking for one input from the responses that we are charting.
+        for (Output response : event.getResponses()) {
+          //FIND THE STATISICS
+        }
+        
+      }*/
+
+    }
+  }
+  
   @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    setContentView(mainLayout);
+  public void onConfigurationChanged(Configuration newConfig){        
+      super.onConfigurationChanged(newConfig);
   }
   
   public void chooseOneToast(){
