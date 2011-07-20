@@ -125,8 +125,10 @@ public class FeedbackActivity extends Activity {
       } else {
         loadDefaultFeedbackIntoWebView();  
       }
-      
+      if (savedInstanceState != null)
+        webView.loadUrl((String) savedInstanceState.get("url"));
     }
+    
   }
 
   private void loadDefaultFeedbackIntoWebView() {
@@ -318,6 +320,8 @@ public class FeedbackActivity extends Activity {
     return "";
   }
 
-  
+  protected void onSaveInstanceState(Bundle outState) {
+    outState.putString("url", webView.getUrl());
+ }
   
 }

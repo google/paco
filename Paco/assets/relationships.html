@@ -68,9 +68,18 @@
              regressionLine.push([maxX, (slope * maxX) + intercept]);
              return regressionLine;
            }
-          
-          
-          
+           
+           function getNewIdsBasedOnResponseType(xId, yId, xRespType, yRespType){
+             if (xRespType == "list" && yRespType == "list"){
+               alert("Sorry, we do not show relationships between two lists.");
+               return null;
+             } else if(xRespType != "list" && yRespType == "list"){
+               return [yId, xId, yRespType, xRespType];
+             } else {
+               return [xId, yId, xRespType, yRespType];
+             }
+           }
+////Start doing actual relationship building here
           var expdata = window.env.getValue("experimentalData");
           var chosenVarXId = window.env.getValue("chosenVarX");
           var chosenVarYId = window.env.getValue("chosenVarY");                              
@@ -83,27 +92,13 @@
              return;
           } 
           
-          var latestEvent = expdata[0];    
-          var responses = latestEvent.responses;
-          for ( var i = 0; i < responses.length; i++) {
-            var response = responses[i];
-            if (response["inputId"] == chosenVarXId || response["inputId"] == chosenVarYId){
-              if (response.answer == null || response.answer.length == 0) {
-                  response.answer = "No Answer";
-              }
-              if (response["responseType"] == "photo" || response["responseType"] == "location" || response["responseType"] == "open text") {
-                alert("Sorry, we do not show any more relationships involving " + response["responseType"] + "s past what you have seen in trends and raw data.");
-                return; 
-              }     
-            }
-          }
-          
           expdata = expdata.sort(function(a,b) {
           return a.responseTime - b.responseTime;});
           
           var xData = []; var yData = [];
           
           var xLabel = null; var xLabel = null; var chartTitle = null;
+          var xResponseType; var yResponseType;
           var sampleAnswer;
           var foundXMatch = false; var foundYMatch = false;
           for (var j = 0; j < expdata.length; j++) {
@@ -117,25 +112,64 @@
                 foundXMatch = true;
                 xLabel = response.prompt;
                 sampleAnswer = response.answer;
+                xResponseType = response["responseType"];
+                if (xResponseType == "photo" || xResponseType == "location") {
+                  alert("Sorry, we do not show any more relationships involving " + xResponseType + "s past what you have seen in trends and raw data.");
+                  return; 
+                }
+                if (xResponseType == "open text"){
+                  if (sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)){
+                  } else{
+                  alert("Sorry, we do not show any more relationships involving texts past what you have seen in trends and raw data.");
+                  return;
+                  }
+                }     
               }
               if (response.inputId == chosenVarYId) {   
                 foundYMatch = true;
                 yLabel = response.prompt;
                 sampleAnswer = response.answer;
+                yResponseType = response["responseType"];
+                if (yResponseType == "photo" || yResponseType == "location") {
+                  alert("Sorry, we do not show any more relationships involving " + yResponseType + "s past what you have seen in trends and raw data.");
+                  return; 
+                }
+                if (yResponseType == "open text"){
+                  if (sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)){
+                  } else{
+                  alert("Sorry, we do not show any more relationships involving texts past what you have seen in trends and raw data.");
+                  return;
+                  }
+                } 
               }
             }
           }  
           
-          
-          
+          var newIds = getNewIdsBasedOnResponseType(chosenVarXId, chosenVarYId, xResponseType, yResponseType);
+          //alert(chosenVarXId+" "+chosenVarYId);
+          if (newIds==null){
+            return;
+          } else{
+            chosenVarXId = newIds[0];
+            chosenVarYId = newIds[1];
+            xResponseType = newIds[2];
+            yResponseType = newIds[3];
+          }          
+          //alert(chosenVarXId+" "+chosenVarYId);
+          var xPointLabels = [];
           for (var j = 0; j < expdata.length; j++) {
             var responses = expdata[j].responses;
             for (var r = 0; r < responses.length; r++) {
               if (responses[r].inputId == chosenVarXId) {
                 if (!responses[r].answer) {
                   continue;
-                }  
-                xData.push([expdata[j].responseTime, responses[r].answer]);
+                }
+                if (xResponseType=="list"){
+                  xData.push([expdata[j].responseTime, responses[r].answerOrder]);
+                  xPointLabels.push([responses[r].answerOrder, responses[r].answer]);
+                } else {
+                  xData.push([expdata[j].responseTime, responses[r].answer]);
+                }
               } else if (responses[r].inputId == chosenVarYId) {
                 if (!responses[r].answer) {
                   continue;
@@ -166,9 +200,10 @@
           var scatterShowing = false;
           $("#dataView").click(function () {
             var dataToPlot;
-            if (!scatterShowing) { alert(regressionLine[1][0]+''+regressionLine[3][1]);
+            if (!scatterShowing) { //alert(regressionLine[1][0]+''+regressionLine[3][1]);
               $.plot($("#placeholder"), [
                   {
+                      label: chartTitle,
                       data: scatterPlotData,
                       points: { show: true }
                   },
@@ -176,7 +211,8 @@
                       data: regressionLine,
                       lines: { show: true }
                   }
-             ]);
+               ], {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}}
+             );
             } else {
               $.plot($("#placeholder"),
                 [{label : xLabel, data : xData, lines: { show: true }},
