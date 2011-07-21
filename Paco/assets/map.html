@@ -145,10 +145,10 @@
                     continue;
                   } else if (tempInfo!=("Responses at this Location: ")){
                       tempInfo = tempInfo+", "};
-               tempInfo = tempInfo+responses[r].answer;
+               tempInfo = tempInfo+responses[r].inputName+": "+responses[r].answer;
               };
-            otherInfo = otherInfo.concat("latitude: "+lat+", longitude: "+ lng+ "\r" +tempInfo);
             };
+            otherInfo = otherInfo.concat(tempInfo);
            };
           };
   
