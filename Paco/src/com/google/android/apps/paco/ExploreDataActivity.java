@@ -114,6 +114,25 @@ public class ExploreDataActivity extends Activity {
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.explore_data, null);
     setContentView(mainLayout);
     
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    List<Experiment> experiments = experimentProviderUtil.getExperiments();
+    if (experiments.size()<1){
+      new AlertDialog.Builder(mainLayout.getContext()).setMessage("You haven't loaded any experiments yet, so this option does not make sense. Please come back after your have loaded an experiment and input data.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+
+        public void onClick(DialogInterface dialog, int which) {
+          dialog.dismiss();
+        }
+        
+      }).create().show();
+      Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
+      Button chooseRelationships = (Button)findViewById(R.id.RelationshipsButton);
+      Button chooseDistributions = (Button)findViewById(R.id.DistributionsButton);
+      chooseTrends.setEnabled(false);
+      chooseRelationships.setEnabled(false);
+      chooseDistributions.setEnabled(false);      
+      return;
+    }
+
     Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
     chooseTrends.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
