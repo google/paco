@@ -54,6 +54,24 @@
           }  
         }
   
+        function checkChartData(data){
+          if (data.length<1){
+            alert('This variable does not have any data recorded. Please input data before trying this option.');
+            return false;
+          } else{
+          return true;
+          }
+        }
+        
+        function checkTableData(tData){
+          if (tData=="<table><tr><th>Time</th><th>Answer</th></tr></table>"){
+            alert('This variable does not have any data recorded. Please input data before trying this option.');
+            return false;
+          } else{
+          return true;
+          }
+        }
+
         var url = window.location.toString();
         url.match(/\?(.+)$/);
         var params = RegExp.$1;
@@ -116,7 +134,6 @@
               }
               var answer = responses[r].answer-0;
               d.push([expdata[j].responseTime, answer]);
-           
               if (previousTrend != null) {
                 var SMOOTHING_FACTOR = 0.1;
                 previousTrend = (answer * SMOOTHING_FACTOR) + ( 1 - SMOOTHING_FACTOR) * previousTrend;
@@ -127,6 +144,10 @@
               trendD.push([expdata[j].responseTime, new Number(previousTrend)]);           
             }
           }
+        }
+        if (!(checkChartData(d))){
+          document.location.href = "file:///android_asset/default_feedback.html";
+          return;
         }
         $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time" }, 
           yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 } });
@@ -202,6 +223,10 @@
           d.push([i, keyIndexes[i].count]);
           ticks.push([i, truncString(keyIndexes[i].key, 8)]);  
         }
+        if (!(checkChartData(d))){
+          document.location.href = "file:///android_asset/default_feedback.html";
+          return;
+        }
         var data = [ {label: 'count', data : d} ]; 
         var options = {series : {
                      lines: {show: false, steps: false },
@@ -227,7 +252,10 @@
           }
         }
         tableData += "</table>";
-      
+        if (!(checkTableData(tableData))){
+          document.location.href = "file:///android_asset/default_feedback.html";
+          return;
+        }
         $("#placeholder").html(tableData);
       } else {
         alert("UNCHARTABLE: " + responseType);

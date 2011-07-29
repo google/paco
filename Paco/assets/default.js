@@ -10,7 +10,12 @@ function defaultPage(){
   var responsesHtml = "";
   
   var latestEvent = experimentData[0];
-  var responses = latestEvent.responses;
+  try{
+    var responses = latestEvent.responses;
+  }catch(err){
+    $("#responses").html('<br><br>You have not input any data! Please input data before exploring this option.');
+    return;
+  }
   for ( var i = 0; i < responses.length; i++) {
     var response = responses[i];
     if (response.answer == null || response.answer.length == 0) {

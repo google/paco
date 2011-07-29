@@ -155,7 +155,11 @@
           }
         }    
       }  
-
+      
+      if (responseType == null){  //not found, i.e. no data input
+        $("#meanHtml").html('<br><p>This variable does not have any data recorded. Please input data before trying this option.<p>');
+        return;
+      }
       if (responseType == "number" ||
         (responseType == "open text" && sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)) || 
         responseType == "likert" ||
@@ -207,16 +211,17 @@
         }
       }
         if (meanInfo == "") {
-        meanInfo = "No mean information is given for this data type.";
+        meanInfo = "No mean information is given for "+responseType + " data.";
         }
         if (medianInfo == "") {
-        medianInfo = "No median information is given for this data type.";
+        medianInfo = "No median information is given for "+responseType + " data.";
         }
         if (modeInfo == "") {
-        modeInfo = "No mode information is given for this data type.";
+        modeInfo = "No mode information is given for "+responseType + " data.";
         }
         if (minInfo == "") {
-        minInfo = "No min or max information is given for this data type.";
+        minInfo = "No min or max information is given for "+responseType + " data.";
+        maxInfo = " ";
         }
     $("#titleHtml").html("<p>"+title+"</p>");
     $("#meanHtml").html(meanInfo);
