@@ -56,7 +56,7 @@
   
         function checkChartData(data){
           if (data.length<1){
-            alert('This variable does not have any data recorded. Please input data before trying this option.');
+            alert('There is no recorded data for this variable.');
             return false;
           } else{
           return true;
@@ -65,7 +65,7 @@
         
         function checkTableData(tData){
           if (tData=="<table><tr><th>Time</th><th>Answer</th></tr></table>"){
-            alert('This variable does not have any data recorded. Please input data before trying this option.');
+            alert('There is no recorded data for this variable.');
             return false;
           } else{
           return true;

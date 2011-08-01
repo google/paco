@@ -20,7 +20,13 @@
                 var responsesHtml = ""; 
                 
                 var latestEvent = experimentData[0];    
-                var responses = latestEvent.responses;
+                try{
+                  var responses = latestEvent.responses;
+                }catch(err){
+                  alert('There is no recorded data for this variable.');
+                  $("#default").html("<h1>Your trend here<h1>");
+                  return;
+                }
                 for ( var i = 0; i < responses.length; i++) {
                   var response = responses[i];
                   if (response["inputId"] == chosenVar){
@@ -44,4 +50,7 @@
         });     
  </script>
  </head>
+ <body style='text-align: center; color: #4272db;'>
+    <div id="default"></div>
+ </body>
 </html>

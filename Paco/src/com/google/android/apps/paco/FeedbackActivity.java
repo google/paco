@@ -48,6 +48,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class FeedbackActivity extends Activity {
 
@@ -56,7 +57,8 @@ public class FeedbackActivity extends Activity {
   private Experiment experiment;
   private WebView webView;
   private Button rawDataButton;
-
+  boolean showDialog = true;
+  
   private class Environment {
 
     
@@ -125,8 +127,15 @@ public class FeedbackActivity extends Activity {
       } else {
         loadDefaultFeedbackIntoWebView();  
       }
-      if (savedInstanceState != null)
+      if (savedInstanceState != null){
         webView.loadUrl((String) savedInstanceState.get("url"));
+        String showDialogString =  (String) savedInstanceState.get("showDialog");
+        if (showDialogString.equals("false")){
+          showDialog = false;
+        }else{
+          showDialog = true;
+        }
+      }
     }
     
   }
@@ -193,6 +202,7 @@ public class FeedbackActivity extends Activity {
     webView.setWebChromeClient(new WebChromeClient() {
       @Override
       public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+
         new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
@@ -204,6 +214,29 @@ public class FeedbackActivity extends Activity {
         return true;
       }
       
+      public boolean onJsConfirm (WebView view, String url, String message, final JsResult result){
+        if (url.contains("file:///android_asset/map.html")){
+          if (showDialog == false){
+            result.confirm();
+            return true;
+          } else{
+            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                showDialog = false;
+                dialog.dismiss();
+                result.confirm();
+              }
+            }).setNegativeButton("Cancel", new Dialog.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                result.cancel();
+              } 
+            }).create().show();
+            return true;
+          }
+        }
+        return super.onJsConfirm(view, url, message, result);
+      }
     });
   }
 
@@ -320,8 +353,10 @@ public class FeedbackActivity extends Activity {
     return "";
   }
 
+  @Override
   protected void onSaveInstanceState(Bundle outState) {
     outState.putString("url", webView.getUrl());
+    outState.putString("showDialog", showDialog+"");
  }
   
 }

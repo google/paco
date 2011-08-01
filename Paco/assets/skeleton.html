@@ -24,8 +24,16 @@
   		if (experimentData.length == 0) {
   		  responsesHtml = "No responses found.";
   		} else {
-  		  var latestEvent = experimentData[0];  	
-  		  var responses = latestEvent.responses;
+  		  var latestEvent = experimentData[0];
+        try{
+          var responses = latestEvent.responses;
+        }catch(err){
+          var additionsDivID = document.getElementById("additionsdiv");
+          var newSpan = document.createElement('span');
+          newSpan.innerHTML = '<br><br>No data was found.';
+          additionsDivID.appendChild(newSpan);  
+          return;
+        }  	
   		  for (var i=0;i < responses.length;i++) {
   		  	var response = responses[i];
       		if (response.answer == null || response.answer.length == 0) {
@@ -75,7 +83,7 @@
       additionsDivID.appendChild(newScript);
         
       var newSpan = document.createElement('span');
-      newSpan.innerHTML = window.additions;//htmlBody(window.additions.substring(0));
+      newSpan.innerHTML = window.additions;
       additionsDivID.appendChild(newSpan);
 
       	

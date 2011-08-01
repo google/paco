@@ -79,6 +79,19 @@
                return [xId, yId, xRespType, yRespType];
              }
            }
+           
+           function checkMatchesFound(xBool, yBool){
+             if (xBool&yBool){
+               return true;
+             } else{
+               alert("Missing data: Please input data for both variables before exploring this option.")
+               return false;
+             }
+           }
+           
+           function yourChartHere(){
+             $("#charttitle").html("<h2>Your relationship here</h2>");
+           }
 ////Start doing actual relationship building here
           var expdata = window.env.getValue("experimentalData");
           var chosenVarXId = window.env.getValue("chosenVarX");
@@ -143,6 +156,11 @@
                 } 
               }
             }
+          }
+          
+          if (!checkMatchesFound(foundXMatch, foundYMatch)){
+            yourChartHere()
+            return;
           }  
           
           var newIds = getNewIdsBasedOnResponseType(chosenVarXId, chosenVarYId, xResponseType, yResponseType);
@@ -200,18 +218,24 @@
           var scatterShowing = false;
           $("#dataView").click(function () {
             var dataToPlot;
-            if (!scatterShowing) { //alert(regressionLine[1][0]+''+regressionLine[3][1]);
+            if (!scatterShowing) {
+              var options;
+              if (xResponseType=="list"){
+                options = {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}};
+              } else {
+                options = {legend: {container: null, backgroundOpacity: 0.5}};
+              }
               $.plot($("#placeholder"), [
                   {
                       label: chartTitle,
                       data: scatterPlotData,
                       points: { show: true }
-                  },
-                  {
-                      data: regressionLine,
-                      lines: { show: true }
-                  }
-               ], {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}}
+                  }//,
+                  //{
+                   //   data: regressionLine,
+                  //    lines: { show: true }
+                  //}
+               ], options
              );
             } else {
               $.plot($("#placeholder"),

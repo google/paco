@@ -16,7 +16,7 @@
     
 
   function initialize() {
-    var infoDialogBox= confirm("By pressing OK, you acknowledge that you will be sending your data to Google Maps so that it can be plotted.");
+    var infoDialogBox= confirm("Your data will be sent to Google Maps servers to be plotted. Press OK to proceed, or Cancel to decline.");
     if (infoDialogBox==false){
       document.location.href = "file:///android_asset/default_feedback.html";
       return;

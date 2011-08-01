@@ -114,6 +114,7 @@ public class ExploreDataActivity extends Activity {
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.explore_data, null);
     setContentView(mainLayout);
     
+    //Check for experiments. If they do not exist, disable buttons and alert the user of that.
     experimentProviderUtil = new ExperimentProviderUtil(this);
     List<Experiment> experiments = experimentProviderUtil.getExperiments();
     if (experiments.size()<1){
@@ -132,7 +133,8 @@ public class ExploreDataActivity extends Activity {
       chooseDistributions.setEnabled(false);      
       return;
     }
-
+    ////
+    
     Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
     chooseTrends.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
