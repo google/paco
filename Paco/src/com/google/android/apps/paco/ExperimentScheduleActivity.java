@@ -572,7 +572,8 @@ public class ExperimentScheduleActivity extends Activity {
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {            
         Integer frequency = Integer.parseInt(frequencyField.getText().toString());        
         experiment.getSchedule().setEsmFrequency(frequency);
-        new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(), experiment.getPeriodStart(new DateTime()).getMillis());
+        new AlarmStore(this).deleteAllSignalsForSurvey(experiment.getId());
+        //new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(), experiment.getPeriodStart(new DateTime()).getMillis());
         experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
       }
        
@@ -618,7 +619,7 @@ public class ExperimentScheduleActivity extends Activity {
     private void save() {
       saveExperimentRegistration();
       setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));        
+      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));        
       finish();
     }
 
