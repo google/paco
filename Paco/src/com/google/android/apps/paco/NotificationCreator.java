@@ -178,6 +178,7 @@ public class NotificationCreator {
     NotificationManager notificationManager = (NotificationManager) context
         .getSystemService(Context.NOTIFICATION_SERVICE);
     
+    Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experiment.getTitle() +". alarmTime: " + new DateTime(alarmTime).toString());
     notificationManager.notify(notificationHolder.getId().intValue(), notification);
     
     if (experiment.isExpiringAlarm()) {

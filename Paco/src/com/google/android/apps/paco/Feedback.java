@@ -147,7 +147,11 @@ public class Feedback implements Parcelable {
   String getDisplayOfAnswer(Output output, Input input) {
     if (input.getResponseType().equals(Input.LIST)) {
       if (!input.isMultiselect()) {
-        return input.getListChoices().get(Integer.parseInt(output.getAnswer()) -1);
+		String answer = output.getAnswer();
+		if (answer == null) {
+			return "";
+		}
+        return input.getListChoices().get(Integer.parseInt(answer) -1);
       } 
       // split answer, then retrieve list choice for each and return an array!?
       StringSplitter stringSplitter = new TextUtils.SimpleStringSplitter(',');

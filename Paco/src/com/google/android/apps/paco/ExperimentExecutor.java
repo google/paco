@@ -91,6 +91,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       Bundle extras = getIntent().getExtras();
       if (extras != null) {
         scheduledTime = extras.getLong(Experiment.SCHEDULED_TIME);
+        Log.i(PacoConstants.TAG, "Receiving experiment execution with scheduledTime: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
         if (isExpiredEsmPing()) {
           Toast.makeText(this, "This survey request has expired. No need to enter a response", Toast.LENGTH_LONG).show();
           finish();

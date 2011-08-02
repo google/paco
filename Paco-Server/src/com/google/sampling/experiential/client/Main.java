@@ -115,7 +115,6 @@ public class Main implements EntryPoint, ExperimentListener {
 
 
   private void createHomePage() {
-
     resources = GWT.create(Images.class);
     RootPanel rootPanel = RootPanel.get();
 
@@ -279,7 +278,6 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     experimentPanel.setVisible(true);
     statusLabel.setVisible(false);
-
   }
 
   private void setContentTitle(String text) {
@@ -298,14 +296,12 @@ public class Main implements EntryPoint, ExperimentListener {
     setContentTitle("About PACO");
     contentPanel.clear();
     experimentPanel.setVisible(false);
-
   }
 
   protected void launchHelp() {
     setContentTitle("Help");
     contentPanel.clear();
     experimentPanel.setVisible(false);
-
   }
 
   protected void loadJoinedExperiments() {
@@ -315,8 +311,6 @@ public class Main implements EntryPoint, ExperimentListener {
     flexTable.clear();
     experimentPanel.setVisible(true);
     getExperiments(true, false);
-
-
   }
 
   protected void loadAdministeredExperiments(boolean experimentsDirty) {

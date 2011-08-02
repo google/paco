@@ -133,7 +133,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
     if (!joined) {
       Button deleteButton = new Button(
-          experiment.getDeleted() != null && experiment.getDeleted() ? "Undelete" : "Delete");
+          experiment.getDeleted() != null && experiment.getDeleted() ? "Unhide" : "Hide");
       deleteButton.setStyleName("paco-ExperimentRow-Button");
       deleteButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
