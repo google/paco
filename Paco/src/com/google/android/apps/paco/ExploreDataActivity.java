@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -50,9 +51,11 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.TwoLineListItem;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -82,6 +85,7 @@ public class ExploreDataActivity extends Activity {
   // Choices that have been selected on a multiselect list in a dialog.
   private HashMap<Long, List<Long>> checkedChoices = new HashMap<Long, List<Long>>();
   List<String> inpNames;
+  boolean showDialog = true;
   
   
   
@@ -176,7 +180,6 @@ public class ExploreDataActivity extends Activity {
     });
     
     Intent intent = getIntent();
-    //intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     
     userPrefs = new UserPreferences(this);
     list = (ListView)findViewById(R.id.exploreable_experiments_list);
@@ -187,44 +190,33 @@ public class ExploreDataActivity extends Activity {
         null, null, null);
     
     SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
-      android.R.layout.simple_list_item_1, cursor, 
+      android.R.layout.simple_list_item_2, cursor, 
       new String[] { ExperimentColumns.TITLE}, 
       new int[] { android.R.id.text1}) {
+    };
     
-      };
-      
       list.setAdapter(adapter);
-      //if (whichOption !=3){
-        list.setOnItemClickListener(new OnItemClickListener() {
+      list.setOnItemClickListener(new OnItemClickListener() {
+        
+        @Override
+        public void onItemClick(AdapterView<?> listview, View textview, int position,
+            long id) {
+          experiment = experimentProviderUtil.getExperiment(id);
+          experimentProviderUtil.loadInputsForExperiment(experiment);
           
-          public void onItemClick(AdapterView<?> listview, View textview, int position,
-              long id) {
-            experiment = experimentProviderUtil.getExperiment(id);
-            experimentProviderUtil.loadInputsForExperiment(experiment);
-            
-            if (experiment!= null) {
-             inputIds = getInputIds(experiment.getInputs());
-             inpNames = getInputNames(experiment.getInputs());
-             renderMultiSelectListButton(id);
-             varOkButton.setVisibility(View.VISIBLE);
-            }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
-              Toast.LENGTH_SHORT).show();}
-          }
-        });
-      //}
-      /*else{
-        list.setOnItemClickListener(new OnItemClickListener() {
-          
-          public void onItemClick(AdapterView<?> listview, View textview, int position,
-              long id) {
-            executeDistributions(id);
-          }
-        });        
-      }*/
+          if (experiment!= null) {
+           inputIds = getInputIds(experiment.getInputs());
+           inpNames = getInputNames(experiment.getInputs());
+           renderMultiSelectListButton(id, (TextView) ((TwoLineListItem) textview).getChildAt(1));
+           varOkButton.setVisibility(View.VISIBLE);
+          }else{     Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
+            Toast.LENGTH_SHORT).show();}
+        }
+      });
   }
-
+  
   //Make the dialog box containing variables in the experiment that is clicked on
-  private View renderMultiSelectListButton(long ID) {
+  private View renderMultiSelectListButton(long ID, final TextView textview) {
     
     final Long id = ID;
 
@@ -267,14 +259,30 @@ public class ExploreDataActivity extends Activity {
       @Override
       public void onClick(DialogInterface dialog,
               int whichButton) {
-        Toast.makeText(ExploreDataActivity.this, getNamesOfSelectedVariables(checkedChoices),
-          Toast.LENGTH_SHORT).show();
-
+        String title = getExperiment(id).getTitle();
+        getVarsText(id, textview);
         }
       });
     AlertDialog multiSelectListDialog = builder.create();
     multiSelectListDialog.show();
     return multiSelectListDialog.getListView();
+  }
+  
+  private void getVarsText(long id, TextView textview){
+    if (checkedChoices.get(id) !=null){
+      String finalString = "  ";
+      List<Long> tempVals;
+      
+        tempVals = checkedChoices.get(id);
+        Experiment e = getExperiment(id);
+        experimentProviderUtil.loadInputsForExperiment(e);
+        for (Long val: tempVals){
+          finalString+=(e.getInputById(val).getName()+"  ");
+        }
+      textview.setText(finalString);
+    }else{
+      textview.setText("");
+    }
   }
   
   //When the OK button is hit, take the variables chosen and if the correct
@@ -468,26 +476,14 @@ public class ExploreDataActivity extends Activity {
       webView.setWebViewClient(webViewClient);
       
       webView.loadUrl("file:///android_asset/distributions.html");
-      
-      /*
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      for (Event event : experiment.getEvents()) {
-        DateTime responseTime = event.getResponseTime();
-        if (responseTime == null) {
-          continue; // missed signal;
-        }
-        // in this case we are looking for one input from the responses that we are charting.
-        for (Output response : event.getResponses()) {
-          //FIND THE STATISICS
-        }
-        
-      }*/
-
     }
   }
   
   @Override
-  public void onConfigurationChanged(Configuration newConfig){        
+  public void onConfigurationChanged(Configuration newConfig){
+    Toast.makeText(ExploreDataActivity.this, checkedChoices.toString(),
+      Toast.LENGTH_SHORT).show();
+    
       super.onConfigurationChanged(newConfig);
   }
   
@@ -517,7 +513,7 @@ public class ExploreDataActivity extends Activity {
   }
   
   
-  private String getNamesOfSelectedVariables(HashMap<Long, List<Long>> checked) {
+/*  private String getNamesOfSelectedVariables(HashMap<Long, List<Long>> checked) {
     String finalString = "  ";
     List<Long> tempVals;
     for (Long experimentId: checked.keySet()){
@@ -530,7 +526,7 @@ public class ExploreDataActivity extends Activity {
     }
     
     return finalString;
-  }
+  }*/
   
   private Experiment getExperiment(long expId){
     return experimentProviderUtil.getExperiment(expId);
@@ -636,6 +632,7 @@ public class ExploreDataActivity extends Activity {
     webView.setWebChromeClient(new WebChromeClient() {
       @Override
       public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+
         new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
@@ -647,6 +644,29 @@ public class ExploreDataActivity extends Activity {
         return true;
       }
       
+      public boolean onJsConfirm (WebView view, String url, String message, final JsResult result){
+        if (url.contains("file:///android_asset/map.html")){
+          if (showDialog == false){
+            result.confirm();
+            return true;
+          } else{
+            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                showDialog = false;
+                dialog.dismiss();
+                result.confirm();
+              }
+            }).setNegativeButton("Cancel", new Dialog.OnClickListener() {
+              public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                result.cancel();
+              } 
+            }).create().show();
+            return true;
+          }
+        }
+        return super.onJsConfirm(view, url, message, result);
+      }
     });
   }
   
