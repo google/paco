@@ -44,7 +44,7 @@ public class NotificationCreator {
     return new NotificationCreator(context.getApplicationContext());
   }
 
-  
+  // If we are updating a notificationId that is not -1, this is canceling a notification.
   public void updateNotifications(long notificationId, long alarmTime) {
       ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     try {
@@ -157,7 +157,7 @@ public class NotificationCreator {
     surveyIntent.putExtra(Experiment.SCHEDULED_TIME, alarmTime);
     
     PendingIntent notificationIntent = PendingIntent.getActivity(context, 1,
-        surveyIntent, 0);
+        surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);    
     notification.setLatestEventInfo(context, experiment.getTitle(),
         "Time to participate!", notificationIntent);
     notification.when = alarmTime;
