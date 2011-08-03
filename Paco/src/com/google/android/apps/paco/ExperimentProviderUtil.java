@@ -204,7 +204,7 @@ public class ExperimentProviderUtil {
   private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
     existingExperiment.setCreator(experiment.getCreator());
     existingExperiment.setDescription(experiment.getDescription());
-    existingExperiment.setEndDate(existingExperiment.getEndDate());
+    existingExperiment.setEndDate(experiment.getEndDate());
     existingExperiment.setFixedDuration(experiment.isFixedDuration());
     existingExperiment.setIcon(experiment.getIcon());
     existingExperiment.setInformedConsentForm(experiment.getInformedConsentForm());
