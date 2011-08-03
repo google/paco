@@ -434,15 +434,21 @@ public class Experiment implements Parcelable {
   private Long lookupNextTimeOnEsmSchedule(DateTime now, Context context) {
     AlarmStore alarmStore = new AlarmStore(context);
     List<DateTime> signals = alarmStore.getSignals(getId(), getPeriodStart(now).getMillis());
-    if (signals.size() == 0) {
-      DateTime nextPeriod = now.plusDays(getSchedule().convertEsmPeriodToDays());
-      signals = alarmStore.getSignals(getId(), getPeriodStart(nextPeriod).getMillis());
-      if (signals.size() == 0) {
-        return null;
-      }
+        
+    Long next = getNextSignalAfterNow(now, signals);
+    if (next != null) {
+    	return next;
     }
-    
-    Collections.sort(signals);
+    DateTime nextPeriod = now.plusDays(getSchedule().convertEsmPeriodToDays());
+    signals = alarmStore.getSignals(getId(), getPeriodStart(nextPeriod).getMillis());    
+    return getNextSignalAfterNow(now, signals);
+  }
+
+  private Long getNextSignalAfterNow(DateTime now, List<DateTime> signals) {
+	if (signals.size() == 0) {
+      return null;
+    }
+	Collections.sort(signals);
     for (DateTime dateTime : signals) {
       if (!now.isAfter(dateTime)) {
         return dateTime.getMillis();

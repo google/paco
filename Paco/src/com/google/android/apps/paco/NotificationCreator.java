@@ -188,14 +188,23 @@ public class NotificationCreator {
 
   private void createCancelAlarm(Context context, NotificationHolder notificationHolder) {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//    Log.i(Constants.TAG, "Creating alarm to timeout notification");
+    Log.i(PacoConstants.TAG, "Creating alarm to timeout notification for holder: " 
+    		+ notificationHolder.getId() 
+    		+ ". experiment = " + notificationHolder.getExperimentId() 
+    		+ ". alarmtime = " + new DateTime(notificationHolder.getAlarmTime()).toString());
+    Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, notificationHolder.getExperimentId().toString());
     Intent ultimateIntent = new Intent(context, AlarmReceiver.class);
     ultimateIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().intValue());
+    if (uri != null) {
+      ultimateIntent.setData(uri);
+    }
+
     PendingIntent intent = PendingIntent.getBroadcast(context.getApplicationContext(), 1,
-            ultimateIntent, 0);
+            ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     long timeoutMinutesFromNowInMillis = new DateTime(notificationHolder.getAlarmTime()).plusMinutes(
         (int)(notificationHolder.getTimeoutMillis() / 60000)).getMillis();
+    alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, timeoutMinutesFromNowInMillis, intent);
   }
   
