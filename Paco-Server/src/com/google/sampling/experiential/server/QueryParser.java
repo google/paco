@@ -42,7 +42,9 @@ import java.util.List;
  * 
  * Examples:
  * 
- * q='restaurant' q='restaurant=' q='restaurant=CafeMoma'
+ * q='restaurant' 
+ * q='restaurant=' 
+ * q='restaurant=CafeMoma'
  * q='who=bobevans@google.com:weight'
  * q='restaurant=CafeMoma:date_range=20090831-20090902'
  * q='restaurant=CafeMoma:date_range=20090831'
