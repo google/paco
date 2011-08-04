@@ -57,6 +57,7 @@ public class ServerCommunication {
     DateTime plusHours = new DateTime().plusHours(24);
     Intent ultimateIntent = new Intent(context, ServerCommunicationService.class); 
     PendingIntent intent = PendingIntent.getService(context.getApplicationContext(), 0, ultimateIntent, 0);
+    alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, plusHours.getMillis(), intent);
     Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + plusHours.toString());
   }
