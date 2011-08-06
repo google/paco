@@ -47,7 +47,7 @@
     android:layout_height="50dip"
     android:layout_weight="0"
     >
-      <Button android:text="OK" android:id="@+id/VarOkButton" android:layout_height="wrap_content" android:visibility="gone" android:layout_width="50dip"></Button>
+      <Button android:text="OK" android:id="@+id/VarOkButton" android:layout_height="wrap_content" android:visibility="gone" android:layout_width="wrap_content"></Button>
   </LinearLayout>
 
 

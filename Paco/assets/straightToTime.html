@@ -42,11 +42,17 @@
                     }      
                   }
                 }
-                try{
-                  document.location.href = responsesHtml;
-                } catch (err){         
+                if (responsesHtml == ""){
                   alert("No responses found!");
-                }
+                  $("#default").html("<h2> Your Trend Here </h2>");
+                } else{
+                  try{
+                    document.location.href = responsesHtml;
+                  } catch (err){         
+                    alert("No responses found!");
+                    $("#default").html("<h2>Your Trend Here</h2>");
+                  }
+                }  
         });     
  </script>
  </head>

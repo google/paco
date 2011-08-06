@@ -172,6 +172,13 @@ public class ExploreDataActivity extends Activity {
     setContentView(mainLayout);
     
     final Button varOkButton = (Button) findViewById(R.id.VarOkButton);
+    switch (whichOption){
+      case 1: varOkButton.setText("Show Trends"); break;
+      case 2: varOkButton.setText("Show Relationships"); break;
+      case 3: varOkButton.setText("Show Distributions"); break;
+      default: varOkButton.setText("OK"); break;
+    }
+    
     varOkButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -362,7 +369,14 @@ public class ExploreDataActivity extends Activity {
 
   //execute relationships for two variables from different experiments
   private void executeRelationships(HashMap<Long, List<Long>> keyValIds) {
-    Long expXId, expYId, inpXId, inpYId;
+    new AlertDialog.Builder(mainLayout.getContext()).setMessage("Please choose variables from the same experiment. The ability to compare variables from different experiments will be here soon.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+
+      public void onClick(DialogInterface dialog, int which) {
+        dialog.dismiss();
+      }
+      
+    }).create().show();
+    /*Long expXId, expYId, inpXId, inpYId;
     Object[] idArray;
     ArrayList<Long> temp = new ArrayList<Long>();
     
@@ -405,8 +419,9 @@ public class ExploreDataActivity extends Activity {
       setWebChromeClientThatHandlesAlertsAsDialogs();
       
       webView.loadUrl("file:///android_asset/relationshipsDifferentExperiments.html");
-    }
+    }*/
   }
+  
   
   //execute relationships for two variables within the same experiment
   private void executeRelationships(Long expId, long inpX, long inpY) {
@@ -481,9 +496,6 @@ public class ExploreDataActivity extends Activity {
   
   @Override
   public void onConfigurationChanged(Configuration newConfig){
-    Toast.makeText(ExploreDataActivity.this, checkedChoices.toString(),
-      Toast.LENGTH_SHORT).show();
-    
       super.onConfigurationChanged(newConfig);
   }
   
