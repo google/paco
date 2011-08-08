@@ -173,10 +173,10 @@ public class ExploreDataActivity extends Activity {
     
     final Button varOkButton = (Button) findViewById(R.id.VarOkButton);
     switch (whichOption){
-      case 1: varOkButton.setText("Show Trends"); break;
-      case 2: varOkButton.setText("Show Relationships"); break;
-      case 3: varOkButton.setText("Show Distributions"); break;
-      default: varOkButton.setText("OK"); break;
+      case 1: varOkButton.setText("  Show Trends  "); break;
+      case 2: varOkButton.setText("  Show Relationships  "); break;
+      case 3: varOkButton.setText("  Show Distributions  "); break;
+      default: varOkButton.setText("  OK  "); break;
     }
     
     varOkButton.setOnClickListener(new OnClickListener() {

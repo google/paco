@@ -74,9 +74,9 @@
                alert("Sorry, we do not show relationships between two lists.");
                return null;
              } else if(xRespType != "list" && yRespType == "list"){
-               return [yId, xId, yRespType, xRespType];
+               return [yId, xId, yRespType, xRespType, yLabel, xLabel];
              } else {
-               return [xId, yId, xRespType, yRespType];
+               return [xId, yId, xRespType, yRespType, xLabel, yLabel];
              }
            }
            
@@ -90,7 +90,8 @@
            }
            
            function yourChartHere(){
-             $("#charttitle").html("<h2>Your relationship here</h2>");
+             $("#titleOne").html("<h2>Your relationship here</h2>");
+             $("#titleTwo").html("<p></p>");
            }
 ////Start doing actual relationship building here
           var expdata = window.env.getValue("experimentalData");
@@ -110,20 +111,19 @@
           
           var xData = []; var yData = [];
           
-          var xLabel = null; var xLabel = null; var chartTitle = null;
+          var xLabel = null; var yLabel = null;
           var xResponseType; var yResponseType;
           var sampleAnswer;
           var foundXMatch = false; var foundYMatch = false;
           for (var j = 0; j < expdata.length; j++) {
             if (foundXMatch && foundYMatch) {
-              chartTitle = xLabel + "\r vs. \r" + yLabel;
               break;
             }  
             for (var i = 0; i < expdata[j].responses.length; i++) {  
               var response = expdata[j].responses[i];
               if (response.inputId == chosenVarXId) {   
                 foundXMatch = true;
-                xLabel = response.prompt;
+                xLabel = response.inputName;
                 sampleAnswer = response.answer;
                 xResponseType = response["responseType"];
                 if (xResponseType == "photo" || xResponseType == "location") {
@@ -140,7 +140,7 @@
               }
               if (response.inputId == chosenVarYId) {   
                 foundYMatch = true;
-                yLabel = response.prompt;
+                yLabel = response.inputName;
                 sampleAnswer = response.answer;
                 yResponseType = response["responseType"];
                 if (yResponseType == "photo" || yResponseType == "location") {
@@ -163,8 +163,8 @@
             return;
           }  
           
-          var newIds = getNewIdsBasedOnResponseType(chosenVarXId, chosenVarYId, xResponseType, yResponseType);
-          //alert(chosenVarXId+" "+chosenVarYId);
+          var newIds = getNewIdsBasedOnResponseType(chosenVarXId, chosenVarYId, xResponseType, yResponseType, xLabel, yLabel);
+
           if (newIds==null){
             return;
           } else{
@@ -172,8 +172,10 @@
             chosenVarYId = newIds[1];
             xResponseType = newIds[2];
             yResponseType = newIds[3];
+            xLabel = newIds[4];
+            yLabel = newIds[5];
           }          
-          //alert(chosenVarXId+" "+chosenVarYId);
+
           var xPointLabels = [];
           for (var j = 0; j < expdata.length; j++) {
             var responses = expdata[j].responses;
@@ -206,58 +208,49 @@
           
           var regressionLine = regressionLine(scatterPlotData);
           
-          $("#charttitle").html("<h2>" + chartTitle + "</h2>");
+          $("#titleOne").html("<h2> Time Series </h2>");
           $.plot($("#placeholder"),
               [{label : xLabel, data : xData, lines: { show: true }},
                {label : yLabel, data : yData, lines: { show: true }}
                ],
                {legend: {container: null, backgroundOpacity: 0.5}, xaxis: { mode: "time" }}
                );
-        
-          $("#buttons").html("<button id='dataView'>Switch Data View</button>");
-          var scatterShowing = false;
-          $("#dataView").click(function () {
-            var dataToPlot;
-            if (!scatterShowing) {
-              var options;
-              if (xResponseType=="list"){
-                options = {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}};
-              } else {
-                options = {legend: {container: null, backgroundOpacity: 0.5}};
-              }
-              $.plot($("#placeholder"), [
-                  {
-                      label: chartTitle,
-                      data: scatterPlotData,
-                      points: { show: true }
-                  }//,
-                  //{
-                   //   data: regressionLine,
-                  //    lines: { show: true }
-                  //}
-               ], options
-             );
-            } else {
-              $.plot($("#placeholder"),
-                [{label : xLabel, data : xData, lines: { show: true }},
-                 {label : yLabel, data : yData, lines: { show: true }}
-                 ],
-                 {legend: {container: null, backgroundOpacity: 0.5}, xaxis: { mode: "time" }}
-                 );
-            }
-            scatterShowing = !scatterShowing;
-
-        });
+           
+          $("#titleTwo").html("<h2> X-Y Plot </h2>");     
+          var options;
+          if (xResponseType=="list"){
+            options = {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}};
+          } else {
+            options = {legend: {container: null, backgroundOpacity: 0.5}};
+          }
+          $.plot($("#placeholderAlso"), [
+              {
+                  label: yLabel + " vs. " + xLabel,
+                  data: scatterPlotData,
+                  points: { show: true }
+              }//,
+              //{
+               //   data: regressionLine,
+              //    lines: { show: true }
+              //}
+           ], options
+         );
+          
+    
     });     
  </script>
  </head>
 
 <body style='text-align: center; color: #4272db;'>
-    <div id="charttitle"> 
+    <div id="titleOne"> 
     <h1>Chart</h1></div>
     
   <div id="placeholder" style="width:300px;height:150px;"></div>
-  <div id="buttons"></div>
+  <br>
+  <body style='text-align: center; color: #4272db;'>
+    <div id="titleTwo"> 
+    <h1>Chart</h1></div>
+  <div id="placeholderAlso" style="width:300px;height:150px;"></div>
 
 </body>
 
