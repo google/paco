@@ -17,7 +17,10 @@
 package com.google.android.apps.paco;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -103,8 +106,20 @@ public class ExperimentManagerActivity extends Activity {
     });
     
     ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);
-    // TODO (bobevans): disable create button until we implement client side creation of experiments
-    createExperimentsButton.setEnabled(false);
+
+    createExperimentsButton.setEnabled(true);
+    
+    createExperimentsButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        new AlertDialog.Builder(v.getContext()).setMessage("Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments. \n\nPlease point your browser to " + getResources().getString(R.string.server)+ " to create an experiment.").setTitle("How to Create an Experiment").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+
+          public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+          }
+          
+        }).create().show();
+      }     
+      });
     
     TextView createLabel = (TextView)findViewById(R.id.CreateExperimentLabel);
     createLabel.setEnabled(false);

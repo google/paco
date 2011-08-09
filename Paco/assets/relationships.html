@@ -69,14 +69,14 @@
              return regressionLine;
            }
            
-           function getNewIdsBasedOnResponseType(xId, yId, xRespType, yRespType){
+           function getNewIdsBasedOnResponseType(xId, yId, xRespType, yRespType, xLab, yLab){
              if (xRespType == "list" && yRespType == "list"){
                alert("Sorry, we do not show relationships between two lists.");
                return null;
              } else if(xRespType != "list" && yRespType == "list"){
-               return [yId, xId, yRespType, xRespType, yLabel, xLabel];
+               return [yId, xId, yRespType, xRespType, yLab, xLab];
              } else {
-               return [xId, yId, xRespType, yRespType, xLabel, yLabel];
+               return [xId, yId, xRespType, yRespType, xLab, yLab];
              }
            }
            
@@ -209,7 +209,7 @@
           var regressionLine = regressionLine(scatterPlotData);
           
           $("#titleOne").html("<h2> Time Series </h2>");
-          $.plot($("#placeholder"),
+          $.plot($("#placeholderOne"),
               [{label : xLabel, data : xData, lines: { show: true }},
                {label : yLabel, data : yData, lines: { show: true }}
                ],
@@ -223,7 +223,7 @@
           } else {
             options = {legend: {container: null, backgroundOpacity: 0.5}};
           }
-          $.plot($("#placeholderAlso"), [
+          $.plot($("#placeholderTwo"), [
               {
                   label: yLabel + " vs. " + xLabel,
                   data: scatterPlotData,
@@ -245,12 +245,12 @@
     <div id="titleOne"> 
     <h1>Chart</h1></div>
     
-  <div id="placeholder" style="width:300px;height:150px;"></div>
+  <div id="placeholderOne" style="width:300px;height:150px;"></div>
   <br>
   <body style='text-align: center; color: #4272db;'>
     <div id="titleTwo"> 
     <h1>Chart</h1></div>
-  <div id="placeholderAlso" style="width:300px;height:150px;"></div>
+  <div id="placeholderTwo" style="width:300px;height:150px;"></div>
 
 </body>
 
