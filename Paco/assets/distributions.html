@@ -89,7 +89,8 @@
       if(arr.length == 0){
         return null;}
       var modeMap = {};
-      var maxNumber = arr[0]; var maxCount = 1;
+      var maxNumber = [];
+      maxNumber.push(arr[0]); var maxCount = 1;
       for(var i = 0; i < arr.length; i++) {
         var num = arr[i];
         if(modeMap[num] == null){
@@ -98,8 +99,16 @@
           modeMap[num]++;
         }  
         if(modeMap[num] > maxCount){
-          maxNumber = num;
+          maxNumber = [];
+          maxNumber.push(num);
           maxCount = modeMap[num];
+        }
+        else if(modeMap[num] == maxCount && num!=maxNumber[0]){
+          if (maxNumber.length<=1){
+            maxNumber.push(" "+num);
+          }else{
+            maxNumber = "There are more than two modes, so mode may not be a useful statistic.";
+          }
         }
       }
       return [maxNumber, maxCount];
@@ -191,23 +200,23 @@
         }
         
         if (responseType == "location"){
-          meanInfo = "<p> Your <b>mean</b> location is: ("+meanLocation(d)[0] + ", " +meanLocation(d)[1] + ").</p>";
+          meanInfo = "<p> <b>Mean</b> location: ("+meanLocation(d)[0] + ", " +meanLocation(d)[1] + ").</p>";
           minMaxLoc = minMaxLocation(d);
-          minInfo = "<br>Your points are <b>bounded</b> by <br/>("+minMaxLoc[0] + ", " +minMaxLoc[1] + ")";
+          minInfo = "<br>Points <b>bounded</b> by <br/>("+minMaxLoc[0] + ", " +minMaxLoc[1] + ")";
           maxInfo = "and <br/>("+minMaxLoc[2] + ", " +minMaxLoc[3] + ")";
         }else if (responseType == "list"){
-          modeInfo = "<p> Your <b>mode</b> response is "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
+          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
         }else{
           d = d.sort(function(a,b) {
             return a - b;
             });
-          meanInfo = "<p> Your <b>mean</b> is: "+meanNumber(d) + ".</p>";
-          medianInfo = "<p> Your <b>median</b> response is: "+medianNumber(d) + ".</p>";
-          modeInfo = "<p> Your <b>mode</b> response is "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
+          meanInfo = "<p><b>Mean</b> response: "+meanNumber(d) + ".</p>";
+          medianInfo = "<p><b>Median</b> response: "+medianNumber(d) + ".</p>";
+          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
           var minMaxNum = [null, null];
           minMaxNum = minMaxNumber(d);
-          minInfo = "<p> Your <b>minimum</b> response is: "+minMaxNum[0] + ".</p>";
-          maxInfo = "<p> Your <b>maximum</b> response is: "+minMaxNum[1] + ".</p>";
+          minInfo = "<p><b>Minimum</b> response: "+minMaxNum[0] + ".</p>";
+          maxInfo = "<p><b>Maximum</b> response: "+minMaxNum[1] + ".</p>";
         }
       }
         if (meanInfo == "") {

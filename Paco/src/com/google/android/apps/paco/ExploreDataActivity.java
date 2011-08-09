@@ -122,7 +122,7 @@ public class ExploreDataActivity extends Activity {
     experimentProviderUtil = new ExperimentProviderUtil(this);
     List<Experiment> experiments = experimentProviderUtil.getExperiments();
     if (experiments.size()<1){
-      new AlertDialog.Builder(mainLayout.getContext()).setMessage("You haven't loaded any experiments yet, so this option does not make sense. Please come back after your have loaded an experiment and input data.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+      new AlertDialog.Builder(mainLayout.getContext()).setMessage("You haven't loaded any experiments yet, so this option does not make sense. Please come back after you have loaded an experiment and input data.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
 
         public void onClick(DialogInterface dialog, int which) {
           dialog.dismiss();
