@@ -19,9 +19,9 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical" android:layout_gravity="center">    
 	<WebView android:layout_width="wrap_content"
-		android:layout_height="0dip" android:textSize="20dip"
+		android:textSize="20dip"
         android:layout_weight="1"
-		android:text="" android:id="@+id/feedbackText"/>
+		android:text="" android:id="@+id/feedbackText" android:layout_height="0dip"/>
 	<Button android:id="@+id/rawDataButton"
     android:text="Go to Raw Data" android:layout_width="fill_parent" android:padding="3dip" android:layout_height="wrap_content"></Button>
 

@@ -4,9 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script language="javascript" type="text/javascript"
   src="file:///android_asset/jquery.js"></script>
-<script language="javascript" type="text/javascript"
-  src="file:///android_asset/default.js"></script>
-
+<script language="javascript" type="text/javascript" src="jquery.flot.js""></script>
+    
 <script language="javascript" type="text/javascript">
   $(document).ready(function() {
   
@@ -19,8 +18,16 @@
          + pad(d.getDate()) + '/'
          + String(d.getFullYear()).slice(2) + ' '
      }
+     
         
-        
+     function truncString(str, len) {
+       if (str.length > len) {
+         return str.substr(0,(len - 3))+"...";
+       } else {
+         return str;
+       }  
+     }
+           
      function meanLocation(arr) {
        var sumLat = 0;
        var sumLng = 0;
@@ -188,7 +195,9 @@
         responseType == "likert_smileys"||
         responseType == "location"||
         responseType == "list") {
-  
+        
+        var counts = []; // counts for each answer-used in lists
+        var orderedKeys = []; // keep track of the response value ordering - used in lists 
         for (var j = 0; j < expdata.length; j++) {
           var responses = expdata[j].responses;
           for (var r = 0; r < responses.length; r++) {
@@ -207,7 +216,33 @@
                 d.push([responses[r].answer]);
               }else{
                 d.push(responses[r].answer-0);
+              } 
+       ///taken from time to make count chart for lists or likerts
+              if (responseType=="list" || responseType == "likert" || responseType == "likert_smileys"){              
+                var answer = responses[r].answer;
+                var answers = [];
+                var answerOrders = [];
+                if (responseType == "list" && responses[r].isMultiselect) {                
+                  answers = answer.split(',');
+                  answerOrders = responses[r].answerOrder.split(',');                                
+                } else {
+                  answers.push(answer);
+                  answerOrders.push(responses[r].answerOrder);
+                }
+                
+                for (var currentAnswerIndex in answers) if (answers.hasOwnProperty(currentAnswerIndex)) {
+                 var currentAnswer = answers[currentAnswerIndex];  
+                          
+                  var currentCount = counts[currentAnswer];
+                  if (currentCount) {
+                      counts[currentAnswer] = currentCount + 1;
+                  } else {
+                      counts[currentAnswer] = 1;
+                      orderedKeys[answerOrders[answers.indexOf(currentAnswer)]] = currentAnswer;
+                  }
+                }
               }
+       ///////
             }
           }
         }
@@ -217,6 +252,7 @@
           minMaxLoc = minMaxLocation(d);
           minInfo = "<br>Points <b>bounded</b> by <br/>("+minMaxLoc[0] + ", " +minMaxLoc[1] + ")";
           maxInfo = "and <br/>("+minMaxLoc[2] + ", " +minMaxLoc[3] + ")";
+          $("#placeholder").html("");
         }else if (responseType == "list"){
           modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts</p>";
         }else{
@@ -230,7 +266,46 @@
           minMaxNum = minMaxNumber(d);
           minInfo = "<p><b>Minimum</b> response: "+minMaxNum[0] + "</p>";
           maxInfo = "<p><b>Maximum</b> response: "+minMaxNum[1] + "</p>";
+          $("#placeholder").html("");
         }
+        
+/////also taken from time to plot counts chart   
+        if (responseType=="list" || responseType == "likert" || responseType == "likert_smileys"){
+          var keyIndexes = [];
+          var keyCount = 0;
+          var ticks = [];
+          var maxCount = 0;
+          var graphData = [];
+
+          for (var key in orderedKeys) { // here use the answer indexes (list|likert), not the insertion order in counts
+            if (!orderedKeys.hasOwnProperty(key)) {
+              continue;
+            }
+            var countForKey = counts[orderedKeys[key]];
+            if (!countForKey) {
+              countForKey = 0;
+            } 
+            if (countForKey > maxCount) {
+              maxCount = countForKey;
+            }
+            keyIndexes[keyCount++] = { count : countForKey, key : orderedKeys[key] };        
+            }
+            // need to assign numbers to each key and store stuff by that number
+            for (var i = 0; i < keyCount; i++) {
+              graphData.push([i, keyIndexes[i].count]);
+              ticks.push([i, truncString(keyIndexes[i].key, 6)]);  
+            }
+            var data = [ {label: 'count', data : graphData} ]; 
+            var options = {series : {
+                         lines: {show: false, steps: false },
+                         bars: {show: true, barWidth: 0.7, align: 'center',},
+                       },
+                       xaxis: {ticks: ticks},
+                       yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 }
+                       };  
+            $.plot($("#placeholder"), data, options);
+          }
+////
       }
       expdata = expdata.sort(function(a,b) {
         return a.responseTime - b.responseTime;
@@ -238,16 +313,16 @@
              
       var totalResponsesInfo = "<b>Total</b> responses: "+d.length+"<br><b>from</b> "+isoDateString(new Date(expdata[0].responseTime))+" to "+isoDateString(new Date(expdata[expdata.length-1].responseTime));
       if (meanInfo == "") {
-      meanInfo = "No mean information is given for "+responseType + " data.";
+      meanInfo = "<p>No mean information is given for "+responseType + " data.</p>";
       }
       if (medianInfo == "") {
-      medianInfo = "No median information is given for "+responseType + " data.";
+      medianInfo = "<p>No median information is given for "+responseType + " data.</p>";
       }
       if (modeInfo == "") {
-      modeInfo = "No mode information is given for "+responseType + " data.";
+      modeInfo = "<p>No mode information is given for "+responseType + " data.</p>";
       }
       if (minInfo == "") {
-      minInfo = "No min or max information is given for "+responseType + " data.";
+      minInfo = "<p>No min or max information is given for "+responseType + " data.</p>";
       maxInfo = " ";
       }
     $("#titleHtml").html("<p>"+title+"</p>");
@@ -274,7 +349,9 @@
   <div id="modeHtml"></div>
   <div id="minHtml"></div>
   <div id="maxHtml"></div>
-  <div id="totalResponses"></div>
+  <div id="totalResponses"></div><br>
+  <div id="placeholder" style="width:300px;height:150px;"></div>
+  
 
   
 

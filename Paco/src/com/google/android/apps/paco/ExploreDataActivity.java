@@ -350,12 +350,12 @@ public class ExploreDataActivity extends Activity {
       map.put("title", experiment.getTitle());
       map.put("chosenVar", inpId+"");
       
-      rawDataButton = (Button)findViewById(R.id.rawDataButton);
-      rawDataButton.setVisibility(View.INVISIBLE);
-      
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
-            
+
+      rawDataButton = (Button)findViewById(R.id.rawDataButton);
+      rawDataButton.setVisibility(View.GONE);
+      
       final Environment env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
       
