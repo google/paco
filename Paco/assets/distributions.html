@@ -9,6 +9,18 @@
 
 <script language="javascript" type="text/javascript">
   $(document).ready(function() {
+  
+     function isoDateString(d){
+       function pad(n){
+         return n<10 ? '0'+n : n;
+       }
+  
+       return pad(d.getMonth()+1)+'/'
+         + pad(d.getDate()) + '/'
+         + String(d.getFullYear()).slice(2) + ' '
+     }
+        
+        
      function meanLocation(arr) {
        var sumLat = 0;
        var sumLng = 0;
@@ -134,6 +146,7 @@
       return (ans/100);
     } 
     
+////Start finding distributions    
       var expdata = window.env.getValue("experimentalData");
       var inputid = window.env.getValue("chosenVar");
       expdata = eval('('+ expdata + ')');
@@ -200,44 +213,49 @@
         }
         
         if (responseType == "location"){
-          meanInfo = "<p> <b>Mean</b> location: ("+meanLocation(d)[0] + ", " +meanLocation(d)[1] + ").</p>";
+          meanInfo = "<p> <b>Mean</b> location: ("+meanLocation(d)[0] + ", " +meanLocation(d)[1] + ")</p>";
           minMaxLoc = minMaxLocation(d);
           minInfo = "<br>Points <b>bounded</b> by <br/>("+minMaxLoc[0] + ", " +minMaxLoc[1] + ")";
           maxInfo = "and <br/>("+minMaxLoc[2] + ", " +minMaxLoc[3] + ")";
         }else if (responseType == "list"){
-          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
+          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts</p>";
         }else{
           d = d.sort(function(a,b) {
             return a - b;
             });
-          meanInfo = "<p><b>Mean</b> response: "+meanNumber(d) + ".</p>";
-          medianInfo = "<p><b>Median</b> response: "+medianNumber(d) + ".</p>";
-          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
+          meanInfo = "<p><b>Mean</b> response: "+meanNumber(d) + "</p>";
+          medianInfo = "<p><b>Median</b> response: "+medianNumber(d) + "</p>";
+          modeInfo = "<p><b>Mode</b> response: "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts</p>";
           var minMaxNum = [null, null];
           minMaxNum = minMaxNumber(d);
-          minInfo = "<p><b>Minimum</b> response: "+minMaxNum[0] + ".</p>";
-          maxInfo = "<p><b>Maximum</b> response: "+minMaxNum[1] + ".</p>";
+          minInfo = "<p><b>Minimum</b> response: "+minMaxNum[0] + "</p>";
+          maxInfo = "<p><b>Maximum</b> response: "+minMaxNum[1] + "</p>";
         }
       }
-        if (meanInfo == "") {
-        meanInfo = "No mean information is given for "+responseType + " data.";
-        }
-        if (medianInfo == "") {
-        medianInfo = "No median information is given for "+responseType + " data.";
-        }
-        if (modeInfo == "") {
-        modeInfo = "No mode information is given for "+responseType + " data.";
-        }
-        if (minInfo == "") {
-        minInfo = "No min or max information is given for "+responseType + " data.";
-        maxInfo = " ";
-        }
+      expdata = expdata.sort(function(a,b) {
+        return a.responseTime - b.responseTime;
+      });
+             
+      var totalResponsesInfo = "<b>Total</b> responses: "+d.length+"<br><b>from</b> "+isoDateString(new Date(expdata[0].responseTime))+" to "+isoDateString(new Date(expdata[expdata.length-1].responseTime));
+      if (meanInfo == "") {
+      meanInfo = "No mean information is given for "+responseType + " data.";
+      }
+      if (medianInfo == "") {
+      medianInfo = "No median information is given for "+responseType + " data.";
+      }
+      if (modeInfo == "") {
+      modeInfo = "No mode information is given for "+responseType + " data.";
+      }
+      if (minInfo == "") {
+      minInfo = "No min or max information is given for "+responseType + " data.";
+      maxInfo = " ";
+      }
     $("#titleHtml").html("<p>"+title+"</p>");
     $("#meanHtml").html(meanInfo);
     $("#medianHtml").html(medianInfo);
     $("#modeHtml").html(modeInfo);
     $("#minHtml").html(minInfo);
-    $("#maxHtml").html(maxInfo);
+    $("#totalResponses").html(totalResponsesInfo);
   });
 </script>
 </head>
@@ -256,6 +274,8 @@
   <div id="modeHtml"></div>
   <div id="minHtml"></div>
   <div id="maxHtml"></div>
+  <div id="totalResponses"></div>
+
   
 
 </body>
