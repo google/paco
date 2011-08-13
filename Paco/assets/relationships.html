@@ -6,7 +6,14 @@
     <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
     <script language="javascript" type="text/javascript">
       $(document).ready(function() {
-          
+           function truncString(str, len) {
+             if (str.length > len) {
+               return str.substr(0,(len - 3))+"...";
+             } else {
+               return str;
+             }  
+           }
+           
            function map(fn, xs) {
              var result = [];
              for (var i = 0; i < xs.length; i++) {
@@ -94,10 +101,11 @@
              $("#titleTwo").html("<p></p>");
            }
 ////Start doing actual relationship building here
-          var expdata = window.env.getValue("experimentalData");
+          var allData = window.env.getValue("experimentalData");
+          allData = eval( '(' + allData + ')');
+          var expdata = allData[0];
           var chosenVarXId = window.env.getValue("chosenVarX");
           var chosenVarYId = window.env.getValue("chosenVarY");                              
-          expdata = eval('('+ expdata + ')');
           chosenVarXId = parseInt(chosenVarXId);
           chosenVarYId = parseInt(chosenVarYId);
           
@@ -186,7 +194,7 @@
                 }
                 if (xResponseType=="list"){
                   xData.push([expdata[j].responseTime, responses[r].answerOrder]);
-                  xPointLabels.push([responses[r].answerOrder, responses[r].answer]);
+                  xPointLabels.push([responses[r].answerOrder, truncString(responses[r].answer, 6)]);
                 } else {
                   xData.push([expdata[j].responseTime, responses[r].answer]);
                 }
@@ -242,15 +250,15 @@
  </head>
 
 <body style='text-align: center; color: #4272db;'>
+  <div id="titleTwo"> 
+  <h1>Chart</h1></div>
+  <div id="placeholderTwo" style="width:300px;height:150px;"></div>
+
     <div id="titleOne"> 
     <h1>Chart</h1></div>
     
   <div id="placeholderOne" style="width:300px;height:150px;"></div>
   <br>
-  <body style='text-align: center; color: #4272db;'>
-    <div id="titleTwo"> 
-    <h1>Chart</h1></div>
-  <div id="placeholderTwo" style="width:300px;height:150px;"></div>
 
 </body>
 

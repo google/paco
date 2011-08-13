@@ -154,9 +154,10 @@
     } 
     
 ////Start finding distributions    
-      var expdata = window.env.getValue("experimentalData");
+      var allData = window.env.getValue("experimentalData");
+      allData = eval( '(' + allData + ')');
+      var expdata = allData[0];
       var inputid = window.env.getValue("chosenVar");
-      expdata = eval('('+ expdata + ')');
       inputid = parseInt(inputid);
    
       if (!expdata) {
@@ -196,8 +197,8 @@
         responseType == "location"||
         responseType == "list") {
         
-        var counts = []; // counts for each answer-used in lists
-        var orderedKeys = []; // keep track of the response value ordering - used in lists 
+        var counts = []; // counts for each answer-used in lists and likerts
+        var orderedKeys = []; // keep track of the response value ordering - used in lists and likerts
         for (var j = 0; j < expdata.length; j++) {
           var responses = expdata[j].responses;
           for (var r = 0; r < responses.length; r++) {

@@ -6,11 +6,10 @@
     
         <script language="javascript" type="text/javascript">
           $(document).ready(function() {
-                var experimentData = window.env.getValue("experimentalData");
+                var allData = window.env.getValue("experimentalData");
+                allData = eval( '(' + allData + ')');
+                var experimentData = allData[0];
                 var chosenVar = window.env.getValue("chosenVar");
-                //experimentData = $.parseJSON(experimentData);
-                // this is a no-no              
-                experimentData = eval('('+ experimentData + ')');
                 chosenVar = parseInt(chosenVar);
                 if (!experimentData) {
                    alert("No Data");

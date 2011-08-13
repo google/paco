@@ -21,8 +21,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
-import android.text.TextUtils.StringSplitter;
 
 public class Feedback implements Parcelable {
 
@@ -134,7 +132,7 @@ public class Feedback implements Parcelable {
         buf.append(output.getAnswer());
         buf.append("\" width=150>"); 
       } else{
-        buf.append(getDisplayOfAnswer(output, input));
+        buf.append(output.getDisplayOfAnswer(input));
         buf.append("<a href='file:///android_asset/time.html?" + input.getId() + "'>Chart</a>");
       }      
       buf.append("</div></div>");
@@ -142,46 +140,6 @@ public class Feedback implements Parcelable {
     
     buf.append("</div></body></html>");
     return buf.toString();
-  }
-
-  String getDisplayOfAnswer(Output output, Input input) {
-    if (input.getResponseType().equals(Input.LIST)) {
-      if (!input.isMultiselect()) {
-		String answer = output.getAnswer();
-		if (answer == null) {
-			return "";
-		}
-        return input.getListChoices().get(Integer.parseInt(answer) -1);
-      } 
-      // split answer, then retrieve list choice for each and return an array!?
-      StringSplitter stringSplitter = new TextUtils.SimpleStringSplitter(',');
-      stringSplitter.setString(output.getAnswer());
-      boolean first = true;
-      StringBuilder buf = new StringBuilder();
-      for (String piece : stringSplitter) {
-        if (first) {
-          first = false;
-        } else {
-          buf.append(",");
-        }
-        buf.append(input.getListChoices().get(Integer.parseInt(piece) - 1));
-      }
-      return buf.toString();
-    }
-    if (input.getResponseType().equals(Input.LIKERT) && output.getAnswer() != null) {
-      int intAnswer = Integer.parseInt(output.getAnswer());
-//      if (intAnswer == 1 && input.getLeftSideLabel() != null && input.getLeftSideLabel().length() > 0) {
-//        return input.getLeftSideLabel();
-//      } 
-//      if (intAnswer == input.getLikertSteps() && input.getRightSideLabel() != null && input.getRightSideLabel().length() > 0) {
-//        return input.getRightSideLabel();
-//      }
-      return output.getAnswer();
-    }
-//    else if (input.getResponseType().equals(Input.PHOTO)) {
-//      return BitmapFactory.decodeStream(new ByteArrayInputStream(Base64.decode(output.getAnswer(), Base64.DEFAULT)));
-//    }
-    return output.getAnswer(); 
   }
 
   String getTextOfInputForOutput(Experiment experiment, Output output) {

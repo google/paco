@@ -176,8 +176,7 @@ public class FeedbackActivity extends Activity {
             if (response.getInputServerId() == inputId ) {
               Input inputById = experiment.getInputById(inputId);
               if (!inputById.isInvisible() && inputById.isNumeric()) {               
-                eventJson.put(feedback.getDisplayOfAnswer(response, 
-                    inputById));
+                eventJson.put(response.getDisplayOfAnswer(inputById));
                 results.put(eventJson);
                 continue;
               }
@@ -271,7 +270,7 @@ public class FeedbackActivity extends Activity {
           responseJson.put("responseType", input.getResponseType());
           responseJson.put("isMultiselect", input.isMultiselect());
           responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-          responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
+          responseJson.put("answer", response.getDisplayOfAnswer(input));
           responseJson.put("answerOrder", response.getAnswer());  
           responses.put(responseJson);
         }          

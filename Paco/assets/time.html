@@ -72,6 +72,7 @@
           }
         }
 
+//////Process starts here
         var url = window.location.toString();
         url.match(/\?(.+)$/);
         var params = RegExp.$1;
@@ -82,8 +83,9 @@
           var tmp = params[i].split("=");
           queryStringList[tmp[0]] = unescape(tmp[1]);
         }
-        var expdata = window.env.getValue("experimentalData");
-        expdata = eval( '(' + expdata + ')');
+        var allData = window.env.getValue("experimentalData");
+        allData = eval( '(' + allData + ')');
+        var expdata = allData[0];
         expdata = expdata.sort(function(a,b) {
         return a.responseTime - b.responseTime;
       });

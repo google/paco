@@ -86,6 +86,7 @@ public class ExploreDataActivity extends Activity {
   private HashMap<Long, List<Long>> checkedChoices = new HashMap<Long, List<Long>>();
   List<String> inpNames;
   boolean showDialog = true;
+  JSONArray data;
   
   
   
@@ -297,57 +298,57 @@ public class ExploreDataActivity extends Activity {
   //as indicated by the whichOpt variable
   private void analyzeData(HashMap<Long, List<Long>> choices, int whichOpt) {
     int choicesSize = 0;
-    for (Long key:choices.keySet()){
-      choicesSize+=choices.get(key).size();
+    for (Long key : choices.keySet()) {
+      choicesSize += choices.get(key).size();
     }
-    if (whichOpt == 1){
-          if (choicesSize==1){
-            for (Long key:choices.keySet()){
-            executeTrends(key, choices.get(key).get(0));}
-          }else{
-            chooseOneToast();
+    if (whichOpt == 1) {
+      if (choicesSize == 1) {
+        for (Long key : choices.keySet()) {
+          executeTrendsandDistributions(key, choices.get(key).get(0), whichOpt);
+        }
+      } else {
+        chooseOneToast();
       }
-   }else if(whichOpt == 2){
-     if (choicesSize==2){
-       if (choices.keySet().size()==1){//For data from the same experiment
-         long varX, varY;
-         for (Long key:choices.keySet()){
-           varX = choices.get(key).get(0);
-           varY = choices.get(key).get(1);
-           executeRelationships(key, varX, varY);
-         }
-       }else if (choices.keySet().size()==2){//For data from two different experiments
-         executeRelationships(choices);
-       }
-       }else{
-         chooseTwoToast();
-       }     
-    } else if (whichOpt == 3){
-      if (choicesSize==1){
-        for (Long key:choices.keySet()){
-        executeDistributions(key, choices.get(key).get(0));}
-      }else{
+    } else if (whichOpt == 2) {
+      if (choicesSize == 2) {
+        if (choices.keySet().size() == 1) {// For data from the same experiment
+          long varX, varY;
+          for (Long key : choices.keySet()) {
+            varX = choices.get(key).get(0);
+            varY = choices.get(key).get(1);
+            executeRelationships(key, varX, varY);
+          }
+        } else if (choices.keySet().size() == 2) {// For data from two different
+                                                  // experiments
+          executeRelationships(choices);
+        }
+      } else {
+        chooseTwoToast();
+      }
+    } else if (whichOpt == 3) {
+      if (choicesSize == 1) {
+        for (Long key : choices.keySet()) {
+          executeTrendsandDistributions(key, choices.get(key).get(0), whichOpt);
+        }
+      } else {
         chooseOneToast();
       }
     }
   }
 
-  //execute trends for one variable from one experiment
-  private void executeTrends(Long expId, Long inpId) {
+  //execute trends or distributions for one variable from one experiment
+  private void executeTrendsandDistributions(Long expId, Long inpId, int whichOpt) {
     experiment = getExperiment(expId);
     if (experiment == null) {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
         Toast.LENGTH_SHORT).show();
     } else {
       setContentView(R.layout.feedback);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadLatestEventForExperiment(experiment);
-      final Feedback feedback = experiment.getFeedback().get(0);
-      
-      final Map<String,String> map = new HashMap<String, String>();      
-      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
-      map.put("title", experiment.getTitle());
+      getExperimentInformation(experimentProviderUtil, experiment);
+      final Map<String,String> map = new HashMap<String, String>(); 
+      data = new JSONArray();
+      data.put(convertExperimentResultsToJsonArray(experiment.getFeedback().get(0)));
+      map.put("experimentalData", data.toString());
       map.put("chosenVar", inpId+"");
       
       webView = (WebView)findViewById(R.id.feedbackText);
@@ -358,25 +359,18 @@ public class ExploreDataActivity extends Activity {
       
       final Environment env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
-      
+
       setWebChromeClientThatHandlesAlertsAsDialogs();
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
-      webView.setWebViewClient(webViewClient);
-      
-      webView.loadUrl("file:///android_asset/straightToTime.html");
+      if (whichOpt==1)
+        webView.loadUrl("file:///android_asset/straightToTime.html");
+      else if (whichOpt==3)
+        webView.loadUrl("file:///android_asset/distributions.html");
     }
   }
 
   //execute relationships for two variables from different experiments
   private void executeRelationships(HashMap<Long, List<Long>> keyValIds) {
-    new AlertDialog.Builder(mainLayout.getContext()).setMessage("Please choose variables from the same experiment. The ability to compare variables from different experiments will be here soon.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
-
-      public void onClick(DialogInterface dialog, int which) {
-        dialog.dismiss();
-      }
-      
-    }).create().show();
-    /*Long expXId, expYId, inpXId, inpYId;
+    Long expXId, expYId, inpXId, inpYId;
     Object[] idArray;
     ArrayList<Long> temp = new ArrayList<Long>();
     
@@ -387,15 +381,16 @@ public class ExploreDataActivity extends Activity {
     
     idArray = temp.toArray();
     expXId = (Long) idArray[0]; inpXId = (Long) idArray[1]; expYId = (Long) idArray[2]; inpYId = (Long) idArray[3];
-    
+    data = new JSONArray();
     experiment = getExperiment(expXId);
     final Map<String,String> map = new HashMap<String, String>();
-
+    WebViewClient webViewClient =null;
     if (experiment == null) {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
         Toast.LENGTH_SHORT).show();
     } else {
-      map.put("expXId", expXId+"");
+      getExperimentInformation(experimentProviderUtil, experiment);
+      data.put(convertExperimentResultsToJsonArray(experiment.getFeedback().get(0)));
       map.put("chosenVarX", inpXId+"");
     }
     
@@ -404,8 +399,11 @@ public class ExploreDataActivity extends Activity {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
         Toast.LENGTH_SHORT).show();
     } else {
+      getExperimentInformation(experimentProviderUtil, experiment);
+      final Feedback feedbackY = experiment.getFeedback().get(0);
       setContentView(R.layout.feedback);
-      map.put("expYId", expYId+"");
+      data.put(convertExperimentResultsToJsonArray(experiment.getFeedback().get(0)));
+      map.put("experimentalData", data.toString());
       map.put("chosenVarY", inpYId+"");
       
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
@@ -416,31 +414,31 @@ public class ExploreDataActivity extends Activity {
 
       final Environment env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
-      setWebChromeClientThatHandlesAlertsAsDialogs();
       
+      setWebChromeClientThatHandlesAlertsAsDialogs();
+    
       webView.loadUrl("file:///android_asset/relationshipsDifferentExperiments.html");
-    }*/
+    }
   }
   
   
   //execute relationships for two variables within the same experiment
-  private void executeRelationships(Long expId, long inpX, long inpY) {
+  private void executeRelationships(Long expId, long inpXId, long inpYId) {
     experiment = getExperiment(expId);
     if (experiment == null) {
       Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
         Toast.LENGTH_SHORT).show();
     } else {
       setContentView(R.layout.feedback);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadLatestEventForExperiment(experiment);
+      getExperimentInformation(experimentProviderUtil, experiment);
       final Feedback feedback = experiment.getFeedback().get(0);
       
       final Map<String,String> map = new HashMap<String, String>();      
-      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
-      map.put("title", experiment.getTitle());
-      map.put("chosenVarX", inpX+"");
-      map.put("chosenVarY", inpY+"");
+      data = new JSONArray();
+      data.put(convertExperimentResultsToJsonArray(experiment.getFeedback().get(0)));
+      map.put("experimentalData", data.toString());
+      map.put("chosenVarX", inpXId+"");
+      map.put("chosenVarY", inpYId+"");
       
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
       rawDataButton.setVisibility(View.INVISIBLE);
@@ -452,45 +450,12 @@ public class ExploreDataActivity extends Activity {
       webView.addJavascriptInterface(env, "env");
       
       setWebChromeClientThatHandlesAlertsAsDialogs();
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
-      webView.setWebViewClient(webViewClient);
+      JSONArray resultsForX = getResultsForInputAsJsonString(inpXId, experiment);
+      JSONArray resultsForY = getResultsForInputAsJsonString(inpYId, experiment);
+      map.put("xData", resultsForX.toString());
+      map.put("yData", resultsForY.toString());
       
       webView.loadUrl("file:///android_asset/relationships.html");
-    }
-  }
-  
-  //execute distributions for one experiment
-  private void executeDistributions(Long expId, Long inpId) {
-    experiment = getExperiment(expId);
-    if (experiment == null) {
-      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
-        Toast.LENGTH_SHORT).show();
-    } else {
-      setContentView(R.layout.feedback);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadLatestEventForExperiment(experiment);
-      final Feedback feedback = experiment.getFeedback().get(0);
-      
-      final Map<String,String> map = new HashMap<String, String>();      
-      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
-      map.put("title", experiment.getTitle());
-      map.put("chosenVar", inpId+"");
-      
-      rawDataButton = (Button)findViewById(R.id.rawDataButton);
-      rawDataButton.setVisibility(View.INVISIBLE);
-      
-      webView = (WebView)findViewById(R.id.feedbackText);
-      webView.getSettings().setJavaScriptEnabled(true);
-
-      final Environment env = new Environment(map);
-      webView.addJavascriptInterface(env, "env");
-      
-      setWebChromeClientThatHandlesAlertsAsDialogs();
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
-      webView.setWebViewClient(webViewClient);
-      
-      webView.loadUrl("file:///android_asset/distributions.html");
     }
   }
   
@@ -524,28 +489,12 @@ public class ExploreDataActivity extends Activity {
     return tempIds;
   }
   
-  
-/*  private String getNamesOfSelectedVariables(HashMap<Long, List<Long>> checked) {
-    String finalString = "  ";
-    List<Long> tempVals;
-    for (Long experimentId: checked.keySet()){
-      tempVals = checked.get(experimentId);
-      Experiment e = getExperiment(experimentId);
-      experimentProviderUtil.loadInputsForExperiment(e);
-      for (Long val: tempVals){
-        finalString+=(e.getInputById(val).getName()+"  ");
-      }
-    }
-    
-    return finalString;
-  }*/
-  
   private Experiment getExperiment(long expId){
     return experimentProviderUtil.getExperiment(expId);
   }
   
 ///////Copied from FeedbackActivity\\\\\\\\\\\\
-  private String convertExperimentResultsToJsonString(final Feedback feedback) {
+  private JSONArray convertExperimentResultsToJsonArray(final Feedback feedback) {
     final JSONArray experimentData = new JSONArray();
     for (Event event : experiment.getEvents()) {
       try {
@@ -575,7 +524,7 @@ public class ExploreDataActivity extends Activity {
           responseJson.put("inputName", input.getName());
           responseJson.put("responseType", input.getResponseType());
           responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-          responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
+          responseJson.put("answer", response.getDisplayOfAnswer(input));
           responseJson.put("answerOrder", response.getAnswer());  
           responses.put(responseJson);
         }          
@@ -588,12 +537,10 @@ public class ExploreDataActivity extends Activity {
         // skip this event and do the next event. 
       }
     }
-    String experimentDataAsJson = experimentData.toString();
-    return experimentDataAsJson;
+    return experimentData;
   }
   
-  
-  private String convertSingleExperimentResultsToJsonString(final Feedback feedback, String rName) {
+  private String getResultsForInputAsJsonString(final Feedback feedback, Long inputId) {
     final JSONArray experimentData = new JSONArray();
     for (Event event : experiment.getEvents()) {
       try {
@@ -614,19 +561,22 @@ public class ExploreDataActivity extends Activity {
         
         JSONArray responses = new JSONArray();
         for (Output response : event.getResponses()) {
-            JSONObject responseJson = new JSONObject();
-            Input input = experiment.getInputById(response.getInputServerId());     
-            if (input == null) {
-              continue;
-            }
+          JSONObject responseJson = new JSONObject();
+          Input input = experiment.getInputById(response.getInputServerId());     
+          if (input == null) {
+            continue;
+          }
+          if (inputId == input.getServerId()){
             responseJson.put("inputId", input.getServerId());
             responseJson.put("inputName", input.getName());
             responseJson.put("responseType", input.getResponseType());
             responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-            responseJson.put("answer", feedback.getDisplayOfAnswer(response, input));
+            responseJson.put("answer", response.getDisplayOfAnswer(input));
             responseJson.put("answerOrder", response.getAnswer());  
             responses.put(responseJson);
           }
+        }          
+        
         eventObject.put("responses", responses);
         if (responses.length() > 0) {
           experimentData.put(eventObject);
@@ -638,7 +588,6 @@ public class ExploreDataActivity extends Activity {
     String experimentDataAsJson = experimentData.toString();
     return experimentDataAsJson;
   }
-  
   
   private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     webView.setWebChromeClient(new WebChromeClient() {
@@ -682,51 +631,40 @@ public class ExploreDataActivity extends Activity {
     });
   }
   
-  private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final Feedback feedback) {
-    WebViewClient webViewClient = new WebViewClient() {
-
-      public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        Uri uri = Uri.parse(url);
-        if (uri.getScheme().startsWith("http")) {
-          return false;
-        }
-        
-        String inputIdStr = uri.getQueryParameter("inputId");
-        long inputId = Long.valueOf(inputIdStr);
-        JSONArray results = new JSONArray();
-        for (Event event : experiment.getEvents()) {
-          JSONArray eventJson = new JSONArray();
-          DateTime responseTime = event.getResponseTime();
-          if (responseTime == null) {
-            continue; // missed signal;
+  /**
+   * @param inputId
+   * @param localExperiment
+   * @return
+   */
+  private JSONArray getResultsForInputAsJsonString(long inputId, Experiment localExperiment) {
+    JSONArray results = new JSONArray();
+    for (Event event : localExperiment.getEvents()) {
+      JSONArray eventJson = new JSONArray();
+      DateTime responseTime = event.getResponseTime();
+      if (responseTime == null) {
+        continue; // missed signal;
+      }
+      eventJson.put(responseTime.getMillis());
+      
+      // in this case we are looking for one input from the responses that we are charting.
+      for (Output response : event.getResponses()) {
+        if (response.getInputServerId() == inputId ) {
+          Input inputById = localExperiment.getInputById(inputId);
+          if (!inputById.isInvisible() && inputById.isNumeric()) {               
+            eventJson.put(response.getDisplayOfAnswer(inputById));
+            results.put(eventJson);
+            continue;
           }
-          eventJson.put(responseTime.getMillis());
-          
-          // in this case we are looking for one input from the responses that we are charting.
-          for (Output response : event.getResponses()) {
-            if (response.getInputServerId() == inputId ) {
-              Input inputById = experiment.getInputById(inputId);
-              if (!inputById.isInvisible() && inputById.isNumeric()) {               
-                eventJson.put(feedback.getDisplayOfAnswer(response, 
-                    inputById));
-                results.put(eventJson);
-                continue;
-              }
-            }
-          }
-          
         }
-        Map<String, String> map2 = new HashMap();
-        Environment chartEnv = new Environment(map2);
-        map2.put("data", results.toString());
-        
-        view.addJavascriptInterface(chartEnv, "chartEnv");
-        view.loadUrl(url);
-        return true;
       }
       
-    };
-    return webViewClient;
+    }
+    return results;
   }
-  ////////////
+
+  private void getExperimentInformation(ExperimentProviderUtil epu, Experiment exp) {
+    epu.loadFeedbackForExperiment(exp);
+    epu.loadInputsForExperiment(exp);
+    epu.loadLatestEventForExperiment(exp);
+  }
 }

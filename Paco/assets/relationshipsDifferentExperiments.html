@@ -6,24 +6,33 @@
     <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
     <script language="javascript" type="text/javascript">
       $(document).ready(function() {
-          var expXdata = window.env.getValue("expXdata");
-          var expYdata = window.env.getValue("expYdata");
+          var allData = window.env.getValue("experimentalData");
+          allData = eval( '(' + allData + ')');
+          var expXdata = allData[0];
+          var expYdata = allData[1];
           var chosenVarXId = window.env.getValue("chosenVarX");
           var chosenVarYId = window.env.getValue("chosenVarY");                              
-          expXdata = eval('('+ expXdata + ')');
-          expYdata = eval('('+ expYdata + ')');
           chosenVarXId = parseInt(chosenVarXId);
           chosenVarYId = parseInt(chosenVarYId);
+          alert(allData);
+
+          if (!expXdata&&!expYdata) {
+             alert(expXdata+"One and two are empty.");
+             return;
+          }     
           
           if (!expXdata) {
-             alert("The first set of data is empty.");
+             alert(expXdata+"The first set of data is empty.");
              return;
-          } 
-          
+          }           
+ 
           if (!expYdata) {
              alert("The second set of data is empty.");
              return;
           }
+          
+
+          
                           
          function getData(expdata, chosenVarId){
             var latestEvent = expdata[0];    
@@ -57,7 +66,7 @@
                 var response = expdata[j].responses[i];
                 if (response.inputId == chosenVarId) {   
                   foundAMatch = true;
-                  label = response.prompt;
+                  label = response.inputName;
                   sampleAnswer = response.answer;
                 }
               }
@@ -79,12 +88,17 @@
             return [data, label]
          }
           
-        var xData; var xLabel; var yData; var yLabel;
+        var xData; var xLabel; var yData; var yLabel; var xDataAndLabel; var yDataAndLabel;
         
-        [xData, xLabel] = getData(expXdata, chosenVarXId);
-        [yData, yLabel] = getData(expYdata, chosenVarYId); 
+        xDataAndLabel = getData(expXdata, chosenVarXId);
+        xData = xDataAndLabel[0];
+        xLabel = xDataAndLabel[1];
         
-        $("#charttitle").html("<h2>" + xLabel+ " vs. " + yLabel + "</h2>");
+        yDataAndLabel = getData(expYdata, chosenVarYId);
+        yData = yDataAndLabel[0];
+        yLabel = yDataAndLabel[1]; 
+        
+        $("#charttitle").html("<h2>" + yLabel+ " vs. " + xLabel + "</h2>");
         $.plot($("#placeholder"),
             [{label : xLabel, data : xData, lines: { show: true }},
              {label : yLabel, data : yData, lines: { show: true }}
