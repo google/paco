@@ -18,14 +18,16 @@
 <resources>
     <string name="app_name">PACO</string>
     
-  <string name="version">2.0.40</string>
-  <string name="server">localhost:8888</string>
+  <string name="version">2.0.48</string>
+  <string name="server">quantifiedself.appspot.com</string>
+  <string name="app_package">com.google.android.apps.paco</string>
   <string name="emailSuffix">\@gmail.com</string>
   <string name="about_googlegroups">pacoserve@googlegroups.com</string>
-  <string name="about_weburl">pacoserve.appspot.com</string>
-  <string name="about_copyright_message">Copyright 2011 Google Inc.</string>
+  <string name="about_weburl">quantifiedself.appspot.com</string>
+  <string name="about_copyright_message"></string>
   <string name="about_bob">Bob Evans</string>
   <string name="about_alberto">Alberto Savoia</string>
+  <string name="about_arun">Arun Saigal</string>
   <string name="about_cp">CP Lim</string>
   <string name="about_stephen">Stephen Uhler</string>
   <string name="about_tina">Tina Malm</string>
