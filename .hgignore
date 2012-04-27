@@ -5,6 +5,8 @@
 ^Paco-Server/war/WEB-INF/appengine-generated/
 ^Paco-Server/war/pacoserver/
 ^Paco-Server/war/WEB-INF/deploy/
+^PacoAndroidLib/bin/
+^PacoAndroidLib/gen/
 \.DS_Store
 \.classpath
 \.nfs*
@@ -13,4 +15,4 @@
 ^Paco-Server/war/WEB-INF/lib/appengine-api-labs-1.5.0.1.jar
 ^Paco-Server/war/WEB-INF/lib/appengine-jsr107cache-1.5.0.1.jar
 ^Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
-
+~$

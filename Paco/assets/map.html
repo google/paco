@@ -83,38 +83,21 @@
     }
 
 
-////Actual Code to be run
-
-//Get data from env
-    var url = window.location.toString();
-    url.match(/\?(.+)$/);
-    var params = RegExp.$1;
-    var params = params.split("&");
-    var queryStringList = {};
- 
-    for(var i=0;i<params.length;i++) {
-      var tmp = params[i].split("=");
-      queryStringList[tmp[0]] = unescape(tmp[1]);
-    }
-  
-  
-    var expdata = window.env.getValue("experimentalData");
-    expdata = eval(expdata);
-    
-    
-    var inputid = queryStringList["inputId"];
+    var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+        
+    var chosenInputId = window.env.getValue("inputId"); 
     
     var responseType = null;
     var chartTitle = null;
     var sampleAnswer;
     var foundAMatch = false;
-    for (var j = 0; j < expdata.length; j++) {
+    for (var j = 0; j < experimentData.length; j++) {
       if (foundAMatch) {
         break;
       }  
-      for (var i = 0; i < expdata[j].responses.length; i++) {  
-      var response = expdata[j].responses[i];
-      if (response.inputId == inputid) {   
+      for (var i = 0; i < experimentData[j].responses.length; i++) {  
+      var response = experimentData[j].responses[i];
+      if (response.inputId == chosenInputId) {   
         foundAMatch = true;
           responseType = response.responseType;
         chartTitle = response.prompt;
@@ -126,13 +109,13 @@
   //Get lats and lngs from data    
     var locations = []; var otherInfo = [];
     if (responseType == "location") {
-      for (event in expdata){
-        if (expdata[event].joinEvent !=true){
+      for (event in experimentData){
+        if (experimentData[event].joinEvent !=true){
           
-          var responses = expdata[event].responses;
+          var responses = experimentData[event].responses;
           var tempInfo = "Responses at this Location: ";       
           for (var r = 0; r < responses.length; r++) {
-            if (responses[r].inputId == inputid) {
+            if (responses[r].inputId == chosenInputId) {
               if (!responses[r].answer) {
                 continue;
               }  

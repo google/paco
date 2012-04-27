@@ -37,15 +37,15 @@ public class Environment {
 
 	public void addInput(Binding input) {
 	  if (input != null) {
-	    if (input.value() == null) {
-	      knownQuestions.remove(input.getVarName());
-	    } else {
+	    //if (input.value() == null) {
+	    //  knownQuestions.remove(input.getVarName());
+	    //} else {
 	      knownQuestions.put(input.getVarName(), input);
-	    }
+	    //}
 	  } 
 	}
 	
-	public Integer getValue(String id) {
+	public Object getValue(String id) {
 		return knownQuestions.get(id).value();
 	}
 }

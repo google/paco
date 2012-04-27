@@ -17,8 +17,10 @@
 package com.google.android.apps.paco;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 public class ServerCommunicationService extends Service {
 
@@ -40,11 +42,19 @@ public class ServerCommunicationService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId); 
+    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco ServerCommunicationService wakelock");
+    wl.acquire();
 
+    
     Runnable runnable = new Runnable() {
       public void run() {
-        new ServerCommunication(ServerCommunicationService.this).checkIn();
-        stopSelf();
+        try {
+          ServerCommunication.getInstance(ServerCommunicationService.this).checkIn();          
+        } finally {
+          wl.release();
+          stopSelf();
+        }
       }
     };
     (new Thread(runnable)).start();

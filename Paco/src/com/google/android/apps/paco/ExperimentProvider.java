@@ -16,10 +16,6 @@
 */
 package com.google.android.apps.paco;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import org.joda.time.DateTime;
@@ -49,7 +45,7 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   private static final String DATABASE_NAME = "experiments.db";
-  private static final int DATABASE_VERSION = 9;
+  private static final int DATABASE_VERSION = 10;
   
   private static final String EXPERIMENTS_TABLE_NAME = "experiments";
   private static final String SCHEDULES_TABLE_NAME = "schedules";
@@ -137,7 +133,8 @@ public class ExperimentProvider extends ContentProvider {
           + SignalScheduleColumns.NTH_OF_MONTH + " INTEGER, "
           + SignalScheduleColumns.BY_DAY_OF_MONTH + " INTEGER, "
           + SignalScheduleColumns.DAY_OF_MONTH + " INTEGER, "
-          + SignalScheduleColumns.BEGIN_DATE + " INTEGER "
+          + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
+          + SignalScheduleColumns.USER_EDITABLE + " INTEGER "
           + ");");
       db.execSQL("CREATE TABLE " + INPUTS_TABLE_NAME + " ("
           + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -197,10 +194,19 @@ public class ExperimentProvider extends ContentProvider {
 	  Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
 		  + newVersion + ".");
 	  
+	  if (oldVersion <= 8) {
       db.execSQL("ALTER TABLE " + INPUTS_TABLE_NAME + " ADD "
           + InputColumns.MULTISELECT + " INTEGER default 0"
           + ";");
-	  	}
+	  }  
+	  
+	  if (oldVersion <= 9) {
+	    db.execSQL("ALTER TABLE " + SCHEDULES_TABLE_NAME + " ADD "
+          + SignalScheduleColumns.USER_EDITABLE + " INTEGER default 1"
+          + ";");
+	  }
+      
+	 }
 	
 //	public void insertValues(SQLiteDatabase db) {
 //	  String CurLine = "";
@@ -729,4 +735,5 @@ public class ExperimentProvider extends ContentProvider {
 	liveFolderProjectionMap.put(LiveFolders.NAME, ExperimentColumns.TITLE + " AS " + LiveFolders.NAME);
 	// Add more columns here for more robust Live Folders.
   }
+  
 }

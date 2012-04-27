@@ -1,256 +1,27 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
- <head>
+  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/relationships.js"></script>
+    
     <script language="javascript" type="text/javascript">
       $(document).ready(function() {
-          
-           function map(fn, xs) {
-             var result = [];
-             for (var i = 0; i < xs.length; i++) {
-               result.push(fn(xs[i]));
-             }
-             return result;
-           }
-          
-           function reduce(fn, xs, init) {
-             var result = init;
-             for (var i = 0; i < xs.length; i++) {
-               result = fn(result, xs[i]);
-             }
-             return result;
-           }
-          
-           function sum(xs) {
-             return reduce(function(sum, x) { return sum + x; }, xs, 0);
-           }
-          
-           function getXs(xs) {
-             return map(function(x) { return x[0]; }, xs);
-           }
-          
-           function getYs(xs) {
-             return map(function(x) { return x[1]; }, xs);
-           }
-          
-           function slopeIntercept(dataPoints) {
-             var xs = getXs(dataPoints)
-             var sumX = sum(xs);
-             var sumY = sum(getYs(dataPoints));
-             var sumXSquared = reduce(function(sum, x) { return sum +
-          Math.pow(x, 2); }, xs, 0);
-             var sumXYProduct = sum(map(function(x) { return x[0] * x[1];},
-          dataPoints));
-             var n = dataPoints.length;
-          
-             var slope = ((n * sumXYProduct) - (sumX * sumY)) /
-               ((n * sumXSquared) - Math.pow(sumX, 2));
-             var intercept = (sumY - (slope * sumX)) / n;
-             return [slope, intercept];
-           }
-          
-           function regressionLine(dataPoints) {
-           //    OH Chrome, Y U No Support destructuring assignment!
-           //    var slope,intercept;
-           //    [slope, intercept] = slopeIntercept(dataPoints);
-          
-             var slopeInterceptResult = slopeIntercept(dataPoints);
-             var slope = slopeInterceptResult[0];
-             var intercept = slopeInterceptResult[1];
-          
-             var minX = Math.min.apply(this, getXs(dataPoints));
-             var maxX = Math.max.apply(this, getXs(dataPoints));
-          
-             var regressionLine = [];
-             regressionLine.push([minX, (slope * minX) + intercept]);
-             regressionLine.push([maxX, (slope * maxX) + intercept]);
-             return regressionLine;
-           }
-           
-           function getNewIdsBasedOnResponseType(xId, yId, xRespType, yRespType, xLab, yLab){
-             if (xRespType == "list" && yRespType == "list"){
-               alert("Sorry, we do not show relationships between two lists.");
-               return null;
-             } else if(xRespType != "list" && yRespType == "list"){
-               return [yId, xId, yRespType, xRespType, yLab, xLab];
-             } else {
-               return [xId, yId, xRespType, yRespType, xLab, yLab];
-             }
-           }
-           
-           function checkMatchesFound(xBool, yBool){
-             if (xBool&yBool){
-               return true;
-             } else{
-               alert("Missing data: Please input data for both variables before exploring this option.")
-               return false;
-             }
-           }
-           
-           function yourChartHere(){
-             $("#titleOne").html("<h2>Your relationship here</h2>");
-             $("#titleTwo").html("<p></p>");
-           }
-////Start doing actual relationship building here
-          var expdata = window.env.getValue("experimentalData");
-          var chosenVarXId = window.env.getValue("chosenVarX");
-          var chosenVarYId = window.env.getValue("chosenVarY");                              
-          expdata = eval('('+ expdata + ')');
-          chosenVarXId = parseInt(chosenVarXId);
-          chosenVarYId = parseInt(chosenVarYId);
-          
-          if (!expdata) {
-             alert("No Data");
-             return;
-          } 
-          
-          expdata = expdata.sort(function(a,b) {
-          return a.responseTime - b.responseTime;});
-          
-          var xData = []; var yData = [];
-          
-          var xLabel = null; var yLabel = null;
-          var xResponseType; var yResponseType;
-          var sampleAnswer;
-          var foundXMatch = false; var foundYMatch = false;
-          for (var j = 0; j < expdata.length; j++) {
-            if (foundXMatch && foundYMatch) {
-              break;
-            }  
-            for (var i = 0; i < expdata[j].responses.length; i++) {  
-              var response = expdata[j].responses[i];
-              if (response.inputId == chosenVarXId) {   
-                foundXMatch = true;
-                xLabel = response.inputName;
-                sampleAnswer = response.answer;
-                xResponseType = response["responseType"];
-                if (xResponseType == "photo" || xResponseType == "location") {
-                  alert("Sorry, we do not show any more relationships involving " + xResponseType + "s past what you have seen in trends and raw data.");
-                  return; 
-                }
-                if (xResponseType == "open text"){
-                  if (sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)){
-                  } else{
-                  alert("Sorry, we do not show any more relationships involving texts past what you have seen in trends and raw data.");
-                  return;
-                  }
-                }     
-              }
-              if (response.inputId == chosenVarYId) {   
-                foundYMatch = true;
-                yLabel = response.inputName;
-                sampleAnswer = response.answer;
-                yResponseType = response["responseType"];
-                if (yResponseType == "photo" || yResponseType == "location") {
-                  alert("Sorry, we do not show any more relationships involving " + yResponseType + "s past what you have seen in trends and raw data.");
-                  return; 
-                }
-                if (yResponseType == "open text"){
-                  if (sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)){
-                  } else{
-                  alert("Sorry, we do not show any more relationships involving texts past what you have seen in trends and raw data.");
-                  return;
-                  }
-                } 
-              }
-            }
-          }
-          
-          if (!checkMatchesFound(foundXMatch, foundYMatch)){
-            yourChartHere()
-            return;
-          }  
-          
-          var newIds = getNewIdsBasedOnResponseType(chosenVarXId, chosenVarYId, xResponseType, yResponseType, xLabel, yLabel);
-
-          if (newIds==null){
-            return;
-          } else{
-            chosenVarXId = newIds[0];
-            chosenVarYId = newIds[1];
-            xResponseType = newIds[2];
-            yResponseType = newIds[3];
-            xLabel = newIds[4];
-            yLabel = newIds[5];
-          }          
-
-          var xPointLabels = [];
-          for (var j = 0; j < expdata.length; j++) {
-            var responses = expdata[j].responses;
-            for (var r = 0; r < responses.length; r++) {
-              if (responses[r].inputId == chosenVarXId) {
-                if (!responses[r].answer) {
-                  continue;
-                }
-                if (xResponseType=="list"){
-                  xData.push([expdata[j].responseTime, responses[r].answerOrder]);
-                  xPointLabels.push([responses[r].answerOrder, responses[r].answer]);
-                } else {
-                  xData.push([expdata[j].responseTime, responses[r].answer]);
-                }
-              } else if (responses[r].inputId == chosenVarYId) {
-                if (!responses[r].answer) {
-                  continue;
-                }  
-                yData.push([expdata[j].responseTime, responses[r].answer]);
-              }
-            }
-          }
-          
-          var scatterPlotData = [];
-          if (xData.length == yData.length){
-            for (var j = 0; j < xData.length; j++) {
-              scatterPlotData.push([xData[j][1], yData[j][1]])
-            }
-          }   
-          
-          var regressionLine = regressionLine(scatterPlotData);
-          
-          $("#titleOne").html("<h2> Time Series </h2>");
-          $.plot($("#placeholderOne"),
-              [{label : xLabel, data : xData, lines: { show: true }},
-               {label : yLabel, data : yData, lines: { show: true }}
-               ],
-               {legend: {container: null, backgroundOpacity: 0.5}, xaxis: { mode: "time" }}
-               );
-           
-          $("#titleTwo").html("<h2> X-Y Plot </h2>");     
-          var options;
-          if (xResponseType=="list"){
-            options = {legend: {container: null, backgroundOpacity: 0.0}, xaxis: {ticks: xPointLabels}};
-          } else {
-            options = {legend: {container: null, backgroundOpacity: 0.5}};
-          }
-          $.plot($("#placeholderTwo"), [
-              {
-                  label: yLabel + " vs. " + xLabel,
-                  data: scatterPlotData,
-                  points: { show: true }
-              }//,
-              //{
-               //   data: regressionLine,
-              //    lines: { show: true }
-              //}
-           ], options
-         );
-          
-    
-    });     
- </script>
+        main();
+      });     
+    </script>
  </head>
 
 <body style='text-align: center; color: #4272db;'>
-    <div id="titleOne"> 
-    <h1>Chart</h1></div>
-    
+  
+  <div id="titleOne"><h1>Chart</h1></div>    
   <div id="placeholderOne" style="width:300px;height:150px;"></div>
   <br>
-  <body style='text-align: center; color: #4272db;'>
-    <div id="titleTwo"> 
-    <h1>Chart</h1></div>
+
+  <div id="titleTwo"> <h1>Chart</h1></div>
   <div id="placeholderTwo" style="width:300px;height:150px;"></div>
+  
 
 </body>
 

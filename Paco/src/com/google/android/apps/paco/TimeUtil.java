@@ -51,6 +51,24 @@ public class TimeUtil {
     return mondayOfWeek;
   }
 
+  public static boolean isWeekend(int dayOfWeek) {
+    return dayOfWeek == DateTimeConstants.SATURDAY || 
+      dayOfWeek == DateTimeConstants.SUNDAY;
+  }
+
+  public static boolean isWeekend(DateTime dateTime) {
+    return isWeekend(dateTime.getDayOfWeek());
+  }
+
+  public static DateTime skipWeekends(DateTime plusDays) {
+    if (plusDays.getDayOfWeek() == DateTimeConstants.SATURDAY) {
+      return plusDays.plusDays(2);
+    } else if (plusDays.getDayOfWeek() == DateTimeConstants.SUNDAY) {
+      return plusDays.plusDays(1);
+    }
+    return plusDays;
+  }
+
 
 
 }

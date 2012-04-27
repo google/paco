@@ -4,231 +4,13 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <script language="javascript" type="text/javascript"
   src="file:///android_asset/jquery.js"></script>
-<script language="javascript" type="text/javascript"
-  src="file:///android_asset/default.js"></script>
+  <script language="javascript" type="text/javascript" src="jquery.flot.js""></script>
+  <script language="javascript" type="text/javascript" src="file:///android_asset/distributions.js"></script>
 
+    
 <script language="javascript" type="text/javascript">
   $(document).ready(function() {
-     function meanLocation(arr) {
-       var sumLat = 0;
-       var sumLng = 0;
-       var exclude = 0;
-       for(var i=0; i<arr.length; i++) {
-         try{
-           if (!(isNaN(arr[i][0])|| isNaN(arr[i][1]))){
-             sumLat+=(arr[i][0]-0);
-             sumLng+=(arr[i][1]-0);
-           } else {
-             exclude +=1;
-           }
-         }catch(err){
-           exclude +=1;
-         }
-       }
-       try{
-         return [(sumLat/(arr.length-exclude)), (sumLng/(arr.length-exclude))];
-       } catch (err){
-         return;
-       }
-     }
-     
-     function minMaxLocation(arr) {
-       var swLat = 180;
-       var swLng = 180;
-       var neLat = -180;
-       var neLng = -180;
-       for(var i=0; i<arr.length; i++) {
-         try{
-           if (!(isNaN(arr[i][0]))){
-             if (swLat>(arr[i][0]-0)){
-               swLat = (arr[i][0]-0);
-             }if (neLat<(arr[i][0]-0)){
-               neLat = (arr[i][0]-0);
-             }
-           }
-           if (!(isNaN(arr[i][1]))){
-             if (swLng>(arr[i][1]-0)){
-               swLng = (arr[i][1]-0);
-             }if (neLng<(arr[i][1]-0)){
-               neLng = (arr[i][1]-0);
-             }
-           }
-         }catch(err){
-           
-         }
-       }
-       return [swLat, swLng, neLat, neLng];
-     }     
-     
-     function meanNumber(arr) {
-       if(arr.length == 0){
-         return null;}
-       var total = 0;
-       var exclude = 0;
-       for(var i=0; i<arr.length; i++) {
-         if (!isNaN(arr[i])){
-           total+=arr[i];
-         } else {
-           exclude +=1;
-         }
-       }
-       try{
-        return round2Dec(total/(arr.length-exclude));
-        } catch (err){
-          return;
-        }
-     }
-    
-    function medianNumber(arr){
-      if(arr.length == 0){
-        return null;}
-      return arr[Math.floor(arr.length/2)];
-      }
-    
-    function modeNumber(arr){
-      if(arr.length == 0){
-        return null;}
-      var modeMap = {};
-      var maxNumber = arr[0]; var maxCount = 1;
-      for(var i = 0; i < arr.length; i++) {
-        var num = arr[i];
-        if(modeMap[num] == null){
-          modeMap[num] = 1;
-        } else{
-          modeMap[num]++;
-        }  
-        if(modeMap[num] > maxCount){
-          maxNumber = num;
-          maxCount = modeMap[num];
-        }
-      }
-      return [maxNumber, maxCount];
-    }
-    
-    function minMaxNumber(arr){
-      var min = arr[0];
-      var max = arr[0];
-      for (var i = 1; i < arr.length; i++){
-        if (arr[i] < min){
-          min = arr[i];
-        }
-        if (arr[i] > max){
-          max = arr[i];
-        }
-      }
-      return [min, max];
-    }
-    
-    function round2Dec(n) {
-      var ans = n * 1000 
-      ans = Math.round(ans /10);
-      return (ans/100);
-    } 
-    
-      var expdata = window.env.getValue("experimentalData");
-      var inputid = window.env.getValue("chosenVar");
-      expdata = eval('('+ expdata + ')');
-      inputid = parseInt(inputid);
-   
-      if (!expdata) {
-         alert("No Data");
-         return;
-      } 
-
-      var d=[]; var meanInfo = ""; var modeInfo = ""; var medianInfo = ""; var minInfo = ""; var MaxInfo = "";
-      
-      var responseType = null;
-      var title = "No Title";
-      var foundAMatch = false;
-      var sampleAnswer;
-      for (var j = 0; j < expdata.length; j++) {
-        if (foundAMatch) {
-          break;
-        }  
-        for (var i = 0; i < expdata[j].responses.length; i++) {  
-          var response = expdata[j].responses[i];
-          if (response.inputId == inputid) {   
-            foundAMatch = true;
-            responseType = response.responseType;
-            title = response.prompt;
-            sampleAnswer = response.answer;
-          }
-        }    
-      }  
-      
-      if (responseType == null){  //not found, i.e. no data input
-        $("#meanHtml").html('<br><p>This variable does not have any data recorded. Please input data before trying this option.<p>');
-        return;
-      }
-      if (responseType == "number" ||
-        (responseType == "open text" && sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer)) || 
-        responseType == "likert" ||
-        responseType == "likert_smileys"||
-        responseType == "location"||
-        responseType == "list") {
-  
-        for (var j = 0; j < expdata.length; j++) {
-          var responses = expdata[j].responses;
-          for (var r = 0; r < responses.length; r++) {
-            if (responses[r].inputId == inputid) {
-              if (!responses[r].answer) {
-                continue;
-              }  
-              if (responseType=="location"){
-                try{
-                  var latLngStr = responses[r].answer;
-                  var lat = Number(latLngStr.substring(0, latLngStr.indexOf(',')))
-                  var lng = Number(latLngStr.substring(latLngStr.indexOf(',')+1))
-                  d.push([lat, lng]);
-                } catch(err){}
-              }else if (responseType=="list"){
-                d.push([responses[r].answer]);
-              }else{
-                d.push(responses[r].answer-0);
-              }
-            }
-          }
-        }
-        
-        if (responseType == "location"){
-          meanInfo = "<p> Your <b>mean</b> location is: ("+meanLocation(d)[0] + ", " +meanLocation(d)[1] + ").</p>";
-          minMaxLoc = minMaxLocation(d);
-          minInfo = "<br>Your points are <b>bounded</b> by <br/>("+minMaxLoc[0] + ", " +minMaxLoc[1] + ")";
-          maxInfo = "and <br/>("+minMaxLoc[2] + ", " +minMaxLoc[3] + ")";
-        }else if (responseType == "list"){
-          modeInfo = "<p> Your <b>mode</b> response is "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
-        }else{
-          d = d.sort(function(a,b) {
-            return a - b;
-            });
-          meanInfo = "<p> Your <b>mean</b> is: "+meanNumber(d) + ".</p>";
-          medianInfo = "<p> Your <b>median</b> response is: "+medianNumber(d) + ".</p>";
-          modeInfo = "<p> Your <b>mode</b> response is "+modeNumber(d)[0] + " with "+modeNumber(d)[1]+" counts.</p>";
-          var minMaxNum = [null, null];
-          minMaxNum = minMaxNumber(d);
-          minInfo = "<p> Your <b>minimum</b> response is: "+minMaxNum[0] + ".</p>";
-          maxInfo = "<p> Your <b>maximum</b> response is: "+minMaxNum[1] + ".</p>";
-        }
-      }
-        if (meanInfo == "") {
-        meanInfo = "No mean information is given for "+responseType + " data.";
-        }
-        if (medianInfo == "") {
-        medianInfo = "No median information is given for "+responseType + " data.";
-        }
-        if (modeInfo == "") {
-        modeInfo = "No mode information is given for "+responseType + " data.";
-        }
-        if (minInfo == "") {
-        minInfo = "No min or max information is given for "+responseType + " data.";
-        maxInfo = " ";
-        }
-    $("#titleHtml").html("<p>"+title+"</p>");
-    $("#meanHtml").html(meanInfo);
-    $("#medianHtml").html(medianInfo);
-    $("#modeHtml").html(modeInfo);
-    $("#minHtml").html(minInfo);
-    $("#maxHtml").html(maxInfo);
+  main();
   });
 </script>
 </head>
@@ -247,6 +29,10 @@
   <div id="modeHtml"></div>
   <div id="minHtml"></div>
   <div id="maxHtml"></div>
+  <div id="totalResponses"></div><br>
+  <div id="placeholder" style="width:300px;height:150px;"></div>
+  
+
   
 
 </body>

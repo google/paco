@@ -16,11 +16,11 @@
 */
 package com.google.sampling.experiential.shared;
 
-import com.google.gwt.user.client.rpc.RemoteService;
-import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-
 import java.util.List;
 import java.util.Map;
+
+import com.google.gwt.user.client.rpc.RemoteService;
+import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 /*
  * * The client side stub for the RPC service.
@@ -32,9 +32,9 @@ public interface MapService extends RemoteService {
   List<EventDAO> mapWithTags(String tags);
 
   void saveEvent(String who, 
-      String when, 
-      String lat, 
-      String lon, 
+      String scheduledTime, 
+      String responseTime, 
+      String experimentId,
       Map<String, String> kvPairs, 
       boolean shared);
   

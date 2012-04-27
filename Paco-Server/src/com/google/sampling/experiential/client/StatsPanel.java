@@ -17,27 +17,25 @@
 package com.google.sampling.experiential.client;
 
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.sampling.experiential.shared.DateStat;
+import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 
 /**
  * Panel for basic experiment meta statistics, e.g., response rate.
@@ -156,19 +154,31 @@ public class StatsPanel extends Composite {
     grid.setWidget(0, 0, joinedLabel);
     joinedLabel.setWidth("");
 
-    Label label = new Label(Integer.toString(experimentStats.getJoinedEventsList().length));
+    Label label = new Label(Integer.toString(createMapofParticipantsAndJoinTimes().values().size()));
     grid.setWidget(0, 1, label);
   }
 
   protected void showParticipantsPopup() {
-    Set<String> participants = new HashSet<String>();
-    for (EventDAO event : experimentStats.getJoinedEventsList()) {
-      participants.add(event.getWho() + " on " + df.format(event.getResponseTime()));
-    }
-    JoinedParticipantsPanel jp = new JoinedParticipantsPanel(participants);
+    HashMap<String, String> participants = createMapofParticipantsAndJoinTimes();
+    JoinedParticipantsPanel jp = new JoinedParticipantsPanel(participants.values());
     jp.show();
     jp.center();
     jp.center();
+  }
+
+  private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
+    HashMap<String,String> participants = new HashMap<String,String>();
+    for (EventDAO event : experimentStats.getJoinedEventsList()) {
+      String who = event.getWho();
+      String existingWhoValue = participants.get(who);
+      if (existingWhoValue == null) {
+        existingWhoValue = who + ": " + df.format(event.getResponseTime());
+      } else {
+        existingWhoValue += "," + df.format(event.getResponseTime());
+      }
+      participants.put(who, existingWhoValue);
+    }
+    return participants;
   }
 
 

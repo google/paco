@@ -16,11 +16,10 @@
 */
 package com.google.sampling.experiential.shared;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-
 import java.util.List;
 import java.util.Map;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /*
  * * The async counterpart of <code>MeetingService</code>.
@@ -30,7 +29,11 @@ public interface MapServiceAsync {
 
   void mapWithTags(String tags, AsyncCallback<List<EventDAO>> callback);
 
-  void saveEvent(String who, String when, String lat, String lon, Map<String, String> kvPairs, 
+  void saveEvent(String who, 
+      String scheduledTime, 
+      String responseTime, 
+      String experimentId,
+      Map<String, String> kvPairs, 
       boolean shared, AsyncCallback<Void> asyncCallback);
 
   /**

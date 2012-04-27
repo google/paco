@@ -61,18 +61,17 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
       
       p = ProgressDialog.show(enclosingActivity, "Experiment Refresh", "Checking Server for New and Updated Experiment Definitions", true, true);
     }
+    
     protected List<Experiment> doInBackground(Void... params) {
 //      times.add(0, System.currentTimeMillis());
       UrlContentManager manager = null;
       try {
         String emailSuffix = userPrefs.getGoogleEmailType();
         manager = new UrlContentManager(enclosingActivity, true, emailSuffix);
-        
         String serverAddress = userPrefs.getServerAddress();
-        Response response = manager.createRequest().setUrl(
-            "https://"+serverAddress+"/experiments").execute();
+        Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();
         String contentAsString = response.getContentAsString();
-        Log.i("FindExperimentsActivity", "data: " + contentAsString);
+//        Log.i("FindExperimentsActivity", "data: " + contentAsString);
         if (contentAsString != null) {
           ObjectMapper mapper = new ObjectMapper();
           mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -80,6 +79,17 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
             List<Experiment> readValue = mapper.readValue(contentAsString,
                 new TypeReference<List<Experiment>>() {
                 });
+            experimentProviderUtil.deleteAllUnJoinedExperiments();
+            experimentProviderUtil.insertOrUpdateExperiments(readValue);
+            // Note, this is happening after the json processing and the (currently still used) insertOrUpdateExperiments, as I experiment with
+            // no longer storing the list of downloaded experiments in the database, but rather on disk as json.            
+            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+            Log.i(PacoConstants.TAG, "SPEED: saving new experiments to disk t6.5 = " + System.currentTimeMillis());
+            List<Experiment> experimentsReloaded = experimentProviderUtil.loadExperimentsFromDisk();
+            userPrefs.setExperimentListRefreshTime(new Date().getTime());
+            Log.i(PacoConstants.TAG, "SPEED: reloading new experiments to disk t6.75 = " + System.currentTimeMillis());
+            experimentProviderUtil.getExperimentsByServerId(4693018);
+            Log.i(PacoConstants.TAG, "SPEED: retrieving experiment by server id t6.8 = " + System.currentTimeMillis());
             return readValue;
           } catch (JsonParseException e) {
             Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
@@ -105,11 +115,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
            
     }
 
-    protected void onPostExecute(List<Experiment> result) {
-//      System.out.println("Elapsed Time for download of experiments: " + (System.currentTimeMillis() - times.get(0).longValue()));
-      experimentProviderUtil.deleteAllUnJoinedExperiments();
-      experimentProviderUtil.insertOrUpdateExperiments(result);
-      userPrefs.setExperimentListRefreshTime(new Date().getTime());
+    protected void onPostExecute(String result) {
       p.dismiss();
       if (cursor != null) {
         cursor.requery();

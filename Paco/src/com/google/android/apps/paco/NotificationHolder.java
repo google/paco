@@ -17,6 +17,7 @@
 package com.google.android.apps.paco;
 
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 
 
 public class NotificationHolder  {
@@ -82,7 +83,7 @@ public class NotificationHolder  {
   }
 
   public boolean isActive(DateTime now) {
-    return (new DateTime(alarmTime)).plusMillis(timeoutMillis.intValue()).isAfter(now);
+    return now.isBefore(new DateTime(alarmTime).plus(Minutes.minutes(timeoutMillis.intValue() / 60000)));
   }
 
 

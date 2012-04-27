@@ -16,10 +16,6 @@
 */
 package com.google.sampling.experiential.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.sampling.experiential.model.What;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +26,9 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Class that holds a response to an experiment.

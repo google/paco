@@ -67,7 +67,6 @@ public class ResponseViewPanel extends Composite {
       mainPanel.add(new HTML("Unknown Response Type"));
       mainPanel.setVisible(false);
     }
-    VerticalPanel outer = new VerticalPanel();
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
   }

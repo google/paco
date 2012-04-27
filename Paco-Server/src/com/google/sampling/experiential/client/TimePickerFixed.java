@@ -33,6 +33,10 @@ package com.google.sampling.experiential.client;
  */
 
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -40,14 +44,10 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.widgetideas.client.Spinner.SpinnerResources;
 import com.google.gwt.widgetideas.client.SpinnerListener;
 import com.google.gwt.widgetideas.client.ValueSpinner;
-import com.google.gwt.widgetideas.client.Spinner.SpinnerResources;
 import com.google.gwt.widgetideas.client.ValueSpinner.ValueSpinnerResources;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 

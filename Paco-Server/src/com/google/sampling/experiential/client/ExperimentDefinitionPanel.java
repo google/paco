@@ -123,7 +123,6 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void createExperimentForm() {
-    boolean creatingNewExperiment = experiment.getId() != null;
     fieldToWidgetMap = Maps.newHashMap();
     keyValueCounter = 0;
     formPanel.add(createTitlePanel(experiment));
@@ -180,7 +179,6 @@ public class ExperimentDefinitionPanel extends Composite {
    * @param experiment2
    */
   private void createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
-    Label header = createLabel("Click to edit published audience");
     customFeedbackPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(false, 
@@ -294,7 +292,6 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private DisclosurePanel createAdminDisclosurePanel(ExperimentDAO experiment) {
-    Label header = createLabel("Click to edit administrators");
     final DisclosurePanel adminPanel = new DisclosurePanel();
     final DisclosurePanelHeader closedHeaderWidget =
         new DisclosurePanelHeader(false, "<b>Click to edit administrators</b>");
@@ -345,7 +342,6 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void createPublishedUsersDisclosurePanel(ExperimentDAO experiment) {
-    Label header = createLabel("Click to edit published audience");
     publishedUsersPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget =

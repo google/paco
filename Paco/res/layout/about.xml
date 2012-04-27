@@ -23,8 +23,7 @@
   android:stretchColumns="2">
   <TableRow>
     <ImageView
-      android:layout_column="1"
-      android:src="@drawable/paco_sil" />
+      android:layout_column="1" android:src="@drawable/paco64"/>
     <LinearLayout
       android:layout_column="2"
       android:layout_height="wrap_content"
@@ -54,7 +53,7 @@
       android:layout_height="wrap_content"
       android:layout_width="wrap_content"
       android:text="@string/about_team"
-      android:textSize="20sp" />
+      android:textSize="15sp" />
     <LinearLayout
       android:layout_column="2"
       android:layout_height="wrap_content"
@@ -64,38 +63,44 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_bob"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_alberto"
-        android:textSize="15sp" />
+        android:textSize="10sp" />        
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_tina"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_brian"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
+      <TextView 
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/about_arun"
+        android:textSize="10sp" />
+        
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_kanwal"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
         
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_cp"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
       <TextView 
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/about_stephen"
-        android:textSize="15sp" />
+        android:textSize="10sp" />
     </LinearLayout>
   </TableRow>
 

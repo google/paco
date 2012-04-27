@@ -99,6 +99,7 @@ public class SignalSchedule implements Parcelable {
       schedule.dayOfMonth = source.readInt();
       schedule.beginDate = source.readLong();
 
+      schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
       return schedule;
     }
 
@@ -133,6 +134,7 @@ public class SignalSchedule implements Parcelable {
   @JsonIgnore
   private long beginDate = new Date().getTime();
   private Boolean esmWeekends;
+  private Boolean userEditable = Boolean.TRUE;
 
   /**
    * 
@@ -150,11 +152,12 @@ public class SignalSchedule implements Parcelable {
    * @param times
    * @param weekDaysScheduled
    * @param beginDate TODO
+   * @param userEditable TODO
    */
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate) {
+      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -171,6 +174,7 @@ public class SignalSchedule implements Parcelable {
     if (beginDate != null) {
       this.beginDate = beginDate;
     }
+    this.userEditable = userEditable;
   }
 
   /**
@@ -348,9 +352,10 @@ public class SignalSchedule implements Parcelable {
     dest.writeInt(byDayOfMonth == Boolean.TRUE ? 1 : 0);
     dest.writeInt(dayOfMonth);
     dest.writeLong(beginDate);
+    dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
   }
 
-  public Long getNextAlarmTime(DateTime dateTime) {
+  public DateTime getNextAlarmTime(DateTime dateTime) {
     if (!getScheduleType().equals(SignalSchedule.ESM)) {
       return new NonESMSignalGenerator(this).getNextAlarmTime(dateTime);
     }
@@ -453,5 +458,13 @@ public class SignalSchedule implements Parcelable {
 
   private void comma(StringBuilder buf) {
     buf.append(",");
+  }
+
+  public Boolean getUserEditable() {
+    return userEditable;
+  }
+  
+  public void setUserEditable(Boolean userEditable) {
+    this.userEditable = userEditable;
   }
 }

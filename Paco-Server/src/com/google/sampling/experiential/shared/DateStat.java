@@ -16,14 +16,14 @@
 */
 package com.google.sampling.experiential.shared;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class DateStat implements Comparable<DateStat>, Serializable {
 
@@ -120,7 +120,13 @@ public class DateStat implements Comparable<DateStat>, Serializable {
       if (whatByKey == null || whatByKey.equals("null")) {
         continue;
       }
-      Double value = Double.parseDouble(whatByKey.trim());
+      Double value = null;
+      try {
+        value = Double.parseDouble(whatByKey.trim());
+      } catch (NumberFormatException nfe) {
+        continue;
+      }
+
       DateStat dateStat = dateStats.get(key);
       if (dateStat == null) {
         dateStat = new DateStat(date);

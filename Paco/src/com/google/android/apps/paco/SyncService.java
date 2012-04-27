@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
@@ -60,9 +61,17 @@ public class SyncService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     userPrefs = new UserPreferences(getApplicationContext());
+    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco SyncService wakelock");
+    wl.acquire();
+
     Runnable syncer = new Runnable() {
       public void run() {
-        syncData();
+        try {
+          syncData();
+        } finally {
+          wl.release();
+        }
       }
     };
     (new Thread(syncer)).start();
@@ -125,7 +134,9 @@ public class SyncService extends Service {
     }
     UrlContentManager um = null;
     try {
-      um = new UrlContentManager(this);
+      String emailSuffix = userPrefs.getGoogleEmailType();
+      um = new UrlContentManager(this, true, emailSuffix);
+
 
       Log.i("" + this, "Preparing to post.");
       String json = stringWriter.toString();

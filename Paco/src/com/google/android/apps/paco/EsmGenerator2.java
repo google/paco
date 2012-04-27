@@ -22,14 +22,13 @@ import java.util.List;
 import java.util.Random;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
 
 public class EsmGenerator2 {
 
-  private static final Minutes BUFFER_MILLIS  = Minutes.minutes(59);
+  public static final Minutes BUFFER_MILLIS  = Minutes.minutes(59);
   private SignalSchedule schedule;
   private DateTime periodStartDate;
   private ArrayList<DateTime> times;
@@ -43,10 +42,13 @@ public class EsmGenerator2 {
     this.periodStartDate = adjustStartDateToBeginningOfPeriod(startDate);
     times = new ArrayList<DateTime>();
     
+    if (schedule.getEsmFrequency() == null || schedule.getEsmFrequency() == 0) {
+      return times;
+    }
     List<Integer> schedulableDays;
     switch (schedule.getEsmPeriodInDays()) {
     case SignalSchedule.ESM_PERIOD_DAY:
-      if (!schedule.getEsmWeekends() && isWeekend(periodStartDate)) {
+      if (!schedule.getEsmWeekends() && TimeUtil.isWeekend(periodStartDate)) {
         return times;
       } else {
         schedulableDays = Arrays.asList(1);
@@ -71,7 +73,7 @@ public class EsmGenerator2 {
       
       int candidateTimeInBlock;
       DateTime candidateTime;
-      int periodAttempts = 50;
+      int periodAttempts = 1000;
       do {
         candidateTimeInBlock = rand.nextInt(sampleBlockTimeInMinutes.getMinutes());
         // map candidatePeriod and candidateTime back onto days of period
@@ -88,12 +90,12 @@ public class EsmGenerator2 {
         
         DateTime plusDays = periodStartDate.plusDays(schedulableDays.get(daysToAdd) - 1); 
         candidateTime = plusDays.withMillisOfDay(schedule.getEsmStartHour().intValue()).plusMinutes(minutesToAdd);
-        System.out.println("candidateTime = " + candidateTime);
         periodAttempts--;
       } while (periodAttempts > 0 && 
           (!isMinimalBufferedDistanceFromOtherTimes(candidateTime) 
-              || (!schedule.getEsmWeekends() && isWeekend(candidateTime))));
-      if (schedule.getEsmWeekends() || !isWeekend(candidateTime)) {
+              || (!schedule.getEsmWeekends() && TimeUtil.isWeekend(candidateTime))));
+      if (isMinimalBufferedDistanceFromOtherTimes(candidateTime) &&
+		  (schedule.getEsmWeekends() || !TimeUtil.isWeekend(candidateTime))) {
         times.add(candidateTime);
       }
       
@@ -124,22 +126,13 @@ public class EsmGenerator2 {
     return periods;
   }
 
-  private DateTime skipWeekends(DateTime plusDays) {
-    if (plusDays.getDayOfWeek() == DateTimeConstants.SATURDAY) {
-      return plusDays.plusDays(2);
-    } else if (plusDays.getDayOfWeek() == DateTimeConstants.SUNDAY) {
-      return plusDays.plusDays(1);
-    }
-    return plusDays;
-  }
-
   private List<Integer> getPeriodDaysForMonthOf(DateTime startDate) {
     int dow = startDate.getDayOfWeek();
     int day = 1;
     int lastDayOfMonth = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
     List<Integer> validPeriods = new ArrayList<Integer>();
     while (day < lastDayOfMonth + 1) {
-      if (schedule.getEsmWeekends() || !isWeekend(dow)) {
+      if (schedule.getEsmWeekends() || !TimeUtil.isWeekend(dow)) {
         validPeriods.add(day);
       }
       dow++;
@@ -149,15 +142,6 @@ public class EsmGenerator2 {
       day++;
     }
     return validPeriods;
-  }
-
-  private boolean isWeekend(DateTime dateTime) {
-    return isWeekend(dateTime.getDayOfWeek());
-  }
-
-  private boolean isWeekend(int dayOfWeek) {
-    return dayOfWeek == DateTimeConstants.SATURDAY || 
-      dayOfWeek == DateTimeConstants.SUNDAY;
   }
 
   private boolean isMinimalBufferedDistanceFromOtherTimes(DateTime plusMinutes) {

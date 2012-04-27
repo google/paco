@@ -11,13 +11,12 @@
  	    }
  	  $(document).ready(function() {
  	    
-   		var experimentData = window.env.getValue("experimentalData");
-   		experimentData = eval('('+ experimentData + ')');
-      	if (!experimentData) {
-        	alert("No Data");
-        	return;
-      	} 
-      	var responsesHtml = ""; 
+   		var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+    	if (!experimentData) {
+      	alert("No Data");
+       	return;
+     	} 
+     	var responsesHtml = ""; 
       	
   		
   		var latestEvent = experimentData[0];  	

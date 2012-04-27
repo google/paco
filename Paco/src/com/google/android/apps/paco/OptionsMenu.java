@@ -39,6 +39,9 @@ public class OptionsMenu {
     menu.add(0, STOP_ITEM, 1, STOP_ITEM_TITLE);
     menu.add(0, DATA_ITEM, 2, DATA_ITEM_TITLE);
     menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, REFRESH_EXPERIMENT_ITEM_TITLE);
+//    if (context instanceof ExperimentManagerActivity) {
+//      menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
+//    }
     if (wasSignalled) {
     menu.add(0, MAINPAGE_ITEM, 2, MAINPAGE_STRING);
     }
@@ -82,9 +85,9 @@ public class OptionsMenu {
 //      case RESULTS_ITEM:
 //        launchResultsScreen();
 //        return true;
-//      case UPDATE_ITEM:
-//        launchUpdateCheck();
-//        return true;
+      case UPDATE_ITEM:
+        launchUpdateCheck();
+        return true;
       default:
         return false;
     } 
@@ -94,11 +97,11 @@ public class OptionsMenu {
     ((ExperimentExecutor)context).refreshExperiment();
   }
 
-//  private void launchUpdateCheck() {
-//    Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");
-//    context.startActivity(debugIntent);
-//  }
-//
+  private void launchUpdateCheck() {
+    Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");
+    context.startActivity(debugIntent);
+  }
+
 
   private void launchDataScreen() {
    ((ExperimentExecutor)context).showFeedback();
@@ -167,6 +170,7 @@ public class OptionsMenu {
   private static final int MAINPAGE_ITEM = 3;
   private static final int HELP_ITEM = 4;
   private static final int REFRESH_EXPERIMENT_ITEM = 5;
+  private static final int UPDATE_ITEM = 6;
   
   private static final CharSequence MAINPAGE_STRING = "Main Page";
   private static final CharSequence HELP_STRING = "About Paco";
@@ -175,6 +179,5 @@ public class OptionsMenu {
 //  private static final int DEBUG_ITEM = 2;
 //  private static final int REFRESH_ITEM = 3;
 //  private static final int RESULTS_ITEM = 4;
-//  private static final int UPDATE_ITEM = 5;
 
 }

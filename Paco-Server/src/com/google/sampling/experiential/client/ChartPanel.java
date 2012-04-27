@@ -16,32 +16,18 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.List;
+
 import com.google.gwt.i18n.client.DateTimeFormat;
-//import com.google.gwt.maps.client.InfoWindowContent;
-//import com.google.gwt.maps.client.MapWidget;
-//import com.google.gwt.maps.client.Maps;
-//import com.google.gwt.maps.client.control.LargeMapControl;
-//import com.google.gwt.maps.client.control.MapTypeControl;
-//import com.google.gwt.maps.client.control.ScaleControl;
-//import com.google.gwt.maps.client.event.MarkerClickHandler;
-//import com.google.gwt.maps.client.geom.LatLng;
-//import com.google.gwt.maps.client.geom.LatLngBounds;
-//import com.google.gwt.maps.client.overlay.Marker;
-//import com.google.gwt.maps.client.overlay.MarkerOptions;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
-
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Component for holding an individual chart for an Input's responses.
@@ -57,7 +43,7 @@ public class ChartPanel extends Composite {
 
 //  private MapWidget map;
 //  private Map<EventDAO, Marker> markers = com.google.common.collect.Maps.newHashMap();
-  private DateTimeFormat formatter = DateTimeFormat.getFormat("yyyyMMdd:HH:mm:ssZ");
+  private DateTimeFormat formatter = DateTimeFormat.getFormat("yyyy/MM/dd HH:mm:ssZ");
 //  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
   public ChartPanel(InputDAO input, List<EventDAO> eventList) {
@@ -140,11 +126,11 @@ public class ChartPanel extends Composite {
     //      \  date  |  date  |  date  /
     //
     ScrollPanel photosPanel = new ScrollPanel();
-    photosPanel.setHeight("420");
+    photosPanel.setHeight("480");
     photosPanel.setWidth("800");
     
     HorizontalPanel horizontalPanel = new HorizontalPanel();
-    horizontalPanel.setHeight("400");
+    horizontalPanel.setHeight("450");
     photosPanel.add(horizontalPanel);
     for (EventDAO event : data) {
       String[] blobs = event.getBlobs();
@@ -152,10 +138,17 @@ public class ChartPanel extends Composite {
         continue;
       }
       for (int i = 0; i < blobs.length; i++) {
+        String blobData = blobs[i];
+        if (blobData.length() == 0 || blobData.equals("==")) {
+          continue;
+        }
+
         HTML picture = new HTML("<div style=\"text-align:center;margin-left:2;margin-right:2;\">"
             + "<img height=\"375\" src=\"data:image/jpg;base64," 
-            + blobs[i] 
-            + "\"><br><b>"+formatter.format(event.getResponseTime())+"</b></div>");
+            + blobData 
+            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formatter.format(event.getResponseTime()) + "</b>"
+            + "<br><b>" + formatter.format(event.getScheduledTime()) + "</b>"
+            +"</div>");
         horizontalPanel.add(picture);
       }
     }

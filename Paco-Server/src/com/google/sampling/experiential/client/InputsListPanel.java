@@ -19,12 +19,12 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.LinkedList;
+
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.InputDAO;
-
-import java.util.LinkedList;
 
 /**
  * A composite container for a bunch of InputPanel views.
