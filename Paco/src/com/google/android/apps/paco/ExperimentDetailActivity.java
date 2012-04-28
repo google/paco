@@ -30,16 +30,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -48,6 +43,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.corp.productivity.specialprojects.android.comm.Response;
+import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class ExperimentDetailActivity extends Activity {
 
@@ -65,7 +63,6 @@ public class ExperimentDetailActivity extends Activity {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
-    final String action = intent.getAction();
     uri = intent.getData();
     userPrefs = new UserPreferences(this);
     
@@ -190,7 +187,8 @@ public class ExperimentDetailActivity extends Activity {
 //      times.add(0, System.currentTimeMillis());
       UrlContentManager manager = null;
       try {
-        manager = new UrlContentManager(ExperimentDetailActivity.this);
+        String emailSuffix = userPrefs.getGoogleEmailType();
+        manager = new UrlContentManager(ExperimentDetailActivity.this, true, emailSuffix);
         
         String serverAddress = userPrefs.getServerAddress();
         Response response = manager.createRequest().setUrl(

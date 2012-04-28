@@ -18,14 +18,8 @@
 
 package com.google.sampling.experiential.model;
 
-import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.users.User;
-import com.google.common.collect.Lists;
-
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +29,16 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+
+import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.users.User;
+import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
 
 /**
@@ -158,7 +162,7 @@ public class Experiment {
   @Persistent
   @JsonProperty("informedConsentForm")
   private Text informedConsentFormText;
-  
+
   public Long getId() {
     return id;
   }
@@ -355,10 +359,34 @@ public class Experiment {
   public void setInformedConsentFormText(String informedConsentForm2) {
     this.informedConsentFormText = new Text(informedConsentForm2);
   }
+
+  public Input getInputWithName(String name) {
+    if (name == null) {
+      return null;
+    }
+    for (Input input : getInputs()) {
+      if (name.equals(input.getName())) {
+        return input;
+      }
+    }
+    return null;
+  }
   
+  @JsonIgnore
+  public boolean isOver(DateTime now) {
+    return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
+  }
   
-  
-    
-  
-  
+  private DateTime getEndDateTime() {
+    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
+      List<Long> times = schedule.getTimes();
+      // get the latest time
+      Collections.sort(times);
+      
+      DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
+      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+    } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
+      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
+    }
+  }
 }

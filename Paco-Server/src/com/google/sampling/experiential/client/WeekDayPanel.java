@@ -18,9 +18,9 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
 /**

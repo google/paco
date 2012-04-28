@@ -16,9 +16,10 @@
 */
 package com.google.sampling.experiential.server;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.Event;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.jdo.Query;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -27,10 +28,9 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.Iterator;
-import java.util.List;
-
-import javax.jdo.Query;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.sampling.experiential.model.Event;
 
 public class JDOQueryBuilder {
 

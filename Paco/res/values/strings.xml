@@ -15,17 +15,21 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+
 <resources>
     <string name="app_name">PACO</string>
     
-  <string name="version">2.0.40</string>
-  <string name="server">localhost:8888</string>
-  <string name="emailSuffix">\@gmail.com</string>
-  <string name="about_googlegroups">pacoserve@googlegroups.com</string>
+  <string name="version">2.0.59</string>
+  <string name="server">pacoserve.appspot.com</string>
+   <string name="app_package">com.google.android.apps.paco</string>
+  <string name="emailSuffix">\@google.com</string>
+  <string name="about_googlegroups">paco-users@google.com</string>
+  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>
   <string name="about_weburl">pacoserve.appspot.com</string>
   <string name="about_copyright_message">Copyright 2011 Google Inc.</string>
   <string name="about_bob">Bob Evans</string>
   <string name="about_alberto">Alberto Savoia</string>
+  <string name="about_arun">Arun Saigal</string>
   <string name="about_cp">CP Lim</string>
   <string name="about_stephen">Stephen Uhler</string>
   <string name="about_tina">Tina Malm</string>
@@ -106,4 +110,7 @@
    <item>Fourth</item>
    <item>Fifth</item>
    </string-array>
+   <string name="experiment_title">Experiment Title</string>
+   <string name="refresh_questions">Refresh Questions</string>
+   <string name="save_response">Save Response</string>
 </resources>

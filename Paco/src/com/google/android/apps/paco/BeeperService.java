@@ -17,8 +17,11 @@
 package com.google.android.apps.paco;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.util.Log;
 
 public class BeeperService extends Service {
 
@@ -40,12 +43,21 @@ public class BeeperService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId); 
+    Log.i(PacoConstants.TAG, "Starting BeeperService");
+    
+    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco BeeperService wakelock");
+    wl.acquire();
 
     Runnable runnable = new Runnable() {
       public void run() {
+        try {
         AlarmCreator2 alarmCreator = AlarmCreator2.createAlarmCreator(BeeperService.this);
         alarmCreator.updateAlarm();
-        stopSelf();
+        } finally {
+          wl.release();
+          stopSelf();
+        }
       }
     };
     (new Thread(runnable)).start();

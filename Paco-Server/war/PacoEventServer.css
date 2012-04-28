@@ -86,8 +86,20 @@ table, tbody, tr, td {
   padding: 2px;
   font-size: large;
   font-weight: bold;
+  color: #333333;  
+}
+.paco-Loading-Panel {
+  padding: 2px;
+  font-size: large;
+  font-weight: bold;
   color: #333333;
+  background-color: #efe700
   
+}
+.paco-Logo {
+  margin-top: 0px;
+  margin-right: 5px;
+  margin-left: 3px;
 }
 .gwt-Label-Header {
   color: #333333;

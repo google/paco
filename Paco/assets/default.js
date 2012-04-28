@@ -1,8 +1,5 @@
 function defaultPage(){
-  var experimentData = window.env.getValue("experimentalData");
-  // experimentData = $.parseJSON(experimentData);
-  // this is a no-no
-  experimentData = eval('(' + experimentData + ')');
+  var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
   if (!experimentData) {
     alert("No Data");
     return;

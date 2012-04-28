@@ -32,6 +32,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
@@ -39,27 +40,49 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 
 public class ServerCommunication {
 
+  private static ServerCommunication instance;
+  
+  public static synchronized ServerCommunication getInstance(Context context) {
+    if (instance == null) {
+      instance = new ServerCommunication(context); 
+    }
+    return instance;    
+  }
+  
+  private static final Uri CONTENT_URI = Uri.parse("content://com.google.android.apps.paco.ServerCommunication/");
   private Context context;
   private UserPreferences userPrefs;
 
-  public ServerCommunication(Context context) {
+  private ServerCommunication(Context context) {
     this.context = context;
     userPrefs = new UserPreferences(this.context);    
   }
 
-  public void checkIn() {
-    updateExperiments();
+  public synchronized void checkIn() {
+    if (userPrefs.isExperimentListStale()) {
+      updateExperiments();
+    }
     setNextWakeupTime();
   }
   
   private void setNextWakeupTime() {
+    DateTime nextServerCommunicationTime = new DateTime(userPrefs.getNextServerCommunicationServiceAlarmTime());
+    if (isInFuture(nextServerCommunicationTime)) { 
+      return;
+    }
     AlarmManager alarmManager = (AlarmManager)(context.getSystemService(Context.ALARM_SERVICE));
-    DateTime plusHours = new DateTime().plusHours(24);
+    DateTime tomorrowsCommTime = nextServerCommunicationTime.plusHours(24);
     Intent ultimateIntent = new Intent(context, ServerCommunicationService.class); 
-    PendingIntent intent = PendingIntent.getService(context.getApplicationContext(), 0, ultimateIntent, 0);
+    ultimateIntent.setData(CONTENT_URI);
+    PendingIntent intent = PendingIntent.getService(context.getApplicationContext(), 0, ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, plusHours.getMillis(), intent);
-    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + plusHours.toString());
+    alarmManager.set(AlarmManager.RTC_WAKEUP, tomorrowsCommTime.getMillis(), intent);
+    userPrefs.setNextServerCommunicationServiceAlarmTime(tomorrowsCommTime.getMillis());
+    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + tomorrowsCommTime.toString());
+  }
+
+  private boolean isInFuture(DateTime time) {
+    return time.isAfter(new DateTime().plusSeconds(10));
   }
 
   public void updateExperiments() {
@@ -67,14 +90,14 @@ public class ServerCommunication {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     UrlContentManager manager = null;
     try {
-      manager = new UrlContentManager(context);
+      String emailSuffix = userPrefs.getGoogleEmailType();
+      manager = new UrlContentManager(context, true, emailSuffix);
       
       String serverAddress = userPrefs.getServerAddress();
-      Response response = manager.createRequest().setUrl(
-          "https://"+serverAddress+"/experiments").execute();
+      Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();
       String contentAsString = response.getContentAsString();
       Log.i("FindExperimentsActivity", "data: " + contentAsString);
-      ArrayList<Experiment> result;
+      ArrayList<Experiment> result = null;
       if (contentAsString != null) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -94,10 +117,10 @@ public class ServerCommunication {
           e.printStackTrace();
         }
       }
-      result = new ArrayList<Experiment>();
-      
-      experimentProviderUtil.deleteAllUnJoinedExperiments();
-      experimentProviderUtil.insertOrUpdateExperiments(result);
+      if (result != null) {
+        experimentProviderUtil.deleteAllUnJoinedExperiments();
+        experimentProviderUtil.insertOrUpdateExperiments(result);
+      }
       userPrefs.setExperimentListRefreshTime(new Date().getTime());
 
     } finally {

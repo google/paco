@@ -41,7 +41,7 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Parcelable;
 import android.util.Base64;
-import android.util.SparseBooleanArray;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -138,7 +138,7 @@ public class InputLayout extends LinearLayout {
    * 
    * @return
    */
-  public String getValue() {
+  public Object getValue() {
     if (!isVisible()) {
       return null;
     }
@@ -159,6 +159,43 @@ public class InputLayout extends LinearLayout {
     }
     return null;
   }
+  
+  public String getValueAsString() {
+    if (!isVisible()) {
+      return null;
+    }
+    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+      return intToString(getGeistNowLikertValue());
+    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+      return getOpenTextValue();
+    } else if (input.getResponseType().equals(Input.LIKERT)) {
+      return intToString(getLikertValue());
+    } else if (input.getResponseType().equals(Input.LIST)) {
+      return getListValueAsString();
+    } else if (input.getResponseType().equals(Input.LOCATION)) {
+      return getLocationValue();
+    } else if (input.getResponseType().equals(Input.NUMBER)) {
+      return intToString(getNumberValue());
+    } else if (input.getResponseType().equals(Input.PHOTO)) {
+      return getPhotoValue();
+    }
+    return null;
+  }
+
+
+  private String intToString(Integer numberValue) {
+    if (numberValue != null) {
+      return Integer.toString(numberValue);
+    }
+    return null;
+  }
+
+  private String getListValueAsString() {
+    if (!input.isMultiselect()) {
+      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+    }
+    return getMultiSelectListValueAsString();
+  }
 
   public Class getResponseType() {
     if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
@@ -168,11 +205,7 @@ public class InputLayout extends LinearLayout {
     } else if (input.getResponseType().equals(Input.LIKERT)) {
       return Integer.class;
     } else if (input.getResponseType().equals(Input.LIST)) {
-      if (input.isMultiselect()) {
-        return String.class;
-      } else {
-        return Integer.class;
-      }
+        return List.class;
     } else if (input.getResponseType().equals(Input.NUMBER)) {
       return Integer.class;
     } else if (input.getResponseType().equals(Input.LOCATION)) {
@@ -197,12 +230,16 @@ public class InputLayout extends LinearLayout {
     // Base64 encode the data and return it
     if (file != null) {
       Bitmap bitmap = decodeFile(file);
+      if (bitmap == null) {
+        return "";
+      }
+
       ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
       BufferedOutputStream out = new BufferedOutputStream(bytesOut);
       bitmap.compress(CompressFormat.JPEG, 50, out);
       return Base64.encodeToString(bytesOut.toByteArray(), Base64.DEFAULT);
     }
-    return "No File found for the photo";
+    return "";
   }
 
   private final int IMAGE_MAX_SIZE = 600;
@@ -239,7 +276,7 @@ public class InputLayout extends LinearLayout {
     return "Unknown";
   }
 
-  private String getLikertValue() {
+  private Integer getLikertValue() {
     RadioGroup radioGroup = (RadioGroup) componentWithValue;
     int id = radioGroup.getCheckedRadioButtonId();
     if (id == -1) {
@@ -279,17 +316,27 @@ public class InputLayout extends LinearLayout {
     default:
       throw new IllegalArgumentException("impossible");
     }
-    return Integer.toString(id);
+    return id;
   }
 
-  private String getListValue() {
+  private List<Integer> getListValue() {
     if (!input.isMultiselect()) {
-      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      ArrayList<Integer> list = new ArrayList<Integer>();
+      list.add(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      return list;
     }
     return getMultiSelectListValue();
   }
 
-  private String getMultiSelectListValue() {
+  private List<Integer> getMultiSelectListValue() {
+    List<Integer> list = new ArrayList<Integer>();
+    for (Integer choice : checkedChoices) {      
+      list.add(choice + 1);
+    }
+    return list;
+  }
+  
+  private String getMultiSelectListValueAsString() {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Integer choice : checkedChoices) {
@@ -307,8 +354,12 @@ public class InputLayout extends LinearLayout {
     return ((EditText) componentWithValue).getText().toString();
   }
 
-  private String getNumberValue() {
-    return ((EditText) componentWithValue).getText().toString();
+  private Integer getNumberValue() {
+    String text = ((EditText) componentWithValue).getText().toString();
+    if (text != null && text.length() > 0) {
+      return Integer.parseInt(text);
+    } 
+    return null;
   }
 
   public Input getInput() {
@@ -459,9 +510,9 @@ public class InputLayout extends LinearLayout {
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         if (isChecked)
-          checkedChoices.add(new Integer(which));
+          checkedChoices.add(new Integer(which));          
         else
-          checkedChoices.remove(new Integer(which));
+          checkedChoices.remove(new Integer(which));       
       }
     };
 
@@ -482,7 +533,7 @@ public class InputLayout extends LinearLayout {
       @Override
       public void onClick(DialogInterface dialog, int which) {
         dialog.dismiss();
-        
+        notifyChangeListeners();
       }
     });
     final AlertDialog multiSelectListDialog = builder.create();
@@ -508,11 +559,9 @@ public class InputLayout extends LinearLayout {
     listView.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View v, int arg2, long arg3) {
-        notifyChangeListeners();
       }
 
       public void onNothingSelected(AdapterView<?> v) {
-        notifyChangeListeners();
       }
     });
     return listView;
@@ -562,6 +611,8 @@ public class InputLayout extends LinearLayout {
       public void onCheckedChanged(RadioGroup group, int checkedId) {
         notifyChangeListeners();
       }
+      
+      
 
     });
     // turn off labels on middle buttons.
@@ -638,6 +689,7 @@ public class InputLayout extends LinearLayout {
       try {
         match = interpreter.parse(input.getConditionExpression());
       } catch (IllegalArgumentException iae) {
+        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
         match = false;
       }
       setVisible(match);
@@ -663,7 +715,7 @@ public class InputLayout extends LinearLayout {
     return getVisibility() == VISIBLE;
   }
 
-  private String getGeistNowLikertValue() {
+  private Integer getGeistNowLikertValue() {
     int value = -1;
     switch(((RadioGroup)componentWithValue).getCheckedRadioButtonId()) {
     case R.id.RadioButton_1:
@@ -686,7 +738,7 @@ public class InputLayout extends LinearLayout {
       // TODO (bobevans), deal with validation of mandatory inputs 
       value = -1;
     }
-    return Integer.toString(value);
+    return value;
   }
 
   private View renderGeistNowSmilerLikert(Integer likertSteps) {

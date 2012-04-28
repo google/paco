@@ -13,13 +13,12 @@
  	    }
  	  $(document).ready(function() {
  	    
-   		var experimentData = window.env.getValue("experimentalData");
-   		experimentData = eval('('+ experimentData + ')');
-      	if (!experimentData) {
-        	alert("No Data");
-        	return;
-      	} 
-      	var responsesHtml = ""; 
+   		var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+   		if (!experimentData) {
+       	alert("No Data");
+       	return;
+      } 
+      var responsesHtml = ""; 
       	
   		if (experimentData.length == 0) {
   		  responsesHtml = "No responses found.";

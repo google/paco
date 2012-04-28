@@ -16,13 +16,13 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.sampling.experiential.shared.WordCloud;
 import com.google.sampling.experiential.shared.WordCloud.WordWeight;
-
-import java.util.List;
 
 public class WordCloudView extends Composite {
 

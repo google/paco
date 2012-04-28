@@ -16,13 +16,6 @@
 */
 package com.google.sampling.experiential.server;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.Event;
-
-import org.joda.time.DateMidnight;
-import org.joda.time.Interval;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -30,6 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import org.joda.time.DateMidnight;
+import org.joda.time.Interval;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.sampling.experiential.model.Event;
 
 /**
  * Converts string queries into method calls and tests on an Event

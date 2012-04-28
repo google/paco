@@ -16,16 +16,6 @@
 */
 package com.google.sampling.experiential.server;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.model.What;
-
-import org.joda.time.DateTimeZone;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +27,16 @@ import java.util.logging.Logger;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
+
+import org.joda.time.DateTimeZone;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.PhotoBlob;
+import com.google.sampling.experiential.model.What;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -96,7 +96,6 @@ public class EventRetriever {
       return events;
   }
 
-  @SuppressWarnings("unchecked")
   public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, 
       String loggedInuser, DateTimeZone clientTimeZone) {
     doOneTimeCleanup();
@@ -180,7 +179,10 @@ public class EventRetriever {
   }
 
   private void executeQuery(Set<Event> allEvents, EventJDOQuery eventJDOQuery) {
-    Query query = eventJDOQuery.getQuery();    
+    Query query = eventJDOQuery.getQuery(); 
+// TODO (bob) How should we effectively limit the fetch size? 
+//    query.getFetchPlan().setFetchSize(3000);
+
     log.info("Query = " + query.toString());
     log.info("Query params = " + Joiner.on(",").join(eventJDOQuery.getParameters()));      
     allEvents.addAll((List<Event>) query.executeWithArray(eventJDOQuery.getParameters().toArray()));
@@ -221,33 +223,6 @@ public class EventRetriever {
       }
     };
     Collections.sort(newArrayList, dateComparator);
-  }
-
-  /**
-   * @param experimentIdList
-   * @param q
-   * @return
-   */
-  private boolean isExperimentAnAdminExperiment(List<Experiment> experimentIdList,
-      List<com.google.sampling.experiential.server.Query> queryFilters) {
-    if (experimentIdList == null || experimentIdList.size() == 0) {
-      log.info("Empty list of experiments for admin");
-      return false;
-    }
-    String experimentId = null;
-    for (int i=0; i < queryFilters.size(); i++) {
-      com.google.sampling.experiential.server.Query query = queryFilters.get(i);
-      if (query.getKey().equals("experimentId")) {
-        log.info("found experimentId key. value is "+ query.getValue());
-        // TODO (bobevans): handle all this more cleanly by not appending strings for eqls test!!!
-        return getIdsQuoted(experimentIdList).contains("'" + query.getValue() + "'");
-      } else if (query.getKey().equals("experimentName")) {
-        log.info("found experimentName key. value is "+ query.getValue());
-        return getNames(experimentIdList).contains("'" + query.getValue() + "'");
-      }
-      
-    }
-    return false;
   }
 
   /**
@@ -302,81 +277,11 @@ public class EventRetriever {
     Query q = pm.newQuery(Experiment.class);
     q.setFilter("admins == whoParam");
     q.declareParameters("String whoParam");
-    long t11 = System.currentTimeMillis();
     return (List<Experiment>) q.execute(user);      
   }
-  private void doOneTimeCleanup() {
-//    List<com.google.sampling.experiential.server.Query> query =
-//      new QueryParser().parse("survey=esm2");
-//    long t1= System.currentTimeMillis();
-//    PersistenceManager pm = PMF.get().getPersistenceManager();
-//    Query q = pm.newQuery(Event.class);
-//    try {
-//    List<Event> events = (List<Event>) q.execute();
-//    for (Event event : events) {
-//      Set<What> newWhats = Sets.newHashSet();
-//      Set<What> whatSet = event.getWhat();
-//      for (What what : whatSet) {
-//        if (what.getName().equals("reportTime") || what.getName().equals("signalTime")) {
-//          try {
-//            what.setValue(fixDateValue(what.getValue()));
-//          } catch (IllegalArgumentException ia) {
-//            what.setValue(new DateTime().toString(formatter)); 
-//          }
-//        }
-//        newWhats.add(what);
-//      }    
-//      event.setWhat(newWhats);
-//      pm.makePersistent(event);
-//    }
-//    } finally {
-//      pm.close();
-//    }
-//    Transaction tx = null;
-//    try {
-//      tx = pm.currentTransaction();
-//      tx.begin();
-//      pm.makePersistentAll(events);
-//      tx.commit();
-//    } finally {
-//      if (tx.isActive()) {
-//        tx.rollback();
-//      }
-//      log.info("One time cleanup persistAll done: " + (System.currentTimeMillis() - t1));
-//      pm.close();
-//    }
-
-  }
-
-//  private DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyyMMdd:HH:mm:ssZ");
-//  private DateTimeFormatter oldFormatter = ISODateTimeFormat.dateTime();
-//  private DateTimeFormatter fullFormatter = DateTimeFormat.longDateTime();
   
-//  private String fixDateValue(String value) {
-//    try {
-//      DateTime dateTime = fullFormatter.parseDateTime(value);
-//      return dateTime.toString(formatter);      
-//    } catch (IllegalArgumentException iae) {
-//      try {
-//        DateTime dateTime = oldFormatter.parseDateTime(value);
-//        return dateTime.toString(formatter);
-//      } catch (IllegalArgumentException iae2) {
-//        try {
-//          DateTime dateTime = new DateTime(Long.valueOf(value));
-//          return dateTime.toString(formatter);
-//        } catch (IllegalArgumentException iae3) {
-//          try {
-//         // is it already converted to the new format?
-//            formatter.parseDateTime(value);    
-//            return value;
-//          } catch (IllegalArgumentException iae4) {
-//            log.info("Could not parse old date at all: " + value);
-//            throw iae4;
-//          }
-//        }
-//      }
-//    }
-//  }
+  private void doOneTimeCleanup() {
+  }
 
   private EventJDOQuery createJDOQueryFrom(PersistenceManager pm, 
       List<com.google.sampling.experiential.server.Query> queryFilters, 

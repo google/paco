@@ -21,15 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import android.content.Context;
 
 public class ExperimentAlarms {
 
   static class TimeExperiment implements Comparable<TimeExperiment> {
-    Long time;
+    DateTime time;
     Experiment experiment;
-    public TimeExperiment(Long nextTime, Experiment experiment2) {
+    public TimeExperiment(DateTime nextTime, Experiment experiment2) {
       this.time= nextTime;
       this.experiment = experiment2;
     }
@@ -39,11 +40,10 @@ public class ExperimentAlarms {
   }
 
   public static List<TimeExperiment> getAllAlarmsWithinOneMinuteofNow(DateTime now, List<Experiment> experiments, Context context) {
-    Long nowMillis = now.getMillis();
     List<TimeExperiment> times = arrangeExperimentsByNextTimeFrom(experiments, now, context);
     List<TimeExperiment> matchingTimes = new ArrayList<TimeExperiment>();
     for (TimeExperiment time : times) {
-      if ((time.time - nowMillis) < 60000) {
+      if (new Interval(now, time.time).toDurationMillis() < 60000) {
         matchingTimes.add(time);
       }
     }
@@ -63,7 +63,7 @@ public class ExperimentAlarms {
   private static List<TimeExperiment> arrangeExperimentsByNextTimeFrom(List<Experiment> experiments, DateTime now, Context context) {
     List<TimeExperiment> times = new ArrayList<TimeExperiment>();
     for (Experiment experiment : experiments) {
-      Long nextTime = experiment.getNextTime(now, context);
+      DateTime nextTime = experiment.getNextTime(now, context);
       if (nextTime != null) {
         times.add(new TimeExperiment(nextTime, experiment));
       }

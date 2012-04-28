@@ -44,7 +44,6 @@ public class WelcomeActivity extends Activity {
     setContentView(R.layout.welcome);
 
     WebView web = (WebView) findViewById(R.id.welcome_web);
-    Bundle extras = getIntent().getExtras();
     web.loadUrl("file:///android_asset/welcome_paco.html");
 
     findViewById(R.id.welcome_read_later).setOnClickListener(

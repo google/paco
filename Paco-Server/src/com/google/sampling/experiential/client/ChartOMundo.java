@@ -16,6 +16,13 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -33,13 +40,6 @@ import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 public class ChartOMundo {
 
@@ -730,7 +730,7 @@ public class ChartOMundo {
         continue;
       }
       List<String> activities = Lists.newArrayList();
-      if (multiselectList) {
+      if (multiselectList != null && multiselectList) {
         for (String currentActivity : Splitter.on(',').split(activity)) {
           activities.add(currentActivity);
         }
@@ -840,9 +840,6 @@ public class ChartOMundo {
     data.addColumn(ColumnType.NUMBER, xAxis);
     data.addColumn(ColumnType.NUMBER, yAxis);
 
-
-    Double min = null;
-    Double max = null;
 
     int row = 0;
     // String debugPoints = "";

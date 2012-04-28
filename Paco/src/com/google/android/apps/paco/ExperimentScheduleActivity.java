@@ -96,7 +96,6 @@ public class ExperimentScheduleActivity extends Activity {
 	super.onCreate(savedInstanceState);
 	// branch out into a different view to include based on the type of schedule in the experiment.
 	final Intent intent = getIntent();
-	final String action = intent.getAction();
 	uri = intent.getData();
 	
 	experimentProviderUtil = new ExperimentProviderUtil(this);
@@ -125,6 +124,9 @@ public class ExperimentScheduleActivity extends Activity {
         setContentView(R.layout.self_report_schedule);
       }
       setupSaveButton();
+      if (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE) {
+        save();
+      }
     }
   }
 
@@ -149,10 +151,10 @@ public class ExperimentScheduleActivity extends Activity {
       
     });    
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
-    startHourField.setText(new DateMidnight().toDateTime().plus(experiment.getSchedule().getEsmStartHour()).toString(TIME_FORMAT_STRING));
+    startHourField.setText(new DateMidnight().toDateTime().withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue()).toString(TIME_FORMAT_STRING));
 
     endHourField = (Button) findViewById(R.id.endHourTimePickerLabel);
-    endHourField.setText(new DateMidnight().toDateTime().plus(experiment.getSchedule().getEsmEndHour()).toString(TIME_FORMAT_STRING));
+    endHourField.setText(new DateMidnight().toDateTime().withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue()).toString(TIME_FORMAT_STRING));
     
     // TODO (bobevans): get rid of this duplication
     
@@ -165,16 +167,15 @@ public class ExperimentScheduleActivity extends Activity {
         final AlertDialog dialog = dialogBuilder.setTitle("Start Time").create();
 
         Long offset = experiment.getSchedule().getEsmStartHour();
-        DateTime startHour = new DateMidnight().toDateTime().plus(offset); 
+        DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
         timePicker.setCurrentHour(startHour.getHourOfDay());
         timePicker.setCurrentMinute(startHour.getMinuteOfHour());      
 
         dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
-            long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;            
-            experiment.getSchedule().setEsmStartHour(offsetMillis);
-            startHourField.setText(new DateMidnight().toDateTime().plus(experiment.getSchedule().getEsmStartHour()).toString(TIME_FORMAT_STRING));
+            experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
+            startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour().intValue()));
           }
           
         });
@@ -193,16 +194,15 @@ public class ExperimentScheduleActivity extends Activity {
         final AlertDialog endHourDialog = endHourDialogBuilder.setTitle("End Time").create();
 
         Long offset = experiment.getSchedule().getEsmEndHour();
-        DateTime endHour = new DateMidnight().toDateTime().plus(offset); 
+        DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
         timePicker.setCurrentHour(endHour.getHourOfDay());
         timePicker.setCurrentMinute(endHour.getMinuteOfHour());      
 
         endHourDialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
-            long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;            
-            experiment.getSchedule().setEsmEndHour(offsetMillis);
-            endHourField.setText(new DateMidnight().toDateTime().plus(experiment.getSchedule().getEsmEndHour()).toString(TIME_FORMAT_STRING));
+            experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
+            endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour().intValue()));
           }
           
         });
@@ -490,8 +490,6 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   
-  
-  @Override
   protected Dialog onCreateDialog(int id, Bundle args) {
     
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder( this )
@@ -621,6 +619,14 @@ public class ExperimentScheduleActivity extends Activity {
       setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));        
       finish();
+    }
+
+    private Long getHourOffsetFromPicker() {
+      return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour()).withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
+    }
+
+    private String getTextFromPicker(int esmOffset) {
+      return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
     }
 
 }

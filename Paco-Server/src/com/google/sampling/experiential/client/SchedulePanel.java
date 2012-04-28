@@ -18,13 +18,16 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
@@ -54,8 +57,8 @@ public class SchedulePanel extends Composite {
     lblSignalSchedule.setStyleName("keyLabel");
     horizontalPanel.add(lblSignalSchedule);
     horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
-    lblSignalSchedule.setWidth("114px");
-
+    lblSignalSchedule.setWidth("114px");    
+    
     final ListBox listBox = createScheduleTypeListBox();
     horizontalPanel.add(listBox);
     horizontalPanel.setCellVerticalAlignment(listBox, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -65,8 +68,31 @@ public class SchedulePanel extends Composite {
     verticalPanel.add(scheduleDetailsPanel);
     setPanelForScheduleType();
     addListSelectionListener(listBox);
+    verticalPanel.add(createUserEditable(schedule));
 
+  }
 
+  private Widget createUserEditable(SignalScheduleDAO schedule2) {
+    HorizontalPanel userEditablePanel = new HorizontalPanel();
+    userEditablePanel.setSpacing(2);
+    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    userEditablePanel.setWidth("");
+    Label lblUserEditable = new Label("User Editable: ");
+    lblUserEditable.setStyleName("gwt-Label-Header");
+    userEditablePanel.add(lblUserEditable);
+
+    final CheckBox userEditableCheckBox = new CheckBox("");
+    userEditablePanel.add(userEditableCheckBox);
+    userEditableCheckBox.setValue(schedule.getUserEditable() != null ? schedule.getUserEditable() : Boolean.TRUE);
+    userEditableCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        schedule.setUserEditable(userEditableCheckBox.getValue());
+      }
+
+    });
+    return userEditablePanel;
   }
 
   private void addListSelectionListener(final ListBox listBox) {

@@ -4,109 +4,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/relationshipsDifferentExperiments.js"></script>
     <script language="javascript" type="text/javascript">
       $(document).ready(function() {
-          var allData = window.env.getValue("experimentalData");
-          allData = eval( '(' + allData + ')');
-          var expXdata = allData[0];
-          var expYdata = allData[1];
-          var chosenVarXId = window.env.getValue("chosenVarX");
-          var chosenVarYId = window.env.getValue("chosenVarY");                              
-          chosenVarXId = parseInt(chosenVarXId);
-          chosenVarYId = parseInt(chosenVarYId);
-          alert(allData);
-
-          if (!expXdata&&!expYdata) {
-             alert(expXdata+"One and two are empty.");
-             return;
-          }     
-          
-          if (!expXdata) {
-             alert(expXdata+"The first set of data is empty.");
-             return;
-          }           
- 
-          if (!expYdata) {
-             alert("The second set of data is empty.");
-             return;
-          }
-          
-
-          
-                          
-         function getData(expdata, chosenVarId){
-            var latestEvent = expdata[0];    
-            var responses = latestEvent.responses;
-            for ( var i = 0; i < responses.length; i++) {
-              var response = responses[i];
-              if (response["inputId"] == chosenVarId){
-                if (response.answer == null || response.answer.length == 0) {
-                    response.answer = "No Answer";
-                }
-                if (response["responseType"] == "photo" || response["responseType"] == "location" || response["responseType"] == "open text") {
-                  alert("Sorry, we do not show any more relationships involving " + response["responseType"] + "s past what you have seen in trends and raw data.");
-                  return; 
-                }     
-              }
-            }
-            
-            expdata = expdata.sort(function(a,b) {
-            return a.responseTime - b.responseTime;});
-            
-            var data = [];
-            
-            var label = null;
-            var sampleAnswer;
-            var foundAMatch = false;
-            for (var j = 0; j < expdata.length; j++) {
-              if (foundAMatch) {
-                break;
-              }  
-              for (var i = 0; i < expdata[j].responses.length; i++) {  
-                var response = expdata[j].responses[i];
-                if (response.inputId == chosenVarId) {   
-                  foundAMatch = true;
-                  label = response.inputName;
-                  sampleAnswer = response.answer;
-                }
-              }
-            }  
-            
-            
-            
-            for (var j = 0; j < expdata.length; j++) {
-              var responses = expdata[j].responses;
-              for (var r = 0; r < responses.length; r++) {
-                if (responses[r].inputId == chosenVarId) {
-                  if (!responses[r].answer) {
-                    continue;
-                  }  
-                  data.push([expdata[j].responseTime, responses[r].answer]);
-                }
-              }
-            }
-            return [data, label]
-         }
-          
-        var xData; var xLabel; var yData; var yLabel; var xDataAndLabel; var yDataAndLabel;
-        
-        xDataAndLabel = getData(expXdata, chosenVarXId);
-        xData = xDataAndLabel[0];
-        xLabel = xDataAndLabel[1];
-        
-        yDataAndLabel = getData(expYdata, chosenVarYId);
-        yData = yDataAndLabel[0];
-        yLabel = yDataAndLabel[1]; 
-        
-        $("#charttitle").html("<h2>" + yLabel+ " vs. " + xLabel + "</h2>");
-        $.plot($("#placeholder"),
-            [{label : xLabel, data : xData, lines: { show: true }},
-             {label : yLabel, data : yData, lines: { show: true }}
-             ],
-             {legend: {container: null, backgroundOpacity: 0.5}, xaxis: { mode: "time" }}
-             );
-    });     
- </script>
+        main();
+      });     
+    </script>
  </head>
 
 <body style='text-align: center; color: #4272db;'>

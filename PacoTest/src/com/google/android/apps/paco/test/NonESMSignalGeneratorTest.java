@@ -63,7 +63,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
       int repeatRate, DateTime beginDate, Integer weekDaysScheduled, boolean byDayOfMonth, 
       Integer dayOfMonth, Integer nthOfMonth) {
     SignalSchedule schedule = new SignalSchedule(1L, scheduleType, byDayOfMonth, dayOfMonth, 
-        null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis());
+        null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis(), true);
     return schedule;
   }
 
@@ -87,12 +87,12 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }  
 
   private DateTime createDateTime_TodayAtHour(int hour) {
-    return new DateMidnight().toDateTime().plusHours(hour);
+    return new DateMidnight(2010, 12, 17).toDateTime().plusHours(hour);
   }
   
 
   public static long getHoursAndMinutesAsMillisOffset(DateTime twoPm) {
-    return (long) (twoPm.getHourOfDay() * 60 * 60 * 1000 + twoPm.getMinuteOfHour() * 60 * 1000);
+    return twoPm.getMillisOfDay();
   }
 
 
@@ -409,9 +409,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(7), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(7), nextAlarmTime);
   }
 
   public void testWeeklyThursday2pm_Sunday3pm() throws Exception {
@@ -424,9 +424,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(7), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(7), nextAlarmTime);
   }
 
   public void testWeeklyThursdayFriday2pm_Thursday3pm() throws Exception {
@@ -439,9 +439,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(1), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(1), nextAlarmTime);
   }
 
   public void testWeeklyThursdayFriday2pm_Sunday3pm() throws Exception {
@@ -454,9 +454,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(7), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(7), nextAlarmTime);
   }
 
 
@@ -470,10 +470,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
     DateTime monday = twoPm.plusDays(4);
-    assertEquals(monday, new DateTime(nextAlarmTime));
+    assertEquals(monday, nextAlarmTime);
     
     assertEquals(monday.plusDays(3), new DateTime(generator.getNextAlarmTime(monday)));
   }
@@ -488,9 +488,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(13);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm, new DateTime(nextAlarmTime));
+    assertEquals(twoPm, nextAlarmTime);
   }
 
   public void testRepeatEvery2WeeklyThursday2pm_Thursday3pm() throws Exception {
@@ -503,9 +503,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(14), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(14), nextAlarmTime);
   }
 
   public void testRepeatEvery2WeeklyThursday2pm_Friday3pm() throws Exception {
@@ -518,9 +518,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_FridayAtHour(15);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(14), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(14), nextAlarmTime);
   }
 
   public void testRepeatEvery2WeeklyThursday2pm_twoFridaysAway3pm() throws Exception {
@@ -533,9 +533,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_FridayAtHour(15).plusWeeks(2);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(28), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(28), nextAlarmTime);
   }
 
   public void testRepeatEvery2WeeklyThursdayMonday2pm_Sunday3pm() throws Exception {
@@ -548,10 +548,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
     DateTime monday = twoPm.plusDays(4).plusWeeks(1);
-    assertEquals(monday, new DateTime(nextAlarmTime));
+    assertEquals(monday, nextAlarmTime);
     
     assertEquals(monday.plusDays(3), new DateTime(generator.getNextAlarmTime(monday)));
   }
@@ -566,10 +566,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime monday3Pm = createDateTime_ThursdayAtHour(15).plusDays(4);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(monday3Pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(monday3Pm);
     assertNotNull(nextAlarmTime);
     DateTime weekFromTuesday = twoPm.plusDays(5).plusWeeks(1);
-    assertEquals(weekFromTuesday, new DateTime(nextAlarmTime));
+    assertEquals(weekFromTuesday, nextAlarmTime);
     
     assertEquals(weekFromTuesday.plusDays(2), new DateTime(generator.getNextAlarmTime(weekFromTuesday)));
   }
@@ -584,9 +584,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(threePm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(threePm);
     assertNotNull(nextAlarmTime);
-    assertEquals(twoPm.plusDays(21), new DateTime(nextAlarmTime));
+    assertEquals(twoPm.plusDays(21), nextAlarmTime);
   }
 
   public void testRepeatEvery3WeeklyThursdayTuesday2pm_Monday3pm() throws Exception {
@@ -599,10 +599,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime monday3Pm = createDateTime_ThursdayAtHour(15).plusDays(4);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(monday3Pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(monday3Pm);
     assertNotNull(nextAlarmTime);
     DateTime weekFromTuesday = twoPm.plusDays(5).plusWeeks(2);
-    assertEquals(weekFromTuesday, new DateTime(nextAlarmTime));
+    assertEquals(weekFromTuesday, nextAlarmTime);
     
     assertEquals(weekFromTuesday.plusDays(2), new DateTime(generator.getNextAlarmTime(weekFromTuesday)));
   }
@@ -617,10 +617,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime thursday1Pm = midnightDayOfMonthDue.plusHours(13);    
-    Long nextAlarmTime = generator.getNextAlarmTime(thursday1Pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(thursday1Pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(thursday2Pm, new DateTime(nextAlarmTime));
+    assertEquals(thursday2Pm, nextAlarmTime);
   }
 
   public void testMonthlyByDayofMonthTuesday2pm_3pm() throws Exception {
@@ -633,10 +633,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime thursday3Pm = midnightDayOfMonthDue.plusHours(15);    
-    Long nextAlarmTime = generator.getNextAlarmTime(thursday3Pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(thursday3Pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(thursday2Pm.plusMonths(1), new DateTime(nextAlarmTime));
+    assertEquals(thursday2Pm.plusMonths(1), nextAlarmTime);
   }
 
   public void testMonthlyByDayofMonthThursday2pm_Friday3pm() throws Exception {
@@ -649,10 +649,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime friday3pm = midnightDayOfMonthDue.plusHours(15).plusDays(1);    
-    Long nextAlarmTime = generator.getNextAlarmTime(friday3pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(friday3pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(thursday2Pm.plusMonths(1), new DateTime(nextAlarmTime));
+    assertEquals(thursday2Pm.plusMonths(1), nextAlarmTime);
   }
 
   public void testMonthlyByDayofMonthThursday2pm_PreviousWednesday3pm() throws Exception {
@@ -665,10 +665,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);    
-    Long nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(thursday2Pm, new DateTime(nextAlarmTime));
+    assertEquals(thursday2Pm, nextAlarmTime);
   }
 
   public void testMonthlyByNthWeekOnDOWThursday2pm_PreviousWednesday3pm() throws Exception {
@@ -682,10 +682,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);    
-    Long nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 1, 5, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 1, 5, 14, 0, 0, 0), nextAlarmTime);
   }
 
   public void testRepeatEvery2MonthlyByNthWeekOnDOWThursday2pm_PreviousWednesday3pm() throws Exception {
@@ -699,10 +699,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);    
-    Long nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 2, 2, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 2, 2, 14, 0, 0, 0), nextAlarmTime);
   }
 
   public void testRepeatEvery2MonthlyByNthWeekOnDOW3rdFriday_Friday3pm() throws Exception {
@@ -713,10 +713,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | SignalSchedule.WEDNESDAY);
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(today);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(today);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 2, 16, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 2, 16, 14, 0, 0, 0), nextAlarmTime);
   }
 
   public void testRepeatEvery2MonthlyByNthWeekOnDOW3rdFriday_Monday2pm() throws Exception {
@@ -727,10 +727,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | SignalSchedule.FRIDAY);
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(today);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(today);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 2, 18, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 2, 18, 14, 0, 0, 0), nextAlarmTime);
   }
 
   public void testRepeatEvery3MonthlyByNthWeekOnDOW3rdFriday_Monday2pm() throws Exception {
@@ -741,10 +741,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 3, 3, 0 | SignalSchedule.FRIDAY);
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(today);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(today);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 3, 18, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 3, 18, 14, 0, 0, 0), nextAlarmTime);
   }
 
 
@@ -758,10 +758,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
     DateTime tuesday1pm = midnightDayOfMonthDue.minusHours(1);    
-    Long nextAlarmTime = generator.getNextAlarmTime(tuesday1pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(tuesday1pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(thursday2Pm, new DateTime(nextAlarmTime));
+    assertEquals(thursday2Pm, nextAlarmTime);
   }
 
   public void testRepeatEvery2MonthlyByDayofMonthThursday2pm_Thursday2pm() throws Exception {
@@ -772,10 +772,10 @@ public class NonESMSignalGeneratorTest extends TestCase {
     SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 2, true, thursday2pm.getDayOfMonth());
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(thursday2pm);
+    DateTime nextAlarmTime = generator.getNextAlarmTime(thursday2pm);
     
     assertNotNull(nextAlarmTime);    
-    assertEquals(new DateTime(2011, 2, 17, 14, 0, 0, 0), new DateTime(nextAlarmTime));
+    assertEquals(new DateTime(2011, 2, 17, 14, 0, 0, 0), nextAlarmTime);
   }
 
   public void testRepeatEvery3MonthlyByDayofMonthThursday2pm_Thursday3pm() throws Exception {
@@ -786,7 +786,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 3, true, thursday2pm.getDayOfMonth());
     NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule);
     
-    Long nextAlarmTime = generator.getNextAlarmTime(thursday2pm.plusHours(1));
+    DateTime nextAlarmTime = generator.getNextAlarmTime(thursday2pm.plusHours(1));
     
     assertNotNull(nextAlarmTime);    
     assertEquals(new DateTime(2011, 3, 17, 14, 0, 0, 0), new DateTime(nextAlarmTime));

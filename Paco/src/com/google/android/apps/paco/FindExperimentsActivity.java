@@ -56,6 +56,7 @@ public class FindExperimentsActivity extends Activity {
   private ProgressDialog  p;
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
+  private SimpleCursorAdapter adapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -65,79 +66,73 @@ public class FindExperimentsActivity extends Activity {
     Intent intent = getIntent();
     if (intent.getData() == null) {
       intent.setData(ExperimentColumns.CONTENT_URI);
-    }    
+    }
     showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-    
+
     userPrefs = new UserPreferences(this);
-    
-    list = (ListView)findViewById(R.id.find_experiments_list);
+
+    list = (ListView) findViewById(R.id.find_experiments_list);
     createListHeader();
-	
-    Button listFooter = (Button)findViewById(R.id.RefreshExperimentsButton2);
+
+    Button listFooter = (Button) findViewById(R.id.RefreshExperimentsButton2);
     listFooter.setVisibility(View.VISIBLE);
-	if (!showingJoinedExperiments) {	  
-	  listFooter.setOnClickListener(new OnClickListener() {	  
-	    public void onClick(View v) {
-	      refreshList();
-	    }
-	  });
-	} else {
-	  listFooter.setVisibility(View.GONE);
-	}
-	
-	experimentProviderUtil = new ExperimentProviderUtil(this);
-	
-	String selectionArgs = null;
-	if (!showingJoinedExperiments) {
-	  selectionArgs = ExperimentColumns.JOIN_DATE + " IS NULL";
-	}
-    cursor = managedQuery(getIntent().getData(), 
-		new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
-	    selectionArgs, 
-	        null, null);
-	
-	SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
-		android.R.layout.simple_list_item_1, cursor, 
-		new String[] { ExperimentColumns.TITLE}, 
-		new int[] { android.R.id.text1}) {
-	  
-	};
-	
-	list.setAdapter(adapter);
-//	list.setItemsCanFocus(true);
-	list.setOnItemClickListener(new OnItemClickListener() {
-    
-	  public void onItemClick(AdapterView<?> listview, View textview, int position,
-		  long id) {
-		Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
-        
+    if (!showingJoinedExperiments) {
+      listFooter.setOnClickListener(new OnClickListener() {
+        public void onClick(View v) {
+          refreshList();
+        }
+      });
+    } else {
+      listFooter.setVisibility(View.GONE);
+    }
+
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+
+    String selectionArgs = null;
+    if (!showingJoinedExperiments) {
+      selectionArgs = ExperimentColumns.JOIN_DATE + " IS NULL";
+    }
+    cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE },
+        selectionArgs, null, null);
+
+    adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor,
+        new String[] { ExperimentColumns.TITLE }, new int[] { android.R.id.text1 }) {};
+
+    list.setAdapter(adapter);
+    // list.setItemsCanFocus(true);
+    list.setOnItemClickListener(new OnItemClickListener() {
+
+      public void onItemClick(AdapterView<?> listview, View textview, int position, long id) {
+        Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
+
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_GET_CONTENT.equals(action)) {
-            // The caller is waiting for us to return an experiment selected by
-            // the user.  The have clicked on one, so return it now.
-            setResult(RESULT_OK, new Intent().setData(uri));
+          // The caller is waiting for us to return an experiment selected by
+          // the user. The have clicked on one, so return it now.
+          setResult(RESULT_OK, new Intent().setData(uri));
         } else {
-            // Launch activity to view/edit or run the currently selected experiment
+          // Launch activity to view/edit or run the currently selected
+          // experiment
           if (showingJoinedExperiments) {
-//            if (position == 0) {
+            // if (position == 0) {
             Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentExecutor.class);
             experimentIntent.setData(uri);
             startActivity(experimentIntent);
             finish();
-          } else {            
+          } else {
             Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
             experimentIntent.setData(uri);
-            startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);            
+            startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
           }
         }
-	  }
-	});
-	registerForContextMenu(list);
-	
-	if (!showingJoinedExperiments && listIsStale()) {
-	  refreshList();
-	}
-	
+      }
+    });
+    registerForContextMenu(list);
+
+    if (!showingJoinedExperiments && listIsStale()) {
+      refreshList();
+    }
+
   }
   
   private boolean listIsStale() {
@@ -170,14 +165,8 @@ public class FindExperimentsActivity extends Activity {
   }
 
   private void deleteExperiment(long id) {
- // show a dialog making sure
-//  // then 
-    NotificationHolder nh = experimentProviderUtil.getNotificationFor(id);
-    if (nh != null) {
-      NotificationCreator nc = NotificationCreator.create(this);
-      nc.updateNotifications(nh.getId(), -1L);
-      experimentProviderUtil.deleteNotificationsForExperiment(id);
-    }
+    NotificationCreator nc = NotificationCreator.create(this);
+    nc.timeoutNotificationsForExperiment(id);
     experimentProviderUtil.deleteFullExperiment(Uri.withAppendedPath(getIntent().getData(), Long.toString(id)));
     new AlarmStore(this).deleteAllSignalsForSurvey(id);
     cursor.requery();
@@ -195,7 +184,13 @@ public class FindExperimentsActivity extends Activity {
       ContextMenuInfo menuInfo) {
     super.onCreateContextMenu(menu, v, menuInfo);
     if (v.equals(list) && showingJoinedExperiments) {
-      menu.add(0, EDIT_EXPERIMENT_OPTION, 0, "Edit Experiment");
+//      AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+//      int position = info.position;
+//      SignalSchedule schedule = ((Experiment)(adapter.getItem(position))).getSchedule();
+//      if (schedule.getUserEditable() != null &&
+//          schedule.getUserEditable()) {
+        menu.add(0, EDIT_EXPERIMENT_OPTION, 0, "Edit Schedule");
+//      }
       menu.add(0, STOP_EXPERIMENT_OPTION, 0, "Stop Experiment");
       menu.add(0, DATA_EXPERIMENT_OPTION, 0, "Explore Data");
     }
@@ -224,8 +219,6 @@ public class FindExperimentsActivity extends Activity {
     }
     listHeader.setText(header);
     listHeader.setTextSize(25);
-//    listHeader.setGravity(Gravity.CENTER);
-//    listHeader.setClickable(false);
     return listHeader;
   }
 

@@ -62,12 +62,20 @@
 
   <target name="runserver" depends="build"
       description="Starts the development server.">
-    <dev_appserver war="war" address="0.0.0.0" />
+    <dev_appserver war="war" address="0.0.0.0">
+      <options>
+          <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
+	   </options>
+    </dev_appserver>
   </target>
 
   <target name="runserver_only"
       description="Starts the development server. Must already be built.">
-    <dev_appserver war="war" />
+    <dev_appserver war="war" address="0.0.0.0">
+      <options>
+          <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
+	   </options>
+    </dev_appserver>
   </target>
 
   <target name="update" depends="build"
@@ -103,7 +111,7 @@
   </target>
 
   <!-- Arguments to gwtc and devmode targets -->
-  <property name="gwt.args" value="" />
+  <property name="gwt.args" value="-style PRETTY" />
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="../tools/gwt-2.1.0" />

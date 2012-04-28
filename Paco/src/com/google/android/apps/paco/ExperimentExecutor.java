@@ -16,21 +16,15 @@
 */
 package com.google.android.apps.paco;
 
-import java.io.IOException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -40,7 +34,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -57,8 +50,6 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.Environment;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class ExperimentExecutor extends Activity implements ChangeListener, LocationListener  {
 
@@ -77,6 +68,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   
   private ArrayList<InputLayout> locationInputs;
   private Location location;
+  
+  private Long notificationHolderId;
+  private boolean shouldExpireNotificationHolder;
 
   
   @Override
@@ -88,34 +82,20 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     if (experiment == null) {
       displayNoExperimentMessage();
     } else {       
-      Bundle extras = getIntent().getExtras();
-      if (extras != null) {
-        scheduledTime = extras.getLong(Experiment.SCHEDULED_TIME);
-        Log.i(PacoConstants.TAG, "Receiving experiment execution with scheduledTime: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
-        if (isExpiredEsmPing()) {
-          Toast.makeText(this, "This survey request has expired. No need to enter a response", Toast.LENGTH_LONG).show();
-          finish();
-        }
-      } 
+      getSignallingData();
 
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != 0L);
+      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
       
       experimentProviderUtil.loadInputsForExperiment(experiment);
       experimentProviderUtil.loadFeedbackForExperiment(experiment);      
 
-      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);
-                  
+      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);                  
       setContentView(mainLayout);
       
       inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
       displayExperimentTitle();
 
-
-      // add Save Button to bottom element
-      // or Fancy way: 
-      // add a listener to mandatory questions list. 
-      // when the mandatory questions are all answered enable the save button
       refreshButton = (Button)findViewById(R.id.RefreshQuestionsButton);
       if (!experiment.hasFreshInputs()) {
         refreshButton.setVisibility(View.VISIBLE);
@@ -125,14 +105,50 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
             refreshExperiment();
           }
         });
-        // add RefreshButton to bottom element
       } else {
         showForm();
       }
     }
-    
-    
+  }
 
+  private void getSignallingData() {
+    Bundle extras = getIntent().getExtras();
+    if (extras != null) {        
+      notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
+      NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
+      if (notificationHolder != null) {
+        scheduledTime = notificationHolder.getAlarmTime();
+        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+      } else {
+        scheduledTime = null;          
+      }
+      
+      if (isExpiredEsmPing()) {
+        Toast.makeText(this, "This survey request has expired. No need to enter a response", Toast.LENGTH_LONG).show();
+        finish();
+      }
+    } 
+    if (notificationHolderId == null) {
+      lookForActiveNotificationForExperiment();
+    }
+  }
+
+  /**
+   * If the user is self-reporting there might still be an active notification for this experiment. If so, we should
+   * add its scheduleTime into this response. There should only ever be one.
+   */
+  private void lookForActiveNotificationForExperiment() {
+    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue());
+    if (notificationHolder != null) {
+      if (notificationHolder.isActive(new DateTime())) {
+        notificationHolderId = notificationHolder.getId();
+        scheduledTime = notificationHolder.getAlarmTime();
+        shouldExpireNotificationHolder = true;
+        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+      } else {
+        NotificationCreator.create(this).timeoutNotification(notificationHolder);
+      }
+    }
   }
   
   @Override
@@ -284,10 +300,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private void save() {
     try {
-      NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId());
-      if (notificationHolder == null) {
+      if (notificationHolderId == null) {
         // workaround the bug with re-launching and stale scheduleTime.
-        // How - if there isn't a notifciationHolder waiting, then this is not a response
+        // How - if there isn't a notificationHolder waiting, then this is not a response
         // to a notification.
         scheduledTime = 0L;
       }
@@ -296,9 +311,15 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       experimentProviderUtil.insertEvent(event);
       
       
-      if (notificationHolder != null) {
-        experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
+      if (notificationHolderId != null) {
+        experimentProviderUtil.deleteNotification(notificationHolderId);
       }
+      if (shouldExpireNotificationHolder) {
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(new Long(notificationHolderId).intValue());
+        shouldExpireNotificationHolder = false;
+      }
+
       Bundle extras = getIntent().getExtras();
       if (extras != null) {
         extras.clear();
@@ -318,9 +339,6 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
 
   private void notifySyncService() {
-    // run a background OutputProcessorService that tries to upload
-    // the recent entries in the events table.
-    // (It selects all events that are not marked uploaded, and tries to send them)
     startService(new Intent(this, SyncService.class));
   }
 
@@ -340,10 +358,11 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
           continue;
         }
       } catch (IllegalArgumentException iae) {
+        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
         continue;
       }
       Output responseForInput = new Output();
-      String answer = inputView.getValue();
+      String answer = inputView.getValueAsString();
       if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*|| 
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
         throw new IllegalStateException("Must answer: " + input.getText());
@@ -360,7 +379,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getTitle());
-    if (scheduledTime != 0L) {
+    if (scheduledTime != null && scheduledTime != 0L) {
       event.setScheduledTime(new DateTime(scheduledTime));
     }
     event.setResponseTime(new DateTime());
@@ -460,23 +479,20 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       for (InputLayout inputLayout : inputs) {
         interpreter.addInput(createBindingFromInputView(inputLayout));
       }
-    } else {
-      if (input != null) {
-        interpreter.addInput(createBindingFromInputView(input));
-      }
-    }
+    } 
+//    else {
+//      if (input != null) {
+//        interpreter.addInput(createBindingFromInputView(input));
+//      }
+//    }
     return interpreter;
   }
 
   private Binding createBindingFromInputView(InputLayout inputLayout) {
     String inputName = inputLayout.getInputName();
     Class responseType = inputLayout.getResponseType();
-    String value = inputLayout.getValue();
-    Integer valueAsInt = null;
-    if (responseType.equals(Integer.class) && value != null) {
-      valueAsInt = Integer.parseInt(value);
-    }
-    Binding binding = new Binding(inputName, responseType, valueAsInt);
+    Object value = inputLayout.getValue();
+    Binding binding = new Binding(inputName, responseType, value);
     return binding;
   }
 

@@ -16,14 +16,14 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.InputDAO;
-
-import java.util.List;
 
 /**
  * Container component for holding a bunch of charts.

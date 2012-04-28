@@ -15,10 +15,46 @@ package com.google.android.apps.paco.questioncondparser;
 
 
 comparison  returns [boolean value]
-   : question_part LT i=INTEGER { $value = environment.getValue($question_part.text) != null && environment.getValue($question_part.text) < Integer.parseInt($i.text); }
-   | question_part GT i=INTEGER { $value = environment.getValue($question_part.text) != null && environment.getValue($question_part.text) > Integer.parseInt($i.text); }
-   | question_part EQ i=INTEGER { $value = environment.getValue($question_part.text) != null && environment.getValue($question_part.text) == Integer.parseInt($i.text); }
-   | question_part NE i=INTEGER { $value = environment.getValue($question_part.text) != null && environment.getValue($question_part.text) != Integer.parseInt($i.text); }
+   : question_part LT i=INTEGER { $value = environment.getValue($question_part.text) != null && ((Integer)environment.getValue($question_part.text)) < Integer.parseInt($i.text); }
+   | question_part GT i=INTEGER { $value = environment.getValue($question_part.text) != null && ((Integer)environment.getValue($question_part.text)) > Integer.parseInt($i.text); }
+   | question_part EQ i=INTEGER { 
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof Integer) {
+            $value =  ((Integer)obj) == Integer.parseInt($i.text); 
+          } else if (obj instanceof List) {
+            $value = ((List)obj).contains(Integer.parseInt($i.text));
+          }
+        }
+      }
+   | question_part NE i=INTEGER { 
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof Integer) {
+            $value = ((Integer)obj) != Integer.parseInt($i.text); 
+          } else if (obj instanceof List) {
+            $value = ((List)obj).contains(Integer.parseInt($i.text));
+          } else {
+            $value = false; //default case
+          }
+        }
+     }
+   | question_part 'contains' i=INTEGER { 
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof List) {        
+            $value = ((List)obj).contains(Integer.parseInt($i.text)); 
+          } else {
+            $value = false; // default case
+          }
+        }
+      }
    ;
 
 expression returns [boolean value]
@@ -32,9 +68,10 @@ question_part
 :QUESTION_NAME { if (!environment.exists($QUESTION_NAME.text)) {
        throw new IllegalArgumentException("unknown reference: " + $QUESTION_NAME.text);
    }
-   if (!environment.correctType($QUESTION_NAME.text)) {
-     throw new IllegalArgumentException("Does not have an integer response type: " + $QUESTION_NAME.text);
-   }}
+  // if (!environment.correctType($QUESTION_NAME.text)) {
+  //   throw new IllegalArgumentException("Does not have the proper response type: " + $QUESTION_NAME.text);
+  // }
+   }
        ;
 
 OR : '||' ;

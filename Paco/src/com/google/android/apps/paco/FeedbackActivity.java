@@ -16,13 +16,6 @@
 */
 package com.google.android.apps.paco;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +41,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class FeedbackActivity extends Activity {
 
@@ -58,23 +50,7 @@ public class FeedbackActivity extends Activity {
   private WebView webView;
   private Button rawDataButton;
   boolean showDialog = true;
-  
-  private class Environment {
-
-    
-    private HashMap<String, String> map;
-
-    public Environment(Map<String,String> map) {
-      super();
-      this.map = new HashMap<String, String>();
-      this.map.putAll(map);
-    }
-
-    public String getValue(String key) {
-      return map.get(key);
-    }
-    
-  }
+  private Environment env;
   
   private class Email {
     public void sendEmail(String body, String subject, String userEmail) {
@@ -92,7 +68,7 @@ public class FeedbackActivity extends Activity {
       setContentView(R.layout.feedback);
       experimentProviderUtil.loadFeedbackForExperiment(experiment);
       experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadLatestEventForExperiment(experiment);
+      experimentProviderUtil.loadEventsForExperiment(experiment);
       final Feedback feedback = experiment.getFeedback().get(0);
       
       final Map<String,String> map = new HashMap<String, String>();      
@@ -110,7 +86,7 @@ public class FeedbackActivity extends Activity {
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 
-      final Environment env = new Environment(map);
+      env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
       
       String text = experiment.getFeedback().get(0).getText();                
@@ -145,10 +121,7 @@ public class FeedbackActivity extends Activity {
   }
 
   private void loadCustomFeedbackIntoWebView() {
-    //        webView.loadData(text, "text/html", "utf-8");
-    //webView.loadDataWithBaseURL("file:///", text, "text/html", "utf-8", "data:"+text);
     webView.loadUrl("file:///android_asset/skeleton.html");
-//        webView.loadUrl("file:///android_asset/shell.html");
   }
 
   private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final Feedback feedback) {
@@ -157,11 +130,14 @@ public class FeedbackActivity extends Activity {
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
         Uri uri = Uri.parse(url);
         if (uri.getScheme().startsWith("http")) {
-          return false;
+          return true; // throw away http requests - we don't want 3rd party javascript sending url requests due to security issues.
         }
         
         String inputIdStr = uri.getQueryParameter("inputId");
-        long inputId = Long.valueOf(inputIdStr);
+        if (inputIdStr == null) {
+          return true;
+        }
+        long inputId = Long.parseLong(inputIdStr);
         JSONArray results = new JSONArray();
         for (Event event : experiment.getEvents()) {
           JSONArray eventJson = new JSONArray();
@@ -184,19 +160,27 @@ public class FeedbackActivity extends Activity {
           }
           
         }
-        Map<String, String> map2 = new HashMap();
-        Environment chartEnv = new Environment(map2);
-        map2.put("data", results.toString());
+        env.put("data", results.toString());
+        env.put("inputId", inputIdStr);
         
-        view.addJavascriptInterface(chartEnv, "chartEnv");
-        view.loadUrl(url);
+        view.loadUrl(stripQuery(url));
         return true;
       }
+
       
     };
     return webViewClient;
   }
 
+  public static String stripQuery(String url) {
+    String urlWithoutQuery = url;
+    int indexOfQuery = url.indexOf('?');
+    if (indexOfQuery != -1) {
+      urlWithoutQuery = urlWithoutQuery.substring(0, indexOfQuery);
+    }
+    return urlWithoutQuery;
+  }
+  
   private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     webView.setWebChromeClient(new WebChromeClient() {
       @Override

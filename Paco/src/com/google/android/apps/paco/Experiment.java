@@ -25,8 +25,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -389,10 +387,14 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
-  public Long getNextTime(DateTime now, Context context) {
+  public DateTime getNextTime(DateTime now, Context context) {
     if (now == null || isExperimentOver(now)) {
       return null;
     }
+    if (isExperimentNotStartedYet(now)) {
+      now = getStartDate().toDateMidnight().toDateTime();
+    }
+
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
     } else {
@@ -400,12 +402,24 @@ public class Experiment implements Parcelable {
     }
   }
 
-  private Long scheduleESM(DateTime now, Context context) {
+  private boolean isExperimentNotStartedYet(DateTime now) {
+    return isFixedDuration() && now.isBefore(getStartDate().toDateMidnight());
+  }
+
+  //@VisibleForTesting
+  DateTime scheduleESM(DateTime now, Context context) {
+    if (schedule.convertEsmPeriodToDays() == 1 && !schedule.getEsmWeekends() && TimeUtil.isWeekend(now)) {
+      now = TimeUtil.skipWeekends(now);
+    }
     ensureScheduleIsGeneratedForPeriod(now, context);
     // generate at least the next period, so we always have a next time for ESMs.
-    DateTime nextPeriod = now.plusDays(getSchedule().convertEsmPeriodToDays());           
+    DateTime nextPeriod = now.plusDays(getSchedule().convertEsmPeriodToDays());
+    if (schedule.convertEsmPeriodToDays() == 1 && !schedule.getEsmWeekends() && TimeUtil.isWeekend(nextPeriod)) {
+      nextPeriod = TimeUtil.skipWeekends(nextPeriod);
+    }
+
     ensureScheduleIsGeneratedForPeriod(nextPeriod, context);      
-    Long next = lookupNextTimeOnEsmSchedule(now, context); // anymore this period
+    DateTime next = lookupNextTimeOnEsmSchedule(now, context); // anymore this period
     if (next != null) {
       return next;        
     }
@@ -415,13 +429,10 @@ public class Experiment implements Parcelable {
   private DateTime getEndDateTime() {
     if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();
-      // get the latest time
       Collections.sort(times);
       
-      DateTime dateTime = new DateTime().plus(times.get(times.size() - 1));
-      int hour = dateTime.getHourOfDay();
-      int minute = dateTime.getMinuteOfHour();
-      return new DateMidnight(getEndDate()).toDateTime().plus(Hours.hours(hour)).plus(Minutes.minutes(minute));
+      DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
+      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
       return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
     }
@@ -431,27 +442,32 @@ public class Experiment implements Parcelable {
     return isFixedDuration() && now.isAfter(getEndDateTime());
   }
 
-  private Long lookupNextTimeOnEsmSchedule(DateTime now, Context context) {
+  private DateTime lookupNextTimeOnEsmSchedule(DateTime now, Context context) {
     AlarmStore alarmStore = new AlarmStore(context);
     List<DateTime> signals = alarmStore.getSignals(getId(), getPeriodStart(now).getMillis());
         
-    Long next = getNextSignalAfterNow(now, signals);
+    DateTime next = getNextSignalAfterNow(now, signals);
     if (next != null) {
     	return next;
     }
     DateTime nextPeriod = now.plusDays(getSchedule().convertEsmPeriodToDays());
+    if (schedule.convertEsmPeriodToDays() == 1 && !schedule.getEsmWeekends() && TimeUtil.isWeekend(nextPeriod)) {
+      nextPeriod = TimeUtil.skipWeekends(nextPeriod);
+    }
+
+    ensureScheduleIsGeneratedForPeriod(nextPeriod, context); 
     signals = alarmStore.getSignals(getId(), getPeriodStart(nextPeriod).getMillis());    
     return getNextSignalAfterNow(now, signals);
   }
 
-  private Long getNextSignalAfterNow(DateTime now, List<DateTime> signals) {
-	if (signals.size() == 0) {
+  private DateTime getNextSignalAfterNow(DateTime now, List<DateTime> signals) {
+    if (signals.size() == 0) {
       return null;
     }
-	Collections.sort(signals);
+	  Collections.sort(signals);
     for (DateTime dateTime : signals) {
       if (!now.isAfter(dateTime)) {
-        return dateTime.getMillis();
+        return dateTime;
       }
     }
     return null;
@@ -484,8 +500,6 @@ public class Experiment implements Parcelable {
   }
 
   private void generateNextPeriod(DateMidnight generatingPeriodStart, AlarmStore alarmStore) {
-//    Log.i(Constants.TAG, "Generating new period for " + surveyName + ", starting: " + 
-//        periodStart.toString());
     if (isExperimentOver(generatingPeriodStart.toDateTime())) {
       return;
     }
@@ -497,10 +511,6 @@ public class Experiment implements Parcelable {
 
   private List<DateTime> generateSignalTimesForPeriod(DateMidnight periodStart) {    
     return new EsmGenerator2().generateForSchedule(periodStart.toDateTime(), getSchedule());
-//    return new ESMSignalGenerator().generateSignalTimesForPeriod(periodStart,
-//        new DateMidnight().toDateTime().plus(schedule.getEsmStartHour()).getHourOfDay(), 
-//        new DateMidnight().toDateTime().plus(schedule.getEsmEndHour()).getHourOfDay(), 
-//        getSchedule().getEsmFrequency(), getEndDateTime() /* not currently used */);
   }
 
   private void storeSignalTimes(DateMidnight periodStart, List<DateTime> times, AlarmStore alarmStore) {
@@ -513,9 +523,9 @@ public class Experiment implements Parcelable {
   @JsonIgnore
   public long getExpirationTimeInMinutes() {
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      return 60;
+      return 59; // For now, make everything timeout in 8 hours. Then change it to be customizable soon.
     }
-    return 480;
+    return 479;
   }
 
   @JsonIgnore
@@ -537,4 +547,11 @@ public class Experiment implements Parcelable {
     }
     return null;
   }
+
+  @Override
+  public String toString() {
+    return getTitle();
+  }
+  
+  
 }

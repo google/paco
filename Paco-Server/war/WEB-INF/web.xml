@@ -26,6 +26,36 @@
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
   
+  <filter>
+   <filter-name>whitelistFilter</filter-name>
+   <filter-class>com.google.sampling.experiential.server.WhitelistFilter</filter-class>
+  </filter>
+ 
+  <filter>
+   <filter-name>dbQuotaFilter</filter-name>
+   <filter-class>com.google.sampling.experiential.server.DBQuotaFilter</filter-class>
+  </filter>
+ 
+  <filter-mapping>
+   <filter-name>dbQuotaFilter</filter-name>
+   <url-pattern>/events*</url-pattern>
+  </filter-mapping>
+ 
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>mapServlet</servlet-name>
+  </filter-mapping>
+ 
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>eventServlet</servlet-name>
+  </filter-mapping>
+ 
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>experimentServlet</servlet-name>
+  </filter-mapping> 
+   
   <!-- Servlets -->
   <servlet>
     <servlet-name>mapServlet</servlet-name>
@@ -46,6 +76,17 @@
     <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
     </servlet>
   
+  <servlet>
+    <display-name>Remote API Servlet</display-name>
+    <servlet-name>RemoteApiServlet</servlet-name>
+    <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+    <servlet-name>RemoteApiServlet</servlet-name>
+    <url-pattern>/remote_api</url-pattern>
+</servlet-mapping>
+
   <servlet-mapping>
     <servlet-name>mapServlet</servlet-name>
     <url-pattern>/pacoserver/maps</url-pattern>
@@ -67,20 +108,10 @@
 
  <security-constraint>
    <web-resource-collection>
-       <url-pattern>/pacoserver/maps</url-pattern>
-       <url-pattern>/events*</url-pattern>
-       <url-pattern>/experiments*</url-pattern>
-   </web-resource-collection>
-   <auth-constraint>
-       <role-name>*</role-name> 
-   </auth-constraint>
-   <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-   </user-data-constraint>
- </security-constraint>
- <security-constraint>
-   <web-resource-collection>
-       <url-pattern>/*</url-pattern>
+      <url-pattern>/pacoserver/maps*</url-pattern>
+      <url-pattern>/events*</url-pattern>
+      <url-pattern>/experiments*</url-pattern>
+      <url-pattern>/Main.html*</url-pattern>
    </web-resource-collection>
    <auth-constraint>
        <role-name>*</role-name> 
@@ -90,18 +121,4 @@
    </user-data-constraint>
 
  </security-constraint>
-
-<filter>
-  <filter-name>whitelistFilter</filter-name>
-  <filter-class>com.google.sampling.experiential.server.WhitelistFilter</filter-class>
-</filter>
-
-<filter-mapping>
-        <filter-name>whitelistFilter</filter-name>
-        <url-pattern>/pacoserver/maps/*</url-pattern>
-        <url-pattern>/events/*</url-pattern>
-        <url-pattern>/experiments/*</url-pattern>
-        <url-pattern>/Main.html</url-pattern>
-        <url-pattern>/Experiments.html</url-pattern>
-    </filter-mapping>
 </web-app>
