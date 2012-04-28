@@ -39,9 +39,9 @@ public class OptionsMenu {
     menu.add(0, STOP_ITEM, 1, STOP_ITEM_TITLE);
     menu.add(0, DATA_ITEM, 2, DATA_ITEM_TITLE);
     menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, REFRESH_EXPERIMENT_ITEM_TITLE);
-//    if (context instanceof ExperimentManagerActivity) {
-//      menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
-//    }
+    if (context instanceof ExperimentManagerActivity) {
+      menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
+    }
     if (wasSignalled) {
     menu.add(0, MAINPAGE_ITEM, 2, MAINPAGE_STRING);
     }
@@ -166,7 +166,7 @@ public class OptionsMenu {
 
   private static final int PAGING_ITEM = 0;
   private static final int STOP_ITEM = 1;
-  private static final int DATA_ITEM = 2;
+  private static final int DATA_ITEM = 2;  
   private static final int MAINPAGE_ITEM = 3;
   private static final int HELP_ITEM = 4;
   private static final int REFRESH_EXPERIMENT_ITEM = 5;

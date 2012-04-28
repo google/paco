@@ -33,7 +33,7 @@ public class NotificationCreatorService extends Service {
 
   @Override
   public void onCreate() {
-    super.onCreate();
+    super.onCreate();    
   }
 
   @Override
@@ -44,6 +44,7 @@ public class NotificationCreatorService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
+    
     final Bundle extras = intent.getExtras();
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco NotificationCreatorService wakelock");

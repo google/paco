@@ -48,7 +48,6 @@ public class BeeperService extends Service {
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco BeeperService wakelock");
     wl.acquire();
-
     Runnable runnable = new Runnable() {
       public void run() {
         try {

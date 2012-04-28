@@ -45,11 +45,13 @@ public class ExperimentManagerActivity extends Activity {
   private static final int DEBUG_ITEM = 4;
   private static final int SERVER_ADDRESS_ITEM = 5;
   private static final int UPDATE_ITEM = 6;
+
   
   private static final CharSequence ABOUT_PACO_STRING = "About Paco";
   private static final CharSequence DEBUG_STRING = "Debug";
   private static final CharSequence SERVER_ADDRESS_STRING = "Server Address";
   private static final String CHECK_FOR_UPDATES = "Check Updates";
+
   
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
   
@@ -219,7 +221,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, ABOUT_PACO_ITEM, 1, ABOUT_PACO_STRING);
     menu.add(0, DEBUG_ITEM, 1, DEBUG_STRING);
     menu.add(0, SERVER_ADDRESS_ITEM, 1, SERVER_ADDRESS_STRING);
-    //menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
+    menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
     return true;
   }
 
@@ -237,7 +239,7 @@ public class ExperimentManagerActivity extends Activity {
       return true;
     case UPDATE_ITEM:
       launchUpdateCheck();
-      return true;            
+      return true;      
     default:
       return false;
     }

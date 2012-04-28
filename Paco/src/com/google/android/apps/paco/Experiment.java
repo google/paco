@@ -464,7 +464,7 @@ public class Experiment implements Parcelable {
     if (signals.size() == 0) {
       return null;
     }
-	  Collections.sort(signals);
+    Collections.sort(signals);
     for (DateTime dateTime : signals) {
       if (!now.isAfter(dateTime)) {
         return dateTime;
@@ -523,7 +523,7 @@ public class Experiment implements Parcelable {
   @JsonIgnore
   public long getExpirationTimeInMinutes() {
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      return 59; // For now, make everything timeout in 8 hours. Then change it to be customizable soon.
+      return 59;
     }
     return 479;
   }
