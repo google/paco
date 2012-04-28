@@ -200,7 +200,7 @@
 		<provider android:name="ExperimentProvider"
 			android:authorities="com.google.android.apps.paco.ExperimentProvider" 
             android:exported="false"/>
-   </application>
+    </application>
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"></uses-permission>
 	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"></uses-permission>

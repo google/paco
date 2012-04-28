@@ -83,7 +83,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       displayNoExperimentMessage();
     } else {       
       getSignallingData();
-      
+
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
       
