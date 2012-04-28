@@ -18,9 +18,6 @@
 
 package com.google.sampling.experiential.model;
 
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

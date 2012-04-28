@@ -122,10 +122,11 @@ public class InputsPanel extends Composite {
     createInputTextColumn();
 
 
+    createResponseViewPanel();
+
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
-    createResponseViewPanel();
 
     createScheduledDateColumn(upperLinePanel);
   }

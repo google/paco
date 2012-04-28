@@ -141,7 +141,7 @@ public class ExperimentServlet extends HttpServlet {
   private String jsonify(List<ExperimentDAO> experiments) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-    try {       
+    try {
       return mapper.writeValueAsString(experiments);
     } catch (JsonGenerationException e) {
       log.severe("Json generation error " + e);

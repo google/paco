@@ -108,7 +108,6 @@ public class EventServlet extends HttpServlet {
     } else {
       if (req.getParameter("json") != null) {
         resp.setContentType("application/json;charset=UTF-8");
-      if (req.getParameter("json") != null) {
         dumpEventsJson(resp, req);
       } else if (req.getParameter("csv") != null) {
         resp.setContentType("text/csv;charset=UTF-8");

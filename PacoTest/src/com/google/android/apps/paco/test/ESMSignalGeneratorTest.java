@@ -26,13 +26,11 @@ import junit.framework.TestCase;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.Duration;
 import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
 import com.google.android.apps.paco.EsmGenerator2;
-import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.SignalSchedule;
 import com.google.android.apps.paco.TimeUtil;
 
