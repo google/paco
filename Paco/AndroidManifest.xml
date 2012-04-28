@@ -17,7 +17,7 @@
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="com.google.android.apps.paco"
-	android:versionCode="59" android:versionName="2.0.59">
+	android:versionCode="61" android:versionName="2.0.61">
 	<application android:icon="@drawable/paco64" android:label="@string/app_name"
 		android:theme="@style/PacoTheme" android:debuggable="true">	
 		<activity
@@ -118,12 +118,12 @@
 				<data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
 			</intent-filter>
 		</activity>
-<!--		<activity android:name=VersionUpdateActivity" android:label="Update Activity"> -->
-<!--			<intent-filter>-->
-<!--				<action android:name="com.google.android.apps.paco.UPDATE" />-->
-<!--				<category android:name="android.intent.category.DEFAULT" />-->
-<!--			</intent-filter>-->
-<!--		</activity>-->
+		<activity android:name="VersionUpdateActivity" android:label="Update Activity">
+			<intent-filter>
+				<action android:name="com.google.android.apps.paco.UPDATE" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
 		<activity
 			android:name="com.google.android.apps.paco.WelcomeActivity" />
 			
@@ -162,7 +162,7 @@
 		</service>
 		<service android:name=".SyncService" />
 		<service android:name=".ServerCommunicationService" />
-    <!-- <service android:name=".VersionCheckerService" /> -->
+        <service android:name=".VersionCheckerService" />
   
 
 		<receiver android:name="com.google.android.apps.paco.AlarmReceiver">
@@ -200,7 +200,7 @@
 		<provider android:name="ExperimentProvider"
 			android:authorities="com.google.android.apps.paco.ExperimentProvider" 
             android:exported="false"/>
-	</application>
+   </application>
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"></uses-permission>
 	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"></uses-permission>

@@ -66,7 +66,7 @@ public class WhitelistFilter implements Filter {
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
-    whitelist = new AllPassWhitelist();
+    whitelist = new Whitelist();
   }
 
 }

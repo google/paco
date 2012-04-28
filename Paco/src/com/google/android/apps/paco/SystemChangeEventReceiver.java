@@ -38,7 +38,7 @@ public class SystemChangeEventReceiver extends BroadcastReceiver {
       //public void setNextServerCommunicationServiceAlarmTime(Long updateTime)
       // is this what is preventing setting an alarm for this service?
       context.startService(new Intent(context, ServerCommunicationService.class));
-//      context.startService(new Intent(context, VersionCheckerService.class));
+      context.startService(new Intent(context, VersionCheckerService.class));
     }
   }
 

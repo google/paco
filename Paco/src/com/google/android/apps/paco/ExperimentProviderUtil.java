@@ -1402,7 +1402,7 @@ public class ExperimentProviderUtil {
           selectionClause, selectionArgs);
     }
   }
-  
+ 
   public int deleteNotificationsForExperiment(long experimentId) {
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";

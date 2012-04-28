@@ -30,7 +30,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     LoginInfo loginInfo = new LoginInfo();
-    Whitelist whitelist = new AllPassWhitelist();
+    Whitelist whitelist = new Whitelist();
     
     if (user != null && whitelist.allowed(user.getEmail())) {
       loginInfo.setLoggedIn(true);
