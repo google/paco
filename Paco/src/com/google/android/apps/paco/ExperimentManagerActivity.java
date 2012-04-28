@@ -45,12 +45,12 @@ public class ExperimentManagerActivity extends Activity {
   private static final int DEBUG_ITEM = 4;
   private static final int SERVER_ADDRESS_ITEM = 5;
   private static final int UPDATE_ITEM = 6;
-  
+
   private static final CharSequence ABOUT_PACO_STRING = "About Paco";
   private static final CharSequence DEBUG_STRING = "Debug";
   private static final CharSequence SERVER_ADDRESS_STRING = "Server Address";
   private static final String CHECK_FOR_UPDATES = "Check Updates";
-  
+
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
   
   private GoogleAccountLoginHelper loginHelper;
@@ -237,7 +237,7 @@ public class ExperimentManagerActivity extends Activity {
       return true;
     case UPDATE_ITEM:
       launchUpdateCheck();
-      return true;            
+      return true;
     default:
       return false;
     }

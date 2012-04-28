@@ -118,7 +118,7 @@
 				<data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
 			</intent-filter>
 		</activity>
-<!--		<activity android:name=VersionUpdateActivity" android:label="Update Activity"> -->
+<!--		<activity android:name="VersionUpdateActivity" android:label="Update Activity"> -->
 <!--			<intent-filter>-->
 <!--				<action android:name="com.google.android.apps.paco.UPDATE" />-->
 <!--				<category android:name="android.intent.category.DEFAULT" />-->
@@ -200,7 +200,7 @@
 		<provider android:name="ExperimentProvider"
 			android:authorities="com.google.android.apps.paco.ExperimentProvider" 
             android:exported="false"/>
-	</application>
+  </application>
 
 	<uses-permission android:name="android.permission.GET_ACCOUNTS"></uses-permission>
 	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"></uses-permission>
