@@ -259,21 +259,23 @@ public class Main implements EntryPoint, ExperimentListener {
   protected void showAndroidDownloadPage() {
     contentPanel.clear();
     experimentPanel.setVisible(false);
-    setContentTitle("Download the PACO Android Client from the Bazaar");
+    setContentTitle("Download the PACO Android Client");
     VerticalPanel dl = new VerticalPanel();
 
-    HTML barCodeLabel = new HTML("A) Using the Bazaar app.");
+    HTML barCodeLabel = new HTML("1) Ensure that you can install applications from Unknown Sources.");
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
-    dl.add(new HTML("On your phone, open the Bazaar app and look under Experimental for the "
-        + "PACO app.<br/> Install it."));
-
-
-    HTML barCodeLabel2 = new HTML("B) Scan this code with your phone which will launch Bazaar "
-        + "and navigate to the PACO App:");
+    dl.add(new HTML("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
+ 
+    HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(resources.qrcode().createImage());
+    
+    HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
+    downloadLink.setStyleName("paco-HTML-Large");
+    dl.add(downloadLink);
+
     contentPanel.add(dl);
   }
 

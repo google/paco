@@ -219,7 +219,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, ABOUT_PACO_ITEM, 1, ABOUT_PACO_STRING);
     menu.add(0, DEBUG_ITEM, 1, DEBUG_STRING);
     menu.add(0, SERVER_ADDRESS_ITEM, 1, SERVER_ADDRESS_STRING);
-    //menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
+    menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
     return true;
   }
 

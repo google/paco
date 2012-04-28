@@ -1,4 +1,4 @@
-application: pacoserve
+application: quantifiedself
 version: 22
 runtime: python
 api_version: 1
