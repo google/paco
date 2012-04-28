@@ -33,79 +33,96 @@ import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
 
 public class NotificationCreator {
 
-  static String NOTIFICATION_ID = "notification_id";
+  private static final int MILLIS_IN_MINUTE = 60000;
+  static String NOTIFICATION_ID = "com.google.android.apps.paco.notification_id";
   private Context context;
+  private ExperimentProviderUtil experimentProviderUtil;
 
   public NotificationCreator(Context applicationContext) {
     this.context = applicationContext;
+    experimentProviderUtil = new ExperimentProviderUtil(context);
   }
 
   public static NotificationCreator create(Context context) {
     return new NotificationCreator(context.getApplicationContext());
   }
 
-  // If we are updating a notificationId that is not -1, this is canceling a notification.
-  public void updateNotifications(long notificationId, long alarmTime) {
-      ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+  public void createNotifications(long notificationId, long alarmTime) {
     try {
-      if (notificationId != -1) {
-        timeoutESMNotification(notificationId, experimentProviderUtil);      
-        return;
-      } else if (alarmTime != -1) {  
-        createAllNotificationsForNextMinute(alarmTime, experimentProviderUtil);            
-      } else { // no notificationId && no alarmTime means that we are just recreating the existing notifications
-        recreateActiveNotifications(experimentProviderUtil);
+      createAllNotificationsForLastMinute(alarmTime);            
+    } finally {
+      context.startService(new Intent(context, BeeperService.class));
+    }
+  }
+
+  public void timeoutNotification(long notificationId) {
+    try {
+      NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
+      timeoutNotification(notificationHolder);
+    } finally {
+      context.startService(new Intent(context, BeeperService.class));
+    }
+  }
+  
+  public void timeoutNotificationsForExperiment(Long experimentId) {
+    List<NotificationHolder> notifs = experimentProviderUtil.getNotificationsFor(experimentId);
+    timeoutNotifications(notifs);
+  }
+  
+  public void recreateActiveNotifications() {  
+    try {
+      List<NotificationHolder> allNotifications = experimentProviderUtil.getAllNotifications();
+      DateTime now = new DateTime();
+      for (NotificationHolder notificationHolder : allNotifications) {
+        if (notificationHolder.isActive(now)) {
+          Experiment experiment = experimentProviderUtil.getExperiment(notificationHolder.getExperimentId());
+          cancelNotification(context, notificationHolder.getId());  // in case this exists on the status bar, blow it away (this happens on package_replace calls).        
+          fireNotification(context, notificationHolder, experiment);
+        } else {
+          timeoutNotification(notificationHolder);
+        }
       }
     } finally {
       context.startService(new Intent(context, BeeperService.class));
     }
   }
 
-  private void recreateActiveNotifications(ExperimentProviderUtil experimentProviderUtil) {
-    List<NotificationHolder> actives = experimentProviderUtil.getNotificationsStillActive(new DateTime());
-    for (NotificationHolder notificationHolder : actives) {
-      Experiment experiment = experimentProviderUtil.getExperiment(notificationHolder.getExperimentId());
-      createNotificationForExperiment(context, notificationHolder.getAlarmTime(), experimentProviderUtil, experiment);      
-    }
-  }
-
-  private void createAllNotificationsForNextMinute(long alarmTime,
-      ExperimentProviderUtil experimentProviderUtil) {
+  private void createAllNotificationsForLastMinute(long alarmTime) {
     DateTime alarmAsDateTime = new DateTime(alarmTime);
-    Log.i(PacoConstants.TAG, "Creating notifications for received alarm. Alarm Time " + alarmAsDateTime.toString());
+    Log.i(PacoConstants.TAG, "Creating All notifications for last minute from signaled alarmTime: " + alarmAsDateTime.toString());
  
- 
- 
-    List<TimeExperiment> times = ExperimentAlarms.getAllAlarmsWithinOneMinuteofNow(alarmAsDateTime.minusSeconds(59), experimentProviderUtil.getJoinedExperiments(), context);
-    for (TimeExperiment timeExperiment : times) {        
-      createNotificationForExperiment(context, timeExperiment.time, experimentProviderUtil, timeExperiment.experiment);
+    List<TimeExperiment> times = ExperimentAlarms.getAllAlarmsWithinOneMinuteofNow(alarmAsDateTime.minusSeconds(59), 
+        experimentProviderUtil.getJoinedExperiments(), context);
+    for (TimeExperiment timeExperiment : times) {
+      timeoutNotifications(experimentProviderUtil.getNotificationsFor(timeExperiment.experiment.getId()));
+      createNewNotificationForExperiment(context, timeExperiment);
     }
   }
 
-  private void timeoutESMNotification(long notificationId,
-      ExperimentProviderUtil experimentProviderUtil) {
-    Log.i(PacoConstants.TAG, "Received Notification reminder alarm.");
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
+  private void timeoutNotifications(List<NotificationHolder> notifications) {
+    for (NotificationHolder notificationHolder : notifications) {
+      timeoutNotification(notificationHolder);
+    }    
+  }  
+
+  // Responding to the notification would have deleted the holder.
+  // So, this notification has not been responded to and should be canceled.        
+  public void timeoutNotification(NotificationHolder notificationHolder) {
     if (notificationHolder != null) {
-      Log.i(PacoConstants.TAG, "Received Notification reminder alarm. Holder = " + notificationHolder.getExperimentId());
-      // Responding to the notification would have deleted the holder.
-      // So, this notification has not been responded to and should be canceled.        
-      cancelNotification(context, notificationId);
-      createMissedPacot(context, notificationHolder, experimentProviderUtil);
-      experimentProviderUtil.deleteNotificationsForExperiment(notificationHolder.getExperimentId());
+      Log.i(PacoConstants.TAG, "Timing out notification. Holder = " + notificationHolder.getId() + ", experiment = " + notificationHolder.getExperimentId());
+      cancelNotification(context, notificationHolder.getId());
+      createMissedPacot(context, notificationHolder);
+      experimentProviderUtil.deleteNotification(notificationHolder.getId());
       notifySyncService(context);
     }
   }
 
   // TODO (bobevans): unify these two methods with those in ExperimentExecutor.
   private void notifySyncService(Context context) {
-    // run a background OutputProcessorService that tries to upload
-    // the recent entries in the events table.
-    // (It selects all events that are not marked uploaded, and tries to send them)
     context.startService(new Intent(context, SyncService.class));
   }
   
-  private void createMissedPacot(Context context, NotificationHolder notificationHolder, ExperimentProviderUtil experimentProviderUtil) {
+  private void createMissedPacot(Context context, NotificationHolder notificationHolder) {
     Experiment experiment = experimentProviderUtil.getExperiment(notificationHolder.getExperimentId());
     Event event = new Event();
     event.setExperimentId(experiment.getId());
@@ -115,57 +132,57 @@ public class NotificationCreator {
     experimentProviderUtil.insertEvent(event);
   }
 
-
   private void cancelNotification(Context context, long notificationId) {
     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.cancel(new Long(notificationId).intValue());
   }
   
-  private void createNotificationForExperiment(Context context, long alarmTime, 
-      ExperimentProviderUtil experimentProviderUtil, Experiment experiment) {
-    if (experiment.isQuestionsChange()) {
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-    }      
+  private void createNewNotificationForExperiment(Context context, TimeExperiment timeExperiment) {
+//    if (experiment.isQuestionsChange()) {
+//      experimentProviderUtil.loadInputsForExperiment(experiment);
+//    }      
 //      if (experiment.isQuestionsChange() && !experiment.hasFreshInputs()) {
 //        return;
 //      }
+    DateTime time = timeExperiment.time;
+    Experiment experiment = timeExperiment.experiment;
+    NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0, experiment.getExpirationTimeInMillis());
+    experimentProviderUtil.insertNotification(notificationHolder);
+
+    fireNotification(context, notificationHolder, experiment);
+  }
+
+  private void fireNotification(Context context, NotificationHolder notificationHolder, Experiment experiment) {
+    Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experiment.getTitle() + 
+        ". alarmTime: " + notificationHolder.getAlarmTime().toString() + " holderId = " + notificationHolder.getId());
+    
+    Notification notification = createNotification(context, experiment, notificationHolder);
+    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);    
+    notificationManager.notify(notificationHolder.getId().intValue(), notification);
+    
+    if (experiment.isExpiringAlarm()) {
+      createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
+    }
+  }
+
+  private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder) {
     int icon = R.drawable.calculator_lb16;
 
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId());
-    if (notificationHolder == null) {
-      notificationHolder = new NotificationHolder(alarmTime, experiment.getId(), 0, experiment.getExpirationTimeInMillis());
-      experimentProviderUtil.insertNotification(notificationHolder);
-    } else {
-      // TODO(bobevans):decide whether to have multiple notifications (1 / experiment)
-      // or one notification that launches the app, and an app that shows which ones need response.
-      //
-      // there is currently no need to do this, because it makes no sense to
-      // answer a prior notification when there is a new one, and telling them
-      // the number is meaningless. We might use it to consolidate all notifications
-      // into one, but not yet.
-//        notificationHolder.setNoticeCount(notificationHolder.getNoticeCount());
-//        experimentProviderUtil.updateNotification(notificationHolder);
-    }
-    Notification notification = new Notification(icon, "Time for " + experiment.getTitle(), alarmTime); 
+    Notification notification = new Notification(icon, "Time for " + experiment.getTitle(), notificationHolder.getAlarmTime()); 
     
-    //Intent surveyIntent = new Intent(context, ExperimentExecutor.class);
     Intent surveyIntent = new Intent(context, ExperimentExecutor.class);
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
         experiment.getId().toString()); 
     surveyIntent.setData(uri);
-    surveyIntent.putExtra(Experiment.SCHEDULED_TIME, alarmTime);
+    surveyIntent.putExtra(Experiment.SCHEDULED_TIME, notificationHolder.getAlarmTime());
+    surveyIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().longValue());
     
     PendingIntent notificationIntent = PendingIntent.getActivity(context, 1,
         surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);    
     notification.setLatestEventInfo(context, experiment.getTitle(),
         "Time to participate!", notificationIntent);
-    notification.when = alarmTime;
-    
-    // This actually seems like a bad idea. If they hit a new notice
-    // on the same experiment, we should just refresh the exsiting notice.
-    // It is just too late to respond to
-    //notification.number = notificationHolder.getNoticeCount();
+    notification.when = notificationHolder.getAlarmTime();
     
     notification.defaults |= Notification.DEFAULT_SOUND;
     notification.defaults |= Notification.DEFAULT_VIBRATE;
@@ -174,38 +191,32 @@ public class NotificationCreator {
     if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       notification.flags |= Notification.FLAG_NO_CLEAR;
     }
-    notification.sound = Uri.parse("file:///sdcard/notification/ringer.mp3");
-    NotificationManager notificationManager = (NotificationManager) context
-        .getSystemService(Context.NOTIFICATION_SERVICE);
-    
-    Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experiment.getTitle() +". alarmTime: " + new DateTime(alarmTime).toString());
-    notificationManager.notify(notificationHolder.getId().intValue(), notification);
-    
-    if (experiment.isExpiringAlarm()) {
-      createCancelAlarm(context, notificationHolder);
-    }
+    return notification;
   }
 
-  private void createCancelAlarm(Context context, NotificationHolder notificationHolder) {
-    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    Log.i(PacoConstants.TAG, "Creating alarm to timeout notification for holder: " 
+  private void createAlarmToCancelNotificationAtTimeout(Context context, NotificationHolder notificationHolder) {    
+    DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
+    int timeoutMinutes = (int)(notificationHolder.getTimeoutMillis() / MILLIS_IN_MINUTE);
+    DateTime timeoutTime = new DateTime(alarmTime).plusMinutes(timeoutMinutes);
+    long elapsedDurationInMillis = timeoutTime.getMillis();
+
+    Log.i(PacoConstants.TAG, "Creating cancel alarm to timeout notification for holder: " 
     		+ notificationHolder.getId() 
     		+ ". experiment = " + notificationHolder.getExperimentId() 
-    		+ ". alarmtime = " + new DateTime(notificationHolder.getAlarmTime()).toString());
-    Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, notificationHolder.getExperimentId().toString());
+    		+ ". alarmtime = " + new DateTime(alarmTime).toString() 
+    		+ " timing out in " + timeoutMinutes + " minutes");
+        
     Intent ultimateIntent = new Intent(context, AlarmReceiver.class);
-    ultimateIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().intValue());
-    if (uri != null) {
-      ultimateIntent.setData(uri);
-    }
+    Uri uri = Uri.withAppendedPath(NotificationHolderColumns.CONTENT_URI, notificationHolder.getId().toString());
+    ultimateIntent.setData(uri);
+    ultimateIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().longValue());        
 
-    PendingIntent intent = PendingIntent.getBroadcast(context.getApplicationContext(), 1,
+    PendingIntent intent = PendingIntent.getBroadcast(context.getApplicationContext(), 2,
             ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-    long timeoutMinutesFromNowInMillis = new DateTime(notificationHolder.getAlarmTime()).plusMinutes(
-        (int)(notificationHolder.getTimeoutMillis() / 60000)).getMillis();
+    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, timeoutMinutesFromNowInMillis, intent);
+    alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
   }
   
 

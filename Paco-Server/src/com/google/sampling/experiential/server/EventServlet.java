@@ -17,42 +17,11 @@
 package com.google.sampling.experiential.server;
 
 
-import au.com.bytecode.opencsv.CSVWriter;
-
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
-import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
-
-import org.apache.commons.codec.binary.Base64;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
@@ -62,7 +31,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -77,6 +46,45 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
+
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.Input;
+import com.google.sampling.experiential.model.PhotoBlob;
+import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.InputDAO;
+
 /**
  * Servlet that answers queries for Events.
  * 
@@ -86,32 +94,34 @@ import javax.servlet.http.HttpServletResponse;
 public class EventServlet extends HttpServlet {
 
   private static final Logger log = Logger.getLogger(EventServlet.class.getName());
-  static final String DEV_HOST = "localhost:8080";
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyyMMdd:HH:mm:ssZ");
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ssZ");
   private String defaultAdmin = "bobevans@google.com";
-  private List<String> adminUsers =
-      Lists.newArrayList(defaultAdmin);
-
-
+  private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
   
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    // TODO(bobevans): Add security check
-    String isGetMethodPosting = req.getParameter("autopost");
-    if (isGetMethodPosting != null && !isGetMethodPosting.isEmpty()) {
-      postEventFromGet(req, resp);
-    } else if (req.getParameter("json") != null) {
-      dumpEventsJson(resp, req);
-    } else if (req.getParameter("csv") != null) {
-      dumpEventsCSV(resp, req);
+    UserService userService = UserServiceFactory.getUserService();
+    User user = userService.getCurrentUser();
+    if (user == null) {
+      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
-      showEvents(req, resp);
+      if (req.getParameter("json") != null) {
+        resp.setContentType("application/json;charset=UTF-8");
+      if (req.getParameter("json") != null) {
+        dumpEventsJson(resp, req);
+      } else if (req.getParameter("csv") != null) {
+        resp.setContentType("text/csv;charset=UTF-8");
+        dumpEventsCSV(resp, req);
+      } else {
+        resp.setContentType("text/html;charset=UTF-8");
+        showEvents(req, resp);
+      }
     }
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
-    String tzStr = req.getParameter("tz");
+    String tzStr = getParam(req, "tz");
     if (tzStr != null && !tzStr.isEmpty()) {
       DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
       return jodaTimeZone;
@@ -124,617 +134,8 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void doGeistNowQueryHtml(HttpServletRequest req, HttpServletResponse resp)
-      throws IOException {
-    // TODO(bobevans):this is duplicate code. refactor
-    long start = System.currentTimeMillis();
-    DateTimeZone jodaTimeZone = getTimeZoneForClient(req);
-    DateTime todayTime = new DateTime(jodaTimeZone);
-    DateTimeFormatter df = DateTimeFormat.forPattern("yyyyMMdd");
-
-    String today = df.print(todayTime);
-    String sevenDaysAgo = df.print(todayTime.minusDays(6));
-    List<com.google.sampling.experiential.server.Query> query =
-        new QueryParser().parse("survey=geistnow:date_range=" + sevenDaysAgo + "-" + today);
-    List<Event> events =
-        EventRetriever.getInstance().getEvents(query, defaultAdmin, jodaTimeZone);
-    sortEvents(events);
-    String[] charts = buildChartUrls(events, jodaTimeZone);
-
-    String passionChartUrl, productivityChartUrl, processChartUrl, energyChartUrl, barrierChartUrl, 
-      workteamChartUrl, stakeholdersChartUrl;
-    productivityChartUrl = charts[0];
-    passionChartUrl = charts[1];
-    processChartUrl = charts[2];
-    energyChartUrl = charts[3];
-    workteamChartUrl = charts[4];
-    stakeholdersChartUrl = charts[5];
-
-    String april1 = df.print(todayTime.minusDays(30));
-    List<com.google.sampling.experiential.server.Query> obstaclesBarriersQuery =
-        new QueryParser().parse("survey=geistnow:date_range=" + april1 + "-" + today);
-    List<Event> aprilToNowEvents =
-        EventRetriever.getInstance().getEvents(obstaclesBarriersQuery, defaultAdmin,
-            jodaTimeZone);
-    sortEvents(aprilToNowEvents);
-    barrierChartUrl = buildBarrierChartUrl(aprilToNowEvents);
-    List<String> obstacles = buildObstaclesTopList(aprilToNowEvents);
-    List<String> moods = buildMoodsTopList(aprilToNowEvents);
-
-    StringBuilder out = new StringBuilder();
-    out.append("<html><title>GeistNow Results</title><body><h1>GeistNow Results</h1>");
-
-    out.append("<img src=\"");
-    out.append(productivityChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(passionChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(processChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(energyChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(barrierChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(workteamChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<img src=\"");
-    out.append(stakeholdersChartUrl);
-    out.append("\">,<br/>");
-
-    out.append("<br/><hr><br/><h3>Moods</h3>");
-    out.append(Joiner.on("<br/>").join(moods));
-    out.append("<hr>");
-
-    out.append("<h3>Obstacles</h3>");
-    out.append(Joiner.on("<br/>").join(obstacles));
-    out.append("</body></html>");
-
-    resp.getWriter().println(out.toString());
-    log.info("doGeistNow HTML time: " + (System.currentTimeMillis() - start));
-  }
-
-  static class ObstacleRank implements Comparable<ObstacleRank> {
-    public int count = 1;
-    public String obstacle;
-
-    public ObstacleRank(String obstacle) {
-      this.obstacle = obstacle;
-    }
-
-    @Override
-    public int compareTo(ObstacleRank o) {
-      return ((Integer) o.count).compareTo(count);
-    }
-  }
-
-  private List<String> buildObstaclesTopList(List<Event> events) {
-    Map<String, ObstacleRank> obstacles = Maps.newHashMap();
-    for (Event event : events) {
-      String whatByKey = event.getWhatByKey("problem");
-      if (whatByKey == null || whatByKey.length() == 0) {
-        continue;
-      }
-      ObstacleRank rank = obstacles.get(whatByKey);
-      if (rank == null) {
-        rank = new ObstacleRank(whatByKey);
-        obstacles.put(whatByKey, rank);
-      } else {
-        rank.count++;
-      }
-
-    }
-
-    List<ObstacleRank> values = Lists.newArrayList(obstacles.values());
-    Collections.sort(values);
-    ArrayList<String> jsonObstacles = Lists.newArrayList();
-    for (ObstacleRank obstacle : values) {
-      jsonObstacles.add(quote(obstacle.obstacle));
-    }
-    return jsonObstacles; // .subList(0, Math.min(30,
-                          // obstacles.keySet().size()));
-  }
-
-  private List<String> buildMoodsTopList(List<Event> events) {
-    Map<String, ObstacleRank> obstacles = Maps.newHashMap();
-    for (Event event : events) {
-      String whatByKey = event.getWhatByKey("mood");
-      if (whatByKey == null || whatByKey.length() == 0) {
-        continue;
-      }
-      ObstacleRank rank = obstacles.get(whatByKey);
-      if (rank == null) {
-        rank = new ObstacleRank(whatByKey);
-        obstacles.put(whatByKey, rank);
-      } else {
-        rank.count++;
-      }
-
-    }
-
-    List<ObstacleRank> values = Lists.newArrayList(obstacles.values());
-    Collections.sort(values);
-    ArrayList<String> jsonObstacles = Lists.newArrayList();
-    for (ObstacleRank obstacle : values) {
-      jsonObstacles.add(quote(obstacle.obstacle));
-    }
-    return jsonObstacles; // .subList(0, Math.min(30,
-                          // obstacles.keySet().size()));
-  }
-
-  private String quote(String whatByKey) {
-    return "\"" + whatByKey + "\"";
-  }
-
-  private String buildBarrierChartUrl(List<Event> events) {
-    int[] barrierCountsGoogler = new int[4];
-    int[] barrierCountsSubject = new int[4];
-
-    String who = getWhoFromLogin().getEmail();
-
-    for (Event event : events) {
-      String questionSet = event.getWhatByKey("questionSet");
-      if (questionSet == null || (!questionSet.equals("2"))) {
-        continue;
-      }
-
-      String reportTimeString = event.getWhatByKey("reportTime");
-      if (reportTimeString == null) {
-        continue;
-      }
-
-      String barrier = event.getWhatByKey("barrier");
-      int barrierIndex = -1;
-      if (barrier != null) {
-        barrier = barrier.substring(0, 5);
-        if (barrier.equals("Physi")) {
-          barrierIndex = 0;
-        } else if (barrier.equals("Emoti")) {
-          barrierIndex = 1;
-        } else if (barrier.equals("Focus")) {
-          barrierIndex = 2;
-        } else if (barrier.equals("Align")) {
-          barrierIndex = 3;
-        }
-      }
-      if (who.equals(event.getWho())) {
-        if (barrierIndex != -1) {
-          barrierCountsSubject[barrierIndex] += 1;
-        }
-      }
-      if (barrierIndex != -1) {
-        barrierCountsGoogler[barrierIndex] += 1;
-      }
-    }
-
-    // by category barrier instead of by day of the week in last 7 days
-    int[] avgBarriersGoogler = makePercentages(barrierCountsGoogler);
-    int[] avgBarriersSubject = makePercentages(barrierCountsSubject);
-    return buildBarChartUrlForBarriers(avgBarriersGoogler, avgBarriersSubject,
-        "Barriers%20%28last%2030%20days%29");
-
-  }
-
-  private String[] buildChartUrls(List<Event> events, DateTimeZone clientTimeZone) {
-    int durationOfQueryInDays = 7;
-    int[] productivityCountsGoogler = new int[durationOfQueryInDays];
-    int[] productivityCountsSubject = new int[durationOfQueryInDays];
-    int[] prodCntG = new int[durationOfQueryInDays];
-    int[] prodCntS = new int[durationOfQueryInDays];
-
-    int[] passionCountsGoogler = new int[durationOfQueryInDays];
-    int[] passionCountsSubject = new int[durationOfQueryInDays];
-    int[] passCntG = new int[durationOfQueryInDays];
-    int[] passCntS = new int[durationOfQueryInDays];
-
-    int[] processCountsGoogler = new int[durationOfQueryInDays];
-    int[] processCountsSubject = new int[durationOfQueryInDays];
-    int[] processCntG = new int[durationOfQueryInDays];
-    int[] processCntS = new int[durationOfQueryInDays];
-
-    int[] energyCountsGoogler = new int[durationOfQueryInDays];
-    int[] energyCountsSubject = new int[durationOfQueryInDays];
-    int[] energyCntG = new int[durationOfQueryInDays];
-    int[] energyCntS = new int[durationOfQueryInDays];
-
-    // int[] barrierCountsGoogler = new int[4];
-    // int[] barrierCountsSubject = new int[4];
-
-    int[] workteamCountsGoogler = new int[durationOfQueryInDays];
-    int[] workteamCountsSubject = new int[durationOfQueryInDays];
-    int[] workteamCntG = new int[durationOfQueryInDays];
-    int[] workteamCntS = new int[durationOfQueryInDays];
-
-    int[] stakeholdersCountsGoogler = new int[durationOfQueryInDays];
-    int[] stakeholdersCountsSubject = new int[durationOfQueryInDays];
-    int[] stakeholdersCntG = new int[durationOfQueryInDays];
-    int[] stakeholdersCntS = new int[durationOfQueryInDays];
-
-
-
-    String who = getWhoFromLogin().getEmail();
-    DateTime today = new DateTime(clientTimeZone);
-    DateMidnight todayMidnight = today.toDateMidnight();
-    for (Event event : events) {
-      String reportTimeString = event.getWhatByKey("reportTime");
-      if (reportTimeString == null) {
-        continue;
-      }
-      DateTime reportTime;
-      try {
-        reportTime = jodaFormatter.withZone(clientTimeZone).parseDateTime(reportTimeString);
-      } catch (IllegalArgumentException e) {
-        continue;
-      }
-
-      int daysBetween = new Period(reportTime.toDateMidnight(), todayMidnight).getDays();
-      int arrayIndexForDay = durationOfQueryInDays - daysBetween - 1;
-
-      String questionSet = event.getWhatByKey("questionSet");
-      if (questionSet == null) {
-        questionSet = "1";
-      }
-      if (questionSet.equals("1")) {
-        String passionStr = event.getWhatByKey("passion");
-        if (passionStr == null) {
-          continue;
-        }
-        Integer passion = Integer.parseInt(passionStr);
-
-        String productivityStr = event.getWhatByKey("productivity");
-        if (productivityStr == null) {
-          continue;
-        }
-        int productivity = Integer.parseInt(productivityStr);
-
-        // index the personal values
-        if (who.equals(event.getWho())) {
-          productivityCountsSubject[arrayIndexForDay] += productivity;
-          prodCntS[arrayIndexForDay] += 1;
-          passionCountsSubject[arrayIndexForDay] += passion;
-          passCntS[arrayIndexForDay] += 1;
-        }
-        // compute the global values
-        productivityCountsGoogler[arrayIndexForDay] += productivity;
-        prodCntG[arrayIndexForDay] += 1;
-        passionCountsGoogler[arrayIndexForDay] += passion;
-        passCntG[arrayIndexForDay] += 1;
-
-      } else if (questionSet.equals("2")) {
-        String processStr = event.getWhatByKey("progress");
-        if (processStr == null) {
-          continue;
-        }
-        int process = Integer.parseInt(processStr);
-
-        String energyStr = event.getWhatByKey("energized");
-        if (energyStr == null) {
-          continue;
-        }
-        int energy = Integer.parseInt(energyStr);
-
-        // String barrier = event.getWhatByKey("barrier");
-        // int barrierIndex = -1;
-        // if (barrier != null) {
-        // barrier = barrier.substring(0,5);
-        // if (barrier.equals("Physi")) {
-        // barrierIndex = 0;
-        // } else if (barrier.equals("Emoti")) {
-        // barrierIndex = 1;
-        // } else if (barrier.equals("Focus")) {
-        // barrierIndex = 2;
-        // } else if (barrier.equals("Align")) {
-        // barrierIndex = 3;
-        // }
-        // }
-
-        // index the personal values
-        if (who.equals(event.getWho())) {
-          processCountsSubject[arrayIndexForDay] += process;
-          processCntS[arrayIndexForDay] += 1;
-          energyCountsSubject[arrayIndexForDay] += energy;
-          energyCntS[arrayIndexForDay] += 1;
-          // if (barrierIndex != - 1) {
-          // barrierCountsSubject[barrierIndex] += 1;
-          // }
-        }
-        // compute the global values
-        processCountsGoogler[arrayIndexForDay] += process;
-        processCntG[arrayIndexForDay] += 1;
-        energyCountsGoogler[arrayIndexForDay] += energy;
-        energyCntG[arrayIndexForDay] += 1;
-        // if (barrierIndex != - 1) {
-        // barrierCountsGoogler[barrierIndex] += 1;
-        // }
-      } else if (questionSet.equals("3")) {
-        String workteamStr = event.getWhatByKey("in_zone");
-        if (workteamStr == null) {
-          continue;
-        }
-        int workteam = Integer.parseInt(workteamStr);
-
-        String stakeholderStr = event.getWhatByKey("stakeholder_satisfaction");
-        if (stakeholderStr == null) {
-          continue;
-        }
-        int stakeholder = Integer.parseInt(stakeholderStr);
-
-        // index the personal values
-        if (who.equals(event.getWho())) {
-          workteamCountsSubject[arrayIndexForDay] += workteam;
-          workteamCntS[arrayIndexForDay] += 1;
-          stakeholdersCountsSubject[arrayIndexForDay] += stakeholder;
-          stakeholdersCntS[arrayIndexForDay] += 1;
-        }
-        // compute the global values
-        workteamCountsGoogler[arrayIndexForDay] += workteam;
-        workteamCntG[arrayIndexForDay] += 1;
-        stakeholdersCountsGoogler[arrayIndexForDay] += stakeholder;
-        stakeholdersCntG[arrayIndexForDay] += 1;
-      }
-
-
-
-    }
-
-    int[] avgProductivityGoogler =
-        avgZeros(scale(createAverages(productivityCountsGoogler, prodCntG)));
-    int[] avgProductivitySubject =
-        avgZeros(scale(createAverages(productivityCountsSubject, prodCntS)));
-
-    int[] avgPassionGoogler = avgZeros(scale(createAverages(passionCountsGoogler, passCntG)));
-    int[] avgPassionSubject = avgZeros(scale(createAverages(passionCountsSubject, passCntS)));
-
-    int[] avgProcessGoogler = avgZeros(scale(createAverages(processCountsGoogler, processCntG)));
-    int[] avgProcessSubject = avgZeros(scale(createAverages(processCountsSubject, processCntS)));
-
-    int[] avgEnergyGoogler = avgZeros(scale(createAverages(energyCountsGoogler, energyCntG)));
-    int[] avgEnergySubject = avgZeros(scale(createAverages(energyCountsSubject, energyCntS)));
-
-    // by category barrier instead of by day of the week in last 7 days
-    // int[] avgBarriersGoogler = makePercentages(barrierCountsGoogler);
-    // int[] avgBarriersSubject = makePercentages(barrierCountsSubject);
-
-    int[] avgWorkteamGoogler = avgZeros(scale(createAverages(workteamCountsGoogler, workteamCntG)));
-    int[] avgWorkteamSubject = avgZeros(scale(createAverages(workteamCountsSubject, workteamCntS)));
-
-    int[] avgStakeholderGoogler =
-        avgZeros(scale(createAverages(stakeholdersCountsGoogler, stakeholdersCntG)));
-    int[] avgStakeholderSubject =
-        avgZeros(scale(createAverages(stakeholdersCountsSubject, stakeholdersCntS)));
-
-
-    String prodChartUrl =
-        buildChartUrl(avgProductivityGoogler, avgProductivitySubject, "Productivity");
-    String passChartUrl = buildChartUrl(avgPassionGoogler, avgPassionSubject, "Passion");
-    String processChartUrl = buildChartUrl(avgProcessGoogler, avgProcessSubject, "Progress");
-    String energyChartUrl = buildChartUrl(avgEnergyGoogler, avgEnergySubject, "Energy%20Level");
-    // String barrierChartUrl = buildBarChartUrlForBarriers(avgBarriersGoogler,
-    // avgBarriersSubject, "Barriers%20%28since%20inception%29");
-    String workteamChartUrl =
-        buildChartUrl(avgWorkteamGoogler, avgWorkteamSubject, "Workteam%20Zone");
-    String stakeholderChartUrl =
-        buildChartUrl(avgStakeholderGoogler, avgStakeholderSubject, "Stakeholder%20Belief");
-    return new String[] {prodChartUrl, 
-        passChartUrl, 
-        processChartUrl, 
-        energyChartUrl, 
-        /* barrierChartUrl, */
-        workteamChartUrl, 
-        stakeholderChartUrl};
-  }
-
-  private int[] makePercentages(int[] barrierCounts) {
-    int[] percentagesByBarrier = {0, 0, 0, 0};
-    int totalBarriers = 0;
-    for (int i = 0; i < barrierCounts.length; i++) {
-      totalBarriers += barrierCounts[i];
-    }
-    if (totalBarriers > 0) {
-      for (int i = 0; i < percentagesByBarrier.length; i++) {
-        int barrierCount = barrierCounts[i];
-        if (barrierCount > 0) {
-          float ratio = (float) barrierCount / (float) totalBarriers;
-          percentagesByBarrier[i] = (int) (ratio * 100);
-        }
-      }
-    }
-    return percentagesByBarrier;
-  }
-
-  private int[] avgZeros(int[] scale) {
-    int last = 0;
-    for (int i = 0; i < scale.length; i++) {
-      if (scale[i] == 0 && i != scale.length - 1) {
-        scale[i] = last;
-      }
-      last = scale[i];
-    }
-    return scale;
-  }
-
-  private String buildChartUrl(int[] avgForGoogler, int[] avgForSubject, String title) {
-    StringBuilder buf =
-        new StringBuilder("http://chart.apis.google.com/chart?cht=lc");
-    buf.append("&chs=370x165&chls=6|3");
-    buf.append("&chd=t:");
-    buf.append(joinInts(avgForSubject));
-    buf.append("%7C");
-    buf.append(joinInts(avgForGoogler));
-    String spacer = "%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20" +
-      "%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20" +
-      "%20%20%20%20%20";
-    String youSpacer = "%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20" +
-      "%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20.";
-    buf.append("&chxs=0,666666,14|1,666666,14");
-    buf.append("&chxt=x,y");
-    buf.append("&chxr=0,-6,0|1,0,5");
-    buf.append("&chxl=0:|-6d|-5d|-4d|-3d|-2d|-1d|today");
-    buf.append("&chtt=Last%20Seven%20Days%20");
-    buf.append(title);
-    buf.append("&chts=333333,18");
-    buf.append("&chco=4d89f9,ffb642");
-    buf.append("&chdl=You|Google");
-    buf.append("&chdlp=r");
-    buf.append("&chco=4d89f9,c6d9fd");
-    buf.append("&chbh=r,0.5,1.5");
-    return buf.toString();
-  }
-
-  private String buildBarChartUrlForBarriers(int[] avgForGoogler, 
-      int[] avgForSubject, 
-      String title) {
-    StringBuilder buf = new StringBuilder("http://chart.apis.google.com/chart?cht=bhg");
-    buf.append("&chs=370x165");
-    buf.append("&chd=t:");
-    buf.append(joinInts(avgForSubject));
-    buf.append("%7C");
-    buf.append(joinInts(avgForGoogler));
-    buf.append("&chxt=x,y");
-    buf.append("&chxl=0:|0|100%|1:|Alignment|Focus|Emotional|Physical");
-    buf.append("&chxs=0N*px,333333,14|1,333333,16");
-    buf.append("&chtt=");
-    buf.append(title);
-    buf.append("&chts=333333,18");
-    buf.append("&chdl=You|Google");
-    buf.append("&chco=4d89f9,c6d9fd");
-    buf.append("&chbh=a,1,6");
-    return buf.toString();
-  }
-
-
-  private int[] scale(float[] averages) {
-    int[] scaledAvgs = new int[averages.length];
-    for (int i = 0; i < averages.length; i++) {
-      scaledAvgs[i] = (int) (averages[i] * 20.0);
-    }
-    return scaledAvgs;
-  }
-
-  private String joinInts(int[] avgProductivitySubject) {
-    StringBuffer buf = new StringBuffer();
-    boolean first = true;
-    for (int i = 0; i < avgProductivitySubject.length; i++) {
-      if (first) {
-        first = false;
-      } else {
-        buf.append(",");
-      }
-      buf.append(avgProductivitySubject[i]);
-    }
-    return buf.toString();
-  }
-
-  private float[] createAverages(int[] totalsPerBin, int[] countPerBin) {
-    int bins2 = totalsPerBin.length;
-    float[] avgPerBin = new float[bins2];
-    for (int i = 0; i < bins2; i++) {
-      int cnt = countPerBin[i];
-      if (cnt == 0) {
-        avgPerBin[i] = 0;
-      } else {
-        avgPerBin[i] = (float) totalsPerBin[i] / (float) cnt;
-      }
-    }
-    return avgPerBin;
-  }
-
-
-  private void postEventFromGet(HttpServletRequest req, HttpServletResponse resp)
-      throws IOException {
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
-    
-    String who = getWho(req);
-    String lat = getParam(req, "lat");
-    String lon = getParam(req, "lon");
-    String whenString = getParam(req, "when");
-    String appId = getParam(req, "appId");
-    String pacoVersion = getParam(req, "pacoVersion");
-    String sharedParam = getParam(req, "shared");
-    String experimentId = getParam(req, "experimentId");
-    String experimentName = getParam(req, "experimentName");
-    Date responseTime = createDateFromString(df, getParam(req, "responseTime"));
-    Date scheduledTime = createDateFromString(df, getParam(req, "scheduledTime"));
-    boolean shared = sharedParam == null ? false : Boolean.getBoolean(sharedParam);
-
-    Date whenDate = createDateFromString(df, whenString);
-    Set<What> what = Sets.newHashSet();
-    Enumeration names = req.getParameterNames();
-    while (names != null && names.hasMoreElements()) {
-      String name = (String) names.nextElement();
-      if (name.startsWith("what.")) {
-        String key = name.substring(5);
-        String value = req.getParameter(name);
-        what.add(new What(key, value));
-      }
-    }
-    EventRetriever.getInstance().postEvent(who, lat, lon, whenDate, appId, pacoVersion, what,
-        shared, experimentId, experimentName, responseTime, scheduledTime, null);
-    resp.getWriter().println("<img src=\"/images/paco_sil.png\">" +
-        "Paco says, 'Thank you for reviewing!'<br/>" +
-        "<a href=\"http://quantifiedself.appspot.com/\">Home</a>");
-  }
-
-  private Date createDateFromString(SimpleDateFormat df, String whenString) {
-    Date whenDate = null;
-    if (whenString != null && !whenString.isEmpty()) {
-      
-      try {
-        whenDate = df.parse(whenString);
-      } catch (ParseException e) {
-        whenDate = Calendar.getInstance().getTime();
-      }
-    } else {
-      whenDate = Calendar.getInstance().getTime();
-    }
-    return whenDate;
-  }
-
-  /**
-   * For posting purposes, in corp, you are the who param.
-   * 
-   * @param req
-   * @return
-   */
-  private String getWho(HttpServletRequest req) {
-    User loggedInUser = getWhoFromLogin();
-    String loggedInWho = null;
-    if (loggedInUser != null) {
-      loggedInWho = loggedInUser.getEmail();
-    }
-
-    if (isDevInstance(req)) {
-      String whoParam = getWhoFromParam(req);
-      if (whoParam != null && !whoParam.isEmpty()) {
-        return whoParam;
-      } else if (loggedInWho != null && !loggedInWho.isEmpty()) {
-        return loggedInWho;
-      } else {
-        throw new IllegalArgumentException("Must be logged in, or 'who' param must be supplied.");
-      }
-    } else {
-      return loggedInWho;
-    }
-  }
-
-  private String getWhoFromParam(HttpServletRequest req) {
-    String who = getParam(req, "who");
-
-    return who;
-  }
-
   private boolean isDevInstance(HttpServletRequest req) {
-    return DEV_HOST.equals(req.getHeader("Host"));
+    return ExperimentServlet.isDevInstance(req);
   }
 
   private User getWhoFromLogin() {
@@ -742,9 +143,9 @@ public class EventServlet extends HttpServlet {
     return userService.getCurrentUser();
   }
 
-  private String getParam(HttpServletRequest req, String whoParam) {
+  private static String getParam(HttpServletRequest req, String paramName) {
     try {
-      String parameter = req.getParameter(whoParam);
+      String parameter = req.getParameter(paramName);
       if (parameter == null || parameter.isEmpty()) {
         return null;
       }
@@ -756,7 +157,7 @@ public class EventServlet extends HttpServlet {
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req) throws IOException {
     List<com.google.sampling.experiential.server.Query> query =
-        new QueryParser().parse(stripQuotes(req.getParameter("q")));
+        new QueryParser().parse(stripQuotes(getParam(req, "q")));
     List<Event> events = getEventsWithQuery(req, query);
     sortEvents(events);
     String jsonOutput = jsonifyEvents(events);
@@ -785,39 +186,17 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
   
-//  private String jsonifyEventsDead(List<Event> events) {
-//    StringBuilder out = new StringBuilder();
-//    out.append("{ \"results\" : [");
-//    boolean first = true;
-//    for (Event event : events) {
-//      if (first) {
-//        first = false;
-//      } else {
-//        out.append(", ");
-//      }
-//      out.append(event.toJson());
-//    }
-//    out.append("] }");
-//    return out.toString();
-//  }
-
   private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query =
-        new QueryParser().parse(stripQuotes(req.getParameter("q")));
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
 
     String loggedInuser = getWhoFromLogin().getEmail();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin;
     }
-    List<Event> events =
-        EventRetriever.getInstance().getEvents(query, loggedInuser, getTimeZoneForClient(req));
+    List<Event> events = EventRetriever.getInstance().getEvents(query, loggedInuser, getTimeZoneForClient(req));
     sortEvents(events);
 
     List<String[]> eventsCSV = Lists.newArrayList();
-    // find the biggest collection of what keys in this list (presumably
-    // homogeneous),
-    // use that as the csv headers.
-    int whatKeyCount = 0;
 
     Set<String> foundColumnNames = Sets.newHashSet();
     for (Event event : events) {
@@ -842,7 +221,7 @@ public class EventServlet extends HttpServlet {
     columns.add(8, "responseTime");
     columns.add(9, "scheduledTime");
     
-    resp.setContentType("text/csv");
+    resp.setContentType("text/csv;charset=UTF-8");
     CSVWriter csvWriter = null;
     try {
       csvWriter = new CSVWriter(resp.getWriter());
@@ -860,9 +239,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private void showEvents(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
-    List<com.google.sampling.experiential.server.Query> query =
-        new QueryParser().parse(stripQuotes(req.getParameter("q")));
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
     List<Event> greetings = getEventsWithQuery(req, query);
     sortEvents(greetings);
     printEvents(resp, greetings);
@@ -905,41 +282,59 @@ public class EventServlet extends HttpServlet {
       out.append("<html><head><title>Current Ratings</title></head><body>");
       out.append("<h1>Results</h1>");
       out.append("<table border=1>");
-      out.append("<tr><th>When</th><th>Who</th><th>Where</th><th>Experiment Name</th>"
-          + "<th>What</th></tr>");
+      out.append("<tr><th>Experiment Name</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
       for (Event eventRating : greetings) {
         long e1 = System.currentTimeMillis();
         out.append("<tr>");
-        out.append("<td>").append(eventRating.getWhen().toString()).append("</td>");
-        out.append("<td>").append(eventRating.getWho()).append("</td>");
-        out.append("<td>").append(eventRating.getLat()).append(", ").append(eventRating.getLon())
-            .append("</td>");
         out.append("<td>").append(eventRating.getExperimentName()).append("</td>");
-        out.append("<td>");
-        boolean first = true;
+        out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getScheduledTime()))).append("</td>");
+        out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getResponseTime()))).append("</td>");
+        out.append("<td>").append(eventRating.getWho()).append("</td>");
         eventTime += System.currentTimeMillis() - e1;
         long what1 = System.currentTimeMillis();
-        // for (What what : eventRating.getWhat()) {
+        // we want to render photos as photos not as strings.
+        // It would be better to do this by getting the experiment for the event and going through the inputs.
+        // That was not done because there may be multiple experiments in the data returned for this interface and
+        // that is work that is otherwise necessary for now. Go pretotyping!
+        // TODO clean all the accesses of what could be tainted data.
+        List<PhotoBlob> photos = eventRating.getBlobs();
+        Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+        for (PhotoBlob photoBlob : photos) {
+          photoByNames.put(photoBlob.getName(), photoBlob);
+        }
         Map<String, String> whatMap = eventRating.getWhatMap();
-        if (whatMap.keySet() != null) {
-          for (String key : whatMap.keySet()) {
-            if (first) {
-              first = false;
-            } else {
-              out.append(", ");
-            }
+        Set<String> keys = whatMap.keySet();
+        if (keys != null) {
+          ArrayList<String> keysAsList = Lists.newArrayList(keys);
+          Collections.sort(keysAsList);
+          Collections.reverse(keysAsList);
+          for (String key : keysAsList) {
             String value = whatMap.get(key);
             if (value == null) {
               value = "";
-            }
-            if (value.indexOf(" ") != -1) {
+            } else if (photoByNames.containsKey(key)) {
+              byte[] photoData = photoByNames.get(key).getValue();
+              if (photoData != null && photoData.length > 0) {
+                String photoString = new String(Base64.encodeBase64(photoData));
+                if (!photoString.equals("==")) { 
+                  value = "<img height=\"375\" src=\"data:image/jpg;base64," 
+                    + photoString  
+                    + "\">";
+                } else {
+                  value = "";
+                }
+              } else {
+                value = "";
+              }
+            } else if (value.indexOf(" ") != -1) {
               value = "\"" + value + "\"";
             }
+            out.append("<td>");
             out.append(key).append(" = ").append(value);
+            out.append("</td>");
           }
         }
         whatTime += System.currentTimeMillis() - what1;
-        out.append("</td>");
         out.append("<tr>");
       }
       long t2 = System.currentTimeMillis();
@@ -949,20 +344,6 @@ public class EventServlet extends HttpServlet {
       out.append("</table></body></html>");
       resp.getWriter().println(out.toString());
     }
-  }
-
-  private List<String> getFilters(HttpServletRequest req) {
-    // TODO (bobevans): this is beyond stupid.
-    List<String> filters = Lists.newArrayList();
-    String what = req.getParameter("what");
-    if (what != null) {
-      filters.add("what=" + what);
-    }
-    String whatValue = req.getParameter("what.value");
-    if (whatValue != null) {
-      filters.add("what.value=" + whatValue);
-    }
-    return filters;
   }
 
   private void sortEvents(List<Event> greetings) {
@@ -988,47 +369,264 @@ public class EventServlet extends HttpServlet {
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
     // TODO(bobevans): Add security check
-    String postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream());
-    if (postBodyString.equals("")) {
-      resp.getWriter().write("Empty Post body");
+    if (ServletFileUpload.isMultipartContent(req)) {
+      processCsvUpload(req, resp);
     } else {
-      log.info(postBodyString);
-      JSONObject currentEvent = null;
-      try {
-        boolean isDevInstance = isDevInstance(req);
-        if (postBodyString.startsWith("[")) {
-          JSONArray posts = new JSONArray(postBodyString);
-          for (int i = 0; i < posts.length(); i++) {
-            currentEvent = posts.getJSONObject(i);
-            postEvent(isDevInstance, currentEvent);
-          }
-        } else {
-          currentEvent = new JSONObject(postBodyString);
-          postEvent(isDevInstance, currentEvent);
-        }
-        resp.getWriter().write("Success");
-      } catch (JSONException e) {
-        e.printStackTrace();
-        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        resp.getWriter().write(
-            "Paco says: Invalid JSON Input: " + postBodyString + "\nError: " + e.getMessage());
-      } catch (ParseException e) {
-        resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        resp.getWriter().write(
-            "Paco says: Invalid Date in an Event Input: " + postBodyString + "\nError: "
-                + e.getMessage());
-      }  catch (Exception t) {
-       log.log(Level.SEVERE, "Caught throwable in doPost!", t);
-       resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-       resp.getWriter().write("Paco says: Something generic went wrong in an Event Input: "
-       + postBodyString + "\nError: " + t.getMessage());
-       }
+      processJsonUpload(req, resp);
     }
   }
 
+	private void processCsvUpload(HttpServletRequest req,
+			HttpServletResponse resp) {
+		PrintWriter out = null;
+		try {
+			out = resp.getWriter();
+		} catch (IOException e1) {
+			log.log(Level.SEVERE, "Cannot get an output PrintWriter!");
+		}
+		try {
+		  boolean isDevInstance = isDevInstance(req);
+			ServletFileUpload fileUploadTool = new ServletFileUpload();
+			fileUploadTool.setSizeMax(50000);
+			resp.setContentType("text/html;charset=UTF-8");
+
+			FileItemIterator iterator = fileUploadTool.getItemIterator(req);
+			while (iterator.hasNext()) {
+				FileItemStream item = iterator.next();
+				InputStream in = null;
+				try {
+					in = item.openStream();
+
+					if (item.isFormField()) {
+						out.println("Got a form field: " + item.getFieldName());
+					} else {
+						String fieldName = item.getFieldName();
+						String fileName = item.getName();
+						String contentType = item.getContentType();
+
+						out.println("--------------");
+						out.println("fileName = " + fileName);
+						out.println("field name = " + fieldName);
+						out.println("contentType = " + contentType);
+
+						String fileContents = null;
+						fileContents = IOUtils.toString(in);
+						out.println("length: " + fileContents.length());
+						out.println(fileContents);
+						saveCSV(fileContents, isDevInstance);
+					}
+				} catch (ParseException e) {
+          log.info("Parse Exception: " + e.getMessage());
+          out.println("Could not parse your csv upload: " + e.getMessage());
+        } finally {
+					in.close();
+				}
+			}
+		} catch (SizeLimitExceededException e) {
+		  log.info("SizeLimitExceededException: " + e.getMessage());
+			out.println("You exceeded the maximum size ("+ e.getPermittedSize() + ") of the file ("
+					+ e.getActualSize() + ")");
+			return;
+		} catch (IOException e) {
+			log.severe("IOException: " + e.getMessage());
+			out.println("Error in receiving file.");
+		} catch (FileUploadException e) {
+			log.severe("FileUploadException: " + e.getMessage());
+			out.println("Error in receiving file.");
+		}
+	}
+
+	private void saveCSV(String fileContents, boolean isDevInstance) throws ParseException, IOException {
+    CSVReader reader = new CSVReader(new BufferedReader(new StringReader("yourfile.csv")));
+    List<String[]> rows = reader.readAll();
+    if (rows == null || rows.size() == 0) {
+      log.info("No rows in uploaded CSV");
+      throw new IOException("No rows in uploaded CSV. Check your file if this is incorrect.");
+    }
+    String[] header = rows.get(0);
+    for (int i = 1; i < rows.size(); i++) {
+      postEventFromRowAsHash(convertToHashMap(header, rows.get(i)), isDevInstance);
+    }
+      
+	}
+
+	private HashMap<String, String> convertToHashMap(String[] header, String[] strings) throws ParseException {
+	  HashMap<String,String> map = new HashMap<String, String>();
+	  for (int i = 0; i < header.length; i++) {
+      String currentHeader = header[i];
+      String currentValue = strings[i];
+      map.put(currentHeader, currentValue);
+    }
+	  return map;
+	}
+	
+	public void postEventFromRowAsHash(HashMap<String, String> rowData, boolean isDevInstance) throws ParseException {
+    User loggedInWho = getWhoFromLogin();
+
+    if (loggedInWho == null) {
+      throw new IllegalArgumentException("Must be logged in!");
+    }
+    String who = loggedInWho.getEmail();
+    String whoFromPost = null;
+    if (rowData.containsKey("who")) {
+      whoFromPost = rowData.get("who");
+      rowData.remove("who");
+    }
+    if (isDevInstance && whoFromPost != null) {
+      who = whoFromPost;
+    }
+    String lat = null;
+    String lon = null;
+    String where = null;
+    if (rowData.containsKey("where")) {
+      where = rowData.get("where");
+      rowData.remove("where");
+      lat = where.substring(0, where.indexOf(","));
+      lon = where.substring(where.indexOf(",") + 1);
+    }
+
+    String appId = "from_csv";
+    if (rowData.containsKey("appId")) {
+     appId = rowData.get("appId");
+     rowData.remove("appId");
+    }
+    String pacoVersion = null;
+    if (rowData.containsKey("pacoVersion")) {
+      pacoVersion = rowData.get("pacoVersion");
+      rowData.remove("pacoVersion");
+    }
+    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
+    Date whenDate = null;
+    if (rowData.containsKey("when")) {
+      String when = rowData.get("when");
+      rowData.remove("when");
+      whenDate = df.parse(when);
+    } else {
+      whenDate = new Date();
+    }
+
+    boolean shared = false;
+
+    Experiment experiment = null;
+    String experimentId = null;
+    String experimentName = null;
+    Date responseTime = null;    
+    Date scheduledTime = null;
+    
+    if (rowData.containsKey("experimentId")) {
+      experimentId = rowData.get("experimentId"); 
+      rowData.remove("experimentId");
+    }
+    if (rowData.containsKey("experimentName")) {
+      experimentName = rowData.get("experimentName"); 
+      rowData.remove("experimentName");
+    }
+    
+    PersistenceManager pm = null;
+
+    if (experimentId != null) {
+        pm = PMF.get().getPersistenceManager();
+        javax.jdo.Query q = pm.newQuery(Experiment.class);
+        q.setFilter("id == idParam");
+        q.declareParameters("Long idParam");
+        List<Experiment> experiments = (List<Experiment>)q.execute(Long.valueOf(experimentId));
+        if (experiments.size() > 0) {
+          experiment = experiments.get(0);
+        }
+    }
+    
+    Set<What> whats = Sets.newHashSet();
+    List<PhotoBlob> blobs = Lists.newArrayList();
+    if (rowData.keySet().size() > 0) {      
+      log.info("There are " + rowData.keySet().size() + " csv columns left");
+      for (String name : rowData.keySet()) {
+        String answer = rowData.get(name);
+        Input input = null;
+        if (experiment != null) {
+          input = experiment.getInputWithName(name);
+        }
+        if (input != null && input.getResponseType() != null && 
+            input.getResponseType().equals(InputDAO.PHOTO)) {
+          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
+          blobs.add(photoBlob);
+          answer = "blob";          
+        }
+        whats.add(new What(name, answer));
+        
+      }
+    }
+  
+    if (rowData.containsKey("responseTime")) {      
+      String responseTimeStr = rowData.get("responseTime");
+      if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
+        responseTime = df.parse(responseTimeStr); 
+      }
+    }
+    if (rowData.containsKey("scheduledTime")) {
+      String timeStr = rowData.get("scheduledTime");
+      if (!timeStr.equals("null") && !timeStr.isEmpty()) {       
+        scheduledTime = df.parse(timeStr);
+      }
+    }
+    
+    log.info("Sanity check: who = " + who + 
+        ", when = " + (new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ")).format(whenDate) + 
+        ", appId = "+appId +", what length = " + whats.size());
+    
+    if (pm != null) {
+      pm.close();
+    }
+    EventRetriever.getInstance().postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats,
+        shared, experimentId, experimentName, responseTime, scheduledTime, blobs);
+
+    
+  }
+
+  private void processJsonUpload(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
+		String postBodyString = org.apache.commons.io.IOUtils.toString(req
+				.getInputStream());
+		if (postBodyString.equals("")) {
+			resp.getWriter().write("Empty Post body");
+		} else {
+			log.info(postBodyString);
+			JSONObject currentEvent = null;
+			try {
+				boolean isDevInstance = isDevInstance(req);
+				if (postBodyString.startsWith("[")) {
+					JSONArray posts = new JSONArray(postBodyString);
+					for (int i = 0; i < posts.length(); i++) {
+						currentEvent = posts.getJSONObject(i);
+						postEvent(isDevInstance, currentEvent);
+					}
+				} else {
+					currentEvent = new JSONObject(postBodyString);
+					postEvent(isDevInstance, currentEvent);
+				}
+				resp.getWriter().write("Success");
+			} catch (JSONException e) {
+				e.printStackTrace();
+				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				resp.getWriter().write(
+						"Paco says: Invalid JSON Input: " + postBodyString
+								+ "\nError: " + e.getMessage());
+			} catch (ParseException e) {
+				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				resp.getWriter()
+						.write("Paco says: Invalid Date in an Event Input: "
+								+ postBodyString + "\nError: " + e.getMessage());
+			} catch (Exception t) {
+				log.log(Level.SEVERE, "Caught throwable in doPost!", t);
+				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				resp.getWriter()
+						.write("Paco says: Something generic went wrong in an Event Input: "
+								+ postBodyString + "\nError: " + t.getMessage());
+			}
+		}
+	}
+
   private void postEvent(boolean isDevInstance, JSONObject eventJson) throws JSONException,
       ParseException {
-    String msg;
     User loggedInWho = getWhoFromLogin();
 
     if (loggedInWho == null) {
@@ -1090,14 +688,14 @@ public class EventServlet extends HttpServlet {
     PersistenceManager pm = null;
 
     if (experimentId != null) {
-        pm = PMF.get().getPersistenceManager();
-        javax.jdo.Query q = pm.newQuery(Experiment.class);
-        q.setFilter("id == idParam");
-        q.declareParameters("Long idParam");
-        List<Experiment> experiments = (List<Experiment>)q.execute(Long.valueOf(experimentId));
-        if (experiments.size() > 0) {
-          experiment = experiments.get(0);
-        }
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query q = pm.newQuery(Experiment.class);
+      q.setFilter("id == idParam");
+      q.declareParameters("Long idParam");
+      List<Experiment> experiments = (List<Experiment>)q.execute(Long.valueOf(experimentId));
+      if (experiments.size() > 0) {
+        experiment = experiments.get(0);
+      }
     }
     
     Set<What> whats = Sets.newHashSet();
@@ -1109,8 +707,7 @@ public class EventServlet extends HttpServlet {
         String whatValue = what.getString(whatKey);
         whats.add(new What(whatKey, whatValue));
       }
-    } else if (eventJson.has("responses")) {
-      
+    } else if (eventJson.has("responses")) {      
       JSONArray responses = eventJson.getJSONArray("responses");
       log.info("There are " + responses.length() + " response objects");
       for (int i=0; i < responses.length(); i++) {
@@ -1123,8 +720,7 @@ public class EventServlet extends HttpServlet {
         }
         String answer = response.getString("answer");
         if (name == null || name.isEmpty()) {
-          name = "unnamed_"+i;
-          
+          name = "unnamed_"+i;          
           whats.add(new What(name+"_inputId", inputId));
         }
         if (input != null && input.getResponseType() != null && 
@@ -1138,8 +734,7 @@ public class EventServlet extends HttpServlet {
       }
     }
   
-    if (eventJson.has("responseTime")) {
-      
+    if (eventJson.has("responseTime")) {      
       String responseTimeStr = eventJson.getString("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
         responseTime = df.parse(responseTimeStr); 

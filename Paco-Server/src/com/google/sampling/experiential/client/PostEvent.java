@@ -16,12 +16,17 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.common.collect.Maps;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -32,12 +37,11 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.sampling.experiential.shared.LoginInfo;
+import com.google.sampling.experiential.shared.LoginService;
+import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PostEvent implements EntryPoint {
 
@@ -47,8 +51,41 @@ public class PostEvent implements EntryPoint {
   private HashMap<String, Widget> fieldToWidgetMap;
   private int keyValueCounter = 0;
 
+  private LoginInfo loginInfo = null;
+  private VerticalPanel loginPanel = new VerticalPanel();
+  private Label loginLabel = new Label("Please sign in to your Google Account " + "to access the application.");
+  private Anchor signInLink = new Anchor("Sign In");
+  private Anchor signOutLink = new Anchor("Sign Out");
+
   @Override
   public void onModuleLoad() {
+    // Check login status using login service.
+    LoginServiceAsync loginService = GWT.create(LoginService.class);
+    loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
+      public void onFailure(Throwable error) {
+      }
+
+      public void onSuccess(LoginInfo result) {
+        loginInfo = result;
+        if (loginInfo.isLoggedIn()) {
+          createHomePage();
+        } else {
+          loadLogin();
+        }
+      }
+    });
+  }
+
+  private void loadLogin() {
+    // Assemble login panel.
+    signInLink.setHref(loginInfo.getLoginUrl());
+    loginPanel.add(loginLabel);
+    loginPanel.add(signInLink);
+    RootPanel.get().add(loginPanel);
+  }
+
+  private void createHomePage() {
+
     VerticalPanel p = new VerticalPanel();
     HTML l = new HTML("<h1>Post an Event</h1>");
     p.add(l);
@@ -65,11 +102,12 @@ public class PostEvent implements EntryPoint {
     keyValueCounter = 0;
     formPanel.add(createFormLine("who"));
 
-    DateTimeFormat df = DateTimeFormat.getFormat("yyyyMMdd:HH:mm:ssZ");
+    DateTimeFormat df = DateTimeFormat.getFormat("yyyy/MM/dd HH:mm:ssZ");
     String timeString = df.format(new Date());
-    formPanel.add(createFormLine("when", timeString));
-    formPanel.add(createFormLine("lat"));
-    formPanel.add(createFormLine("lon"));
+//    formPanel.add(createFormLine("when", timeString));
+    formPanel.add(createFormLine("scheduledTime", timeString));
+    formPanel.add(createFormLine("responseTime", timeString));
+    formPanel.add(createFormLine("expeimentId", ""));
     formPanel.add(createBooleanFormLine("shared", false));
     formPanel.add(new HTML("Enter at least one key/value pair for the event"));
     whatPanel = new VerticalPanel();
@@ -94,9 +132,10 @@ public class PostEvent implements EntryPoint {
 
   private void submitEvent() {
     String who = ((TextBox) fieldToWidgetMap.get("who")).getText();
-    String when = ((TextBox) fieldToWidgetMap.get("when")).getText();
-    String lat = ((TextBox) fieldToWidgetMap.get("lat")).getText();
-    String lon = ((TextBox) fieldToWidgetMap.get("lon")).getText();
+//    String when = ((TextBox) fieldToWidgetMap.get("when")).getText();
+    String scheduledTime = ((TextBox) fieldToWidgetMap.get("scheduledTime")).getText();
+    String responseTime = ((TextBox) fieldToWidgetMap.get("responseTime")).getText();
+    
     boolean shared = ((CheckBox)fieldToWidgetMap.get("shared")).getValue();
     Map<String, String> kvPairs = Maps.newHashMap();
     for (int i = keyValueCounter - 1; i >= 0; i--) {
@@ -106,7 +145,7 @@ public class PostEvent implements EntryPoint {
         kvPairs.put(key, value);
       }
     }
-    mapService.saveEvent(who, when, lat, lon, kvPairs, shared, new AsyncCallback<Void>() {
+    mapService.saveEvent(who, null, responseTime, scheduledTime, kvPairs, shared, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {

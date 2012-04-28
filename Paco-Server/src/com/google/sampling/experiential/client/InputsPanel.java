@@ -19,6 +19,8 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.Date;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -38,8 +40,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.sampling.experiential.shared.InputDAO;
-
-import java.util.Date;
 
 /**
  *
@@ -122,11 +122,11 @@ public class InputsPanel extends Composite {
     createInputTextColumn();
 
 
+    createRequiredCheckBoxColumn();
+    createConditionCheckboxColumn();
+    createConditionExpressionPanel();
     createResponseViewPanel();
 
-    createRequiredCheckBoxColumn();
-    final CheckBox conditionalBox = createConditionCheckboxColumn();
-    createConditionExpressionPanel();
     createScheduledDateColumn(upperLinePanel);
   }
 
@@ -158,7 +158,7 @@ public class InputsPanel extends Composite {
         + "text-color:#888888;'>(e.g., q1name < 3)</span>"));
   }
 
-  private CheckBox createConditionCheckboxColumn() {
+  private void createConditionCheckboxColumn() {
     VerticalPanel cp = new VerticalPanel();
     upperLinePanel.add(cp);
 
@@ -177,7 +177,6 @@ public class InputsPanel extends Composite {
         conditionalPanel.setVisible(conditionalBox.getValue());
       }
     });
-    return conditionalBox;
   }
 
   private void createRequiredCheckBoxColumn() {

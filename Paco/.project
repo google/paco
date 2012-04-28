@@ -36,10 +36,5 @@
 			<type>2</type>
 			<locationURI>_android_PacoAndroidLib/src</locationURI>
 		</link>
-		<link>
-			<name>PacoAndroidLib_src</name>
-			<type>2</type>
-			<locationURI>_android_PacoAndroidLib_1fba73b3/src</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

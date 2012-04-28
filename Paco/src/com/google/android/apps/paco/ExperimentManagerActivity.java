@@ -44,10 +44,14 @@ public class ExperimentManagerActivity extends Activity {
   private static final int ABOUT_PACO_ITEM = 3;
   private static final int DEBUG_ITEM = 4;
   private static final int SERVER_ADDRESS_ITEM = 5;
+  private static final int UPDATE_ITEM = 6;
+
   
   private static final CharSequence ABOUT_PACO_STRING = "About Paco";
   private static final CharSequence DEBUG_STRING = "Debug";
   private static final CharSequence SERVER_ADDRESS_STRING = "Server Address";
+  private static final String CHECK_FOR_UPDATES = "Check Updates";
+
   
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
   
@@ -105,10 +109,7 @@ public class ExperimentManagerActivity extends Activity {
       }
     });
     
-    ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);
-
-    createExperimentsButton.setEnabled(true);
-    
+    ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);    
     createExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         new AlertDialog.Builder(v.getContext()).setMessage("Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments. \n\nPlease point your browser to " + getResources().getString(R.string.server)+ " to create an experiment.").setTitle("How to Create an Experiment").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
@@ -120,10 +121,8 @@ public class ExperimentManagerActivity extends Activity {
         }).create().show();
       }     
       });
-    
-    TextView createLabel = (TextView)findViewById(R.id.CreateExperimentLabel);
-    createLabel.setEnabled(false);
-    
+
+        
     ImageButton feedbackButton = (ImageButton)findViewById(R.id.FeedbackButton);
     feedbackButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
@@ -222,6 +221,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, ABOUT_PACO_ITEM, 1, ABOUT_PACO_STRING);
     menu.add(0, DEBUG_ITEM, 1, DEBUG_STRING);
     menu.add(0, SERVER_ADDRESS_ITEM, 1, SERVER_ADDRESS_STRING);
+    menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
     return true;
   }
 
@@ -237,6 +237,9 @@ public class ExperimentManagerActivity extends Activity {
     case SERVER_ADDRESS_ITEM:
       launchServerConfiguration();
       return true;
+    case UPDATE_ITEM:
+      launchUpdateCheck();
+      return true;      
     default:
       return false;
     }
@@ -257,10 +260,10 @@ public class ExperimentManagerActivity extends Activity {
     startActivity(startIntent);
   }
 
-//  private void launchUpdateCheck() {
-//    Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");
-//    startActivityForResult(debugIntent, CHECK_UPDATE_REQUEST_CODE);    
-//  }
+  private void launchUpdateCheck() {
+    Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");
+    startActivityForResult(debugIntent, CHECK_UPDATE_REQUEST_CODE);    
+  }
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {

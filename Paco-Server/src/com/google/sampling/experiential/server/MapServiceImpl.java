@@ -17,8 +17,25 @@
 package com.google.sampling.experiential.server;
 
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.jdo.JDOHelper;
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+import javax.jdo.Transaction;
+
+import org.apache.commons.codec.binary.Base64;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeConstants;
+
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -29,39 +46,14 @@ import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Feedback;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.model.SignalSchedule;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
-import org.apache.commons.codec.binary.Base64;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
 
 
 /*
@@ -121,9 +113,16 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return convertEventsToDAOs(result);
   }
 
-  public void saveEvent(String who, String when, String lat, String lon, 
-      Map<String, String> kvPairs, boolean shared) {
-    Date whenDate = parseDateString(when);
+  public void saveEvent(String who, 
+      String scheduledTime, 
+      String responseTime, 
+      String experimentId,
+      Map<String, String> kvPairs, 
+      boolean shared) {
+    
+    Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
+    Date responseTimeDate = responseTime != null ? parseDateString(responseTime) : null;
+    Date whenDate = new Date();
     // TODO (Once all data has been cleaned up, just send the kvPairs, and change the constructor)
     Set<What> whats = parseWhats(kvPairs);
     User loggedInWho = getWhoFromLogin();    
@@ -131,18 +130,16 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         && !loggedInWho.getEmail().equals(who))) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
-    EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), lat, lon, whenDate, "webform", 
-        "1", whats, shared, null, null, null, null, null);
+    EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
+        "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
   }
 
   private boolean isCorpInstance() {
-    return EventServlet.DEV_HOST.equals(getHostFromRequest());
+    return false;
+    // is it possible to forge host headers?
+    //    return EventServlet.DEV_HOST.equals(getHostFromRequest());
   }
   
-  private String getHostFromRequest() {
-    return getThreadLocalRequest().getHeader("Host");
-  }
-
   private User getWhoFromLogin() {
     UserService userService = UserServiceFactory.getUserService();
     return userService.getCurrentUser();
@@ -169,7 +166,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return whenDate;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void saveExperiment(ExperimentDAO experimentDAO) {
     PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -184,7 +180,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail();
       if (!(experiment.getCreator().equals(loggedInUser) || 
-          experiment.getAdmins().contains(loggedInUserEmail))) {
+            experiment.getAdmins().contains(loggedInUserEmail))) {
         // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
         // experiment;
         return;
@@ -193,13 +189,14 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       JDOHelper.makeDirty(experiment, "feedback");
       JDOHelper.makeDirty(experiment, "schedule");
     }
-    fromExperimentDAO(experimentDAO, experiment);
+    DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();
       tx.begin();    
       pm.makePersistent(experiment);
       tx.commit();
+      ExperimentCacheHelper.getInstance().clearCache();
     } finally {
       if (tx.isActive()) {
         tx.rollback();
@@ -214,108 +211,11 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     jdoQuery.addFilters("id == idParam");
     jdoQuery.declareParameters("Long idParam");
     jdoQuery.addParameterObjects(experimentDAO.getId());
+    @SuppressWarnings("unchecked")
     List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(
         jdoQuery.getParameters());
     experiment = experiments.get(0);
     return experiment;
-  }
-
-  private Experiment fromExperimentDAO(ExperimentDAO experimentDAO, Experiment experiment) {
-    experiment.setTitle(experimentDAO.getTitle());
-    experiment.setDescription(experimentDAO.getDescription());
-    if (experiment.getCreator() == null) {
-      experiment.setCreator(getWhoFromLogin());
-    }
-    experiment.setInformedConsentFormText(experimentDAO.getInformedConsentForm());
-    experiment.setQuestionsChange(experimentDAO.getQuestionsChange());
-    experiment.setFixedDuration(experimentDAO.getFixedDuration());
-    Long startDateDAO = experimentDAO.getStartDate();
-    Date startDate = null;
-    if (startDateDAO != null) {
-      startDate = new DateTime(startDateDAO).toDate();
-    }
-    experiment.setStartDate(startDate);
-    
-    Long endDateDAO = experimentDAO.getEndDate();
-    Date endDate = null;
-    if (endDateDAO != null) {
-      endDate = new DateTime(endDateDAO).toDate();
-    }
-    experiment.setEndDate(endDate);
-    
-    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? new Date(experimentDAO
-        .getModifyDate()) : new Date());
-    
-    Key key = null;
-    if (experiment.getId() != null) {
-      key = KeyFactory.createKey(Experiment.class.getSimpleName(), experiment.getId());
-    }
-
-    experiment.setSchedule(fromScheduleDAO(key, experimentDAO.getSchedule()));
-    experiment.setInputs(fromInputDAOs(key, experimentDAO.getInputs(), 
-        experiment.getQuestionsChange()));
-    experiment.setFeedback(fromFeedbackDAOs(key, experimentDAO.getFeedback()));
-    
-    experiment.setPublished(experimentDAO.getPublished());
-    experiment.setPublishedUsers(Lists.newArrayList(experimentDAO.getPublishedUsers()));
-    experiment.setAdmins(Lists.newArrayList(experimentDAO.getAdmins()));
-    experiment.setDeleted(experimentDAO.getDeleted());
-    return experiment;
-  }
-  
-  /**
-   * @param key
-   * @param schedule
-   * @return
-   */
-  private SignalSchedule fromScheduleDAO(Key key, SignalScheduleDAO scheduleDAO) {
-    SignalSchedule schedule = new SignalSchedule(key, scheduleDAO.getId(),
-        scheduleDAO.getScheduleType(), scheduleDAO.getEsmFrequency(), 
-        scheduleDAO.getEsmPeriodInDays(), scheduleDAO.getEsmStartHour(), 
-        scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()), 
-        scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(), 
-        scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(), 
-        scheduleDAO.getEsmWeekends());
-    return schedule;
-  }
-
-  /**
-   * @param experimentKey TODO
-   * @param feedback
-   * @return
-   */
-  private List<Feedback> fromFeedbackDAOs(Key experimentKey, FeedbackDAO[] feedbackDAOs) {
-    List<Feedback> feedback = Lists.newArrayList();
-    for (FeedbackDAO feedbackDAO : feedbackDAOs) {
-      feedback.add(new Feedback(experimentKey, feedbackDAO.getId(), feedbackDAO.getFeedbackType(), 
-          feedbackDAO.getText()));      
-    }
-    return feedback;
-  }
-
-  /**
-   * @param questionsChange 
-   * @param inputs
-   * @return
-   */
-  private List<Input> fromInputDAOs(Key experimentKey, InputDAO[] inputDAOs, 
-      boolean questionsChange) {
-    List<Input> inputs = Lists.newArrayList();
-    for (InputDAO input : inputDAOs) {
-      Date scheduleDate = null;
-      if (questionsChange) {
-        scheduleDate = new Date(input.getScheduleDate());
-      } else {
-        scheduleDate = null;
-      }
-      inputs.add(new Input(experimentKey, input.getId(), input.getName(), input.getText(), 
-          scheduleDate, input.getQuestionType(), input.getResponseType(), input.getLikertSteps(), 
-          input.getMandatory(), input.getConditional(), input.getConditionExpression(), 
-          input.getLeftSideLabel(), input.getRightSideLabel(), 
-          Arrays.asList(input.getListChoices() != null ? input.getListChoices() : new String[0]),
-          input.getMultiselect()));      
-    }
-    return inputs;
   }
 
   public Boolean deleteExperiment(ExperimentDAO experimentDAO) {
@@ -327,6 +227,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       if (experimentDAO.getId() != null) {
         Experiment experiment = retrieveExperimentForDAO(experimentDAO, pm);
         pm.deletePersistent(experiment);
+        ExperimentCacheHelper.getInstance().clearCache();
         return Boolean.TRUE;
       } else {
         return Boolean.FALSE;
@@ -338,12 +239,11 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public List<ExperimentDAO> getExperimentsForUser() {
-    return getExpermentsForUserWithQuery();    
+    return getExperimentsForUserWithQuery();    
   }
 
-  private List<ExperimentDAO> getExpermentsForUserWithQuery() {
+  private List<ExperimentDAO> getExperimentsForUserWithQuery() {
     User user = getWhoFromLogin();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
     
@@ -353,13 +253,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       List<Experiment> experiments = getExperimentsForAdmin(user, pm);
       if (experiments != null) {      
         for (Experiment experiment : experiments) {
-          experimentDAOs.add(createDAO(experiment));
-          if (experiment.getInformedConsentForm() != null) {
-            experiment.getInformedConsentFormText();
-            experiment.getFeedback().get(0).getLongText();
-            pm.makePersistent(experiment);
-          }
-
+          experimentDAOs.add(DAOConverter.createDAO(experiment));
         }
       }
     } finally {
@@ -376,144 +270,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     q.setFilter("admins == whoParam");
     q.declareParameters("String whoParam");
     return (List<Experiment>) q.execute(user.getEmail());         
-  }
-
-  public static ExperimentDAO createDAO(Experiment experiment) {
-    Long id = experiment.getId();
-    String title = experiment.getTitle();
-    String description = experiment.getDescription();
-    String informedConsentForm = experiment.getInformedConsentFormText();
-    String email = experiment.getCreator().getEmail();
-    
-    Boolean published = experiment.getPublished();
-
-    SignalSchedule schedule = experiment.getSchedule();
-    
-    SignalScheduleDAO signalScheduleDAO = null;
-    // BACKWard compatibility friendliness - create a schedule for this experiment
-    if (schedule == null) {
-      signalScheduleDAO = new SignalScheduleDAO();
-      signalScheduleDAO.setScheduleType(SignalScheduleDAO.SELF_REPORT);
-      published = Boolean.FALSE; // don't make old experiments available for download
-    } else {
-      signalScheduleDAO = createSignalScheduleDAO(schedule);
-    }
-    Boolean fixedDuration = experiment.getFixedDuration();
-    Boolean questionsChange = experiment.getQuestionsChange();
-    Boolean deleted = experiment.getDeleted();
-    Long startDate = experiment.getStartDate() != null ? experiment.getStartDate().getTime() : null;
-    Long endDate = experiment.getEndDate() != null ? experiment.getEndDate().getTime() : null;
-    String hash = experiment.getHash();
-    Long joinDate = experiment.getJoinDate() != null ? experiment.getJoinDate().getTime() : null;
-    Long modifyDate = experiment.getModifyDate() != null ? experiment.getModifyDate().getTime() : 
-      null;
-    
-    List<String> admins = experiment.getAdmins();
-    String[] adminStrArray = new String[admins.size()];
-    adminStrArray = admins.toArray(adminStrArray);
-    
-    List<String> userEmails = experiment.getPublishedUsers();
-    String[] userEmailsStrArray = new String[userEmails.size()];
-    userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
-    
-    ExperimentDAO dao = new ExperimentDAO(id, title, 
-        description, 
-        informedConsentForm, 
-        email, 
-        signalScheduleDAO, fixedDuration, 
-        questionsChange,  
-        startDate, 
-        endDate, 
-        hash, 
-        joinDate, 
-        modifyDate, published, adminStrArray, userEmailsStrArray, deleted);
-    List<Input> inputs = experiment.getInputs();
-//    Collections.sort(inputs, new Comparator<Input>() {
-//      @Override
-//      public int compare(Input o1, Input o2) {
-//        Long nextInputIdFor1 = o1.getNextInputId();
-//        Long nextInputIdFor2 = o2.getNextInputId();
-//        if (nextInputIdFor1 == null && nextInputIdFor2 == null) {
-//          return 0;
-//        } else if (nextInputIdFor1 == null) {
-//          return 1;
-//        } else if (nextInputIdFor2 == null) {
-//          return -1;
-//        } else if (nextInputIdFor1 == nextInputIdFor2){
-//          return 0;
-//        } else if (nextInputIdFor1 > nextInputIdFor2) {
-//          return -1;
-//        } else {
-//          return 1;
-//        }
-//      }      
-//    });
-    InputDAO[] inputDAOs = new InputDAO[inputs.size()];
-    for (int i=0; i < inputs.size(); i++) {      
-      inputDAOs[i] = createDAO(inputs.get(i));
-    }
-    dao.setInputs(inputDAOs);
-    
-    FeedbackDAO[] fbDAOs = new FeedbackDAO[experiment.getFeedback().size()];
-    for (int i=0; i < experiment.getFeedback().size(); i++) {
-      fbDAOs[i] = createDAO(experiment.getFeedback().get(i));
-    }
-    dao.setFeedback(fbDAOs);
-    return dao;
-  }
-  
-  /**
-   * @param schedule
-   * @return
-   */
-  private static SignalScheduleDAO createSignalScheduleDAO(SignalSchedule schedule) {
-    SignalScheduleDAO dao = new SignalScheduleDAO(schedule.getId().getId(),
-        schedule.getScheduleType(), schedule.getByDayOfMonth(), schedule.getDayOfMonth(),
-        schedule.getEsmEndHour(), schedule.getEsmFrequency(), schedule.getEsmPeriodInDays(),
-        schedule.getEsmStartHour(), schedule.getNthOfMonth(), schedule.getRepeatRate(),
-        toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(), schedule.getEsmWeekends());
-    
-    return dao;
-  }
-
-  /**
-   * @param times
-   * @return
-   */
-  private static Long[] toArray(List<Long> times) {
-    Long[] res = new Long[times.size()];
-    return times.toArray(res);
-  }
-
-  public static FeedbackDAO createDAO(Feedback feedback) {
-    return new FeedbackDAO(feedback.getId().getId(), feedback.getFeedbackType(), 
-        feedback.getLongText());
-  }
-  
-  public static InputDAO createDAO(Input input) {
-    return new InputDAO(input.getId().getId(), 
-        input.getName(),
-        input.getQuestionType(),
-        input.getResponseType(), 
-        input.getText(), 
-        input.getMandatory(), 
-        input.getScheduleDate() != null ? input.getScheduleDate().getTime() : null, 
-        input.getLikertSteps(),
-        input.getConditional(), input.getConditionalExpression(), 
-        input.getLeftSideLabel(), input.getRightSideLabel(), toStringArray(input.getListChoices()), 
-        input.isMultiselect());
-  }
-  
-  /**
-   * @param listChoices
-   * @return
-   */
-  private static String[] toStringArray(List<String> listChoices) {
-    if (listChoices == null) {
-      return new String[0];
-    }
-    String[] res = new String[listChoices.size()];
-    return listChoices.toArray(res);
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -533,8 +289,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
    */
   private void getDailyResponseRateFor(Long experimentId, ExperimentStatsDAO accum, 
       boolean justUser) {
-    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    
     Map<DateMidnight, DateStat> dateStatsMap = Maps.newHashMap();
     Map<DateMidnight, Set<String>> sevenDayMap = Maps.newHashMap();
     
@@ -631,10 +385,10 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
    * @return
    */
   private EventDAO[] getJoinedForExperiment(Long experimentId) {
-    //TODO clean up this java type failing
     List<EventDAO> eventsForQuery = getEventsForQuery("joined:experimentId="+ experimentId);
+    HashSet<EventDAO> uniqueEvents = new HashSet<EventDAO>(eventsForQuery);
     EventDAO[] arr = new EventDAO[eventsForQuery.size()];
-    return eventsForQuery.toArray(arr);
+    return uniqueEvents.toArray(arr);
   }
   
   public List<ExperimentDAO> getUsersJoinedExperiments() {
@@ -669,12 +423,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         System.out.println("Got back " + experiments.size() + " experiments");
         if (experiments != null) {      
           for (Experiment experiment : experiments) {
-            experimentDAOs.add(createDAO(experiment));
-            if (experiment.getInformedConsentForm() != null) {
-              experiment.getInformedConsentFormText();
-              experiment.getFeedback().get(0).getLongText();
-              pm.makePersistent(experiment);
-            }
+            experimentDAOs.add(DAOConverter.createDAO(experiment));
             idList.remove(experiment.getId().longValue());
           }
         }

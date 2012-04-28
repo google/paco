@@ -17,18 +17,18 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
  * Panel to show all users who have registered a "joined" event with the given
@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
  */
 public class JoinedParticipantsPanel extends PopupPanel {
 
-  public JoinedParticipantsPanel(Set<String> participants) {
+  public JoinedParticipantsPanel(Collection<String> collection) {
     super(true);
     setAutoHideEnabled(true);
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -55,10 +55,10 @@ public class JoinedParticipantsPanel extends PopupPanel {
     ScrollPanel scrollPanel = new ScrollPanel();
     verticalPanel.add(scrollPanel);
 
-    Grid grid = new Grid(participants.size(), 1);
+    Grid grid = new Grid(collection.size(), 1);
     scrollPanel.setWidget(grid);
     int row = 0;
-    ArrayList<String> participantsAsList = new ArrayList<String>(participants);
+    ArrayList<String> participantsAsList = new ArrayList<String>(collection);
     Collections.sort(participantsAsList);
     for (String participant : participantsAsList) {
       Label label = new Label(participant);

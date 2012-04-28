@@ -15,14 +15,16 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+
 <resources>
     <string name="app_name">PACO</string>
     
-  <string name="version">2.0.48</string>
+  <string name="version">2.0.61</string>
   <string name="server">quantifiedself.appspot.com</string>
   <string name="app_package">com.google.android.apps.paco</string>
   <string name="emailSuffix">\@gmail.com</string>
-  <string name="about_googlegroups">pacoserve@googlegroups.com</string>
+  <string name="about_googlegroups">paco-users@googlegroups.com</string>
+  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>
   <string name="about_weburl">quantifiedself.appspot.com</string>
   <string name="about_copyright_message"></string>
   <string name="about_bob">Bob Evans</string>
@@ -108,4 +110,7 @@
    <item>Fourth</item>
    <item>Fifth</item>
    </string-array>
+   <string name="experiment_title">Experiment Title</string>
+   <string name="refresh_questions">Refresh Questions</string>
+   <string name="save_response">Save Response</string>
 </resources>

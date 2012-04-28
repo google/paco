@@ -16,17 +16,25 @@
 */
 package com.google.android.apps.paco.test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.Duration;
 import org.joda.time.Hours;
 import org.joda.time.Interval;
+import org.joda.time.Minutes;
 
 import com.google.android.apps.paco.EsmGenerator2;
+import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.SignalSchedule;
+import com.google.android.apps.paco.TimeUtil;
 
 public class ESMSignalGeneratorTest extends TestCase {
 
@@ -68,6 +76,63 @@ public class ESMSignalGeneratorTest extends TestCase {
     assertEquals(0, signals.size());
   }
 
+  public void testEsmDailyNoWeekendFailsToDoNextWeek() throws Exception {    
+    DateTime startDate = new DateTime(2012, 3, 23, 0, 0, 0, 0);
+    
+    long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
+    long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
+    int esmFrequency = 8;    
+    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;    
+    boolean esmWeekends = false;
+    
+    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+        esmPeriod, esmFrequency, esmWeekends);
+           
+    EsmGenerator2 esmGen = new EsmGenerator2();
+    List<DateTime> signals = esmGen.generateForSchedule(startDate, schedule);
+    
+    assertEquals(8, signals.size());
+    
+    DateTime nextPeriod = startDate.plusDays(schedule.convertEsmPeriodToDays());
+    signals = esmGen.generateForSchedule(nextPeriod, schedule);
+    assertTrue(TimeUtil.isWeekend(nextPeriod));
+    assertEquals(0, signals.size());
+
+    if (schedule.convertEsmPeriodToDays() == 1 && !schedule.getEsmWeekends() && TimeUtil.isWeekend(nextPeriod)) {
+      nextPeriod = TimeUtil.skipWeekends(nextPeriod);
+    }
+    assertFalse(TimeUtil.isWeekend(nextPeriod));
+    signals = esmGen.generateForSchedule(nextPeriod, schedule);
+    assertEquals(8, signals.size());
+
+
+  }
+
+  public void testEsmWeeklyNoWeekendFailsToDoNextWeek() throws Exception {    
+    DateTime startDate = new DateTime(2012, 3, 23, 0, 0, 0, 0);
+    
+    long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
+    long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
+    int esmFrequency = 8;    
+    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;    
+    boolean esmWeekends = false;
+    
+    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+        esmPeriod, esmFrequency, esmWeekends);
+           
+    EsmGenerator2 esmGen = new EsmGenerator2();
+    List<DateTime> signals = esmGen.generateForSchedule(startDate, schedule);
+    
+    assertEquals(8, signals.size());
+    
+    DateTime nextPeriod = startDate.plusDays(schedule.convertEsmPeriodToDays());
+    signals = esmGen.generateForSchedule(nextPeriod, schedule);
+    assertFalse(TimeUtil.isWeekend(nextPeriod));
+    assertEquals(8, signals.size());
+
+  }
+
+  
   private Interval createDayInterval(DateTime startDate, long endHourMillis, long startHourMillis) {
     return new Interval(startDate.plus(startHourMillis), startDate.plus(endHourMillis));
   }
@@ -108,6 +173,31 @@ public class ESMSignalGeneratorTest extends TestCase {
     
     assertEquals(8, signals.size());
     assertAllSignalsAreValid(createDayInterval(startDate, endHourMillis, startHourMillis), endHourMillis, startHourMillis, signals, esmWeekends);
+    assertSignalsRespectMinimumBuffer(signals);
+  }
+
+  public void testMinimumBufferAssertion() throws Exception {
+    List<DateTime> badSignals = new ArrayList<DateTime>();
+    
+    DateTime startTime = new DateTime();
+    DateTime endTime = startTime.plusMinutes(10);
+    badSignals.add(startTime);
+    badSignals.add(endTime);
+    try {
+      assertSignalsRespectMinimumBuffer(badSignals);
+      fail("should have thrown an exception");
+    } catch (AssertionFailedError a) {}
+  }
+  
+  private void assertSignalsRespectMinimumBuffer(List<DateTime> signals) {
+    Collections.sort(signals, DateTimeComparator.getInstance());
+    DateTime lastSignal = signals.get(0);
+    for (int i = 1; i < signals.size(); i++) {
+      assertTrue("comparing " +lastSignal+", "+signals.get(i), 
+              !Minutes.minutesBetween(lastSignal, 
+                                     signals.get(i)).isLessThan(EsmGenerator2.BUFFER_MILLIS));
+      lastSignal = signals.get(i);
+    }
   }
 
   public void test1xPerWeekNoWeekends() throws Exception {    
@@ -402,7 +492,7 @@ public class ESMSignalGeneratorTest extends TestCase {
         false, null, // Not important to ESM testing
         endHourMillis, esmFrequency, esmPeriod, startHourMillis, esmWeekends, 
         null, null, null, null, // Not important to ESM testing
-        startDate.getMillis());
+        startDate.getMillis(), true);
     return schedule;
   }
 

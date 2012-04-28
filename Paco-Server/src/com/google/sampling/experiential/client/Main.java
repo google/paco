@@ -19,31 +19,28 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.maps.client.Maps;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.gwt.visualization.client.visualizations.corechart.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.gwt.visualization.client.visualizations.corechart.ScatterChart;
-
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
@@ -74,6 +71,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private LoginInfo loginInfo = null;
   private Anchor signInLink = new Anchor("Sign In");
+  private Anchor signOutLink = new Anchor("Sign out");
+
   private VerticalPanel loginPanel = new VerticalPanel();
   private Label loginLabel =
       new Label("Please sign in to your Google Account " + "to access the application.");
@@ -85,18 +84,20 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void checkLoginStatusAndLoadPage() {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
+    loginService.login(GWT.getHostPageBaseURL()+"Main.html", new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
       }
 
       public void onSuccess(LoginInfo result) {
-        loginInfo = result;
+        loginInfo = result; 
         if (loginInfo.isLoggedIn()) {
-          Maps.loadMapsApi("", "2", false, new Runnable() {
-            public void run() {
+//          Maps.loadMapsApi("", "2", false, new Runnable() {
+//            public void run() {
               createHomePage();
-            }
-          });
+              signOutLink.setHref(loginInfo.getLogoutUrl());
+
+//            }
+//          });
 
         } else {
           loadLogin();
@@ -121,11 +122,13 @@ public class Main implements EntryPoint, ExperimentListener {
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     rootPanel.add(mainPanel);
-    // mainPanel.setSize("800px", "600px");
 
     HorizontalPanel menuPanel = new HorizontalPanel();
     mainPanel.add(menuPanel);
-    menuPanel.add(resources.pacoSmallLogo().createImage());
+    Image pacoLogo = resources.pacoSmallLogo().createImage();
+    pacoLogo.setStylePrimaryName("paco-Logo");
+    menuPanel.add(pacoLogo);
+
     MenuBar rootMenuBar = new MenuBar(false);
     menuPanel.add(rootMenuBar);
 
@@ -193,12 +196,24 @@ public class Main implements EntryPoint, ExperimentListener {
     });
     aboutMenuItem.setEnabled(false);
     helpMenuBar.addItem(aboutMenuItem);
+    
+    // logout
+
+    MenuItem mntmLogout = new MenuItem("Logout", false, new Command() {
+      public void execute() {
+        logout();
+      }
+    });
+    rootMenuBar.addItem(mntmLogout);
+
+    // status label
+
 
     statusLabel = new Label("Loading");
-    statusLabel.setStyleName("paco-HTML-Large");
+    statusLabel.setStyleName("paco-Loading-Panel");
     statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-    statusLabel.setSize("64px", "24px");
+    statusLabel.setSize("80px", "24px");
     statusLabel.setVisible(false);
 
     menuPanel.add(statusLabel);
@@ -235,6 +250,10 @@ public class Main implements EntryPoint, ExperimentListener {
     createCallbackForGviz();
   }
 
+  protected void logout() {
+    Window.Location.assign(signOutLink.getHref());
+  }
+
   /**
    * 
    */
@@ -249,10 +268,15 @@ public class Main implements EntryPoint, ExperimentListener {
     dl.add(barCodeLabel);
     dl.add(new HTML("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
  
-    HTML barCodeLabel2 = new HTML("2) Scan this code with your phone which will launch the browser and download Paco.");
+    HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(resources.qrcode().createImage());
+    
+    HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
+    downloadLink.setStyleName("paco-HTML-Large");
+    dl.add(downloadLink);
+
     contentPanel.add(dl);
   }
 

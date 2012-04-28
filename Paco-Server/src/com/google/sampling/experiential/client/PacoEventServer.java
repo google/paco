@@ -16,8 +16,12 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -42,26 +46,19 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
-import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.sampling.experiential.client.Images;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An alternate entry point that focuses on a search interface and
@@ -152,10 +149,10 @@ public class PacoEventServer implements EntryPoint {
 
     VerticalPanel searchPanel = new VerticalPanel();
     searchPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
+    searchPanel.setSpacing(5);
     signOutLink.setHref(loginInfo.getLogoutUrl());
     rootPanel.add(signOutLink);
-    Image pacoLogo = images.pacoLogo().createImage();
+    Image pacoLogo = images.pacoFaceLogo().createImage();
     searchPanel.add(pacoLogo);
     searchPanel.add(createSearchPanel());
 

@@ -20,14 +20,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
 
   @Override
   public void onReceive(Context context, Intent intent) {
+    Log.i(PacoConstants.TAG, "Receiving alarm");
+    Log.i(PacoConstants.TAG, "Intent class = " + intent.getClass());
+    Log.i(PacoConstants.TAG, "Data = " + intent.getDataString());
+    
     Intent notificationServiceIntent = new Intent(context, NotificationCreatorService.class);
-    notificationServiceIntent.putExtras(intent);
+    Bundle extras = intent.getExtras();
+    if (extras != null) {
+      Log.i(PacoConstants.TAG, "NotificationId = " + extras.getLong(NotificationCreator.NOTIFICATION_ID, -1L));
+      Log.i(PacoConstants.TAG, "AlarmTime = " + extras.getLong(Experiment.SCHEDULED_TIME, -1L));
+      notificationServiceIntent.putExtras(intent);       
+    }        
     context.startService(notificationServiceIntent);  
   }
 }

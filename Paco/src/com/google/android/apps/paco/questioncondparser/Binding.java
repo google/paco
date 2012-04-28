@@ -45,11 +45,11 @@ public class Binding {
 		return responseType;
 	}
 
-	public Integer value() {
-		if (value instanceof Integer) {
-			return (Integer) value;
-		} 
-		return null;
+	public Object value() {
+//		if (value instanceof Integer) {
+//			return (Integer) value;
+//		} 
+		return value;
 	}
 
 }

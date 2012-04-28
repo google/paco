@@ -16,12 +16,12 @@
 */
 package com.google.sampling.experiential.shared;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class WordCloud {
 

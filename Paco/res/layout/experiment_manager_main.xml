@@ -72,18 +72,17 @@
 					android:layout_height="fill_parent" android:layout_gravity="center">
 					<ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/ExploreDataBtn"
-						android:text="Explore Data" android:enabled="false"
+						android:text="Explore Data"
 						android:layout_width="fill_parent" android:src="@drawable/explore_data_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
 						
 				    <ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/CreateExperimentBtn"
-						android:text="Create An Experiment" android:enabled="false"
+						android:text="Create An Experiment"
 						android:layout_width="fill_parent" android:src="@drawable/create_experiments_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
-
 
 					
 				</TableRow>
@@ -94,10 +93,11 @@
 						android:gravity="center" />
 				  <TextView android:text="Create An Experiment" android:id="@+id/CreateExperimentLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
-						android:gravity="center" />				
+						android:gravity="center" />
+
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
-					android:layout_height="fill_parent" android:layout_gravity="center">				
+					android:layout_height="fill_parent" android:layout_gravity="center">
 					<ImageButton android:id="@+id/FeedbackButton"
 						android:layout_gravity="center" android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:src="@drawable/feedback_button"
@@ -107,7 +107,7 @@
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
-					<TextView android:text="Send Feedback" android:id="@+id/FeedbackLabel"
+					<TextView android:text="Paco User Group" android:id="@+id/FeedbackLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center"></TextView>
 									

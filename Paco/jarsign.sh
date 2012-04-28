@@ -1,3 +1,3 @@
 #!/bin/sh
 
-jarsigner -verbose -keystore <your keystore path> bin/Paco-unsigned.apk <your key alias>
+jarsigner -verbose -keystore android_keystore/quantified-self-release-key.keystore bin/Paco-release-unsigned.apk qskeys

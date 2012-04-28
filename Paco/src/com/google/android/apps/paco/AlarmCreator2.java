@@ -25,7 +25,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
@@ -44,8 +43,10 @@ import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
  */
 public class AlarmCreator2 {
 
+  private static final int ALARM_RECEIVER_INTENT_REQUEST_CODE = 1;
+
   /**
-   * Static creator method to produce an AlarmCreator with a context.
+   * Produce an AlarmCreator with a context.
    * 
    * @param context Android context from caller.
    * @return AlarmCreator 
@@ -61,7 +62,7 @@ public class AlarmCreator2 {
 
   /**
    * An Alarm creator will generate alarms to a given schedule for a 
-   * given survey type.
+   * given Experiment.
    * 
    * @param alarmManager
    * @param contextForPendingIntent An Android Context that provides access to system services.
@@ -72,61 +73,45 @@ public class AlarmCreator2 {
   }
 
   /**
-   * This method will generate the actual alarm schedule, or regenerate it if the 
-   * regenerateAlarms boolean flag is true. This is used in the case of a reboot of
-   * the android device, or an upgrade of the application package. This is necessary
-   * because alarms are transient in Android.
+   * Generate an Android alarm for the next due experiment. 
    * 
    * @param regenerateAlarms
    */
   public void updateAlarm() {
-
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(pendingIntentContext);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     if (experiments.isEmpty()) {
-      alarmManager.cancel(createNewIntentAndCancelOld(new DateTime(0L), null)); // will the different potential Experiment Id in the uri affect equals? No
+      Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
       return;
     }
-    // TODO (bobevans) stash these in a minheap. Tho there probably will only ever be 2 or 3 experiments running at once.
-    // so for now, it is fine this way.
+
     List<TimeExperiment> experimentTimes = ExperimentAlarms.arrangeExperimentsByNextTime(experiments, pendingIntentContext);
     if (experimentTimes.isEmpty()) {
+      Log.i(PacoConstants.TAG, "No experiments with a next time to signal.");
       return;
     }
     TimeExperiment nextNearestAlarmTime = experimentTimes.get(0);
-    createAlarm(new DateTime(nextNearestAlarmTime.time), nextNearestAlarmTime.experiment);
+    createAlarm(nextNearestAlarmTime.time, nextNearestAlarmTime.experiment);
   }
 
   void createAlarm(DateTime alarmTime, Experiment experiment) {
     Log.i(PacoConstants.TAG, "Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
-    Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, experiment.getId().toString());    
-    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), createNewIntentAndCancelOld(alarmTime, uri));
+    PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
+    alarmManager.cancel(intent);
+    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
   }
 
   /**
-   * Nulls are only allowed in the cancel case, because they don't matter and we are matching on the
-   * pendingIntent anyway.
-   * 
-   * The uri data is used in the matching supposedly, so if we create an alarm for a given experiment uri, we 
-   * can't cancel it unless we keep track of all alarms created. The goal is to just track one alarm to make
-   * it easier to manage. 
-   * @param alarmTime
-   * @param uri
+   * Create an AlarmReceiver PendingIntent for the next experiment.
+   *  
+   * @param alarmTime Time to trigger notification
    * @return
    */
-  private PendingIntent createNewIntentAndCancelOld(DateTime alarmTime, Uri uri) {
-    Intent ultimateIntent = new Intent(pendingIntentContext, AlarmReceiver.class);
-    if (alarmTime != null) {
-      ultimateIntent.putExtra(Experiment.SCHEDULED_TIME, alarmTime.getMillis());
-    }
-    if (uri != null) {
-      ultimateIntent.setData(uri);
-    }
-
-    PendingIntent intent = PendingIntent.getBroadcast(pendingIntentContext, 1, ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-    alarmManager.cancel(intent); 
-    return intent;
+  private PendingIntent createAlarmReceiverIntentForExperiment(DateTime alarmTime) {
+    Intent ultimateIntent = new Intent(pendingIntentContext, AlarmReceiver.class);    
+    ultimateIntent.putExtra(Experiment.SCHEDULED_TIME, alarmTime.getMillis());
+    return PendingIntent.getBroadcast(pendingIntentContext, ALARM_RECEIVER_INTENT_REQUEST_CODE, 
+        ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
 
 

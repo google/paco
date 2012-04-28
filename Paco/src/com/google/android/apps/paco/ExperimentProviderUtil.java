@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,6 +43,7 @@ public class ExperimentProviderUtil {
 
   private Context context;
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
+  private static final String FILENAME = "experiments";
   
   public ExperimentProviderUtil(Context context) {
     super();
@@ -164,17 +167,20 @@ public class ExperimentProviderUtil {
    */
   public void insertOrUpdateExperiments(List<Experiment> experiments) {    
     for (Experiment experiment : experiments) {
+      Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
       if (existingList.size() > 0) { // there should only be one unjoined, and 1 more for each time joined.
         for (Experiment existingExperiment : existingList) {
-          if (existingExperiment.getJoinDate() == null) { // this is a copy of the experiment that the user has joined.
+          if (existingExperiment.getJoinDate() == null) { // this is the downloaded original definition of the experiment, not the clone that the user has joined already.
+            long startTime = System.currentTimeMillis();            
             deleteFullExperiment(existingExperiment);
             experiment.setId(existingExperiment.getId());
             insertFullExperiment(experiment);
-          } else /*if (existingExperiment.isQuestionsChange())*/ {
+            Log.i(PacoConstants.TAG, "Time to update one existing/joined experiment: " + (System.currentTimeMillis() - startTime));
+          } else {
+            long startTime = System.currentTimeMillis();
             deleteAllInputsForExperiment(existingExperiment.getId());            
             existingExperiment.setInputs(experiment.getInputs());
-            
             deleteAllFeedbackForExperiment(existingExperiment.getId());
             existingExperiment.setFeedback(experiment.getFeedback());
             SignalSchedule schedule = experiment.getSchedule();
@@ -185,17 +191,13 @@ public class ExperimentProviderUtil {
             insertFeedbackForJoinedExperiment(existingExperiment);
             copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
             updateJoinedExperiment(existingExperiment);
-            // delete all feedback 
-            // insert feedback
-          }/* else {          
-            // TODO (bobevans)
-            // do something about whether to update 
-            // an experiment they have already joined
-            // when the questions are not changing            
-          }*/
+            Log.i(PacoConstants.TAG, "Time to update one existing (unjoined) experiment: " + (System.currentTimeMillis() - startTime));
+          }
         }
       } else /*if (existingList.size() == 0)*/ {
+        long startTime = System.currentTimeMillis();
         insertFullExperiment(experiment);
+        Log.i(PacoConstants.TAG, "Time to update one new experiment: " + (System.currentTimeMillis() - startTime));
       }
     }  
   }
@@ -479,7 +481,7 @@ public class ExperimentProviderUtil {
     experiment.setInputs(findInputsBy(select));
   }
   
-  public void loadLatestEventForExperiment(Experiment experiment) {
+  public void loadEventsForExperiment(Experiment experiment) {
     List<Event> eventSingleEntryList = findEventsBy(EventColumns.EXPERIMENT_ID + "=" + experiment.getId(), 
         EventColumns._ID +" DESC");
     experiment.setEvents(eventSingleEntryList);
@@ -890,6 +892,7 @@ public class ExperimentProviderUtil {
     int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
+    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE );
     
     SignalSchedule schedule = new SignalSchedule();    
     if (!cursor.isNull(idIndex)) {
@@ -908,7 +911,6 @@ public class ExperimentProviderUtil {
       List<Long> times = new ArrayList<Long>();
       StringSplitter sp = new TextUtils.SimpleStringSplitter(',');
       sp.setString(cursor.getString(timesCSVIndex));
-      Iterator<String> iter = sp.iterator();
       for (String string : sp) {
         times.add(Long.parseLong(string));
       }
@@ -947,6 +949,10 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(beginDateIndex)) {
       schedule.setBeginDate(cursor.getLong(beginDateIndex));
     }
+    if (!cursor.isNull(userEditableIndex)) {
+      schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
+
     return schedule;
   }
   
@@ -983,7 +989,9 @@ public class ExperimentProviderUtil {
     if (schedule.getEsmWeekends() != null) {
       values.put(SignalScheduleColumns.ESM_WEEKENDS, schedule.getEsmWeekends() == Boolean.TRUE ? 1 : 0); 
     }
-    
+    if (schedule.getUserEditable() != null) {
+      values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0); 
+    }
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Long time : schedule.getTimes()) {
@@ -1305,6 +1313,26 @@ public class ExperimentProviderUtil {
     return null;
   }
 
+  public List<NotificationHolder> getNotificationsFor(long experimentId) {
+    List<NotificationHolder> holders = new ArrayList<NotificationHolder>();
+    String[] selectionArgs = new String[] {Long.toString(experimentId)};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
+    Cursor cursor = null;
+    try {
+      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+        null, selectionClause, selectionArgs, null);
+      while (cursor.moveToNext()) {
+        holders.add(createNotification(cursor));
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return holders;
+  }
+
+  
   private NotificationHolder createNotification(Cursor cursor) {
     int idIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns._ID);
     int experimentIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.EXPERIMENT_ID);
@@ -1361,7 +1389,20 @@ public class ExperimentProviderUtil {
     return null;
   }
 
-  
+  public void deleteNotification(long notificationId) {
+    NotificationHolder holder = getNotificationById(notificationId);
+    deleteNotification(holder);   
+  }
+
+  private void deleteNotification(NotificationHolder holder) {
+    if (holder != null) {
+      String[] selectionArgs = new String[] {Long.toString(holder.getId())};    
+      String selectionClause = NotificationHolderColumns._ID + " = ?";
+      context.getContentResolver().delete(NotificationHolderColumns.CONTENT_URI, 
+          selectionClause, selectionArgs);
+    }
+  }
+ 
   public int deleteNotificationsForExperiment(long experimentId) {
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
@@ -1421,6 +1462,41 @@ public class ExperimentProviderUtil {
       }
     }
     return notifs;
+  }
+
+  public List<NotificationHolder> getAllNotifications() {
+    List<NotificationHolder> notifs = new ArrayList<NotificationHolder>();    
+    Cursor cursor = null;
+    try {
+      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+        null, null, null, null);
+      while (cursor.moveToNext()) {        
+        notifs.add(createNotification(cursor));
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return notifs;
+  }
+
+  public void saveExperimentsToDisk(String contentAsString) throws IOException {
+    FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+    fos.write(contentAsString.getBytes());
+    fos.close();
+    
+  }
+
+  public List<Experiment> loadExperimentsFromDisk() throws IOException {
+    FileInputStream fis = context.openFileInput(FILENAME);    
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    List<Experiment> experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    if (experiments != null) {
+      return experiments;
+    }
+    return new ArrayList<Experiment>();
   }
 
 }

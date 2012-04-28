@@ -16,11 +16,11 @@
 */
 package com.google.sampling.experiential.server;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 /**
  * param_string :: 'q=\'' keyvalue_pair_list '\'' 

@@ -23,9 +23,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import android.app.Activity;
 import android.app.ListActivity;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -46,7 +44,7 @@ public class RawDataActivity extends ListActivity {
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.event_list);
-      experimentProviderUtil.loadLatestEventForExperiment(experiment);
+      experimentProviderUtil.loadEventsForExperiment(experiment);
       fillData();
     }
   }

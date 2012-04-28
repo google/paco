@@ -25,13 +25,11 @@ import com.google.gwt.user.client.ui.ImageBundle;
  * @author Bob Evans
  */
 public interface Images extends ImageBundle {
-  @Resource(value = "PacoHeader1.jpg")
-  AbstractImagePrototype pacoLogo(); 
 
-  @Resource(value = "paco_med_logo.png")
-  AbstractImagePrototype pacoMedLogo(); 
+  @Resource(value = "PACO256.png")
+  AbstractImagePrototype pacoFaceLogo(); 
 
-  @Resource(value = "paco_small_logo.png")
+  @Resource(value = "PACO64.png")
   AbstractImagePrototype pacoSmallLogo(); 
 
   @Resource(value = "question-b42.png")

@@ -34,7 +34,7 @@ public class NonESMSignalGenerator {
     this.schedule = schedule;
   }
 
-  public Long getNextAlarmTime(DateTime now) {
+  public DateTime getNextAlarmTime(DateTime now) {
     if (schedule.getTimes() == null || schedule.getTimes().size() == 0) {
       return null;
     }
@@ -54,80 +54,82 @@ public class NonESMSignalGenerator {
     
   }
   
-  private Long scheduleMonthly(DateTime now) {
+  private DateTime scheduleMonthly(DateTime now) {
     DateTime nowMidnight = now.toDateMidnight().toDateTime();
     
     if (schedule.getByDayOfMonth()) {
       int nowDOM = nowMidnight.getDayOfMonth();
       if (nowDOM == schedule.getDayOfMonth()) {
-        Long nextTimeToday = getNextTimeToday(now, nowMidnight);
+        DateTime nextTimeToday = getNextTimeToday(now, nowMidnight);
         if (nextTimeToday != null) {
           return nextTimeToday;
         }
       }
       DateTime nextDay = getNextScheduleDay(nowMidnight.plusDays(1));
-      return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+      return getFirstScheduledTimeOnDay(nextDay);
     } else {
       DateTime nextDay = getNextScheduleDay(nowMidnight);
       if (nextDay.equals(nowMidnight)) {
-        Long nextTimeToday = getNextTimeToday(now, nextDay);
+        DateTime nextTimeToday = getNextTimeToday(now, nextDay);
         if (nextTimeToday != null) {
           return nextTimeToday;
         }
         nextDay = getNextScheduleDay(nowMidnight.plusDays(1));
-        return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+        return getFirstScheduledTimeOnDay(nextDay);
       } else {
-        return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+        return getFirstScheduledTimeOnDay(nextDay);
       }
     }
   }
 
-  private Long scheduleWeekly(DateTime now) {
+  private DateTime getFirstScheduledTimeOnDay(DateTime nextDay) {
+    return nextDay.withMillisOfDay(schedule.getTimes().get(0).intValue());
+  }
+
+  private DateTime scheduleWeekly(DateTime now) {
     DateTime nowMidnight = now.toDateMidnight().toDateTime();
     int nowDow = nowMidnight.getDayOfWeek(); // joda starts Monday, I start Sunday
     Integer nowDowIndex = SignalSchedule.DAYS_OF_WEEK[nowDow == 7 ? 0 : nowDow]; // joda is 1 based, and starts on Monday. we are 0-based, Sunday-start
     if ((schedule.getWeekDaysScheduled() & nowDowIndex) == nowDowIndex) {
-      Long nextTimeToday = getNextTimeToday(now, nowMidnight);
+      DateTime nextTimeToday = getNextTimeToday(now, nowMidnight);
       if (nextTimeToday != null) {
         return nextTimeToday;
       }
     }
     DateTime nextDay = getNextScheduleDay(nowMidnight.plusDays(1));
-    return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+    return getFirstScheduledTimeOnDay(nextDay);
   }
 
-  private Long scheduleDaily(DateTime now) {    
+  private DateTime scheduleDaily(DateTime now) {    
     DateTime nowMidnight = now.toDateMidnight().toDateTime();
     if (nextRepeatDaily(nowMidnight).equals(nowMidnight)) {
-      Long nextTimeToday = getNextTimeToday(now, nowMidnight);
+      DateTime nextTimeToday = getNextTimeToday(now, nowMidnight);
       if (nextTimeToday != null) {
         return nextTimeToday;
       }
     }
     DateTime nextDay = getNextScheduleDay(nowMidnight.plusDays(1));
-    return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+    return getFirstScheduledTimeOnDay(nextDay);
   }
 
-  private Long scheduleWeekday(DateTime now) {    
+  private DateTime scheduleWeekday(DateTime now) {    
     DateTime nowMidnight = now.toDateMidnight().toDateTime();
     if (nowMidnight.getDayOfWeek() < DateTimeConstants.SATURDAY) { // jodatime starts with Monday = 0
-      Long nextTimeToday = getNextTimeToday(now, nowMidnight);
+      DateTime nextTimeToday = getNextTimeToday(now, nowMidnight);
       if (nextTimeToday != null) {
         return nextTimeToday;
       }
     }
     DateTime nextDay = getNextScheduleDay(nowMidnight.plusDays(1));
-    return nextDay.plus(schedule.getTimes().get(0)).getMillis();
+    return getFirstScheduledTimeOnDay(nextDay);
   }
 
-  private Long getNextTimeToday(DateTime now, DateTime nowMidnight) {
-    long nowAsOffsetFromMidnight = (now.getHourOfDay() * 60 * 60 * 1000) 
-      + (now.getMinuteOfHour() * 60 * 1000) 
-      + (now.getSecondOfMinute() * 1000);
+  private DateTime getNextTimeToday(DateTime now, DateTime nowMidnight) {
+    long nowAsOffsetFromMidnight = now.getMillisOfDay();
       
     for (Long time : schedule.getTimes()) {
       if (time > nowAsOffsetFromMidnight) {
-        return nowMidnight.getMillis() + time;
+        return nowMidnight.toDateTime().withMillisOfDay(time.intValue());
       }      
     }
     return null;

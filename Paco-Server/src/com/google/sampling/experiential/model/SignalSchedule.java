@@ -18,8 +18,7 @@
 
 package com.google.sampling.experiential.model;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -27,7 +26,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import java.util.List;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 
 /**
@@ -79,7 +79,8 @@ public class SignalSchedule {
   @Persistent
   private Boolean esmWeekends = false;
 
-  
+  @Persistent
+  private Boolean userEditable = true;
   
   /**
    * @param id
@@ -99,7 +100,7 @@ public class SignalSchedule {
   public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency, 
       Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times, 
       Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth, 
-      Integer dayOfMonth, Boolean esmWeekends) {
+      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, SignalSchedule.class.getSimpleName(), id);
@@ -116,6 +117,7 @@ public class SignalSchedule {
     this.nthOfMonth = nthOfMonth;
     this.byDayOfMonth = byDayOfMonth;
     this.dayOfMonth = dayOfMonth;
+    this.userEditable = userEditable;
   }
 
   public Key getId() {
@@ -220,6 +222,14 @@ public class SignalSchedule {
 
   public void setEsmWeekends(Boolean esmWeekends) {
     this.esmWeekends = esmWeekends;
+  }
+  
+  public Boolean getUserEditable() {
+    return userEditable;
+  }
+  
+  public void setUserEditable(Boolean userEditable) {
+    this.userEditable = userEditable;
   }
 
   

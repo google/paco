@@ -22,7 +22,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
 
 public class Output implements Parcelable {
@@ -121,7 +120,7 @@ public class Output implements Parcelable {
     
     dest.writeString(name);
     dest.writeString(answer);
-  }
+  }  
 
   /**
    * @param input
@@ -166,7 +165,7 @@ public class Output implements Parcelable {
     if (input.getResponseType().equals(Input.LIKERT) && getAnswer() != null) {
       return getDisplayForLikert();
     }
-    return getAnswer(); 
+    return getAnswer();
   }
 
 }

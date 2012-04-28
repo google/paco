@@ -17,9 +17,11 @@
 package com.google.android.apps.paco;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 
 public class NotificationCreatorService extends Service {
 
@@ -31,7 +33,7 @@ public class NotificationCreatorService extends Service {
 
   @Override
   public void onCreate() {
-    super.onCreate();
+    super.onCreate();    
   }
 
   @Override
@@ -42,20 +44,35 @@ public class NotificationCreatorService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
-    final Bundle extras = intent.getExtras();
     
+    final Bundle extras = intent.getExtras();
+    PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco NotificationCreatorService wakelock");
+    wl.acquire();
+
 
     Runnable runnable = new Runnable() {
       public void run() {
-        NotificationCreator notificationCreator = NotificationCreator.create(NotificationCreatorService.this);
-        int notificationId = -1;
-        long alarmTime = -1;
-        if (extras != null) {
-          notificationId = extras.getInt(NotificationCreator.NOTIFICATION_ID, -1);      
-          alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);      
+        try {
+          NotificationCreator notificationCreator = NotificationCreator.create(NotificationCreatorService.this);
+          long notificationId = -1;
+          long alarmTime = -1;
+          if (extras != null) {
+            notificationId = extras.getLong(NotificationCreator.NOTIFICATION_ID, -1);      
+            alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);      
+          }
+          if (notificationId != -1) {
+            notificationCreator.timeoutNotification(notificationId);
+          } else if (alarmTime != -1){
+            notificationCreator.createNotifications(notificationId, alarmTime);
+          } else {
+            notificationCreator.recreateActiveNotifications();
+          }
+          
+        } finally {
+          wl.release();
+          stopSelf();
         }
-        notificationCreator.updateNotifications(notificationId, alarmTime);
-        stopSelf();
       }
     };
     (new Thread(runnable)).start();
