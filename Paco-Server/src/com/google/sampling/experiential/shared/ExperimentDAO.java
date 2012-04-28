@@ -265,6 +265,4 @@ public class ExperimentDAO implements Serializable {
     this.deleted = deleted;
   }
   
-  
-
 }

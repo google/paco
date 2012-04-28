@@ -127,6 +127,7 @@ public class InputsPanel extends Composite {
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
+
     createScheduledDateColumn(upperLinePanel);
   }
 

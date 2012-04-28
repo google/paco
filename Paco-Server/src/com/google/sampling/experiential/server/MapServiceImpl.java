@@ -179,7 +179,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail();
       if (!(experiment.getCreator().equals(loggedInUser) || 
-          experiment.getAdmins().contains(loggedInUserEmail))) {
+        experiment.getAdmins().contains(loggedInUserEmail))) {
         // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
         // experiment;
         return;

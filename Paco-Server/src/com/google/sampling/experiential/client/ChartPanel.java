@@ -242,7 +242,21 @@ public class ChartPanel extends Composite {
     if (answer == null) {
       return DEFAULT_DATA_CLASS;
     }
-    return cm.getDataTypeOf(answer);
+    
+    Class dataTypeOfFirstEntry = cm.getDataTypeOf(answer);
+    
+    if (data.size() == 1) {
+      return dataTypeOfFirstEntry;
+    }
+    EventDAO eventDAO2 = data.get(1);
+    String answer2 = eventDAO2.getWhatByKey(inputName);
+    if (answer2 == null) {
+      return DEFAULT_DATA_CLASS;
+    }
+    if (cm.getDataTypeOf(answer2) == dataTypeOfFirstEntry) {
+      return dataTypeOfFirstEntry;
+    }
+    return DEFAULT_DATA_CLASS;
   }
 
 }

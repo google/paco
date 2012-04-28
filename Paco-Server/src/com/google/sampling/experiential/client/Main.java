@@ -121,7 +121,6 @@ public class Main implements EntryPoint, ExperimentListener {
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     rootPanel.add(mainPanel);
-    // mainPanel.setSize("800px", "600px");
 
     HorizontalPanel menuPanel = new HorizontalPanel();
     mainPanel.add(menuPanel);

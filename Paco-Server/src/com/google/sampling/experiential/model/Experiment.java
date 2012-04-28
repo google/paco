@@ -162,7 +162,7 @@ public class Experiment {
   @Persistent
   @JsonProperty("informedConsentForm")
   private Text informedConsentFormText;
-  
+
   public Long getId() {
     return id;
   }
