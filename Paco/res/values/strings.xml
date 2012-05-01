@@ -45,7 +45,7 @@
 
   <!-- About -->
   <string name="about">About</string>
-  <string name="help">Help</string>
+  <string name="user_guide">User Guide</string>
   <string name="about_team">Team:</string>
   <string name="about_version">Version:</string>
   <string name="about_email">Support</string>

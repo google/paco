@@ -105,14 +105,24 @@
 						android:layout_height="fill_parent" android:src="@drawable/feedback_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
-					
+
+                    <ImageButton android:id="@+id/HelpButton"
+                        android:contentDescription="@string/user_guide"
+                        android:layout_gravity="center" android:layout_width="fill_parent"
+                        android:layout_height="fill_parent" android:src="@drawable/help_button"
+                        android:minWidth="140dp" android:maxWidth="140dp"
+                        android:background="@android:color/transparent" />
+     					
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
 					<TextView android:text="@string/contact_us" android:id="@+id/FeedbackLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center"></TextView>
-									
+                    <TextView android:text="@string/user_guide" android:id="@+id/helpLabel"
+                        android:layout_width="fill_parent" android:layout_height="fill_parent"
+                        android:gravity="center"></TextView>
+     									
 				</TableRow>
 			</TableLayout>
 </LinearLayout>

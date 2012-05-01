@@ -123,6 +123,16 @@ public class ExperimentManagerActivity extends Activity {
         
       }
     });
+    
+    ImageButton helpButton = (ImageButton)findViewById(R.id.HelpButton);
+    helpButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        startActivity(new Intent(ExperimentManagerActivity.this,
+                HelpActivity.class));
+        
+      }
+    });
+
   }  
 
   private Experiment getExperimentFromIntent() {

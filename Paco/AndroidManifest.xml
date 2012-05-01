@@ -161,7 +161,9 @@
             </intent-filter>
         </activity>
         <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" />
-
+        <activity android:name="com.google.android.apps.paco.HelpActivity" />
+        
+        <!--  services -->
         <service android:name="com.google.android.apps.paco.NotificationCreatorService" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.NotificationCreatorService" />
