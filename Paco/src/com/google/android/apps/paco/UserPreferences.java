@@ -57,8 +57,6 @@ public class UserPreferences {
 
   private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
   
-  private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
-
   private SharedPreferences signallingPrefs;
   private Context context;
 
@@ -139,26 +137,8 @@ public class UserPreferences {
   }  
 
   public long getNextServerCommunicationServiceAlarmTime() {
-    return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, 0l);    
-  }
-
-  public long getNextServerCommunicationServiceAlarmTime() {
     return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());    
   }
-
-  public long getNextServerCommunicationServiceAlarmTime() {
-    return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());    
-  }
-  
-  public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
-    getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
-  }
-
-  
-  public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
-    getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
-  }
-
   
   public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
     getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();

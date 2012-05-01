@@ -155,7 +155,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   }
  
   private Date parseDateString(String when) {
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ssZ");
     Date whenDate;
     try {
       whenDate = df.parse(when);

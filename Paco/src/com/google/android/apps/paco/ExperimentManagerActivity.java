@@ -40,7 +40,6 @@ import com.google.sampling.experiential.android.lib.GoogleAccountLoginHelper;
  */
 public class ExperimentManagerActivity extends Activity {
 
-  private static final String DEFAULT_FEEDBACK_EMAIL_ADDRESS = "paco-opensource@google.com";
   private static final int ABOUT_PACO_ITEM = 3;
   private static final int DEBUG_ITEM = 4;
   private static final int SERVER_ADDRESS_ITEM = 5;
@@ -56,15 +55,10 @@ public class ExperimentManagerActivity extends Activity {
   private GoogleAccountLoginHelper loginHelper;
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
-  private String feedbackEmailAddress;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    feedbackEmailAddress = (String) getText(R.string.about_googlegroups);
-    if (feedbackEmailAddress == null) {
-      feedbackEmailAddress = DEFAULT_FEEDBACK_EMAIL_ADDRESS;
-    }
     
  // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
@@ -124,7 +118,9 @@ public class ExperimentManagerActivity extends Activity {
     ImageButton feedbackButton = (ImageButton)findViewById(R.id.FeedbackButton);
     feedbackButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        createEmailIntent();        
+        startActivity(new Intent(ExperimentManagerActivity.this,
+                ContactOptionsActivity.class));
+        
       }
     });
   }  
@@ -137,14 +133,6 @@ public class ExperimentManagerActivity extends Activity {
     return experimentProviderUtil.getExperiment(uri);
   }
 
-  private void createEmailIntent() {
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    String aEmailList[] = { feedbackEmailAddress };
-    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
-    emailIntent.setType("plain/text");
-    startActivity(emailIntent);
-  }
   @Override
   protected void onResume() {
     super.onResume();

@@ -28,12 +28,12 @@
 	android:layout_gravity="center|top">
 	<TextView android:id="@+id/ExperimentManagerTitle"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:textSize="25dip" android:text="Welcome to PACO!"
+		android:textSize="25dip" android:text="@string/experiment_manager_screen_welcome_to_paco"
 		android:paddingBottom="5dip" android:gravity="center"
 		android:textStyle="bold" />
 	<TextView android:id="@+id/ExperimentManagerSubTitle"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:textSize="18dip" android:text="Personal Analytics COmpanion"
+		android:textSize="18dip" android:text="@string/experiment_manager_screen_subtitle"
 		android:paddingBottom="10dip" android:gravity="center"
 		android:textStyle="italic" />
 	<TextView android:id="@+id/StatusBar" android:layout_width="fill_parent"
@@ -48,22 +48,23 @@
 					android:layout_height="fill_parent" android:layout_gravity="center">
 					<ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/CurrentExperimentsBtn"
-						android:text="Your Current Experiments" android:layout_width="fill_parent"
+						android:contentDescription="@string/running_experiments" android:layout_width="fill_parent"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" android:src="@drawable/current_experiments_button" />
 					<ImageButton android:layout_height="fill_parent"
-						android:id="@+id/FindExperimentsBtn" android:text="Find Experiments to Join"
+						android:id="@+id/FindExperimentsBtn"
 						android:layout_gravity="center" android:layout_width="fill_parent"
 						android:src="@drawable/find_experiments_button" android:minWidth="140dp"
-						android:maxWidth="140dp" android:background="@android:color/transparent" />
+						android:maxWidth="140dp" android:background="@android:color/transparent" 
+                        android:contentDescription="@string/find_experiments"/>
 
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center" >
-					<TextView android:text="Running Experiments" android:id="@+id/TextView01"
+					<TextView android:text="@string/running_experiments" android:id="@+id/TextView01"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:gravity="center" />						
-					<TextView android:text="Find Experiments" android:id="@+id/TextView01"
+					<TextView android:text="@string/find_experiments" 
 					android:shrinkColumns="*"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:gravity="center" />
@@ -72,14 +73,14 @@
 					android:layout_height="fill_parent" android:layout_gravity="center">
 					<ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/ExploreDataBtn"
-						android:text="Explore Data"
+						android:contentDescription="@string/explore_data"
 						android:layout_width="fill_parent" android:src="@drawable/explore_data_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
 						
 				    <ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/CreateExperimentBtn"
-						android:text="Create An Experiment"
+						android:contentDescription="@string/create_experiment"
 						android:layout_width="fill_parent" android:src="@drawable/create_experiments_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
@@ -88,10 +89,10 @@
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
-					<TextView android:text="Explore Data" android:id="@+id/ExploreDataLabel"
+					<TextView android:text="@string/explore_data" android:id="@+id/ExploreDataLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center" />
-				  <TextView android:text="Create An Experiment" android:id="@+id/CreateExperimentLabel"
+				  <TextView android:text="@string/create_experiment" android:id="@+id/CreateExperimentLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center" />
 
@@ -99,6 +100,7 @@
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
 					<ImageButton android:id="@+id/FeedbackButton"
+                        android:contentDescription="@string/contact_us"
 						android:layout_gravity="center" android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:src="@drawable/feedback_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
@@ -107,7 +109,7 @@
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
-					<TextView android:text="Paco User Group" android:id="@+id/FeedbackLabel"
+					<TextView android:text="@string/contact_us" android:id="@+id/FeedbackLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center"></TextView>
 									

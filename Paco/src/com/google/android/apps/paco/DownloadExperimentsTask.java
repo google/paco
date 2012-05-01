@@ -36,7 +36,7 @@ import android.util.Log;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
-class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
+class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
     /**
      * 
      */
@@ -62,7 +62,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
       p = ProgressDialog.show(enclosingActivity, "Experiment Refresh", "Checking Server for New and Updated Experiment Definitions", true, true);
     }
     
-    protected List<Experiment> doInBackground(Void... params) {
+    protected String doInBackground(Void... params) {
 //      times.add(0, System.currentTimeMillis());
       UrlContentManager manager = null;
       try {
@@ -90,7 +90,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
             Log.i(PacoConstants.TAG, "SPEED: reloading new experiments to disk t6.75 = " + System.currentTimeMillis());
             experimentProviderUtil.getExperimentsByServerId(4693018);
             Log.i(PacoConstants.TAG, "SPEED: retrieving experiment by server id t6.8 = " + System.currentTimeMillis());
-            return readValue;
+            return null;
           } catch (JsonParseException e) {
             Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
             e.printStackTrace();
@@ -103,7 +103,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
             e.printStackTrace();
           }
         }
-        return new ArrayList<Experiment>();
+        return null;
       } finally {
         if (manager != null) {
           manager.cleanUp();
@@ -115,7 +115,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
            
     }
 
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(String unusedResult) {
       p.dismiss();
       if (cursor != null) {
         cursor.requery();
