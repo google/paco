@@ -27,7 +27,7 @@
   <string name="about_googlegroups">paco-users@googlegroups.com</string>  
 <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
   <string name="usergroup_website">https://groups.google.com/group/paco-users</string>
-  <string name="about_weburl">quantifiedself.appspot.com</string>
+  <string name="about_weburl">quantifiedself.appspot.com/Main.html</string>
   <string name="about_copyright_message"></string>
   <string name="about_bob">Bob Evans</string>
   <string name="about_alberto">Alberto Savoia</string>
