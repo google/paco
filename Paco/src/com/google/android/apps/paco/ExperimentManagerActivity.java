@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -151,11 +150,7 @@ public class ExperimentManagerActivity extends Activity {
   }
 
   private boolean hasRegisteredExperiments() {
-    Cursor query = getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
-        new String[] {ExperimentColumns._ID}, null, null, null);
-    boolean moveToFirst = query.moveToFirst();
-    query.close();
-    return moveToFirst;
+    return experimentProviderUtil.hasJoinedExperiments();
   }
 
  

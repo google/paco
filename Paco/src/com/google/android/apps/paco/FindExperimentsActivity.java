@@ -223,7 +223,14 @@ public class FindExperimentsActivity extends Activity {
   }
 
   protected void refreshList() {    
-    new DownloadExperimentsTask(this, cursor, userPrefs, experimentProviderUtil, null).execute();
+    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+      
+      @Override
+      public void done() {
+        cursor.requery();
+      }
+    };
+    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
   }
 
 }

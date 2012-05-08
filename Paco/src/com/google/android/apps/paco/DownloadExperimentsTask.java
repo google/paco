@@ -18,7 +18,6 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -42,19 +40,18 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
      */
     private final Activity enclosingActivity;
     private ProgressDialog p;
-    private Cursor cursor;
     private UserPreferences userPrefs;
     private ExperimentProviderUtil experimentProviderUtil;
     private Runnable runnable;
+    private DownloadExperimentsTaskListener listener;
 
     @SuppressWarnings("unchecked")
     public DownloadExperimentsTask(Activity findExperimentsActivity, 
-        Cursor cursor, 
+        DownloadExperimentsTaskListener listener, 
         UserPreferences userPrefs, 
         ExperimentProviderUtil experimentProviderUtil, Runnable runnable) {
-      enclosingActivity = findExperimentsActivity;
-      
-      this.cursor = cursor;
+      enclosingActivity = findExperimentsActivity;      
+      this.listener = listener;
       this.userPrefs = userPrefs;
       this.experimentProviderUtil = experimentProviderUtil;
       this.runnable = runnable;
@@ -117,8 +114,8 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
 
     protected void onPostExecute(String unusedResult) {
       p.dismiss();
-      if (cursor != null) {
-        cursor.requery();
+      if (listener != null) {
+        listener.done();
       }
       if (runnable != null) {
         runnable.run();

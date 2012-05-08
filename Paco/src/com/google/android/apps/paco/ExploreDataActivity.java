@@ -47,6 +47,7 @@ import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -59,7 +60,6 @@ import android.widget.TwoLineListItem;
  */
 public class ExploreDataActivity extends Activity {
 
-  private Cursor cursor;
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
   private ViewGroup mainLayout;
@@ -153,9 +153,10 @@ public class ExploreDataActivity extends Activity {
     list = (ListView)findViewById(R.id.exploreable_experiments_list);
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    cursor = managedQuery(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+    Cursor cursor = managedQuery(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
         new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
         null, null, null);
+    
     
     SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
       android.R.layout.simple_list_item_2, cursor, 

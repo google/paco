@@ -1499,5 +1499,10 @@ public class ExperimentProviderUtil {
     return new ArrayList<Experiment>();
   }
 
+  public boolean hasJoinedExperiments() {
+    return context.getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+            new String[] {ExperimentColumns._ID}, null, null, null).moveToFirst();
+  }
+
 }
 
