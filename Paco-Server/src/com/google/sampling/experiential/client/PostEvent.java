@@ -42,6 +42,7 @@ import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class PostEvent implements EntryPoint {
 
@@ -102,12 +103,12 @@ public class PostEvent implements EntryPoint {
     keyValueCounter = 0;
     formPanel.add(createFormLine("who"));
 
-    DateTimeFormat df = DateTimeFormat.getFormat("yyyy/MM/dd HH:mm:ssZ");
+    DateTimeFormat df = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
     String timeString = df.format(new Date());
 //    formPanel.add(createFormLine("when", timeString));
     formPanel.add(createFormLine("scheduledTime", timeString));
     formPanel.add(createFormLine("responseTime", timeString));
-    formPanel.add(createFormLine("expeimentId", ""));
+    formPanel.add(createFormLine("experimentId", ""));
     formPanel.add(createBooleanFormLine("shared", false));
     formPanel.add(new HTML("Enter at least one key/value pair for the event"));
     whatPanel = new VerticalPanel();
@@ -135,6 +136,7 @@ public class PostEvent implements EntryPoint {
 //    String when = ((TextBox) fieldToWidgetMap.get("when")).getText();
     String scheduledTime = ((TextBox) fieldToWidgetMap.get("scheduledTime")).getText();
     String responseTime = ((TextBox) fieldToWidgetMap.get("responseTime")).getText();
+    String experimentId = ((TextBox) fieldToWidgetMap.get("experimentId")).getText();
     
     boolean shared = ((CheckBox)fieldToWidgetMap.get("shared")).getValue();
     Map<String, String> kvPairs = Maps.newHashMap();
@@ -145,7 +147,7 @@ public class PostEvent implements EntryPoint {
         kvPairs.put(key, value);
       }
     }
-    mapService.saveEvent(who, null, responseTime, scheduledTime, kvPairs, shared, new AsyncCallback<Void>() {
+    mapService.saveEvent(who, null, responseTime, experimentId, kvPairs, shared, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {

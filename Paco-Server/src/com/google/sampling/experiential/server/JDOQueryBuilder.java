@@ -39,7 +39,7 @@ public class JDOQueryBuilder {
 
   private EventJDOQuery jdoQuery;
   
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyyMMdd");
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyy/MM/dd");
 
 
 

@@ -31,7 +31,7 @@ import android.os.Parcelable;
 
 public class Event implements Parcelable {
 
-  DateTimeFormatter df = DateTimeFormat.forPattern("yyyyMMdd:HH:mm:ssZ");
+  DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
   public static class Creator implements Parcelable.Creator<Event> {
 
     public Event createFromParcel(Parcel source) {

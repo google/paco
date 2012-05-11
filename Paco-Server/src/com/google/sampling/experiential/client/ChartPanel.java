@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Component for holding an individual chart for an Input's responses.
@@ -43,7 +44,7 @@ public class ChartPanel extends Composite {
 
 //  private MapWidget map;
 //  private Map<EventDAO, Marker> markers = com.google.common.collect.Maps.newHashMap();
-  private DateTimeFormat formatter = DateTimeFormat.getFormat("yyyy/MM/dd HH:mm:ssZ");
+  private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
 //  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
   public ChartPanel(InputDAO input, List<EventDAO> eventList) {

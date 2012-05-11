@@ -16,6 +16,9 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ImageBundle;
 
@@ -24,19 +27,21 @@ import com.google.gwt.user.client.ui.ImageBundle;
  * 
  * @author Bob Evans
  */
-public interface Images extends ImageBundle {
+public interface Images extends ClientBundle {
 
-  @Resource(value = "PACO256.png")
-  AbstractImagePrototype pacoFaceLogo(); 
+  @Source(value = "PACO256.png")
+  ImageResource pacoFaceLogo(); 
 
-  @Resource(value = "PACO64.png")
-  AbstractImagePrototype pacoSmallLogo(); 
+  @Source(value = "PACO64.png")
+  ImageResource pacoSmallLogo(); 
 
-  @Resource(value = "question-b42.png")
-  AbstractImagePrototype question(); 
+  @Source(value = "question-b42.png")
+  ImageResource question(); 
   
-  @Resource(value = "qrcode.png")
-  AbstractImagePrototype qrcode();  
+  @Source(value = "qrcode.png")
+  ImageResource qrcode();  
 
+  @Source(value = "helptext.html")
+  TextResource helpHtml();
 } 
  

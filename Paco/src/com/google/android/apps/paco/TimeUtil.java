@@ -26,8 +26,9 @@ import org.joda.time.format.ISODateTimeFormat;
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
+  static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   private static DateTimeFormatter dateTimeFormatter =
-      DateTimeFormat.forPattern("yyyyMMdd:HH:mm:ssZ");
+      DateTimeFormat.forPattern(DATETIME_FORMAT);
 
   private TimeUtil() {
     super();

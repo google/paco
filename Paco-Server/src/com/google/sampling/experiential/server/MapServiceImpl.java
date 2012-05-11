@@ -53,6 +53,7 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.MapService;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 
 /*
@@ -129,6 +130,19 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         && !loggedInWho.getEmail().equals(who))) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
+    
+    
+    Experiment experiment = ExperimentRetriever.getExperiment(experimentId);
+    
+    if (experiment == null) {
+      throw new IllegalArgumentException("Must post to an existing experiment!");
+    }
+    
+    if (!ExperimentRetriever.isWhoAllowedToPostToExperiment(experiment, loggedInWho.getEmail())) {
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+    }
+    
+    
     EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
         "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
   }
@@ -155,7 +169,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   }
  
   private Date parseDateString(String when) {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ssZ");
+    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     Date whenDate;
     try {
       whenDate = df.parse(when);

@@ -41,7 +41,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,6 +83,7 @@ import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Servlet that answers queries for Events.
@@ -94,7 +94,7 @@ import com.google.sampling.experiential.shared.InputDAO;
 public class EventServlet extends HttpServlet {
 
   private static final Logger log = Logger.getLogger(EventServlet.class.getName());
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ssZ");
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
@@ -494,7 +494,7 @@ public class EventServlet extends HttpServlet {
       pacoVersion = rowData.get("pacoVersion");
       rowData.remove("pacoVersion");
     }
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
+    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     Date whenDate = null;
     if (rowData.containsKey("when")) {
       String when = rowData.get("when");
@@ -506,7 +506,6 @@ public class EventServlet extends HttpServlet {
 
     boolean shared = false;
 
-    Experiment experiment = null;
     String experimentId = null;
     String experimentName = null;
     Date responseTime = null;    
@@ -521,18 +520,17 @@ public class EventServlet extends HttpServlet {
       rowData.remove("experimentName");
     }
     
-    PersistenceManager pm = null;
-
-    if (experimentId != null) {
-        pm = PMF.get().getPersistenceManager();
-        javax.jdo.Query q = pm.newQuery(Experiment.class);
-        q.setFilter("id == idParam");
-        q.declareParameters("Long idParam");
-        List<Experiment> experiments = (List<Experiment>)q.execute(Long.valueOf(experimentId));
-        if (experiments.size() > 0) {
-          experiment = experiments.get(0);
-        }
+    Experiment experiment = ExperimentRetriever.getExperiment(experimentId);
+    
+    if (experiment == null) {
+      throw new IllegalArgumentException("Must post to an existing experiment!");
     }
+    
+    if (!ExperimentRetriever.isWhoAllowedToPostToExperiment(experiment, who)) {
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+    }
+    
+
     
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
@@ -569,12 +567,9 @@ public class EventServlet extends HttpServlet {
     }
     
     log.info("Sanity check: who = " + who + 
-        ", when = " + (new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ")).format(whenDate) + 
+        ", when = " + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate) + 
         ", appId = "+appId +", what length = " + whats.size());
     
-    if (pm != null) {
-      pm.close();
-    }
     EventRetriever.getInstance().postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats,
         shared, experimentId, experimentName, responseTime, scheduledTime, blobs);
 
@@ -656,7 +651,7 @@ public class EventServlet extends HttpServlet {
     if (eventJson.has("pacoVersion")) {
       pacoVersion = eventJson.getString("pacoVersion");
     }
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
+    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     Date whenDate = null;
     if (eventJson.has("when")) {
       String when = eventJson.getString("when");
@@ -671,7 +666,6 @@ public class EventServlet extends HttpServlet {
       shared = eventJson.getBoolean("shared");
     }
 
-    Experiment experiment = null;
     String experimentId = null;
     String experimentName = null;
     Date responseTime = null;    
@@ -684,18 +678,16 @@ public class EventServlet extends HttpServlet {
       experimentName = eventJson.getString("experimentName"); 
     }
     
-    PersistenceManager pm = null;
-
-    if (experimentId != null) {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query q = pm.newQuery(Experiment.class);
-      q.setFilter("id == idParam");
-      q.declareParameters("Long idParam");
-      List<Experiment> experiments = (List<Experiment>)q.execute(Long.valueOf(experimentId));
-      if (experiments.size() > 0) {
-        experiment = experiments.get(0);
-      }
+    Experiment experiment = ExperimentRetriever.getExperiment(experimentId);
+    
+    if (experiment == null) {
+      throw new IllegalArgumentException("Must post to an existing experiment!");
     }
+    
+    if (!ExperimentRetriever.isWhoAllowedToPostToExperiment(experiment, who)) {
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+    }
+    
     
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
@@ -747,17 +739,12 @@ public class EventServlet extends HttpServlet {
     }
     
     log.info("Sanity check: who = " + who + 
-        ", when = " + (new SimpleDateFormat("yyyyMMdd:HH:mm:ssZ")).format(whenDate) + 
+        ", when = " + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate) + 
         ", appId = "+appId +", what length = " + whats.size());
-    
-    if (pm != null) {
-      pm.close();
-    }
+
     EventRetriever.getInstance().postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats,
         shared, experimentId, experimentName, responseTime, scheduledTime, blobs);
   }
-
-
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)
       throws UnsupportedEncodingException {

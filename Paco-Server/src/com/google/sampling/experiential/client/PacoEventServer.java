@@ -59,6 +59,7 @@ import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * An alternate entry point that focuses on a search interface and
@@ -88,7 +89,7 @@ public class PacoEventServer implements EntryPoint {
 
   // private static final LatLng google = LatLng.newInstance(37.420769,
   // -122.085854);
-  private DateTimeFormat formatter = DateTimeFormat.getFormat("yyyyMMdd:HH:mm:ssZ");
+  private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
 
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
@@ -152,7 +153,7 @@ public class PacoEventServer implements EntryPoint {
     searchPanel.setSpacing(5);
     signOutLink.setHref(loginInfo.getLogoutUrl());
     rootPanel.add(signOutLink);
-    Image pacoLogo = images.pacoFaceLogo().createImage();
+    Image pacoLogo = new Image(images.pacoFaceLogo());
     searchPanel.add(pacoLogo);
     searchPanel.add(createSearchPanel());
 

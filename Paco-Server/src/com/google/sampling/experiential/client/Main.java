@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -58,7 +59,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private Label statusLabel;
   private FlexTable flexTable;
-  private Images resources;
+  Images resources;
   private HTML lblYourExperiments;
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
@@ -124,7 +125,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
     HorizontalPanel menuPanel = new HorizontalPanel();
     mainPanel.add(menuPanel);
-    Image pacoLogo = resources.pacoSmallLogo().createImage();
+    Image pacoLogo = new Image(resources.pacoSmallLogo());
     pacoLogo.setStylePrimaryName("paco-Logo");
     menuPanel.add(pacoLogo);
 
@@ -185,7 +186,7 @@ public class Main implements EntryPoint, ExperimentListener {
         launchHelp();
       }
     });
-    helpContentsMenuItem.setEnabled(false);
+    //helpContentsMenuItem.setEnabled(false);
     helpMenuBar.addItem(helpContentsMenuItem);
 
     MenuItem aboutMenuItem = new MenuItem("About", false, new Command() {
@@ -270,7 +271,7 @@ public class Main implements EntryPoint, ExperimentListener {
     HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
-    dl.add(resources.qrcode().createImage());
+    dl.add(new Image(resources.qrcode()));
     
     HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
     downloadLink.setStyleName("paco-HTML-Large");
@@ -325,6 +326,8 @@ public class Main implements EntryPoint, ExperimentListener {
     setContentTitle("Help");
     contentPanel.clear();
     experimentPanel.setVisible(false);
+    HelpPage hp = new HelpPage(this);
+    contentPanel.add(hp);
   }
 
   protected void loadJoinedExperiments() {

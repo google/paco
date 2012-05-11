@@ -60,7 +60,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel.setHeight("42px");
     initWidget(horizontalPanel);
 
-    Image experimentIcon = resources.question().createImage();
+    Image experimentIcon = new Image(resources.question());
     experimentIcon.setAltText("Experiment Icon");
     horizontalPanel.add(experimentIcon);
     horizontalPanel.setCellHeight(experimentIcon, "42");

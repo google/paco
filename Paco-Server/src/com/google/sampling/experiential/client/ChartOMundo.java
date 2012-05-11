@@ -40,10 +40,11 @@ import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ChartOMundo {
 
-  private DateTimeFormat formatter = DateTimeFormat.getFormat("yyyyMMdd:HH:mm:ssZ");
+  private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
   private static final int CHART_HEIGHT = 300;
   private static final int CHART_WIDTH = 500;
   private List<Widget> charts = Lists.newArrayList();

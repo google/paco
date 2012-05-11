@@ -29,6 +29,7 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Class that holds a response to an experiment.
@@ -280,7 +281,7 @@ public class Event {
 
   public String[] toCSV(List<String> columnNames) {
     java.text.SimpleDateFormat simpleDateFormat =
-      new java.text.SimpleDateFormat("yyyyMMdd:HH:mm:ssZ");
+      new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     
     int csvIndex = 0;
     String[] parts = new String[10 + columnNames.size()];

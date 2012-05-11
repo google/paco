@@ -127,12 +127,12 @@ public class EventMatcher {
   }
 
   private DateMidnight newDateMidnightFromString(String firstDate) {
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
     try {
       return new DateMidnight(df.parse(firstDate).getTime());
     } catch (ParseException e) {
       throw new IllegalArgumentException("Cannot parse date: " + firstDate + 
-          ". Format is yyyyMMdd");
+          ". Format is yyyy/MM/dd");
     }
   }
 
