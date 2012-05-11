@@ -11,7 +11,7 @@ public class ExperimentRetriever {
 
   public static boolean isWhoAllowedToPostToExperiment(Experiment experiment, String who) {
     return experiment.getAdmins().contains(who) || 
-      (experiment.getPublished() && experiment.getPublishedUsers().contains(who));
+      (experiment.getPublished() && (experiment.getPublishedUsers().isEmpty() || experiment.getPublishedUsers().contains(who)));
   }
 
   public static Experiment getExperiment(String experimentId) {
