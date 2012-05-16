@@ -42,6 +42,8 @@ import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
+import com.google.sampling.experiential.shared.FeedbackDAO;
+import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -442,6 +444,39 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.SOFT_DELETE_CODE:
         softDeleteExperiment(experiment);
         break;
+      case ExperimentListener.CSV_ANON_CODE:
+        String whoStr = "";
+        if (joined) {
+          whoStr = ":who=" + loginInfo.getEmailAddress();
+        }
+        Window.Location.assign(
+            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+        break;
+      case ExperimentListener.COPY_EXPERIMENT_CODE:
+        contentPanel.clear();
+        copyExperiment(experiment);
+        showExperimentDetailPanel(experiment, true);
+        break;
+      case ExperimentListener.ANON_MAPPING_CODE:
+        String who2Str = "";
+        if (joined) {
+          who2Str = ":who=" + loginInfo.getEmailAddress();
+        }
+        Window.Location.assign(
+            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+        break;
+        
+    }
+  }
+
+  private void copyExperiment(ExperimentDAO experiment) {
+    experiment.setId(null);
+    experiment.getSchedule().setId(null);
+    for(InputDAO input : experiment.getInputs()) {
+      input.setId(null);
+    }
+    for (FeedbackDAO feedback : experiment.getFeedback()) {
+      feedback.setId(null);
     }
   }
 
@@ -571,9 +606,9 @@ public class Main implements EntryPoint, ExperimentListener {
 
   }
 
-  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean b) {
+  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {
     statusLabel.setVisible(true);
-    ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, b, loginInfo, this);
+    ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
     contentPanel.add(ep);
     statusLabel.setVisible(false);
   }

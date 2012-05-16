@@ -131,6 +131,39 @@ public class ExperimentRow extends Composite {
     });
     horizontalPanel_1.add(csvButton);
     horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    
+    Button csvAnonButton = new Button("AnonCSV");
+    csvAnonButton.setStyleName("paco-ExperimentRow-Button");
+    csvAnonButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showCSVAnon();
+      }
+    });
+    horizontalPanel_1.add(csvAnonButton);
+    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+
+    Button anonMappingButton = new Button("AnonMap");
+    anonMappingButton.setStyleName("paco-ExperimentRow-Button");
+    anonMappingButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showAnonMapping();
+      }
+    });
+    horizontalPanel_1.add(anonMappingButton);
+    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+
+    
+    Button copyButton = new Button("Copy");
+    copyButton.setStyleName("paco-ExperimentRow-Button");
+    copyButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showExperimentDetailsAsCopy();
+      }
+    });
+    horizontalPanel_1.add(copyButton);
+    horizontalPanel.setCellVerticalAlignment(copyButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    
+    
     if (!joined) {
       Button deleteButton = new Button(
           experiment.getDeleted() != null && experiment.getDeleted() ? "Unhide" : "Hide");
@@ -157,6 +190,10 @@ public class ExperimentRow extends Composite {
     }
   }
 
+  protected void showAnonMapping() {
+    fireExperimentCode(ExperimentListener.ANON_MAPPING_CODE);
+  }
+
   protected void showExperimentDetails() {
     fireExperimentCode(ExperimentListener.EDIT_CODE);
   }
@@ -171,6 +208,14 @@ public class ExperimentRow extends Composite {
 
   protected void showCSV() {
     fireExperimentCode(ExperimentListener.CSV_CODE);
+  }
+  
+  protected void showCSVAnon() {
+    fireExperimentCode(ExperimentListener.CSV_ANON_CODE);
+  }
+
+  protected void showExperimentDetailsAsCopy() {
+    fireExperimentCode(ExperimentListener.COPY_EXPERIMENT_CODE);
   }
 
   protected void showCharts() {

@@ -34,6 +34,9 @@ public interface ExperimentListener {
   public static final int SAVED = 6;
   public static final int CANCELED = 7;
   public static final int SOFT_DELETE_CODE = 8;
+  public static final int CSV_ANON_CODE = 9;
+  public static final int COPY_EXPERIMENT_CODE = 10;
+  public static final int ANON_MAPPING_CODE = 11;
 
   void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
 }

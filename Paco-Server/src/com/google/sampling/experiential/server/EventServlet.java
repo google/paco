@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -106,17 +107,42 @@ public class EventServlet extends HttpServlet {
     if (user == null) {
       resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
-      if (req.getParameter("json") != null) {
+      String anonStr = req.getParameter("anon");
+      boolean anon = false;
+      if (anonStr != null) {
+        anon = Boolean.parseBoolean(anonStr);
+      }
+      if (req.getParameter("mapping") != null) {
+        dumpUserIdMapping(req, resp);
+      } else if (req.getParameter("json") != null) {
         resp.setContentType("application/json;charset=UTF-8");
-        dumpEventsJson(resp, req);
+        dumpEventsJson(resp, req, anon);
       } else if (req.getParameter("csv") != null) {
         resp.setContentType("text/csv;charset=UTF-8");
-        dumpEventsCSV(resp, req);
+        dumpEventsCSV(resp, req, anon);
       } else {
         resp.setContentType("text/html;charset=UTF-8");
-        showEvents(req, resp);
+        showEvents(req, resp, anon);
       }
     }
+  }
+
+  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    List<com.google.sampling.experiential.server.Query> query =
+      new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    List<Event> events = getEventsWithQuery(req, query);
+    sortEvents(events);
+    Set<String> whos = new HashSet<String>();
+    for (Event event : events) {
+      whos.add(event.getWho());
+    }
+    StringBuilder mappingOutput = new StringBuilder();
+    for (String who : whos) {
+      mappingOutput.append(who);
+      mappingOutput.append(",");
+      mappingOutput.append(Event.getAnonymousId(who));
+    }
+    resp.getWriter().println(mappingOutput.toString());    
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
@@ -154,24 +180,28 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req) throws IOException {
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query =
         new QueryParser().parse(stripQuotes(getParam(req, "q")));
     List<Event> events = getEventsWithQuery(req, query);
     sortEvents(events);
-    String jsonOutput = jsonifyEvents(events);
+    String jsonOutput = jsonifyEvents(events, anon);
     resp.getWriter().println(jsonOutput);
   }
 
-  private String jsonifyEvents(List<Event> events) {
+  private String jsonifyEvents(List<Event> events, boolean anon) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
       List<EventDAO> eventDAOs = Lists.newArrayList();
       for (Event event : events) {
-        eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
+        String userId = event.getWho();
+        if (anon) {
+          userId = Event.getAnonymousId(userId);
+        }
+        eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(),
             event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
-            event.getWhatMap(),event.isShared(), event.getResponseTime(), event.getScheduledTime(),
+            event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
             null));
       }
       return mapper.writeValueAsString(eventDAOs);      
@@ -185,7 +215,7 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
   
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req) throws IOException {
+  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
 
     String loggedInuser = getWhoFromLogin().getEmail();
@@ -206,7 +236,7 @@ public class EventServlet extends HttpServlet {
     columns.addAll(foundColumnNames);
     Collections.sort(columns);
     for (Event event : events) {
-      eventsCSV.add(event.toCSV(columns));
+      eventsCSV.add(event.toCSV(columns, anon));
     }
     // add back in the standard pacot event columns
     columns.add(0, "who");
@@ -237,11 +267,11 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void showEvents(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
     List<Event> greetings = getEventsWithQuery(req, query);
     sortEvents(greetings);
-    printEvents(resp, greetings);
+    printEvents(resp, greetings, anon);
   }
 
   private String stripQuotes(String parameter) {
@@ -270,7 +300,7 @@ public class EventServlet extends HttpServlet {
     return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req));
   }
 
-  private void printEvents(HttpServletResponse resp, List<Event> greetings) throws IOException {
+  private void printEvents(HttpServletResponse resp, List<Event> greetings, boolean anon) throws IOException {
     long t1 = System.currentTimeMillis();
     long eventTime = 0;
     long whatTime = 0;
@@ -288,7 +318,11 @@ public class EventServlet extends HttpServlet {
         out.append("<td>").append(eventRating.getExperimentName()).append("</td>");
         out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getScheduledTime()))).append("</td>");
         out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getResponseTime()))).append("</td>");
-        out.append("<td>").append(eventRating.getWho()).append("</td>");
+        String who = eventRating.getWho();
+        if (anon) {
+          who = Event.getAnonymousId(who);
+        }
+        out.append("<td>").append(who).append("</td>");
         eventTime += System.currentTimeMillis() - e1;
         long what1 = System.currentTimeMillis();
         // we want to render photos as photos not as strings.

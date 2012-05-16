@@ -16,6 +16,9 @@
 */
 package com.google.sampling.experiential.model;
 
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,9 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+
+import org.apache.commons.codec.binary.Hex;
+import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,6 +45,8 @@ import com.google.sampling.experiential.shared.TimeUtil;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Event {
+
+  public static final String SALT = "zyzzyfoo";
 
   public static final List<String> eventProperties = Lists.newArrayList("who", 
       "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime", 
@@ -279,13 +287,17 @@ public class Event {
     return map;
   }
 
-  public String[] toCSV(List<String> columnNames) {
+  public String[] toCSV(List<String> columnNames, boolean anon) {
     java.text.SimpleDateFormat simpleDateFormat =
       new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     
     int csvIndex = 0;
     String[] parts = new String[10 + columnNames.size()];
-    parts[csvIndex++] = who;
+    if (anon) {
+      parts[csvIndex++] = Event.getAnonymousId(who + SALT);
+    } else {
+      parts[csvIndex++] = who;
+    }
     parts[csvIndex++] = simpleDateFormat.format(when);
     parts[csvIndex++] = lat;
     parts[csvIndex++] = lon;
@@ -301,6 +313,20 @@ public class Event {
       parts[csvIndex++] = value;
     }
     return parts;
+  }
+
+  public static String getAnonymousId(String who) {
+    MessageDigest messageDigest = null;
+    try {
+      messageDigest = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      Log.info("Could not get MD5 algorithm");
+      return null;
+    }
+    messageDigest.reset();
+    messageDigest.update(who.getBytes(Charset.forName("UTF8")));
+    byte[] resultByte = messageDigest.digest();
+    return new String(Hex.encodeHex(resultByte));
   }
 
 }
