@@ -10,6 +10,7 @@ import com.google.sampling.experiential.model.Experiment;
 public class ExperimentRetriever {
 
   public static boolean isWhoAllowedToPostToExperiment(Experiment experiment, String who) {
+    who = who.toLowerCase();
     return experiment.getAdmins().contains(who) || 
       (experiment.getPublished() && (experiment.getPublishedUsers().isEmpty() || experiment.getPublishedUsers().contains(who)));
   }

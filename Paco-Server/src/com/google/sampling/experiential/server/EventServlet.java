@@ -495,11 +495,12 @@ public class EventServlet extends HttpServlet {
       rowData.remove("pacoVersion");
     }
     SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
     Date whenDate = null;
     if (rowData.containsKey("when")) {
       String when = rowData.get("when");
       rowData.remove("when");
-      whenDate = df.parse(when);
+      whenDate = parseDate(df, oldDf, when);
     } else {
       whenDate = new Date();
     }
@@ -556,13 +557,13 @@ public class EventServlet extends HttpServlet {
     if (rowData.containsKey("responseTime")) {      
       String responseTimeStr = rowData.get("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = df.parse(responseTimeStr); 
+        responseTime = parseDate(df, oldDf, responseTimeStr); 
       }
     }
     if (rowData.containsKey("scheduledTime")) {
       String timeStr = rowData.get("scheduledTime");
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {       
-        scheduledTime = df.parse(timeStr);
+        scheduledTime = parseDate(df, oldDf, timeStr);
       }
     }
     
@@ -652,11 +653,11 @@ public class EventServlet extends HttpServlet {
       pacoVersion = eventJson.getString("pacoVersion");
     }
     SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
     Date whenDate = null;
     if (eventJson.has("when")) {
       String when = eventJson.getString("when");
-      
-      whenDate = df.parse(when);
+      whenDate = parseDate(df, oldDf, when);
     } else {
       whenDate = new Date();
     }
@@ -728,13 +729,13 @@ public class EventServlet extends HttpServlet {
     if (eventJson.has("responseTime")) {      
       String responseTimeStr = eventJson.getString("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = df.parse(responseTimeStr); 
+        responseTime = parseDate(df, oldDf, responseTimeStr); 
       }
     }
     if (eventJson.has("scheduledTime")) {
       String timeStr = eventJson.getString("scheduledTime");
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {       
-        scheduledTime = df.parse(timeStr);
+        scheduledTime = parseDate(df, oldDf, timeStr);
       }
     }
     
@@ -744,6 +745,16 @@ public class EventServlet extends HttpServlet {
 
     EventRetriever.getInstance().postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats,
         shared, experimentId, experimentName, responseTime, scheduledTime, blobs);
+  }
+
+  private Date parseDate(SimpleDateFormat df, SimpleDateFormat oldDf, String when) throws ParseException {
+    Date dateString = null;
+    try {
+      dateString = df.parse(when);
+    } catch (ParseException pe) {
+      dateString = oldDf.parse(when); //TODO remove this once all the clients are updated.        
+    }
+    return dateString;
   }
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)
