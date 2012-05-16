@@ -141,7 +141,9 @@ public class EventServlet extends HttpServlet {
       mappingOutput.append(who);
       mappingOutput.append(",");
       mappingOutput.append(Event.getAnonymousId(who));
+      mappingOutput.append("\n");
     }
+    resp.setContentType("text/csv;charset=UTF-8");
     resp.getWriter().println(mappingOutput.toString());    
   }
 
