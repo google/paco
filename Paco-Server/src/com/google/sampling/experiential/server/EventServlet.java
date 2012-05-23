@@ -247,8 +247,8 @@ public class EventServlet extends HttpServlet {
     columns.add(3, "lon");
     columns.add(4, "appId");
     columns.add(5, "pacoVersion");
-    columns.add(6, "experimentName");
-    columns.add(7, "experimentId");    
+    columns.add(6, "experimentId");
+    columns.add(7, "experimentName");        
     columns.add(8, "responseTime");
     columns.add(9, "scheduledTime");
     
