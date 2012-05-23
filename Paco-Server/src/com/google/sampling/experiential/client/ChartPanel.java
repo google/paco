@@ -89,17 +89,21 @@ public class ChartPanel extends Composite {
    * @return List of labels for choices in likert scale.
    */
   private String[] getLikertCategories() {
-    String[] choices = new String[input.getLikertSteps()];
+    Integer likertSteps = input.getLikertSteps();
+    if (likertSteps == null) {
+      likertSteps = 0;
+    }
+    String[] choices = new String[likertSteps];
     if (input.getLeftSideLabel() != null) {
       choices[0] = input.getLeftSideLabel();
     } 
     choices[0] = choices[0] + " (1)";
     if (input.getRightSideLabel() != null) {
-      choices[input.getLikertSteps() - 1] = input.getRightSideLabel();
+      choices[likertSteps - 1] = input.getRightSideLabel();
     }
-    choices[input.getLikertSteps() - 1] = choices[input.getLikertSteps() - 1] 
-                                                   + " (" + (input.getLikertSteps()) + ")"; 
-    for (int i=1;i < (input.getLikertSteps() - 1); i++) {
+    choices[likertSteps - 1] = choices[likertSteps - 1] 
+                                                   + " (" + likertSteps + ")"; 
+    for (int i=1;i < (likertSteps - 1); i++) {
       choices[i] = "(" + (i + 1) + ")";
     }
     return choices;
