@@ -1,5 +1,11 @@
 function defaultPage(){
-  var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+  var jsondata = window.env.getValue("experimentalData");
+  var experimentData = $.parseJSON(jsondata);
+  if (!experimentData) {
+    // hack for samsung tmobile phones
+    experimentData = eval('(' + jsondata + ')');
+  }
+  
   if (!experimentData) {
     alert("No Data");
     return;

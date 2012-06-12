@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
@@ -148,7 +149,7 @@ public class Main implements EntryPoint, ExperimentListener {
         findExperiments();
       }
     });
-    mntmFindExperiments.setEnabled(false);
+    mntmFindExperiments.setEnabled(true);
     joinedSubMenuBar.addItem(mntmFindExperiments);
     rootMenuBar.addItem(joinedMenuItem);
 
@@ -237,10 +238,13 @@ public class Main implements EntryPoint, ExperimentListener {
     horizontalPanel.add(experimentPanel);
     experimentPanel.setStyleName("paco-experimentPanel");
     experimentPanel.setSpacing(2);
-    experimentPanel.setSize("250px", "");
     experimentPanel.setVisible(false);
+    experimentPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 
     flexTable = new FlexTable();
+    String height = (Window.getClientHeight() - 200) + "px";
+    ScrollPanel sp = new ScrollPanel(flexTable);
+    //flexTable.setSize("400px", height);
     experimentPanel.add(flexTable);
 
     contentPanel = new VerticalPanel();
@@ -304,6 +308,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     experimentPanel.setVisible(true);
     statusLabel.setVisible(false);
+    getExperiments(false, false);
   }
 
   private void setContentTitle(String text) {

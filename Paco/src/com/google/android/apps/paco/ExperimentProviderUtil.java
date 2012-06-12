@@ -1500,8 +1500,16 @@ public class ExperimentProviderUtil {
   }
 
   public boolean hasJoinedExperiments() {
-    return context.getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
-            new String[] {ExperimentColumns._ID}, null, null, null).moveToFirst();
+    Cursor query = null;
+    try {
+      query = context.getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+            new String[] {ExperimentColumns._ID}, null, null, null);
+      return query.moveToFirst();
+    } finally {
+      if (query != null) {
+        query.close();
+      }
+    }
   }
 
 }

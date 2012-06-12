@@ -145,7 +145,14 @@ function round2Dec(n) {
 } 
 
 function main() {
-   var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+   var jsondata = window.env.getValue("experimentalData");
+   var experimentData = $.parseJSON(jsondata);
+   if (!experimentData) {
+     // hack for samsung tmobile phones
+     experimentData = eval('(' + jsondata + ')');
+   }
+
+   
    var inputId = parseInt(window.env.getValue("inputId"));
 
    if (!experimentData) {

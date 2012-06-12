@@ -143,10 +143,19 @@ function getData(experimentData, axisInputId) {
   return result;
 }
 
+function parseJson(jsonVarName) {
+  var jsondata = window.env.getValue(jsonVarName);
+  var experimentData = $.parseJSON(jsondata);
+  if (!experimentData) {
+    // hack for samsung tmobile phones
+    experimentData = eval('(' + jsondata + ')');
+  }
+  return experimentData;
+}
 
 function main() {
-  var xAxisExperimentData = $.parseJSON(window.env.getValue("xAxisData"));
-  var yAxisExperimentData = $.parseJSON(window.env.getValue("yAxisData"));
+  var xAxisExperimentData = parseJson("xAxisData");
+  var yAxisExperimentData = parseJson("yAxisData");
 
   if (!xAxisExperimentData) {
     alert("The first input has no data.");

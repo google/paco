@@ -72,7 +72,13 @@
           }
         }
 
-        var experimentData = $.parseJSON(window.env.getValue("experimentalData"));
+        var jsondata = window.env.getValue("experimentalData");
+        var experimentData = $.parseJSON(jsondata);
+        if (!experimentData) {
+          // hack for samsung tmobile phones
+          experimentData = eval('(' + jsondata + ')');
+        }
+        
         experimentData = experimentData.sort(function(a,b) {
           return a.responseTime - b.responseTime;
         });
