@@ -1,6 +1,7 @@
 ^Paco/bin/
 ^Paco/gen/
 ^PacoTest/bin/
+^PacoTest/gen/com/google/android/apps/paco/tests/BuildConfig.java
 ^Paco-Server/war/WEB-INF/classes/
 ^Paco-Server/war/WEB-INF/appengine-generated/
 ^Paco-Server/war/pacoserver/
@@ -15,4 +16,6 @@
 ^Paco-Server/war/WEB-INF/lib/appengine-api-labs-1.5.0.1.jar
 ^Paco-Server/war/WEB-INF/lib/appengine-jsr107cache-1.5.0.1.jar
 ^Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
+^Paco-Server/war/WEB-INF/lib/gwt-servlet-deps.jar
+^Paco-Server/war/paco.apk
 ~$
