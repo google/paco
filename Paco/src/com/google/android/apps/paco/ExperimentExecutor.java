@@ -332,7 +332,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       finish();
     } catch (IllegalStateException ise) {
       new AlertDialog.Builder(this)
-        .setIcon(R.drawable.app_icon)
+        .setIcon(R.drawable.paco64)
         .setTitle("Required Answers Missing")
         .setMessage(ise.getMessage()).show();
     }
