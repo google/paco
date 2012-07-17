@@ -11,3 +11,4 @@ Paco-Server/war/WEB-INF/lib/gwt-servlet-deps.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
 Paco-Server/war/paco.apk
 Paco-Server/war/pacoserver/
+Paco-Server/src/com/google/sampling/experiential/server/Whitelist.java
