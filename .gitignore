@@ -1,1 +1,5 @@
-Paco/local.properties
+local.properties
+Paco/bin/*
+Paco/gen/*
+PacoAndroidLib/bin/*
+PacoAndroidLib/gen/*
