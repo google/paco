@@ -48,7 +48,7 @@ public class VersionCheckerService extends Service {
 
 
   protected void createUpdateNotification() {
-    int icon = R.drawable.app_icon;
+    int icon = R.drawable.paco64;
     CharSequence tickerText = "Paco Update - New Version Available";
 
     Notification notification = new Notification(icon, tickerText, new DateTime().getMillis());
@@ -57,6 +57,7 @@ public class VersionCheckerService extends Service {
     CharSequence contentText = "A new version of Paco is available";
 
     String url = new UserPreferences(getApplicationContext()).getServerAddress();
+    url = "http://" + url + "/";
     Intent updateIntent = new Intent(Intent.ACTION_VIEW);
     updateIntent.setData(Uri.parse(url));
 
