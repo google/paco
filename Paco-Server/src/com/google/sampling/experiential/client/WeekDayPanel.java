@@ -21,7 +21,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 /**
  * Panel that allows selection of days of week to schedule an experiment.
@@ -40,9 +40,9 @@ public class WeekDayPanel extends Composite {
   private CheckBox checkBoxSat;
   private boolean multiSelect;
   private CheckBox[] checkBoxes;
-  private SignalScheduleDAO schedule;
+  private SignalSchedule schedule;
 
-  public WeekDayPanel(boolean multiSelect, SignalScheduleDAO schedule) {
+  public WeekDayPanel(boolean multiSelect, SignalSchedule schedule) {
     this.schedule = schedule;
     this.multiSelect = multiSelect;
     Grid grid = new Grid(2, 7);
@@ -129,8 +129,8 @@ public class WeekDayPanel extends Composite {
       if (!multiSelect && bitsSet == 1) {
         break;
       }
-      if ((daysScheduled & SignalScheduleDAO.DAYS_OF_WEEK[i])
-          == SignalScheduleDAO.DAYS_OF_WEEK[i]) {
+      if ((daysScheduled & SignalSchedule.DAYS_OF_WEEK[i])
+          == SignalSchedule.DAYS_OF_WEEK[i]) {
         checkBoxes[i].setValue(Boolean.TRUE);
         bitsSet++;
       }
@@ -148,7 +148,7 @@ public class WeekDayPanel extends Composite {
     int selected = 0;
     for (int i = 0; i < 7; i++) {
       if (checkBoxes[i].getValue() == Boolean.TRUE) {
-        selected |= SignalScheduleDAO.DAYS_OF_WEEK[i];
+        selected |= SignalSchedule.DAYS_OF_WEEK[i];
       }
     }
     schedule.setWeekDaysScheduled(selected);

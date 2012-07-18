@@ -78,12 +78,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -580,7 +579,7 @@ public class EventServlet extends HttpServlet {
           input = experiment.getInputWithName(name);
         }
         if (input != null && input.getResponseType() != null && 
-            input.getResponseType().equals(InputDAO.PHOTO)) {
+            input.getResponseType().equals(Input.PHOTO)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";          
@@ -744,7 +743,7 @@ public class EventServlet extends HttpServlet {
         String name = response.getString("name");
         Input input = null;
         if (experiment != null) {
-          input = experiment.getInputWithId(Long.valueOf(inputId));
+          input = experiment.getInputs().get(i);
         }
         String answer = response.getString("answer");
         if (name == null || name.isEmpty()) {
@@ -752,7 +751,7 @@ public class EventServlet extends HttpServlet {
           whats.add(new What(name+"_inputId", inputId));
         }
         if (input != null && input.getResponseType() != null && 
-            input.getResponseType().equals(InputDAO.PHOTO)) {
+            input.getResponseType().equals(Input.PHOTO)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";          

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,72 +16,77 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.model;
+package com.google.sampling.experiential.shared;
 
+import java.io.Serializable;
 import java.util.List;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+import com.google.common.collect.Lists;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+import com.googlecode.objectify.annotation.Serialized;
 
 
 /**
  * The Schedule for signalling an experiment response.
- * 
+ *
  * @author Bob Evans
  *
  */
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
-public class SignalSchedule {
+public class SignalSchedule implements Serializable {
+  public static final int DAILY = 0;
+  public static final int WEEKDAY = 1;
+  public static final int WEEKLY = 2;
+  public static final int MONTHLY = 3;
+  public static final int ESM = 4;
+  public static final int SELF_REPORT = 5;
+  public static final int ADVANCED = 6;
+  public static final int[] SCHEDULE_TYPES = new int[]{DAILY, WEEKDAY, WEEKLY, MONTHLY, ESM,
+    SELF_REPORT, ADVANCED};
 
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Key id;
-  
-  @Persistent
-  private Integer scheduleType;
-  
-  @Persistent
+  public static final String[] SCHEDULE_TYPES_NAMES = new String[] {
+      "Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self report only",
+      "Advanced" };
+
+  public static final int ESM_PERIOD_DAY = 0;
+  public static final int ESM_PERIOD_WEEK = 1;
+  public static final int ESM_PERIOD_MONTH = 2;
+
+  public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
+  public static final String[] ESM_PERIODS_NAMES = new String[] { "Day", "Week", "Month"};
+  public static final Integer DEFAULT_REPEAT_RATE = 1;
+  public static final int[] DAYS_OF_WEEK = new int[] {1,2,4,8,16,32,64};
+  public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY, ESM_PERIOD_WEEK,
+    ESM_PERIOD_MONTH };
+
+  private Integer scheduleType = SignalSchedule.DAILY;
+
   private Integer esmFrequency = 3;
-  
-  @Persistent
-  private Integer esmPeriodInDays;
-  
-  @Persistent
-  private Long esmStartHour;
-  
-  @Persistent
-  private Long esmEndHour;
-  
-  @Persistent
-  private List<Long> times;
-  
-  @Persistent
+
+  private Integer esmPeriodInDays = 0;
+
+  private Long esmStartHour = 0l;
+
+  private Long esmEndHour = 0l;
+
+  @Serialized
+  private List<Long> times = Lists.newArrayList();
+
   private Integer repeatRate = 0;
-  
-  @Persistent
+
   private Integer weekDaysScheduled = 0;
-  
-  @Persistent
+
   private Integer nthOfMonth = 0;
-  
-  @Persistent
+
   private Boolean byDayOfMonth = Boolean.TRUE;
-  
-  @Persistent
+
   private Integer dayOfMonth = 0;
 
-  @Persistent
   private Boolean esmWeekends = false;
 
-  @Persistent
   private Boolean userEditable = true;
-  
+
+  public SignalSchedule() { }
+
   /**
    * @param id
    * @param scheduleType
@@ -97,14 +102,11 @@ public class SignalSchedule {
    * @param dayOfMonth
    * @param esmWeekends TODO
    */
-  public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency, 
-      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times, 
-      Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth, 
+  public SignalSchedule(Integer scheduleType, Integer esmFrequency,
+      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times,
+      Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth,
       Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable) {
     super();
-    if (id != null) {
-      this.id = KeyFactory.createKey(ownerKey, SignalSchedule.class.getSimpleName(), id);
-    }
     this.scheduleType = scheduleType;
     this.esmFrequency = esmFrequency;
     this.esmPeriodInDays = esmPeriodInDays;
@@ -118,14 +120,6 @@ public class SignalSchedule {
     this.byDayOfMonth = byDayOfMonth;
     this.dayOfMonth = dayOfMonth;
     this.userEditable = userEditable;
-  }
-
-  public Key getId() {
-    return id;
-  }
-
-  public void setId(Key id) {
-    this.id = id;
   }
 
   public Integer getScheduleType() {
@@ -216,6 +210,10 @@ public class SignalSchedule {
     this.dayOfMonth = dayOfMonth;
   }
 
+  public Boolean getByDayOfWeek() {
+    return !byDayOfMonth;
+  }
+
   public Boolean getEsmWeekends() {
     return esmWeekends;
   }
@@ -223,15 +221,12 @@ public class SignalSchedule {
   public void setEsmWeekends(Boolean esmWeekends) {
     this.esmWeekends = esmWeekends;
   }
-  
+
   public Boolean getUserEditable() {
     return userEditable;
   }
-  
+
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
-
-  
-  
 }

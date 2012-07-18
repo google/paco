@@ -34,9 +34,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.shared.Experiment;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -271,15 +271,11 @@ public class EventRetriever {
     }
     return ids;
   }
-  
-  @SuppressWarnings("unchecked")
+
   private List<Experiment> getExperimentsForAdmin(String user, PersistenceManager pm) {
-    Query q = pm.newQuery(Experiment.class);
-    q.setFilter("admins == whoParam");
-    q.declareParameters("String whoParam");
-    return (List<Experiment>) q.execute(user);      
+    return DAO.getInstance().getObserversExperiments(user);
   }
-  
+
   private void doOneTimeCleanup() {
   }
 

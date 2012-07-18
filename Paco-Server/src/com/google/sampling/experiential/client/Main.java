@@ -41,10 +41,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Feedback;
+import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -67,8 +67,8 @@ public class Main implements EntryPoint, ExperimentListener {
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
-  private List<ExperimentDAO> joinedExperiments;
-  private List<ExperimentDAO> adminedExperiments;
+  private List<Experiment> joinedExperiments;
+  private List<Experiment> adminedExperiments;
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
@@ -319,7 +319,7 @@ public class Main implements EntryPoint, ExperimentListener {
     setContentTitle("Create New Experiment");
     contentPanel.clear();
     experimentPanel.setVisible(false);
-    ExperimentDAO experiment = new ExperimentDAO();
+    Experiment experiment = new Experiment();
     showExperimentDetailPanel(experiment, true);
   }
 
@@ -363,16 +363,16 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   private List<ExperimentRow> createExperimentRows(
-      boolean joined, List<ExperimentDAO> experiments) {
+      boolean joined, List<Experiment> experiments) {
     List<ExperimentRow> exRows = new ArrayList<ExperimentRow>();
-    for (ExperimentDAO experiment : experiments) {
+    for (Experiment experiment : experiments) {
       exRows.add(new ExperimentRow(resources, experiment, this, joined));
     }
     return exRows;
   }
 
   private void getExperiments(final boolean joined, final boolean experimentsDirty) {
-    AsyncCallback<List<ExperimentDAO>> callback = new AsyncCallback<List<ExperimentDAO>>() {
+    AsyncCallback<List<Experiment>> callback = new AsyncCallback<List<Experiment>>() {
       @Override
       public void onFailure(Throwable caught) {
         Window.alert("Could not retrieve your experiments!!");
@@ -380,7 +380,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<ExperimentDAO> result) {
+      public void onSuccess(List<Experiment> result) {
         if (joined) {
           if (joinedExperiments == null) {
             joinedExperiments = result;
@@ -402,15 +402,15 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private List<ExperimentDAO> retrieveAdminedExperiments() {
-    List<ExperimentDAO> experiments = new ArrayList<ExperimentDAO>();
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
+  private List<Experiment> retrieveAdminedExperiments() {
+    List<Experiment> experiments = new ArrayList<Experiment>();
+    experiments.add(new Experiment());
+    experiments.add(new Experiment());
+    experiments.add(new Experiment());
     return experiments;
   }
 
-  public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined) {
+  public void eventFired(int experimentCode, Experiment experiment, boolean joined) {
     switch (experimentCode) {
       case ExperimentListener.STATS_CODE:
         contentPanel.clear();
@@ -474,19 +474,12 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private void copyExperiment(ExperimentDAO experiment) {
+  private void copyExperiment(Experiment experiment) {
     experiment.setId(null);
-    experiment.getSchedule().setId(null);
-    for(InputDAO input : experiment.getInputs()) {
-      input.setId(null);
-    }
-    for (FeedbackDAO feedback : experiment.getFeedback()) {
-      feedback.setId(null);
-    }
   }
 
 
-  private void saveToServer(ExperimentDAO experiment) {
+  private void saveToServer(Experiment experiment) {
     statusLabel.setVisible(true);
 
     mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
@@ -508,7 +501,7 @@ public class Main implements EntryPoint, ExperimentListener {
     });
   }
 
-  private void softDeleteExperiment(ExperimentDAO experiment) {
+  private void softDeleteExperiment(Experiment experiment) {
     statusLabel.setVisible(true);
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
@@ -536,7 +529,7 @@ public class Main implements EntryPoint, ExperimentListener {
    * @param experiment
    * @param joined
    */
-  private void deleteExperiment(ExperimentDAO experiment, boolean joined) {
+  private void deleteExperiment(Experiment experiment, boolean joined) {
     if (joined) {
       deleteData(experiment);
     } else {
@@ -547,7 +540,7 @@ public class Main implements EntryPoint, ExperimentListener {
   /**
    * @param experiment
    */
-  private void deleteExperimentDefinition(ExperimentDAO experiment) {
+  private void deleteExperimentDefinition(Experiment experiment) {
     statusLabel.setVisible(true);
     mapService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
 
@@ -570,10 +563,10 @@ public class Main implements EntryPoint, ExperimentListener {
   /**
    * @param experiment
    */
-  private void deleteData(ExperimentDAO experiment) {
+  private void deleteData(Experiment experiment) {
   }
 
-  private void showChart(final ExperimentDAO experiment, boolean joined) {
+  private void showChart(final Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
     AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
 
@@ -611,14 +604,14 @@ public class Main implements EntryPoint, ExperimentListener {
 
   }
 
-  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {
+  private void showExperimentDetailPanel(Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
     ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
     contentPanel.add(ep);
     statusLabel.setVisible(false);
   }
 
-  private void showStatsPanel(final ExperimentDAO experiment, final boolean joined) {
+  private void showStatsPanel(final Experiment experiment, final boolean joined) {
     statusLabel.setVisible(true);
     AsyncCallback<ExperimentStatsDAO> callback = new AsyncCallback<ExperimentStatsDAO>() {
 

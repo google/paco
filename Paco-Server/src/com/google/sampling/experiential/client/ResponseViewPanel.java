@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Input;
 
 
 /**
@@ -38,29 +38,29 @@ import com.google.sampling.experiential.shared.InputDAO;
 public class ResponseViewPanel extends Composite {
 
   private HorizontalPanel mainPanel;
-  private InputDAO input;
+  private Input input;
   private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
 
-  public ResponseViewPanel(InputDAO input) {
+  public ResponseViewPanel(Input input) {
     super();
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
     drawWidgetForInput(input);
   }
 
-  public void drawWidgetForInput(InputDAO input) {
+  public void drawWidgetForInput(Input input) {
     this.input = input;
     mainPanel.clear();
     String responseType = input.getResponseType();
-    if (responseType == null  || responseType.equals(InputDAO.LIKERT_SMILEYS)
-        || responseType.equals(InputDAO.OPEN_TEXT)) {
+    if (responseType == null  || responseType.equals(Input.LIKERT_SMILEYS)
+        || responseType.equals(Input.OPEN_TEXT)) {
       mainPanel.setVisible(false);
-    } else if (responseType.equals(InputDAO.LIKERT)) {
+    } else if (responseType.equals(Input.LIKERT)) {
       drawLikertStepsPanel();
       mainPanel.setVisible(true);
-    } else if (responseType.equals(InputDAO.LIST)) {
+    } else if (responseType.equals(Input.LIST)) {
       drawListPanel();
       mainPanel.setVisible(true);
     } else {
@@ -110,7 +110,7 @@ public class ResponseViewPanel extends Composite {
           String rightSideLabel = rightSideText.getValue();
           input.setRightSideLabel(rightSideLabel);
         } catch (NumberFormatException e) {
-          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+          input.setLikertSteps(Input.DEFAULT_LIKERT_STEPS);
         }
       }
     };
@@ -121,7 +121,7 @@ public class ResponseViewPanel extends Composite {
 
   private void setLikertValueInWidget() {
     if (input.getLikertSteps() == null) {
-      stepsText.setValue(Integer.toString(InputDAO.DEFAULT_LIKERT_STEPS));
+      stepsText.setValue(Integer.toString(Input.DEFAULT_LIKERT_STEPS));
     } else {
       stepsText.setValue(Integer.toString(input.getLikertSteps()));
     }
@@ -133,7 +133,7 @@ public class ResponseViewPanel extends Composite {
     }
   }
 
-  public InputDAO getInput() {
+  public Input getInput() {
     return input;
   }
 }

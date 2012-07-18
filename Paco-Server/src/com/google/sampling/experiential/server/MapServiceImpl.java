@@ -27,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
@@ -45,12 +40,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -180,15 +174,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   }
 
   @Override
-  public void saveExperiment(ExperimentDAO experimentDAO) {
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Experiment experiment = null;
-    if (experimentDAO.getId() != null) {
-      experiment = retrieveExperimentForDAO(experimentDAO, pm);
-    } else {
-      experiment = new Experiment();
-    }
-    
+  public void saveExperiment(Experiment experiment) {
     if (experiment.getId() != null) {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail();
@@ -198,91 +184,30 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         // experiment;
         return;
       }
-      JDOHelper.makeDirty(experiment, "inputs");
-      JDOHelper.makeDirty(experiment, "feedback");
-      JDOHelper.makeDirty(experiment, "schedule");
     }
-    DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
-    Transaction tx = null;
-    try {
-      tx = pm.currentTransaction();
-      tx.begin();    
-      pm.makePersistent(experiment);
-      tx.commit();
+
+    DAO.getInstance().createExperiment(experiment);
+  }
+
+  public Boolean deleteExperiment(Experiment experiment) {
+    System.out.println("Delete called for " + experiment.getId());
+
+    if (experiment.getId() !=  null) {
+      DAO.getInstance().deleteExperiment(experiment);
       ExperimentCacheHelper.getInstance().clearCache();
-    } finally {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      pm.close();
+      return Boolean.TRUE;
+    } else {
+      return Boolean.FALSE;
     }
   }
 
-  private Experiment retrieveExperimentForDAO(ExperimentDAO experimentDAO, PersistenceManager pm) {
-    Experiment experiment;
-    ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
-    jdoQuery.addFilters("id == idParam");
-    jdoQuery.declareParameters("Long idParam");
-    jdoQuery.addParameterObjects(experimentDAO.getId());
-    @SuppressWarnings("unchecked")
-    List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(
-        jdoQuery.getParameters());
-    experiment = experiments.get(0);
-    return experiment;
-  }
-
-  public Boolean deleteExperiment(ExperimentDAO experimentDAO) {
-    System.out.println("Delete called for " + experimentDAO.getId());
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-    
-      if (experimentDAO.getId() != null) {
-        Experiment experiment = retrieveExperimentForDAO(experimentDAO, pm);
-        pm.deletePersistent(experiment);
-        ExperimentCacheHelper.getInstance().clearCache();
-        return Boolean.TRUE;
-      } else {
-        return Boolean.FALSE;
-      }
-    } finally {
-      if (pm != null) {
-        pm.close();
-      }
-    }
-  }
-
-  public List<ExperimentDAO> getExperimentsForUser() {
+  public List<Experiment> getExperimentsForUser() {
     return getExperimentsForUserWithQuery();    
   }
 
-  private List<ExperimentDAO> getExperimentsForUserWithQuery() {
+  private List<Experiment> getExperimentsForUserWithQuery() {
     User user = getWhoFromLogin();
-    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      List<Experiment> experiments = getExperimentsForAdmin(user, pm);
-      if (experiments != null) {      
-        for (Experiment experiment : experiments) {
-          experimentDAOs.add(DAOConverter.createDAO(experiment));
-        }
-      }
-    } finally {
-      if (pm != null) {
-        pm.close();
-      }
-    }
-    return experimentDAOs;
-  }
-
-  @SuppressWarnings("unchecked")
-  private List<Experiment> getExperimentsForAdmin(User user, PersistenceManager pm) {
-    Query q = pm.newQuery(Experiment.class);
-    q.setFilter("admins == whoParam");
-    q.declareParameters("String whoParam");
-    return (List<Experiment>) q.execute(user.getEmail());         
+    return DAO.getInstance().getObserversExperiments(user.getEmail());
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -404,7 +329,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return uniqueEvents.toArray(arr);
   }
   
-  public List<ExperimentDAO> getUsersJoinedExperiments() {
+  public List<Experiment> getUsersJoinedExperiments() {
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
           getWhoFromLogin().getEmail());
       List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(), 
@@ -416,47 +341,12 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         }
         experimentIds.add(Long.parseLong(event.getExperimentId()));
       }
-      List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-      if (experimentIds.size() == 0) {
-        return experimentDAOs;
-      }
-      
       ArrayList<Long> idList = Lists.newArrayList(experimentIds);
       System.out.println("Found " + experimentIds.size() +" unique experiments where joined.");
       System.out.println(Joiner.on(",").join(idList));
-      
-      
-      PersistenceManager pm = null;
-      try {
-        pm = PMF.get().getPersistenceManager();
-        Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
 
-        
-        List<Experiment> experiments = (List<Experiment>) q.execute(idList); 
-        System.out.println("Got back " + experiments.size() + " experiments");
-        if (experiments != null) {      
-          for (Experiment experiment : experiments) {
-            experimentDAOs.add(DAOConverter.createDAO(experiment));
-            idList.remove(experiment.getId().longValue());
-          }
-        }
-        for (Long id : idList) {
-          experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "", 
-              null, null, null, null, null, null, null, null, null, null, null, null));
-        }
-      } finally {
-        if (pm != null) {
-          pm.close();
-        }
-      }
-      return experimentDAOs;
-  }     
-  
-  private List<String> getIds(Set<String> experimentsForAdmin) {
-    List<String> ids = Lists.newArrayList();
-    for(String experimentId : experimentsForAdmin) {
-      ids.add("'" + experimentId +"'");
-    }
-    return ids;
+      List<Experiment> experiments = DAO.getInstance().getExperiments(idList);
+      System.out.println("Got back " + experiments.size() + " experiments");
+      return experiments;
   }
 }

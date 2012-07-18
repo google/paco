@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 /**
  * Panel that allows configuration of a weekly experiment schedule.
@@ -31,9 +31,9 @@ import com.google.sampling.experiential.shared.SignalScheduleDAO;
  */
 public class WeeklyPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private SignalSchedule schedule;
 
-  public WeeklyPanel(SignalScheduleDAO schedule) {
+  public WeeklyPanel(SignalSchedule schedule) {
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);

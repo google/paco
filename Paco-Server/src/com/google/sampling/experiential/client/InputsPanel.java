@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Input;
 
 /**
  *
@@ -51,7 +51,7 @@ import com.google.sampling.experiential.shared.InputDAO;
 public class InputsPanel extends Composite {
 
   private InputsListPanel parent;
-  private InputDAO input;
+  private Input input;
   private VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
@@ -60,7 +60,7 @@ public class InputsPanel extends Composite {
   private CheckBox conditionalBox;
   private VerticalPanel inputPromptTextPanel;
 
-  public InputsPanel(InputsListPanel parent, InputDAO input) {
+  public InputsPanel(InputsListPanel parent, Input input) {
     this.input = input;
     this.parent = parent;
     mainPanel = new VerticalPanel();
@@ -104,7 +104,7 @@ public class InputsPanel extends Composite {
     parent.deleteInput(this);
   }
 
-  public InputDAO getInput() {
+  public Input getInput() {
     return input;
   }
 
@@ -205,19 +205,19 @@ public class InputsPanel extends Composite {
     rp.add(responseTypeLabel);
 
     final ListBox responseType = new ListBox();
-    responseType.addItem(InputDAO.LIKERT_SMILEYS);    
-    responseType.addItem(InputDAO.LIKERT);
-    responseType.addItem(InputDAO.OPEN_TEXT);
-    responseType.addItem(InputDAO.LIST);
-    responseType.addItem(InputDAO.NUMBER);
-    responseType.addItem(InputDAO.LOCATION);
-    responseType.addItem(InputDAO.PHOTO);
-    // responseType.addItem(InputDAO.SOUND);
-    // responseType.addItem(InputDAO.ACTIVITY);
+    responseType.addItem(Input.LIKERT_SMILEYS);
+    responseType.addItem(Input.LIKERT);
+    responseType.addItem(Input.OPEN_TEXT);
+    responseType.addItem(Input.LIST);
+    responseType.addItem(Input.NUMBER);
+    responseType.addItem(Input.LOCATION);
+    responseType.addItem(Input.PHOTO);
+    // responseType.addItem(Input.SOUND);
+    // responseType.addItem(Input.ACTIVITY);
     responseType.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
-    for (int i = 0; i < InputDAO.RESPONSE_TYPES.length; i++) {
-      if (InputDAO.RESPONSE_TYPES[i].equals(input.getResponseType())) {
+    for (int i = 0; i < Input.RESPONSE_TYPES.length; i++) {
+      if (Input.RESPONSE_TYPES[i].equals(input.getResponseType())) {
         responseTypeSelectedIndex = i;
         break;
       }
@@ -284,10 +284,10 @@ public class InputsPanel extends Composite {
   private void createScheduledDateColumn(final HorizontalPanel upperLine) {
     Date scheduledDate;
     if (input.getScheduleDate() != null) {
-      scheduledDate = new Date(input.getScheduleDate());
+      scheduledDate = input.getScheduleDate();
     } else {
       scheduledDate = new Date();
-      input.setScheduleDate(scheduledDate.getTime());
+      input.setScheduleDate(scheduledDate);
     }
 
     VerticalPanel kp = new VerticalPanel();
@@ -308,7 +308,7 @@ public class InputsPanel extends Composite {
 
       @Override
       public void onValueChange(ValueChangeEvent<Date> arg0) {
-        input.setScheduleDate(arg0.getValue().getTime());
+        input.setScheduleDate(arg0.getValue());
       }
 
     });

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
-import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.shared.Experiment;
 
 public class ExperimentRetriever {
 

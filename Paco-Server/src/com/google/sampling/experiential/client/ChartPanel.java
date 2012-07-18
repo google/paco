@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -39,7 +39,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
-  private InputDAO input;
+  private Input input;
   private List<EventDAO> data;
 
 //  private MapWidget map;
@@ -47,7 +47,7 @@ public class ChartPanel extends Composite {
   private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
 //  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(InputDAO input, List<EventDAO> eventList) {
+  public ChartPanel(Input input, List<EventDAO> eventList) {
     this.input = input;
     this.data = eventList;
 
@@ -62,20 +62,20 @@ public class ChartPanel extends Composite {
 
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
-    if (input.getResponseType().equals(InputDAO.OPEN_TEXT) &&
+    if (input.getResponseType().equals(Input.OPEN_TEXT) &&
         dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
       verticalPanel.add(cm.createWordCloud("", eventList, input.getName()));
-    } else if (input.getResponseType().equals(InputDAO.PHOTO)) {
+    } else if (input.getResponseType().equals(Input.PHOTO)) {
       verticalPanel.add(createPhotoSlider());
-    } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
+    } else if (input.getResponseType().equals(Input.LOCATION)) {
       verticalPanel.add(renderEventsOnMap());
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
+    } else if (input.getResponseType().equals(Input.LIST)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-          input.getListChoices(), input.getMultiselect()));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
+          input.getListChoices().toArray(new String[input.getListChoices().size()]), input.isMultiselect()));
+    } else if (input.getResponseType().equals(Input.LIKERT)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           getLikertCategories(), false));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
+    } else if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
       verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
       getLikertSmileyCategories(), false));
     } else {

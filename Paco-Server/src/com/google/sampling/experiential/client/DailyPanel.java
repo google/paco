@@ -19,7 +19,7 @@ package com.google.sampling.experiential.client;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 /**
  * Panel for configuring daily scheduling for an experiment.
@@ -29,9 +29,9 @@ import com.google.sampling.experiential.shared.SignalScheduleDAO;
  */
 public class DailyPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private SignalSchedule schedule;
 
-  public DailyPanel(SignalScheduleDAO schedule) {
+  public DailyPanel(SignalSchedule schedule) {
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -40,7 +40,7 @@ public class DailyPanel extends Composite {
     initWidget(verticalPanel);
 
     if (schedule.getScheduleType() == null
-        || schedule.getScheduleType() == SignalScheduleDAO.DAILY) {
+        || schedule.getScheduleType() == SignalSchedule.DAILY) {
       RepeatEveryNPanel repeatWeeksPanel = new RepeatEveryNPanel("Days", schedule);
       verticalPanel.add(repeatWeeksPanel);
       repeatWeeksPanel.setWidth("239px");

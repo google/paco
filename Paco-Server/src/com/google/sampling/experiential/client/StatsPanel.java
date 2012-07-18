@@ -34,7 +34,7 @@ import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 
 /**
@@ -47,11 +47,11 @@ public class StatsPanel extends Composite {
 
   private ExperimentStatsDAO experimentStats;
   private DateTimeFormat df = DateTimeFormat.getFormat("MM/dd/yyyy");
-  private ExperimentDAO experiment;
+  private Experiment experiment;
   private boolean isAdmin;
 
 
-  public StatsPanel(ExperimentStatsDAO stats, ExperimentDAO experiment, boolean joinView) {
+  public StatsPanel(ExperimentStatsDAO stats, Experiment experiment, boolean joinView) {
     this.experimentStats = stats;
     this.experiment = experiment;
     this.isAdmin = !joinView; // isAdmin(experiment, loggedInUser);
@@ -132,15 +132,13 @@ public class StatsPanel extends Composite {
    * @param experiment2
    * @return
    */
-  private boolean isAdmin(ExperimentDAO experiment2, String loggedInUser) {
-    String[] admins = experiment.getAdmins();
+  private boolean isAdmin(Experiment experiment2, String loggedInUser) {
+    List<String> admins = experiment.getAdmins();
     if (admins == null) {
       return false;
     }
-    for (int i = 0; i < admins.length; i++) {
-      if (admins[i].equals(loggedInUser)) return true;
-    }
-    return false;
+
+    return admins.contains(loggedInUser);
   }
 
   private void showJoinedStats(Grid grid) {

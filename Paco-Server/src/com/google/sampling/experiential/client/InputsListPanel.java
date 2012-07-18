@@ -19,12 +19,15 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.Input;
 
 /**
  * A composite container for a bunch of InputPanel views.
@@ -34,27 +37,27 @@ import com.google.sampling.experiential.shared.InputDAO;
  */
 public class InputsListPanel extends Composite {
   private VerticalPanel mainPanel;
-  private ExperimentDAO experiment;
+  private Experiment experiment;
   private LinkedList<InputsPanel> inputsPanelsList;
 
-  public InputsListPanel(ExperimentDAO experiment) {
+  public InputsListPanel(Experiment experiment) {
     this.experiment = experiment;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
 
     inputsPanelsList = new LinkedList<InputsPanel>();
-    InputDAO[] inputs = experiment.getInputs();
-    if (inputs == null || inputs.length == 0) {
-      InputDAO emptyInputDAO = createEmptyInput();
-      InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO);
-      inputs = new InputDAO[] {emptyInputDAO};
+    List<Input> inputs = experiment.getInputs();
+    if (inputs == null || inputs.size() == 0) {
+      Input emptyInput = createEmptyInput();
+      InputsPanel inputsPanel = new InputsPanel(this, emptyInput);
+      inputs = Lists.newArrayList(emptyInput);
       mainPanel.add(inputsPanel);
       inputsPanelsList.add(inputsPanel);
       experiment.setInputs(inputs);
     } else {
-      for (int i = 0; i < inputs.length; i++) {
-        InputsPanel inputsPanel = new InputsPanel(this, inputs[i]);
+      for (int i = 0; i < inputs.size(); i++) {
+        InputsPanel inputsPanel = new InputsPanel(this, inputs.get(i));
         mainPanel.add(inputsPanel);
         inputsPanelsList.add(inputsPanel);
       }
@@ -85,15 +88,15 @@ public class InputsListPanel extends Composite {
   /**
    * @return
    */
-  private InputDAO createEmptyInput() {
-    return new InputDAO(null, null, null, "");
+  private Input createEmptyInput() {
+    return new Input(null, null, "");
   }
 
   // TODO this is not very efficient.
   private void updateExperimentInputs() {
-    InputDAO[] newInputs = new InputDAO[inputsPanelsList.size()];
+    List<Input> newInputs = new ArrayList<Input>(inputsPanelsList.size());
     for (int i = 0; i < inputsPanelsList.size(); i++) {
-      newInputs[i] = inputsPanelsList.get(i).getInput();
+      newInputs.add(inputsPanelsList.get(i).getInput());
     }
     experiment.setInputs(newInputs);
   }

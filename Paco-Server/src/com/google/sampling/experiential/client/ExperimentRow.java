@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 
 /**
  * 
@@ -40,12 +40,12 @@ import com.google.sampling.experiential.shared.ExperimentDAO;
 public class ExperimentRow extends Composite {
 
   private Images images;
-  private ExperimentDAO experiment;
+  private Experiment experiment;
   private ArrayList<ExperimentListener> listeners;
   private boolean joined;
 
   public ExperimentRow(
-      Images resources, ExperimentDAO experiment, ExperimentListener listener, boolean joined) {
+      Images resources, Experiment experiment, ExperimentListener listener, boolean joined) {
     this.images = resources;
     this.experiment = experiment;
     this.joined = joined;

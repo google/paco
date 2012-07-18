@@ -16,7 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 
 /**
  * A narrow interface for the actions available to do on 
@@ -38,5 +38,5 @@ public interface ExperimentListener {
   public static final int COPY_EXPERIMENT_CODE = 10;
   public static final int ANON_MAPPING_CODE = 11;
 
-  void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
+  void eventFired(int experimentCode, Experiment experiment, boolean joined);
 }

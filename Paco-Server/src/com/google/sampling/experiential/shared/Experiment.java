@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,58 +16,85 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.model;
+package com.google.sampling.experiential.shared;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.jdo.annotations.Element;
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Embedded;
+import javax.persistence.Id;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
 
-import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
-
 
 /**
- * 
+ *
  * Definition of an Experiment (a tracker). This holds together a bunch of objects:
- * * A list of Input objects which are the data that will be gathered. 
- *    Usually it is questions, but it could be sensors as well (photos, audio, gps, accelerometer, 
+ * * A list of Input objects which are the data that will be gathered.
+ *    Usually it is questions, but it could be sensors as well (photos, audio, gps, accelerometer,
  *    compass, etc..)
  * * A list of Feedback objects that presents visualizations or interventions to the user.
  * * A SignalSchedule object which contains the frequency to gather data.
- * 
+ *
  * @author Bob Evans
  *
  */
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
-public class Experiment {
+public class Experiment implements Serializable {
+
+  @Id
+  private Long id = null;
+
+  private String title = "";
+
+  private String description = "";
+
+  @Deprecated
+  @JsonIgnore
+  private String informedConsentForm = "";
+
+  private String creator = "";
+
+  @Embedded
+  private SignalSchedule schedule = new SignalSchedule();
+
+  private Boolean fixedDuration = false;
+
+  private Boolean questionsChange = false;
+
+  private Date startDate = new Date();
+
+  private Date endDate = new Date();
+
+  private String hash = "";
+
+  private Date joinDate = new Date();
+
+  @Embedded
+  private List<Input> inputs = Lists.newArrayList();
+
+  @Embedded
+  private List<Feedback> feedbacks = Lists.newArrayList();
+
+  private Date modifyDate = new Date();
+
+  Boolean deleted = false;
 
   /**
-   * @param id 
-   * @param title2
-   * @param description2
-   * @param creator2
-   * @param informedConsentForm2
-   * @param questionsCanChange
-   * @param modifyDate 
-   * @param published TODO
-   * @param admins TODO
+   * Is this experiment available to anyone
    */
-  public Experiment(Long id, String title, String description, User creator,
+  private Boolean published = false;
+
+  private List<String> admins = Lists.newArrayList();;
+
+  private List<String> publishedUsers = Lists.newArrayList();
+
+  @JsonProperty("informedConsentForm")
+  private String informedConsentFormText;
+
+  public Experiment(Long id, String title, String description, String creator,
       String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
       Date modifyDate, Boolean published, List<String> admins) {
     this.id = id;
@@ -78,90 +105,16 @@ public class Experiment {
     this.schedule = schedule;
     this.questionsChange = questionsCanChange;
     this.modifyDate = modifyDate;
-    this.inputs = Lists.newArrayList();
-    feedback = Lists.newArrayList();
     this.published = published;
     this.admins = admins;
     if (this.admins == null) {
-      this.admins = Lists.newArrayList(creator.getEmail());
-    } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
-      admins.add(0, creator.getEmail()); 
+      this.admins = Lists.newArrayList(creator);
+    } else if (admins.size() == 0 || !admins.contains(creator)) {
+      admins.add(0, creator);
     }
   }
 
-  /**
-   * 
-   */
-  public Experiment() {
-  }
-
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Long id;
-
-  @Persistent
-  private String title;
-  
-  @Persistent
-  private String description;
-  
-  @Persistent
-  @Deprecated
-  @JsonIgnore
-  private String informedConsentForm;
-  
-  @Persistent
-  private User creator;
-  
-  @Persistent(defaultFetchGroup="true")
-  @Element(dependent = "true")
-  private SignalSchedule schedule;
-  
-  @Persistent
-  private Boolean fixedDuration;
-  
-  @Persistent
-  private Boolean questionsChange;
-  
-  @Persistent
-  private Date startDate;
-
-  @Persistent
-  private Date endDate;
-  
-  @Persistent
-  private String hash;
-  
-  @Persistent
-  private Date joinDate;
-
-  @Persistent(mappedBy = "experiment")
-  @Element(dependent = "true")
-  private List<Input> inputs;
-
-  @Persistent(mappedBy = "experiment")
-  @Element(dependent = "true")
-  private List<Feedback> feedback;
-
-  @Persistent
-  private Date modifyDate;
-  
-  @Persistent Boolean deleted = false;
-  /**
-   * Is this experiment available to anyone
-   */
-  @Persistent
-  private Boolean published;
-
-  @Persistent
-  private List<String> admins;
-
-  @Persistent
-  private ArrayList<String> publishedUsers;
-
-  @Persistent
-  @JsonProperty("informedConsentForm")
-  private Text informedConsentFormText;
+  public Experiment() { }
 
   public Long getId() {
     return id;
@@ -197,11 +150,11 @@ public class Experiment {
     this.informedConsentForm = informedConsentForm;
   }
 
-  public User getCreator() {
+  public String getCreator() {
     return creator;
   }
 
-  public void setCreator(User creator) {
+  public void setCreator(String creator) {
     this.creator = creator;
   }
 
@@ -262,7 +215,7 @@ public class Experiment {
   }
 
   public List<Input> getInputs() {
-    return inputs;
+    return this.inputs;
   }
 
   public void setInputs(List<Input> inputs) {
@@ -270,11 +223,11 @@ public class Experiment {
   }
 
   public List<Feedback> getFeedback() {
-    return feedback;
+    return feedbacks;
   }
 
-  public void setFeedback(List<Feedback> feedback) {
-    this.feedback = feedback;
+  public void setFeedback(List<Feedback> feedbacks) {
+    this.feedbacks = feedbacks;
   }
 
   public Date getModifyDate() {
@@ -285,9 +238,6 @@ public class Experiment {
     this.modifyDate = modifyDate;
   }
 
-  /**
-   * @param published
-   */
   public void setPublished(Boolean published) {
     this.published = published;
   }
@@ -304,14 +254,11 @@ public class Experiment {
     this.admins = admins;
   }
 
-  /**
-   * @param newArrayList
-   */
-  public void setPublishedUsers(ArrayList<String> newArrayList) {
-    this.publishedUsers = newArrayList;
+  public void setPublishedUsers(List<String> publishedUsers) {
+    this.publishedUsers = publishedUsers;
   }
 
-  public ArrayList<String> getPublishedUsers() {
+  public List<String> getPublishedUsers() {
     return publishedUsers;
   }
 
@@ -323,41 +270,23 @@ public class Experiment {
     this.deleted = delete;
   }
 
-  /**
-   * @param inputId
-   * @return
-   */
-  public Input getInputWithId(long inputId) {
-    for (Input input : getInputs()) {
-      if (input.getId().getId() == inputId) {
-        return input;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @return
-   */
   @JsonProperty("informedConsentForm")
   public String getInformedConsentFormText() {
     if (informedConsentFormText == null && informedConsentForm != null) {
-      informedConsentFormText = new Text(informedConsentForm);
+      informedConsentFormText = new String(informedConsentForm);
       informedConsentForm = null;
-    } 
+    }
+
     if (informedConsentFormText != null) {
-      return informedConsentFormText.getValue();
+      return informedConsentFormText;
     } else {
       return null;
     }
   }
 
-  /**
-   * @param informedConsentForm2
-   */
   @JsonProperty("informedConsentForm")
   public void setInformedConsentFormText(String informedConsentForm2) {
-    this.informedConsentFormText = new Text(informedConsentForm2);
+    this.informedConsentFormText = informedConsentForm2;
   }
 
   public Input getInputWithName(String name) {
@@ -371,22 +300,24 @@ public class Experiment {
     }
     return null;
   }
-  
+
+  /*
   @JsonIgnore
   public boolean isOver(DateTime now) {
     return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
   }
-  
+
   private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
-      List<Long> times = schedule.getTimes();
+    if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) {
+      List<Long> times = this.getSchedule().getTimes();
       // get the latest time
       Collections.sort(times);
-      
+
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
       return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
-    } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
+    } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ /*{
       return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
     }
   }
+  */
 }

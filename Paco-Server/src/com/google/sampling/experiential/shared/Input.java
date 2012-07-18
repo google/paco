@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,127 +16,101 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.model;
+package com.google.sampling.experiential.shared;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+import javax.persistence.Id;
 
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+import com.google.common.collect.Lists;
+
+import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.Serialized;
 
 
 /**
  * Represents one data value captured in an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
-@PersistenceCapable
-public class Input {
+public class Input implements Serializable {
+  public static final String QUESTION = "question";
+  public static final String LIKERT = "likert";
+  public static final String LIKERT_SMILEYS = "likert_smileys";
+  public static final String OPEN_TEXT = "open text";
+  public static final String LIST = "list";
+  public static final String NUMBER = "number";
+  public static final String LOCATION = "location";
+  public static final String PHOTO = "photo";
+  public static final String SOUND = "sound";
+  public static final String ACTIVITY = "activity";
 
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Key id;
+  public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
+    LOCATION, PHOTO, SOUND, ACTIVITY};
 
-  @Persistent
-  private Experiment experiment;
+  public static final Integer DEFAULT_LIKERT_STEPS = 5;
 
   /**
    * Type of input, (e.g., text question, or sensor input)
    */
-  @Persistent
-  private String questionType;
-  
-  @Persistent
-  private String text;
 
-  @Persistent
-  private Boolean mandatory;
-  
-  /**
-   * for changing questions apps like qotd, the day for which this question is intended, 
-   */
-  @Persistent
-  private Date scheduleDate;
+  private String questionType = Input.QUESTION;
+
+  private String text = "";
+
+
+  private Boolean mandatory = true;
 
   /**
-   * reference to another input ID for ordering input sequence,
+   * for changing questions apps like qotd, the day for which this question is intended,
    */
-  @Persistent
-  private Long nextInputId;
+
+  private Date scheduleDate = new Date();
 
   /**
    * Type of response (e.g. Likert, Open Text, List, etc..)
    */
-  @Persistent
-  private String responseType;
+  private String responseType = Input.LIKERT;
 
   /**
    * For responseType Likert, the number of steps
    */
-  @Persistent
-  private Integer likertSteps;
+  private Integer likertSteps = Input.DEFAULT_LIKERT_STEPS;
 
   /**
    * Variable name for easy searching in responses to this input.
    */
-  @Persistent
-  private String name;
+  private String name = "";
 
-  @Persistent
-  private Boolean conditional;
+  private Boolean conditional = false;
 
-  @Persistent
-  private String conditionExpression;
+  private String conditionExpression = "";
 
-  @Persistent
-  private String leftSideLabel;
-  
-  @Persistent
-  private String rightSideLabel;
-  
-  @Persistent 
-  private List<String> listChoices;
+  private String leftSideLabel = "";
 
-  @Persistent
+  private String rightSideLabel = "";
+
+  @Serialized
+  private List<String> listChoices = Lists.newArrayList();
+
   private Boolean multiselect;
-  
-  /**
-   * @param parse
-   * @param question
-   */
+
   public Input(Date parse,  String name, String question) {
     this.scheduleDate = parse;
     this.text = question;
-    this.mandatory = true;    
+    this.mandatory = true;
     this.name = name;
   }
 
-  /**
-   * @param name TODO
-   * @param questionType 
-   * @param conditional TODO
-   * @param leftSideLabel TODO
-   * @param rightSideLabel TODO
-   * @param listChoices TODO
-   * @param conditionExpression TODO
-   * @param id2
-   * @param text2
-   * @param scheduleDate2
-   */
-  public Input(Key experimentKey, Long id, String name, String text, Date scheduleDate, 
-      String questionType, String responseType, Integer likertSteps, Boolean mandatory, 
-      Boolean conditional, String conditionalExpression, String leftSideLabel, 
+  public Input(String name, String text, Date scheduleDate,
+      String questionType, String responseType, Integer likertSteps, Boolean mandatory,
+      Boolean conditional, String conditionalExpression, String leftSideLabel,
       String rightSideLabel, List<String> listChoices, Boolean multiselect) {
     this(scheduleDate, name, text);
-    if (id != null) {
-      this.id = KeyFactory.createKey(experimentKey, Input.class.getSimpleName(), id);
-    }
     this.questionType = questionType;
     this.responseType = responseType;
     this.likertSteps = likertSteps;
@@ -149,25 +123,7 @@ public class Input {
     this.multiselect = multiselect;
   }
 
-  public Input() {
-    
-  }
-  
-  public Key getId() {
-    return id;
-  }
-
-  public void setId(Key id) {
-    this.id = id;
-  }
-
-  public Experiment getExperiment() {
-    return experiment;
-  }
-
-  public void setExperiment(Experiment experiment) {
-    this.experiment = experiment;
-  }
+  public Input() { }
 
   public String getQuestionType() {
     return questionType;
@@ -201,27 +157,14 @@ public class Input {
     this.scheduleDate = scheduleDate;
   }
 
-  public Long getNextInputId() {
-    return nextInputId;
-  }
-
-  public void setNextInputId(Long nextInputId) {
-    this.nextInputId = nextInputId;
-  }
-
-  /**
-   * @return
-   */
   public String getResponseType() {
     return responseType;
   }
 
-  
   public void setResponseType(String responseType) {
     this.responseType = responseType;
   }
 
-  
   public String getConditionalExpression() {
     return conditionExpression;
   }
@@ -238,13 +181,10 @@ public class Input {
     this.likertSteps = likertSteps;
   }
 
-  /**
-   * @return name
-   */
   public String getName() {
     return name;
   }
-  
+
   public void setName(String name) {
     this.name = name;
   }
@@ -265,9 +205,6 @@ public class Input {
     this.conditionExpression = conditionExpression;
   }
 
-  /**
-   * @return
-   */
   public String getLeftSideLabel() {
     return leftSideLabel;
   }
@@ -292,10 +229,14 @@ public class Input {
     this.listChoices = listChoices;
   }
 
+  public boolean isInvisibleInput() {
+    return getResponseType().equals(Input.LOCATION) || getResponseType().equals(Input.PHOTO);
+  }
+
   public Boolean isMultiselect() {
     return multiselect;
   }
-  
+
   public void setMultiselect(Boolean multi) {
     this.multiselect = multi;
   }

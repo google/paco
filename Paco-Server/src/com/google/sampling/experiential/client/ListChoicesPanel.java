@@ -18,15 +18,19 @@
 
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Input;
+
 
 /**
  * A collection of all the ListChoicePanels to define the choices for a given
@@ -37,21 +41,21 @@ import com.google.sampling.experiential.shared.InputDAO;
  */
 public class ListChoicesPanel extends Composite {
 
-  private InputDAO input;
+  private Input input;
   private VerticalPanel mainPanel;
   private LinkedList<ListChoicePanel> choicePanelsList;
 
   /**
    * @param input
    */
-  public ListChoicesPanel(final InputDAO input) {
+  public ListChoicesPanel(final Input input) {
     this.input = input;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
     
     final CheckBox multiselect = new CheckBox("Multiple selections");
-    multiselect.setValue(input.getMultiselect());
+    multiselect.setValue(input.isMultiselect());
     multiselect.addClickHandler(new ClickHandler() {
 
       @Override
@@ -67,18 +71,18 @@ public class ListChoicesPanel extends Composite {
     mainPanel.add(lblSignalTimes);
 
     choicePanelsList = new LinkedList<ListChoicePanel>();
-    String[] choices = input.getListChoices();
-    if (choices == null || choices.length == 0) {
+    List<String> choices = input.getListChoices();
+    if (choices == null || choices.size() == 0) {
       ListChoicePanel choicePanel = new ListChoicePanel(this);
       String choice = choicePanel.getChoice();
-      choices = new String[] {choice};
+      choices = Lists.newArrayList(choice);
       mainPanel.add(choicePanel);
       choicePanelsList.add(choicePanel);
       input.setListChoices(choices);
     } else {
-      for (int i = 0; i < choices.length; i++) {
+      for (int i = 0; i < choices.size(); i++) {
         ListChoicePanel choicePanel = new ListChoicePanel(this);
-        choicePanel.setChoice(choices[i]);
+        choicePanel.setChoice(choices.get(i));
         mainPanel.add(choicePanel);
         choicePanelsList.add(choicePanel);
       }
@@ -109,16 +113,16 @@ public class ListChoicesPanel extends Composite {
 
   // TODO this is not very efficient.
   private void updateChoices() {
-    String[] newTimes = new String[choicePanelsList.size()];
+    List<String> newTimes = new ArrayList<String>(choicePanelsList.size());
     for (int i = 0; i < choicePanelsList.size(); i++) {
-      newTimes[i] = choicePanelsList.get(i).getChoice();
+      newTimes.add(choicePanelsList.get(i).getChoice());
     }
     input.setListChoices(newTimes);
   }
 
   public void updateChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
-    input.getListChoices()[index] = choicePanel.getChoice();
+    input.getListChoices().set(index, choicePanel.getChoice());
   }
 
 

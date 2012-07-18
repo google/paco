@@ -37,14 +37,14 @@ public interface MapService extends RemoteService {
       String experimentId,
       Map<String, String> kvPairs, 
       boolean shared);
-  
-  void saveExperiment(ExperimentDAO experiment);
-  
-  Boolean deleteExperiment(ExperimentDAO experiment);
-  
-  List<ExperimentDAO> getExperimentsForUser();
-  
+
+  void saveExperiment(Experiment experiment);
+
+  Boolean deleteExperiment(Experiment experiment);
+
+  List<Experiment> getExperimentsForUser();
+
   ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
-  
-  List<ExperimentDAO> getUsersJoinedExperiments();
+
+  List<Experiment> getUsersJoinedExperiments();
 }

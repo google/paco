@@ -45,14 +45,14 @@ public interface MapServiceAsync {
    * @param feedbackType 
    * @param asyncCallback
    */
-  void saveExperiment(ExperimentDAO experiment, AsyncCallback<Void> asyncCallback);
+  void saveExperiment(Experiment experiment, AsyncCallback<Void> asyncCallback);
 
-  void getExperimentsForUser(AsyncCallback<List<ExperimentDAO>> callback);
+  void getExperimentsForUser(AsyncCallback<List<Experiment>> callback);
 
   /**
    * @param experiment
    */
-  void deleteExperiment(ExperimentDAO experiment, AsyncCallback<Boolean> asyncCallback);
+  void deleteExperiment(Experiment experiment, AsyncCallback<Boolean> asyncCallback);
 
   /**
    * @param id
@@ -60,6 +60,6 @@ public interface MapServiceAsync {
    */
   void statsForExperiment(Long id, boolean justUser, AsyncCallback<ExperimentStatsDAO> callback);
   
-  void getUsersJoinedExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+  void getUsersJoinedExperiments(AsyncCallback<List<Experiment>> callback);
 
 }

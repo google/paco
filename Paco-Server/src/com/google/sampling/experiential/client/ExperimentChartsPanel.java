@@ -22,8 +22,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.Input;
 
 /**
  * Container component for holding a bunch of charts.
@@ -34,10 +34,10 @@ import com.google.sampling.experiential.shared.InputDAO;
  */
 public class ExperimentChartsPanel extends Composite {
 
-  private ExperimentDAO experiment;
+  private Experiment experiment;
   private List<EventDAO> eventList;
 
-  public ExperimentChartsPanel(ExperimentDAO experiment, List<EventDAO> eventList) {
+  public ExperimentChartsPanel(Experiment experiment, List<EventDAO> eventList) {
     this.experiment = experiment;
     this.eventList = eventList;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -52,7 +52,7 @@ public class ExperimentChartsPanel extends Composite {
     lblChartsForExperiment.setStyleName("paco-HTML-Large");
     verticalPanel.add(lblChartsForExperiment);
 
-    for (InputDAO input : experiment.getInputs()) {
+    for (Input input : experiment.getInputs()) {
       ChartPanel cp = new ChartPanel(input, eventList);
       verticalPanel.add(cp);
     }

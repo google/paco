@@ -43,8 +43,8 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
+import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 /**
@@ -58,7 +58,7 @@ import com.google.sampling.experiential.shared.LoginInfo;
  */
 public class ExperimentDefinitionPanel extends Composite {
 
-  private ExperimentDAO experiment;
+  private Experiment experiment;
   private ArrayList<ExperimentListener> listeners;
   private boolean admin;
 
@@ -79,7 +79,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
 
   public ExperimentDefinitionPanel(
-      ExperimentDAO experiment, boolean admin, LoginInfo loginInfo, ExperimentListener listener) {
+      Experiment experiment, boolean admin, LoginInfo loginInfo, ExperimentListener listener) {
     this.experiment = experiment;
     this.admin = admin;
     this.loginInfo = loginInfo;
@@ -156,14 +156,14 @@ public class ExperimentDefinitionPanel extends Composite {
    * @param experiment2
    * @return
    */
-  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
+  private Widget createFeedbackEntryPanel(Experiment experiment2) {
     // checkbox for default or custom feedback "[] Create Custom Feedback Page"
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
-        experiment.getFeedback().length > 0 && 
-        !defaultFeedback(experiment.getFeedback()[0]));
+    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null &&
+        experiment.getFeedback().size() > 0 &&
+        !defaultFeedback(experiment.getFeedback().get(0)));
     feedbackPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label("Custom Feedback");
     feedbackPanel.add(feedbackLabel);
@@ -178,7 +178,7 @@ public class ExperimentDefinitionPanel extends Composite {
   /**
    * @param experiment2
    */
-  private void createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
+  private void createCustomFeedbackDisclosurePanel(Experiment experiment2) {
     customFeedbackPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(false, 
@@ -206,10 +206,10 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackText.setCharacterWidth(100);
     customFeedbackText.setHeight("100");
 
-    FeedbackDAO[] feedbacks = experiment.getFeedback();
-    
-    if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
-      customFeedbackText.setText(feedbacks[0].getText());
+    List<Feedback> feedbacks = experiment.getFeedback();
+
+    if (feedbacks != null && feedbacks.size() > 0 && !defaultFeedback(feedbacks.get(0))) {
+      customFeedbackText.setText(feedbacks.get(0).getText());
     }
 
     userContentPanel.add(customFeedbackText);
@@ -218,29 +218,29 @@ public class ExperimentDefinitionPanel extends Composite {
 
 
   /**
-   * @param feedbackDAO
+   * @param Feedback
    * @return
    */
-  private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE) &&
-    feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+  private boolean defaultFeedback(Feedback Feedback) {
+    return Feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
+    Feedback.getText().equals(Feedback.DEFAULT_FEEDBACK_MSG);
   }
 
 
-  private VerticalPanel createTitlePanel(ExperimentDAO experiment) {
+  private VerticalPanel createTitlePanel(Experiment experiment) {
     return createFormLine("Title", experiment.getTitle());
   }
 
-  private VerticalPanel createDescriptionPanel(ExperimentDAO experiment) {
+  private VerticalPanel createDescriptionPanel(Experiment experiment) {
     return createFormArea("Description (<500 chars)", experiment.getDescription(), 75, "100");
   }
 
-  private VerticalPanel createCreatorPanel(ExperimentDAO experiment) {
+  private VerticalPanel createCreatorPanel(Experiment experiment) {
     return createDisplayLine("Creator",
         experiment.getCreator() != null ? experiment.getCreator() : loginInfo.getEmailAddress());
   }
 
-  private VerticalPanel createInformedConsentPanel(ExperimentDAO experiment) {
+  private VerticalPanel createInformedConsentPanel(Experiment experiment) {
     return createFormArea(
         "Informed Consent Text", experiment.getInformedConsentForm(), 100, "200");
   }
@@ -251,20 +251,20 @@ public class ExperimentDefinitionPanel extends Composite {
     return questionsPrompt;
   }
 
-  private DurationView createDurationPanel(ExperimentDAO experiment) {
+  private DurationView createDurationPanel(Experiment experiment) {
     DurationView durationPanel = new DurationView(
-        experiment.getFixedDuration(), experiment.getStartDate(), experiment.getEndDate());
+        experiment.getFixedDuration(), experiment.getStartDate().getTime(), experiment.getEndDate().getTime());
     fieldToWidgetMap.put("duration", durationPanel);
     return durationPanel;
   }
 
-  private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
+  private InputsListPanel createInputsListPanel(Experiment experiment) {
     InputsListPanel inputsListPanel = new InputsListPanel(experiment);
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
   }
 
-  private void createButtonPanel(ExperimentDAO experiment) {
+  private void createButtonPanel(Experiment experiment) {
     HorizontalPanel buttonPanel = new HorizontalPanel();
     if (isAdmin()) {
       buttonPanel.add(createSubmitButton(experiment));
@@ -273,7 +273,7 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(buttonPanel);
   }
 
-  private void createPublishingPanel(ExperimentDAO experiment) {
+  private void createPublishingPanel(Experiment experiment) {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
@@ -286,12 +286,12 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(publishedUsersPanel);
   }
 
-  private void createSchedulePanel(ExperimentDAO experiment) {
+  private void createSchedulePanel(Experiment experiment) {
     SchedulePanel sp = new SchedulePanel(experiment.getSchedule());
     formPanel.add(sp);
   }
 
-  private DisclosurePanel createAdminDisclosurePanel(ExperimentDAO experiment) {
+  private DisclosurePanel createAdminDisclosurePanel(Experiment experiment) {
     final DisclosurePanel adminPanel = new DisclosurePanel();
     final DisclosurePanelHeader closedHeaderWidget =
         new DisclosurePanelHeader(false, "<b>Click to edit administrators</b>");
@@ -315,8 +315,8 @@ public class ExperimentDefinitionPanel extends Composite {
     adminList = new TextArea();
     adminList.setCharacterWidth(100);
     adminList.setHeight("100");
-    String[] adminStrArray = experiment.getAdmins();
-    List<String> admins = Lists.newArrayList(adminStrArray);
+
+    List<String> admins = Lists.newArrayList(experiment.getAdmins());
     if (!admins.contains(loginInfo.getEmailAddress())) {
       admins.add(loginInfo.getEmailAddress());
     }
@@ -341,7 +341,7 @@ public class ExperimentDefinitionPanel extends Composite {
     }
   }
 
-  private void createPublishedUsersDisclosurePanel(ExperimentDAO experiment) {
+  private void createPublishedUsersDisclosurePanel(Experiment experiment) {
     publishedUsersPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget =
@@ -370,8 +370,7 @@ public class ExperimentDefinitionPanel extends Composite {
     userList.setCharacterWidth(100);
     userList.setHeight("100");
 
-    String[] usersStrArray = experiment.getPublishedUsers();
-    List<String> userEmails = Lists.newArrayList(usersStrArray);
+    List<String> userEmails = Lists.newArrayList(experiment.getPublishedUsers());
     userList.setText(toCSVString(userEmails));
 
     userContentPanel.add(userList);
@@ -477,7 +476,7 @@ public class ExperimentDefinitionPanel extends Composite {
     return cancelButton;
   }
 
-  private Widget createSubmitButton(final ExperimentDAO experiment) {
+  private Widget createSubmitButton(final Experiment experiment) {
 
     Button whatButton =
         new Button(experiment.getId() == null ? "Create Experiment" : "Update Experiment");
@@ -492,7 +491,7 @@ public class ExperimentDefinitionPanel extends Composite {
     return whatButton;
   }
 
-  private void submitEvent(ExperimentDAO experiment) {
+  private void submitEvent(Experiment experiment) {
     try {
       setTitleOn(experiment);
       setDescriptionOn(experiment);
@@ -511,71 +510,71 @@ public class ExperimentDefinitionPanel extends Composite {
     }
   }
 
-  private void setCreatorOn(ExperimentDAO experiment) {
+  private void setCreatorOn(Experiment experiment) {
     if (experiment.getCreator() == null) {
       experiment.setCreator(loginInfo.getEmailAddress());
     }
   }
 
-  private void setDescriptionOn(ExperimentDAO experiment) {
+  private void setDescriptionOn(Experiment experiment) {
     experiment.setDescription(((TextArea)fieldToWidgetMap.get(
         "Description (<500 chars)")).getText());
   }
 
-  private void setTitleOn(ExperimentDAO experiment) {
+  private void setTitleOn(Experiment experiment) {
     experiment.setTitle(((TextBox) fieldToWidgetMap.get("Title")).getText());
   }
 
-  private void setQuestionsChangeOn(ExperimentDAO experiment) {
+  private void setQuestionsChangeOn(Experiment experiment) {
     experiment.setQuestionsChange(
         ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
   }
 
-  private void setInformedConsentOn(ExperimentDAO experiment) {
+  private void setInformedConsentOn(Experiment experiment) {
     experiment.setInformedConsentForm(
         ((TextArea) fieldToWidgetMap.get("Informed Consent Text")).getText());
   }
 
-  private void setModifyDateOn(ExperimentDAO experiment) {
+  private void setModifyDateOn(Experiment experiment) {
     if (experiment.getModifyDate() == null) {
-      experiment.setModifyDate(new Date().getTime());
+      experiment.setModifyDate(new Date());
     }
   }
 
 
 
-  private void setPublishingOn(ExperimentDAO experiment) {
+  private void setPublishingOn(Experiment experiment) {
     experiment.setPublished(publishCheckBox.getValue());
     setPublishedUsersOn(experiment);
   }
 
-  private void setFeedbackOn(ExperimentDAO experiment) {
+  private void setFeedbackOn(Experiment experiment) {
     if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(new FeedbackDAO[] {new FeedbackDAO(null, 
-          FeedbackDAO.DISPLAY_FEEBACK_TYPE, FeedbackDAO.DEFAULT_FEEDBACK_MSG)});
+      experiment.setFeedback(Lists.newArrayList(
+          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
+                       Feedback.DEFAULT_FEEDBACK_MSG)));
     } else {
-      experiment.setFeedback(new FeedbackDAO[] {new FeedbackDAO(null, 
-          FeedbackDAO.DISPLAY_FEEBACK_TYPE, customFeedbackText.getText())});
+      experiment.setFeedback(Lists.newArrayList(
+          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
+                       customFeedbackText.getText())));
     }
   }
 
-  private void setDurationOn(ExperimentDAO experiment) {
+  private void setDurationOn(Experiment experiment) {
     DurationView durationView = (DurationView) fieldToWidgetMap.get("duration");
     experiment.setFixedDuration(durationView.isFixedDuration());
     if (experiment.getFixedDuration()) {
-      experiment
-          .setStartDate(durationView.getStartDate() != null ? Long.valueOf(
-              durationView.getStartDate().getTime()) : null);
-      experiment
-          .setEndDate(durationView.getEndDate() != null
-              ? Long.valueOf(durationView.getEndDate().getTime()) : null);
+      experiment.setStartDate(durationView.getStartDate() != null ?
+                              durationView.getStartDate() : null);
+      experiment.setEndDate(durationView.getEndDate() != null ?
+                            durationView.getEndDate() : null);
     } else {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
     }
   }
 
-  private void setAdminsOn(ExperimentDAO experiment) {
+  private void setAdminsOn(Experiment experiment) {
     List<String> admins = new ArrayList<String>();
     String adminsText = adminList.getText();
     if (adminsText.length() == 0) {
@@ -586,12 +585,10 @@ public class ExperimentDefinitionPanel extends Composite {
         admins.add(admin);
       }
     }
-    String[] adminStrArray = new String[admins.size()];
-    adminStrArray = admins.toArray(adminStrArray);
-    experiment.setAdmins(adminStrArray);
+    experiment.setAdmins(admins);
   }
 
-  private void setPublishedUsersOn(ExperimentDAO experiment) {
+  private void setPublishedUsersOn(Experiment experiment) {
     List<String> userEmails = new ArrayList<String>();
     String userListText = userList.getText();
     if (userListText.length() > 0) {
@@ -600,8 +597,6 @@ public class ExperimentDefinitionPanel extends Composite {
         userEmails.add(userEmail);
       }
     }
-    String[] userEmailsStrArray = new String[userEmails.size()];
-    userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
-    experiment.setPublishedUsers(userEmailsStrArray);
+    experiment.setPublishedUsers(userEmails);
   }
 }

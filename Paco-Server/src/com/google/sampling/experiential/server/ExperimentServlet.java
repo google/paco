@@ -38,7 +38,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.shared.Experiment;
 
 /**
  * Servlet that answers requests for experiments.
@@ -68,11 +68,11 @@ public class ExperimentServlet extends HttpServlet {
     } else {
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
       String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
-      List<ExperimentDAO> experiments;
+      List<Experiment> experiments;
       if (experimentsJson == null) {
         experiments = cacheHelper.getJoinableExperiments();
         String email = getEmailOfUser(req, user);
-        List<ExperimentDAO> availableExperiments = null;
+        List<Experiment> availableExperiments = null;
         if (experiments == null) {
           experiments = Lists.newArrayList();
           availableExperiments = experiments;        
@@ -92,34 +92,25 @@ public class ExperimentServlet extends HttpServlet {
   }
 
 
-  private List<ExperimentDAO> getSortedExperimentsAvailableToUser(List<ExperimentDAO> experiments, String email) {
-    List<ExperimentDAO> availableExperiments = Lists.newArrayList();
-    for (ExperimentDAO experiment : experiments) {
+  private List<Experiment> getSortedExperimentsAvailableToUser(List<Experiment> experiments, String email) {
+    List<Experiment> availableExperiments = Lists.newArrayList();
+    for (Experiment experiment : experiments) {
       String creatorEmail = experiment.getCreator().toLowerCase();
-      if (creatorEmail.equals(email) || arrayContains(experiment.getAdmins(), email) || 
-          (experiment.getPublished() == true && 
-                  (experiment.getPublishedUsers().length == 0 || arrayContains(experiment.getPublishedUsers(), email)))) {
+      if (creatorEmail.equals(email) || experiment.getAdmins().contains(email) ||
+          (experiment.getPublished() == true &&
+                  (experiment.getPublishedUsers().size() == 0 || experiment.getPublishedUsers().contains(email)))) {
         availableExperiments.add(experiment);
       }
     }
-    Collections.sort(availableExperiments, new Comparator<ExperimentDAO>() {
+    Collections.sort(availableExperiments, new Comparator<Experiment>() {
       @Override
-      public int compare(ExperimentDAO o1, ExperimentDAO o2) {
+      public int compare(Experiment o1, Experiment o2) {
         return o1.getTitle().compareTo(o2.getTitle());
-      }      
+      }
     });
     return availableExperiments;
   }
 
-
-  private boolean arrayContains(String[] strings, String targetString) {
-    for (int i = 0; i < strings.length; i++) {
-      if (strings[i].equals(targetString)) {
-        return true;
-      }
-    }
-    return false;
-  }
 
 
   private String getEmailOfUser(HttpServletRequest req, User user) {
@@ -138,7 +129,7 @@ public class ExperimentServlet extends HttpServlet {
    * @param printWriter 
    * @return
    */
-  private String jsonify(List<ExperimentDAO> experiments) {
+  private String jsonify(List<Experiment> experiments) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {

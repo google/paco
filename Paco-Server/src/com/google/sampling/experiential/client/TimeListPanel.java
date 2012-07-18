@@ -16,12 +16,15 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 /**
  * Container Panel for the times an experiment is scheduled,
@@ -32,10 +35,10 @@ import com.google.sampling.experiential.shared.SignalScheduleDAO;
  */
 public class TimeListPanel extends Composite {
   private VerticalPanel verticalPanel_1;
-  private SignalScheduleDAO schedule;
+  private SignalSchedule schedule;
   private LinkedList<TimePanel> timesPanelList;
 
-  public TimeListPanel(SignalScheduleDAO schedule) {
+  public TimeListPanel(SignalSchedule schedule) {
     this.schedule = schedule;
     verticalPanel_1 = new VerticalPanel();
     verticalPanel_1.setSpacing(2);
@@ -45,18 +48,18 @@ public class TimeListPanel extends Composite {
     verticalPanel_1.add(lblSignalTimes);
 
     timesPanelList = new LinkedList<TimePanel>();
-    Long[] times2 = schedule.getTimes();
-    if (times2 == null || times2.length == 0) {
+    List<Long> times2 = schedule.getTimes();
+    if (times2 == null || times2.size() == 0) {
       TimePanel timePanel = new TimePanel(this);
       Long time = timePanel.getTime();
-      times2 = new Long[] {time};
+      times2 = Lists.newArrayList(time);
       verticalPanel_1.add(timePanel);
       timesPanelList.add(timePanel);
       schedule.setTimes(times2);
     } else {
-      for (int i = 0; i < times2.length; i++) {
+      for (int i = 0; i < times2.size(); i++) {
         TimePanel time1 = new TimePanel(this);
-        time1.setTime(times2[i]);
+        time1.setTime(times2.get(i));
         verticalPanel_1.add(time1);
         timesPanelList.add(time1);
       }
@@ -87,16 +90,16 @@ public class TimeListPanel extends Composite {
 
   // TODO this is not very efficient.
   private void updateScheduleTimes() {
-    Long[] newTimes = new Long[timesPanelList.size()];
+    List<Long> newTimes = new ArrayList<Long>(timesPanelList.size());
     for (int i = 0; i < timesPanelList.size(); i++) {
-      newTimes[i] = timesPanelList.get(i).getTime();
+      newTimes.add(timesPanelList.get(i).getTime());
     }
     schedule.setTimes(newTimes);
   }
 
   public void updateTime(TimePanel timePanel) {
     int index = timesPanelList.indexOf(timePanel);
-    schedule.getTimes()[index] = timePanel.getTime();
+    schedule.getTimes().set(index, timePanel.getTime());
   }
 
 }
