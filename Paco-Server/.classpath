@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.2.jar" sourcepath="/Users/bobevans/.m2/repository/commons-fileupload/commons-fileupload/1.2.2/commons-fileupload-1.2.2-sources.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/objectify-3.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
