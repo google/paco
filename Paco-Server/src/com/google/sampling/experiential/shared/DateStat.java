@@ -106,9 +106,9 @@ public class DateStat implements Comparable<DateStat>, Serializable {
   }
 
   public static List<DateStat> calculateParameterDailyStats(String changingParameterKey,
-      List<EventDAO> eventList) {
+      List<Event> eventList) {
     Map<String, DateStat> dateStats = Maps.newHashMap();
-    for (EventDAO event : eventList) {
+    for (Event event : eventList) {
       Date date = event.getResponseTime();
       if (date == null) {
         date = event.getScheduledTime();

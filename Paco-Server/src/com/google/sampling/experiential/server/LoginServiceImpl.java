@@ -26,12 +26,13 @@ import com.google.sampling.experiential.shared.LoginInfo;
 public class LoginServiceImpl extends RemoteServiceServlet implements
     com.google.sampling.experiential.shared.LoginService {
 
+  @Override
   public LoginInfo login(String requestUri) {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     LoginInfo loginInfo = new LoginInfo();
     Whitelist whitelist = new Whitelist();
-    
+
     if (user != null && whitelist.allowed(user.getEmail())) {
       loginInfo.setLoggedIn(true);
       loginInfo.setEmailAddress(user.getEmail());

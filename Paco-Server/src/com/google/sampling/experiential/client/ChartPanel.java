@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -40,14 +40,14 @@ public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
   private Input input;
-  private List<EventDAO> data;
+  private List<Event> data;
 
 //  private MapWidget map;
-//  private Map<EventDAO, Marker> markers = com.google.common.collect.Maps.newHashMap();
+//  private Map<Event, Marker> markers = com.google.common.collect.Maps.newHashMap();
   private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
 //  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(Input input, List<EventDAO> eventList) {
+  public ChartPanel(Input input, List<Event> eventList) {
     this.input = input;
     this.data = eventList;
 
@@ -137,13 +137,13 @@ public class ChartPanel extends Composite {
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setHeight("450");
     photosPanel.add(horizontalPanel);
-    for (EventDAO event : data) {
-      String[] blobs = event.getBlobs();
-      if (blobs == null || blobs.length == 0) {
+    for (Event event : data) {
+      List<String> blobs = event.getBlobs();
+      if (blobs == null || blobs.size() == 0) {
         continue;
       }
-      for (int i = 0; i < blobs.length; i++) {
-        String blobData = blobs[i];
+      for (int i = 0; i < blobs.size(); i++) {
+        String blobData = blobs.get(i);
         if (blobData.length() == 0 || blobData.equals("==")) {
           continue;
         }
@@ -181,7 +181,7 @@ public class ChartPanel extends Composite {
 //    LatLngBounds bounds = LatLngBounds.newInstance();
 //    map.setCenter(bounds.getCenter());
 //    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
-//    for (final EventDAO eventRating : data) {
+//    for (final Event eventRating : data) {
 //      String latLon = eventRating.getWhatByKey(input.getName());
 //      if (latLon == null || latLon.length() == 0) {
 //        continue;
@@ -219,12 +219,12 @@ public class ChartPanel extends Composite {
 //    return map;
   }
 
-//  private void openInfoWindowForMarker(final EventDAO eventRating, final Marker marker) {
+//  private void openInfoWindowForMarker(final Event eventRating, final Marker marker) {
 //    map.getInfoWindow().open(marker.getPoint(), createInfoWindowForEventRating(eventRating));
 //  }
 
 
-//  private InfoWindowContent createInfoWindowForEventRating(final EventDAO eventRating) {
+//  private InfoWindowContent createInfoWindowForEventRating(final Event eventRating) {
 //    return new InfoWindowContent(
 //        "What: " + eventRating.getWhatString() + "<br/>Who: " + eventRating.getWho() + "<br/>When: "
 //            + formatter.format(eventRating.getWhen()));
@@ -242,8 +242,8 @@ public class ChartPanel extends Composite {
       return DEFAULT_DATA_CLASS;
     }
 
-    EventDAO eventDAO = data.get(0);
-    String answer = eventDAO.getWhatByKey(inputName);
+    Event Event = data.get(0);
+    String answer = Event.getWhatByKey(inputName);
     if (answer == null) {
       return DEFAULT_DATA_CLASS;
     }
@@ -253,8 +253,8 @@ public class ChartPanel extends Composite {
     if (data.size() == 1) {
       return dataTypeOfFirstEntry;
     }
-    EventDAO eventDAO2 = data.get(1);
-    String answer2 = eventDAO2.getWhatByKey(inputName);
+    Event Event2 = data.get(1);
+    String answer2 = Event2.getWhatByKey(inputName);
     if (answer2 == null) {
       return DEFAULT_DATA_CLASS;
     }

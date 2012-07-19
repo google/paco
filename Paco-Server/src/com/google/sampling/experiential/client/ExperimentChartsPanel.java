@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Input;
 
@@ -35,9 +35,9 @@ import com.google.sampling.experiential.shared.Input;
 public class ExperimentChartsPanel extends Composite {
 
   private Experiment experiment;
-  private List<EventDAO> eventList;
+  private List<Event> eventList;
 
-  public ExperimentChartsPanel(Experiment experiment, List<EventDAO> eventList) {
+  public ExperimentChartsPanel(Experiment experiment, List<Event> eventList) {
     this.experiment = experiment;
     this.eventList = eventList;
     VerticalPanel verticalPanel = new VerticalPanel();

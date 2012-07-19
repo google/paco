@@ -53,7 +53,7 @@ import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -94,10 +94,10 @@ public class PacoEventServer implements EntryPoint {
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
   // private MapWidget map;
-  List<EventDAO> eventList;
+  List<Event> eventList;
   // private ScrollPanel visualizationPanel;
   private VerticalPanel eventListPanel;
-  // private Map<EventDAO, Marker> markers = Maps.newHashMap();
+  // private Map<Event, Marker> markers = Maps.newHashMap();
   TextBox tagList;
   private VerticalPanel logPanel;
   FlowPanel chartPanel;
@@ -254,7 +254,7 @@ public class PacoEventServer implements EntryPoint {
   // map.addControl(new ScaleControl());
   // }
 
-  private void renderEventsOnList(List<EventDAO> eventList2) {
+  private void renderEventsOnList(List<Event> eventList2) {
     DataTable data = DataTable.create();
     data.addRows(eventList2.size());
     data.addColumn(ColumnType.DATE, "When");
@@ -262,7 +262,7 @@ public class PacoEventServer implements EntryPoint {
     data.addColumn(ColumnType.STRING, "Experiment");
     data.addColumn(ColumnType.STRING, "What");
     int row = 0;
-    for (EventDAO event : eventList2) {
+    for (Event event : eventList2) {
       data.setValue(row, 0, event.getWhen());
       data.setValue(row, 1, event.getWho());
       data.setValue(row, 2, event.getExperimentName());
@@ -289,7 +289,7 @@ public class PacoEventServer implements EntryPoint {
   // createMapWidget();
   // visualizationPanel.add(map);
   //
-  // for (final EventDAO eventRating : eventList) {
+  // for (final Event eventRating : eventList) {
   // String lat = eventRating.getLat();
   // String lon = eventRating.getLon();
   // try {
@@ -315,14 +315,14 @@ public class PacoEventServer implements EntryPoint {
   // }
   // }
 
-  // private void openInfoWindowForMarker(final EventDAO eventRating, final
+  // private void openInfoWindowForMarker(final Event eventRating, final
   // Marker marker) {
   // map.getInfoWindow().open(marker.getPoint(),
   // createInfoWindowForEventRating(eventRating));
   // }
   //
 
-  // private InfoWindowContent createInfoWindowForEventRating(final EventDAO
+  // private InfoWindowContent createInfoWindowForEventRating(final Event
   // eventRating) {
   // return new InfoWindowContent("What: " + eventRating.getWhatString() +
   // "<br/>Who: "
@@ -340,7 +340,7 @@ public class PacoEventServer implements EntryPoint {
     chartPanel.clear();
     eventListPanel.clear();
 
-    AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
+    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -348,7 +348,7 @@ public class PacoEventServer implements EntryPoint {
       }
 
       @Override
-      public void onSuccess(List<EventDAO> eventList) {
+      public void onSuccess(List<Event> eventList) {
         // create column chart with responses;
         log("Got results: size: " + eventList.size());
         if (eventList.size() == 0) {
@@ -368,7 +368,7 @@ public class PacoEventServer implements EntryPoint {
 
 
 
-      // private Widget XautoChart(List<EventDAO> eventList) {
+      // private Widget XautoChart(List<Event> eventList) {
       // try {
       // String chartTitle = "Query: " + tagList.getText();
       // String changingParameterKey = addKeysAndGetChangingParameter();

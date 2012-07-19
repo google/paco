@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("maps")
 public interface MapService extends RemoteService {
-  List<EventDAO> map();
+  List<Event> map();
 
-  List<EventDAO> mapWithTags(String tags);
+  List<Event> mapWithTags(String tags);
 
   void saveEvent(String who, 
       String scheduledTime, 
@@ -44,7 +44,7 @@ public interface MapService extends RemoteService {
 
   List<Experiment> getExperimentsForUser();
 
-  ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
+  ExperimentStats statsForExperiment(Long experimentId, boolean justUser);
 
   List<Experiment> getUsersJoinedExperiments();
 }

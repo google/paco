@@ -16,14 +16,9 @@
 */
 package com.google.sampling.experiential.model;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
-
 import com.google.appengine.api.datastore.Blob;
-import com.google.appengine.api.datastore.Key;
+
+import javax.persistence.Id;
 
 /**
  * Storage for a photo Input.
@@ -31,24 +26,29 @@ import com.google.appengine.api.datastore.Key;
  * @author Bob Evans
  *
  */
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class PhotoBlob implements Comparable<PhotoBlob> {
 
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Key key;
+  @Id
+  Long id;
 
-  @Persistent
   private String name;
 
-  @Persistent
   private Blob value;
 
+  public PhotoBlob() { }
 
   public PhotoBlob(String name, byte[] value) {
     super();
     this.name = name;
     this.value = new Blob(value);
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 
   public String getName() {
@@ -71,6 +71,4 @@ public class PhotoBlob implements Comparable<PhotoBlob> {
   public int compareTo(PhotoBlob o) {
     return getName().compareTo(o.getName());
   }
-
-
 }

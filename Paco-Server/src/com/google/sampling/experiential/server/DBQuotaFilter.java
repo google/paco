@@ -43,7 +43,6 @@ public class DBQuotaFilter implements Filter {
   @Override
   public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
       ServletException {
-    // TODO Auto-generated method stub
     User user = UserServiceFactory.getUserService().getCurrentUser();
     if (user != null && blockedEmails.contains(user.getEmail())) {
       Log.info("Blocked User: " + user.getEmail());
@@ -52,13 +51,8 @@ public class DBQuotaFilter implements Filter {
     arg2.doFilter(arg0, arg1);
   }
 
-  private boolean isDevServer() {
-    return false;
-  }
-
   @Override
-  public void init(FilterConfig arg0) throws ServletException {
-    // TODO Auto-generated method stub        
+  public void init(FilterConfig arg0) {
     blockedEmails = new ArrayList<String>();
     blockedEmails.add("papercaked@gmail.com");
   }

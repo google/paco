@@ -29,7 +29,7 @@ import org.joda.time.Interval;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.shared.Event;
 
 /**
  * Converts string queries into method calls and tests on an Event

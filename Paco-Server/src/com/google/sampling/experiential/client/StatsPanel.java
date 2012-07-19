@@ -33,9 +33,9 @@ import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ExperimentStatsDAO;
+import com.google.sampling.experiential.shared.ExperimentStats;
 
 /**
  * Panel for basic experiment meta statistics, e.g., response rate.
@@ -45,13 +45,13 @@ import com.google.sampling.experiential.shared.ExperimentStatsDAO;
  */
 public class StatsPanel extends Composite {
 
-  private ExperimentStatsDAO experimentStats;
+  private ExperimentStats experimentStats;
   private DateTimeFormat df = DateTimeFormat.getFormat("MM/dd/yyyy");
   private Experiment experiment;
   private boolean isAdmin;
 
 
-  public StatsPanel(ExperimentStatsDAO stats, Experiment experiment, boolean joinView) {
+  public StatsPanel(ExperimentStats stats, Experiment experiment, boolean joinView) {
     this.experimentStats = stats;
     this.experiment = experiment;
     this.isAdmin = !joinView; // isAdmin(experiment, loggedInUser);
@@ -166,7 +166,7 @@ public class StatsPanel extends Composite {
 
   private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
     HashMap<String,String> participants = new HashMap<String,String>();
-    for (EventDAO event : experimentStats.getJoinedEventsList()) {
+    for (Event event : experimentStats.getJoinedEventsList()) {
       String who = event.getWho();
       String existingWhoValue = participants.get(who);
       if (existingWhoValue == null) {

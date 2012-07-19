@@ -40,9 +40,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ExperimentStatsDAO;
+import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -568,7 +568,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showChart(final Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
-    AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
+    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -578,7 +578,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<EventDAO> eventList) {
+      public void onSuccess(List<Event> eventList) {
         if (eventList.size() == 0) {
           Window.alert("No results for your query");
           statusLabel.setVisible(false);
@@ -613,7 +613,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showStatsPanel(final Experiment experiment, final boolean joined) {
     statusLabel.setVisible(true);
-    AsyncCallback<ExperimentStatsDAO> callback = new AsyncCallback<ExperimentStatsDAO>() {
+    AsyncCallback<ExperimentStats> callback = new AsyncCallback<ExperimentStats>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -623,7 +623,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(ExperimentStatsDAO stats) {
+      public void onSuccess(ExperimentStats stats) {
         StatsPanel p = new StatsPanel(stats, experiment, joined);
         contentPanel.add(p);
         statusLabel.setVisible(false);

@@ -1,10 +1,7 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import javax.jdo.PersistenceManager;
 
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;

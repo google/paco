@@ -25,9 +25,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * * The async counterpart of <code>MeetingService</code>.
  */
 public interface MapServiceAsync {
-  void map(AsyncCallback<List<EventDAO>> callback);
+  void map(AsyncCallback<List<Event>> callback);
 
-  void mapWithTags(String tags, AsyncCallback<List<EventDAO>> callback);
+  void mapWithTags(String tags, AsyncCallback<List<Event>> callback);
 
   void saveEvent(String who, 
       String scheduledTime, 
@@ -58,7 +58,7 @@ public interface MapServiceAsync {
    * @param id
    * @param callback
    */
-  void statsForExperiment(Long id, boolean justUser, AsyncCallback<ExperimentStatsDAO> callback);
+  void statsForExperiment(Long id, boolean justUser, AsyncCallback<ExperimentStats> callback);
   
   void getUsersJoinedExperiments(AsyncCallback<List<Experiment>> callback);
 

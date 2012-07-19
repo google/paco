@@ -22,14 +22,14 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 
-public class EventDateComparator implements Comparator<EventDAO>, Serializable {
+public class EventDateComparator implements Comparator<Event>, Serializable {
 
   public EventDateComparator() {
 
   }
 
   @Override
-  public int compare(EventDAO o1, EventDAO o2) {
+  public int compare(Event o1, Event o2) {
     Date when1 = o1.getWhen();
     Date when2 = o2.getWhen();
     if (when1 == null || when2 == null) {

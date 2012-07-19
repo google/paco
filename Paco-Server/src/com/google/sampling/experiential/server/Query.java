@@ -42,6 +42,8 @@ public class Query {
     this.value = value;
   }
 
-
-
+  @Override
+  public String toString() {
+    return "F<" + key + " = " + value + ">";
+  }
 }

@@ -14,28 +14,18 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.sampling.experiential.model;
+package com.google.sampling.experiential.shared;
 
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
-
-import org.apache.commons.codec.binary.Hex;
-import org.mortbay.log.Log;
+import javax.persistence.Embedded;
+import javax.persistence.Id;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Class that holds a response to an experiment.
@@ -43,64 +33,49 @@ import com.google.sampling.experiential.shared.TimeUtil;
  * @author Bob Evans
  *
  */
-@PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
-public class Event {
+public class Event implements Serializable, Cloneable {
 
-  public static final String SALT = "zyzzyfoo";
-
-  public static final List<String> eventProperties = Lists.newArrayList("who", 
-      "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime", 
+  public static final List<String> eventProperties = Lists.newArrayList("who",
+      "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime",
       "scheduledTime");
-  
-  @PrimaryKey
-  @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-  private Long id;
 
-  @Persistent
-  private String who;
+  @Id
+  private Long id = null;
 
-  @Persistent
-  private String lat;
+  private String who = "";
 
-  @Persistent
-  private String lon;
+  private String lat = "";
 
-  @Persistent
-  private Date when;
+  private String lon = "";
 
-  @Persistent
-  private String appId;
+  private Date when = new Date();
 
-  @Persistent
-  private String pacoVersion;
+  private String appId = "";
 
-  @Persistent
-  private String experimentName;
+  private String pacoVersion = "";
 
-  @Persistent
-  private String experimentId;
+  private String experimentName = "";
 
-  
-  @Persistent
-  private Date scheduledTime;
+  private String experimentId = "";
 
-  @Persistent
-  private Date responseTime;
+  private Date scheduledTime = new Date();
 
-  @Persistent
-  private Set<What> what;
+  private Date responseTime = new Date();
 
-  @Persistent
-  private List<String> keysList;
-  
-  @Persistent
-  private List<String> valuesList;
-  
-  @Persistent
+  @Embedded
+  transient private Map<String, String> what = Maps.newHashMap();
+
+  /*
+  @Embedded
+  private List<String> keysList = Lists.newArrayList();
+
+  @Embedded
+  private List<String> valuesList = Lists.newArrayList();
+  */
+
   private Boolean shared = false;
 
-  @Persistent
-  private List<PhotoBlob> blobs;
+  private List<String> blobs = Lists.newArrayList();
 
   public boolean isShared() {
     if (shared == null) {
@@ -113,9 +88,11 @@ public class Event {
     this.shared = shared;
   }
 
+  public Event() { }
+
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
-      Set<What> what, boolean shared, String experimentId, String experimentName, 
-      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+      Map<String, String> what, boolean shared, String experimentId, String experimentName,
+      Date responseTime, Date scheduledTime, List<String> blobs) {
     super();
     if (/*what.size() == 0 || */who == null || when == null || appId == null) {
       throw new IllegalArgumentException("There must be a who, a when, an appId, and "
@@ -126,7 +103,6 @@ public class Event {
     this.lon = lon;
     this.when = when;
     this.what = what;
-    setWhatMap(what);
     this.appId = appId;
     this.pacoVersion = (pacoVersion == null || pacoVersion.isEmpty()) ? "1" : pacoVersion;
     this.shared = shared;
@@ -139,6 +115,7 @@ public class Event {
     }
   }
 
+  /*
   private void setWhatMap(Set<What> whats) {
     this.keysList = Lists.newArrayList();
     this.valuesList = Lists.newArrayList();
@@ -147,6 +124,7 @@ public class Event {
       valuesList.add(what.getValue());
     }
   }
+  */
 
 
   public Long getId() {
@@ -189,16 +167,14 @@ public class Event {
     this.when = when;
   }
 
-  public Set<What> getWhat() {
+  public Map<String, String> getWhat() {
     return what;
   }
 
-  public void setWhat(Set<What> what) {
+  public void setWhat(Map<String, String> what) {
     this.what = what;
-    setWhatMap(what);
   }
 
-  
   public String getExperimentName() {
     return experimentName;
   }
@@ -231,6 +207,7 @@ public class Event {
     this.responseTime = responseTime;
   }
 
+  /*
   private String getValueForKey(String key) {
     int index = keysList.indexOf(key);
     if (index == -1) {
@@ -238,9 +215,10 @@ public class Event {
     }
     return valuesList.get(index);
   }
+  */
 
   public String getWhatByKey(String key) {
-    return getValueForKey(key);
+    return this.what.get(key);
   }
 
   public String getAppId() {
@@ -259,74 +237,63 @@ public class Event {
     this.pacoVersion = pacoVersion;
   }
 
-  public List<String> getWhatKeys() {
-    return keysList;
-  }
-
-  
-  public List<PhotoBlob> getBlobs() {
+  public List<String> getBlobs() {
     return blobs;
   }
 
-  public void setBlobs(List<PhotoBlob> blobs) {
+  public void setBlobs(List<String> blobs) {
     this.blobs = blobs;
   }
 
   public Map<String, String> getWhatMap() {
-    Map<String, String> map = Maps.newHashMap();
-    if (keysList == null) {
-      keysList = Lists.newArrayList();
+    return what;
+  }
+
+  public boolean isMissedSignal() {
+    return scheduledTime != null && responseTime == null;
+  }
+
+  public long responseTime() {
+    if (responseTime == null || scheduledTime == null) {
+      return 0;
     }
-    for (int i = 0; i < keysList.size(); i++) {
-      String keyName = keysList.get(i);
-      if (keyName == null || keyName.length() == 0) {
-        keyName = "unknown_"+i;
+    return responseTime.getTime() - scheduledTime.getTime();
+  }
+
+  public boolean isJoinEvent() {
+    return getWhatByKey("joined") != null;
+  }
+
+  public Event clone() {
+    Event newEvent = new Event();
+
+    newEvent.setWho(this.getWho());
+    newEvent.setLat(this.getLat());
+    newEvent.setLon(this.getLon());
+    newEvent.setWhen(this.getWhen());
+    newEvent.setAppId(this.getAppId());
+    newEvent.setPacoVersion(this.getPacoVersion());
+    newEvent.setExperimentName(this.getExperimentName());
+    newEvent.setExperimentId(this.getExperimentId());
+    newEvent.setScheduledTime((Date)this.getScheduledTime().clone());
+    newEvent.setResponseTime((Date)this.getResponseTime().clone());
+
+    return newEvent;
+  }
+
+  public String getWhatString() {
+    StringBuilder whatStr = new StringBuilder();
+    boolean first = true;
+    for (String key : what.keySet()) {
+      if (first) {
+        first = false;
+      } else {
+        whatStr.append(", ");
       }
-      map.put(keyName, valuesList.get(i));
+      whatStr.append(key);
+      whatStr.append("=");
+      whatStr.append(what.get(key));
     }
-    return map;
+    return whatStr.toString();
   }
-
-  public String[] toCSV(List<String> columnNames, boolean anon) {
-    java.text.SimpleDateFormat simpleDateFormat =
-      new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    
-    int csvIndex = 0;
-    String[] parts = new String[10 + columnNames.size()];
-    if (anon) {
-      parts[csvIndex++] = Event.getAnonymousId(who + SALT);
-    } else {
-      parts[csvIndex++] = who;
-    }
-    parts[csvIndex++] = simpleDateFormat.format(when);
-    parts[csvIndex++] = lat;
-    parts[csvIndex++] = lon;
-    parts[csvIndex++] = appId;
-    parts[csvIndex++] = pacoVersion;
-    parts[csvIndex++] = experimentId;
-    parts[csvIndex++] = experimentName;
-    parts[csvIndex++] = responseTime != null ? simpleDateFormat.format(responseTime) : null;
-    parts[csvIndex++] = scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null;
-    Map<String, String> whatMap = getWhatMap();
-    for (String key : columnNames) {
-      String value = whatMap.get(key);
-      parts[csvIndex++] = value;
-    }
-    return parts;
-  }
-
-  public static String getAnonymousId(String who) {
-    MessageDigest messageDigest = null;
-    try {
-      messageDigest = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      Log.info("Could not get MD5 algorithm");
-      return null;
-    }
-    messageDigest.reset();
-    messageDigest.update(who.getBytes(Charset.forName("UTF8")));
-    byte[] resultByte = messageDigest.digest();
-    return new String(Hex.encodeHex(resultByte));
-  }
-
 }

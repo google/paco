@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.server;
 
 
@@ -27,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 
@@ -39,26 +35,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ExperimentStatsDAO;
+import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 
 /*
- * * The server side implementation of the RPC service.
+ * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
 public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
-  public List<EventDAO> map() {
-    List<Event> result = EventRetriever.getInstance().getEvents(getWho());
-    return convertEventsToDAOs(result);
+  @Override
+  public List<Event> map() {
+    return EventRetriever.getInstance().getEvents(getWho());
   }
 
   private String getWho() {
@@ -71,97 +64,71 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     return null;
   }
-  
-  private List<EventDAO> convertEventsToDAOs(List<Event> result) {
-    List<EventDAO> eventDAOs = Lists.newArrayList();
 
-    for (Event event : result) {
-      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
-          event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
-          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs())));
-    }
-    return eventDAOs;
-  }
-
-  /**
-   * @param blobs
-   * @return
-   */
-  private String[] toBase64StringArray(List<PhotoBlob> blobs) {
-    String[] results = new String[blobs.size()];
-    for (int i =0; i < blobs.size(); i++) {
-      results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
-    }
-    return results;
-  }
-
-  public List<EventDAO> mapWithTags(String tags) {
+  @Override
+  public List<Event> mapWithTags(String tags) {
     return getEventsForQuery(tags);
   }
 
-  private List<EventDAO> getEventsForQuery(String tags) {
+  private List<Event> getEventsForQuery(String tags) {
     List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse(tags);
-    List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(), 
-        EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
-    return convertEventsToDAOs(result);
+    return EventRetriever.getInstance()
+        .getEvents(getWho(), queries, EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
   }
 
-  public void saveEvent(String who, 
-      String scheduledTime, 
-      String responseTime, 
+  @Override
+  public void saveEvent(String who,
+      String scheduledTime,
+      String responseTime,
       String experimentId,
-      Map<String, String> kvPairs, 
+      Map<String, String> whats,
       boolean shared) {
-    
     Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
     Date responseTimeDate = responseTime != null ? parseDateString(responseTime) : null;
     Date whenDate = new Date();
     // TODO (Once all data has been cleaned up, just send the kvPairs, and change the constructor)
-    Set<What> whats = parseWhats(kvPairs);
-    User loggedInWho = getWhoFromLogin();    
-    if (loggedInWho == null || (who != null && !who.isEmpty() 
-        && !loggedInWho.getEmail().equals(who))) {
+    User loggedInWho = getWhoFromLogin();
+    if (loggedInWho == null
+        || (who != null && !who.isEmpty() && !loggedInWho.getEmail().equals(who))) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
-    
-    
+
     Experiment experiment = ExperimentRetriever.getExperiment(experimentId);
-    
+
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
     }
-    
+
     if (!ExperimentRetriever.isWhoAllowedToPostToExperiment(experiment, loggedInWho.getEmail())) {
-      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");
     }
-    
-    
-    EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-        "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
+
+    EventRetriever.getInstance().postEvent(loggedInWho.getEmail(),
+        null,
+        null,
+        whenDate,
+        "webform",
+        "1",
+        whats,
+        shared,
+        experimentId,
+        null,
+        responseTimeDate,
+        scheduledTimeDate,
+        null);
   }
 
   private boolean isCorpInstance() {
     return false;
     // is it possible to forge host headers?
-    //    return EventServlet.DEV_HOST.equals(getHostFromRequest());
+    // return EventServlet.DEV_HOST.equals(getHostFromRequest());
   }
-  
+
   private User getWhoFromLogin() {
     UserService userService = UserServiceFactory.getUserService();
     return userService.getCurrentUser();
   }
 
-  private Set<What> parseWhats(Map<String, String> kvPairs) {
-    Set<What> whats = Sets.newHashSet();
-    Set<String> keys = kvPairs.keySet();
-    for (String key : keys) {
-      What w = new What(key, kvPairs.get(key));
-      whats.add(w);
-    }
-    return whats;
-  }
- 
   private Date parseDateString(String when) {
     SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     Date whenDate;
@@ -178,8 +145,8 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     if (experiment.getId() != null) {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail();
-      if (!(experiment.getCreator().equals(loggedInUser) || 
-        experiment.getAdmins().contains(loggedInUserEmail))) {
+      if (!(experiment.getCreator().equals(loggedInUser)
+          || experiment.getAdmins().contains(loggedInUserEmail))) {
         // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
         // experiment;
         return;
@@ -189,10 +156,11 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     DAO.getInstance().createExperiment(experiment);
   }
 
+  @Override
   public Boolean deleteExperiment(Experiment experiment) {
     System.out.println("Delete called for " + experiment.getId());
 
-    if (experiment.getId() !=  null) {
+    if (experiment.getId() != null) {
       DAO.getInstance().deleteExperiment(experiment);
       ExperimentCacheHelper.getInstance().clearCache();
       return Boolean.TRUE;
@@ -201,8 +169,9 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
   }
 
+  @Override
   public List<Experiment> getExperimentsForUser() {
-    return getExperimentsForUserWithQuery();    
+    return getExperimentsForUserWithQuery();
   }
 
   private List<Experiment> getExperimentsForUserWithQuery() {
@@ -210,34 +179,29 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return DAO.getInstance().getObserversExperiments(user.getEmail());
   }
 
-  public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
-    ExperimentStatsDAO stats = new ExperimentStatsDAO();
+  @Override
+  public ExperimentStats statsForExperiment(Long experimentId, boolean justUser) {
+    ExperimentStats stats = new ExperimentStats();
     if (!justUser) {
       stats.setJoinedEventsList(getJoinedForExperiment(experimentId));
     }
     getDailyResponseRateFor(experimentId, stats, justUser);
     System.out.println("leaving statsForExperiment");
-    return stats;    
+    return stats;
   }
 
-  /**
-   * @param experimentId
-   * @param justUser 
-   * @return
-   */
-  private void getDailyResponseRateFor(Long experimentId, ExperimentStatsDAO accum, 
-      boolean justUser) {
+  private void getDailyResponseRateFor(Long experimentId, ExperimentStats accum, boolean justUser) {
     Map<DateMidnight, DateStat> dateStatsMap = Maps.newHashMap();
     Map<DateMidnight, Set<String>> sevenDayMap = Maps.newHashMap();
-    
+
     int missedSignals = 0;
     long totalMillisToRespond = 0;
     String queryString = "";
     if (justUser) {
-      queryString = "who="+getWho()+":";
+      queryString = "who=" + getWho() + ":";
     }
-    List<EventDAO> events = getEventsForQuery(queryString + "experimentId="+experimentId);
-    for(EventDAO event : events) {
+    List<Event> events = getEventsForQuery(queryString + "experimentId=" + experimentId);
+    for (Event event : events) {
       if (event.isJoinEvent()) {
         continue;
       }
@@ -251,7 +215,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         date = event.getWhen();
       }
       DateMidnight dateMidnight = new DateMidnight(date);
-      
+
       // Daily response count
       DateStat currentStat = dateStatsMap.get(dateMidnight);
       if (currentStat == null) {
@@ -262,7 +226,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         List<Double> values = currentStat.getValues();
         values.set(0, values.get(0) + 1);
       }
-      
+
       // 7 day counts
       DateMidnight beginningOfWeekDateMidnight = getBeginningOfWeek(dateMidnight);
       Set<String> current7Day = sevenDayMap.get(beginningOfWeekDateMidnight);
@@ -286,29 +250,25 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       dateStat.addValue(new Double(count));
       sevenDayDateStats.add(dateStat);
       dateStat.computeStats();
-    }    
+    }
     Collections.sort(sevenDayDateStats);
-    
+
     DateStat[] dsArray = new DateStat[dateStats.size()];
     accum.setDailyResponseRate(dateStats.toArray(dsArray));
     dsArray = new DateStat[sevenDayDateStats.size()];
     accum.setSevenDayDateStats(sevenDayDateStats.toArray(dsArray));
-    
+
     String responseRateStr = "0%";
     int respondedSignals = events.size() - missedSignals;
-    if (events.size() > 0) {      
-      float responseRate = ((float)respondedSignals / (float)events.size()) * 100;
+    if (events.size() > 0) {
+      float responseRate = ((float) respondedSignals / (float) events.size()) * 100;
       responseRateStr = Float.toString(responseRate) + "%";
     }
     accum.setResponseRate(responseRateStr);
-    float avgResponseTime = (float)totalMillisToRespond / (float)respondedSignals / 60000;
+    float avgResponseTime = (float) totalMillisToRespond / (float) respondedSignals / 60000;
     accum.setResponseTime(Float.toString(Math.round(avgResponseTime)));
   }
 
-  /**
-   * @param dateMidnight
-   * @return
-   */
   private DateMidnight getBeginningOfWeek(DateMidnight dateMidnight) {
     int dow = dateMidnight.getDayOfWeek();
     int daysToBeginning = dow - DateTimeConstants.MONDAY;
@@ -318,35 +278,32 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return dateMidnight;
   }
 
-  /**
-   * @param experimentId
-   * @return
-   */
-  private EventDAO[] getJoinedForExperiment(Long experimentId) {
-    List<EventDAO> eventsForQuery = getEventsForQuery("joined:experimentId="+ experimentId);
-    HashSet<EventDAO> uniqueEvents = new HashSet<EventDAO>(eventsForQuery);
-    EventDAO[] arr = new EventDAO[eventsForQuery.size()];
+  private Event[] getJoinedForExperiment(Long experimentId) {
+    List<Event> eventsForQuery = getEventsForQuery("joined:experimentId=" + experimentId);
+    HashSet<Event> uniqueEvents = new HashSet<Event>(eventsForQuery);
+    Event[] arr = new Event[eventsForQuery.size()];
     return uniqueEvents.toArray(arr);
   }
-  
-  public List<Experiment> getUsersJoinedExperiments() {
-      List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
-          getWhoFromLogin().getEmail());
-      List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(), 
-          EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
-      Set<Long> experimentIds = Sets.newHashSet();
-      for(Event event : events) {
-        if (event.getExperimentId() == null) {
-          continue; // legacy check
-        }
-        experimentIds.add(Long.parseLong(event.getExperimentId()));
-      }
-      ArrayList<Long> idList = Lists.newArrayList(experimentIds);
-      System.out.println("Found " + experimentIds.size() +" unique experiments where joined.");
-      System.out.println(Joiner.on(",").join(idList));
 
-      List<Experiment> experiments = DAO.getInstance().getExperiments(idList);
-      System.out.println("Got back " + experiments.size() + " experiments");
-      return experiments;
+  @Override
+  public List<Experiment> getUsersJoinedExperiments() {
+    List<com.google.sampling.experiential.server.Query> queries =
+        new QueryParser().parse("who=" + getWhoFromLogin().getEmail());
+    List<Event> events = EventRetriever.getInstance()
+        .getEvents(getWho(), queries, EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
+    Set<Long> experimentIds = Sets.newHashSet();
+    for (Event event : events) {
+      if (event.getExperimentId() == null) {
+        continue; // legacy check
+      }
+      experimentIds.add(Long.parseLong(event.getExperimentId()));
+    }
+    ArrayList<Long> idList = Lists.newArrayList(experimentIds);
+    System.out.println("Found " + experimentIds.size() + " unique experiments where joined.");
+    System.out.println(Joiner.on(",").join(idList));
+
+    List<Experiment> experiments = DAO.getInstance().getExperiments(idList);
+    System.out.println("Got back " + experiments.size() + " experiments");
+    return experiments;
   }
 }

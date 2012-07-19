@@ -27,22 +27,22 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class ExperimentStatsDAO implements Serializable {
+public class ExperimentStats implements Serializable {
 
-  private EventDAO[] joinedEventsList;
+  private Event[] joinedEventsList;
   private DateStat[] dailyResponseRate;
   private DateStat[] sevenDayDateStats;
   private String responseRate;
   private String responseTime;
 
-  public ExperimentStatsDAO() {
+  public ExperimentStats() {
   }
   
-  public EventDAO[] getJoinedEventsList() {
+  public Event[] getJoinedEventsList() {
     return joinedEventsList;
   }
 
-  public void setJoinedEventsList(EventDAO[] joinedEventsList) {
+  public void setJoinedEventsList(Event[] joinedEventsList) {
     this.joinedEventsList = joinedEventsList;
   }
 
