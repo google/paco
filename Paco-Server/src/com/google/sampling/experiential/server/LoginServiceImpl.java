@@ -26,7 +26,6 @@ import com.google.sampling.experiential.shared.LoginInfo;
 public class LoginServiceImpl extends RemoteServiceServlet implements
     com.google.sampling.experiential.shared.LoginService {
 
-  @Override
   public LoginInfo login(String requestUri) {
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
@@ -38,6 +37,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
       loginInfo.setEmailAddress(user.getEmail());
       loginInfo.setNickname(user.getNickname());
       loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
+      loginInfo.setUserId(user.getUserId());
     } else {
       loginInfo.setLoggedIn(false);
       loginInfo.setLoginUrl(userService.createLoginURL(requestUri, "google.com"));

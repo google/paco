@@ -51,6 +51,8 @@ import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
 
+import org.restlet.client.resource.ClientResource;
+
 /**
  * Default Entry point into the GWT application.
  * Checks login. Renders Joined Experiments view by default.
@@ -70,6 +72,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private List<Experiment> joinedExperiments;
   private List<Experiment> adminedExperiments;
 
+  // FIXME: Delete this
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
   private LoginInfo loginInfo = null;
@@ -395,11 +398,26 @@ public class Main implements EntryPoint, ExperimentListener {
 
       }
     };
+
+    /*
     if (joined) {
       mapService.getUsersJoinedExperiments(callback);
     } else {
       mapService.getExperimentsForUser(callback);
     }
+    */
+
+    String reference;
+
+    if (joined) {
+      reference = "/subjects/" + loginInfo.getUserId() + "/experiments";
+    } else {
+      reference = "/observers/" + loginInfo.getUserId() + "/experiments";
+    }
+
+    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    experimentsResource.getClientResource().setReference(reference);
+    experimentsResource.list(callback);
   }
 
   private List<Experiment> retrieveAdminedExperiments() {
@@ -482,7 +500,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void saveToServer(Experiment experiment) {
     statusLabel.setVisible(true);
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -498,7 +516,13 @@ public class Main implements EntryPoint, ExperimentListener {
 
         statusLabel.setVisible(false);
       }
-    });
+    };
+
+    //mapService.saveExperiment(experiment, callback);
+
+    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    experimentsResource.getClientResource().setReference("/observers/" + loginInfo.getUserId() + "/experiments");
+    experimentsResource.create(experiment, callback);
   }
 
   private void softDeleteExperiment(Experiment experiment) {
@@ -506,7 +530,7 @@ public class Main implements EntryPoint, ExperimentListener {
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -522,8 +546,14 @@ public class Main implements EntryPoint, ExperimentListener {
 
         statusLabel.setVisible(false);
       }
-    });
-  }
+    };
+
+    //mapService.saveExperiment(experiment, callback);
+
+    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    experimentsResource.getClientResource().setReference("/observers/" + loginInfo.getUserId() + "/experiments/" + experiment.getId());
+    experimentsResource.update(experiment, callback);
+ }
 
   /**
    * @param experiment
@@ -629,9 +659,23 @@ public class Main implements EntryPoint, ExperimentListener {
         statusLabel.setVisible(false);
       }
     };
+
     // TODO (bobevans) move this to the server
-    mapService.statsForExperiment(experiment.getId(), joined, callback);
+    //mapService.statsForExperiment(experiment.getId(), joined, callback);
 
 
+    String reference;
+
+    if (joined) {
+      reference = "/subjects/";
+    } else {
+      reference = "/observers/";
+    }
+
+    reference += loginInfo.getUserId() + "/experiments/" + experiment.getId();
+
+    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    experimentsResource.getClientResource().setReference(reference);
+    experimentsResource.stats(callback);
   }
 }

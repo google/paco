@@ -29,16 +29,18 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
-<inherits name="com.google.gwt.resources.Resources" />
-<inherits name="com.google.gwt.xml.XML" />
-<inherits name="com.google.gwt.widgetideas.WidgetIdeas" />
-<inherits name="com.google.gwt.visualization.Visualization" />
-<inherits name="com.google.gwt.gen2.picker.Picker" />                      
-<inherits name="com.google.gwt.http.HTTP" />
-<inherits name="com.google.gwt.json.JSON" />
+  <inherits name="com.google.gwt.resources.Resources" />
+  <inherits name="com.google.gwt.xml.XML" />
+  <inherits name="com.google.gwt.widgetideas.WidgetIdeas" />
+  <inherits name="com.google.gwt.visualization.Visualization" />
+  <inherits name="com.google.gwt.gen2.picker.Picker" />
+  <inherits name="com.google.gwt.http.HTTP" />
+  <inherits name="com.google.gwt.json.JSON" />
+  <inherits name='com.google.gwt.libideas.LibIdeas' />
 
-<!-- <inherits name="com.google.gwt.maps.GoogleMaps" /> -->
-<inherits name="com.google.common.collect.Collect" />
+  <!-- <inherits name="com.google.gwt.maps.GoogleMaps" /> -->
+  <inherits name="com.google.common.collect.Collect" />
+  <inherits name='org.restlet.Restlet'/>
 
  <!--
     If you want to deploy this application outside of localhost,
@@ -46,9 +48,9 @@
     http://www.google.com/apis/maps/signup.html
     Replace the src attribute below with a URL that contains your key.
   -->
-<!--
-<script src="https://maps-api-ssl.google.com/maps/api/js?v=3&amp;sensor=false"></script>
---> 
+  <!--
+  <script src="https://maps-api-ssl.google.com/maps/api/js?v=3&amp;sensor=false"></script>
+  -->
 
   <!-- Specify the app entry point class. -->
   <entry-point class='com.google.sampling.experiential.client.DispatchEntryPoint'/>
