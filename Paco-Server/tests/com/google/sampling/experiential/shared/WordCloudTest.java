@@ -16,16 +16,18 @@
 */
 package com.google.sampling.experiential.shared;
 
+import static org.junit.Assert.*;
+
 import com.google.sampling.experiential.shared.WordCloud;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WordCloudTest extends TestCase {
+public class WordCloudTest {
 
-
+  @Test
   public void testWordCloud() throws Exception {
     List<String> entries = new ArrayList<String>();
     entries.add("apple");
