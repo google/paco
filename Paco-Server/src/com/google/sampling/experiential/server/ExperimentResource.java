@@ -15,21 +15,20 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ExperimentStats;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 import org.restlet.data.Status;
-import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
+
 
 /**
  *
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class ObserversExperimentResource extends PacoResource {
+public class ExperimentResource extends PacoResource {
   private Experiment experiment = null;
 
   @Override
@@ -43,24 +42,22 @@ public class ObserversExperimentResource extends PacoResource {
     }
 
     /*
-    if (user.isObserverOf(experiment) == false) {
+    if (user.isSubjectOf(experiment) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     }
     */
   }
 
-  @Get("gwt|json")
-  public ExperimentStats stats() {
-    return null;
+  @Get("json|gwt")
+  public Object show() {
+    return experiment;
   }
 
-  @Put("gwt|json")
-  public void update(Experiment experiment) {
-    dao.updateExperiment(this.experiment, experiment);
-  }
+  @Post("gwt|json")
+  public void join(SignalSchedule schedule) {
+    Long experimentId = dao.joinExperiment(user, experiment, schedule);
 
-  @Delete("gwt|json")
-  public void destroy() {
-    dao.deleteExperiment(experiment);
+    redirectSeeOther("/subject/experiments/" + experimentId);
+    setStatus(Status.SUCCESS_CREATED);
   }
 }

@@ -14,9 +14,11 @@
 
 package com.google.sampling.experiential.server;
 
+import com.google.sampling.experiential.shared.Experiment;
+
+import org.restlet.data.Status;
 import org.restlet.resource.Get;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.Post;
 
 
 /**
@@ -25,19 +27,16 @@ import org.restlet.resource.ServerResource;
  *
  */
 public class ExperimentsResource extends PacoResource {
-  private String experimentId;
-
-  @Override
-  protected void doInit() throws ResourceException {
-    experimentId = (String) getRequest().getAttributes().get("experimentId");
-  }
-
   @Get("json|gwt")
   public Object show() {
-    if (experimentId == null) {
-      return dao.getPublishedExperiments();
-    } else {
-      return dao.getExperiment(experimentId);
-    }
+    return dao.getSubjectExperiments(user);
+  }
+
+  @Post("gwt|json")
+  public void create(Experiment experiment) {
+    Long experimentId = dao.createExperiment(experiment);
+
+    redirectSeeOther("/observer/experiments/" + experimentId);
+    setStatus(Status.SUCCESS_CREATED);
   }
 }

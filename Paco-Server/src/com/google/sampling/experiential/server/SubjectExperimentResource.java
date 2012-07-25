@@ -21,7 +21,6 @@ import org.restlet.data.Status;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 
 /**
@@ -29,7 +28,7 @@ import org.restlet.resource.ResourceException;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class SubjectsExperimentResource extends PacoResource {
+public class SubjectExperimentResource extends PacoResource {
   private Experiment experiment = null;
 
   @Override
@@ -49,17 +48,12 @@ public class SubjectsExperimentResource extends PacoResource {
     */
   }
 
-  @Post("gwt|json")
-  public void join() {
-    dao.joinExperiment(user, experiment);
-  }
-
   @Get("gwt|json")
   public ExperimentStats stats() {
     return null;
   }
 
-  @Put("gwt|json")
+  @Post("gwt|json")
   public void update() {
     dao.createEvent(null);
   }

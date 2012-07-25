@@ -28,16 +28,12 @@ import org.restlet.resource.ServerResource;
  */
 public class PacoResource extends ServerResource {
   protected DAO dao = DAO.getInstance();
-  protected UserService userService = UserServiceFactory.getUserService();
+  private UserService userService = UserServiceFactory.getUserService();
   protected User user = userService.getCurrentUser();
 
   @Override
   protected void doInit() throws ResourceException {
-    String userId = (String) getRequest().getAttributes().get("userId");
-
-    System.out.println("Authorizing!");
-
-    if (user == null || (userId != null && user.getUserId().compareTo(userId) != 0)) {
+    if (userService.isUserLoggedIn() == false) {
       throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
     }
   }

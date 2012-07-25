@@ -410,9 +410,9 @@ public class Main implements EntryPoint, ExperimentListener {
     String reference;
 
     if (joined) {
-      reference = "/subjects/" + loginInfo.getUserId() + "/experiments";
+      reference = "/subject/experiments";
     } else {
-      reference = "/observers/" + loginInfo.getUserId() + "/experiments";
+      reference = "/observer/experiments";
     }
 
     PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
@@ -667,12 +667,10 @@ public class Main implements EntryPoint, ExperimentListener {
     String reference;
 
     if (joined) {
-      reference = "/subjects/";
+      reference = "/subject/experiments/" + experiment.getId();
     } else {
-      reference = "/observers/";
+      reference = "/observer/experiments/" + experiment.getId();
     }
-
-    reference += loginInfo.getUserId() + "/experiments/" + experiment.getId();
 
     PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
     experimentsResource.getClientResource().setReference(reference);

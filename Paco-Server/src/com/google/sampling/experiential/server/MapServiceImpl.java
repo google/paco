@@ -176,7 +176,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   private List<Experiment> getExperimentsForUserWithQuery() {
     User user = getWhoFromLogin();
-    return DAO.getInstance().getObserversExperiments(user.getEmail());
+    return DAO.getInstance().getObserverExperiments(user.getEmail());
   }
 
   @Override

@@ -26,9 +26,9 @@ import java.util.List;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class SubjectsExperimentsResource extends PacoResource {
+public class SubjectExperimentsResource extends PacoResource {
   @Get("gwt|json")
   public List<Experiment> list() {
-    return dao.getSubjectsExperiments(user);
+    return dao.getSubjectExperiments(user);
   }
 }

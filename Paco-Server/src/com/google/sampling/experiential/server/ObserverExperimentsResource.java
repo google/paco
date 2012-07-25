@@ -16,29 +16,19 @@ package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
 
-import org.restlet.data.Status;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-
 
 import java.util.List;
 
 /**
  *
+ *
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class ObserversExperimentsResource extends PacoResource {
+public class ObserverExperimentsResource extends PacoResource {
   @Get("gwt|json")
   public List<Experiment> list() {
-    return dao.getObserversExperiments(user);
-  }
-
-  @Post("gwt|json")
-  public void create(Experiment experiment) {
-    Long experimentId = dao.createExperiment(experiment);
-
-    redirectSeeOther("/observers/" + user.getUserId() + "/experiments/" + experimentId);
-    setStatus(Status.SUCCESS_CREATED);
+    return dao.getObserverExperiments(user);
   }
 }

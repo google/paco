@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.util.DAOBase;
@@ -42,19 +43,6 @@ public class DAO extends DAOBase {
     return ofy().get(Experiment.class, Long.getLong(experimentId));
   }
 
-  public List<Experiment> getPublishedExperiments() {
-    return getExperiments().filter("published", true).list();
-  }
-
-  public List<Experiment> getTargetedExperiments(String user) {
-    return getExperiments().filter("publishedUsers", user).list();
-  }
-
-
-  /*
-   *
-   * Observer's experiments
-   */
   public Long createExperiment(Experiment experiment) {
     ofy().put(experiment);
 
@@ -65,14 +53,6 @@ public class DAO extends DAOBase {
     return null;
   }
 
-  public List<Experiment> getObserversExperiments(User user) {
-    return getObserversExperiments(user.getEmail());
-  }
-
-  public List<Experiment> getObserversExperiments(String user) {
-    return getExperiments().filter("admins", user).list();
-  }
-
   public Boolean deleteExperiment(Experiment experiment) {
     return null;
   }
@@ -80,21 +60,34 @@ public class DAO extends DAOBase {
 
   /*
    *
-   * Subject's experiments
+   * Observer's experiments
    */
-  public Long joinExperiment(User user, Experiment experiment) {
-    return joinExperiment(user.getEmail(), experiment);
+  public List<Experiment> getObserverExperiments(User user) {
+    return getObserverExperiments(user.getEmail());
   }
 
-  public Long joinExperiment(String user, Experiment experiment) {
+  public List<Experiment> getObserverExperiments(String user) {
+    return getExperiments().filter("admins", user).list();
+  }
+
+
+  /*
+   *
+   * Subject's experiments
+   */
+  public Long joinExperiment(User user, Experiment experiment, SignalSchedule schedule) {
+    return joinExperiment(user.getEmail(), experiment, schedule);
+  }
+
+  public Long joinExperiment(String user, Experiment experiment, SignalSchedule schedule) {
     return null;
   }
 
-  public List<Experiment> getSubjectsExperiments(User user) {
-    return getSubjectsExperiments(user.getEmail());
+  public List<Experiment> getSubjectExperiments(User user) {
+    return getSubjectExperiments(user.getEmail());
   }
 
-  public List<Experiment> getSubjectsExperiments(String user) {
+  public List<Experiment> getSubjectExperiments(String user) {
     return getExperiments().filter("publishedUsers", user).list();
   }
 
@@ -117,7 +110,7 @@ public class DAO extends DAOBase {
     return event.getId();
   }
 
-  public List<Event> getSubjectsEvents(String user) {
+  public List<Event> getSubjectEvents(String user) {
     return getEvents().filter("who", user).list();
   }
 
@@ -144,6 +137,10 @@ public class DAO extends DAOBase {
    */
   private Query<Experiment> getExperiments() {
     return ofy().query(Experiment.class);
+  }
+
+  public List<Experiment> getPublishedExperiments() {
+    return getExperiments().filter("published", "true").list();
   }
 
   public List<Experiment> getExperiments(Iterable<Long> ids) {

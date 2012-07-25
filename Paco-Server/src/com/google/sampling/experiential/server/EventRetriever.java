@@ -90,7 +90,7 @@ public class EventRetriever {
 
   @SuppressWarnings("unchecked")
   public List<Event> getEvents(String loggedInUser) {
-    return DAO.getInstance().getSubjectsEvents(loggedInUser);
+    return DAO.getInstance().getSubjectEvents(loggedInUser);
   }
 
   public List<Event> getEvents(String loggedInUser,
