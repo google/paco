@@ -39,7 +39,7 @@ import com.google.gwt.visualization.client.visualizations.ColumnChart.Options;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ChartOMundo {
@@ -60,20 +60,20 @@ public class ChartOMundo {
    * 
    * 
    * @param query
-   * @param eventList
+   * @param responses
    */
-  public List<Widget> autoChart(String query, List<Event> eventList) {
+  public List<Widget> autoChart(String query, List<Response> responses) {
 
     String chartTitle = "";
 
-    Map<String, List<Event>> eventsByWho = getWhosFrom(eventList);
+    Map<String, List<Response>> responsesByWho = getResponsesBySubjects(responses);
     // do whole population charts
-    createChartsForEvents(eventList, chartTitle + "whole population");
+    createChartsForResponses(responses, chartTitle + "whole population");
     // do charts for each who
-    if (eventsByWho.keySet().size() > 1) {
-      for (String who : eventsByWho.keySet()) {
-        List<Event> whosEvents = eventsByWho.get(who);
-        createChartsForEvents(whosEvents, chartTitle + " who = " + who);
+    if (responsesByWho.keySet().size() > 1) {
+      for (String who : responsesByWho.keySet()) {
+        List<Response> subjectsResponses = responsesByWho.get(who);
+        createChartsForResponses(subjectsResponses, chartTitle + " who = " + who);
       }
     }
     // plot scatterPlotsForNumericPairWiseWithVaryingKeysAsValue
@@ -120,8 +120,8 @@ public class ChartOMundo {
 
   }
 
-  private void createChartsForEvents(List<Event> eventList, String chartTitle) {
-    Map<String, List<String>> mapOfAllValuesByKey = mapOfAllValuesForKey(eventList);
+  private void createChartsForResponses(List<Response> responses, String chartTitle) {
+    Map<String, List<String>> mapOfAllValuesByKey = mapOfAllValuesForKey(responses);
     Map<String, Class> typesOfValuesByKey = getTypesOfValues(mapOfAllValuesByKey);
 
     Map<String, List<? extends Number>> numericTypes =
@@ -129,12 +129,12 @@ public class ChartOMundo {
     Map<String, List<? extends Date>> dateTypes =
         getDateTypes(typesOfValuesByKey, mapOfAllValuesByKey);
     List<String> numericKeysByVarianceDescending = sortKeysByVariance(numericTypes);
-    plotTimeSeriesOfValuesForKeys(numericKeysByVarianceDescending, eventList, chartTitle);
+    plotTimeSeriesOfValuesForKeys(numericKeysByVarianceDescending, responses, chartTitle);
 
     // plotScatterPlotsForNumericsPairWise(numericKeysByVarianceDescending,
-    // eventList, chartTitle);
+    // responses, chartTitle);
     List<Correlation> correlations = getKeyCorrelations(numericTypes);
-    plotScatterPlotForPairsByCorrelation(correlations, eventList, chartTitle);
+    plotScatterPlotForPairsByCorrelation(correlations, responses, chartTitle);
 
     Map<String, List<String>> stringTypes =
         getStringTypes(mapOfAllValuesByKey, numericTypes, dateTypes);
@@ -142,25 +142,25 @@ public class ChartOMundo {
     List<String> stringKeysByVarianceDescending = collectKeysFrom(countsByKey);
     List<String> varyingKeys = getKeysWithVarianceGT1(countsByKey);
 
-    plotBarChartsForCategoricalStringKeys(varyingKeys, eventList, chartTitle);
+    plotBarChartsForCategoricalStringKeys(varyingKeys, responses, chartTitle);
 
-    plotWordCloudsForCategoricals(chartTitle, getKeysWithMoreThanOneValue(stringTypes), eventList);
+    plotWordCloudsForCategoricals(chartTitle, getKeysWithMoreThanOneValue(stringTypes), responses);
   }
 
   private void plotWordCloudsForCategoricals(String chartTitle,
-      List<String> stringKeysByVarianceDescending, List<Event> eventList) {
+      List<String> stringKeysByVarianceDescending, List<Response> responses) {
     for (String key : stringKeysByVarianceDescending) {
-      plotWordCloudForCategoricals(chartTitle, key, eventList);
+      plotWordCloudForCategoricals(chartTitle, key, responses);
     }
   }
 
   private void plotScatterPlotForPairsByCorrelation(List<Correlation> correlations,
-      List<Event> eventList, String chartTitle) {
+      List<Response> responses, String chartTitle) {
     List<Pair> pairWiseKeys = Lists.newArrayList();
     for (Correlation correlation : correlations) {
       pairWiseKeys.add(correlation.pair);
     }
-    plotScatterPlotForPairs(eventList, chartTitle, pairWiseKeys);
+    plotScatterPlotForPairs(responses, chartTitle, pairWiseKeys);
   }
 
   private List<Correlation> getKeyCorrelations(Map<String, List<? extends Number>> numericTypes) {
@@ -211,19 +211,19 @@ public class ChartOMundo {
     return products;
   }
 
-  private Map<String, List<Event>> getWhosFrom(List<Event> eventList) {
-    Map<String, List<Event>> eventsByWho = Maps.newHashMap();
-    for (Event Event : eventList) {
-      String who = Event.getWho();
-      List<Event> eventListForWho = eventsByWho.get(who);
-      if (eventListForWho == null) {
-        eventListForWho = Lists.newArrayList(Event);
-        eventsByWho.put(who, eventListForWho);
+  private Map<String, List<Response>> getResponsesBySubjects(List<Response> responses) {
+    Map<String, List<Response>> responsesBySubject = Maps.newHashMap();
+    for (Response response : responses) {
+      String subject = response.getSubject();
+      List<Response> responsesForWho = responsesBySubject.get(subject);
+      if (responsesForWho == null) {
+        responsesForWho = Lists.newArrayList(response);
+        responsesBySubject.put(subject, responsesForWho);
       } else {
-        eventListForWho.add(Event);
+        responsesForWho.add(response);
       }
     }
-    return eventsByWho;
+    return responsesBySubject;
   }
 
   private List<String> getKeysWithVarianceGT1(List<KeyValuePair> countsByKey) {
@@ -234,16 +234,6 @@ public class ChartOMundo {
       }
     }
     return varyingKeys;
-  }
-
-  private List<String> getKeysWithNoVariance(List<KeyValuePair> countsByKey) {
-    List<String> nonVaryingKeys = Lists.newArrayList();
-    for (KeyValuePair kvPair : countsByKey) {
-      if (kvPair.value == 1 || kvPair.value == 0) {
-        nonVaryingKeys.add(kvPair.key);
-      }
-    }
-    return nonVaryingKeys;
   }
 
   class Pair {
@@ -268,22 +258,22 @@ public class ChartOMundo {
   }
 
   private void plotScatterPlotsForNumericsPairWise(List<String> numericKeysByVarianceDescending,
-      List<Event> eventList, String chartTitle) {
+      List<Response> responses, String chartTitle) {
     List<Pair> pairWiseKeys = getPairWiseKeysFor(numericKeysByVarianceDescending);
-    plotScatterPlotForPairs(eventList, chartTitle, pairWiseKeys);
+    plotScatterPlotForPairs(responses, chartTitle, pairWiseKeys);
   }
 
-  private void plotScatterPlotForPairs(List<Event> eventList, String chartTitle,
+  private void plotScatterPlotForPairs(List<Response> responses, String chartTitle,
       List<Pair> pairWiseKeys) {
     for (Pair pair : pairWiseKeys) {
-      plotScatterPlotForKeys(pair.key1, pair.key2, eventList, chartTitle + " keys = " + pair.key1
+      plotScatterPlotForKeys(pair.key1, pair.key2, responses, chartTitle + " keys = " + pair.key1
           + " x " + pair.key2);
     }
   }
 
-  private void plotScatterPlotForKeys(String key1, String key2, List<Event> eventList,
+  private void plotScatterPlotForKeys(String key1, String key2, List<Response> responses,
       String chartTitle) {
-    charts.add(createDisclosurePanel(chartTitle, createScatterChart(eventList, chartTitle, key1,
+    charts.add(createDisclosurePanel(chartTitle, createScatterChart(responses, chartTitle, key1,
         key2)));
   }
 
@@ -310,35 +300,35 @@ public class ChartOMundo {
   }
 
   private void plotBarChartsForCategoricalStringKeys(List<String> stringKeysByVarianceDescending,
-      List<Event> eventList, String chartTitle) {
+      List<Response> responses, String chartTitle) {
     for (String string : stringKeysByVarianceDescending) {
-      plotBarChartForCategoricalStringKey(string, eventList, chartTitle);
+      plotBarChartForCategoricalStringKey(string, responses, chartTitle);
     }
   }
 
-  private void plotBarChartForCategoricalStringKey(String key, List<Event> eventList,
+  private void plotBarChartForCategoricalStringKey(String key, List<Response> responses,
       String chartTitle) {
     String chartTitleFull = chartTitle + " KEY = " + key;
     charts
-        .add(createDisclosurePanel(chartTitleFull, createBarChart(eventList, chartTitleFull, key)));
+        .add(createDisclosurePanel(chartTitleFull, createBarChart(responses, chartTitleFull, key)));
   }
 
   private void plotWordCloudForCategoricals(String chartTitle, 
       String key, 
-      List<Event> eventList) {
-    charts.add(createWordCloud(chartTitle, eventList, key));
+      List<Response> responses) {
+    charts.add(createWordCloud(chartTitle, responses, key));
   }
 
   private void plotTimeSeriesOfValuesForKeys(List<String> numericKeysByVarianceDescending,
-      List<Event> eventList, String chartTitle) {
+      List<Response> responses, String chartTitle) {
     for (String key : numericKeysByVarianceDescending) {
-      plotTimeSeriesForKey(key, eventList, chartTitle);
+      plotTimeSeriesForKey(key, responses, chartTitle);
     }
   }
 
-  private void plotTimeSeriesForKey(String key, List<Event> eventList, String chartTitle) {
+  private void plotTimeSeriesForKey(String key, List<Response> responses, String chartTitle) {
     String chartTitleWithKey = chartTitle + " KEY = " + key;
-    charts.add(createDisclosurePanel(chartTitleWithKey, createLineChart(eventList,
+    charts.add(createDisclosurePanel(chartTitleWithKey, createLineChart(responses,
         chartTitleWithKey, key)));
   }
 
@@ -551,30 +541,30 @@ public class ChartOMundo {
    * otherwise there may be way too many charts for all variable combinations.
    * 
    * @param query
-   * @param eventList
+   * @param responses
    */
-  public void autoChartByVariance(String query, List<Event> eventList) {
+  public void autoChartByVariance(String query, List<Response> responses) {
     String chartTitle = "Query: " + query;
     // List<List<String>> queryKeyValuePairs = parseKeyValuePairsFromQuery();
-    Map<String, List<String>> mapOfAllValuesByKey = mapOfAllValuesForKey(eventList);
+    Map<String, List<String>> mapOfAllValuesByKey = mapOfAllValuesForKey(responses);
     TreeMap<String, Integer> variancesOfKeys = getVariancesOfKeys(mapOfAllValuesByKey);
     List<String> keysWithVariance = getKeysThatVary(variancesOfKeys);
 
     if (mapOfAllValuesByKey.keySet().size() == 1 || keysWithVariance.size() == 1) {
-      charts.add(createUnivariateChart(mapOfAllValuesByKey.keySet().iterator().next(), eventList,
+      charts.add(createUnivariateChart(mapOfAllValuesByKey.keySet().iterator().next(), responses,
           chartTitle));
     } else if (keysWithVariance.size() == 2) {
-      charts.add(createBiVariateChart(keysWithVariance, eventList, chartTitle));
+      charts.add(createBiVariateChart(keysWithVariance, responses, chartTitle));
     } else /* if (keysWithVariance.size() > 2) */{
-      charts.add(createMultiVariateChart(variancesOfKeys, eventList, chartTitle));
+      charts.add(createMultiVariateChart(variancesOfKeys, responses, chartTitle));
       // pick the most varying for some reason.
       // String mostDynamicKey = getMostVaryingKey(mapOfAllValuesByKey);
-      // return createUnivariateChart(mostDynamicKey, eventList, chartTitle);
+      // return createUnivariateChart(mostDynamicKey, responses, chartTitle);
     }
   }
 
   private Widget createMultiVariateChart(TreeMap<String, Integer> variancesOfKeys,
-      List<Event> eventList, String chartTitle) {
+      List<Response> responses, String chartTitle) {
     Widget chart = null;
     // putMostVaryingDimensionOnYAxis
     // putNextMostVaryingDimensionOnXAxis
@@ -587,7 +577,7 @@ public class ChartOMundo {
     return chart;
   }
 
-  private Widget createBiVariateChart(List<String> keysWithVariance, List<Event> eventList,
+  private Widget createBiVariateChart(List<String> keysWithVariance, List<Response> responses,
       String chartTitle) {
     Widget chart = null;
     // putMostVaryingDimensionOnYAxis
@@ -630,11 +620,11 @@ public class ChartOMundo {
     return mapOfVariances;
   }
 
-  private Widget createUnivariateChart(String key, List<Event> eventList, String title) {
+  private Widget createUnivariateChart(String key, List<Response> responses, String title) {
     Widget chart = null;
-    Class typeOfData = getDataTypeOf(eventList.get(0).getWhatByKey(key));
+    Class typeOfData = getDataTypeOf(responses.get(0).getOutputByKey(key));
     if (typeOfData.equals(String.class)) {
-      createHistogram(eventList, title, key);
+      createHistogram(responses, title, key);
     }
     return chart;
   }
@@ -661,10 +651,10 @@ public class ChartOMundo {
     return String.class;
   }
 
-  private Map<String, List<String>> mapOfAllValuesForKey(List<Event> eventList) {
+  private Map<String, List<String>> mapOfAllValuesForKey(List<Response> responses) {
     Map<String, List<String>> allValuesByKey = Maps.newHashMap();
-    for (Event Event : eventList) {
-      Map<String, String> whatMap = Event.getWhat();
+    for (Response response : responses) {
+      Map<String, String> whatMap = response.getWhat();
       for (String key : whatMap.keySet()) {
         String value = whatMap.get(key);
         List<String> valuesForKey = allValuesByKey.get(key);
@@ -678,7 +668,7 @@ public class ChartOMundo {
     return allValuesByKey;
   }
 
-  public ColumnChart createBarChart(List<Event> eventList, String chartTitle,
+  public ColumnChart createBarChart(List<Response> responses, String chartTitle,
       String changingParameterKey) {
     String xAxis = changingParameterKey;
     String yAxis = "Count";
@@ -689,8 +679,8 @@ public class ChartOMundo {
     data.addColumn(ColumnType.NUMBER, yAxis);
 
     Map<String, Integer> counts = Maps.newHashMap();
-    for (Event event : eventList) {
-      String activity = event.getWhatByKey(changingParameterKey);
+    for (Response response : responses) {
+      String activity = response.getOutputByKey(changingParameterKey);
       if (activity == null) {
         continue;
       }
@@ -714,7 +704,7 @@ public class ChartOMundo {
     return bar;
   }
 
-  public ColumnChart createBarChartForList(List<Event> eventList, String chartTitle,
+  public ColumnChart createBarChartForList(List<Response> responses, String chartTitle,
       String changingParameterKey, String[] listChoices, Boolean multiselectList) {
     String xAxis = changingParameterKey;
     String yAxis = "Count";
@@ -725,8 +715,8 @@ public class ChartOMundo {
     data.addColumn(ColumnType.NUMBER, yAxis);
 
     Map<String, Integer> counts = Maps.newHashMap();
-    for (Event event : eventList) {
-      String activity = event.getWhatByKey(changingParameterKey);
+    for (Response response : responses) {
+      String activity = response.getOutputByKey(changingParameterKey);
       if (activity == null) {
         continue;
       }
@@ -787,10 +777,10 @@ public class ChartOMundo {
     return key;
   }
 
-  WordCloudView createWordCloud(String chartTitle, List<Event> eventList, String key) {
+  WordCloudView createWordCloud(String chartTitle, List<Response> responses, String key) {
     List<String> entries = Lists.newArrayList();
-    for (Event event : eventList) {
-      String value = event.getWhatByKey(key);
+    for (Response response : responses) {
+      String value = response.getOutputByKey(key);
       if (value == null || value.isEmpty()) {
         continue;
       }
@@ -800,7 +790,7 @@ public class ChartOMundo {
     return new WordCloudView(chartTitle + " key = " + key, entries);
   }
 
-  private ColumnChart createHistogram(List<Event> eventList, String chartTitle,
+  private ColumnChart createHistogram(List<Response> responses, String chartTitle,
       String changingParameterKey) {
     String xAxis = changingParameterKey;
     String yAxis = "Count";
@@ -812,9 +802,9 @@ public class ChartOMundo {
     data.addColumn(ColumnType.NUMBER, yAxis);
 
     int[] counts = new int[] {0, 0, 0, 0, 0};
-    for (Event event : eventList) {
+    for (Response response : responses) {
       try {
-        Integer rating = Integer.parseInt(event.getWhatByKey(changingParameterKey).trim());
+        Integer rating = Integer.parseInt(response.getOutputByKey(changingParameterKey).trim());
         counts[rating + 2] = counts[rating + 2] + 1;
       } catch (NumberFormatException nfe) {
       }
@@ -831,22 +821,22 @@ public class ChartOMundo {
     return bar;
   }
 
-  private ScatterChart createScatterChart(List<Event> eventList, String chartTitle, String key1,
+  private ScatterChart createScatterChart(List<Response> responses, String chartTitle, String key1,
       String key2) {
     String xAxis = key1;
     String yAxis = key2;
 
     DataTable data = DataTable.create();
-    data.addRows(eventList.size());
+    data.addRows(responses.size());
     data.addColumn(ColumnType.NUMBER, xAxis);
     data.addColumn(ColumnType.NUMBER, yAxis);
 
 
     int row = 0;
     // String debugPoints = "";
-    for (Event event : eventList) {
-      String key1ValStr = event.getWhatByKey(key1);
-      String key2ValStr = event.getWhatByKey(key2);
+    for (Response response : responses) {
+      String key1ValStr = response.getOutputByKey(key1);
+      String key2ValStr = response.getOutputByKey(key2);
       // debugPoints += key1ValStr + "," + key2ValStr +"<br/>";
       if (key1ValStr == null || key2ValStr == null) {
         continue;
@@ -873,13 +863,13 @@ public class ChartOMundo {
     return scatterChart;
   }
 
-  static LineChart createLineChart(List<Event> eventList, String chartTitle,
+  static LineChart createLineChart(List<Response> responses, String chartTitle,
       String changingParameterKey) {
     String yAxis = changingParameterKey;
     String xAxis = "Date";
 
     List<DateStat> statsByDate =
-      DateStat.calculateParameterDailyStats(changingParameterKey, eventList);
+      DateStat.calculateParameterDailyStats(changingParameterKey, responses);
   
     DataTable data = DataTable.create();
     data.addRows(statsByDate.size());

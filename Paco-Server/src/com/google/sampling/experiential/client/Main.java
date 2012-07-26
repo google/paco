@@ -40,7 +40,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.Feedback;
@@ -72,7 +72,6 @@ public class Main implements EntryPoint, ExperimentListener {
   private List<Experiment> joinedExperiments;
   private List<Experiment> adminedExperiments;
 
-  // FIXME: Delete this
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
   private LoginInfo loginInfo = null;
@@ -444,7 +443,7 @@ public class Main implements EntryPoint, ExperimentListener {
           joinedStr = ":who=" + loginInfo.getEmailAddress();
         }
         Window.Location.assign(
-            "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
+            "/responses?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
         break;
       case ExperimentListener.DELETE_CODE:
         if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
@@ -473,7 +472,7 @@ public class Main implements EntryPoint, ExperimentListener {
           whoStr = ":who=" + loginInfo.getEmailAddress();
         }
         Window.Location.assign(
-            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+            "/responses?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
         break;
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
@@ -486,9 +485,8 @@ public class Main implements EntryPoint, ExperimentListener {
           who2Str = ":who=" + loginInfo.getEmailAddress();
         }
         Window.Location.assign(
-            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+            "/responses?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
         break;
-        
     }
   }
 
@@ -598,7 +596,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showChart(final Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
-    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
+    AsyncCallback<List<Response>> callback = new AsyncCallback<List<Response>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -608,14 +606,14 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<Event> eventList) {
-        if (eventList.size() == 0) {
+      public void onSuccess(List<Response> responses) {
+        if (responses.size() == 0) {
           Window.alert("No results for your query");
           statusLabel.setVisible(false);
           return;
         }
-        // renderEventsOnList(eventList);
-        ExperimentChartsPanel ep = new ExperimentChartsPanel(experiment, eventList);
+        // renderResponsesOnList(responses);
+        ExperimentChartsPanel ep = new ExperimentChartsPanel(experiment, responses);
         contentPanel.add(ep);
         statusLabel.setVisible(false);
       }
@@ -627,7 +625,7 @@ public class Main implements EntryPoint, ExperimentListener {
     mapService.mapWithTags(queryText, callback);
     // for each question in the experiment
     // print the title of the experiment
-    // lookup the question in the events list,
+    // lookup the question in the responses list,
     // make a chart with the time series for the values of that question
     // if the response type is number (likert, etc.) - simple connected line
     // else if the response type is open text - word cloud? or skip - yes!

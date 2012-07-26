@@ -33,7 +33,7 @@ import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
 
@@ -166,13 +166,13 @@ public class StatsPanel extends Composite {
 
   private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
     HashMap<String,String> participants = new HashMap<String,String>();
-    for (Event event : experimentStats.getJoinedEventsList()) {
-      String who = event.getWho();
+    for (Response response : experimentStats.getJoinedResponsesList()) {
+      String who = response.getSubject();
       String existingWhoValue = participants.get(who);
       if (existingWhoValue == null) {
-        existingWhoValue = who + ": " + df.format(event.getResponseTime());
+        existingWhoValue = who + ": " + df.format(response.getResponseTime());
       } else {
-        existingWhoValue += "," + df.format(event.getResponseTime());
+        existingWhoValue += "," + df.format(response.getResponseTime());
       }
       participants.put(who, existingWhoValue);
     }
@@ -197,7 +197,7 @@ public class StatsPanel extends Composite {
 
 
     // List<DateStat> statsByDate =
-    // DateStat.calculateParameterDailyStats(changingParameterKey, eventList);
+    // DateStat.calculateParameterDailyStats(changingParameterKey, responses);
 
     Double min = null;
     Double max = null;

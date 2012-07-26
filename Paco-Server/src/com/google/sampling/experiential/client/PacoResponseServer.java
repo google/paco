@@ -53,7 +53,7 @@ import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -68,7 +68,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
  * @author Bob Evans
  *
  */
-public class PacoEventServer implements EntryPoint {
+public class PacoResponseServer implements EntryPoint {
 
   static final Images images = (Images) GWT.create(Images.class);
 
@@ -94,10 +94,10 @@ public class PacoEventServer implements EntryPoint {
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
   // private MapWidget map;
-  List<Event> eventList;
+  List<Response> responses;
   // private ScrollPanel visualizationPanel;
-  private VerticalPanel eventListPanel;
-  // private Map<Event, Marker> markers = Maps.newHashMap();
+  private VerticalPanel responsesPanel;
+  // private Map<Response, Marker> markers = Maps.newHashMap();
   TextBox tagList;
   private VerticalPanel logPanel;
   FlowPanel chartPanel;
@@ -118,7 +118,7 @@ public class PacoEventServer implements EntryPoint {
   public void onModuleLoad() {
     // Check login status using login service.
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL() +"PacoEventServer.html", new AsyncCallback<LoginInfo>() {
+    loginService.login(GWT.getHostPageBaseURL() +"PacoResponseServer.html", new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
       }
 
@@ -164,7 +164,7 @@ public class PacoEventServer implements EntryPoint {
 
     HorizontalPanel mainPanel = createMainpanel();
     rootPanel.add(mainPanel);
-    createEventListPanel(mainPanel);
+    createResponsesPanel(mainPanel);
 
     logPanel = new VerticalPanel();
     logPanel.setBorderWidth(2);
@@ -182,7 +182,7 @@ public class PacoEventServer implements EntryPoint {
 
   private VerticalPanel createSearchPanel() {
     final VerticalPanel filterPanel = new VerticalPanel();
-    filterPanel.add(new HTMLPanel("<b>Events (empty for all):</b> "));
+    filterPanel.add(new HTMLPanel("<b>Responses (empty for all):</b> "));
     tagList = new TextBox();
     tagList.setWidth("45em");
     filterPanel.add(tagList);
@@ -205,7 +205,7 @@ public class PacoEventServer implements EntryPoint {
 
       @Override
       public void onClick(ClickEvent event) {
-        Window.Location.assign("/PostEvent.html");
+        Window.Location.assign("/PostResponse.html");
 
       }
     });
@@ -220,15 +220,15 @@ public class PacoEventServer implements EntryPoint {
     return mainPanel;
   }
 
-  private void createEventListPanel(HorizontalPanel mainPanel) {
-    ScrollPanel eventListScrollPanel = new ScrollPanel();
+  private void createResponsesPanel(HorizontalPanel mainPanel) {
+    ScrollPanel responsesScrollPanel = new ScrollPanel();
 
-    eventListScrollPanel.setHeight("75em");
-    mainPanel.add(eventListScrollPanel);
+    responsesScrollPanel.setHeight("75em");
+    mainPanel.add(responsesScrollPanel);
 
-    eventListPanel = new VerticalPanel();
-    eventListPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-    eventListScrollPanel.add(eventListPanel);
+    responsesPanel = new VerticalPanel();
+    responsesPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    responsesScrollPanel.add(responsesPanel);
   }
 
   private void createCallbackForGviz() {
@@ -254,25 +254,25 @@ public class PacoEventServer implements EntryPoint {
   // map.addControl(new ScaleControl());
   // }
 
-  private void renderEventsOnList(List<Event> eventList2) {
+  private void renderResponsesOnList(List<Response> responses) {
     DataTable data = DataTable.create();
-    data.addRows(eventList2.size());
+    data.addRows(responses.size());
     data.addColumn(ColumnType.DATE, "When");
     data.addColumn(ColumnType.STRING, "Who");
     data.addColumn(ColumnType.STRING, "Experiment");
     data.addColumn(ColumnType.STRING, "What");
     int row = 0;
-    for (Event event : eventList2) {
-      data.setValue(row, 0, event.getWhen());
-      data.setValue(row, 1, event.getWho());
-      data.setValue(row, 2, event.getExperimentName());
-      data.setValue(row, 3, event.getWhatString());
+    for (Response response : responses) {
+      data.setValue(row, 0, response.getCreateTime());
+      data.setValue(row, 1, response.getSubject());
+      data.setValue(row, 2, response.getExperimentId());
+      data.setValue(row, 3, response.getOutputsString());
       row++;
     }
 
     final Table meetingTable = new Table(data, createTableOptions());
-    eventListPanel.clear();
-    eventListPanel.add(meetingTable);
+    responsesPanel.clear();
+    responsesPanel.add(meetingTable);
   }
 
   private com.google.gwt.visualization.client.visualizations.Table.Options createTableOptions() {
@@ -283,53 +283,6 @@ public class PacoEventServer implements EntryPoint {
     return options;
   }
 
-  // private void renderEventsOnMap() {
-  // markers.clear();
-  // visualizationPanel.clear();
-  // createMapWidget();
-  // visualizationPanel.add(map);
-  //
-  // for (final Event eventRating : eventList) {
-  // String lat = eventRating.getLat();
-  // String lon = eventRating.getLon();
-  // try {
-  // double latitude = Double.parseDouble(lat);
-  // double longitude = Double.parseDouble(lon);
-  //
-  // MarkerOptions markerOptions = MarkerOptions.newInstance();
-  // markerOptions.setTitle(eventRating.getWhatString());
-  // final Marker marker = new Marker(LatLng.newInstance(latitude, longitude),
-  // markerOptions);
-  // marker.addMarkerClickHandler(new MarkerClickHandler() {
-  //
-  // @Override
-  // public void onClick(MarkerClickEvent event) {
-  // openInfoWindowForMarker(eventRating, marker);
-  // }
-  //
-  // });
-  // markers.put(eventRating, marker);
-  // map.addOverlay(marker);
-  // } catch (NumberFormatException nfe) {
-  // }
-  // }
-  // }
-
-  // private void openInfoWindowForMarker(final Event eventRating, final
-  // Marker marker) {
-  // map.getInfoWindow().open(marker.getPoint(),
-  // createInfoWindowForEventRating(eventRating));
-  // }
-  //
-
-  // private InfoWindowContent createInfoWindowForEventRating(final Event
-  // eventRating) {
-  // return new InfoWindowContent("What: " + eventRating.getWhatString() +
-  // "<br/>Who: "
-  // + eventRating.getWho() + "<br/>When: " +
-  // formatter.format(eventRating.getWhen()));
-  // }
-
   public static Set<String> splitTags(String text) {
     String[] tags = text.split(" ");
     return new HashSet<String>(Arrays.asList(tags));
@@ -338,9 +291,9 @@ public class PacoEventServer implements EntryPoint {
   private void drawResults() {
 
     chartPanel.clear();
-    eventListPanel.clear();
+    responsesPanel.clear();
 
-    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
+    AsyncCallback<List<Response>> callback = new AsyncCallback<List<Response>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -348,42 +301,23 @@ public class PacoEventServer implements EntryPoint {
       }
 
       @Override
-      public void onSuccess(List<Event> eventList) {
+      public void onSuccess(List<Response> responses) {
         // create column chart with responses;
-        log("Got results: size: " + eventList.size());
-        if (eventList.size() == 0) {
+        log("Got results: size: " + responses.size());
+        if (responses.size() == 0) {
           chartPanel.add(new HTML("<h1>No results for your query.</h1>"));
           return;
         }
-        renderEventsOnList(eventList);
+        renderResponsesOnList(responses);
         // Window.alert("Starting ChartOMundo");
         ChartOMundo chartMaker = new ChartOMundo();
-        List<Widget> charts = chartMaker.autoChart(tagList.getText(), eventList);
+        List<Widget> charts = chartMaker.autoChart(tagList.getText(), responses);
         // chartMaker.getCharts();
         // Window.alert("Got back _"+charts.size()+"_ charts!");
         for (Widget chart : charts) {
           chartPanel.add(chart);
         }
       }
-
-
-
-      // private Widget XautoChart(List<Event> eventList) {
-      // try {
-      // String chartTitle = "Query: " + tagList.getText();
-      // String changingParameterKey = addKeysAndGetChangingParameter();
-      // Widget chart;
-      // if (tagList.getText().indexOf(":histo") != -1) {
-      // chart = createHistogram(eventList, chartTitle, changingParameterKey);
-      // } else {
-      // chart = createLineChart(eventList, chartTitle, changingParameterKey);
-      // }
-      // return chart;
-      // } catch (Exception e) {
-      // log("Could not create chart");
-      // }
-      // return null;
-      // }
 
       private List<List<String>> parseKeyValuePairsFromQuery() {
         String[] keySplit = tagList.getText().split("\\:");
@@ -401,26 +335,6 @@ public class PacoEventServer implements EntryPoint {
         }
         return kvPairs;
       }
-
-      // private String addKeysAndGetChangingParameter() {
-      // // Aargh! GWT does not include the c/g/c/b/Splitter, so I can't use my
-      // // queryparser.
-      // // List<com.google.sampling.experiential.server.Query> query =
-      // // qp.parse(tagList.getText());
-      //
-      // List<List<String>> kvPairs = parseKeyValuePairsFromQuery();
-      // String changingParameterKey = "rating";
-      //
-      // for (List<String> kv : kvPairs) {
-      // String key = kv.get(0);
-      // if (kv.size() == 1 || kv.get(1) == null || kv.get(1).isEmpty()) {
-      // changingParameterKey = key;
-      // }
-      // }
-      // return changingParameterKey;
-      // }
-
-
 
     };
     log("Calling server");

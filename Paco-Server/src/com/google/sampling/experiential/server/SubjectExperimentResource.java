@@ -55,7 +55,7 @@ public class SubjectExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void update() {
-    dao.createEvent(null);
+    dao.createResponse(null);
   }
 
   @Delete("gwt|json")

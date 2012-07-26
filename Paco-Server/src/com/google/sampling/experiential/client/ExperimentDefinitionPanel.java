@@ -484,14 +484,14 @@ public class ExperimentDefinitionPanel extends Composite {
 
       @Override
       public void onClick(Widget sender) {
-        submitEvent(experiment);
+        submitExperiment(experiment);
       }
 
     });
     return whatButton;
   }
 
-  private void submitEvent(Experiment experiment) {
+  private void submitExperiment(Experiment experiment) {
     try {
       setTitleOn(experiment);
       setDescriptionOn(experiment);

@@ -106,17 +106,17 @@ public class DateStat implements Comparable<DateStat>, Serializable {
   }
 
   public static List<DateStat> calculateParameterDailyStats(String changingParameterKey,
-      List<Event> eventList) {
+      List<Response> responses) {
     Map<String, DateStat> dateStats = Maps.newHashMap();
-    for (Event event : eventList) {
-      Date date = event.getResponseTime();
+    for (Response response : responses) {
+      Date date = response.getResponseTime();
       if (date == null) {
-        date = event.getScheduledTime();
+        date = response.getSignalTime();
       }
       // TODO (bobevans): Find a better way to match dates
       // Could use joda, but not in gwt. Could use calendar, but not in gwt.
       String key = date.getYear() + ":" + date.getMonth() + ":" + date.getDate();
-      String whatByKey = event.getWhatByKey(changingParameterKey);
+      String whatByKey = response.getOutputByKey(changingParameterKey);
       if (whatByKey == null || whatByKey.equals("null")) {
         continue;
       }

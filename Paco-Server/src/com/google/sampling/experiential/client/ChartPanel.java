@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.client;
 
 import java.util.List;
@@ -26,13 +23,13 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Component for holding an individual chart for an Input's responses.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -40,16 +37,17 @@ public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
   private Input input;
-  private List<Event> data;
+  private List<Response> responses;
 
-//  private MapWidget map;
-//  private Map<Event, Marker> markers = com.google.common.collect.Maps.newHashMap();
+  // private MapWidget map;
+  // private Map<Response, Marker> markers = com.google.common.collect.Maps.newHashMap();
   private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
-//  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(Input input, List<Event> eventList) {
+  // private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
+
+  public ChartPanel(Input input, List<Response> responses) {
     this.input = input;
-    this.data = eventList;
+    this.responses = responses;
 
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -62,24 +60,24 @@ public class ChartPanel extends Composite {
 
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
-    if (input.getResponseType().equals(Input.OPEN_TEXT) &&
-        dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
-      verticalPanel.add(cm.createWordCloud("", eventList, input.getName()));
+    if (input.getResponseType().equals(Input.OPEN_TEXT) && dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
+      verticalPanel.add(cm.createWordCloud("", responses, input.getName()));
     } else if (input.getResponseType().equals(Input.PHOTO)) {
       verticalPanel.add(createPhotoSlider());
     } else if (input.getResponseType().equals(Input.LOCATION)) {
-      verticalPanel.add(renderEventsOnMap());
+      verticalPanel.add(renderResponsesOnMap());
     } else if (input.getResponseType().equals(Input.LIST)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-          input.getListChoices().toArray(new String[input.getListChoices().size()]), input.isMultiselect()));
+      verticalPanel.add(cm.createBarChartForList(responses, "", input.getName(),
+          input.getListChoices().toArray(new String[input.getListChoices().size()]),
+          input.isMultiselect()));
     } else if (input.getResponseType().equals(Input.LIKERT)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-          getLikertCategories(), false));
+      verticalPanel.add(
+          cm.createBarChartForList(responses, "", input.getName(), getLikertCategories(), false));
     } else if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
-      getLikertSmileyCategories(), false));
+      verticalPanel.add(cm.createBarChartForList(
+          responses, "", input.getName(), getLikertSmileyCategories(), false));
     } else {
-      verticalPanel.add(cm.createLineChart(eventList, "", input.getName()));
+      verticalPanel.add(cm.createLineChart(responses, "", input.getName()));
     }
   }
 
@@ -96,14 +94,13 @@ public class ChartPanel extends Composite {
     String[] choices = new String[likertSteps];
     if (input.getLeftSideLabel() != null) {
       choices[0] = input.getLeftSideLabel();
-    } 
+    }
     choices[0] = choices[0] + " (1)";
     if (input.getRightSideLabel() != null) {
       choices[likertSteps - 1] = input.getRightSideLabel();
     }
-    choices[likertSteps - 1] = choices[likertSteps - 1] 
-                                                   + " (" + likertSteps + ")"; 
-    for (int i=1;i < (likertSteps - 1); i++) {
+    choices[likertSteps - 1] = choices[likertSteps - 1] + " (" + likertSteps + ")";
+    for (int i = 1; i < (likertSteps - 1); i++) {
       choices[i] = "(" + (i + 1) + ")";
     }
     return choices;
@@ -112,7 +109,7 @@ public class ChartPanel extends Composite {
   private String[] getLikertSmileyCategories() {
     final int smiley_count = 5;
     String[] choices = new String[smiley_count];
-    for (int i=0;i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
       choices[i] = Integer.toString(i + 1);
     }
     return choices;
@@ -120,141 +117,70 @@ public class ChartPanel extends Composite {
 
   /**
    * Show photos in a side-sliding gallery.
-   * 
+   *
    * @return The photo gallery widget
    */
   private Widget createPhotoSlider() {
     // I want a horizontally scrolling panel that shows photos in date order
     //
-    //      / photo1 | photo2 | photo3 \
-    //     (                            )
-    //      \  date  |  date  |  date  /
+    // / photo1 | photo2 | photo3 \
+    // ( )
+    // \ date | date | date /
     //
     ScrollPanel photosPanel = new ScrollPanel();
     photosPanel.setHeight("480");
     photosPanel.setWidth("800");
-    
+
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setHeight("450");
     photosPanel.add(horizontalPanel);
-    for (Event event : data) {
-      List<String> blobs = event.getBlobs();
-      if (blobs == null || blobs.size() == 0) {
-        continue;
-      }
-      for (int i = 0; i < blobs.size(); i++) {
-        String blobData = blobs.get(i);
-        if (blobData.length() == 0 || blobData.equals("==")) {
+    for (Response response : responses) {
+      for (String key : response.getOutputs().keySet()) {
+        String blobData = response.getOutputByKey(key);
+
+        if (blobData == null || blobData.startsWith("http://") == false) {
           continue;
         }
 
         HTML picture = new HTML("<div style=\"text-align:center;margin-left:2;margin-right:2;\">"
-            + "<img height=\"375\" src=\"data:image/jpg;base64," 
-            + blobData 
-            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formatter.format(event.getResponseTime()) + "</b>"
-            + "<br><b>" + formatter.format(event.getScheduledTime()) + "</b>"
-            +"</div>");
+            + "<img height=\"375\" src=\"" + blobData + "\"><br><b>" + response.getSubject()
+            + "</b><br><b>" + formatter.format(response.getResponseTime()) + "</b>" + "<br><b>"
+            + formatter.format(response.getSignalTime()) + "</b>" + "</div>");
         horizontalPanel.add(picture);
       }
     }
     return photosPanel;
   }
 
-  /**
-   * Create a Map Widget of Lat/Lon data.
-   */
-  private void createMap() {
-//    
-//    map = new MapWidget(google, 11);
-//    map.setSize("800px", "600px");
-//    
-//    // Add some controls for the zoom level
-//    map.addControl(new LargeMapControl());
-//    map.addControl(new MapTypeControl());
-//    map.addControl(new ScaleControl());
+  private Widget renderResponsesOnMap() {
+    return null;
   }
-
-  private Widget renderEventsOnMap() {
-	  return null;
-//    markers.clear();
-//    createMap();
-//    LatLngBounds bounds = LatLngBounds.newInstance();
-//    map.setCenter(bounds.getCenter());
-//    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
-//    for (final Event eventRating : data) {
-//      String latLon = eventRating.getWhatByKey(input.getName());
-//      if (latLon == null || latLon.length() == 0) {
-//        continue;
-//      }
-//      String[] splits = latLon.split(",");
-//      if (splits == null || splits.length != 2) {
-//        continue;
-//      }
-//      try {
-//        double latitude = Double.parseDouble(splits[0]);
-//        double longitude = Double.parseDouble(splits[1]);
-//
-//        MarkerOptions markerOptions = MarkerOptions.newInstance();
-//        markerOptions.setTitle(eventRating.getWhatString());
-//        final Marker marker = new Marker(LatLng.newInstance(latitude, longitude), markerOptions);
-//        bounds.extend(marker.getPoint());
-//        marker.addMarkerClickHandler(new MarkerClickHandler() {
-//
-//          @Override
-//          public void onClick(MarkerClickEvent event) {
-//            openInfoWindowForMarker(eventRating, marker);
-//          }
-//
-//        });
-//        markers.put(eventRating, marker);
-//        map.addOverlay(marker);
-//      } catch (NumberFormatException nfe) {
-//      }
-//    }
-//    
-//    
-//    map.setCenter(bounds.getCenter());
-//    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
-//    map.checkResizeAndCenter();
-//    return map;
-  }
-
-//  private void openInfoWindowForMarker(final Event eventRating, final Marker marker) {
-//    map.getInfoWindow().open(marker.getPoint(), createInfoWindowForEventRating(eventRating));
-//  }
-
-
-//  private InfoWindowContent createInfoWindowForEventRating(final Event eventRating) {
-//    return new InfoWindowContent(
-//        "What: " + eventRating.getWhatString() + "<br/>Who: " + eventRating.getWho() + "<br/>When: "
-//            + formatter.format(eventRating.getWhen()));
-//  }
 
   /**
    * Sample the data to figure out what type it is.
-   * 
+   *
    * @param cm The ChartoMundo chart maker object.
    * @return
    */
   private Class getSampleDataType(ChartOMundo cm) {
     String inputName = input.getName();
-    if (inputName == null || data.size() == 0) {
+    if (inputName == null || responses.size() == 0) {
       return DEFAULT_DATA_CLASS;
     }
 
-    Event Event = data.get(0);
-    String answer = Event.getWhatByKey(inputName);
+    Response response = responses.get(0);
+    String answer = response.getOutputByKey(inputName);
     if (answer == null) {
       return DEFAULT_DATA_CLASS;
     }
-    
+
     Class dataTypeOfFirstEntry = cm.getDataTypeOf(answer);
-    
-    if (data.size() == 1) {
+
+    if (responses.size() == 1) {
       return dataTypeOfFirstEntry;
     }
-    Event Event2 = data.get(1);
-    String answer2 = Event2.getWhatByKey(inputName);
+    Response response2 = responses.get(1);
+    String answer2 = response2.getOutputByKey(inputName);
     if (answer2 == null) {
       return DEFAULT_DATA_CLASS;
     }

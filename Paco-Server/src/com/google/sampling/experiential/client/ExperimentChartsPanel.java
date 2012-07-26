@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Input;
 
@@ -35,11 +35,11 @@ import com.google.sampling.experiential.shared.Input;
 public class ExperimentChartsPanel extends Composite {
 
   private Experiment experiment;
-  private List<Event> eventList;
+  private List<Response> responses;
 
-  public ExperimentChartsPanel(Experiment experiment, List<Event> eventList) {
+  public ExperimentChartsPanel(Experiment experiment, List<Response> responses) {
     this.experiment = experiment;
-    this.eventList = eventList;
+    this.responses = responses;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
 
@@ -53,7 +53,7 @@ public class ExperimentChartsPanel extends Composite {
     verticalPanel.add(lblChartsForExperiment);
 
     for (Input input : experiment.getInputs()) {
-      ChartPanel cp = new ChartPanel(input, eventList);
+      ChartPanel cp = new ChartPanel(input, responses);
       verticalPanel.add(cp);
     }
 

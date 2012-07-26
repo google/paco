@@ -5,7 +5,7 @@ package com.google.sampling.experiential.server;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.shared.Event;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class DAO extends DAOBase {
   static {
     ObjectifyService.register(Experiment.class);
-    ObjectifyService.register(Event.class);
+    ObjectifyService.register(Response.class);
     ObjectifyService.register(PhotoBlob.class);
   }
 
@@ -102,32 +102,16 @@ public class DAO extends DAOBase {
 
   /*
    *
-   * Subject's events
+   * Subject's responses
    */
-  public Long createEvent(Event event) {
-    ofy().put(event);
+  public Long createResponse(Response response) {
+    ofy().put(response);
 
-    return event.getId();
+    return response.getId();
   }
 
-  public List<Event> getSubjectEvents(String user) {
-    return getEvents().filter("who", user).list();
-  }
-
-  public Long createPhotoBlob(PhotoBlob photoBlob) {
-    ofy().put(photoBlob);
-
-    return photoBlob.getId();
-  }
-
-  public List<PhotoBlob> getEventPhotoBlobs(Event event) {
-    List<Long> ids = Lists.newArrayList();
-
-    for (String blob : event.getBlobs()) {
-      ids.add(Long.parseLong(blob));
-    }
-
-    return getPhotoBlobs(ids);
+  public List<Response> getSubjectResponses(String user) {
+    return getResponses().filter("subject", user).list();
   }
 
 
@@ -147,8 +131,8 @@ public class DAO extends DAOBase {
     return Lists.newArrayList(ofy().get(Experiment.class, ids).values());
   }
 
-  private Query<Event> getEvents() {
-    return ofy().query(Event.class);
+  private Query<Response> getResponses() {
+    return ofy().query(Response.class);
   }
 
   private List<PhotoBlob> getPhotoBlobs(Iterable<Long> ids) {

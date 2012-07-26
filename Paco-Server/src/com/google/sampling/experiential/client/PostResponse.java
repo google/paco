@@ -44,7 +44,7 @@ import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
-public class PostEvent implements EntryPoint {
+public class PostResponse implements EntryPoint {
 
   private VerticalPanel whatPanel;
   private MapServiceAsync mapService = GWT.create(MapService.class);
@@ -62,7 +62,7 @@ public class PostEvent implements EntryPoint {
   public void onModuleLoad() {
     // Check login status using login service.
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL() + "PostEvent.html", new AsyncCallback<LoginInfo>() {
+    loginService.login(GWT.getHostPageBaseURL() + "PostResponse.html", new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
       }
 
@@ -88,17 +88,17 @@ public class PostEvent implements EntryPoint {
   private void createHomePage() {
 
     VerticalPanel p = new VerticalPanel();
-    HTML l = new HTML("<h1>Post an Event</h1>");
+    HTML l = new HTML("<h1>Post a Response</h1>");
     p.add(l);
     RootPanel.get().add(p);
 
     formPanel = new VerticalPanel();
     formPanel.setSpacing(10); 
     RootPanel.get().add(formPanel);
-    createEventForm();
+    createResponseForm();
   }
 
-  private void createEventForm() {
+  private void createResponseForm() {
     fieldToWidgetMap = Maps.newHashMap();
     keyValueCounter = 0;
     formPanel.add(createFormLine("who"));
@@ -110,7 +110,7 @@ public class PostEvent implements EntryPoint {
     formPanel.add(createFormLine("responseTime", timeString));
     formPanel.add(createFormLine("experimentId", ""));
     formPanel.add(createBooleanFormLine("shared", false));
-    formPanel.add(new HTML("Enter at least one key/value pair for the event"));
+    formPanel.add(new HTML("Enter at least one key/value pair for the response"));
     whatPanel = new VerticalPanel();
     formPanel.add(whatPanel);
     whatPanel.add(createWhatFormLine("", ""));
@@ -119,19 +119,19 @@ public class PostEvent implements EntryPoint {
   }
 
   private Widget createSubmitButton() {
-    Button whatButton = new Button("Save Event");
+    Button whatButton = new Button("Save Response");
     whatButton.addClickListener(new ClickListener() {
 
       @Override
       public void onClick(Widget sender) {
-        submitEvent();
+        submitResponse();
       }
 
     });
     return whatButton;
   }
 
-  private void submitEvent() {
+  private void submitResponse() {
     String who = ((TextBox) fieldToWidgetMap.get("who")).getText();
 //    String when = ((TextBox) fieldToWidgetMap.get("when")).getText();
     String scheduledTime = ((TextBox) fieldToWidgetMap.get("scheduledTime")).getText();
@@ -147,7 +147,7 @@ public class PostEvent implements EntryPoint {
         kvPairs.put(key, value);
       }
     }
-    mapService.saveEvent(who, null, responseTime, experimentId, kvPairs, shared, new AsyncCallback<Void>() {
+    mapService.saveResponse(who, null, responseTime, experimentId, kvPairs, shared, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -157,9 +157,9 @@ public class PostEvent implements EntryPoint {
       @Override
       public void onSuccess(Void result) {
         Window.alert("Success");
-        Window.Location.assign("/PacoEventServer.html");
+        Window.Location.assign("/PacoResponseServer.html");
         // formPanel.clear();
-        // createEventForm();
+        // createResponseForm();
       }
 
     });

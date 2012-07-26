@@ -52,10 +52,10 @@ public class DispatchEntryPoint implements EntryPoint {
     if (path == null || path.isEmpty() || path.endsWith("Main.html") || 
         path.endsWith("Experiments.html")) {
       renderMainPage();
-    } else if (path.endsWith("PacoEventServer.html")) {
-      new PacoEventServer().onModuleLoad();
-    } else if (path.endsWith("PostEvent.html")) {
-      new PostEvent().onModuleLoad();
+    } else if (path.endsWith("PacoResponseServer.html")) {
+      new PacoResponseServer().onModuleLoad();
+    } else if (path.endsWith("PostResponse.html")) {
+      new PostResponse().onModuleLoad();
     }
   }
 

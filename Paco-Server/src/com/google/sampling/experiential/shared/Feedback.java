@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  * Represents a visualization or intervention to the user in response
- * to events gathered in an experiment.
+ * to responses gathered in an experiment.
  *
  * @author Bob Evans
  *
