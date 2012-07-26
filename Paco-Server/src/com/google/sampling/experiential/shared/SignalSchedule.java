@@ -1,24 +1,22 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -27,7 +25,7 @@ import com.googlecode.objectify.annotation.Serialized;
 
 
 /**
- * The Schedule for signalling an experiment response.
+ * The Schedule for signaling an experiment response.
  *
  * @author Bob Evans
  *
@@ -40,23 +38,29 @@ public class SignalSchedule implements Serializable {
   public static final int ESM = 4;
   public static final int SELF_REPORT = 5;
   public static final int ADVANCED = 6;
-  public static final int[] SCHEDULE_TYPES = new int[]{DAILY, WEEKDAY, WEEKLY, MONTHLY, ESM,
-    SELF_REPORT, ADVANCED};
+  public static final int[] SCHEDULE_TYPES =
+      new int[] {DAILY, WEEKDAY, WEEKLY, MONTHLY, ESM, SELF_REPORT, ADVANCED};
 
-  public static final String[] SCHEDULE_TYPES_NAMES = new String[] {
-      "Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self report only",
-      "Advanced" };
+  public static final String[] SCHEDULE_TYPES_NAMES = new String[] {"Daily",
+      "Weekdays",
+      "Weekly",
+      "Monthly",
+      "Random sampling (ESM)",
+      "Self report only",
+      "Advanced"};
 
   public static final int ESM_PERIOD_DAY = 0;
   public static final int ESM_PERIOD_WEEK = 1;
   public static final int ESM_PERIOD_MONTH = 2;
 
   public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
-  public static final String[] ESM_PERIODS_NAMES = new String[] { "Day", "Week", "Month"};
+  public static final String[] ESM_PERIODS_NAMES = new String[] {"Day", "Week", "Month"};
   public static final Integer DEFAULT_REPEAT_RATE = 1;
-  public static final int[] DAYS_OF_WEEK = new int[] {1,2,4,8,16,32,64};
-  public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY, ESM_PERIOD_WEEK,
-    ESM_PERIOD_MONTH };
+  public static final int[] DAYS_OF_WEEK = new int[] {1, 2, 4, 8, 16, 32, 64};
+  public static int[] ESM_PERIODS = new int[] {ESM_PERIOD_DAY, ESM_PERIOD_WEEK, ESM_PERIOD_MONTH};
+
+  private Date startDate;
+  private Date endDate;
 
   private Integer scheduleType = SignalSchedule.DAILY;
 
@@ -85,7 +89,7 @@ public class SignalSchedule implements Serializable {
 
   private Boolean userEditable = true;
 
-  public SignalSchedule() { }
+  public SignalSchedule() {}
 
   /**
    * @param id
@@ -102,10 +106,19 @@ public class SignalSchedule implements Serializable {
    * @param dayOfMonth
    * @param esmWeekends TODO
    */
-  public SignalSchedule(Integer scheduleType, Integer esmFrequency,
-      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times,
-      Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth,
-      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable) {
+  public SignalSchedule(Integer scheduleType,
+      Integer esmFrequency,
+      Integer esmPeriodInDays,
+      Long esmStartHour,
+      Long esmEndHour,
+      List<Long> times,
+      Integer repeatRate,
+      Integer weekDaysScheduled,
+      Integer nthOfMonth,
+      Boolean byDayOfMonth,
+      Integer dayOfMonth,
+      Boolean esmWeekends,
+      Boolean userEditable) {
     super();
     this.scheduleType = scheduleType;
     this.esmFrequency = esmFrequency;
@@ -228,5 +241,31 @@ public class SignalSchedule implements Serializable {
 
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
+  }
+
+  /**
+   * @return the startDate
+   */
+  public Date getStartDate() {
+    return startDate;
+  }
+
+  /**
+   * @param startDate the startDate to set
+   */
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate) {
+    this.endDate = endDate;
+  }
+
+  public boolean isFixedDuration() {
+    return (startDate != null && endDate != null);
   }
 }

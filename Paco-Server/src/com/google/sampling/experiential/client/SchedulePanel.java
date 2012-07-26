@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -29,11 +26,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
 /**
  * Container for all scheduling configuration panels.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -41,6 +39,7 @@ public class SchedulePanel extends Composite {
 
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
+  private DurationView durationPanel;
   private SignalSchedule schedule;
 
   public SchedulePanel(SignalSchedule schedule) {
@@ -48,6 +47,8 @@ public class SchedulePanel extends Composite {
 
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
+
+    verticalPanel.add(createDurationPanel());
 
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setSpacing(3);
@@ -57,8 +58,8 @@ public class SchedulePanel extends Composite {
     lblSignalSchedule.setStyleName("keyLabel");
     horizontalPanel.add(lblSignalSchedule);
     horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
-    lblSignalSchedule.setWidth("114px");    
-    
+    lblSignalSchedule.setWidth("114px");
+
     final ListBox listBox = createScheduleTypeListBox();
     horizontalPanel.add(listBox);
     horizontalPanel.setCellVerticalAlignment(listBox, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -83,7 +84,8 @@ public class SchedulePanel extends Composite {
 
     final CheckBox userEditableCheckBox = new CheckBox("");
     userEditablePanel.add(userEditableCheckBox);
-    userEditableCheckBox.setValue(schedule.getUserEditable() != null ? schedule.getUserEditable() : Boolean.TRUE);
+    userEditableCheckBox.setValue(
+        schedule.getUserEditable() != null ? schedule.getUserEditable() : Boolean.TRUE);
     userEditableCheckBox.addClickHandler(new ClickHandler() {
 
       @Override
@@ -169,4 +171,19 @@ public class SchedulePanel extends Composite {
     setPanel(new MonthlyPanel(schedule));
   }
 
+  private DurationView createDurationPanel() {
+    durationPanel = new DurationView(schedule.isFixedDuration(), schedule.getStartDate().getTime(),
+        schedule.getEndDate().getTime());
+    return durationPanel;
+  }
+
+  private void setDurationOn() {
+    if (durationPanel.isFixedDuration()) {
+      schedule.setStartDate(null);
+      schedule.setEndDate(null);
+    } else {
+      schedule.setStartDate(durationPanel.getStartDate());
+      schedule.setEndDate(durationPanel.getEndDate());
+    }
+  }
 }

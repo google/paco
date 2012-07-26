@@ -1,43 +1,33 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Embedded;
 import javax.persistence.Id;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import com.google.common.collect.Lists;
-
 /**
  *
- * Definition of an Experiment (a tracker). This holds together a bunch of objects:
- * * A list of Input objects which are the data that will be gathered.
- *    Usually it is questions, but it could be sensors as well (photos, audio, gps, accelerometer,
- *    compass, etc..)
- * * A list of Feedback objects that presents visualizations or interventions to the user.
- * * A SignalSchedule object which contains the frequency to gather data.
+ * Definition of an Experiment (a tracker). This holds together a bunch of objects: * A list of
+ * Input objects which are the data that will be gathered. Usually it is questions, but it could be
+ * sensors as well (photos, audio, gps, accelerometer, compass, etc..) * A list of Feedback objects
+ * that presents visualizations or interventions to the user. * A SignalSchedule object which
+ * contains the frequency to gather data.
  *
  * @author Bob Evans
  *
@@ -45,279 +35,250 @@ import com.google.common.collect.Lists;
 public class Experiment implements Serializable {
 
   @Id
-  private Long id = null;
-
-  private String title = "";
-
-  private String description = "";
-
-  @Deprecated
-  @JsonIgnore
-  private String informedConsentForm = "";
-
-  private String creator = "";
-
+  private Long id;
+  private long version;
+  private String title;
+  private String description;
+  private String creator;
+  private String consentForm;
+  private boolean published;
+  private boolean deleted;
+  private List<String> observers;
+  private List<String> subjects;
   @Embedded
-  private SignalSchedule schedule = new SignalSchedule();
-
-  private Boolean fixedDuration = false;
-
-  private Boolean questionsChange = false;
-
-  private Date startDate = new Date();
-
-  private Date endDate = new Date();
-
-  private String hash = "";
-
-  private Date joinDate = new Date();
-
+  private List<Input> inputs;
   @Embedded
-  private List<Input> inputs = Lists.newArrayList();
-
+  private SignalSchedule schedule;
   @Embedded
-  private List<Feedback> feedbacks = Lists.newArrayList();
-
-  private Date modifyDate = new Date();
-
-  Boolean deleted = false;
+  private List<Feedback> feedbacks;
 
   /**
-   * Is this experiment available to anyone
+   *
    */
-  private Boolean published = false;
-
-  private List<String> admins = Lists.newArrayList();;
-
-  private List<String> publishedUsers = Lists.newArrayList();
-
-  @JsonProperty("informedConsentForm")
-  private String informedConsentFormText;
-
-  public Experiment(Long id, String title, String description, String creator,
-      String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      Date modifyDate, Boolean published, List<String> admins) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.creator = creator;
-    this.informedConsentForm = informedConsentForm;
-    this.schedule = schedule;
-    this.questionsChange = questionsCanChange;
-    this.modifyDate = modifyDate;
-    this.published = published;
-    this.admins = admins;
-    if (this.admins == null) {
-      this.admins = Lists.newArrayList(creator);
-    } else if (admins.size() == 0 || !admins.contains(creator)) {
-      admins.add(0, creator);
-    }
+  public Experiment() {
+    super();
   }
 
-  public Experiment() { }
+  /**
+   * @param id
+   * @param version
+   * @param title
+   * @param description
+   * @param consent
+   * @param published
+   * @param deleted
+   * @param observers
+   * @param subjects
+   * @param inputs
+   * @param schedule
+   * @param feedbacks
+   */
+  public Experiment(Long id,
+      long version,
+      String title,
+      String description,
+      String consent,
+      boolean published,
+      boolean deleted,
+      List<String> observers,
+      List<String> subjects,
+      List<Input> inputs,
+      SignalSchedule schedule,
+      List<Feedback> feedbacks) {
+    super();
+    this.id = id;
+    this.version = version;
+    this.title = title;
+    this.description = description;
+    this.consentForm = consent;
+    this.published = published;
+    this.deleted = deleted;
+    this.observers = observers;
+    this.subjects = subjects;
+    this.inputs = inputs;
+    this.schedule = schedule;
+    this.feedbacks = feedbacks;
+  }
 
+  /**
+   * @return the id
+   */
   public Long getId() {
     return id;
   }
 
+  /**
+   * @param id the id to set
+   */
   public void setId(Long id) {
     this.id = id;
   }
 
+  /**
+   * @return the version
+   */
+  public long getVersion() {
+    return version;
+  }
+
+  /**
+   * @param version the version to set
+   */
+  public void setVersion(long version) {
+    this.version = version;
+  }
+
+  /**
+   * @return the title
+   */
   public String getTitle() {
     return title;
   }
 
+  /**
+   * @param title the title to set
+   */
   public void setTitle(String title) {
     this.title = title;
   }
 
+  /**
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  @JsonIgnore
-  public String getInformedConsentForm() {
-    return informedConsentForm;
-  }
-
-  @JsonIgnore
-  public void setInformedConsentForm(String informedConsentForm) {
-    this.informedConsentForm = informedConsentForm;
-  }
-
+  /**
+   * @return the creator
+   */
   public String getCreator() {
     return creator;
   }
 
+  /**
+   * @param creator the creator to set
+   */
   public void setCreator(String creator) {
     this.creator = creator;
   }
 
-  public SignalSchedule getSchedule() {
-    return schedule;
+  /**
+   * @return the consent
+   */
+  public String getConsentForm() {
+    return consentForm;
   }
 
-  public void setSchedule(SignalSchedule schedule) {
-    this.schedule = schedule;
+  /**
+   * @param consent the consent to set
+   */
+  public void setConsentForm(String consent) {
+    this.consentForm = consent;
   }
 
-  public Boolean getFixedDuration() {
-    return fixedDuration;
+  /**
+   * @return whether the experiment is published
+   */
+  public boolean isPublished() {
+    return published;
   }
 
-  public void setFixedDuration(Boolean fixedDuration) {
-    this.fixedDuration = fixedDuration;
+  /**
+   * @param published whether the experiment is published
+   */
+  public void setPublished(boolean published) {
+    this.published = published;
   }
 
-  public Boolean getQuestionsChange() {
-    return questionsChange;
+  /**
+   * @return the deleted
+   */
+  public boolean isDeleted() {
+    return deleted;
   }
 
-  public void setQuestionsChange(Boolean questionsChange) {
-    this.questionsChange = questionsChange;
+  /**
+   * @param deleted the deleted to set
+   */
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
-  public Date getStartDate() {
-    return startDate;
+  /**
+   * @return the observers
+   */
+  public List<String> getObservers() {
+    return observers;
   }
 
-  public void setStartDate(Date startDate) {
-    this.startDate = startDate;
+  /**
+   * @param observers the observers to set
+   */
+  public void setObservers(List<String> observers) {
+    this.observers = observers;
   }
 
-  public Date getEndDate() {
-    return endDate;
+  /**
+   * @return the subjects
+   */
+  public List<String> getSubjects() {
+    return subjects;
   }
 
-  public void setEndDate(Date endDate) {
-    this.endDate = endDate;
+  /**
+   * @param subjects the subjects to set
+   */
+  public void setSubjects(List<String> subjects) {
+    this.subjects = subjects;
   }
 
-  public String getHash() {
-    return hash;
-  }
-
-  public void setHash(String hash) {
-    this.hash = hash;
-  }
-
-  public Date getJoinDate() {
-    return joinDate;
-  }
-
-  public void setJoinDate(Date joinDate) {
-    this.joinDate = joinDate;
-  }
-
+  /**
+   * @return the inputs
+   */
   public List<Input> getInputs() {
-    return this.inputs;
+    return inputs;
   }
 
+  /**
+   * @param inputs the inputs to set
+   */
   public void setInputs(List<Input> inputs) {
     this.inputs = inputs;
   }
 
-  public List<Feedback> getFeedback() {
+  /**
+   * @return the schedule
+   */
+  public SignalSchedule getSchedule() {
+    return schedule;
+  }
+
+  /**
+   * @param schedule the schedule to set
+   */
+  public void setSchedule(SignalSchedule schedule) {
+    this.schedule = schedule;
+  }
+
+  /**
+   * @return the feedbacks
+   */
+  public List<Feedback> getFeedbacks() {
     return feedbacks;
   }
 
-  public void setFeedback(List<Feedback> feedbacks) {
+  /**
+   * @param feedbacks the feedbacks to set
+   */
+  public void setFeedbacks(List<Feedback> feedbacks) {
     this.feedbacks = feedbacks;
   }
-
-  public Date getModifyDate() {
-    return modifyDate;
-  }
-
-  public void setModifyDate(Date modifyDate) {
-    this.modifyDate = modifyDate;
-  }
-
-  public void setPublished(Boolean published) {
-    this.published = published;
-  }
-
-  public Boolean getPublished() {
-    return published;
-  }
-
-  public List<String> getAdmins() {
-    return admins;
-  }
-
-  public void setAdmins(List<String> admins) {
-    this.admins = admins;
-  }
-
-  public void setPublishedUsers(List<String> publishedUsers) {
-    this.publishedUsers = publishedUsers;
-  }
-
-  public List<String> getPublishedUsers() {
-    return publishedUsers;
-  }
-
-  public Boolean getDeleted() {
-    return deleted;
-  }
-
-  public void setDeleted(Boolean delete) {
-    this.deleted = delete;
-  }
-
-  @JsonProperty("informedConsentForm")
-  public String getInformedConsentFormText() {
-    if (informedConsentFormText == null && informedConsentForm != null) {
-      informedConsentFormText = new String(informedConsentForm);
-      informedConsentForm = null;
-    }
-
-    if (informedConsentFormText != null) {
-      return informedConsentFormText;
-    } else {
-      return null;
-    }
-  }
-
-  @JsonProperty("informedConsentForm")
-  public void setInformedConsentFormText(String informedConsentForm2) {
-    this.informedConsentFormText = informedConsentForm2;
-  }
-
-  public Input getInputWithName(String name) {
-    if (name == null) {
-      return null;
-    }
-    for (Input input : getInputs()) {
-      if (name.equals(input.getName())) {
-        return input;
-      }
-    }
-    return null;
-  }
-
-  /*
-  @JsonIgnore
-  public boolean isOver(DateTime now) {
-    return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
-  }
-
-  private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) {
-      List<Long> times = this.getSchedule().getTimes();
-      // get the latest time
-      Collections.sort(times);
-
-      DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
-    } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ /*{
-      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
-    }
-  }
-  */
 }

@@ -526,7 +526,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void softDeleteExperiment(Experiment experiment) {
     statusLabel.setVisible(true);
     // toggle
-    experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
+    experiment.setDeleted(!experiment.isDeleted());
 
     AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 

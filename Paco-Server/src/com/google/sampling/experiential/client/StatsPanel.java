@@ -133,7 +133,7 @@ public class StatsPanel extends Composite {
    * @return
    */
   private boolean isAdmin(Experiment experiment2, String loggedInUser) {
-    List<String> admins = experiment.getAdmins();
+    List<String> admins = experiment.getObservers();
     if (admins == null) {
       return false;
     }

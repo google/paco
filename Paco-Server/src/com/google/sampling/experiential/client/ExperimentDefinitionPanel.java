@@ -136,11 +136,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
     formPanel.add(createInformedConsentPanel(experiment));
 
-    formPanel.add(createDurationPanel(experiment));
-
     createSchedulePanel(experiment);
-
-    formPanel.add(createContentTypeView("questionsChange", experiment.getQuestionsChange()));
 
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
@@ -161,9 +157,9 @@ public class ExperimentDefinitionPanel extends Composite {
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null &&
-        experiment.getFeedback().size() > 0 &&
-        !defaultFeedback(experiment.getFeedback().get(0)));
+    customFeedbackCheckBox.setChecked(experiment.getFeedbacks() != null &&
+        experiment.getFeedbacks().size() > 0 &&
+        !defaultFeedback(experiment.getFeedbacks().get(0)));
     feedbackPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label("Custom Feedback");
     feedbackPanel.add(feedbackLabel);
@@ -206,7 +202,7 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackText.setCharacterWidth(100);
     customFeedbackText.setHeight("100");
 
-    List<Feedback> feedbacks = experiment.getFeedback();
+    List<Feedback> feedbacks = experiment.getFeedbacks();
 
     if (feedbacks != null && feedbacks.size() > 0 && !defaultFeedback(feedbacks.get(0))) {
       customFeedbackText.setText(feedbacks.get(0).getText());
@@ -242,20 +238,13 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private VerticalPanel createInformedConsentPanel(Experiment experiment) {
     return createFormArea(
-        "Informed Consent Text", experiment.getInformedConsentForm(), 100, "200");
+        "Informed Consent Text", experiment.getConsentForm(), 100, "200");
   }
 
   private HTML createInputsHeader() {
     HTML questionsPrompt = new HTML("<h2>Enter at least one question</h2>");
     questionsPrompt.setStyleName("keyLabel");
     return questionsPrompt;
-  }
-
-  private DurationView createDurationPanel(Experiment experiment) {
-    DurationView durationPanel = new DurationView(
-        experiment.getFixedDuration(), experiment.getStartDate().getTime(), experiment.getEndDate().getTime());
-    fieldToWidgetMap.put("duration", durationPanel);
-    return durationPanel;
   }
 
   private InputsListPanel createInputsListPanel(Experiment experiment) {
@@ -276,7 +265,7 @@ public class ExperimentDefinitionPanel extends Composite {
   private void createPublishingPanel(Experiment experiment) {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
-    publishCheckBox.setValue(experiment.getPublished());
+    publishCheckBox.setValue(experiment.isPublished());
     publishingPanel.add(publishCheckBox);
     Label publishLabel = new Label("Published");
     publishingPanel.add(publishLabel);
@@ -316,7 +305,7 @@ public class ExperimentDefinitionPanel extends Composite {
     adminList.setCharacterWidth(100);
     adminList.setHeight("100");
 
-    List<String> admins = Lists.newArrayList(experiment.getAdmins());
+    List<String> admins = Lists.newArrayList(experiment.getObservers());
     if (!admins.contains(loginInfo.getEmailAddress())) {
       admins.add(loginInfo.getEmailAddress());
     }
@@ -370,7 +359,7 @@ public class ExperimentDefinitionPanel extends Composite {
     userList.setCharacterWidth(100);
     userList.setHeight("100");
 
-    List<String> userEmails = Lists.newArrayList(experiment.getPublishedUsers());
+    List<String> userEmails = Lists.newArrayList(experiment.getSubjects());
     userList.setText(toCSVString(userEmails));
 
     userContentPanel.add(userList);
@@ -498,11 +487,8 @@ public class ExperimentDefinitionPanel extends Composite {
       setCreatorOn(experiment);
       setAdminsOn(experiment);
       setInformedConsentOn(experiment);
-      setQuestionsChangeOn(experiment);
-      setDurationOn(experiment);
       setFeedbackOn(experiment);
       setPublishingOn(experiment);
-      setModifyDateOn(experiment);
 
       saveExperiment();
     } catch (Throwable t) {
@@ -525,20 +511,9 @@ public class ExperimentDefinitionPanel extends Composite {
     experiment.setTitle(((TextBox) fieldToWidgetMap.get("Title")).getText());
   }
 
-  private void setQuestionsChangeOn(Experiment experiment) {
-    experiment.setQuestionsChange(
-        ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
-  }
-
   private void setInformedConsentOn(Experiment experiment) {
-    experiment.setInformedConsentForm(
+    experiment.setConsentForm(
         ((TextArea) fieldToWidgetMap.get("Informed Consent Text")).getText());
-  }
-
-  private void setModifyDateOn(Experiment experiment) {
-    if (experiment.getModifyDate() == null) {
-      experiment.setModifyDate(new Date());
-    }
   }
 
 
@@ -550,27 +525,13 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void setFeedbackOn(Experiment experiment) {
     if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(Lists.newArrayList(
+      experiment.setFeedbacks(Lists.newArrayList(
           new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
                        Feedback.DEFAULT_FEEDBACK_MSG)));
     } else {
-      experiment.setFeedback(Lists.newArrayList(
+      experiment.setFeedbacks(Lists.newArrayList(
           new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
                        customFeedbackText.getText())));
-    }
-  }
-
-  private void setDurationOn(Experiment experiment) {
-    DurationView durationView = (DurationView) fieldToWidgetMap.get("duration");
-    experiment.setFixedDuration(durationView.isFixedDuration());
-    if (experiment.getFixedDuration()) {
-      experiment.setStartDate(durationView.getStartDate() != null ?
-                              durationView.getStartDate() : null);
-      experiment.setEndDate(durationView.getEndDate() != null ?
-                            durationView.getEndDate() : null);
-    } else {
-      experiment.setStartDate(null);
-      experiment.setEndDate(null);
     }
   }
 
@@ -585,7 +546,7 @@ public class ExperimentDefinitionPanel extends Composite {
         admins.add(admin);
       }
     }
-    experiment.setAdmins(admins);
+    experiment.setObservers(admins);
   }
 
   private void setPublishedUsersOn(Experiment experiment) {
@@ -597,6 +558,6 @@ public class ExperimentDefinitionPanel extends Composite {
         userEmails.add(userEmail);
       }
     }
-    experiment.setPublishedUsers(userEmails);
+    experiment.setSubjects(userEmails);
   }
 }

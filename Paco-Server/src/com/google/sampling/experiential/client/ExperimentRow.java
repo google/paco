@@ -78,7 +78,7 @@ public class ExperimentRow extends Composite {
     verticalPanel.add(horizontalPanel_2);
 
     Label experimentTitleLabel = new Label(experiment.getTitle());
-    if (experiment.getDeleted() != null && experiment.getDeleted()) {
+    if (experiment.isDeleted()) {
       experimentTitleLabel.setStyleName("gwt-Link-underline-strikethrough");
     } else {
       experimentTitleLabel.setStyleName("gwt-Link-underline");
@@ -165,8 +165,7 @@ public class ExperimentRow extends Composite {
     
     
     if (!joined) {
-      Button deleteButton = new Button(
-          experiment.getDeleted() != null && experiment.getDeleted() ? "Unhide" : "Hide");
+      Button deleteButton = new Button(experiment.isDeleted() ? "Unhide" : "Hide");
       deleteButton.setStyleName("paco-ExperimentRow-Button");
       deleteButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
