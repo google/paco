@@ -17,14 +17,14 @@ import java.util.Map;
  */
 public class ResponseTest {
   @Test
-  public void testMissedSignal() {
+  public void testIsMissedSignal() {
     Response response = new Response();
     response.setResponseTime(null);
     assertTrue(response.isMissedSignal());
   }
 
   @Test
-  public void testHitSignal() {
+  public void testIstMissedSignalWhenNot() {
     Response response = new Response();
     response.setResponseTime(new Date());
 
