@@ -654,7 +654,7 @@ public class ChartOMundo {
   private Map<String, List<String>> mapOfAllValuesForKey(List<Response> responses) {
     Map<String, List<String>> allValuesByKey = Maps.newHashMap();
     for (Response response : responses) {
-      Map<String, String> whatMap = response.getWhat();
+      Map<String, String> whatMap = response.getOutputs();
       for (String key : whatMap.keySet()) {
         String value = whatMap.get(key);
         List<String> valuesForKey = allValuesByKey.get(key);

@@ -172,16 +172,9 @@ public class Response implements Serializable {
   }
 
   /**
-   * @return the what
-   */
-  public Map<String, String> getWhat() {
-    return outputs;
-  }
-
-  /**
    * @param outputs the outputs to set
    */
-  public void getOutputs(Map<String, String> outputs) {
+  public void setOutputs(Map<String, String> outputs) {
     this.outputs = outputs;
   }
 
@@ -204,7 +197,7 @@ public class Response implements Serializable {
    * @return
    */
   public boolean isMissedSignal() {
-    return signalTime != null && responseTime == null;
+    return responseTime == null;
   }
 
   /**
@@ -212,7 +205,7 @@ public class Response implements Serializable {
    */
   public long responseTime() {
     if (responseTime == null || signalTime == null) {
-      return 0;
+      return -1;
     }
     return responseTime.getTime() - signalTime.getTime();
   }
@@ -221,6 +214,10 @@ public class Response implements Serializable {
    * @return
    */
   public String getOutputsString() {
+    if (outputs == null) {
+      return "";
+    }
+
     return outputs.toString();
   }
 }
