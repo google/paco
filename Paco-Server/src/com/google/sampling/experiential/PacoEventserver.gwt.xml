@@ -54,6 +54,6 @@
 
   <!-- Specify the app entry point class. -->
   <entry-point class='com.google.sampling.experiential.client.DispatchEntryPoint'/>
-  <source path='client'/>
-  <source path='shared'/>
+  <source path='client' excludes='**/*Test.java'/>
+  <source path='shared' excludes='**/*Test.java'/>
 </module>
