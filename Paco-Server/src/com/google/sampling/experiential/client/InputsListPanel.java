@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Input;
+import com.google.sampling.experiential.shared.TextInput;
 
 /**
  * A composite container for a bunch of InputPanel views.
@@ -89,7 +90,7 @@ public class InputsListPanel extends Composite {
    * @return
    */
   private Input createEmptyInput() {
-    return new Input(null, null, "");
+    return new TextInput();
   }
 
   // TODO this is not very efficient.

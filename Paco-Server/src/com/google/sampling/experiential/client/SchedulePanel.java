@@ -172,8 +172,8 @@ public class SchedulePanel extends Composite {
   }
 
   private DurationView createDurationPanel() {
-    durationPanel = new DurationView(schedule.isFixedDuration(), schedule.getStartDate().getTime(),
-        schedule.getEndDate().getTime());
+    durationPanel = new DurationView(schedule.isFixedDuration(), schedule.getStartDate(),
+        schedule.getEndDate());
     return durationPanel;
   }
 

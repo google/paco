@@ -23,8 +23,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.sampling.experiential.shared.LikertInput;
+import com.google.sampling.experiential.shared.ListInput;
 import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Input;
+import com.google.sampling.experiential.shared.TextInput;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -53,29 +56,32 @@ public class ChartPanel extends Composite {
     verticalPanel.setSpacing(2);
     initWidget(verticalPanel);
 
-    String questionText = input.getText();
-    Label inputTextLabel = new Label(questionText);
-    inputTextLabel.setStyleName("paco-HTML");
-    verticalPanel.add(inputTextLabel);
-
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
-    if (input.getResponseType().equals(Input.OPEN_TEXT) && dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
-      verticalPanel.add(cm.createWordCloud("", responses, input.getName()));
+
+    if (input.getResponseType().equals(Input.TEXT) && dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
+      TextInput textInput = (TextInput) input;
+      Label inputTextLabel = new Label(textInput.getQuestion());
+      inputTextLabel.setStyleName("paco-HTML");
+      verticalPanel.add(inputTextLabel);
+      verticalPanel.add(cm.createWordCloud("", responses, textInput.getName()));
     } else if (input.getResponseType().equals(Input.PHOTO)) {
       verticalPanel.add(createPhotoSlider());
     } else if (input.getResponseType().equals(Input.LOCATION)) {
       verticalPanel.add(renderResponsesOnMap());
     } else if (input.getResponseType().equals(Input.LIST)) {
-      verticalPanel.add(cm.createBarChartForList(responses, "", input.getName(),
-          input.getListChoices().toArray(new String[input.getListChoices().size()]),
-          input.isMultiselect()));
+      ListInput listInput = (ListInput) input;
+      Label inputTextLabel = new Label(listInput.getQuestion());
+      inputTextLabel.setStyleName("paco-HTML");
+      verticalPanel.add(inputTextLabel);
+      verticalPanel.add(cm.createBarChartForList(responses, "", listInput.getName(),
+          listInput.getChoices().toArray(new String[listInput.getChoices().size()]),
+          listInput.isMultiSelect()));
     } else if (input.getResponseType().equals(Input.LIKERT)) {
-      verticalPanel.add(
-          cm.createBarChartForList(responses, "", input.getName(), getLikertCategories(), false));
-    } else if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+      LikertInput likertInput = (LikertInput) input;
+
       verticalPanel.add(cm.createBarChartForList(
-          responses, "", input.getName(), getLikertSmileyCategories(), false));
+          responses, "", likertInput.getName(), getLikertCategories(likertInput), false));
     } else {
       verticalPanel.add(cm.createLineChart(responses, "", input.getName()));
     }
@@ -86,33 +92,8 @@ public class ChartPanel extends Composite {
    *
    * @return List of labels for choices in likert scale.
    */
-  private String[] getLikertCategories() {
-    Integer likertSteps = input.getLikertSteps();
-    if (likertSteps == null) {
-      likertSteps = 0;
-    }
-    String[] choices = new String[likertSteps];
-    if (input.getLeftSideLabel() != null) {
-      choices[0] = input.getLeftSideLabel();
-    }
-    choices[0] = choices[0] + " (1)";
-    if (input.getRightSideLabel() != null) {
-      choices[likertSteps - 1] = input.getRightSideLabel();
-    }
-    choices[likertSteps - 1] = choices[likertSteps - 1] + " (" + likertSteps + ")";
-    for (int i = 1; i < (likertSteps - 1); i++) {
-      choices[i] = "(" + (i + 1) + ")";
-    }
-    return choices;
-  }
-
-  private String[] getLikertSmileyCategories() {
-    final int smiley_count = 5;
-    String[] choices = new String[smiley_count];
-    for (int i = 0; i < 5; i++) {
-      choices[i] = Integer.toString(i + 1);
-    }
-    return choices;
+  private String[] getLikertCategories(LikertInput likertInput) {
+    return likertInput.getLabels().toArray(new String[likertInput.getLabels().size()]);
   }
 
   /**

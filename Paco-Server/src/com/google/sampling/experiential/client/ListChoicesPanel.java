@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
@@ -29,56 +26,54 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.Input;
+import com.google.sampling.experiential.shared.ListInput;
 
 
 /**
- * A collection of all the ListChoicePanels to define the choices for a given
- * Input object whose responsetype is List.
+ * A collection of all the ListChoicePanels to define the choices for a given Input object whose
+ * responsetype is List.
  *
  * @author Bob Evans
  *
  */
 public class ListChoicesPanel extends Composite {
 
-  private Input input;
+  private ListInput input;
   private VerticalPanel mainPanel;
   private LinkedList<ListChoicePanel> choicePanelsList;
 
   /**
    * @param input
    */
-  public ListChoicesPanel(final Input input) {
+  public ListChoicesPanel(final ListInput input) {
     this.input = input;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
-    
-    final CheckBox multiselect = new CheckBox("Multiple selections");
-    multiselect.setValue(input.isMultiselect());
-    multiselect.addClickHandler(new ClickHandler() {
 
+    final CheckBox multiselect = new CheckBox("Multiple selections");
+    multiselect.setValue(input.isMultiSelect());
+    multiselect.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        input.setMultiselect(multiselect.getValue());
+        input.setMultiSelect(multiselect.getValue());
       }
-      
     });
     mainPanel.add(multiselect);
-    
+
     Label lblSignalTimes = new Label("List Choice (s)");
     lblSignalTimes.setStyleName("gwt-Label-Header");
     mainPanel.add(lblSignalTimes);
 
     choicePanelsList = new LinkedList<ListChoicePanel>();
-    List<String> choices = input.getListChoices();
+    List<String> choices = input.getChoices();
     if (choices == null || choices.size() == 0) {
       ListChoicePanel choicePanel = new ListChoicePanel(this);
       String choice = choicePanel.getChoice();
       choices = Lists.newArrayList(choice);
       mainPanel.add(choicePanel);
       choicePanelsList.add(choicePanel);
-      input.setListChoices(choices);
+      input.setChoices(choices);
     } else {
       for (int i = 0; i < choices.size(); i++) {
         ListChoicePanel choicePanel = new ListChoicePanel(this);
@@ -117,13 +112,11 @@ public class ListChoicesPanel extends Composite {
     for (int i = 0; i < choicePanelsList.size(); i++) {
       newTimes.add(choicePanelsList.get(i).getChoice());
     }
-    input.setListChoices(newTimes);
+    input.setChoices(newTimes);
   }
 
   public void updateChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
-    input.getListChoices().set(index, choicePanel.getChoice());
+    input.getChoices().set(index, choicePanel.getChoice());
   }
-
-
 }

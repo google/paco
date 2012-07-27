@@ -15,6 +15,8 @@
 
 package com.google.sampling.experiential.shared;
 
+import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -57,6 +59,12 @@ public class Experiment implements Serializable {
    */
   public Experiment() {
     super();
+
+    this.subjects = Lists.newArrayList();
+    this.observers = Lists.newArrayList();
+    this.inputs = Lists.newArrayList();
+    this.schedule = new SignalSchedule();
+    this.feedbacks = Lists.newArrayList();
   }
 
   /**

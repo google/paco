@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
@@ -31,10 +28,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 
 /**
- * View for configuring the run length of an experiment.
- * Options are Ongoing, which runs forever.
+ * View for configuring the run length of an experiment. Options are Ongoing, which runs forever.
  * Or, Fixed Length, which runs from a start date to an end date.
- *  
+ *
  * @author Bob Evans
  *
  */
@@ -43,21 +39,21 @@ public class DurationView extends Composite {
   private boolean fixedDuration;
   private Date startDate;
   private Date endDate;
-  
+
   private RadioButton radio1;
   private RadioButton radio2;
   private DateBox endBox;
   private DateBox startBox;
 
-  public DurationView(Boolean fixedDuration, Long start, Long end) {
+  public DurationView(Boolean fixedDuration, Date start, Date end) {
     super();
     mainPanel = new HorizontalPanel();
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     Date today = new Date();
     Date tomorrow = new Date(today.getTime() + 8645000);
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
-    this.startDate = start != null ? new Date(start) : today;
-    this.endDate = end != null ? new Date(end) : tomorrow;
+    this.startDate = start != null ? start : today;
+    this.endDate = end != null ? end : tomorrow;
     initWidget(mainPanel);
     init();
   }
@@ -71,18 +67,18 @@ public class DurationView extends Composite {
     line.setStyleName("left");
     Label keyLabel = new Label("Duration:");
     keyLabel.setStyleName("keyLabel");
-    outer.add(keyLabel);  
+    outer.add(keyLabel);
     radio1 = new RadioButton("duration", "Ongoing");
     radio2 = new RadioButton("duration", "Fixed Length");
     radio1.setChecked(!fixedDuration);
     radio2.setChecked(fixedDuration);
-    
-    
-    
+
+
+
     line.add(radio1);
     line.add(radio2);
     outer.add(line);
-    
+
     final HorizontalPanel datePanel = new HorizontalPanel();
     VerticalPanel startPanel = new VerticalPanel();
     datePanel.add(startPanel);
@@ -92,7 +88,7 @@ public class DurationView extends Composite {
 
     Label startLabel = new Label("Start Date:");
     keyLabel.setStyleName("keyLabel");
-    
+
     startPanel.add(startLabel);
     startPanel.add(startBox);
 
@@ -104,13 +100,13 @@ public class DurationView extends Composite {
 
     Label endLabel = new Label("End Date:");
     keyLabel.setStyleName("keyLabel");
-    
+
     endPanel.add(endLabel);
     endPanel.add(endBox);
 
     datePanel.setVisible(fixedDuration);
     line.add(datePanel);
-    
+
     ClickListener selectionListener = new ClickListener() {
 
       @Override
@@ -121,7 +117,7 @@ public class DurationView extends Composite {
           datePanel.setVisible(true);
         }
       }
-      
+
     };
     radio1.addClickListener(selectionListener);
     radio2.addClickListener(selectionListener);
@@ -131,13 +127,13 @@ public class DurationView extends Composite {
   public boolean isFixedDuration() {
     return radio2.isChecked();
   }
-  
+
   public Date getStartDate() {
     return startBox.getValue();
   }
-  
+
   public Date getEndDate() {
     return endBox.getValue();
   }
-  
+
 }

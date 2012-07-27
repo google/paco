@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
@@ -40,6 +37,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.sampling.experiential.shared.Input;
+import com.google.sampling.experiential.shared.LikertInput;
+import com.google.sampling.experiential.shared.ListInput;
+import com.google.sampling.experiential.shared.TextInput;
 
 /**
  *
@@ -58,7 +58,7 @@ public class InputsPanel extends Composite {
   private ResponseViewPanel responseView;
   private HorizontalPanel conditionalPanel;
   private CheckBox conditionalBox;
-  private VerticalPanel inputPromptTextPanel;
+  private TextBox conditionText;
 
   public InputsPanel(InputsListPanel parent, Input input) {
     this.input = input;
@@ -80,6 +80,7 @@ public class InputsPanel extends Composite {
   private void createListMgmtButtons() {
     Button deleteButton = new Button("-");
     deleteButton.addClickHandler(new ClickHandler() {
+      @Override
       public void onClick(ClickEvent event) {
         deleteThis();
       }
@@ -90,6 +91,7 @@ public class InputsPanel extends Composite {
     upperLinePanel.add(addButton);
 
     addButton.addClickHandler(new ClickHandler() {
+      @Override
       public void onClick(ClickEvent event) {
         addInputsPanel();
       }
@@ -119,7 +121,7 @@ public class InputsPanel extends Composite {
 
     createResponseTypeColumn();
     createVarNameColumn();
-    createInputTextColumn();
+    //createInputTextColumn();
 
 
     createResponseViewPanel();
@@ -128,7 +130,7 @@ public class InputsPanel extends Composite {
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
 
-    createScheduledDateColumn(upperLinePanel);
+    createSpecificDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -145,13 +147,13 @@ public class InputsPanel extends Composite {
     conditionalExpressionLabel.setStyleName("keyLabel");
     conditionalPanel.add(conditionalExpressionLabel);
 
-    final TextBox conditionText = new TextBox();
-    conditionText.setText(input.getConditionExpression());
+    conditionText = new TextBox();
+    conditionText.setText(input.getConditionalExpression());
     conditionalPanel.add(conditionText);
-    conditionText.addValueChangeHandler(new ValueChangeHandler() {
+    conditionText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setConditionExpression(conditionText.getText());
+      public void onValueChange(ValueChangeEvent<String> arg0) {
+        input.setConditionalExpression(conditionText.getText());
       }
     });
 
@@ -168,13 +170,17 @@ public class InputsPanel extends Composite {
     cp.add(conditionalLabel);
 
     conditionalBox = new CheckBox();
-    conditionalBox.setValue(input.getConditional());
+    conditionalBox.setValue(input.isConditional());
     cp.add(conditionalBox);
 
     conditionalBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setConditional(conditionalBox.getValue());
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
+        if (conditionalBox.getValue()) {
+          input.setConditionalExpression(conditionText.getText());
+        } else {
+          input.setConditionalExpression(null);
+        }
         conditionalPanel.setVisible(conditionalBox.getValue());
       }
     });
@@ -187,12 +193,12 @@ public class InputsPanel extends Composite {
     mandatoryLabel.setStyleName("keyLabel");
     mp.add(mandatoryLabel);
     final CheckBox valueBox = new CheckBox();
-    valueBox.setValue(input.getMandatory());
+    valueBox.setValue(input.isRequired());
     mp.add(valueBox);
     valueBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setMandatory(valueBox.getValue());
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
+        input.setRequired(valueBox.getValue());
       }
     });
   }
@@ -204,17 +210,16 @@ public class InputsPanel extends Composite {
     responseTypeLabel.setStyleName("keyLabel");
     rp.add(responseTypeLabel);
 
-    final ListBox responseType = new ListBox();
-    responseType.addItem(Input.LIKERT_SMILEYS);
-    responseType.addItem(Input.LIKERT);
-    responseType.addItem(Input.OPEN_TEXT);
-    responseType.addItem(Input.LIST);
-    responseType.addItem(Input.NUMBER);
-    responseType.addItem(Input.LOCATION);
-    responseType.addItem(Input.PHOTO);
+    final ListBox responseTypeListBox = new ListBox();
+    responseTypeListBox.addItem(Input.LIKERT);
+    responseTypeListBox.addItem(Input.TEXT);
+    responseTypeListBox.addItem(Input.LIST);
+    //responseType.addItem(Input.NUMBER);
+    //responseType.addItem(Input.LOCATION);
+    //responseType.addItem(Input.PHOTO);
     // responseType.addItem(Input.SOUND);
     // responseType.addItem(Input.ACTIVITY);
-    responseType.setVisibleItemCount(1);
+    responseTypeListBox.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
     for (int i = 0; i < Input.RESPONSE_TYPES.length; i++) {
       if (Input.RESPONSE_TYPES[i].equals(input.getResponseType())) {
@@ -222,19 +227,36 @@ public class InputsPanel extends Composite {
         break;
       }
     }
-    responseType.setItemSelected(responseTypeSelectedIndex, true);
-    rp.add(responseType);
+    responseTypeListBox.setItemSelected(responseTypeSelectedIndex, true);
+    rp.add(responseTypeListBox);
 
-    responseType.addChangeHandler(new ChangeHandler() {
+    responseTypeListBox.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        input.setResponseType(responseType.getItemText(responseType.getSelectedIndex()));
+        String responseType = responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex());
+
+        if (responseType.equals(Input.LIKERT)){
+          input = new LikertInput();
+        } else if (responseType.equals(Input.TEXT)) {
+          input = new TextInput();
+        } else if (responseType.equals(Input.LIST)) {
+          input = new ListInput();
+        /*
+        } else if (responseType.equals(Input.NUMBER)) {
+          input = new NumberInput();
+        } else if (responseType.equals(input.LOCATION)) {
+          input = new LocationInput();
+        } else if (responseType.equals(Input.PHOTO)) {
+          input = new PhotoInput();
+        */
+        }
+
         responseView.drawWidgetForInput(input);
-        inputPromptTextPanel.setVisible(!input.isInvisibleInput());
       }
     });
   }
 
+  /*
   private void createInputTextColumn() {
     inputPromptTextPanel = new VerticalPanel();
     upperLinePanel.add(inputPromptTextPanel);
@@ -249,13 +271,13 @@ public class InputsPanel extends Composite {
     inputPromptTextPanel.add(valueText);
     inputPromptTextPanel.setVisible(!input.isInvisibleInput());
     valueText.addValueChangeHandler(new ValueChangeHandler<String>() {
-
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
         input.setText(valueText.getText());
       }
     });
   }
+  */
 
   private void createVarNameColumn() {
     VerticalPanel varNamePanel = new VerticalPanel();
@@ -272,47 +294,41 @@ public class InputsPanel extends Composite {
     varNamePanel.add(nameText);
 
     nameText.addChangeHandler(new ChangeHandler() {
-
       @Override
       public void onChange(ChangeEvent event) {
         input.setName(nameText.getText());
       }
-
     });
   }
 
-  private void createScheduledDateColumn(final HorizontalPanel upperLine) {
-    Date scheduledDate;
-    if (input.getScheduleDate() != null) {
-      scheduledDate = input.getScheduleDate();
+  private void createSpecificDateColumn(final HorizontalPanel upperLine) {
+    Date specificDate;
+    if (input.getSpecificDate() != null) {
+      specificDate = input.getSpecificDate();
     } else {
-      scheduledDate = new Date();
-      input.setScheduleDate(scheduledDate);
+      specificDate = new Date();
+      input.setSpecificDate(specificDate);
     }
 
     VerticalPanel kp = new VerticalPanel();
     upperLine.add(kp);
-    DateBox scheduleDatePicker = null;
+    DateBox datePicker = null;
     Label datePickerLabel = new Label("Specific Date:");
     // datePickerLabel.setWordWrap(true);
     datePickerLabel.setWidth("80px");
     datePickerLabel.setStyleName("keyLabel");
     kp.add(datePickerLabel);
 
-    scheduleDatePicker = new DateBox();
-    scheduleDatePicker.setWidth("80px");
-    scheduleDatePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-    scheduleDatePicker.setValue(scheduledDate);
-    kp.add(scheduleDatePicker);
-    scheduleDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-
+    datePicker = new DateBox();
+    datePicker.setWidth("80px");
+    datePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+    datePicker.setValue(specificDate);
+    kp.add(datePicker);
+    datePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
       @Override
       public void onValueChange(ValueChangeEvent<Date> arg0) {
-        input.setScheduleDate(arg0.getValue());
+        input.setSpecificDate(arg0.getValue());
       }
-
     });
   }
-
-
 }
