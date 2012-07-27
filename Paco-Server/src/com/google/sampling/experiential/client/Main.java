@@ -519,7 +519,7 @@ public class Main implements EntryPoint, ExperimentListener {
     //mapService.saveExperiment(experiment, callback);
 
     PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
-    experimentsResource.getClientResource().setReference("/observers/" + loginInfo.getUserId() + "/experiments");
+    experimentsResource.getClientResource().setReference("/experiments");
     experimentsResource.create(experiment, callback);
   }
 
@@ -549,7 +549,7 @@ public class Main implements EntryPoint, ExperimentListener {
     //mapService.saveExperiment(experiment, callback);
 
     PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
-    experimentsResource.getClientResource().setReference("/observers/" + loginInfo.getUserId() + "/experiments/" + experiment.getId());
+    experimentsResource.getClientResource().setReference("/observer/experiments/" + experiment.getId());
     experimentsResource.update(experiment, callback);
  }
 
