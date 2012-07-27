@@ -1,4 +1,7 @@
 local.properties
+.settings
+.DS_Store
+*.keystore
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
@@ -13,3 +16,6 @@ Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
 Paco-Server/war/paco.apk
 Paco-Server/war/pacoserver/
 PacoTest/local.properties
+PacoTest/bin/*
+PacoTest/gen/*
+ServerTools/bin/*
