@@ -82,4 +82,8 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
+<!--    <target name="mytest" cmd="adb shell am instrument -w com.google.android.apps.paco.tests/android.test.InstrumentationTestRunner">
+
+-->
+
 </project>

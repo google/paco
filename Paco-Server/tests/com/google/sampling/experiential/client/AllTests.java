@@ -16,21 +16,19 @@
 */
 package com.google.sampling.experiential.client;
 
-
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.WordCloud;
-
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-import java.util.List;
-
-public class WordCloudTest extends TestCase {
-
-  
-  public void testWordCloud() throws Exception {
-    List<String> entries = Lists.newArrayList("apple");
-    WordCloud wc = new WordCloud(entries);
-    assertEquals("apple", wc.getWordsWithWeights().get(0).word);
-    assertEquals(1, wc.getWordsWithWeights().get(0).weight);
+/**
+ * Paco Server tests
+ * @author Bob Evans
+ */
+public class AllTests extends TestCase {
+  public static Test suite() {
+    Class[] tests = new Class[] {
+      
+    };
+    return new TestSuite(tests);
   }
 }

@@ -36,6 +36,8 @@ public class EventMatcherTest extends TestCase {
   private List<Event> events;
   private List<Query> query;
   
+  Date sep109 = null;
+  
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -53,9 +55,9 @@ public class EventMatcherTest extends TestCase {
     Date aug3109 = cal.getTime();
     cal.set(Calendar.MONTH, 8);
     cal.set(Calendar.DAY_OF_MONTH, 1);
-    Date sep109 = cal.getTime();
+    sep109 = cal.getTime();
     events.add(new Event("bobevans@google.com", 
-        null, null, aug3109, "test", null, newHashSet, true));
+        null, null, aug3109, "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
 
   }
 
@@ -97,12 +99,12 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "AmericanTable"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
     
     Set<What> nonRestaurantWhat = Sets.newHashSet();
     nonRestaurantWhat.add(new What("weight", "10"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, nonRestaurantWhat, true));
+        null, null, new Date(), "test", null, nonRestaurantWhat, true, "1", "foo", sep109, sep109, null));
     
     query.add(new Query("restaurant", null));
     assertEquals(2, eventMatcher.matchingEvents(events, query).size());
@@ -113,7 +115,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", "1"));
@@ -128,7 +130,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", null));
@@ -141,7 +143,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", ""));
@@ -150,19 +152,19 @@ public class EventMatcherTest extends TestCase {
   }
 
   public void testMatchDateRange() throws Exception {
-    query.add(new Query("date_range", "20090831-20090901"));
+    query.add(new Query("date_range", "2009/08/31-2009/09/01"));
     List<Event> results = eventMatcher.matchingEvents(events, query);
     assertEquals(1, results.size());
   }
 
   public void testMatchDateRangeOneDate() throws Exception {
-    query.add(new Query("date_range", "20090831"));
+    query.add(new Query("date_range", "2009/08/31"));
     List<Event> results = eventMatcher.matchingEvents(events, query);
     assertEquals(1, results.size());
   }
   
   public void testMatchDateRangeNoMatch() throws Exception {
-    query.add(new Query("date_range", "20090829-20090830"));
+    query.add(new Query("date_range", "2009/08/29-2009/08/30"));
     List<Event> results = eventMatcher.matchingEvents(events, query);
     assertEquals(0, results.size());
   }

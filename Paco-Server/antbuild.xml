@@ -189,13 +189,13 @@
 
 <!--
 Test targets suppressed because -junit argument was not specified when running webAppCreator.
-
+-->
   <target name="javac.tests" depends="javac" description="Compiles test code">
-    <javac srcdir="test" includes="**" encoding="utf-8"
+    <javac srcdir="tests" includes="**" encoding="utf-8"
       source="1.5" target="1.5" nowarn="true"
       destdir="war/WEB-INF/classes"
       debug="true" debuglevel="lines,vars,source">
-      <classpath location="path_to_the_junit_jar"/>
+      <classpath location="lib/junit-4.10.jar"/>
       <classpath refid="gwt.project.class.path"/>
     </javac>
   </target>
@@ -208,12 +208,12 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
         <pathelement location="src" />
-        <pathelement location="test" />
+        <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
-        <pathelement location="path_to_the_junit_jar" />
+        <pathelement location="lib/junit-4.10.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.dev" >
-        <fileset dir="test" >
+        <fileset dir="tests" >
           <include name="**/*Test.java" />
         </fileset>
       </batchtest>
@@ -230,12 +230,12 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
         <pathelement location="src" />
-        <pathelement location="test" />
+        <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
-        <pathelement location="path_to_the_junit_jar" />
+        <pathelement location="lib/junit-4.10.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.prod" >
-        <fileset dir="test" >
+        <fileset dir="tests" >
           <include name="**/*Test.java" />
         </fileset>
       </batchtest>
@@ -248,7 +248,7 @@ Test targets suppressed because -junit argument was not specified when running w
     <antcall target="test.dev" />
     <antcall target="test.prod" />
   </target>
--->
+
 
   <target name="hosted" depends="devmode" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
 
