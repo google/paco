@@ -52,11 +52,11 @@ public class ListChoicesPanel extends Composite {
     initWidget(mainPanel);
 
     final CheckBox multiselect = new CheckBox("Multiple selections");
-    multiselect.setValue(input.isMultiSelect());
+    multiselect.setValue(input.isMultiselect());
     multiselect.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        input.setMultiSelect(multiselect.getValue());
+        input.setMultiselect(multiselect.getValue());
       }
     });
     mainPanel.add(multiselect);

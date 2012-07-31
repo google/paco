@@ -57,7 +57,7 @@ public class ResponseViewPanel extends Composite {
   public void drawWidgetForInput(Input input) {
     this.input = input;
     mainPanel.clear();
-    String responseType = input.getResponseType();
+    String responseType = input.getType();
     if (responseType.equals(Input.TEXT)) {
       drawTextPanel((TextInput) input);
       mainPanel.setVisible(true);
@@ -108,7 +108,7 @@ public class ResponseViewPanel extends Composite {
     valueBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> arg0) {
-        textInput.setMultiLine(valueBox.getValue());
+        textInput.setMultiline(valueBox.getValue());
       }
     });
     outer.add(inputPromptTextPanel);

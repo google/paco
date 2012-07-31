@@ -129,8 +129,6 @@ public class InputsPanel extends Composite {
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
-
-    createSpecificDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -221,8 +219,8 @@ public class InputsPanel extends Composite {
     // responseType.addItem(Input.ACTIVITY);
     responseTypeListBox.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
-    for (int i = 0; i < Input.RESPONSE_TYPES.length; i++) {
-      if (Input.RESPONSE_TYPES[i].equals(input.getResponseType())) {
+    for (int i = 0; i < Input.TYPES.length; i++) {
+      if (Input.TYPES[i].equals(input.getType())) {
         responseTypeSelectedIndex = i;
         break;
       }
@@ -297,37 +295,6 @@ public class InputsPanel extends Composite {
       @Override
       public void onChange(ChangeEvent event) {
         input.setName(nameText.getText());
-      }
-    });
-  }
-
-  private void createSpecificDateColumn(final HorizontalPanel upperLine) {
-    Date specificDate;
-    if (input.getSpecificDate() != null) {
-      specificDate = input.getSpecificDate();
-    } else {
-      specificDate = new Date();
-      input.setSpecificDate(specificDate);
-    }
-
-    VerticalPanel kp = new VerticalPanel();
-    upperLine.add(kp);
-    DateBox datePicker = null;
-    Label datePickerLabel = new Label("Specific Date:");
-    // datePickerLabel.setWordWrap(true);
-    datePickerLabel.setWidth("80px");
-    datePickerLabel.setStyleName("keyLabel");
-    kp.add(datePickerLabel);
-
-    datePicker = new DateBox();
-    datePicker.setWidth("80px");
-    datePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-    datePicker.setValue(specificDate);
-    kp.add(datePicker);
-    datePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<Date> arg0) {
-        input.setSpecificDate(arg0.getValue());
       }
     });
   }

@@ -442,8 +442,8 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           joinedStr = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/responses?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
+        //Window.Location.assign(
+        //    "/responses?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
         break;
       case ExperimentListener.DELETE_CODE:
         if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
@@ -471,8 +471,8 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           whoStr = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/responses?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+        //Window.Location.assign(
+        //    "/responses?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
         break;
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
@@ -484,14 +484,14 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           who2Str = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/responses?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+        //Window.Location.assign(
+        //    "/responses?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
         break;
     }
   }
 
   private void copyExperiment(Experiment experiment) {
-    experiment.setId(null);
+    //experiment.setId(null);
   }
 
 
@@ -548,9 +548,9 @@ public class Main implements EntryPoint, ExperimentListener {
 
     //mapService.saveExperiment(experiment, callback);
 
-    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
-    experimentsResource.getClientResource().setReference("/observer/experiments/" + experiment.getId());
-    experimentsResource.update(experiment, callback);
+    //PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    //experimentsResource.getClientResource().setReference("/observer/experiments/" + experiment.getId());
+    //experimentsResource.update(experiment, callback);
  }
 
   /**
@@ -618,11 +618,11 @@ public class Main implements EntryPoint, ExperimentListener {
         statusLabel.setVisible(false);
       }
     };
-    String queryText = "experimentId=" + experiment.getId();
-    if (joined) {
-      queryText += ":who=" + loginInfo.getEmailAddress();
-    }
-    mapService.mapWithTags(queryText, callback);
+    //String queryText = "experimentId=" + experiment.getId();
+    //if (joined) {
+    //  queryText += ":who=" + loginInfo.getEmailAddress();
+    //}
+    //mapService.mapWithTags(queryText, callback);
     // for each question in the experiment
     // print the title of the experiment
     // lookup the question in the responses list,
@@ -662,6 +662,7 @@ public class Main implements EntryPoint, ExperimentListener {
     //mapService.statsForExperiment(experiment.getId(), joined, callback);
 
 
+    /*
     String reference;
 
     if (joined) {
@@ -673,5 +674,6 @@ public class Main implements EntryPoint, ExperimentListener {
     PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
     experimentsResource.getClientResource().setReference(reference);
     experimentsResource.stats(callback);
+    */
   }
 }

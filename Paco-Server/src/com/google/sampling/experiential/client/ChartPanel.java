@@ -59,25 +59,25 @@ public class ChartPanel extends Composite {
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
 
-    if (input.getResponseType().equals(Input.TEXT) && dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
+    if (input.getType().equals(Input.TEXT) && dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
       TextInput textInput = (TextInput) input;
       Label inputTextLabel = new Label(textInput.getQuestion());
       inputTextLabel.setStyleName("paco-HTML");
       verticalPanel.add(inputTextLabel);
       verticalPanel.add(cm.createWordCloud("", responses, textInput.getName()));
-    } else if (input.getResponseType().equals(Input.PHOTO)) {
+    } else if (input.getType().equals(Input.PHOTO)) {
       verticalPanel.add(createPhotoSlider());
-    } else if (input.getResponseType().equals(Input.LOCATION)) {
+    } else if (input.getType().equals(Input.LOCATION)) {
       verticalPanel.add(renderResponsesOnMap());
-    } else if (input.getResponseType().equals(Input.LIST)) {
+    } else if (input.getType().equals(Input.LIST)) {
       ListInput listInput = (ListInput) input;
       Label inputTextLabel = new Label(listInput.getQuestion());
       inputTextLabel.setStyleName("paco-HTML");
       verticalPanel.add(inputTextLabel);
       verticalPanel.add(cm.createBarChartForList(responses, "", listInput.getName(),
           listInput.getChoices().toArray(new String[listInput.getChoices().size()]),
-          listInput.isMultiSelect()));
-    } else if (input.getResponseType().equals(Input.LIKERT)) {
+          listInput.isMultiselect()));
+    } else if (input.getType().equals(Input.LIKERT)) {
       LikertInput likertInput = (LikertInput) input;
 
       verticalPanel.add(cm.createBarChartForList(

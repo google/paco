@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,10 +49,10 @@ public class TimeListPanel extends Composite {
     verticalPanel_1.add(lblSignalTimes);
 
     timesPanelList = new LinkedList<TimePanel>();
-    List<Long> times2 = schedule.getTimes();
+    List<Date> times2 = schedule.getTimes();
     if (times2 == null || times2.size() == 0) {
       TimePanel timePanel = new TimePanel(this);
-      Long time = timePanel.getTime();
+      Date time = timePanel.getDateTime();
       times2 = Lists.newArrayList(time);
       verticalPanel_1.add(timePanel);
       timesPanelList.add(timePanel);
@@ -59,7 +60,7 @@ public class TimeListPanel extends Composite {
     } else {
       for (int i = 0; i < times2.size(); i++) {
         TimePanel time1 = new TimePanel(this);
-        time1.setTime(times2.get(i));
+        time1.setDateTime(times2.get(i));
         verticalPanel_1.add(time1);
         timesPanelList.add(time1);
       }
@@ -90,16 +91,16 @@ public class TimeListPanel extends Composite {
 
   // TODO this is not very efficient.
   private void updateScheduleTimes() {
-    List<Long> newTimes = new ArrayList<Long>(timesPanelList.size());
+    List<Date> newTimes = new ArrayList<Date>(timesPanelList.size());
     for (int i = 0; i < timesPanelList.size(); i++) {
-      newTimes.add(timesPanelList.get(i).getTime());
+      newTimes.add(timesPanelList.get(i).getDateTime());
     }
     schedule.setTimes(newTimes);
   }
 
   public void updateTime(TimePanel timePanel) {
     int index = timesPanelList.indexOf(timePanel);
-    schedule.getTimes().set(index, timePanel.getTime());
+    schedule.getTimes().set(index, timePanel.getDateTime());
   }
 
 }

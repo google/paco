@@ -97,6 +97,14 @@ public class TimePanel extends Composite {
     timeList.deleteTime(this);
   }
 
+  public Date getDateTime() {
+    return timeBox.getDateTime();
+  }
+
+  public void setDateTime(Date dateTime) {
+    timeBox.setDateTime(dateTime);
+  }
+
   public Long getTime() {
     Date time = timeBox.getDateTime();
     return new Long((time.getHours() * 60 * 60 * 1000) + (time.getMinutes() * 60 * 1000));

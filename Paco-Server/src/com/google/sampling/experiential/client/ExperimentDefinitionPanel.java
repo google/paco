@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
@@ -48,11 +45,10 @@ import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 /**
- * The main panel for viewing the details of an experiment
- * Also used as the basis of creation and editing of experiments.
- * Delegates specific parts of experiment definition to sub panels.
- * Handles communication with subpanels about state of edits.
- * 
+ * The main panel for viewing the details of an experiment Also used as the basis of creation and
+ * editing of experiments. Delegates specific parts of experiment definition to sub panels. Handles
+ * communication with subpanels about state of edits.
+ *
  * @author Bob Evans
  *
  */
@@ -157,9 +153,9 @@ public class ExperimentDefinitionPanel extends Composite {
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedbacks() != null &&
-        experiment.getFeedbacks().size() > 0 &&
-        !defaultFeedback(experiment.getFeedbacks().get(0)));
+    customFeedbackCheckBox.setChecked(experiment.getFeedbacks() != null
+        && experiment.getFeedbacks().size() > 0
+        && !defaultFeedback(experiment.getFeedbacks().get(0)));
     feedbackPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label("Custom Feedback");
     feedbackPanel.add(feedbackLabel);
@@ -177,10 +173,10 @@ public class ExperimentDefinitionPanel extends Composite {
   private void createCustomFeedbackDisclosurePanel(Experiment experiment2) {
     customFeedbackPanel = new DisclosurePanel();
 
-    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(false, 
-        "<b>Click to edit custom feedback</b>");
-    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(true, 
-        "<b>Click to close editing of custom feedback</b>");
+    final DisclosurePanelHeader closedHeaderWidget =
+        new DisclosurePanelHeader(false, "<b>Click to edit custom feedback</b>");
+    final DisclosurePanelHeader openHeaderWidget =
+        new DisclosurePanelHeader(true, "<b>Click to close editing of custom feedback</b>");
 
     customFeedbackPanel.setHeader(closedHeaderWidget);
     customFeedbackPanel.addEventHandler(new DisclosureHandler() {
@@ -194,8 +190,7 @@ public class ExperimentDefinitionPanel extends Composite {
     });
 
     VerticalPanel userContentPanel = new VerticalPanel();
-    Label instructionLabel =
-        new Label("Enter custom feedback page html and javascript");
+    Label instructionLabel = new Label("Enter custom feedback page html and javascript");
     userContentPanel.add(instructionLabel);
 
     customFeedbackText = new TextArea();
@@ -218,8 +213,8 @@ public class ExperimentDefinitionPanel extends Composite {
    * @return
    */
   private boolean defaultFeedback(Feedback Feedback) {
-    return Feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
-    Feedback.getText().equals(Feedback.DEFAULT_FEEDBACK_MSG);
+    return Feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE)
+        && Feedback.getText().equals(Feedback.DEFAULT_FEEDBACK_MSG);
   }
 
 
@@ -237,8 +232,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private VerticalPanel createInformedConsentPanel(Experiment experiment) {
-    return createFormArea(
-        "Informed Consent Text", experiment.getConsentForm(), 100, "200");
+    return createFormArea("Informed Consent Text", experiment.getConsentForm(), 100, "200");
   }
 
   private HTML createInputsHeader() {
@@ -323,9 +317,8 @@ public class ExperimentDefinitionPanel extends Composite {
 
   class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
-      add(
-          isOpen ? images.disclosurePanelOpen().createImage()
-              : images.disclosurePanelClosed().createImage());
+      add(isOpen ? images.disclosurePanelOpen().createImage()
+          : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
   }
@@ -467,8 +460,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private Widget createSubmitButton(final Experiment experiment) {
 
-    Button whatButton =
-        new Button(experiment.getId() == null ? "Create Experiment" : "Update Experiment");
+    Button whatButton = new Button("Save Experiment");
     whatButton.addClickListener(new ClickListener() {
 
       @Override
@@ -503,8 +495,8 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void setDescriptionOn(Experiment experiment) {
-    experiment.setDescription(((TextArea)fieldToWidgetMap.get(
-        "Description (<500 chars)")).getText());
+    experiment.setDescription(
+        ((TextArea) fieldToWidgetMap.get("Description (<500 chars)")).getText());
   }
 
   private void setTitleOn(Experiment experiment) {
@@ -512,8 +504,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void setInformedConsentOn(Experiment experiment) {
-    experiment.setConsentForm(
-        ((TextArea) fieldToWidgetMap.get("Informed Consent Text")).getText());
+    experiment.setConsentForm(((TextArea) fieldToWidgetMap.get("Informed Consent Text")).getText());
   }
 
 
@@ -526,12 +517,10 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setFeedbackOn(Experiment experiment) {
     if (!customFeedbackCheckBox.getValue()) {
       experiment.setFeedbacks(Lists.newArrayList(
-          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
-                       Feedback.DEFAULT_FEEDBACK_MSG)));
+          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE, Feedback.DEFAULT_FEEDBACK_MSG)));
     } else {
       experiment.setFeedbacks(Lists.newArrayList(
-          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE,
-                       customFeedbackText.getText())));
+          new Feedback(Feedback.DISPLAY_FEEBACK_TYPE, customFeedbackText.getText())));
     }
   }
 
