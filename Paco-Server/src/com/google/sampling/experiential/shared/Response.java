@@ -20,9 +20,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import javax.persistence.Embedded;
-import javax.persistence.Id;
-
 import com.google.common.collect.Maps;
 
 /**
@@ -32,7 +29,6 @@ import com.google.common.collect.Maps;
  *
  */
 public class Response implements Serializable {
-  @Id
   private Long id;
   private String subject;
   private Long experimentId;
@@ -40,7 +36,6 @@ public class Response implements Serializable {
   private Date createTime;
   private Date signalTime;
   private Date responseTime;
-  @Embedded
   private Map<String, String> outputs = Maps.newHashMap();
 
   /**

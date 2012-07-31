@@ -17,11 +17,15 @@ package com.google.sampling.experiential.shared;
 
 import com.google.common.collect.Lists;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import java.io.Serializable;
 import java.util.List;
-
-import javax.persistence.Embedded;
-import javax.persistence.Id;
 
 /**
  *
@@ -35,23 +39,27 @@ import javax.persistence.Id;
  *
  */
 public class Experiment implements Serializable {
+  private static String DEFAULT_TITLE = "";
+  private static String DEFAULT_DESCRIPTION = "";
+  private static String DEFAULT_CREATOR = "Unknown";
+  private static String DEFAULT_CONSENT_FORM = "";
 
-  @Id
-  private Long id;
-  private long version;
   private String title;
   private String description;
   private String creator;
   private String consentForm;
+  @JsonIgnore
+  private long version;
+  @JsonIgnore
   private boolean published;
+  @JsonIgnore
   private boolean deleted;
+  @JsonIgnore
   private List<String> observers;
+  @JsonIgnore
   private List<String> subjects;
-  @Embedded
   private List<Input> inputs;
-  @Embedded
   private SignalSchedule schedule;
-  @Embedded
   private List<Feedback> feedbacks;
 
   /**
@@ -68,7 +76,6 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param id
    * @param version
    * @param title
    * @param description
@@ -81,8 +88,7 @@ public class Experiment implements Serializable {
    * @param schedule
    * @param feedbacks
    */
-  public Experiment(Long id,
-      long version,
+  public Experiment(long version,
       String title,
       String description,
       String consent,
@@ -94,7 +100,6 @@ public class Experiment implements Serializable {
       SignalSchedule schedule,
       List<Feedback> feedbacks) {
     super();
-    this.id = id;
     this.version = version;
     this.title = title;
     this.description = description;
@@ -109,17 +114,10 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @return the id
+   * @param version
    */
-  public Long getId() {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(Long id) {
-    this.id = id;
+  public void setVersion(long version) {
+    this.version = version;
   }
 
   /**
@@ -127,13 +125,6 @@ public class Experiment implements Serializable {
    */
   public long getVersion() {
     return version;
-  }
-
-  /**
-   * @param version the version to set
-   */
-  public void setVersion(long version) {
-    this.version = version;
   }
 
   /**
@@ -147,7 +138,11 @@ public class Experiment implements Serializable {
    * @param title the title to set
    */
   public void setTitle(String title) {
-    this.title = title;
+    if (title == null) {
+      this.title = DEFAULT_TITLE;
+    } else {
+      this.title = title;
+    }
   }
 
   /**
@@ -161,7 +156,11 @@ public class Experiment implements Serializable {
    * @param description the description to set
    */
   public void setDescription(String description) {
-    this.description = description;
+    if (description == null) {
+      this.description = DEFAULT_DESCRIPTION;
+    } else {
+      this.description = description;
+    }
   }
 
   /**
@@ -175,21 +174,29 @@ public class Experiment implements Serializable {
    * @param creator the creator to set
    */
   public void setCreator(String creator) {
-    this.creator = creator;
+    if (creator == null) {
+      this.creator = DEFAULT_CREATOR;
+    } else {
+      this.creator = creator;
+    }
   }
 
   /**
-   * @return the consent
+   * @return the consentForm
    */
   public String getConsentForm() {
     return consentForm;
   }
 
   /**
-   * @param consent the consent to set
+   * @param consentForm the consent to set
    */
-  public void setConsentForm(String consent) {
-    this.consentForm = consent;
+  public void setConsentForm(String consentForm) {
+    if (consentForm == null) {
+      this.consentForm = DEFAULT_CONSENT_FORM;
+    } else {
+      this.consentForm = consentForm;
+    }
   }
 
   /**
@@ -231,7 +238,11 @@ public class Experiment implements Serializable {
    * @param observers the observers to set
    */
   public void setObservers(List<String> observers) {
-    this.observers = observers;
+    if (observers == null) {
+      this.observers = Lists.newArrayList();
+    } else {
+      this.observers = observers;
+    }
   }
 
   /**
@@ -245,7 +256,11 @@ public class Experiment implements Serializable {
    * @param subjects the subjects to set
    */
   public void setSubjects(List<String> subjects) {
-    this.subjects = subjects;
+    if (subjects == null) {
+      this.subjects = Lists.newArrayList();
+    } else {
+      this.subjects = subjects;
+    }
   }
 
   /**
@@ -259,7 +274,11 @@ public class Experiment implements Serializable {
    * @param inputs the inputs to set
    */
   public void setInputs(List<Input> inputs) {
-    this.inputs = inputs;
+    if (inputs == null) {
+      this.inputs = Lists.newArrayList();
+    } else {
+      this.inputs = inputs;
+    }
   }
 
   /**
@@ -273,7 +292,11 @@ public class Experiment implements Serializable {
    * @param schedule the schedule to set
    */
   public void setSchedule(SignalSchedule schedule) {
-    this.schedule = schedule;
+    if (schedule == null) {
+      this.schedule = new SignalSchedule();
+    } else {
+      this.schedule = schedule;
+    }
   }
 
   /**
@@ -287,6 +310,82 @@ public class Experiment implements Serializable {
    * @param feedbacks the feedbacks to set
    */
   public void setFeedbacks(List<Feedback> feedbacks) {
-    this.feedbacks = feedbacks;
+    if (feedbacks == null) {
+      this.feedbacks = Lists.newArrayList();
+    } else {
+      this.feedbacks = feedbacks;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+
+    Experiment other = (Experiment) obj;
+
+    if (getTitle().equals(other.getTitle()) == false) {
+      return false;
+    }
+
+    if (getDescription().equals(other.getDescription()) == false) {
+      return false;
+    }
+
+    if (getCreator().equals(other.getCreator()) == false) {
+      return false;
+    }
+
+    if (getConsentForm().equals(other.getConsentForm()) == false) {
+      return false;
+    }
+
+    if (getVersion() != other.getVersion()) {
+      return false;
+    }
+
+    if (isPublished() != other.isPublished()) {
+      return false;
+    }
+
+    if (isDeleted() != other.isDeleted()) {
+      return false;
+    }
+
+    if (getObservers().equals(other.getObservers()) == false) {
+      return false;
+    }
+
+    if (getSubjects().equals(other.getSubjects()) == false) {
+      return false;
+    }
+
+    if (getInputs().equals(other.getInputs()) == false) {
+      return false;
+    }
+
+    if (getSchedule().equals(other.getSchedule()) == false) {
+      return false;
+    }
+
+    if (getFeedbacks().equals(other.getFeedbacks()) == false) {
+      return false;
+    }
+
+    return true;
   }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import com.googlecode.objectify.annotation.Serialized;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 /**
@@ -72,8 +72,7 @@ public class SignalSchedule implements Serializable {
 
   private Long esmEndHour = 0l;
 
-  @Serialized
-  private List<Long> times = Lists.newArrayList();
+  private List<Date> times = Lists.newArrayList();
 
   private Integer repeatRate = 0;
 
@@ -111,7 +110,7 @@ public class SignalSchedule implements Serializable {
       Integer esmPeriodInDays,
       Long esmStartHour,
       Long esmEndHour,
-      List<Long> times,
+      List<Date> times,
       Integer repeatRate,
       Integer weekDaysScheduled,
       Integer nthOfMonth,
@@ -175,11 +174,11 @@ public class SignalSchedule implements Serializable {
     this.esmEndHour = esmEndHour;
   }
 
-  public List<Long> getTimes() {
+  public List<Date> getTimes() {
     return times;
   }
 
-  public void setTimes(List<Long> times) {
+  public void setTimes(List<Date> times) {
     this.times = times;
   }
 
@@ -223,6 +222,7 @@ public class SignalSchedule implements Serializable {
     this.dayOfMonth = dayOfMonth;
   }
 
+  @JsonIgnore
   public Boolean getByDayOfWeek() {
     return !byDayOfMonth;
   }
@@ -265,7 +265,32 @@ public class SignalSchedule implements Serializable {
     this.endDate = endDate;
   }
 
+  @JsonIgnore
   public boolean isFixedDuration() {
     return (startDate != null && endDate != null);
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+
+    // FIXME: Refactor when refactoring.
+    //return super.equals(obj);
+    return true;
   }
 }

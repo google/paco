@@ -29,12 +29,12 @@ import org.restlet.resource.ResourceException;
  *
  */
 public class ExperimentResource extends PacoResource {
-  private Experiment experiment = null;
+  private Long experimentId;
+  private Experiment experiment;
 
   @Override
   protected void doInit() throws ResourceException {
-    String experimentId = (String) getRequest().getAttributes().get("experimentId");
-
+    experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
     experiment = dao.getExperiment(experimentId);
 
     if (experiment == null) {
