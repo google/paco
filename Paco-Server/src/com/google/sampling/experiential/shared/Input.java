@@ -15,8 +15,14 @@
 
 package com.google.sampling.experiential.shared;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Represents one data value captured in an experiment.
@@ -24,47 +30,43 @@ import java.util.Date;
  * @author Bob Evans
  *
  */
+@JsonSubTypes({@Type(TextInput.class), @Type(LikertInput.class), @Type(ListInput.class)})
+@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
 public abstract class Input implements Serializable {
   public static final String TEXT = "text";
   public static final String LIKERT = "likert";
   public static final String LIST = "list";
-  public static final String NUMBER = "number";
   public static final String LOCATION = "location";
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
 
-  public static String[] RESPONSE_TYPES =
-      {TEXT, LIKERT, LIST, NUMBER, LOCATION, PHOTO, SOUND, ACTIVITY};
+  public static String[] TYPES = {TEXT, LIKERT, LIST, LOCATION, PHOTO, SOUND, ACTIVITY};
 
   protected String name;
-  protected String responseType;
+  protected String type;
   protected boolean required;
   protected String conditionalExpression;
-  protected Date specificDate;
 
   /**
    *
    */
-  public Input() {
+  public Input(String type) {
     super();
+
+    this.type = type;
   }
 
   /**
    * @param name
-   * @param responseType
    * @param required
    * @param conditionalExpression
-   * @param specificDate
    */
-  public Input(String name, String responseType, boolean required, String conditionalExpression,
-      Date specificDate) {
-    super();
+  public Input(String name, String type, boolean required, String conditionalExpression) {
+    this(type);
     this.name = name;
-    this.responseType = responseType;
     this.required = required;
     this.conditionalExpression = conditionalExpression;
-    this.specificDate = specificDate;
   }
 
   /**
@@ -82,17 +84,25 @@ public abstract class Input implements Serializable {
   }
 
   /**
-   * @return the responseType
-   */
-  public String getResponseType() {
-    return responseType;
-  }
-
-  /**
    * @return the required
    */
   public boolean isRequired() {
     return required;
+  }
+
+  /**
+   * @return the type
+   */
+  @JsonIgnore
+  public String getType() {
+    return type;
+  }
+
+  /**
+   * @param type the type to set
+   */
+  public void setType(String type) {
+    this.type = type;
   }
 
   /**
@@ -117,23 +127,52 @@ public abstract class Input implements Serializable {
   }
 
   /**
-   * @return the specificDate
-   */
-  public Date getSpecificDate() {
-    return specificDate;
-  }
-
-  /**
-   * @param specificDate the specificDate to set
-   */
-  public void setSpecificDate(Date specificDate) {
-    this.specificDate = specificDate;
-  }
-
-  /**
    * @return whether the input is conditional
    */
+  @JsonIgnore
   public boolean isConditional() {
     return conditionalExpression != null;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+
+    Input other = (Input) obj;
+
+    if (getName().equals(other.getName()) == false) {
+      return false;
+    }
+
+    if (isRequired() != other.isRequired()) {
+      return false;
+    }
+
+    if (getConditionalExpression() == null) {
+      if (other.getConditionalExpression() != null) {
+        return false;
+      }
+    } else {
+      if (getConditionalExpression().equals(other.getConditionalExpression()) == false) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

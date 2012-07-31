@@ -2,20 +2,19 @@
 
 package com.google.sampling.experiential.shared;
 
-import com.googlecode.objectify.annotation.Serialized;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
+@JsonTypeName("likert")
 public class LikertInput extends Input {
   public static final Integer DEFAULT_STEPS = 5;
 
   private String question;
-  @Serialized
   private List<String> labels;
   private boolean smileys;
 
@@ -23,16 +22,13 @@ public class LikertInput extends Input {
    *
    */
   public LikertInput() {
-    super();
-
-    this.responseType = Input.LIKERT;
+    super(Input.LIKERT);
   }
 
   /**
    * @param name
    * @param required
    * @param conditionalExpression
-   * @param specificDate
    * @param question
    * @param labels
    * @param smileys
@@ -40,11 +36,10 @@ public class LikertInput extends Input {
   public LikertInput(String name,
       boolean required,
       String conditionalExpression,
-      Date specificDate,
       String question,
       List<String> labels,
       boolean smileys) {
-    super(name, Input.LIKERT, required, conditionalExpression, specificDate);
+    super(name, Input.LIKERT, required, conditionalExpression);
     this.question = question;
     this.labels = labels;
     this.smileys = smileys;
@@ -90,5 +85,47 @@ public class LikertInput extends Input {
    */
   public void setSmileys(boolean smileys) {
     this.smileys = smileys;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.sampling.experiential.shared.Input#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+
+    LikertInput other = (LikertInput) obj;
+
+    if (getQuestion().equals(other.getQuestion()) == false) {
+      return false;
+    }
+
+    if (isSmileys() != other.isSmileys()) {
+      return false;
+    }
+
+    if (getLabels() == null) {
+      if (other.getLabels() != null) {
+        return false;
+      }
+    } else {
+      if (getLabels().equals(other.getLabels()) == false) {
+        return false;
+      }
+    }
+
+    return super.equals(obj);
   }
 }
