@@ -32,6 +32,17 @@ public class FixedSignalTest {
   }
 
   @Test
+  public void testEqualityWhenTimesSetNull() {
+    FixedSignal signal1 = new FixedSignal();
+    FixedSignal signal2 = new FixedSignal();
+
+    signal1.setTimes(null);
+    signal2.setTimes(null);
+
+    assertTrue(signal1.equals(signal2));
+  }
+
+  @Test
   public void testEqualityWhenTimesSetOrdered() {
     FixedSignal signal1 = new FixedSignal();
     FixedSignal signal2 = new FixedSignal();

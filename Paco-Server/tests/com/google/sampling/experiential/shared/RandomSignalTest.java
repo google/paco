@@ -41,6 +41,17 @@ public class RandomSignalTest {
   }
 
   @Test
+  public void testEqualityWhenStartTimeSetNull() {
+    RandomSignal signal1 = new RandomSignal();
+    RandomSignal signal2 = new RandomSignal();
+
+    signal1.setStartTime(null);
+    signal2.setStartTime(null);
+
+    assertTrue(signal1.equals(signal2));
+  }
+
+  @Test
   public void testInequalityWhenStartTimeSetNull() {
     RandomSignal signal1 = new RandomSignal();
     RandomSignal signal2 = new RandomSignal();
@@ -58,6 +69,17 @@ public class RandomSignalTest {
 
     signal1.setEndTime(new Date(3));
     signal2.setEndTime(new Date(3));
+
+    assertTrue(signal1.equals(signal2));
+  }
+
+  @Test
+  public void testEqualityWhenEndTimeSetNull() {
+    RandomSignal signal1 = new RandomSignal();
+    RandomSignal signal2 = new RandomSignal();
+
+    signal1.setEndTime(null);
+    signal2.setEndTime(null);
 
     assertTrue(signal1.equals(signal2));
   }

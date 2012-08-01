@@ -47,6 +47,17 @@ public class ScheduleTest {
   }
 
   @Test
+  public void testEqualityWhenStartDateSetNull() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setStartDate(null);
+    schedule2.setStartDate(null);
+
+    assertTrue(schedule1.equals(schedule2));
+  }
+
+  @Test
   public void testInequalityWhenStartDateSet() {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
@@ -75,6 +86,17 @@ public class ScheduleTest {
 
     schedule1.setEndDate(new Date(3));
     schedule2.setEndDate(new Date(3));
+
+    assertTrue(schedule1.equals(schedule2));
+  }
+
+  @Test
+  public void testEqualityWhenEndDateSetNull() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setEndDate(null);
+    schedule2.setEndDate(null);
 
     assertTrue(schedule1.equals(schedule2));
   }
@@ -130,6 +152,17 @@ public class ScheduleTest {
 
     schedule1.setSignal(new RandomSignal());
     schedule2.setSignal(new RandomSignal());
+
+    assertTrue(schedule1.equals(schedule2));
+  }
+
+  @Test
+  public void testEqualityWhenScheduleSetNull() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setSignal(null);
+    schedule2.setSignal(null);
 
     assertTrue(schedule1.equals(schedule2));
   }

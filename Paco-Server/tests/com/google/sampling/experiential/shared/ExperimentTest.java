@@ -143,6 +143,17 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testEqualityWhenScheduleSetNull() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSchedule(null);
+    experiment2.setSchedule(null);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
   public void testEqualityWhenFeedbacksSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
