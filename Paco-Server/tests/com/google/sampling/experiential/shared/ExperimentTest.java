@@ -301,8 +301,19 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setFeedbacks(Lists.newArrayList(new Feedback()));
-    experiment2.setFeedbacks(Lists.newArrayList(new Feedback()));
+    experiment1.setFeedbacks(Lists.newArrayList(Feedback.create("feedback1")));
+    experiment2.setFeedbacks(Lists.newArrayList(Feedback.create("feedback2")));
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenFeedbacksSetNull() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setFeedbacks(null);
+    experiment2.setFeedbacks(Lists.newArrayList(Feedback.create("feedback2")));
 
     assertFalse(experiment1.equals(experiment2));
   }
