@@ -181,7 +181,7 @@ public abstract class Schedule implements Serializable {
         return false;
       }
     } else {
-      if (other.getStartDate() != null) {
+      if (other.hasStartDate()) {
         return false;
       }
     }
@@ -191,7 +191,7 @@ public abstract class Schedule implements Serializable {
         return false;
       }
     } else {
-      if (other.getEndDate() != null) {
+      if (other.hasEndDate()) {
         return false;
       }
     }
@@ -205,7 +205,7 @@ public abstract class Schedule implements Serializable {
         return false;
       }
     } else {
-      if (other.getSignal() != null) {
+      if (other.hasSignal()) {
         return false;
       }
     }

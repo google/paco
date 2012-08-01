@@ -19,12 +19,6 @@ public class ScheduleTest {
     }
   }
 
-  private class SignalImpl extends Signal {
-    public SignalImpl(String type) {
-      super(type);
-    }
-  }
-
   @Test
   public void testEquality() {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
@@ -53,12 +47,23 @@ public class ScheduleTest {
   }
 
   @Test
-  public void testInequalityWhenStartDateSetNull() {
+  public void testInequalityWhenStartDateSet() {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
 
     schedule1.setStartDate(new Date(3));
-    schedule2.setStartDate(null);
+    schedule2.setStartDate(new Date(4));
+
+    assertFalse(schedule1.equals(schedule2));
+  }
+
+  @Test
+  public void testInequalityWhenStartDateSetNull() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setStartDate(null);
+    schedule2.setStartDate(new Date(4));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -75,12 +80,23 @@ public class ScheduleTest {
   }
 
   @Test
-  public void testInequalityWhenEndDateSetNull() {
+  public void testInequalityWhenEndDateSet() {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
 
     schedule1.setEndDate(new Date(3));
-    schedule2.setEndDate(null);
+    schedule2.setEndDate(new Date(4));
+
+    assertFalse(schedule1.equals(schedule2));
+  }
+
+  @Test
+  public void testInequalityWhenEndDateSetNull() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setEndDate(null);
+    schedule2.setEndDate(new Date(4));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -112,10 +128,21 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
 
-    schedule1.setSignal(new SignalImpl(Signal.RANDOM));
-    schedule2.setSignal(new SignalImpl(Signal.RANDOM));
+    schedule1.setSignal(new RandomSignal());
+    schedule2.setSignal(new RandomSignal());
 
     assertTrue(schedule1.equals(schedule2));
+  }
+
+  @Test
+  public void testInequalityWhenScheduleSet() {
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+
+    schedule1.setSignal(new RandomSignal());
+    schedule2.setSignal(new FixedSignal());
+
+    assertFalse(schedule1.equals(schedule2));
   }
 
   @Test
@@ -123,8 +150,8 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
 
-    schedule1.setSignal(new SignalImpl(Signal.RANDOM));
-    schedule2.setSignal(null);
+    schedule1.setSignal(null);
+    schedule2.setSignal(new RandomSignal());
 
     assertFalse(schedule1.equals(schedule2));
   }
