@@ -22,6 +22,28 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testEqualityWhenIdSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setId(1l);
+    experiment2.setId(1l);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testEqualityWhenIdSetNull() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setId(null);
+    experiment2.setId(null);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
   public void testEqualityWhenTitleSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
@@ -140,6 +162,28 @@ public class ExperimentTest {
     experiment2.setFeedbacks(Lists.newArrayList(new Feedback()));
 
     assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenIdSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setId(1l);
+    experiment2.setId(2l);
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenIdSetNull() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setId(null);
+    experiment2.setId(2l);
+
+    assertFalse(experiment1.equals(experiment2));
   }
 
   @Test
@@ -272,6 +316,33 @@ public class ExperimentTest {
     experiment2.setFeedbacks(Lists.newArrayList(Feedback.create("feedback2")));
 
     assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testHasId() {
+    Experiment experiment = new Experiment();
+
+    experiment.setId(1l);
+
+    assertTrue(experiment.hasId());
+  }
+
+  @Test
+  public void testIdIsNullable() {
+    Experiment experiment = new Experiment();
+
+    experiment.setId(null);
+
+    assertNull(experiment.getId());
+  }
+
+  @Test
+  public void testHasIdWhenNull() {
+    Experiment experiment = new Experiment();
+
+    experiment.setId(null);
+
+    assertFalse(experiment.hasId());
   }
 
   @Test

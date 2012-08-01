@@ -39,6 +39,7 @@ public class Experiment implements Serializable {
   public static String DEFAULT_CREATOR = "";
   public static String DEFAULT_CONSENT_FORM = "";
 
+  private Long id;
   private String title;
   private String description;
   private String creator;
@@ -64,6 +65,7 @@ public class Experiment implements Serializable {
   public Experiment() {
     super();
 
+    this.id = null;
     this.title = DEFAULT_TITLE;
     this.description = DEFAULT_DESCRIPTION;
     this.creator = DEFAULT_CREATOR;
@@ -76,6 +78,27 @@ public class Experiment implements Serializable {
     this.inputs = Lists.newArrayList();
     this.schedule = null;
     this.feedbacks = Lists.newArrayList();
+  }
+
+  /**
+   * @return whether the experiment has an id
+   */
+  public boolean hasId() {
+    return (id != null);
+  }
+
+  /**
+   * @return the id
+   */
+  public Long getId() {
+    return id;
+  }
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(Long id) {
+    this.id = id;
   }
 
   /**
@@ -318,6 +341,16 @@ public class Experiment implements Serializable {
     }
 
     Experiment other = (Experiment) obj;
+
+    if (hasId()) {
+      if (getId().equals(other.getId()) == false) {
+        return false;
+      }
+    } else {
+      if (other.getId() != null) {
+        return false;
+      }
+    }
 
     if (getTitle().equals(other.getTitle()) == false) {
       return false;
