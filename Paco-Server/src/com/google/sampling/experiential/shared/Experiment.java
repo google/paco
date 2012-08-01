@@ -59,7 +59,7 @@ public class Experiment implements Serializable {
   @JsonIgnore
   private List<String> subjects;
   private List<Input> inputs;
-  private SignalSchedule schedule;
+  private Schedule schedule;
   private List<Feedback> feedbacks;
 
   /**
@@ -71,7 +71,6 @@ public class Experiment implements Serializable {
     this.subjects = Lists.newArrayList();
     this.observers = Lists.newArrayList();
     this.inputs = Lists.newArrayList();
-    this.schedule = new SignalSchedule();
     this.feedbacks = Lists.newArrayList();
   }
 
@@ -97,7 +96,7 @@ public class Experiment implements Serializable {
       List<String> observers,
       List<String> subjects,
       List<Input> inputs,
-      SignalSchedule schedule,
+      Schedule schedule,
       List<Feedback> feedbacks) {
     super();
     this.version = version;
@@ -284,19 +283,15 @@ public class Experiment implements Serializable {
   /**
    * @return the schedule
    */
-  public SignalSchedule getSchedule() {
+  public Schedule getSchedule() {
     return schedule;
   }
 
   /**
    * @param schedule the schedule to set
    */
-  public void setSchedule(SignalSchedule schedule) {
-    if (schedule == null) {
-      this.schedule = new SignalSchedule();
-    } else {
-      this.schedule = schedule;
-    }
+  public void setSchedule(Schedule schedule) {
+    this.schedule = schedule;
   }
 
   /**

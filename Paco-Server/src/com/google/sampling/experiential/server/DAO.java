@@ -20,7 +20,7 @@ import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -112,11 +112,11 @@ public class DAO {
    *
    * Subject's experiments
    */
-  public Long joinExperiment(User user, Experiment experiment, SignalSchedule schedule) {
+  public Long joinExperiment(User user, Experiment experiment, Schedule schedule) {
     return joinExperiment(user.getEmail(), experiment, schedule);
   }
 
-  public Long joinExperiment(String user, Experiment experiment, SignalSchedule schedule) {
+  public Long joinExperiment(String user, Experiment experiment, Schedule schedule) {
     return null;
   }
 

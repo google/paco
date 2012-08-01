@@ -15,7 +15,7 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
@@ -54,7 +54,7 @@ public class ExperimentResource extends PacoResource {
   }
 
   @Post("gwt|json")
-  public void join(SignalSchedule schedule) {
+  public void join(Schedule schedule) {
     Long experimentId = dao.joinExperiment(user, experiment, schedule);
 
     redirectSeeOther("/subject/experiments/" + experimentId);
