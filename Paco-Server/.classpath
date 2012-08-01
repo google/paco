@@ -21,7 +21,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-annotations-2.0.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-core-2.0.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-databind-2.0.4.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.5.0.1"/>
-	<classpathentry kind="lib" path="/usr/local/google/home/corycornelius/workspace38/paco/Paco-Server/war/WEB-INF/lib/guava-r09.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
