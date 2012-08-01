@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @JsonTypeName("daily")
 public class DailySchedule extends Schedule {
-  protected int every = 0;
+  protected int every;
 
   /**
    *
@@ -26,6 +26,8 @@ public class DailySchedule extends Schedule {
    */
   protected DailySchedule(String type) {
     super(type);
+
+    this.every = 0;
   }
 
   /**

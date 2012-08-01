@@ -16,7 +16,7 @@ public class WeeklySchedule extends DailySchedule {
    *
    */
   public WeeklySchedule() {
-    super(Schedule.WEEKLY);
+    this(Schedule.WEEKLY);
   }
 
   /**
@@ -24,6 +24,8 @@ public class WeeklySchedule extends DailySchedule {
    */
   protected WeeklySchedule(String type) {
     super(type);
+
+    this.dayRepeat = 0;
   }
 
   /**

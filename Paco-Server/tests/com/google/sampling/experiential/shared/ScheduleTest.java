@@ -128,4 +128,58 @@ public class ScheduleTest {
 
     assertFalse(schedule1.equals(schedule2));
   }
+
+  @Test
+  public void testHasStartDate() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setStartDate(new Date(3));
+
+    assertTrue(schedule.hasStartDate());
+  }
+
+  @Test
+  public void testHasEndDate() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setEndDate(new Date(3));
+
+    assertTrue(schedule.hasEndDate());
+  }
+
+  @Test
+  public void testHasSignal() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setSignal(new FixedSignal());
+
+    assertTrue(schedule.hasSignal());
+  }
+
+  @Test
+  public void testHasStartDateWhenNull() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setStartDate(null);
+
+    assertFalse(schedule.hasStartDate());
+  }
+
+  @Test
+  public void testHasEndDateWhenNull() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setEndDate(null);
+
+    assertFalse(schedule.hasEndDate());
+  }
+
+  @Test
+  public void testHasSignalWhenNull() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setSignal(null);
+
+    assertFalse(schedule.hasSignal());
+  }
 }

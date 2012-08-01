@@ -10,16 +10,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName("monthly")
 public class MonthlySchedule extends WeeklySchedule {
-  private boolean byDayOfWeek = false;
-  private int weekRepeat = 0;
+  private boolean byDayOfWeek;
+  private int weekRepeat;
 
   /**
    *
    */
   public MonthlySchedule() {
-    super();
-
-    this.type = Schedule.MONTHLY;
+    this(Schedule.MONTHLY);
   }
 
   /**
@@ -27,6 +25,9 @@ public class MonthlySchedule extends WeeklySchedule {
    */
   protected MonthlySchedule(String type) {
     super(type);
+
+    this.byDayOfWeek = false;
+    this.weekRepeat = 0;
   }
 
   /**

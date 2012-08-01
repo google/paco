@@ -53,6 +53,17 @@ public abstract class Schedule implements Serializable {
     super();
 
     this.type = type;
+    this.startDate = null;
+    this.endDate = null;
+    this.editable = false;
+    this.signal = null;
+  }
+
+  /**
+   * @return whether the schedule has a start date
+   */
+  public boolean hasStartDate() {
+    return (startDate != null);
   }
 
   /**
@@ -67,6 +78,13 @@ public abstract class Schedule implements Serializable {
    */
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
+  }
+
+  /**
+   * @return whether the schedule has a end date
+   */
+  public boolean hasEndDate() {
+    return (endDate != null);
   }
 
   /**
@@ -113,6 +131,13 @@ public abstract class Schedule implements Serializable {
   }
 
   /**
+   * @return whether the schedule has a signal
+   */
+  public boolean hasSignal() {
+    return (signal != null);
+  }
+
+  /**
    * @return the signal
    */
   public Signal getSignal() {
@@ -151,22 +176,22 @@ public abstract class Schedule implements Serializable {
       return false;
     }
 
-    if (getStartDate() == null) {
-      if (other.getStartDate() != null) {
+    if (hasStartDate()) {
+      if (getStartDate().equals(other.getStartDate()) == false) {
         return false;
       }
     } else {
-      if (getStartDate().equals(other.getStartDate()) == false) {
+      if (other.getStartDate() != null) {
         return false;
       }
     }
 
-    if (getEndDate() == null) {
-      if (other.getEndDate() != null) {
+    if (hasEndDate()) {
+      if (getEndDate().equals(other.getEndDate()) == false) {
         return false;
       }
     } else {
-      if (getEndDate().equals(other.getEndDate()) == false) {
+      if (other.getEndDate() != null) {
         return false;
       }
     }
@@ -175,12 +200,12 @@ public abstract class Schedule implements Serializable {
       return false;
     }
 
-    if (getSignal() == null) {
-      if (other.getSignal() != null) {
+    if (hasSignal()) {
+      if (getSignal().equals(other.getSignal()) == false) {
         return false;
       }
     } else {
-      if (getSignal().equals(other.getSignal()) == false) {
+      if (other.getSignal() != null) {
         return false;
       }
     }
