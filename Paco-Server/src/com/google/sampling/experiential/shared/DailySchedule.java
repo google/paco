@@ -4,8 +4,6 @@ package com.google.sampling.experiential.shared;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import java.util.Date;
-
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
