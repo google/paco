@@ -2,6 +2,8 @@
 
 package com.google.sampling.experiential.shared;
 
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
  */
 @JsonTypeName("list")
 public class ListInput extends Input {
+  public static final String DEFAULT_QUESTION = "";
+
   private String question;
   private List<String> choices;
   private boolean multiselect;
@@ -21,26 +25,10 @@ public class ListInput extends Input {
   */
   public ListInput() {
     super(Input.LIST);
-  }
 
-  /**
-   * @param name
-   * @param required
-   * @param conditionalExpression
-   * @param question
-   * @param choices
-   * @param multiselect
-   */
-  public ListInput(String name,
-      boolean required,
-      String conditionalExpression,
-      String question,
-      List<String> choices,
-      boolean multiselect) {
-    super(name, Input.LIST, required, conditionalExpression);
-    this.question = question;
-    this.choices = choices;
-    this.multiselect = multiselect;
+    this.question = DEFAULT_QUESTION;
+    this.choices = Lists.newArrayList();
+    this.multiselect = false;
   }
 
   /**
@@ -54,7 +42,11 @@ public class ListInput extends Input {
    * @param question the question to set
    */
   public void setQuestion(String question) {
-    this.question = question;
+    if (question == null) {
+      this.question = DEFAULT_QUESTION;
+    } else {
+      this.question = question;
+    }
   }
 
   /**
@@ -68,7 +60,11 @@ public class ListInput extends Input {
    * @param choices the choices to set
    */
   public void setChoices(List<String> choices) {
-    this.choices = choices;
+    if (choices == null) {
+      this.choices = Lists.newArrayList();
+    } else {
+      this.choices = choices;
+    }
   }
 
   /**
@@ -114,14 +110,8 @@ public class ListInput extends Input {
       return false;
     }
 
-    if (getChoices() == null) {
-      if (other.getChoices() != null) {
-        return false;
-      }
-    } else {
-      if (getChoices().equals(other.getChoices()) == false) {
-        return false;
-      }
+    if (getChoices().equals(other.getChoices()) == false) {
+      return false;
     }
 
     return super.equals(obj);

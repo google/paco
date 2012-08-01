@@ -43,6 +43,8 @@ public abstract class Input implements Serializable {
 
   public static String[] TYPES = {TEXT, LIKERT, LIST, LOCATION, PHOTO, SOUND, ACTIVITY};
 
+  public static final String DEFAULT_NAME = "";
+
   protected String name;
   protected String type;
   protected boolean required;
@@ -54,19 +56,10 @@ public abstract class Input implements Serializable {
   public Input(String type) {
     super();
 
+    this.name = DEFAULT_NAME;
     this.type = type;
-  }
-
-  /**
-   * @param name
-   * @param required
-   * @param conditionalExpression
-   */
-  public Input(String name, String type, boolean required, String conditionalExpression) {
-    this(type);
-    this.name = name;
-    this.required = required;
-    this.conditionalExpression = conditionalExpression;
+    this.required = false;
+    this.conditionalExpression = null;
   }
 
   /**
@@ -80,7 +73,11 @@ public abstract class Input implements Serializable {
    * @param name the name to set
    */
   public void setName(String name) {
-    this.name = name;
+    if (name == null) {
+      this.name = DEFAULT_NAME;
+    } else {
+      this.name = name;
+    }
   }
 
   /**
@@ -101,7 +98,7 @@ public abstract class Input implements Serializable {
   /**
    * @param type the type to set
    */
-  public void setType(String type) {
+  protected void setType(String type) {
     this.type = type;
   }
 
@@ -110,6 +107,14 @@ public abstract class Input implements Serializable {
    */
   public void setRequired(boolean required) {
     this.required = required;
+  }
+
+  /**
+   * @return whether the input is conditional
+   */
+  @JsonIgnore
+  public boolean isConditional() {
+    return conditionalExpression != null;
   }
 
   /**
@@ -124,14 +129,6 @@ public abstract class Input implements Serializable {
    */
   public void setConditionalExpression(String conditionalExpression) {
     this.conditionalExpression = conditionalExpression;
-  }
-
-  /**
-   * @return whether the input is conditional
-   */
-  @JsonIgnore
-  public boolean isConditional() {
-    return conditionalExpression != null;
   }
 
   /*
@@ -159,16 +156,20 @@ public abstract class Input implements Serializable {
       return false;
     }
 
+    if (getType().equals(other.getType()) == false) {
+      return false;
+    }
+
     if (isRequired() != other.isRequired()) {
       return false;
     }
 
-    if (getConditionalExpression() == null) {
-      if (other.getConditionalExpression() != null) {
+    if (isConditional()) {
+      if (getConditionalExpression().equals(other.getConditionalExpression()) == false) {
         return false;
       }
     } else {
-      if (getConditionalExpression().equals(other.getConditionalExpression()) == false) {
+      if (other.isConditional()) {
         return false;
       }
     }

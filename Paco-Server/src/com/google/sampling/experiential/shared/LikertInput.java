@@ -2,6 +2,8 @@
 
 package com.google.sampling.experiential.shared;
 
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
  */
 @JsonTypeName("likert")
 public class LikertInput extends Input {
+  public static final String DEFAULT_QUESTION = "";
   public static final Integer DEFAULT_STEPS = 5;
 
   private String question;
@@ -23,26 +26,10 @@ public class LikertInput extends Input {
    */
   public LikertInput() {
     super(Input.LIKERT);
-  }
 
-  /**
-   * @param name
-   * @param required
-   * @param conditionalExpression
-   * @param question
-   * @param labels
-   * @param smileys
-   */
-  public LikertInput(String name,
-      boolean required,
-      String conditionalExpression,
-      String question,
-      List<String> labels,
-      boolean smileys) {
-    super(name, Input.LIKERT, required, conditionalExpression);
-    this.question = question;
-    this.labels = labels;
-    this.smileys = smileys;
+    this.question = DEFAULT_QUESTION;
+    this.labels = Lists.newArrayList();
+    this.smileys = false;
   }
 
   /**
@@ -56,7 +43,11 @@ public class LikertInput extends Input {
    * @param question the question to set
    */
   public void setQuestion(String question) {
-    this.question = question;
+    if (question == null) {
+      this.question = DEFAULT_QUESTION;
+    } else {
+      this.question = question;
+    }
   }
 
   /**
@@ -70,7 +61,11 @@ public class LikertInput extends Input {
    * @param labels the labels to set
    */
   public void setLabels(List<String> labels) {
-    this.labels = labels;
+    if (labels == null) {
+      this.labels = Lists.newArrayList();
+    } else {
+      this.labels = labels;
+    }
   }
 
   /**
@@ -116,14 +111,8 @@ public class LikertInput extends Input {
       return false;
     }
 
-    if (getLabels() == null) {
-      if (other.getLabels() != null) {
-        return false;
-      }
-    } else {
-      if (getLabels().equals(other.getLabels()) == false) {
-        return false;
-      }
+    if (getLabels().equals(other.getLabels()) == false) {
+      return false;
     }
 
     return super.equals(obj);

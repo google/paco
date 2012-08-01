@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName("text")
 public class TextInput extends Input {
+  public static final String DEFAULT_QUESTION = "";
+
   private String question;
   private boolean multiline;
 
@@ -18,20 +20,9 @@ public class TextInput extends Input {
    */
   public TextInput() {
     super(Input.TEXT);
-  }
 
-  /**
-   * @param name
-   * @param required
-   * @param conditionalExpression
-   * @param question
-   * @param multiline
-   */
-  public TextInput(String name, boolean required, String conditionalExpression, String question,
-      boolean multiline) {
-    super(name, Input.TEXT, required, conditionalExpression);
-    this.question = question;
-    this.multiline = multiline;
+    this.question = DEFAULT_QUESTION;
+    this.multiline = false;
   }
 
   /**
@@ -45,7 +36,11 @@ public class TextInput extends Input {
    * @param question the question to set
    */
   public void setQuestion(String question) {
-    this.question = question;
+    if (question == null) {
+      this.question = DEFAULT_QUESTION;
+    } else {
+      this.question = question;
+    }
   }
 
   /**
