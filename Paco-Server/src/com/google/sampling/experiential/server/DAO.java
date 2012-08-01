@@ -7,7 +7,6 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
@@ -15,9 +14,6 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.shared.Feedback;
-import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Schedule;
@@ -29,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -54,45 +49,50 @@ public class DAO {
    *
    * General experiments
    */
+  public boolean createExperiment(Experiment experiment) {
+    experiment.setId(null);
+    experiment.setVersion(1);
 
-  public List<Experiment> getExperiments(List<Long> ids) {
-    List<Key> keys = Lists.newArrayListWithCapacity(ids.size());
+    Entity entity = experimentToEntity(experiment);
+    ds.put(entity);
 
-    for (Long id : ids) {
-      keys.add(KeyFactory.createKey("experiment", id));
-    }
+    experiment.setId(entity.getKey().getId());
 
-    Map<Key, Entity> entitiesByKey = ds.get(keys);
-
-    List<Entity> entities = Lists.newArrayList();
-
-    for (Key key : keys) {
-      entities.add(entitiesByKey.get(key));
-    }
-
-    return entitiesToExperiments(entities);
+    return experiment.hasId();
   }
 
   public Experiment getExperiment(long id) {
-    return getExperiments(Lists.newArrayList(id)).get(0);
+    try {
+      Experiment experiment = entityToExperiment(ds.get(KeyFactory.createKey("experiment", id)));
+
+      if (experiment.isDeleted()) {
+        return null;
+      } else {
+        return experiment;
+      }
+    } catch (EntityNotFoundException e) {
+      return null;
+    }
   }
 
-  public Long createExperiment(Experiment experiment) {
-    Entity entity = experimentToEntity(null, experiment);
+  public boolean updateExperiment(Experiment experiment) {
+    if (experiment.hasId() == false) {
+      return false;
+    }
+
+    experiment.setVersion(experiment.getVersion() + 1);
+
+    Entity entity = experimentToEntity(experiment);
     ds.put(entity);
-    return entity.getKey().getId();
+
+    return (experiment.getId() == entity.getKey().getId());
   }
 
-  public Boolean updateExperiment(long id, Experiment experiment) {
-    Entity entity = experimentToEntity(id, experiment);
-    ds.put(entity);
-    return (entity.getKey().getId() == id);
-  }
+  public boolean deleteExperiment(Experiment experiment) {
+    experiment.setDeleted(true);
 
-  public Boolean deleteExperiment(Experiment experiment) {
-    return null;
+    return updateExperiment(experiment);
   }
-
 
   /*
    *
@@ -187,6 +187,7 @@ public class DAO {
 
     try {
       experiment = mapper.readValue(json.getValue(), Experiment.class);
+      experiment.setId(entity.getKey().getId());
       experiment.setVersion((Long) entity.getProperty("version"));
       experiment.setPublished((Boolean) entity.getProperty("published"));
       experiment.setDeleted((Boolean) entity.getProperty("deleted"));
@@ -206,7 +207,7 @@ public class DAO {
     return experiment;
   }
 
-  private Entity experimentToEntity(Long id, Experiment experiment) {
+  private Entity experimentToEntity(Experiment experiment) {
     ObjectMapper mapper = new ObjectMapper();
     Text json;
 
@@ -226,10 +227,10 @@ public class DAO {
 
     Entity entity;
 
-    if (id == null) {
-      entity = new Entity("experiment");
+    if (experiment.hasId()) {
+      entity = new Entity("experiment", experiment.getId());
     } else {
-      entity = new Entity("experiment", id);
+      entity = new Entity("experiment");
     }
 
     entity.setProperty("version", experiment.getVersion());

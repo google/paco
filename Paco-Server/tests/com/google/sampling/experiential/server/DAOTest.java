@@ -27,19 +27,9 @@ public class DAOTest {
   private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
-  @Before
-  public void setUp() {
-    helper.setUp();
-  }
-
-  @After
-  public void tearDown() {
-    helper.tearDown();
-  }
-
-  @Test
-  public void testCreateExperiment() {
+  private Experiment constructExperiment() {
     Experiment experiment = new Experiment();
+
     experiment.setTitle("title");
     experiment.setDescription("description");
     experiment.setCreator("creator");
@@ -52,10 +42,125 @@ public class DAOTest {
     experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
-    Long id = DAO.getInstance().createExperiment(experiment);
+    return experiment;
+  }
 
-    Experiment experiment2 = DAO.getInstance().getExperiment(id);
+  @Before
+  public void setUp() {
+    helper.setUp();
+  }
 
-    assertEquals(experiment, experiment2);
+  @After
+  public void tearDown() {
+    helper.tearDown();
+  }
+
+  @Test
+  public void testCreateExperiment() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+
+    assertTrue(created);
+    assertNotNull(experiment.getId());
+    assertEquals(experiment.getVersion(), 1);
+  }
+
+  @Test
+  public void textGetExperiment() {
+    Experiment experiment = DAO.getInstance().getExperiment(1);
+
+    assertNull(experiment);
+  }
+
+  @Test
+  public void testGetExperimentAfterCreate() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+
+    assertTrue(created);
+
+    Experiment retrievedExperiment = DAO.getInstance().getExperiment(experiment.getId());
+
+    assertNotNull(retrievedExperiment);
+    assertEquals(experiment, retrievedExperiment);
+  }
+
+  @Test
+  public void testUpdateExperiment() {
+    Experiment experiment = constructExperiment();
+    boolean updated = DAO.getInstance().updateExperiment(experiment);
+
+    assertFalse(updated);
+  }
+
+  @Test
+  public void testUpdateExperimentAfterCreate() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+    long version = experiment.getVersion();
+
+    assertTrue(created);
+
+    experiment.setTitle("new title");
+    boolean updated = DAO.getInstance().updateExperiment(experiment);
+
+    assertTrue(updated);
+    assertEquals(version + 1, experiment.getVersion());
+  }
+
+  @Test
+  public void testGetExperimentAfterCreateAndUpdate() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+
+    assertTrue(created);
+
+    experiment.setTitle("new title");
+    boolean updated = DAO.getInstance().updateExperiment(experiment);
+
+    assertTrue(updated);
+
+    Experiment retrievedExperiment = DAO.getInstance().getExperiment(experiment.getId());
+
+    assertNotNull(retrievedExperiment);
+    assertEquals(experiment, retrievedExperiment);
+  }
+
+  @Test
+  public void testDeleteExperiment() {
+    Experiment experiment = constructExperiment();
+    boolean deleted = DAO.getInstance().deleteExperiment(experiment);
+
+    assertFalse(deleted);
+  }
+
+  @Test
+  public void testDeleteExperimentAfterCreate() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+    long version = experiment.getVersion();
+
+    assertTrue(created);
+
+    boolean deleted = DAO.getInstance().deleteExperiment(experiment);
+
+    assertTrue(deleted);
+    assertTrue(experiment.isDeleted());
+  }
+
+  @Test
+  public void testGetExperimentAfterCreateAndDelete() {
+    Experiment experiment = constructExperiment();
+    boolean created = DAO.getInstance().createExperiment(experiment);
+
+    assertTrue(created);
+
+    boolean deleted = DAO.getInstance().deleteExperiment(experiment);
+
+    assertTrue(deleted);
+
+    Experiment retrievedExperiment = DAO.getInstance().getExperiment(experiment.getId());
+
+    assertNull(retrievedExperiment);
   }
 }

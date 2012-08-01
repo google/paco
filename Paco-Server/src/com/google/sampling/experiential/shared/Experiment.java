@@ -39,6 +39,7 @@ public class Experiment implements Serializable {
   public static String DEFAULT_CREATOR = "";
   public static String DEFAULT_CONSENT_FORM = "";
 
+  @JsonIgnore
   private Long id;
   private String title;
   private String description;
