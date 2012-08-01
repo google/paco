@@ -4,7 +4,7 @@ require 'rexml/document'
 
 # manifest update
 file = File.read("Paco/AndroidManifest.xml")
-xml = REXML::Document.new(file)
+doc = REXML::Document.new(file)
 current_version = doc.elements["manifest"].attributes["android:versionCode"].to_i
 doc.elements["manifest"].attributes["android:versionCode"] = "#{current_version + 1}"
 
