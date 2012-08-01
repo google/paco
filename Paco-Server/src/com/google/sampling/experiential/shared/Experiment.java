@@ -18,11 +18,6 @@ package com.google.sampling.experiential.shared;
 import com.google.common.collect.Lists;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import java.io.Serializable;
 import java.util.List;
@@ -39,10 +34,10 @@ import java.util.List;
  *
  */
 public class Experiment implements Serializable {
-  private static String DEFAULT_TITLE = "";
-  private static String DEFAULT_DESCRIPTION = "";
-  private static String DEFAULT_CREATOR = "Unknown";
-  private static String DEFAULT_CONSENT_FORM = "";
+  public static String DEFAULT_TITLE = "";
+  public static String DEFAULT_DESCRIPTION = "";
+  public static String DEFAULT_CREATOR = "";
+  public static String DEFAULT_CONSENT_FORM = "";
 
   private String title;
   private String description;
@@ -68,48 +63,18 @@ public class Experiment implements Serializable {
   public Experiment() {
     super();
 
-    this.subjects = Lists.newArrayList();
+    this.title = DEFAULT_TITLE;
+    this.description = DEFAULT_DESCRIPTION;
+    this.creator = DEFAULT_CREATOR;
+    this.consentForm = DEFAULT_CONSENT_FORM;
+    this.version = 0;
+    this.published = false;
+    this.deleted = false;
     this.observers = Lists.newArrayList();
+    this.subjects = Lists.newArrayList();
     this.inputs = Lists.newArrayList();
+    this.schedule = null;
     this.feedbacks = Lists.newArrayList();
-  }
-
-  /**
-   * @param version
-   * @param title
-   * @param description
-   * @param consent
-   * @param published
-   * @param deleted
-   * @param observers
-   * @param subjects
-   * @param inputs
-   * @param schedule
-   * @param feedbacks
-   */
-  public Experiment(long version,
-      String title,
-      String description,
-      String consent,
-      boolean published,
-      boolean deleted,
-      List<String> observers,
-      List<String> subjects,
-      List<Input> inputs,
-      Schedule schedule,
-      List<Feedback> feedbacks) {
-    super();
-    this.version = version;
-    this.title = title;
-    this.description = description;
-    this.consentForm = consent;
-    this.published = published;
-    this.deleted = deleted;
-    this.observers = observers;
-    this.subjects = subjects;
-    this.inputs = inputs;
-    this.schedule = schedule;
-    this.feedbacks = feedbacks;
   }
 
   /**
@@ -281,6 +246,13 @@ public class Experiment implements Serializable {
   }
 
   /**
+   * @return whether the experiment has a schedule
+   */
+  public boolean hasSchedule() {
+    return (schedule != null);
+  }
+
+  /**
    * @return the schedule
    */
   public Schedule getSchedule() {
@@ -373,8 +345,14 @@ public class Experiment implements Serializable {
       return false;
     }
 
-    if (getSchedule().equals(other.getSchedule()) == false) {
-      return false;
+    if (hasSchedule()) {
+      if (getSchedule().equals(other.getSchedule()) == false) {
+        return false;
+      }
+    } else {
+      if (other.getSchedule() != null) {
+        return false;
+      }
     }
 
     if (getFeedbacks().equals(other.getFeedbacks()) == false) {
