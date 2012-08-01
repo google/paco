@@ -146,50 +146,6 @@ public class ScheduleTest {
   }
 
   @Test
-  public void testEqualityWhenScheduleSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setSignal(new RandomSignal());
-    schedule2.setSignal(new RandomSignal());
-
-    assertTrue(schedule1.equals(schedule2));
-  }
-
-  @Test
-  public void testEqualityWhenScheduleSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setSignal(null);
-    schedule2.setSignal(null);
-
-    assertTrue(schedule1.equals(schedule2));
-  }
-
-  @Test
-  public void testInequalityWhenScheduleSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setSignal(new RandomSignal());
-    schedule2.setSignal(new FixedSignal());
-
-    assertFalse(schedule1.equals(schedule2));
-  }
-
-  @Test
-  public void testInequalityWhenScheduleSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setSignal(null);
-    schedule2.setSignal(new RandomSignal());
-
-    assertFalse(schedule1.equals(schedule2));
-  }
-
-  @Test
   public void testStartDateIsNullable() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
 
@@ -205,15 +161,6 @@ public class ScheduleTest {
     schedule.setEndDate(null);
 
     assertNull(schedule.getEndDate());
-  }
-
-  @Test
-  public void testSignalIsNullable() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
-
-    schedule.setSignal(null);
-
-    assertNull(schedule.getSignal());
   }
 
   @Test
@@ -235,15 +182,6 @@ public class ScheduleTest {
   }
 
   @Test
-  public void testHasSignal() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
-
-    schedule.setSignal(new FixedSignal());
-
-    assertTrue(schedule.hasSignal());
-  }
-
-  @Test
   public void testHasStartDateWhenNull() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
 
@@ -259,14 +197,5 @@ public class ScheduleTest {
     schedule.setEndDate(null);
 
     assertFalse(schedule.hasEndDate());
-  }
-
-  @Test
-  public void testHasSignalWhenNull() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
-
-    schedule.setSignal(null);
-
-    assertFalse(schedule.hasSignal());
   }
 }

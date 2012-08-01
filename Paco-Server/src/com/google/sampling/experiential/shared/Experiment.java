@@ -55,6 +55,7 @@ public class Experiment implements Serializable {
   private List<String> subjects;
   private List<Input> inputs;
   private Schedule schedule;
+  private Signal signal;
   private List<Feedback> feedbacks;
 
   /**
@@ -248,8 +249,8 @@ public class Experiment implements Serializable {
   /**
    * @return whether the experiment has a schedule
    */
-  public boolean hasSchedule() {
-    return (schedule != null);
+  public boolean hasSignalSchedule() {
+    return (schedule != null && signal != null);
   }
 
   /**
@@ -260,10 +261,23 @@ public class Experiment implements Serializable {
   }
 
   /**
+   * @return the schedule
+   */
+  public Signal getSignal() {
+    return signal;
+  }
+
+  /**
    * @param schedule the schedule to set
    */
-  public void setSchedule(Schedule schedule) {
-    this.schedule = schedule;
+  public void setSignalSchedule(Signal signal, Schedule schedule) {
+    if (signal == null || schedule == null) {
+      this.signal = null;
+      this.schedule = null;
+    } else {
+      this.signal = signal;
+      this.schedule = schedule;
+    }
   }
 
   /**
@@ -345,12 +359,13 @@ public class Experiment implements Serializable {
       return false;
     }
 
-    if (hasSchedule()) {
-      if (getSchedule().equals(other.getSchedule()) == false) {
+    if (hasSignalSchedule()) {
+      if (getSchedule().equals(other.getSchedule()) == false
+          || getSignal().equals(other.getSignal()) == false) {
         return false;
       }
     } else {
-      if (other.getSchedule() != null) {
+      if (other.getSchedule() != null || other.getSignal() != null) {
         return false;
       }
     }

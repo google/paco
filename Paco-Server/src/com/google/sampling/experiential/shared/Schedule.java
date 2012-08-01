@@ -44,7 +44,6 @@ public abstract class Schedule implements Serializable {
   protected Date startDate;
   protected Date endDate;
   protected boolean editable;
-  protected Signal signal;
 
   /**
    *
@@ -56,7 +55,6 @@ public abstract class Schedule implements Serializable {
     this.startDate = null;
     this.endDate = null;
     this.editable = false;
-    this.signal = null;
   }
 
   /**
@@ -130,27 +128,6 @@ public abstract class Schedule implements Serializable {
     this.editable = editable;
   }
 
-  /**
-   * @return whether the schedule has a signal
-   */
-  public boolean hasSignal() {
-    return (signal != null);
-  }
-
-  /**
-   * @return the signal
-   */
-  public Signal getSignal() {
-    return signal;
-  }
-
-  /**
-   * @param signal the signal to set
-   */
-  public void setSignal(Signal signal) {
-    this.signal = signal;
-  }
-
   /*
    * (non-Javadoc)
    *
@@ -198,16 +175,6 @@ public abstract class Schedule implements Serializable {
 
     if (isEditable() != other.isEditable()) {
       return false;
-    }
-
-    if (hasSignal()) {
-      if (getSignal().equals(other.getSignal()) == false) {
-        return false;
-      }
-    } else {
-      if (other.hasSignal()) {
-        return false;
-      }
     }
 
     return true;

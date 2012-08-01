@@ -132,28 +132,6 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testEqualityWhenScheduleSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSchedule(new DailySchedule());
-    experiment2.setSchedule(new DailySchedule());
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testEqualityWhenScheduleSetNull() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSchedule(null);
-    experiment2.setSchedule(null);
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
   public void testEqualityWhenFeedbacksSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
@@ -275,28 +253,6 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testInequalityWhenScheduleSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSchedule(new DailySchedule());
-    experiment2.setSchedule(new WeeklySchedule());
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testInequalityWhenScheduleSetNull() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSchedule(null);
-    experiment2.setSchedule(new WeeklySchedule());
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
   public void testInequalityWhenFeedbacksSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
@@ -382,29 +338,145 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testScheduleIsNullable() {
+  public void testEqualityWhenSignalScheduleSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment2.setSignalSchedule(new FixedSignal(), new DailySchedule());
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testEqualityWhenSignalScheduleSetNull() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(null, null);
+    experiment2.setSignalSchedule(null, null);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testEqualityWhenSignalScheduleSetNull2() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(new FixedSignal(), null);
+    experiment2.setSignalSchedule(new FixedSignal(), null);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testEqualityWhenSignalScheduleSetNull3() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(null, new DailySchedule());
+    experiment2.setSignalSchedule(null, new DailySchedule());
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenSignalScheduleSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment2.setSignalSchedule(new FixedSignal(), new WeeklySchedule());
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenSignalScheduleSet2() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment2.setSignalSchedule(new RandomSignal(), new DailySchedule());
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenSignalScheduleSet3() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment2.setSignalSchedule(new RandomSignal(), new WeeklySchedule());
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testSignalScheduleIsNullable() {
     Experiment experiment = new Experiment();
 
-    experiment.setSchedule(null);
+    experiment.setSignalSchedule(null, null);
 
     assertNull(experiment.getSchedule());
+    assertNull(experiment.getSignal());
   }
 
   @Test
-  public void testHasSchedule() {
+  public void testSignalScheduleIsNullable2() {
     Experiment experiment = new Experiment();
 
-    experiment.setSchedule(new DailySchedule());
+    experiment.setSignalSchedule(new FixedSignal(), null);
 
-    assertTrue(experiment.hasSchedule());
+    assertNull(experiment.getSchedule());
+    assertNull(experiment.getSignal());
   }
 
   @Test
-  public void testHasScheduleWhenNull() {
+  public void testSignalScheduleIsNullable3() {
     Experiment experiment = new Experiment();
 
-    experiment.setSchedule(null);
+    experiment.setSignalSchedule(null, new DailySchedule());
 
-    assertFalse(experiment.hasSchedule());
+    assertNull(experiment.getSchedule());
+    assertNull(experiment.getSignal());
+  }
+
+  @Test
+  public void testHasSignalSchedule() {
+    Experiment experiment = new Experiment();
+
+    experiment.setSignalSchedule(new FixedSignal(), new DailySchedule());
+
+    assertTrue(experiment.hasSignalSchedule());
+  }
+
+  @Test
+  public void testHasSignalScheduleWhenNull() {
+    Experiment experiment = new Experiment();
+
+    experiment.setSignalSchedule(null, null);
+
+    assertFalse(experiment.hasSignalSchedule());
+  }
+
+  @Test
+  public void testHasSignalScheduleWhenNull2() {
+    Experiment experiment = new Experiment();
+
+    experiment.setSignalSchedule(new FixedSignal(), null);
+
+    assertFalse(experiment.hasSignalSchedule());
+  }
+
+  @Test
+  public void testHasSignalScheduleWhenNull3() {
+    Experiment experiment = new Experiment();
+
+    experiment.setSignalSchedule(null, new DailySchedule());
+
+    assertFalse(experiment.hasSignalSchedule());
   }
 }
