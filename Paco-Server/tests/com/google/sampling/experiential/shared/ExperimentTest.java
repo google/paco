@@ -297,7 +297,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testTitleIsNotNull() {
+  public void testTitleIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setTitle(null);
@@ -306,7 +306,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testDescriptionIsNotNull() {
+  public void testDescriptionIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setDescription(null);
@@ -315,7 +315,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testCreatorIsNotNull() {
+  public void testCreatorIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setCreator(null);
@@ -324,7 +324,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testConsentFormIsNotNull() {
+  public void testConsentFormIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setConsentForm(null);
@@ -333,7 +333,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testObserversIsNotNull() {
+  public void testObserversIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setObservers(null);
@@ -342,7 +342,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testSubjectsIsNotNull() {
+  public void testSubjectsIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setSubjects(null);
@@ -351,7 +351,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testInputsIsNotNull() {
+  public void testInputsIsNotNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setInputs(null);
@@ -360,7 +360,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testScheduleIsNull() {
+  public void testScheduleIsNullable() {
     Experiment experiment = new Experiment();
 
     experiment.setSchedule(null);
