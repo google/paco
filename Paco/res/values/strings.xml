@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
  ~ Copyright 2011 Google Inc. All Rights Reserved.
  ~
@@ -17,54 +17,54 @@
  -->
 
 <resources>
-    <string name="app_name">PACO</string>
+    <string name='app_name'>PACO</string>
     
-  <string name="version">2.0.64</string>
-  <string name="server">quantifiedself.appspot.com</string>
-  <string name="app_package">com.google.android.apps.paco</string>
-  <string name="emailSuffix">\@gmail.com</string>
-  <string name="contact_email">paco-users@googlegroups.com</string>
-  <string name="about_googlegroups">paco-users@googlegroups.com</string>  
+  <string name='version'>2.0.65</string>
+  <string name='server'>quantifiedself.appspot.com</string>
+  <string name='app_package'>com.google.android.apps.paco</string>
+  <string name='emailSuffix'>\@gmail.com</string>
+  <string name='contact_email'>paco-users@googlegroups.com</string>
+  <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
 <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
-  <string name="usergroup_website">https://groups.google.com/group/paco-users</string>
-  <string name="about_weburl">quantifiedself.appspot.com/Main.html</string>
-  <string name="about_copyright_message"></string>
-  <string name="about_bob">Bob Evans</string>
-  <string name="about_alberto">Alberto Savoia</string>
-  <string name="about_arun">Arun Saigal</string>
-  <string name="about_cp">CP Lim</string>
-  <string name="about_stephen">Stephen Uhler</string>
-  <string name="about_tina">Tina Malm</string>
-  <string name="about_brian">Brian Ong</string>
-  <string name="about_kanwal">Kanwal Safdar</string>
+  <string name='usergroup_website'>https://groups.google.com/group/paco-users</string>
+  <string name='about_weburl'>quantifiedself.appspot.com/Main.html</string>
+  <string name='about_copyright_message'/>
+  <string name='about_bob'>Bob Evans</string>
+  <string name='about_alberto'>Alberto Savoia</string>
+  <string name='about_arun'>Arun Saigal</string>
+  <string name='about_cp'>CP Lim</string>
+  <string name='about_stephen'>Stephen Uhler</string>
+  <string name='about_tina'>Tina Malm</string>
+  <string name='about_brian'>Brian Ong</string>
+  <string name='about_kanwal'>Kanwal Safdar</string>
   
     <!-- End User License Agreement -->
-  <string name="eula_title">End User License Agreement</string>
-  <string name="accept">Accept</string>
-  <string name="decline">Decline</string>
+  <string name='eula_title'>End User License Agreement</string>
+  <string name='accept'>Accept</string>
+  <string name='decline'>Decline</string>
 
   <!-- About -->
-  <string name="about">About</string>
-  <string name="user_guide">User Guide</string>
-  <string name="about_team">Team:</string>
-  <string name="about_version">Version:</string>
-  <string name="about_email">Support</string>
-  <string name="about_support">Support:</string>
-  <string name="about_paco">About Paco</string>
+  <string name='about'>About</string>
+  <string name='user_guide'>User Guide</string>
+  <string name='about_team'>Team:</string>
+  <string name='about_version'>Version:</string>
+  <string name='about_email'>Support</string>
+  <string name='about_support'>Support:</string>
+  <string name='about_paco'>About Paco</string>
   
     <!-- Welcome -->
-  <string name="welcome">Welcome</string>
-  <string name="welcome_read_later">Ok</string>
-  <string name="welcome_about">Paco Version</string>
+  <string name='welcome'>Welcome</string>
+  <string name='welcome_read_later'>Ok</string>
+  <string name='welcome_about'>Paco Version</string>
   
-    <string name="no">No</string>
-  <string name="yes">Yes</string>
-  <string name="ok">OK</string>
-  <string name="error">Error</string>
-  <string name="success">Success</string>
+    <string name='no'>No</string>
+  <string name='yes'>Yes</string>
+  <string name='ok'>OK</string>
+  <string name='error'>Error</string>
+  <string name='success'>Success</string>
   
   
-  <string-array name="repeat_range">
+  <string-array name='repeat_range'>
    <item>1</item>
    <item>2</item>
    <item>3</item>
@@ -97,7 +97,7 @@
    <item>30</item>   
   </string-array>
   
-  <string-array name="days_of_week">
+  <string-array name='days_of_week'>
    <item>Sunday</item>
    <item>Monday</item>
    <item>Tuesday</item>
@@ -107,26 +107,26 @@
    <item>Saturday</item>
    </string-array>
    
-   <string-array name="nth_of_month">
+   <string-array name='nth_of_month'>
    <item>First</item>
    <item>Second</item>
    <item>Third</item>
    <item>Fourth</item>
    <item>Fifth</item>
    </string-array>
-   <string name="experiment_title">Experiment Title</string>
-   <string name="refresh_questions">Refresh Questions</string>
-   <string name="save_response">Save Response</string>
-   <string name="contact_us">Contact Us</string>
-   <string name="find_experiments">Find Experiments</string>
-   <string name="running_experiments">Running Experiments</string>
-   <string name="experiment_manager_screen_subtitle">Personal Analytics COmpanion</string>
-   <string name="experiment_manager_screen_welcome_to_paco">Welcome to PACO!</string>
-   <string name="go_to_website_button_text">Browse Website</string>
-   <string name="go_to_user_group">Browse User Group</string>
-   <string name="email_us">Email User Group</string>
-   <string name="ways_to_talk_to_paco">Ways to Talk to Paco</string>
-   <string name="explore_data">Explore Data</string>
-   <string name="create_experiment">Create An Experiment</string>
+   <string name='experiment_title'>Experiment Title</string>
+   <string name='refresh_questions'>Refresh Questions</string>
+   <string name='save_response'>Save Response</string>
+   <string name='contact_us'>Contact Us</string>
+   <string name='find_experiments'>Find Experiments</string>
+   <string name='running_experiments'>Running Experiments</string>
+   <string name='experiment_manager_screen_subtitle'>Personal Analytics COmpanion</string>
+   <string name='experiment_manager_screen_welcome_to_paco'>Welcome to PACO!</string>
+   <string name='go_to_website_button_text'>Browse Website</string>
+   <string name='go_to_user_group'>Browse User Group</string>
+   <string name='email_us'>Email User Group</string>
+   <string name='ways_to_talk_to_paco'>Ways to Talk to Paco</string>
+   <string name='explore_data'>Explore Data</string>
+   <string name='create_experiment'>Create An Experiment</string>
    
 </resources>
