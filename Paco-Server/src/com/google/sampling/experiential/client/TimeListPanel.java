@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 /**
  * Container Panel for the times an experiment is scheduled,
@@ -36,10 +36,10 @@ import com.google.sampling.experiential.shared.SignalSchedule;
  */
 public class TimeListPanel extends Composite {
   private VerticalPanel verticalPanel_1;
-  private SignalSchedule schedule;
+  private Schedule schedule;
   private LinkedList<TimePanel> timesPanelList;
 
-  public TimeListPanel(SignalSchedule schedule) {
+  public TimeListPanel(Schedule schedule) {
     this.schedule = schedule;
     verticalPanel_1 = new VerticalPanel();
     verticalPanel_1.setSpacing(2);

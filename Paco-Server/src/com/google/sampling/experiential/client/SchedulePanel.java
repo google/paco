@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 /**
  * Container for all scheduling configuration panels.
@@ -40,9 +40,9 @@ public class SchedulePanel extends Composite {
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
   private DurationView durationPanel;
-  private SignalSchedule schedule;
+  private Schedule schedule;
 
-  public SchedulePanel(SignalSchedule schedule) {
+  public SchedulePanel(Schedule schedule) {
     this.schedule = schedule;
 
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -73,7 +73,7 @@ public class SchedulePanel extends Composite {
 
   }
 
-  private Widget createUserEditable(SignalSchedule schedule2) {
+  private Widget createUserEditable(Schedule schedule2) {
     HorizontalPanel userEditablePanel = new HorizontalPanel();
     userEditablePanel.setSpacing(2);
     userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -139,8 +139,8 @@ public class SchedulePanel extends Composite {
 
   private ListBox createScheduleTypeListBox() {
     final ListBox listBox = new ListBox();
-    for (int i = 0; i < SignalSchedule.SCHEDULE_TYPES_NAMES.length; i++) {
-      listBox.addItem(SignalSchedule.SCHEDULE_TYPES_NAMES[i]);
+    for (int i = 0; i < Schedule.SCHEDULE_TYPES_NAMES.length; i++) {
+      listBox.addItem(Schedule.SCHEDULE_TYPES_NAMES[i]);
     }
     listBox.setSelectedIndex(schedule.getScheduleType() != null ? schedule.getScheduleType() : 0);
     return listBox;

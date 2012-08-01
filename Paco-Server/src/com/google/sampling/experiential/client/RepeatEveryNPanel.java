@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 /**
  * Panel to show choice of "Repeat Every N days" scheduling option.
@@ -35,9 +35,9 @@ import com.google.sampling.experiential.shared.SignalSchedule;
 public class RepeatEveryNPanel extends Composite {
 
   private String periodLabel;
-  private SignalSchedule schedule;
+  private Schedule schedule;
 
-  public RepeatEveryNPanel(String period, final SignalSchedule schedule) {
+  public RepeatEveryNPanel(String period, final Schedule schedule) {
     this.schedule = schedule;
     this.periodLabel = period;
     HorizontalPanel horizontalPanel = new HorizontalPanel();

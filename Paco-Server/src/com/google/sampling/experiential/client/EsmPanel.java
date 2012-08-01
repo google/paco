@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.client.SpinnerListener;
 import com.google.gwt.widgetideas.client.ValueSpinner;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 /**
  * Panel for configuring the ESM scheduling for an experiment.
@@ -42,9 +42,9 @@ import com.google.sampling.experiential.shared.SignalSchedule;
  */
 public class EsmPanel extends Composite {
 
-  private SignalSchedule schedule;
+  private Schedule schedule;
 
-  public EsmPanel(final SignalSchedule schedule) {
+  public EsmPanel(final Schedule schedule) {
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -74,15 +74,15 @@ public class EsmPanel extends Composite {
     horizontalPanel.add(lblPeriod);
 
     final ListBox listBox = new ListBox();
-    for (int i = 0; i < SignalSchedule.ESM_PERIODS.length; i++) {
-      listBox.addItem(SignalSchedule.ESM_PERIODS_NAMES[i]);
+    for (int i = 0; i < Schedule.ESM_PERIODS.length; i++) {
+      listBox.addItem(Schedule.ESM_PERIODS_NAMES[i]);
     }
     horizontalPanel.add(listBox);
     listBox.setVisibleItemCount(1);
     Integer period = schedule.getEsmPeriodInDays();
     if (period == null) {
-      period = SignalSchedule.DEFAULT_ESM_PERIOD;
-      schedule.setEsmPeriodInDays(SignalSchedule.DEFAULT_ESM_PERIOD);
+      period = Schedule.DEFAULT_ESM_PERIOD;
+      schedule.setEsmPeriodInDays(Schedule.DEFAULT_ESM_PERIOD);
     }
     listBox.setSelectedIndex(period);
     listBox.addClickHandler(new ClickHandler() {

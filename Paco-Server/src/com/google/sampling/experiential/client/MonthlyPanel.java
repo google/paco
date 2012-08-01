@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.sampling.experiential.shared.Schedule;
 
 /**
  * Configure Monthly scheduling options for an experiment.
@@ -36,9 +36,9 @@ import com.google.sampling.experiential.shared.SignalSchedule;
  */
 public class MonthlyPanel extends Composite {
 
-  private SignalSchedule schedule;
+  private Schedule schedule;
 
-  public MonthlyPanel(final SignalSchedule schedule) {
+  public MonthlyPanel(final Schedule schedule) {
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -140,7 +140,7 @@ public class MonthlyPanel extends Composite {
     }
   }
 
-  private ListBox createNthDayListBox(final SignalSchedule schedule,
+  private ListBox createNthDayListBox(final Schedule schedule,
       HorizontalPanel weekdayPanel) {
     final ListBox nth = new ListBox();
 
@@ -192,7 +192,7 @@ public class MonthlyPanel extends Composite {
     return listBox;
   }
 
-  private void toggleDayOfMonthDayOfWeekPanels(final SignalSchedule schedule,
+  private void toggleDayOfMonthDayOfWeekPanels(final Schedule schedule,
       final ListBox listBox, final ListBox nth, final WeekDayPanel weekDayPanel, boolean enabled) {
     listBox.setEnabled(!enabled);
     nth.setEnabled(enabled);
