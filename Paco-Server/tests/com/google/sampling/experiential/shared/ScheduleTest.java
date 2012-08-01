@@ -157,6 +157,33 @@ public class ScheduleTest {
   }
 
   @Test
+  public void testStartDateIsNullable() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setStartDate(null);
+
+    assertNull(schedule.getStartDate());
+  }
+
+  @Test
+  public void testEndDateIsNullable() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setEndDate(null);
+
+    assertNull(schedule.getEndDate());
+  }
+
+  @Test
+  public void testSignalIsNullable() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setSignal(null);
+
+    assertNull(schedule.getSignal());
+  }
+
+  @Test
   public void testHasStartDate() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
 
