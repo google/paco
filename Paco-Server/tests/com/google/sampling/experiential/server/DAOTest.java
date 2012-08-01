@@ -7,9 +7,12 @@ import static org.junit.Assert.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
+import com.google.sampling.experiential.shared.RandomSignal;
 import com.google.sampling.experiential.shared.TextInput;
 
 import org.junit.After;
@@ -37,20 +40,17 @@ public class DAOTest {
   @Test
   public void testCreateExperiment() {
     Experiment experiment = new Experiment();
-    experiment.setTitle("Test");
-    experiment.setDescription("This is a test experiment.");
-    experiment.setCreator("Google, Inc.");
-    experiment.setConsentForm(null);
-    experiment.setPublished(false);
+    experiment.setTitle("title");
+    experiment.setDescription("description");
+    experiment.setCreator("creator");
+    experiment.setConsentForm("consent form");
+    experiment.setPublished(true);
     experiment.setDeleted(false);
-    experiment.setObservers(Lists.newArrayList("corycornelius@google.com"));
-    experiment.setSubjects(null);
-    experiment.setInputs(Lists.newArrayList(
-        new TextInput("happiness_text", false, null, "Are you happy?", false),
-        new LikertInput("happiness_likert", false, null, "How happy are you?", null, false),
-        new ListInput("happiness_list", false, null, "What makes you happy?", null, false)));
-    experiment.setSchedule(null);
-    experiment.setFeedbacks(null);
+    experiment.setObservers(Lists.newArrayList("observer"));
+    experiment.setSubjects(Lists.newArrayList("subject"));
+    experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
+    experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
+    experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
     Long id = DAO.getInstance().createExperiment(experiment);
 
