@@ -65,10 +65,10 @@ public class DAO {
   public List<Experiment> getExperiments(String user) {
     Query q = new Query("experiment");
 
-    // deleted == false && (subject == true || published == true)
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), CompositeFilterOperator.or(
-            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("published", true))));
+    // deleted == false && published == true && (viewer == true || viewer == null)
+    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+        FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
+            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("viewers", null))));
 
     return queryToExperiments(q);
   }
@@ -149,9 +149,10 @@ public class DAO {
   public List<Experiment> getSubjectExperiments(String user) {
     Query q = new Query("experiment");
 
-    // deleted == false && subject == true
+    // deleted == false && published == true && subject == true
     q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("subjects", user)));
+        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
+        FilterOperator.EQUAL.of("subjects", user)));
 
     return queryToExperiments(q);
   }

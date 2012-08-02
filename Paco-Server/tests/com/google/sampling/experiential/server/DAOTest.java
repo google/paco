@@ -38,7 +38,7 @@ public class DAOTest {
     experiment.setDescription("description");
     experiment.setCreator("creator");
     experiment.setConsentForm("consent form");
-    experiment.setPublished(true);
+    experiment.setPublished(false);
     experiment.setDeleted(false);
     experiment.setObservers(null);
     experiment.setSubjects(null);
@@ -63,11 +63,10 @@ public class DAOTest {
   @Test
   public void testCreateExperiment() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
 
-    assertTrue(created);
+    assertTrue(dao.createExperiment(experiment));
     assertNotNull(experiment.getId());
-    assertEquals(experiment.getVersion(), 1);
+    assertEquals(1, experiment.getVersion());
   }
 
   @Test
@@ -80,9 +79,8 @@ public class DAOTest {
   @Test
   public void testGetExperimentAfterCreate() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
 
-    assertTrue(created);
+    assertTrue(dao.createExperiment(experiment));
 
     Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
 
@@ -93,37 +91,32 @@ public class DAOTest {
   @Test
   public void testUpdateExperiment() {
     Experiment experiment = constructExperiment();
-    boolean updated = dao.updateExperiment(experiment);
 
-    assertFalse(updated);
+    assertFalse(dao.updateExperiment(experiment));
   }
 
   @Test
   public void testUpdateExperimentAfterCreate() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
+
+    assertTrue(dao.createExperiment(experiment));
+
     long version = experiment.getVersion();
-
-    assertTrue(created);
-
     experiment.setTitle("new title");
-    boolean updated = dao.updateExperiment(experiment);
 
-    assertTrue(updated);
+    assertTrue(dao.updateExperiment(experiment));
     assertEquals(version + 1, experiment.getVersion());
   }
 
   @Test
   public void testGetExperimentAfterCreateAndUpdate() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
 
-    assertTrue(created);
+    assertTrue(dao.createExperiment(experiment));
 
     experiment.setTitle("new title");
-    boolean updated = dao.updateExperiment(experiment);
 
-    assertTrue(updated);
+    assertTrue(dao.updateExperiment(experiment));
 
     Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
 
@@ -134,35 +127,25 @@ public class DAOTest {
   @Test
   public void testDeleteExperiment() {
     Experiment experiment = constructExperiment();
-    boolean deleted = dao.deleteExperiment(experiment);
 
-    assertFalse(deleted);
+    assertFalse(dao.deleteExperiment(experiment));
   }
 
   @Test
   public void testDeleteExperimentAfterCreate() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
-    long version = experiment.getVersion();
 
-    assertTrue(created);
-
-    boolean deleted = dao.deleteExperiment(experiment);
-
-    assertTrue(deleted);
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
     assertTrue(experiment.isDeleted());
   }
 
   @Test
   public void testGetExperimentAfterCreateAndDelete() {
     Experiment experiment = constructExperiment();
-    boolean created = dao.createExperiment(experiment);
 
-    assertTrue(created);
-
-    boolean deleted = dao.deleteExperiment(experiment);
-
-    assertTrue(deleted);
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
 
     Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
 
@@ -173,7 +156,7 @@ public class DAOTest {
   public void testGetObserverExperiments() {
     List<Experiment> experiments = dao.getObserverExperiments("user");
 
-    assertEquals(experiments.size(), 0);
+    assertEquals(0, experiments.size());
   }
 
   @Test
@@ -181,13 +164,11 @@ public class DAOTest {
     Experiment experiment = constructExperiment();
     experiment.setObservers(Lists.newArrayList("user"));
 
-    boolean created = dao.createExperiment(experiment);
-
-    assertTrue(created);
+    assertTrue(dao.createExperiment(experiment));
 
     List<Experiment> experiments = dao.getObserverExperiments("user");
 
-    assertEquals(experiments.size(), 1);
+    assertEquals(1, experiments.size());
   }
 
   @Test
@@ -195,39 +176,46 @@ public class DAOTest {
     Experiment experiment = constructExperiment();
     experiment.setObservers(Lists.newArrayList("user"));
 
-    boolean created = dao.createExperiment(experiment);
-
-    assertTrue(created);
-
-    boolean deleted = dao.deleteExperiment(experiment);
-
-    assertTrue(deleted);
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
 
     List<Experiment> experiments = dao.getObserverExperiments("user");
 
-    assertEquals(experiments.size(), 0);
+    assertEquals(0, experiments.size());
   }
 
   @Test
   public void testGetSubjectExperiments() {
     List<Experiment> experiments = dao.getSubjectExperiments("user");
 
-    assertEquals(experiments.size(), 0);
+    assertEquals(0, experiments.size());
   }
 
   @Test
-  public void testGetSubjectExperimentsAfterCreate() {
+  public void testGetSubjectExperimentsAfterCreateUnpublished() {
     Experiment experiment = constructExperiment();
     experiment.setSubjects(Lists.newArrayList("user"));
+    experiment.setPublished(false);
 
-    boolean created = dao.createExperiment(experiment);
-
-    assertTrue(created);
+    assertTrue(dao.createExperiment(experiment));
 
     List<Experiment> experiments = dao.getSubjectExperiments("user");
 
-    assertEquals(experiments.size(), 1);
-    assertEquals(experiments.get(0), experiment);
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetSubjectExperimentsAfterCreatePublished() {
+    Experiment experiment = constructExperiment();
+    experiment.setSubjects(Lists.newArrayList("user"));
+    experiment.setPublished(true);
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getSubjectExperiments("user");
+
+    assertEquals(1, experiments.size());
+    assertEquals(experiment, experiments.get(0));
   }
 
   @Test
@@ -235,17 +223,12 @@ public class DAOTest {
     Experiment experiment = constructExperiment();
     experiment.setSubjects(Lists.newArrayList("user"));
 
-    boolean created = dao.createExperiment(experiment);
-
-    assertTrue(created);
-
-    boolean deleted = dao.deleteExperiment(experiment);
-
-    assertTrue(deleted);
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
 
     List<Experiment> experiments = dao.getSubjectExperiments("user");
 
-    assertEquals(experiments.size(), 0);
+    assertEquals(0, experiments.size());
   }
 
   @Test
@@ -285,5 +268,174 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.joinExperiment("user", experiment, null));
     assertTrue(dao.leaveExperiment("user", experiment));
+  }
+
+  @Test
+  public void testGetExperiments() {
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreatePublishedPublic() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(null);
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(1, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreatePublishedPrivate() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(Lists.newArrayList("user1"));
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user2");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreatePublishedPrivateViewable() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(Lists.newArrayList("user"));
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(1, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateUnpublishedPublic() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(null);
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateUnpublishedPrivate() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(Lists.newArrayList("user1"));
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user2");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateUnpublishedPrivateViewable() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(Lists.newArrayList("user"));
+
+    assertTrue(dao.createExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeletePublishedPublic() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(null);
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeletePublishedPrivate() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(Lists.newArrayList("user1"));
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user2");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeletePublishedPrivateViewable() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(true);
+    experiment.setViewers(Lists.newArrayList("user"));
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeleteUnpublishedPublic() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(null);
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeleteUnpublishedPrivate() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(Lists.newArrayList("user1"));
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user2");
+
+    assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testGetExperimentsAfterCreateAndDeleteUnpublishedPrivateViewable() {
+    Experiment experiment = constructExperiment();
+    experiment.setPublished(false);
+    experiment.setViewers(Lists.newArrayList("user"));
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.deleteExperiment(experiment));
+
+    List<Experiment> experiments = dao.getExperiments("user");
+
+    assertEquals(0, experiments.size());
   }
 }
