@@ -143,6 +143,17 @@ public class ExperimentTest {
   }
 
   @Test
+  public void testEqualityWhenViewersSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setViewers(Lists.newArrayList("viewer"));
+    experiment2.setViewers(Lists.newArrayList("viewer"));
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
   public void testEqualityWhenInputsSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
@@ -281,6 +292,17 @@ public class ExperimentTest {
 
     experiment1.setSubjects(Lists.newArrayList("subject1"));
     experiment2.setSubjects(Lists.newArrayList("subject2"));
+
+    assertFalse(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testInequalityWhenViewersSet() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setViewers(Lists.newArrayList("viewer1"));
+    experiment2.setViewers(Lists.newArrayList("viewer2"));
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -496,7 +518,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testSignalScheduleIsNullable2() {
+  public void testSignalScheduleIsNullableWhenScheduleNull() {
     Experiment experiment = new Experiment();
 
     experiment.setSignalSchedule(new FixedSignal(), null);
@@ -506,7 +528,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testSignalScheduleIsNullable3() {
+  public void testSignalScheduleIsNullableWhenSignalNull() {
     Experiment experiment = new Experiment();
 
     experiment.setSignalSchedule(null, new DailySchedule());
@@ -525,7 +547,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testHasSignalScheduleWhenNull() {
+  public void testHasSignalScheduleWhenSignalAndScheduleNull() {
     Experiment experiment = new Experiment();
 
     experiment.setSignalSchedule(null, null);
@@ -534,7 +556,7 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testHasSignalScheduleWhenNull2() {
+  public void testHasSignalScheduleWhenScheduleNull() {
     Experiment experiment = new Experiment();
 
     experiment.setSignalSchedule(new FixedSignal(), null);
@@ -543,11 +565,69 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testHasSignalScheduleWhenNull3() {
+  public void testHasSignalScheduleWhenSignalNull() {
     Experiment experiment = new Experiment();
 
     experiment.setSignalSchedule(null, new DailySchedule());
 
     assertFalse(experiment.hasSignalSchedule());
+  }
+
+  @Test
+  public void testIsObservedBy() {
+    Experiment experiment = new Experiment();
+
+    assertFalse(experiment.isObservedBy("observer"));
+  }
+
+  @Test
+  public void testIsObservedByWhenObserversSet() {
+    Experiment experiment = new Experiment();
+
+    experiment.setObservers(Lists.newArrayList("observer"));
+
+    assertTrue(experiment.isObservedBy("observer"));
+  }
+
+  @Test
+  public void testHasSubject() {
+    Experiment experiment = new Experiment();
+
+    assertFalse(experiment.hasSubject("Subject"));
+  }
+
+  @Test
+  public void testHasSubjectWhenSubjectsSet() {
+    Experiment experiment = new Experiment();
+
+    experiment.setSubjects(Lists.newArrayList("subject"));
+
+    assertTrue(experiment.hasSubject("subject"));
+  }
+
+  @Test
+  public void testIsViewableBy() {
+    Experiment experiment = new Experiment();
+
+    assertTrue(experiment.isViewableBy("viewer"));
+  }
+
+  @Test
+  public void testIsViewableByWhenViewersSet() {
+    Experiment experiment = new Experiment();
+
+    experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
+
+    assertTrue(experiment.isViewableBy("viewer1"));
+  }
+
+
+  @Test
+  public void testIsViewableByWhenViewersSetAndNotViewer() {
+    Experiment experiment = new Experiment();
+
+    experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
+
+    assertFalse(experiment.isViewableBy("viewer"));
   }
 }

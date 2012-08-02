@@ -29,22 +29,20 @@ import org.restlet.resource.ResourceException;
  *
  */
 public class SubjectExperimentResource extends PacoResource {
-  private Long experimentId;
   private Experiment experiment;
 
   @Override
   protected void doInit() throws ResourceException {
-    experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
+    long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
     experiment = dao.getExperiment(experimentId);
 
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     }
 
-    /*
-     *if (user.isSubjectOf(experiment) == false) { throw new
-     * ResourceException(Status.CLIENT_ERROR_FORBIDDEN); }
-     */
+    if (experiment.hasSubject(user) == false) {
+      throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    }
   }
 
   @Get("gwt|json")
@@ -54,11 +52,15 @@ public class SubjectExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void update() {
-    dao.createResponse(null);
+    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
   }
 
   @Delete("gwt|json")
   public void leave() {
-    dao.leaveExperiment(user, experiment);
+    if (dao.leaveExperiment(user, experiment)) {
+      setStatus(Status.SUCCESS_NO_CONTENT);
+    } else {
+      setStatus(Status.SERVER_ERROR_INTERNAL);
+    }
   }
 }

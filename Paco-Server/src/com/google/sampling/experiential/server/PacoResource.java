@@ -14,7 +14,6 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -28,13 +27,16 @@ import org.restlet.resource.ServerResource;
  */
 public class PacoResource extends ServerResource {
   protected DAO dao = DAO.getInstance();
-  private UserService userService = UserServiceFactory.getUserService();
-  protected User user = userService.getCurrentUser();
+  protected String user;
 
   @Override
   protected void doInit() throws ResourceException {
+    UserService userService = UserServiceFactory.getUserService();
+
     if (userService.isUserLoggedIn() == false) {
       throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
     }
+
+    user = userService.getCurrentUser().getEmail();
   }
 }

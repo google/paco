@@ -7,12 +7,13 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
@@ -61,6 +62,17 @@ public class DAO {
     return experiment.hasId();
   }
 
+  public List<Experiment> getExperiments(String user) {
+    Query q = new Query("experiment");
+
+    // deleted == false && (subject == true || published == true)
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false), CompositeFilterOperator.or(
+            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("published", true))));
+
+    return queryToExperiments(q);
+  }
+
   public Experiment getExperiment(long id) {
     try {
       Experiment experiment = entityToExperiment(ds.get(KeyFactory.createKey("experiment", id)));
@@ -83,73 +95,89 @@ public class DAO {
     experiment.setVersion(experiment.getVersion() + 1);
 
     Entity entity = experimentToEntity(experiment);
-    ds.put(entity);
+    Key key = ds.put(entity);
 
-    return (experiment.getId() == entity.getKey().getId());
+    return ((key.getId() == experiment.getId()));
   }
 
   public boolean deleteExperiment(Experiment experiment) {
+    if (experiment.hasId() == false) {
+      return false;
+    }
+
     experiment.setDeleted(true);
 
-    return updateExperiment(experiment);
+    Entity entity = experimentToEntity(experiment);
+    Key key = ds.put(entity);
+
+    return (key.getId() == experiment.getId());
   }
 
   /*
    *
    * Observer's experiments
    */
-  public List<Experiment> getObserverExperiments(User user) {
-    return getObserverExperiments(user.getEmail());
-  }
-
   public List<Experiment> getObserverExperiments(String user) {
-    Query q = queryExperiments().addFilter("observers", FilterOperator.EQUAL, user);
+    Query q = new Query("experiment");
+
+    // deleted == false && observer == true
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
+
     return queryToExperiments(q);
   }
-
 
   /*
    *
    * Subject's experiments
    */
-  public Long joinExperiment(User user, Experiment experiment, Schedule schedule) {
-    return joinExperiment(user.getEmail(), experiment, schedule);
-  }
+  public boolean joinExperiment(String user, Experiment experiment, Schedule schedule) {
+    if (experiment.hasId() == false) {
+      return false;
+    }
 
-  public Long joinExperiment(String user, Experiment experiment, Schedule schedule) {
-    return null;
-  }
+    if (experiment.addSubject(user) == false) {
+      return false;
+    }
 
-  public List<Experiment> getSubjectExperiments(User user) {
-    return getSubjectExperiments(user.getEmail());
+    Entity entity = experimentToEntity(experiment);
+    Key key = ds.put(entity);
+
+    return ((key.getId() == experiment.getId()));
   }
 
   public List<Experiment> getSubjectExperiments(String user) {
-    Query q = queryExperiments().addFilter("subjects", FilterOperator.EQUAL, user);
+    Query q = new Query("experiment");
+
+    // deleted == false && subject == true
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("subjects", user)));
+
     return queryToExperiments(q);
   }
 
-  public Boolean leaveExperiment(User user, Experiment experiment) {
-    return leaveExperiment(user.getEmail(), experiment);
-  }
+  public boolean leaveExperiment(String user, Experiment experiment) {
+    if (experiment.hasId() == false) {
+      return false;
+    }
 
-  public Boolean leaveExperiment(String user, Experiment experiment) {
-    return null;
-  }
+    if (experiment.removeSubject(user) == false) {
+      return false;
+    }
 
+    Entity entity = experimentToEntity(experiment);
+    Key key = ds.put(entity);
+
+    return ((key.getId() == experiment.getId()));
+  }
 
   /*
    *
    * Subject's responses
    */
-  public Long createResponse(Response response) {
-    return null;
+  public boolean createResponse(Response response) {
+    return false;
   }
-
-  public List<Response> getSubjectResponses(String user) {
-    return null;
-  }
-
 
   /*
    *
@@ -171,6 +199,7 @@ public class DAO {
     return experiments;
   }
 
+  @SuppressWarnings("unchecked")
   private Experiment entityToExperiment(Entity entity) {
     if (entity == null) {
       return null;
@@ -193,6 +222,7 @@ public class DAO {
       experiment.setDeleted((Boolean) entity.getProperty("deleted"));
       experiment.setObservers((List<String>) entity.getProperty("observers"));
       experiment.setSubjects((List<String>) entity.getProperty("subjects"));
+      experiment.setViewers((List<String>) entity.getProperty("viewers"));
     } catch (JsonParseException e) {
       System.out.println(e.toString());
       experiment = null;
@@ -238,16 +268,9 @@ public class DAO {
     entity.setProperty("deleted", experiment.isDeleted());
     entity.setProperty("observers", experiment.getObservers());
     entity.setProperty("subjects", experiment.getSubjects());
+    entity.setProperty("viewers", experiment.getViewers());
     entity.setProperty("json", json);
 
     return entity;
-  }
-
-  private Query queryExperiments() {
-    return new Query("experiment");
-  }
-
-  private Query queryResponses() {
-    return new Query("response");
   }
 }

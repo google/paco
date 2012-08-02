@@ -29,22 +29,20 @@ import org.restlet.resource.ResourceException;
  *
  */
 public class ObserverExperimentResource extends PacoResource {
-  private Long experimentId;
   private Experiment experiment;
 
   @Override
   protected void doInit() throws ResourceException {
-    experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
+    long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
     experiment = dao.getExperiment(experimentId);
 
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     }
 
-    /*
-     *if (user.isObserverOf(experiment) == false) { throw new
-     * ResourceException(Status.CLIENT_ERROR_FORBIDDEN); }
-     */
+    if (experiment.isObservedBy(user) == false) {
+      throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+    }
   }
 
   @Get("gwt|json")
@@ -54,11 +52,22 @@ public class ObserverExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void update(Experiment experiment) {
-    dao.updateExperiment(experimentId, experiment);
+    experiment.setId(this.experiment.getId());
+    experiment.setVersion(this.experiment.getVersion());
+
+    if (dao.updateExperiment(experiment)) {
+      setStatus(Status.SUCCESS_NO_CONTENT);
+    } else {
+      setStatus(Status.SERVER_ERROR_INTERNAL);
+    }
   }
 
   @Delete("gwt|json")
   public void destroy() {
-    dao.deleteExperiment(experiment);
+    if (dao.deleteExperiment(experiment)) {
+      setStatus(Status.SUCCESS_NO_CONTENT);
+    } else {
+      setStatus(Status.SERVER_ERROR_INTERNAL);
+    }
   }
 }

@@ -41,23 +41,23 @@ public class ExperimentResource extends PacoResource {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     }
 
-    /*
-    if (user.isSubjectOf(experiment) == false) {
+    if (experiment.hasSubject(user)) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     }
-    */
   }
 
   @Get("json|gwt")
-  public Object show() {
+  public Experiment show() {
     return experiment;
   }
 
   @Post("gwt|json")
   public void join(Schedule schedule) {
-    Long experimentId = dao.joinExperiment(user, experiment, schedule);
-
-    redirectSeeOther("/subject/experiments/" + experimentId);
-    setStatus(Status.SUCCESS_CREATED);
+    if (dao.joinExperiment(user, experiment, schedule)) {
+      setStatus(Status.SUCCESS_CREATED);
+      setLocationRef("/subject/experiments/" + experimentId);
+    } else {
+      setStatus(Status.SERVER_ERROR_INTERNAL);
+    }
   }
 }

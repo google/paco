@@ -16,11 +16,14 @@
 package com.google.sampling.experiential.shared;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -52,9 +55,11 @@ public class Experiment implements Serializable {
   @JsonIgnore
   private boolean deleted;
   @JsonIgnore
-  private List<String> observers;
+  private Set<String> observers; // List of users who can edit this experiment
   @JsonIgnore
-  private List<String> subjects;
+  private Set<String> subjects; // List of users who have joined this experiment
+  @JsonIgnore
+  private Set<String> viewers; // List of users who can view this experiment, null if anyone
   private List<Input> inputs;
   private Schedule schedule;
   private Signal signal;
@@ -74,8 +79,9 @@ public class Experiment implements Serializable {
     this.version = 0;
     this.published = false;
     this.deleted = false;
-    this.observers = Lists.newArrayList();
-    this.subjects = Lists.newArrayList();
+    this.observers = Sets.newHashSet();
+    this.subjects = Sets.newHashSet();
+    this.viewers = Sets.newHashSet();
     this.inputs = Lists.newArrayList();
     this.schedule = null;
     this.feedbacks = Lists.newArrayList();
@@ -96,7 +102,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param id the id to set
+   * @param id the id to List
    */
   public void setId(Long id) {
     this.id = id;
@@ -124,7 +130,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param title the title to set
+   * @param title the title to List
    */
   public void setTitle(String title) {
     if (title == null) {
@@ -142,7 +148,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param description the description to set
+   * @param description the description to List
    */
   public void setDescription(String description) {
     if (description == null) {
@@ -160,7 +166,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param creator the creator to set
+   * @param creator the creator to List
    */
   public void setCreator(String creator) {
     if (creator == null) {
@@ -178,7 +184,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param consentForm the consent to set
+   * @param consentForm the consent to List
    */
   public void setConsentForm(String consentForm) {
     if (consentForm == null) {
@@ -210,7 +216,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param deleted the deleted to set
+   * @param deleted the deleted to List
    */
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
@@ -219,36 +225,54 @@ public class Experiment implements Serializable {
   /**
    * @return the observers
    */
-  public List<String> getObservers() {
+  public Set<String> getObservers() {
     return observers;
   }
 
   /**
-   * @param observers the observers to set
+   * @param observers the observers to List
    */
   public void setObservers(List<String> observers) {
     if (observers == null) {
-      this.observers = Lists.newArrayList();
+      this.observers = Sets.newLinkedHashSet();
     } else {
-      this.observers = observers;
+      this.observers = new LinkedHashSet<String>(observers);
     }
   }
 
   /**
    * @return the subjects
    */
-  public List<String> getSubjects() {
+  public Set<String> getSubjects() {
     return subjects;
   }
 
   /**
-   * @param subjects the subjects to set
+   * @param subjects the subjects to List
    */
   public void setSubjects(List<String> subjects) {
     if (subjects == null) {
-      this.subjects = Lists.newArrayList();
+      this.subjects = Sets.newLinkedHashSet();
     } else {
-      this.subjects = subjects;
+      this.subjects = new LinkedHashSet<String>(subjects);
+    }
+  }
+
+  /**
+   * @return the viewers
+   */
+  public Set<String> getViewers() {
+    return viewers;
+  }
+
+  /**
+   * @param viewers the viewers to List
+   */
+  public void setViewers(List<String> viewers) {
+    if (viewers == null) {
+      this.viewers = Sets.newLinkedHashSet();
+    } else {
+      this.viewers = new LinkedHashSet<String>(viewers);
     }
   }
 
@@ -260,7 +284,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param inputs the inputs to set
+   * @param inputs the inputs to List
    */
   public void setInputs(List<Input> inputs) {
     if (inputs == null) {
@@ -292,7 +316,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param schedule the schedule to set
+   * @param schedule the schedule to List
    */
   public void setSignalSchedule(Signal signal, Schedule schedule) {
     if (signal == null || schedule == null) {
@@ -312,7 +336,7 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @param feedbacks the feedbacks to set
+   * @param feedbacks the feedbacks to List
    */
   public void setFeedbacks(List<Feedback> feedbacks) {
     if (feedbacks == null) {
@@ -320,6 +344,47 @@ public class Experiment implements Serializable {
     } else {
       this.feedbacks = feedbacks;
     }
+  }
+
+  /**
+   * @param user
+   */
+  public boolean isObservedBy(String user) {
+    return observers.contains(user);
+  }
+
+  /**
+   * @param user
+   */
+  public boolean hasSubject(String user) {
+    return subjects.contains(user);
+  }
+
+  /**
+   * @param user
+   */
+  public boolean isViewableBy(String user) {
+    if (viewers.size() > 0) {
+      return viewers.contains(user);
+    } else {
+      return true;
+    }
+  }
+
+  /**
+   * @param subject
+   * @return whether the subject was added
+   */
+  public boolean addSubject(String subject) {
+    return this.subjects.add(subject);
+  }
+
+  /**
+   * @param subject
+   * @return whether the subject was removed
+   */
+  public boolean removeSubject(String subject) {
+    return this.subjects.remove(subject);
   }
 
   /*
@@ -389,6 +454,10 @@ public class Experiment implements Serializable {
       return false;
     }
 
+    if (getViewers().equals(other.getViewers()) == false) {
+      return false;
+    }
+
     if (getInputs().equals(other.getInputs()) == false) {
       return false;
     }
@@ -399,7 +468,7 @@ public class Experiment implements Serializable {
         return false;
       }
     } else {
-      if (other.getSchedule() != null || other.getSignal() != null) {
+      if (other.hasSignalSchedule()) {
         return false;
       }
     }
