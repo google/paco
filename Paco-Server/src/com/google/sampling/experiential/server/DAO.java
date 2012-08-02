@@ -15,16 +15,11 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.sampling.experiential.shared.Response;
 import com.google.sampling.experiential.shared.Schedule;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -50,7 +45,11 @@ public class DAO {
    *
    * General experiments
    */
-  public boolean createExperiment(Experiment experiment) {
+  public boolean createExperiment(ObservedExperiment experiment) {
+    if (experiment == null) {
+      return false;
+    }
+
     experiment.setId(null);
     experiment.setVersion(1);
 
@@ -87,7 +86,22 @@ public class DAO {
     }
   }
 
-  public boolean updateExperiment(Experiment experiment) {
+  public ObservedExperiment getObservedExperiment(long id) {
+    try {
+      ObservedExperiment experiment =
+          entityToObservedExperiment(ds.get(KeyFactory.createKey("experiment", id)));
+
+      if (experiment.isDeleted()) {
+        return null;
+      } else {
+        return experiment;
+      }
+    } catch (EntityNotFoundException e) {
+      return null;
+    }
+  }
+
+  public boolean updateExperiment(ObservedExperiment experiment) {
     if (experiment.hasId() == false) {
       return false;
     }
@@ -100,7 +114,7 @@ public class DAO {
     return ((key.getId() == experiment.getId()));
   }
 
-  public boolean deleteExperiment(Experiment experiment) {
+  public boolean deleteExperiment(ObservedExperiment experiment) {
     if (experiment.hasId() == false) {
       return false;
     }
@@ -117,21 +131,21 @@ public class DAO {
    *
    * Observer's experiments
    */
-  public List<Experiment> getObserverExperiments(String user) {
+  public List<ObservedExperiment> getObserverExperiments(String user) {
     Query q = new Query("experiment");
 
     // deleted == false && observer == true
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
 
-    return queryToExperiments(q);
+    return queryToObservedExperiments(q);
   }
 
   /*
    *
    * Subject's experiments
    */
-  public boolean joinExperiment(String user, Experiment experiment, Schedule schedule) {
+  public boolean joinExperiment(String user, ObservedExperiment experiment, Schedule schedule) {
     if (experiment.hasId() == false) {
       return false;
     }
@@ -157,7 +171,7 @@ public class DAO {
     return queryToExperiments(q);
   }
 
-  public boolean leaveExperiment(String user, Experiment experiment) {
+  public boolean leaveExperiment(String user, ObservedExperiment experiment) {
     if (experiment.hasId() == false) {
       return false;
     }
@@ -200,8 +214,50 @@ public class DAO {
     return experiments;
   }
 
-  @SuppressWarnings("unchecked")
   private Experiment entityToExperiment(Entity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    Text json = (Text) entity.getProperty("json");
+
+
+    if (json == null) {
+      return null;
+    }
+
+
+    Experiment experiment = DAOHelper.jsonToExperiment(json.getValue());
+
+    if (experiment == null) {
+      return null;
+    }
+
+    experiment.setId(entity.getKey().getId());
+    experiment.setVersion((Long) entity.getProperty("version"));
+    experiment.setDeleted((Boolean) entity.getProperty("deleted"));
+
+    return experiment;
+  }
+
+  private List<ObservedExperiment> queryToObservedExperiments(Query q) {
+    PreparedQuery pq = ds.prepare(q);
+    List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
+    return entitiesToObservedExperiments(entities);
+  }
+
+  private List<ObservedExperiment> entitiesToObservedExperiments(List<Entity> entities) {
+    List<ObservedExperiment> experiments = Lists.newArrayList();
+
+    for (Entity entity : entities) {
+      experiments.add(entityToObservedExperiment(entity));
+    }
+
+    return experiments;
+  }
+
+  @SuppressWarnings("unchecked")
+  private ObservedExperiment entityToObservedExperiment(Entity entity) {
     if (entity == null) {
       return null;
     }
@@ -212,42 +268,25 @@ public class DAO {
       return null;
     }
 
-    ObjectMapper mapper = new ObjectMapper();
-    Experiment experiment;
+    ObservedExperiment experiment = DAOHelper.jsonToObservedExperiment(json.getValue());
 
-    try {
-      experiment = mapper.readValue(json.getValue(), Experiment.class);
-      experiment.setId(entity.getKey().getId());
-      experiment.setVersion((Long) entity.getProperty("version"));
-      experiment.setPublished((Boolean) entity.getProperty("published"));
-      experiment.setDeleted((Boolean) entity.getProperty("deleted"));
-      experiment.setObservers((List<String>) entity.getProperty("observers"));
-      experiment.setSubjects((List<String>) entity.getProperty("subjects"));
-      experiment.setViewers((List<String>) entity.getProperty("viewers"));
-    } catch (JsonParseException e) {
-      experiment = null;
-    } catch (JsonMappingException e) {
-      experiment = null;
-    } catch (IOException e) {
-      experiment = null;
+    if (experiment == null) {
+      return null;
     }
+
+    experiment.setId(entity.getKey().getId());
+    experiment.setVersion((Long) entity.getProperty("version"));
+    experiment.setDeleted((Boolean) entity.getProperty("deleted"));
+    experiment.setPublished((Boolean) entity.getProperty("published"));
+    experiment.setObservers((List<String>) entity.getProperty("observers"));
+    experiment.setSubjects((List<String>) entity.getProperty("subjects"));
+    experiment.setViewers((List<String>) entity.getProperty("viewers"));
 
     return experiment;
   }
 
-  private Entity experimentToEntity(Experiment experiment) {
-    ObjectMapper mapper = new ObjectMapper();
-    Text json;
-
-    try {
-      json = new Text(mapper.writeValueAsString(experiment));
-    } catch (JsonGenerationException e) {
-      json = null;
-    } catch (JsonMappingException e) {
-      json = null;
-    } catch (IOException e) {
-      json = null;
-    }
+  private Entity experimentToEntity(ObservedExperiment experiment) {
+    String json = DAOHelper.observedExperimentToJson(experiment);
 
     if (json == null) {
       return null;
@@ -262,12 +301,12 @@ public class DAO {
     }
 
     entity.setProperty("version", experiment.getVersion());
-    entity.setProperty("published", experiment.isPublished());
     entity.setProperty("deleted", experiment.isDeleted());
+    entity.setProperty("published", experiment.isPublished());
     entity.setProperty("observers", experiment.getObservers());
     entity.setProperty("subjects", experiment.getSubjects());
     entity.setProperty("viewers", experiment.getViewers());
-    entity.setProperty("json", json);
+    entity.setProperty("json", new Text(json));
 
     return entity;
   }

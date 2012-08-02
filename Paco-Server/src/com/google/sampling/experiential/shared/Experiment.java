@@ -16,14 +16,11 @@
 package com.google.sampling.experiential.shared;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -44,22 +41,15 @@ public class Experiment implements Serializable {
 
   @JsonIgnore
   private Long id;
+  @JsonIgnore
+  private long version;
+  @JsonIgnore
+  private boolean deleted;
+
   private String title;
   private String description;
   private String creator;
   private String consentForm;
-  @JsonIgnore
-  private long version;
-  @JsonIgnore
-  private boolean published;
-  @JsonIgnore
-  private boolean deleted;
-  @JsonIgnore
-  private Set<String> observers; // List of users who can edit this experiment
-  @JsonIgnore
-  private Set<String> subjects; // List of users who have joined this experiment
-  @JsonIgnore
-  private Set<String> viewers; // List of users who can view this experiment, null if anyone
   private List<Input> inputs;
   private Schedule schedule;
   private Signal signal;
@@ -72,16 +62,13 @@ public class Experiment implements Serializable {
     super();
 
     this.id = null;
+    this.version = 0;
+    this.deleted = false;
+
     this.title = DEFAULT_TITLE;
     this.description = DEFAULT_DESCRIPTION;
     this.creator = DEFAULT_CREATOR;
     this.consentForm = DEFAULT_CONSENT_FORM;
-    this.version = 0;
-    this.published = false;
-    this.deleted = false;
-    this.observers = Sets.newHashSet();
-    this.subjects = Sets.newHashSet();
-    this.viewers = Sets.newHashSet();
     this.inputs = Lists.newArrayList();
     this.schedule = null;
     this.feedbacks = Lists.newArrayList();
@@ -195,20 +182,6 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @return whether the experiment is published
-   */
-  public boolean isPublished() {
-    return published;
-  }
-
-  /**
-   * @param published whether the experiment is published
-   */
-  public void setPublished(boolean published) {
-    this.published = published;
-  }
-
-  /**
    * @return the deleted
    */
   public boolean isDeleted() {
@@ -220,60 +193,6 @@ public class Experiment implements Serializable {
    */
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
-  }
-
-  /**
-   * @return the observers
-   */
-  public Set<String> getObservers() {
-    return observers;
-  }
-
-  /**
-   * @param observers the observers to List
-   */
-  public void setObservers(List<String> observers) {
-    if (observers == null) {
-      this.observers = Sets.newLinkedHashSet();
-    } else {
-      this.observers = new LinkedHashSet<String>(observers);
-    }
-  }
-
-  /**
-   * @return the subjects
-   */
-  public Set<String> getSubjects() {
-    return subjects;
-  }
-
-  /**
-   * @param subjects the subjects to List
-   */
-  public void setSubjects(List<String> subjects) {
-    if (subjects == null) {
-      this.subjects = Sets.newLinkedHashSet();
-    } else {
-      this.subjects = new LinkedHashSet<String>(subjects);
-    }
-  }
-
-  /**
-   * @return the viewers
-   */
-  public Set<String> getViewers() {
-    return viewers;
-  }
-
-  /**
-   * @param viewers the viewers to List
-   */
-  public void setViewers(List<String> viewers) {
-    if (viewers == null) {
-      this.viewers = Sets.newLinkedHashSet();
-    } else {
-      this.viewers = new LinkedHashSet<String>(viewers);
-    }
   }
 
   /**
@@ -346,47 +265,6 @@ public class Experiment implements Serializable {
     }
   }
 
-  /**
-   * @param user
-   */
-  public boolean isObservedBy(String user) {
-    return observers.contains(user);
-  }
-
-  /**
-   * @param user
-   */
-  public boolean hasSubject(String user) {
-    return subjects.contains(user);
-  }
-
-  /**
-   * @param user
-   */
-  public boolean isViewableBy(String user) {
-    if (viewers.size() > 0) {
-      return viewers.contains(user);
-    } else {
-      return true;
-    }
-  }
-
-  /**
-   * @param subject
-   * @return whether the subject was added
-   */
-  public boolean addSubject(String subject) {
-    return this.subjects.add(subject);
-  }
-
-  /**
-   * @param subject
-   * @return whether the subject was removed
-   */
-  public boolean removeSubject(String subject) {
-    return this.subjects.remove(subject);
-  }
-
   /*
    * (non-Javadoc)
    *
@@ -402,7 +280,7 @@ public class Experiment implements Serializable {
       return false;
     }
 
-    if (obj.getClass() != getClass()) {
+    if (!(obj instanceof Experiment)) {
       return false;
     }
 
@@ -438,23 +316,7 @@ public class Experiment implements Serializable {
       return false;
     }
 
-    if (isPublished() != other.isPublished()) {
-      return false;
-    }
-
     if (isDeleted() != other.isDeleted()) {
-      return false;
-    }
-
-    if (getObservers().equals(other.getObservers()) == false) {
-      return false;
-    }
-
-    if (getSubjects().equals(other.getSubjects()) == false) {
-      return false;
-    }
-
-    if (getViewers().equals(other.getViewers()) == false) {
       return false;
     }
 

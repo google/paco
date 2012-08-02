@@ -14,7 +14,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.ObservedExperiment;
 
 import org.restlet.resource.Get;
 
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class ObserverExperimentsResource extends PacoResource {
   @Get("gwt|json")
-  public List<Experiment> list() {
+  public List<ObservedExperiment> list() {
     return dao.getObserverExperiments(user);
   }
 }

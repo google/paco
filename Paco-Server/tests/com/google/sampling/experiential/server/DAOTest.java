@@ -12,6 +12,7 @@ import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
+import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.RandomSignal;
 import com.google.sampling.experiential.shared.TextInput;
 
@@ -31,18 +32,34 @@ public class DAOTest {
 
   private final DAO dao = DAO.getInstance();
 
-  private Experiment constructExperiment() {
+  protected static ObservedExperiment constructObservedExperiment() {
+    ObservedExperiment experiment = new ObservedExperiment();
+
+    experiment.setTitle("title");
+    experiment.setDescription("description");
+    experiment.setCreator("creator");
+    experiment.setConsentForm("consent form");
+    experiment.setDeleted(false);
+    experiment.setPublished(false);
+    experiment.setObservers(null);
+    experiment.setSubjects(null);
+    experiment.setViewers(null);
+    experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
+    experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
+    experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
+
+    return experiment;
+  }
+
+
+  protected static Experiment constructExperiment() {
     Experiment experiment = new Experiment();
 
     experiment.setTitle("title");
     experiment.setDescription("description");
     experiment.setCreator("creator");
     experiment.setConsentForm("consent form");
-    experiment.setPublished(false);
     experiment.setDeleted(false);
-    experiment.setObservers(null);
-    experiment.setSubjects(null);
-    experiment.setViewers(null);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
     experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
@@ -62,7 +79,7 @@ public class DAOTest {
 
   @Test
   public void testCreateExperiment() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertNotNull(experiment.getId());
@@ -78,26 +95,26 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
 
     Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
 
     assertNotNull(retrievedExperiment);
-    assertEquals(experiment, retrievedExperiment);
+    assertEquals(retrievedExperiment, experiment);
   }
 
   @Test
   public void testUpdateExperiment() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertFalse(dao.updateExperiment(experiment));
   }
 
   @Test
   public void testUpdateExperimentAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
 
@@ -110,7 +127,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentAfterCreateAndUpdate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
 
@@ -121,19 +138,19 @@ public class DAOTest {
     Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
 
     assertNotNull(retrievedExperiment);
-    assertEquals(experiment, retrievedExperiment);
+    assertEquals(retrievedExperiment, experiment);
   }
 
   @Test
   public void testDeleteExperiment() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertFalse(dao.deleteExperiment(experiment));
   }
 
   @Test
   public void testDeleteExperimentAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
@@ -142,7 +159,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentAfterCreateAndDelete() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
@@ -154,32 +171,32 @@ public class DAOTest {
 
   @Test
   public void testGetObserverExperiments() {
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<ObservedExperiment> experiments = dao.getObserverExperiments("user");
 
     assertEquals(0, experiments.size());
   }
 
   @Test
   public void testGetObserverExperimentsAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setObservers(Lists.newArrayList("user"));
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<ObservedExperiment> experiments = dao.getObserverExperiments("user");
 
     assertEquals(1, experiments.size());
   }
 
   @Test
   public void testGetObserverExperimentsAfterCreateAndDelete() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setObservers(Lists.newArrayList("user"));
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<ObservedExperiment> experiments = dao.getObserverExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -193,7 +210,7 @@ public class DAOTest {
 
   @Test
   public void testGetSubjectExperimentsAfterCreateUnpublished() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setSubjects(Lists.newArrayList("user"));
     experiment.setPublished(false);
 
@@ -206,7 +223,7 @@ public class DAOTest {
 
   @Test
   public void testGetSubjectExperimentsAfterCreatePublished() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setSubjects(Lists.newArrayList("user"));
     experiment.setPublished(true);
 
@@ -215,12 +232,12 @@ public class DAOTest {
     List<Experiment> experiments = dao.getSubjectExperiments("user");
 
     assertEquals(1, experiments.size());
-    assertEquals(experiment, experiments.get(0));
+    assertEquals(experiments.get(0), experiment);
   }
 
   @Test
   public void testGetSubjectExperimentsAfterCreateAndDelete() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setSubjects(Lists.newArrayList("user"));
 
     assertTrue(dao.createExperiment(experiment));
@@ -233,14 +250,14 @@ public class DAOTest {
 
   @Test
   public void testJoinExperiment() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertFalse(dao.joinExperiment("user", experiment, null));
   }
 
   @Test
   public void testJoinExperimentAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.joinExperiment("user", experiment, null));
@@ -248,14 +265,14 @@ public class DAOTest {
 
   @Test
   public void testLeaveExperiment() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertFalse(dao.leaveExperiment("user", experiment));
   }
 
   @Test
   public void testLeaveExperimentAfterCreate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertFalse(dao.leaveExperiment("user", experiment));
@@ -263,7 +280,7 @@ public class DAOTest {
 
   @Test
   public void testLeaveExperimentAfterCreateAndJoin() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.joinExperiment("user", experiment, null));
@@ -279,7 +296,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreatePublishedPublic() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(null);
 
@@ -292,7 +309,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreatePublishedPrivate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(Lists.newArrayList("user1"));
 
@@ -305,7 +322,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreatePublishedPrivateViewable() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(Lists.newArrayList("user"));
 
@@ -318,7 +335,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateUnpublishedPublic() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(null);
 
@@ -331,7 +348,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateUnpublishedPrivate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(Lists.newArrayList("user1"));
 
@@ -344,7 +361,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateUnpublishedPrivateViewable() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(Lists.newArrayList("user"));
 
@@ -357,7 +374,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeletePublishedPublic() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(null);
 
@@ -371,7 +388,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeletePublishedPrivate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(Lists.newArrayList("user1"));
 
@@ -385,7 +402,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeletePublishedPrivateViewable() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(true);
     experiment.setViewers(Lists.newArrayList("user"));
 
@@ -399,7 +416,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeleteUnpublishedPublic() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(null);
 
@@ -413,7 +430,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeleteUnpublishedPrivate() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(Lists.newArrayList("user1"));
 
@@ -427,7 +444,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperimentsAfterCreateAndDeleteUnpublishedPrivateViewable() {
-    Experiment experiment = constructExperiment();
+    ObservedExperiment experiment = constructObservedExperiment();
     experiment.setPublished(false);
     experiment.setViewers(Lists.newArrayList("user"));
 

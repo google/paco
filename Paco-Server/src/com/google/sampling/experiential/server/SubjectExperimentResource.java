@@ -14,8 +14,8 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
+import com.google.sampling.experiential.shared.ObservedExperiment;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
@@ -29,12 +29,12 @@ import org.restlet.resource.ResourceException;
  *
  */
 public class SubjectExperimentResource extends PacoResource {
-  private Experiment experiment;
+  private ObservedExperiment experiment;
 
   @Override
   protected void doInit() throws ResourceException {
     long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
-    experiment = dao.getExperiment(experimentId);
+    experiment = dao.getObservedExperiment(experimentId);
 
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
@@ -47,6 +47,7 @@ public class SubjectExperimentResource extends PacoResource {
 
   @Get("gwt|json")
   public ExperimentStats stats() {
+    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
     return null;
   }
 

@@ -15,7 +15,9 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.ObservedExperiment;
 
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
@@ -35,10 +37,10 @@ public class ExperimentsResource extends PacoResource {
   }
 
   @Post("gwt|json")
-  public void create(Experiment experiment) {
+  public void create(ObservedExperiment experiment) {
     if (dao.createExperiment(experiment)) {
       setStatus(Status.SUCCESS_CREATED);
-      setLocationRef("/observer/experiments/" + experiment.getId());
+      setLocationRef(new Reference("/observer/experiments/" + experiment.getId()));
     } else {
       setStatus(Status.SERVER_ERROR_INTERNAL);
     }
