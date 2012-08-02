@@ -16,7 +16,6 @@ package com.google.sampling.experiential.server;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
-import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
 /**
