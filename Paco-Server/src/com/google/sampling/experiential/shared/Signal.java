@@ -2,12 +2,12 @@
 
 package com.google.sampling.experiential.shared;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonSubTypes.Type;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 
 import java.io.Serializable;
 
@@ -16,7 +16,7 @@ import java.io.Serializable;
  *
  */
 @JsonSubTypes({@Type(FixedSignal.class), @Type(RandomSignal.class)})
-@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
+@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 public abstract class Signal implements Serializable {
   public static final String FIXED = "fixed";
   public static final String RANDOM = "random";

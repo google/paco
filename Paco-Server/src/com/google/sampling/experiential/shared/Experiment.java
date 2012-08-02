@@ -18,7 +18,7 @@ package com.google.sampling.experiential.shared;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.io.Serializable;
 import java.util.LinkedHashSet;

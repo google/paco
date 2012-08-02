@@ -2,7 +2,7 @@
 
 package com.google.sampling.experiential.shared;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.codehaus.jackson.annotate.JsonTypeName;
 
 import java.util.Date;
 

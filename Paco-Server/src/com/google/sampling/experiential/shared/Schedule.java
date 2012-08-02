@@ -15,16 +15,15 @@
 
 package com.google.sampling.experiential.shared;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonSubTypes.Type;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
+import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
 
 /**
  * The Schedule for signaling an experiment response.
@@ -34,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
  */
 @JsonSubTypes({
     @Type(DailySchedule.class), @Type(WeeklySchedule.class), @Type(MonthlySchedule.class)})
-@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type", visible = true)
+@JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 public abstract class Schedule implements Serializable {
   public static final String DAILY = "daily";
   public static final String WEEKLY = "weekly";
