@@ -16,8 +16,9 @@ package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ObservedExperiment;
-import com.google.sampling.experiential.shared.Schedule;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
@@ -49,16 +50,17 @@ public class ExperimentResource extends PacoResource {
 
   @Get("json|gwt")
   public Experiment show() {
-    return experiment;
+    // FIXME: This shouldn't really be hitting the datastore twice.
+    return dao.getExperiment(experimentId);
   }
 
   @Post("gwt|json")
-  public void join(Schedule schedule) {
-    if (dao.joinExperiment(user, experiment, schedule)) {
+  public void join(SignalSchedule signalSchedule) {
+    if (dao.joinExperiment(user, experiment, signalSchedule)) {
       setStatus(Status.SUCCESS_CREATED);
-      setLocationRef("/subject/experiments/" + experimentId);
+      setLocationRef(new Reference("/subject/experiments/" + experimentId));
     } else {
-      setStatus(Status.SERVER_ERROR_INTERNAL);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     }
   }
 }

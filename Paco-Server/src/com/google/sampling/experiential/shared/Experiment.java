@@ -39,7 +39,6 @@ public class Experiment implements Serializable {
   public static String DEFAULT_CREATOR = "";
   public static String DEFAULT_CONSENT_FORM = "";
 
-  @JsonIgnore
   private Long id;
   @JsonIgnore
   private long version;
@@ -51,8 +50,7 @@ public class Experiment implements Serializable {
   private String creator;
   private String consentForm;
   private List<Input> inputs;
-  private Schedule schedule;
-  private Signal signal;
+  private SignalSchedule signalSchedule;
   private List<Feedback> feedbacks;
 
   /**
@@ -70,7 +68,7 @@ public class Experiment implements Serializable {
     this.creator = DEFAULT_CREATOR;
     this.consentForm = DEFAULT_CONSENT_FORM;
     this.inputs = Lists.newArrayList();
-    this.schedule = null;
+    this.signalSchedule = null;
     this.feedbacks = Lists.newArrayList();
   }
 
@@ -214,37 +212,24 @@ public class Experiment implements Serializable {
   }
 
   /**
-   * @return whether the experiment has a schedule
+   * @return whether the experiment has a signalSchedule
    */
   public boolean hasSignalSchedule() {
-    return (schedule != null && signal != null);
+    return (signalSchedule != null && signalSchedule.hasSignalSchedule());
   }
 
   /**
-   * @return the schedule
+   * @return the signalSchedule
    */
-  public Schedule getSchedule() {
-    return schedule;
+  public SignalSchedule getSignalSchedule() {
+    return signalSchedule;
   }
 
   /**
-   * @return the schedule
+   * @param signalSchedule the signalSchedule
    */
-  public Signal getSignal() {
-    return signal;
-  }
-
-  /**
-   * @param schedule the schedule to List
-   */
-  public void setSignalSchedule(Signal signal, Schedule schedule) {
-    if (signal == null || schedule == null) {
-      this.signal = null;
-      this.schedule = null;
-    } else {
-      this.signal = signal;
-      this.schedule = schedule;
-    }
+  public void setSignalSchedule(SignalSchedule signalSchedule) {
+    this.signalSchedule = signalSchedule;
   }
 
   /**
@@ -325,8 +310,7 @@ public class Experiment implements Serializable {
     }
 
     if (hasSignalSchedule()) {
-      if (getSchedule().equals(other.getSchedule()) == false
-          || getSignal().equals(other.getSignal()) == false) {
+      if (getSignalSchedule().equals(other.getSignalSchedule()) == false) {
         return false;
       }
     } else {

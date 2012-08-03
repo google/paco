@@ -32,13 +32,15 @@ import java.util.List;
  */
 public class ExperimentsResource extends PacoResource {
   @Get("json|gwt")
-  public List<Experiment> show() {
+  public List<Experiment> index() {
     return dao.getExperiments(user);
   }
 
   @Post("gwt|json")
   public void create(ObservedExperiment experiment) {
-    if (dao.createExperiment(experiment)) {
+    if (experiment == null) {
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    } else if (dao.createExperiment(experiment)) {
       setStatus(Status.SUCCESS_CREATED);
       setLocationRef(new Reference("/observer/experiments/" + experiment.getId()));
     } else {

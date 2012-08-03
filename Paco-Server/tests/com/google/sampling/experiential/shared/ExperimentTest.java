@@ -99,56 +99,12 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testEqualityWhenPublishedSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setPublished(true);
-    experiment2.setPublished(true);
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
   public void testEqualityWhenDeletedSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
     experiment1.setDeleted(true);
     experiment2.setDeleted(true);
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testEqualityWhenObserversSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setObservers(Lists.newArrayList("observer"));
-    experiment2.setObservers(Lists.newArrayList("observer"));
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testEqualityWhenSubjectsSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSubjects(Lists.newArrayList("subject"));
-    experiment2.setSubjects(Lists.newArrayList("subject"));
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testEqualityWhenViewersSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setViewers(Lists.newArrayList("viewer"));
-    experiment2.setViewers(Lists.newArrayList("viewer"));
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -253,56 +209,12 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testInequalityWhenPublishedSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setPublished(true);
-    experiment2.setPublished(false);
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
   public void testInequalityWhenDeletedSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
     experiment1.setDeleted(true);
     experiment2.setDeleted(false);
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testInequalityWhenObserversSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setObservers(Lists.newArrayList("observer1"));
-    experiment2.setObservers(Lists.newArrayList("observer2"));
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testInequalityWhenSubjectsSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setSubjects(Lists.newArrayList("subject1"));
-    experiment2.setSubjects(Lists.newArrayList("subject2"));
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testInequalityWhenViewersSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setViewers(Lists.newArrayList("viewer1"));
-    experiment2.setViewers(Lists.newArrayList("viewer2"));
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -404,24 +316,6 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testObserversIsNotNullable() {
-    Experiment experiment = new Experiment();
-
-    experiment.setObservers(null);
-
-    assertNotNull(experiment.getObservers());
-  }
-
-  @Test
-  public void testSubjectsIsNotNullable() {
-    Experiment experiment = new Experiment();
-
-    experiment.setSubjects(null);
-
-    assertNotNull(experiment.getSubjects());
-  }
-
-  @Test
   public void testInputsIsNotNullable() {
     Experiment experiment = new Experiment();
 
@@ -435,8 +329,10 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
-    experiment2.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment1.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
+    experiment2.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -446,8 +342,19 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(null, null);
-    experiment2.setSignalSchedule(null, null);
+    experiment1.setSignalSchedule(null);
+    experiment2.setSignalSchedule(null);
+
+    assertTrue(experiment1.equals(experiment2));
+  }
+
+  @Test
+  public void testEqualityWhenSignalScheduleSetNull1() {
+    Experiment experiment1 = new Experiment();
+    Experiment experiment2 = new Experiment();
+
+    experiment1.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, null));
+    experiment2.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, null));
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -457,8 +364,8 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(new FixedSignal(), null);
-    experiment2.setSignalSchedule(new FixedSignal(), null);
+    experiment1.setSignalSchedule(SharedTestHelper.createSignalSchedule(new FixedSignal(), null));
+    experiment2.setSignalSchedule(SharedTestHelper.createSignalSchedule(new FixedSignal(), null));
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -468,8 +375,8 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(null, new DailySchedule());
-    experiment2.setSignalSchedule(null, new DailySchedule());
+    experiment1.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, new DailySchedule()));
+    experiment2.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, new DailySchedule()));
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -479,8 +386,10 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
-    experiment2.setSignalSchedule(new FixedSignal(), new WeeklySchedule());
+    experiment1.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
+    experiment2.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new WeeklySchedule()));
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -490,8 +399,10 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
-    experiment2.setSignalSchedule(new RandomSignal(), new DailySchedule());
+    experiment1.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
+    experiment2.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new RandomSignal(), new DailySchedule()));
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -501,8 +412,10 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setSignalSchedule(new FixedSignal(), new DailySchedule());
-    experiment2.setSignalSchedule(new RandomSignal(), new WeeklySchedule());
+    experiment1.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
+    experiment2.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new RandomSignal(), new WeeklySchedule()));
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -511,37 +424,17 @@ public class ExperimentTest {
   public void testSignalScheduleIsNullable() {
     Experiment experiment = new Experiment();
 
-    experiment.setSignalSchedule(null, null);
+    experiment.setSignalSchedule(null);
 
-    assertNull(experiment.getSchedule());
-    assertNull(experiment.getSignal());
-  }
-
-  @Test
-  public void testSignalScheduleIsNullableWhenScheduleNull() {
-    Experiment experiment = new Experiment();
-
-    experiment.setSignalSchedule(new FixedSignal(), null);
-
-    assertNull(experiment.getSchedule());
-    assertNull(experiment.getSignal());
-  }
-
-  @Test
-  public void testSignalScheduleIsNullableWhenSignalNull() {
-    Experiment experiment = new Experiment();
-
-    experiment.setSignalSchedule(null, new DailySchedule());
-
-    assertNull(experiment.getSchedule());
-    assertNull(experiment.getSignal());
+    assertNull(experiment.getSignalSchedule());
   }
 
   @Test
   public void testHasSignalSchedule() {
     Experiment experiment = new Experiment();
 
-    experiment.setSignalSchedule(new FixedSignal(), new DailySchedule());
+    experiment.setSignalSchedule(
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule()));
 
     assertTrue(experiment.hasSignalSchedule());
   }
@@ -550,7 +443,7 @@ public class ExperimentTest {
   public void testHasSignalScheduleWhenSignalAndScheduleNull() {
     Experiment experiment = new Experiment();
 
-    experiment.setSignalSchedule(null, null);
+    experiment.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, null));
 
     assertFalse(experiment.hasSignalSchedule());
   }
@@ -559,7 +452,7 @@ public class ExperimentTest {
   public void testHasSignalScheduleWhenScheduleNull() {
     Experiment experiment = new Experiment();
 
-    experiment.setSignalSchedule(new FixedSignal(), null);
+    experiment.setSignalSchedule(SharedTestHelper.createSignalSchedule(new FixedSignal(), null));
 
     assertFalse(experiment.hasSignalSchedule());
   }
@@ -568,66 +461,8 @@ public class ExperimentTest {
   public void testHasSignalScheduleWhenSignalNull() {
     Experiment experiment = new Experiment();
 
-    experiment.setSignalSchedule(null, new DailySchedule());
+    experiment.setSignalSchedule(SharedTestHelper.createSignalSchedule(null, new DailySchedule()));
 
     assertFalse(experiment.hasSignalSchedule());
-  }
-
-  @Test
-  public void testIsObservedBy() {
-    Experiment experiment = new Experiment();
-
-    assertFalse(experiment.isObservedBy("observer"));
-  }
-
-  @Test
-  public void testIsObservedByWhenObserversSet() {
-    Experiment experiment = new Experiment();
-
-    experiment.setObservers(Lists.newArrayList("observer"));
-
-    assertTrue(experiment.isObservedBy("observer"));
-  }
-
-  @Test
-  public void testHasSubject() {
-    Experiment experiment = new Experiment();
-
-    assertFalse(experiment.hasSubject("Subject"));
-  }
-
-  @Test
-  public void testHasSubjectWhenSubjectsSet() {
-    Experiment experiment = new Experiment();
-
-    experiment.setSubjects(Lists.newArrayList("subject"));
-
-    assertTrue(experiment.hasSubject("subject"));
-  }
-
-  @Test
-  public void testIsViewableBy() {
-    Experiment experiment = new Experiment();
-
-    assertTrue(experiment.isViewableBy("viewer"));
-  }
-
-  @Test
-  public void testIsViewableByWhenViewersSet() {
-    Experiment experiment = new Experiment();
-
-    experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
-
-    assertTrue(experiment.isViewableBy("viewer1"));
-  }
-
-
-  @Test
-  public void testIsViewableByWhenViewersSetAndNotViewer() {
-    Experiment experiment = new Experiment();
-
-    experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
-
-    assertFalse(experiment.isViewableBy("viewer"));
   }
 }

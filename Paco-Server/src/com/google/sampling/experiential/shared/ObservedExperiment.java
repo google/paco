@@ -180,7 +180,7 @@ public class ObservedExperiment extends Experiment {
         return false;
       }
     } else {
-      if (other.isPrivate() == false) {
+      if (other.isPrivate()) {
         return false;
       }
     }

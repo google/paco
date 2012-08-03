@@ -2,8 +2,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.appengine.api.datastore.Text;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -18,48 +17,16 @@ import java.io.IOException;
  *
  */
 public class DAOHelper {
-  public static String experimentToJson(Experiment experiment) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    try {
-      return mapper.writeValueAsString(experiment);
-    } catch (JsonGenerationException e) {
-      e.printStackTrace();
-      return null;
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-      return null;
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
+  public static <T> T jsonTo(Text value, Class<T> valueType) {
+    return jsonTo(value.getValue(), valueType);
   }
 
-  public static String observedExperimentToJson(ObservedExperiment experiment) {
+  public static <T> T jsonTo(String value, Class<T> valueType) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     try {
-      return mapper.writeValueAsString(experiment);
-    } catch (JsonGenerationException e) {
-      e.printStackTrace();
-      return null;
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-      return null;
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
-  }
-
-  public static Experiment jsonToExperiment(String json) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    try {
-      return mapper.readValue(json, Experiment.class);
+      return mapper.readValue(value, valueType);
     } catch (JsonParseException e) {
       e.printStackTrace();
       return null;
@@ -72,13 +39,13 @@ public class DAOHelper {
     }
   }
 
-  public static ObservedExperiment jsonToObservedExperiment(String json) {
+  public static String toJson(Object value) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     try {
-      return mapper.readValue(json, ObservedExperiment.class);
-    } catch (JsonParseException e) {
+      return mapper.writeValueAsString(value);
+    } catch (JsonGenerationException e) {
       e.printStackTrace();
       return null;
     } catch (JsonMappingException e) {

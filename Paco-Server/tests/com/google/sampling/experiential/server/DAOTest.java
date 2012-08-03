@@ -45,23 +45,27 @@ public class DAOTest {
     experiment.setSubjects(null);
     experiment.setViewers(null);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
-    experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
+    experiment.setSignalSchedule(null);
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
     return experiment;
   }
 
-
   protected static Experiment constructExperiment() {
+    return constructExperiment(null);
+  }
+
+  protected static Experiment constructExperiment(Long id) {
     Experiment experiment = new Experiment();
 
+    experiment.setId(id);
     experiment.setTitle("title");
     experiment.setDescription("description");
     experiment.setCreator("creator");
     experiment.setConsentForm("consent form");
     experiment.setDeleted(false);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
-    experiment.setSignalSchedule(new RandomSignal(), new DailySchedule());
+    experiment.setSignalSchedule(null);
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
     return experiment;

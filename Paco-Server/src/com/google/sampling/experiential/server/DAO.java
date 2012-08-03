@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.Response;
-import com.google.sampling.experiential.shared.Schedule;
+import com.google.sampling.experiential.shared.SignalSchedule;
 
 import java.util.List;
 
@@ -145,9 +145,14 @@ public class DAO {
    *
    * Subject's experiments
    */
-  public boolean joinExperiment(String user, ObservedExperiment experiment, Schedule schedule) {
+  public boolean joinExperiment(
+      String user, ObservedExperiment experiment, SignalSchedule schedule) {
     if (experiment.hasId() == false) {
       return false;
+    }
+
+    if (schedule != null) {
+      throw new UnsupportedOperationException();
     }
 
     if (experiment.addSubject(user) == false) {
@@ -227,7 +232,7 @@ public class DAO {
     }
 
 
-    Experiment experiment = DAOHelper.jsonToExperiment(json.getValue());
+    Experiment experiment = DAOHelper.jsonTo(json, Experiment.class);
 
     if (experiment == null) {
       return null;
@@ -268,7 +273,7 @@ public class DAO {
       return null;
     }
 
-    ObservedExperiment experiment = DAOHelper.jsonToObservedExperiment(json.getValue());
+    ObservedExperiment experiment = DAOHelper.jsonTo(json, ObservedExperiment.class);
 
     if (experiment == null) {
       return null;
@@ -286,7 +291,7 @@ public class DAO {
   }
 
   private Entity experimentToEntity(ObservedExperiment experiment) {
-    String json = DAOHelper.observedExperimentToJson(experiment);
+    String json = DAOHelper.toJson(experiment);
 
     if (json == null) {
       return null;
