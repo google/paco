@@ -58,7 +58,9 @@ public class ExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void join(SignalSchedule signalSchedule) {
-    if (dao.joinExperiment(user, experiment, signalSchedule)) {
+    if (signalSchedule != null) {
+      setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+    } else if (dao.joinExperiment(user, experiment, signalSchedule)) {
       setStatus(Status.SUCCESS_CREATED);
       setLocationRef(new Reference("/subject/experiments/" + experimentId));
     } else {

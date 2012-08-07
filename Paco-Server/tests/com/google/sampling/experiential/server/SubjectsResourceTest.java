@@ -2,6 +2,8 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.*;
 
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +15,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
@@ -86,6 +89,17 @@ public class SubjectsResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+  }
+
+  private Event constructEvent() {
+    Event event = new Event();
+
+    event.setExperimentVersion(1l);
+    event.setSignalTime(new Date(3));
+    event.setResponseTime(new Date(13));
+    event.setOutputByKey("test", "value");
+
+    return event;
   }
 
   @Test
@@ -211,8 +225,10 @@ public class SubjectsResourceTest {
     createExperiment();
     joinExperiment();
 
+    Event event = constructEvent();
+
     Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", "");
+        "/subject/experiments/1", DAOHelper.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -225,8 +241,10 @@ public class SubjectsResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
+    Event event = constructEvent();
+
     Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", "");
+        "/subject/experiments/1", DAOHelper.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());

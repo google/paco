@@ -19,6 +19,8 @@ package com.google.sampling.experiential.shared;
 import java.util.Date;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import com.google.common.collect.Maps;
 
 /**
@@ -28,11 +30,16 @@ import com.google.common.collect.Maps;
  *
  */
 public class Event {
+  @JsonIgnore
   private Long id;
+  @JsonIgnore
   private String subject;
+  @JsonIgnore
   private long experimentId;
-  private long experimentVersion;
+  @JsonIgnore
   private Date createTime;
+
+  private long experimentVersion;
   private Date signalTime;
   private Date responseTime;
   private Map<String, String> outputs;
@@ -112,7 +119,7 @@ public class Event {
   /**
    * @param experimentVersion the experimentVersion to set
    */
-  public void setExperimentVersion(Long experimentVersion) {
+  public void setExperimentVersion(long experimentVersion) {
     this.experimentVersion = experimentVersion;
   }
 
@@ -196,6 +203,7 @@ public class Event {
   /**
    * @return
    */
+  @JsonIgnore
   public boolean isMissedSignal() {
     return responseTime == null;
   }
@@ -214,6 +222,7 @@ public class Event {
   /**
    * @return
    */
+  @JsonIgnore
   public String getOutputsString() {
     if (outputs == null) {
       return "";

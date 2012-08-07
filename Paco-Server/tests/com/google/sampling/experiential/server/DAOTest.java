@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
@@ -18,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,6 +69,16 @@ public class DAOTest {
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
     return experiment;
+  }
+
+  private Event constructEvent() {
+    Event event = new Event();
+
+    event.setSignalTime(new Date(3));
+    event.setResponseTime(new Date(13));
+    event.setOutputByKey("test", "value");
+
+    return event;
   }
 
   @Before
@@ -458,5 +470,73 @@ public class DAOTest {
     List<Experiment> experiments = dao.getExperiments("user");
 
     assertEquals(0, experiments.size());
+  }
+
+  @Test
+  public void testCreateEvent() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+  }
+
+  @Test
+  public void testCreateEventWhenUserNull() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+    event.setExperimentVersion(1l);
+
+    assertFalse(dao.createEvent(null, event, experiment));
+  }
+
+  @Test
+  public void testCreateEventWhenEventNull() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    assertFalse(dao.createEvent("test@google.com", null, experiment));
+  }
+
+  @Test
+  public void testCreateEventWhenExperimentNull() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+    event.setExperimentVersion(1);
+
+    assertFalse(dao.createEvent("test@google.com", event, null));
+  }
+
+  @Test
+  public void testCreateEventWhenVersionLess() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(2);
+
+    Event event = constructEvent();
+    event.setExperimentVersion(1);
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+  }
+
+  @Test
+  public void testCreateEventWhenVersionGreater() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+    event.setExperimentVersion(2);
+
+    assertFalse(dao.createEvent("test@google.com", event, experiment));
   }
 }

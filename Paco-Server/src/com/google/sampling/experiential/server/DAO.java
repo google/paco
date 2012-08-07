@@ -4,6 +4,7 @@ package com.google.sampling.experiential.server;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
@@ -205,12 +206,13 @@ public class DAO {
    *
    * Subject's responses
    */
-  public boolean createEvent(Event event, Experiment experiment) {
-    if (event == null || experiment == null) {
+  public boolean createEvent(String user, Event event, Experiment experiment) {
+    if (user == null || event == null || experiment == null) {
       return false;
     }
 
     event.setId(null);
+    event.setSubject(user);
     event.setCreateTime(new Date());
     event.setExperimentId(experiment.getId());
 
@@ -358,7 +360,13 @@ public class DAO {
     entity.setProperty("createTime", event.getCreateTime());
     entity.setProperty("signalTime", event.getSignalTime());
     entity.setProperty("responseTime", event.getResponseTime());
-    entity.setProperty("outputs", event.getOutputs());
+
+    EmbeddedEntity outputsEntity = new EmbeddedEntity();
+    for (String key : event.getOutputs().keySet()) {
+      outputsEntity.setProperty(key, event.getOutputByKey(key));
+    }
+
+    entity.setProperty("outputs", outputsEntity);
 
     return entity;
   }

@@ -56,7 +56,7 @@ public class SubjectExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void update(Event event) {
-    if (dao.createEvent(event, experiment)) {
+    if (dao.createEvent(user, event, experiment)) {
       setStatus(Status.SUCCESS_NO_CONTENT);
     } else {
       setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
