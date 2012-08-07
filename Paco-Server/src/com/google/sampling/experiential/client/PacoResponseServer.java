@@ -53,7 +53,7 @@ import com.google.gwt.visualization.client.visualizations.ColumnChart;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.ScatterChart;
 import com.google.gwt.visualization.client.visualizations.Table;
-import com.google.sampling.experiential.shared.Response;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -94,7 +94,7 @@ public class PacoResponseServer implements EntryPoint {
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
   // private MapWidget map;
-  List<Response> responses;
+  List<Event> responses;
   // private ScrollPanel visualizationPanel;
   private VerticalPanel responsesPanel;
   // private Map<Response, Marker> markers = Maps.newHashMap();
@@ -254,7 +254,7 @@ public class PacoResponseServer implements EntryPoint {
   // map.addControl(new ScaleControl());
   // }
 
-  private void renderResponsesOnList(List<Response> responses) {
+  private void renderResponsesOnList(List<Event> responses) {
     DataTable data = DataTable.create();
     data.addRows(responses.size());
     data.addColumn(ColumnType.DATE, "When");
@@ -262,7 +262,7 @@ public class PacoResponseServer implements EntryPoint {
     data.addColumn(ColumnType.STRING, "Experiment");
     data.addColumn(ColumnType.STRING, "What");
     int row = 0;
-    for (Response response : responses) {
+    for (Event response : responses) {
       data.setValue(row, 0, response.getCreateTime());
       data.setValue(row, 1, response.getSubject());
       data.setValue(row, 2, response.getExperimentId());
@@ -293,7 +293,7 @@ public class PacoResponseServer implements EntryPoint {
     chartPanel.clear();
     responsesPanel.clear();
 
-    AsyncCallback<List<Response>> callback = new AsyncCallback<List<Response>>() {
+    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -301,7 +301,7 @@ public class PacoResponseServer implements EntryPoint {
       }
 
       @Override
-      public void onSuccess(List<Response> responses) {
+      public void onSuccess(List<Event> responses) {
         // create column chart with responses;
         log("Got results: size: " + responses.size());
         if (responses.size() == 0) {

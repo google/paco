@@ -7,13 +7,11 @@ import static org.junit.Assert.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
 import com.google.sampling.experiential.shared.ObservedExperiment;
-import com.google.sampling.experiential.shared.RandomSignal;
 import com.google.sampling.experiential.shared.TextInput;
 
 import org.junit.After;
@@ -111,38 +109,40 @@ public class DAOTest {
 
   @Test
   public void testUpdateExperiment() {
-    ObservedExperiment experiment = constructObservedExperiment();
+    ObservedExperiment oldExperiment = constructObservedExperiment();
+    ObservedExperiment newExperiment = constructObservedExperiment();
 
-    assertFalse(dao.updateExperiment(experiment));
+    assertFalse(dao.updateExperiment(newExperiment, oldExperiment));
   }
 
   @Test
   public void testUpdateExperimentAfterCreate() {
-    ObservedExperiment experiment = constructObservedExperiment();
+    ObservedExperiment oldExperiment = constructObservedExperiment();
 
-    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.createExperiment(oldExperiment));
 
-    long version = experiment.getVersion();
-    experiment.setTitle("new title");
+    ObservedExperiment newExperiment = constructObservedExperiment();
+    newExperiment.setTitle("new title");
 
-    assertTrue(dao.updateExperiment(experiment));
-    assertEquals(version + 1, experiment.getVersion());
+    assertTrue(dao.updateExperiment(newExperiment, oldExperiment));
+    assertEquals(oldExperiment.getVersion() + 1, newExperiment.getVersion());
   }
 
   @Test
   public void testGetExperimentAfterCreateAndUpdate() {
-    ObservedExperiment experiment = constructObservedExperiment();
+    ObservedExperiment oldExperiment = constructObservedExperiment();
 
-    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.createExperiment(oldExperiment));
 
-    experiment.setTitle("new title");
+    ObservedExperiment newExperiment = constructObservedExperiment();
+    newExperiment.setTitle("new title");
 
-    assertTrue(dao.updateExperiment(experiment));
+    assertTrue(dao.updateExperiment(newExperiment, oldExperiment));
 
-    Experiment retrievedExperiment = dao.getExperiment(experiment.getId());
+    Experiment retrievedExperiment = dao.getExperiment(newExperiment.getId());
 
     assertNotNull(retrievedExperiment);
-    assertEquals(retrievedExperiment, experiment);
+    assertEquals(retrievedExperiment, newExperiment);
   }
 
   @Test

@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  */
 @RemoteServiceRelativePath("maps")
 public interface MapService extends RemoteService {
-  List<Response> map();
+  List<Event> map();
 
-  List<Response> mapWithTags(String tags);
+  List<Event> mapWithTags(String tags);
 
   void saveResponse(String who, 
       String scheduledTime, 

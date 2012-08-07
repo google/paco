@@ -28,44 +28,30 @@ import com.google.common.collect.Maps;
  * @author Bob Evans
  *
  */
-public class Response implements Serializable {
+public class Event implements Serializable {
   private Long id;
   private String subject;
-  private Long experimentId;
-  private Long experimentVersion;
+  private long experimentId;
+  private long experimentVersion;
   private Date createTime;
   private Date signalTime;
   private Date responseTime;
-  private Map<String, String> outputs = Maps.newHashMap();
+  private Map<String, String> outputs;
 
   /**
    * Default constructor
    */
-  public Response() {}
-
-  /**
-   * @param subject
-   * @param experimentId
-   * @param experimentVersion
-   * @param signalTime
-   * @param responseTime
-   * @param what
-   */
-  public Response(String subject,
-      Long experimentId,
-      Long experimentVersion,
-      Date createTime,
-      Date signalTime,
-      Date responseTime,
-      Map<String, String> what) {
+  public Event() {
     super();
-    this.subject = subject;
-    this.experimentId = experimentId;
-    this.experimentVersion = experimentVersion;
-    this.createTime = createTime;
-    this.signalTime = signalTime;
-    this.responseTime = responseTime;
-    this.outputs = what;
+
+    this.id = null;
+    this.subject = null;
+    this.experimentId = 0;
+    this.experimentVersion = 0;
+    this.createTime = new Date();
+    this.signalTime = null;
+    this.responseTime = null;
+    this.outputs = Maps.newHashMap();
   }
 
   /**
@@ -82,6 +68,13 @@ public class Response implements Serializable {
     this.id = id;
   }
 
+  /**
+   * @return
+   */
+  public boolean hasId() {
+    return (id != null);
+  }
+  
   /**
    * @return the subject
    */
@@ -170,7 +163,20 @@ public class Response implements Serializable {
    * @param outputs the outputs to set
    */
   public void setOutputs(Map<String, String> outputs) {
-    this.outputs = outputs;
+    if (outputs == null) {
+      this.outputs = Maps.newHashMap();
+    } else {
+      this.outputs = outputs;
+    }
+  }
+
+  /**
+   * @param key
+   * @param output
+   * @return
+   */
+  public String setOutputByKey(String key, String output) {
+    return outputs.put(key, output);
   }
 
   /**
@@ -178,7 +184,7 @@ public class Response implements Serializable {
    * @return
    */
   public String getOutputByKey(String key) {
-    return this.outputs.get(key);
+    return outputs.get(key);
   }
 
   /**
@@ -202,6 +208,7 @@ public class Response implements Serializable {
     if (responseTime == null || signalTime == null) {
       return -1;
     }
+
     return responseTime.getTime() - signalTime.getTime();
   }
 

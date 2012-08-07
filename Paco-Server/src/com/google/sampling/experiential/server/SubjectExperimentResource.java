@@ -14,6 +14,7 @@
 
 package com.google.sampling.experiential.server;
 
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.ObservedExperiment;
 
@@ -54,8 +55,12 @@ public class SubjectExperimentResource extends PacoResource {
   }
 
   @Post("gwt|json")
-  public void update() {
-    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+  public void update(Event event) {
+    if (dao.createEvent(event, experiment)) {
+      setStatus(Status.SUCCESS_NO_CONTENT);
+    } else {
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    }
   }
 
   @Delete("gwt|json")
@@ -63,7 +68,7 @@ public class SubjectExperimentResource extends PacoResource {
     if (dao.leaveExperiment(user, experiment)) {
       setStatus(Status.SUCCESS_NO_CONTENT);
     } else {
-      setStatus(Status.SERVER_ERROR_INTERNAL);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     }
   }
 }

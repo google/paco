@@ -17,9 +17,10 @@ import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ObservedExperiment;
-import com.google.sampling.experiential.shared.Response;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -101,17 +102,22 @@ public class DAO {
     }
   }
 
-  public boolean updateExperiment(ObservedExperiment experiment) {
-    if (experiment.hasId() == false) {
+  public boolean updateExperiment(ObservedExperiment newExperiment, ObservedExperiment oldExperiment) {
+    if (newExperiment == null || oldExperiment == null) {
       return false;
     }
 
-    experiment.setVersion(experiment.getVersion() + 1);
+    if (oldExperiment.hasId() == false) {
+      return false;
+    }
 
-    Entity entity = experimentToEntity(experiment);
-    Key key = ds.put(entity);
+    newExperiment.setId(oldExperiment.getId());
+    newExperiment.setVersion(oldExperiment.getVersion() + 1);
 
-    return ((key.getId() == experiment.getId()));
+    Entity newEntity = experimentToEntity(newExperiment);
+    Key newKey = ds.put(newEntity);
+
+    return (newKey.getId() == newExperiment.getId());
   }
 
   public boolean deleteExperiment(ObservedExperiment experiment) {
@@ -177,6 +183,10 @@ public class DAO {
   }
 
   public boolean leaveExperiment(String user, ObservedExperiment experiment) {
+    if (user == null || experiment == null) {
+      return false;
+    }
+
     if (experiment.hasId() == false) {
       return false;
     }
@@ -195,8 +205,25 @@ public class DAO {
    *
    * Subject's responses
    */
-  public boolean createResponse(Response response) {
-    return false;
+  public boolean createEvent(Event event, Experiment experiment) {
+    if (event == null || experiment == null) {
+      return false;
+    }
+
+    event.setId(null);
+    event.setCreateTime(new Date());
+    event.setExperimentId(experiment.getId());
+
+    if (event.getExperimentVersion() > experiment.getVersion()) {
+      return false;
+    }
+
+    Entity entity = eventToEntity(event);
+    ds.put(entity);
+
+    event.setId(entity.getKey().getId());
+
+    return event.hasId();
   }
 
   /*
@@ -312,6 +339,26 @@ public class DAO {
     entity.setProperty("subjects", experiment.getSubjects());
     entity.setProperty("viewers", experiment.getViewers());
     entity.setProperty("json", new Text(json));
+
+    return entity;
+  }
+
+  private Entity eventToEntity(Event event) {
+    Entity entity;
+
+    if (event.hasId()) {
+      entity = new Entity("event", event.getId());
+    } else {
+      entity = new Entity("event");
+    }
+ 
+    entity.setProperty("subject", event.getSubject());
+    entity.setProperty("experimentId", event.getExperimentId());
+    entity.setProperty("experimentVersion", event.getExperimentVersion());
+    entity.setProperty("createTime", event.getCreateTime());
+    entity.setProperty("signalTime", event.getSignalTime());
+    entity.setProperty("responseTime", event.getResponseTime());
+    entity.setProperty("outputs", event.getOutputs());
 
     return entity;
   }

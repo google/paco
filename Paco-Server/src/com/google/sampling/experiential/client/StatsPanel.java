@@ -33,7 +33,7 @@ import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.sampling.experiential.shared.DateStat;
-import com.google.sampling.experiential.shared.Response;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
 
@@ -166,7 +166,7 @@ public class StatsPanel extends Composite {
 
   private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
     HashMap<String,String> participants = new HashMap<String,String>();
-    for (Response response : experimentStats.getJoinedResponsesList()) {
+    for (Event response : experimentStats.getJoinedResponsesList()) {
       String who = response.getSubject();
       String existingWhoValue = participants.get(who);
       if (existingWhoValue == null) {

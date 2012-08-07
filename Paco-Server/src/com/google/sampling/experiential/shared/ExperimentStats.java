@@ -29,7 +29,7 @@ import java.io.Serializable;
  */
 public class ExperimentStats implements Serializable {
 
-  private Response[] joinedResponsesList;
+  private Event[] joinedResponsesList;
   private DateStat[] dailyResponseRate;
   private DateStat[] sevenDayDateStats;
   private String responseRate;
@@ -38,11 +38,11 @@ public class ExperimentStats implements Serializable {
   public ExperimentStats() {
   }
   
-  public Response[] getJoinedResponsesList() {
+  public Event[] getJoinedResponsesList() {
     return joinedResponsesList;
   }
 
-  public void setJoinedEventsList(Response[] joinedEventsList) {
+  public void setJoinedEventsList(Event[] joinedEventsList) {
     this.joinedResponsesList = joinedEventsList;
   }
 

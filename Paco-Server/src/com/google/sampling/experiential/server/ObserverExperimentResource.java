@@ -56,13 +56,10 @@ public class ObserverExperimentResource extends PacoResource {
 
   @Post("gwt|json")
   public void update(ObservedExperiment experiment) {
-    experiment.setId(this.experiment.getId());
-    experiment.setVersion(this.experiment.getVersion());
-
-    if (dao.updateExperiment(experiment)) {
+    if (dao.updateExperiment(experiment, this.experiment)) {
       setStatus(Status.SUCCESS_NO_CONTENT);
     } else {
-      setStatus(Status.SERVER_ERROR_INTERNAL);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     }
   }
 
@@ -71,7 +68,7 @@ public class ObserverExperimentResource extends PacoResource {
     if (dao.deleteExperiment(experiment)) {
       setStatus(Status.SUCCESS_NO_CONTENT);
     } else {
-      setStatus(Status.SERVER_ERROR_INTERNAL);
+      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     }
   }
 }

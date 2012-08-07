@@ -25,9 +25,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * * The async counterpart of <code>MeetingService</code>.
  */
 public interface MapServiceAsync {
-  void map(AsyncCallback<List<Response>> callback);
+  void map(AsyncCallback<List<Event>> callback);
 
-  void mapWithTags(String tags, AsyncCallback<List<Response>> callback);
+  void mapWithTags(String tags, AsyncCallback<List<Event>> callback);
 
   void saveResponse(String who, 
       String scheduledTime, 

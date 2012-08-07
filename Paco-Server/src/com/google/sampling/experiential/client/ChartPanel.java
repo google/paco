@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
-import com.google.sampling.experiential.shared.Response;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.TextInput;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -40,7 +40,7 @@ public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
   private Input input;
-  private List<Response> responses;
+  private List<Event> responses;
 
   // private MapWidget map;
   // private Map<Response, Marker> markers = com.google.common.collect.Maps.newHashMap();
@@ -48,7 +48,7 @@ public class ChartPanel extends Composite {
 
   // private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(Input input, List<Response> responses) {
+  public ChartPanel(Input input, List<Event> responses) {
     this.input = input;
     this.responses = responses;
 
@@ -115,7 +115,7 @@ public class ChartPanel extends Composite {
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setHeight("450");
     photosPanel.add(horizontalPanel);
-    for (Response response : responses) {
+    for (Event response : responses) {
       for (String key : response.getOutputs().keySet()) {
         String blobData = response.getOutputByKey(key);
 
@@ -149,7 +149,7 @@ public class ChartPanel extends Composite {
       return DEFAULT_DATA_CLASS;
     }
 
-    Response response = responses.get(0);
+    Event response = responses.get(0);
     String answer = response.getOutputByKey(inputName);
     if (answer == null) {
       return DEFAULT_DATA_CLASS;
@@ -160,7 +160,7 @@ public class ChartPanel extends Composite {
     if (responses.size() == 1) {
       return dataTypeOfFirstEntry;
     }
-    Response response2 = responses.get(1);
+    Event response2 = responses.get(1);
     String answer2 = response2.getOutputByKey(inputName);
     if (answer2 == null) {
       return DEFAULT_DATA_CLASS;

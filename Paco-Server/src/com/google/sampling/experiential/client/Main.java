@@ -40,7 +40,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.sampling.experiential.shared.Response;
+import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.Feedback;
@@ -596,7 +596,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showChart(final Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
-    AsyncCallback<List<Response>> callback = new AsyncCallback<List<Response>>() {
+    AsyncCallback<List<Event>> callback = new AsyncCallback<List<Event>>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -606,7 +606,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<Response> responses) {
+      public void onSuccess(List<Event> responses) {
         if (responses.size() == 0) {
           Window.alert("No results for your query");
           statusLabel.setVisible(false);
