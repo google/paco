@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ import java.util.List;
  * @author Bob Evans
  *
  */
-public class Experiment implements Serializable {
+public class Experiment {
   public static String DEFAULT_TITLE = "";
   public static String DEFAULT_DESCRIPTION = "";
   public static String DEFAULT_CREATOR = "";

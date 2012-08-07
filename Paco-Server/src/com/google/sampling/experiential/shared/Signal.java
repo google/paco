@@ -9,15 +9,13 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 
-import java.io.Serializable;
-
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
 @JsonSubTypes({@Type(FixedSignal.class), @Type(RandomSignal.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
-public abstract class Signal implements Serializable {
+public abstract class Signal {
   public static final String FIXED = "fixed";
   public static final String RANDOM = "random";
 

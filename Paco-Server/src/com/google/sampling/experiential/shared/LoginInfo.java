@@ -13,9 +13,7 @@
  */
 package com.google.sampling.experiential.shared;
 
-import java.io.Serializable;
-
-public class LoginInfo implements Serializable {
+public class LoginInfo {
 
   private boolean loggedIn = false;
   private String loginUrl;

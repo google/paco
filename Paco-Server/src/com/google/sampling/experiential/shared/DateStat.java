@@ -16,7 +16,6 @@
 */
 package com.google.sampling.experiential.shared;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class DateStat implements Comparable<DateStat>, Serializable {
+public class DateStat implements Comparable<DateStat> {
 
   private Date when;
   private Double average;

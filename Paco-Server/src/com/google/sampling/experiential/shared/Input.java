@@ -22,8 +22,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 
-import java.io.Serializable;
-
 /**
  * Represents one data value captured in an experiment.
  *
@@ -32,7 +30,7 @@ import java.io.Serializable;
  */
 @JsonSubTypes({@Type(TextInput.class), @Type(LikertInput.class), @Type(ListInput.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
-public abstract class Input implements Serializable {
+public abstract class Input {
   public static final String TEXT = "text";
   public static final String LIKERT = "likert";
   public static final String LIST = "list";

@@ -16,7 +16,6 @@
 */
 package com.google.sampling.experiential.shared;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import com.google.common.collect.Maps;
  * @author Bob Evans
  *
  */
-public class Event implements Serializable {
+public class Event {
   private Long id;
   private String subject;
   private long experimentId;

@@ -15,8 +15,6 @@
 
 package com.google.sampling.experiential.shared;
 
-import java.io.Serializable;
-
 /**
  * Represents a visualization or intervention to the user in response to responses gathered in an
  * experiment.
@@ -24,7 +22,7 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class Feedback implements Serializable {
+public class Feedback {
   public static final String DEFAULT_TEXT = "";
 
   private String text;

@@ -18,8 +18,6 @@
 
 package com.google.sampling.experiential.shared;
 
-import java.io.Serializable;
-
 /**
  * 
  * Dumb data object for passing experiment meta statistics to the GWT client.
@@ -27,7 +25,7 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class ExperimentStats implements Serializable {
+public class ExperimentStats {
 
   private Event[] joinedResponsesList;
   private DateStat[] dailyResponseRate;

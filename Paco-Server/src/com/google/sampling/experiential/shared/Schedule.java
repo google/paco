@@ -22,7 +22,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -34,7 +33,7 @@ import java.util.Date;
 @JsonSubTypes({
     @Type(DailySchedule.class), @Type(WeeklySchedule.class), @Type(MonthlySchedule.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
-public abstract class Schedule implements Serializable {
+public abstract class Schedule {
   public static final String DAILY = "daily";
   public static final String WEEKLY = "weekly";
   public static final String MONTHLY = "monthly";
