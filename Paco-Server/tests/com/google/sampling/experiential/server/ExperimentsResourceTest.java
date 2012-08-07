@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
+import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.FixedSignal;
@@ -93,6 +94,46 @@ public class ExperimentsResourceTest {
     assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
   }
 
+  private void createWithViewers() {
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    observedExperiment.setPublished(true);
+    observedExperiment.setViewers(Lists.newArrayList("test@google.com"));
+    observedExperiment.setSignalSchedule(null);
+
+    Request request = ServerTestHelper.createJsonPostRequest(
+        "/experiments", DAOHelper.toJson(observedExperiment));
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
+    assertEquals("/observer/experiments/1", response.getLocationRef().getPath());
+  }
+
+  @Test
+  public void testIndexAfterCreateWithViewers() {
+    createWithViewers();
+
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+
+    Experiment experiment = DAOTest.constructExperiment(1l);
+
+    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testIndexAsNonViewerAfterCreateWithViewers() {
+    createWithViewers();
+
+    helper.setEnvEmail("impostor@google.com");
+
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[]", response.getEntityAsText());
+  }
   @Test
   public void testShow() {
     Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
