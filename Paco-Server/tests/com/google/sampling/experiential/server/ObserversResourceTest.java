@@ -1,3 +1,5 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+
 package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.*;
