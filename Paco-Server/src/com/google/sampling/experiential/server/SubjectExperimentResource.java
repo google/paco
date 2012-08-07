@@ -33,6 +33,8 @@ public class SubjectExperimentResource extends PacoResource {
 
   @Override
   protected void doInit() throws ResourceException {
+    super.doInit();
+
     long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
     experiment = dao.getObservedExperiment(experimentId);
 
