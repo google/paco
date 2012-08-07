@@ -103,7 +103,7 @@ public class ObservedExperiment extends Experiment {
   /**
    * @param user
    */
-  public boolean isObservedBy(String user) {
+  public boolean hasObserver(String user) {
     return observers.contains(user);
   }
 
@@ -118,7 +118,7 @@ public class ObservedExperiment extends Experiment {
    * @param user
    */
   @JsonIgnore
-  public boolean isViewableBy(String user) {
+  public boolean hasViewer(String user) {
     if (isPrivate()) {
       return viewers.contains(user);
     } else {
@@ -139,7 +139,7 @@ public class ObservedExperiment extends Experiment {
    * @return whether the subject was added
    */
   public boolean addSubject(String subject) {
-    return this.subjects.add(subject);
+    return subjects.add(subject);
   }
 
   /**
@@ -147,9 +147,40 @@ public class ObservedExperiment extends Experiment {
    * @return whether the subject was removed
    */
   public boolean removeSubject(String subject) {
-    return this.subjects.remove(subject);
+    return subjects.remove(subject);
   }
 
+  /**
+   * @param observer
+   * @return whether the observer was added
+   */
+  public boolean addObserver(String observer) {
+    return observers.add(observer);
+  }
+
+  /**
+   * @param observer
+   * @return whether the observer was removed
+   */
+  public boolean removeObserver(String observer) {
+    return subjects.remove(observer);
+  }
+
+  /**
+   * @param viewer
+   * @return whether the viewer was added
+   */
+  public boolean addViewer(String viewer) {
+    return observers.add(viewer);
+  }
+
+  /**
+   * @param viewer
+   * @return whether the viewer was removed
+   */
+  public boolean removeViewer(String viewer) {
+    return subjects.remove(viewer);
+  }
   /*
    * (non-Javadoc)
    *

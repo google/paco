@@ -137,7 +137,7 @@ public class ObservedExperimentTest {
   public void testIsObservedBy() {
     ObservedExperiment experiment = new ObservedExperiment();
 
-    assertFalse(experiment.isObservedBy("observer"));
+    assertFalse(experiment.hasObserver("observer"));
   }
 
   @Test
@@ -146,7 +146,7 @@ public class ObservedExperimentTest {
 
     experiment.setObservers(Lists.newArrayList("observer"));
 
-    assertTrue(experiment.isObservedBy("observer"));
+    assertTrue(experiment.hasObserver("observer"));
   }
 
   @Test
@@ -169,7 +169,7 @@ public class ObservedExperimentTest {
   public void testIsViewableBy() {
     ObservedExperiment experiment = new ObservedExperiment();
 
-    assertTrue(experiment.isViewableBy("viewer"));
+    assertTrue(experiment.hasViewer("viewer"));
   }
 
   @Test
@@ -178,7 +178,7 @@ public class ObservedExperimentTest {
 
     experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
 
-    assertTrue(experiment.isViewableBy("viewer1"));
+    assertTrue(experiment.hasViewer("viewer1"));
   }
 
   @Test
@@ -187,6 +187,6 @@ public class ObservedExperimentTest {
 
     experiment.setViewers(Lists.newArrayList("viewer1", "viewer2"));
 
-    assertFalse(experiment.isViewableBy("viewer"));
+    assertFalse(experiment.hasViewer("viewer"));
   }
 }

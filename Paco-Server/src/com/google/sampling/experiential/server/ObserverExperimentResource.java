@@ -33,6 +33,8 @@ public class ObserverExperimentResource extends PacoResource {
 
   @Override
   protected void doInit() throws ResourceException {
+    super.doInit();
+
     long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
     experiment = dao.getObservedExperiment(experimentId);
 
@@ -40,13 +42,15 @@ public class ObserverExperimentResource extends PacoResource {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
     }
 
-    if (experiment.isObservedBy(user) == false) {
+    if (experiment.hasObserver(user) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     }
   }
 
   @Get("gwt|json")
   public ExperimentStats stats() {
+    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+
     return null;
   }
 

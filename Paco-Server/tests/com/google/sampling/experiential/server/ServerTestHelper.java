@@ -28,4 +28,12 @@ public class ServerTestHelper {
 
     return request;
   }
+
+  public static Request createJsonDeleteRequest(String uri) {
+    Request request = new Request(Method.DELETE, uri);
+
+    request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));
+
+    return request;
+  }
 }

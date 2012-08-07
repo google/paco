@@ -40,7 +40,14 @@ public class ExperimentsResource extends PacoResource {
   public void create(ObservedExperiment experiment) {
     if (experiment == null) {
       setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-    } else if (dao.createExperiment(experiment)) {
+      return;
+    }
+
+    if (experiment.hasObserver(user) == false) {
+      experiment.addObserver(user);
+    }
+
+    if (dao.createExperiment(experiment)) {
       setStatus(Status.SUCCESS_CREATED);
       setLocationRef(new Reference("/observer/experiments/" + experiment.getId()));
     } else {
