@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.shared;
 
 import java.util.Date;
@@ -75,12 +72,12 @@ public class Event {
   }
 
   /**
-   * @return
+   * @return whether the event has an id
    */
   public boolean hasId() {
     return (id != null);
   }
-  
+
   /**
    * @return the subject
    */
@@ -177,31 +174,31 @@ public class Event {
   }
 
   /**
-   * @param key
-   * @param output
-   * @return
+   * @param key the key
+   * @param output the output
+   * @return sets the output corresponding to the key
    */
   public String setOutputByKey(String key, String output) {
     return outputs.put(key, output);
   }
 
   /**
-   * @param key
-   * @return
+   * @param key the key
+   * @return the output corresponding to the key
    */
   public String getOutputByKey(String key) {
     return outputs.get(key);
   }
 
   /**
-   * @return
+   * @return the outputs
    */
   public Map<String, String> getOutputs() {
     return outputs;
   }
 
   /**
-   * @return
+   * @return whether the event is a missed signal
    */
   @JsonIgnore
   public boolean isMissedSignal() {
@@ -209,7 +206,7 @@ public class Event {
   }
 
   /**
-   * @return
+   * @return the response time or -1 if it is a misssed signal
    */
   public long responseTime() {
     if (responseTime == null || signalTime == null) {
@@ -220,7 +217,7 @@ public class Event {
   }
 
   /**
-   * @return
+   * @return a string representation of the outputs
    */
   @JsonIgnore
   public String getOutputsString() {
