@@ -289,6 +289,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.joinExperiment("user", experiment, null));
   }
+
   @Test
   public void testJoinExperimentWithScheduleAfterCreate() {
     ObservedExperiment experiment = constructObservedExperiment();

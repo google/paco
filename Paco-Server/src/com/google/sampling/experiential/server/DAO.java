@@ -103,7 +103,8 @@ public class DAO {
     }
   }
 
-  public boolean updateExperiment(ObservedExperiment newExperiment, ObservedExperiment oldExperiment) {
+  public boolean updateExperiment(
+      ObservedExperiment newExperiment, ObservedExperiment oldExperiment) {
     if (newExperiment == null || oldExperiment == null) {
       return false;
     }
@@ -353,7 +354,7 @@ public class DAO {
     } else {
       entity = new Entity("event");
     }
- 
+
     entity.setProperty("subject", event.getSubject());
     entity.setProperty("experimentId", event.getExperimentId());
     entity.setProperty("experimentVersion", event.getExperimentVersion());

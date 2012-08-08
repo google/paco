@@ -35,14 +35,13 @@ public class ObserversResourceTest {
   }
 
   private ObservedExperiment createExperiment() {
-    ObservedExperiment observedExperiment = DAOTest
-        .constructObservedExperiment();
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(false);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
 
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments",
-        DAOHelper.toJson(observedExperiment));
+    Request request = ServerTestHelper.createJsonPostRequest(
+        "/experiments", DAOHelper.toJson(observedExperiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -53,8 +52,7 @@ public class ObserversResourceTest {
 
   @Test
   public void testList() {
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -68,13 +66,11 @@ public class ObserversResourceTest {
     experiment.setId(1l);
     experiment.addObserver("test@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]",
-        response.getEntityAsText());
+    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
   }
 
   @Test
@@ -83,8 +79,7 @@ public class ObserversResourceTest {
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -93,8 +88,7 @@ public class ObserversResourceTest {
 
   @Test
   public void testStats() {
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -104,8 +98,7 @@ public class ObserversResourceTest {
   public void testStatsAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -118,8 +111,7 @@ public class ObserversResourceTest {
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -127,8 +119,7 @@ public class ObserversResourceTest {
 
   @Test
   public void testUpdate() {
-    ObservedExperiment observedExperiment = DAOTest
-        .constructObservedExperiment();
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(false);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -144,8 +135,7 @@ public class ObserversResourceTest {
   public void testUpdateAfterCreate() {
     createExperiment();
 
-    ObservedExperiment observedExperiment = DAOTest
-        .constructObservedExperiment();
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -163,8 +153,7 @@ public class ObserversResourceTest {
 
     helper.setEnvEmail("imposter@google.com");
 
-    ObservedExperiment observedExperiment = DAOTest
-        .constructObservedExperiment();
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -178,8 +167,7 @@ public class ObserversResourceTest {
 
   @Test
   public void testDestroy() {
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -189,8 +177,7 @@ public class ObserversResourceTest {
   public void testDestroyAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -202,8 +189,7 @@ public class ObserversResourceTest {
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/observer/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());

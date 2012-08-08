@@ -42,15 +42,14 @@ public class SubjectsResourceTest {
   }
 
   private ObservedExperiment createExperiment() {
-    ObservedExperiment observedExperiment = DAOTest
-        .constructObservedExperiment();
+    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setDeleted(false);
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(Lists.newArrayList("test@google.com"));
     observedExperiment.setSignalSchedule(null);
 
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments",
-        DAOHelper.toJson(observedExperiment));
+    Request request = ServerTestHelper.createJsonPostRequest(
+        "/experiments", DAOHelper.toJson(observedExperiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -60,8 +59,7 @@ public class SubjectsResourceTest {
   }
 
   private Experiment joinExperiment() {
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments/1",
-        "");
+    Request request = ServerTestHelper.createJsonPostRequest("/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -75,8 +73,7 @@ public class SubjectsResourceTest {
     experiment.setCreator("creator");
     experiment.setConsentForm("consent form");
     experiment.setDeleted(false);
-    experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(),
-        new LikertInput()));
+    experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
     experiment.setSignalSchedule(null);
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
 
@@ -84,8 +81,7 @@ public class SubjectsResourceTest {
   }
 
   private void leaveExperiment() {
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -104,8 +100,7 @@ public class SubjectsResourceTest {
 
   @Test
   public void testList() {
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -116,8 +111,7 @@ public class SubjectsResourceTest {
   public void testListAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -129,13 +123,11 @@ public class SubjectsResourceTest {
     createExperiment();
     Experiment experiment = joinExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]",
-        response.getEntityAsText());
+    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
   }
 
   @Test
@@ -145,8 +137,7 @@ public class SubjectsResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -155,8 +146,7 @@ public class SubjectsResourceTest {
 
   @Test
   public void testStats() {
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -166,8 +156,7 @@ public class SubjectsResourceTest {
   public void testStatsAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -178,8 +167,7 @@ public class SubjectsResourceTest {
     createExperiment();
     joinExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -193,8 +181,7 @@ public class SubjectsResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonGetRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -202,8 +189,7 @@ public class SubjectsResourceTest {
 
   @Test
   public void testUpdate() {
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", "");
+    Request request = ServerTestHelper.createJsonPostRequest("/subject/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -213,8 +199,7 @@ public class SubjectsResourceTest {
   public void testUpdateAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", "");
+    Request request = ServerTestHelper.createJsonPostRequest("/subject/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -227,8 +212,8 @@ public class SubjectsResourceTest {
 
     Event event = constructEvent();
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", DAOHelper.toJson(event));
+    Request request =
+        ServerTestHelper.createJsonPostRequest("/subject/experiments/1", DAOHelper.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -243,8 +228,8 @@ public class SubjectsResourceTest {
 
     Event event = constructEvent();
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/subject/experiments/1", DAOHelper.toJson(event));
+    Request request =
+        ServerTestHelper.createJsonPostRequest("/subject/experiments/1", DAOHelper.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -252,8 +237,7 @@ public class SubjectsResourceTest {
 
   @Test
   public void testLeave() {
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -263,8 +247,7 @@ public class SubjectsResourceTest {
   public void testLeaveAfterCreate() {
     createExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -275,8 +258,7 @@ public class SubjectsResourceTest {
     createExperiment();
     joinExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -288,8 +270,7 @@ public class SubjectsResourceTest {
     joinExperiment();
     leaveExperiment();
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -302,8 +283,7 @@ public class SubjectsResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = ServerTestHelper
-        .createJsonDeleteRequest("/subject/experiments/1");
+    Request request = ServerTestHelper.createJsonDeleteRequest("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
