@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Text;
@@ -154,23 +155,30 @@ public class DAO {
    * Subject's experiments
    */
   public boolean joinExperiment(
-      String user, ObservedExperiment experiment, SignalSchedule schedule) {
-    if (experiment.hasId() == false) {
+      String user, ObservedExperiment observedExperiment, SignalSchedule signalSchedule) {
+    if (observedExperiment.hasId() == false) {
       return false;
     }
 
-    if (schedule != null) {
-      throw new UnsupportedOperationException();
-    }
-
-    if (experiment.addSubject(user) == false) {
+    if (observedExperiment.addSubject(user) == false) {
       return false;
     }
 
-    Entity entity = experimentToEntity(experiment);
-    Key key = ds.put(entity);
+    Transaction txn = ds.beginTransaction();
 
-    return ((key.getId() == experiment.getId()));
+    Entity observedExperimentEntity = experimentToEntity(observedExperiment);
+    Key observedExperimentKey = ds.put(observedExperimentEntity);
+
+    Entity signalScheduleEntity = null;
+
+    if (signalSchedule != null) {
+      signalScheduleEntity = signalScheduleToEntity(user, signalSchedule, observedExperimentKey);
+      ds.put(signalScheduleEntity);
+    }
+
+    txn.commit();
+
+    return ((observedExperimentKey.getId() == observedExperiment.getId()));
   }
 
   public List<Experiment> getSubjectExperiments(String user) {
@@ -342,6 +350,22 @@ public class DAO {
     entity.setProperty("subjects", experiment.getSubjects());
     entity.setProperty("viewers", experiment.getViewers());
     entity.setProperty("json", new Text(json));
+
+    return entity;
+  }
+
+  private Entity signalScheduleToEntity(
+      String subject, SignalSchedule signalSchedule, Key observedExperiment) {
+    String json = DAOHelper.toJson(signalSchedule);
+
+    if (json == null) {
+      return null;
+    }
+
+    Entity entity = new Entity("schedule", observedExperiment);
+
+    entity.setProperty("subject", subject);
+    entity.setProperty("signalSchedule", new Text(json));
 
     return entity;
   }
