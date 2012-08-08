@@ -28,19 +28,10 @@ import org.restlet.resource.ResourceException;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class ObserverExperimentResource extends PacoResource {
-  private ObservedExperiment experiment;
-
+public class ObserverExperimentResource extends PacoExperimentResource {
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
-
-    long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
-    experiment = dao.getObservedExperiment(experimentId);
-
-    if (experiment == null) {
-      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-    }
 
     if (experiment.hasObserver(user) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);

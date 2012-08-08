@@ -158,6 +158,22 @@ public class ExperimentsResourceTest {
   }
 
   @Test
+  public void testShowAsImposterAfterCreate() {
+    testCreate();
+
+    helper.setEnvEmail("impostor@google.com");
+
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+
+    Experiment experiment = DAOTest.constructExperiment(1l);
+
+    assertEquals(DAOHelper.toJson(experiment), response.getEntityAsText());
+  }
+
+  @Test
   public void testJoin() {
     Request request = ServerTestHelper.createJsonPostRequest("/experiments/1", "");
     Response response = new PacoApplication().handle(request);

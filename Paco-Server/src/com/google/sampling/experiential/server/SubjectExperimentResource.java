@@ -16,7 +16,6 @@ package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.ExperimentStats;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
@@ -29,19 +28,10 @@ import org.restlet.resource.ResourceException;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class SubjectExperimentResource extends PacoResource {
-  private ObservedExperiment experiment;
-
+public class SubjectExperimentResource extends PacoExperimentResource {
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
-
-    long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
-    experiment = dao.getObservedExperiment(experimentId);
-
-    if (experiment == null) {
-      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-    }
 
     if (experiment.hasSubject(user) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);

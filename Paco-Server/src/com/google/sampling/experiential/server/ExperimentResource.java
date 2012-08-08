@@ -15,7 +15,6 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
 import org.restlet.data.Reference;
@@ -24,43 +23,32 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 
-
 /**
  *
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class ExperimentResource extends PacoResource {
-  private Long experimentId;
-  private ObservedExperiment experiment;
-
+public class ExperimentResource extends PacoExperimentResource {
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
 
-    experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
-    experiment = dao.getObservedExperiment(experimentId);
-
-    if (experiment == null) {
-      throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-    }
-
-    if (experiment.hasSubject(user)) {
+    if (experiment.hasViewer(user) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     }
   }
 
   @Get("json|gwt")
   public Experiment show() {
-    // FIXME: This shouldn't really be hitting the datastore twice.
-    return dao.getExperiment(experimentId);
+    // FIXME: This shouldn't really be hitting the datastore twice since we already have experiment
+    return dao.getExperiment(experiment.getId());
   }
 
   @Post("gwt|json")
   public void join(SignalSchedule signalSchedule) {
     if (dao.joinExperiment(user, experiment, signalSchedule)) {
       setStatus(Status.SUCCESS_CREATED);
-      setLocationRef(new Reference("/subject/experiments/" + experimentId));
+      setLocationRef(new Reference("/subject/experiments/" + experiment.getId()));
     } else {
       setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
     }

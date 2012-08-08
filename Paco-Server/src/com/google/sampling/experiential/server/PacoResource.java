@@ -25,7 +25,7 @@ import org.restlet.resource.ServerResource;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class PacoResource extends ServerResource {
+public abstract class PacoResource extends ServerResource {
   protected DAO dao = DAO.getInstance();
   protected String user;
 
