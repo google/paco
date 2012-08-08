@@ -7,12 +7,15 @@ import static org.junit.Assert.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
+import com.google.sampling.experiential.shared.FixedSignal;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
 import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.sampling.experiential.shared.SharedTestHelper;
 import com.google.sampling.experiential.shared.TextInput;
 
 import org.junit.After;
@@ -272,11 +275,27 @@ public class DAOTest {
   }
 
   @Test
+  public void testJoinExperimentWithSchedule() {
+    ObservedExperiment experiment = constructObservedExperiment();
+
+    assertFalse(dao.joinExperiment("user", experiment,
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule())));
+  }
+
+  @Test
   public void testJoinExperimentAfterCreate() {
     ObservedExperiment experiment = constructObservedExperiment();
 
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.joinExperiment("user", experiment, null));
+  }
+  @Test
+  public void testJoinExperimentWithScheduleAfterCreate() {
+    ObservedExperiment experiment = constructObservedExperiment();
+
+    assertTrue(dao.createExperiment(experiment));
+    assertTrue(dao.joinExperiment("user", experiment,
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule())));
   }
 
   @Test
