@@ -17,11 +17,9 @@ import java.util.Set;
  *
  */
 public class Experiment {
-  public static class Views {
-    public static class Summary { }
-    public static class Subject extends Summary { }
-    public static class Observer extends Subject { }
-  }
+  public static class Summary { }
+  public static class Viewer extends Summary { }
+  public static class Observer extends Viewer { }
 
   public static String DEFAULT_TITLE = "";
   public static String DEFAULT_DESCRIPTION = "";
@@ -34,27 +32,27 @@ public class Experiment {
   @JsonIgnore
   private boolean deleted;
 
-  @JsonView(Views.Summary.class)
+  @JsonView(Summary.class)
   private String title;
-  @JsonView(Views.Summary.class)
+  @JsonView(Summary.class)
   private String description;
-  @JsonView(Views.Summary.class)
+  @JsonView(Summary.class)
   private String creator;
-  @JsonView(Views.Subject.class)
+  @JsonView(Viewer.class)
   private String consentForm;
-  @JsonView(Views.Subject.class)
+  @JsonView(Viewer.class)
   private List<Input> inputs;
-  @JsonView(Views.Subject.class)
+  @JsonView(Viewer.class)
   private SignalSchedule signalSchedule;
-  @JsonView(Views.Subject.class)
+  @JsonView(Viewer.class)
   private List<Feedback> feedbacks;
-  @JsonView(Views.Observer.class)
+  @JsonView(Observer.class)
   private boolean published;
-  @JsonView(Views.Observer.class)
+  @JsonView(Observer.class)
   private Set<String> observers; // List of users who can edit this experiment
-  @JsonView(Views.Observer.class)
+  @JsonView(Observer.class)
   private Set<String> subjects; // List of users who have joined this experiment
-  @JsonView(Views.Observer.class)
+  @JsonView(Observer.class)
   private Set<String> viewers; // List of users who can view this experiment, null if anyone
 
   /**

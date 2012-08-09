@@ -89,7 +89,7 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
     assertEquals("[" + json + "]", response.getEntityAsText());
   }
@@ -118,7 +118,7 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
     assertEquals("[" + json + "]", response.getEntityAsText());
   }
@@ -153,7 +153,7 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Views.Subject.class);
+    String json = DAOHelper.toJson(experiment, Experiment.Viewer.class);
 
     assertEquals(json, response.getEntityAsText());
   }
@@ -170,7 +170,7 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Views.Subject.class);
+    String json = DAOHelper.toJson(experiment, Experiment.Viewer.class);
 
     assertEquals(json, response.getEntityAsText());
   }

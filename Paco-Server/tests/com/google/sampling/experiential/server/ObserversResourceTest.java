@@ -68,7 +68,7 @@ public class ObserversResourceTest {
 
     Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
     Response response = new PacoApplication().handle(request);
-    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + json + "]", response.getEntityAsText());

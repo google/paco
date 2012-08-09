@@ -35,18 +35,18 @@ public class PacoJacksonConverter extends JacksonConverter {
    */
   @Override
   public Representation toRepresentation(Object object, Variant variant, Resource resource) {
-    if (resource instanceof ExperimentsResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Summary.class));
-    } else if (resource instanceof ExperimentResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Subject.class));
-    } else if (resource instanceof SubjectExperimentsResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Summary.class));
-    } else if (resource instanceof SubjectExperimentResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Subject.class));
-    } else if (resource instanceof ObserverExperimentsResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Summary.class));
-    } else if (resource instanceof ObserverExperimentResource) {
-      getObjectMapper().setSerializationConfig(getObjectMapper().getSerializationConfig().withView(Experiment.Views.Observer.class));
+    if (resource instanceof ObserverExperimentResource) {
+      getObjectMapper().setSerializationConfig(
+          getObjectMapper().getSerializationConfig().withView(Experiment.Observer.class));
+    } else if (resource instanceof PacoExperimentResource) {
+      getObjectMapper().setSerializationConfig(
+          getObjectMapper().getSerializationConfig().withView(Experiment.Viewer.class));
+    } else if (resource instanceof PacoResource) {
+      getObjectMapper().setSerializationConfig(
+          getObjectMapper().getSerializationConfig().withView(Experiment.Summary.class));
+    } else {
+      getObjectMapper().setSerializationConfig(
+          getObjectMapper().getSerializationConfig().withView(Object.class));
     }
 
     return super.toRepresentation(object, variant, resource);
