@@ -20,3 +20,9 @@ PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/gen/*
 ServerTools/bin/*
+Shared/bin
+Shared/testbin
+Shared/dist
+Shared/reports
+Paco/libs/shared.jar
+Paco-Server/war/WEB-INF/lib/shared.jar
