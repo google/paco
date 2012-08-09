@@ -191,7 +191,7 @@ public class DAOTest {
 
   @Test
   public void testGetObserverExperiments() {
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<Experiment> experiments = dao.getObservedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -203,7 +203,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<Experiment> experiments = dao.getObservedExperiments("user");
 
     assertEquals(1, experiments.size());
   }
@@ -216,14 +216,14 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getObserverExperiments("user");
+    List<Experiment> experiments = dao.getObservedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
 
   @Test
   public void testGetSubjectExperiments() {
-    List<Experiment> experiments = dao.getSubjectExperiments("user");
+    List<Experiment> experiments = dao.getSubjectedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -236,7 +236,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getSubjectExperiments("user");
+    List<Experiment> experiments = dao.getSubjectedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -249,7 +249,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getSubjectExperiments("user");
+    List<Experiment> experiments = dao.getSubjectedExperiments("user");
 
     assertEquals(1, experiments.size());
     assertEquals(experiments.get(0), experiment);
@@ -263,7 +263,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getSubjectExperiments("user");
+    List<Experiment> experiments = dao.getSubjectedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -326,7 +326,7 @@ public class DAOTest {
 
   @Test
   public void testGetExperiments() {
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -339,7 +339,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(1, experiments.size());
   }
@@ -352,7 +352,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user2");
+    List<Experiment> experiments = dao.getViewedExperiments("user2");
 
     assertEquals(0, experiments.size());
   }
@@ -365,7 +365,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(1, experiments.size());
   }
@@ -378,7 +378,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -391,7 +391,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user2");
+    List<Experiment> experiments = dao.getViewedExperiments("user2");
 
     assertEquals(0, experiments.size());
   }
@@ -404,7 +404,7 @@ public class DAOTest {
 
     assertTrue(dao.createExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -418,7 +418,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -432,7 +432,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user2");
+    List<Experiment> experiments = dao.getViewedExperiments("user2");
 
     assertEquals(0, experiments.size());
   }
@@ -446,7 +446,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -460,7 +460,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }
@@ -474,7 +474,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user2");
+    List<Experiment> experiments = dao.getViewedExperiments("user2");
 
     assertEquals(0, experiments.size());
   }
@@ -488,7 +488,7 @@ public class DAOTest {
     assertTrue(dao.createExperiment(experiment));
     assertTrue(dao.deleteExperiment(experiment));
 
-    List<Experiment> experiments = dao.getExperiments("user");
+    List<Experiment> experiments = dao.getViewedExperiments("user");
 
     assertEquals(0, experiments.size());
   }

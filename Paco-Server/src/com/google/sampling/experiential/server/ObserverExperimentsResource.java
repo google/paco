@@ -29,6 +29,6 @@ import java.util.List;
 public class ObserverExperimentsResource extends PacoResource {
   @Get("gwt|json")
   public List<Experiment> list() {
-    return dao.getObserverExperiments(user);
+    return dao.getObservedExperiments(user);
   }
 }

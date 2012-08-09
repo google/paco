@@ -32,7 +32,7 @@ import java.util.List;
 public class ExperimentsResource extends PacoResource {
   @Get("json|gwt")
   public List<Experiment> index() {
-    return dao.getExperiments(user);
+    return dao.getViewedExperiments(user);
   }
 
   @Post("gwt|json")

@@ -40,7 +40,7 @@ public class DAO {
 
   /*
    *
-   * General experiments
+   * Experiments
    */
   public boolean createExperiment(Experiment experiment) {
     if (experiment == null) {
@@ -58,17 +58,6 @@ public class DAO {
     return experiment.hasId();
   }
 
-  public List<Experiment> getExperiments(String user) {
-    Query q = new Query("experiment");
-
-    // deleted == false && published == true && (viewer == true || viewer == null)
-    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
-        FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
-            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("viewers", null))));
-
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
-  }
-
   public Experiment getExperiment(long id) {
     try {
       Experiment experiment = DAOHelper.entityTo(ds.get(KeyFactory.createKey("experiment", id)));
@@ -83,23 +72,7 @@ public class DAO {
     }
   }
 
-  public Experiment getObservedExperiment(long id) {
-    try {
-      Experiment experiment = DAOHelper.entityTo(
-          ds.get(KeyFactory.createKey("experiment", id)), Experiment.class);
-
-      if (experiment.isDeleted()) {
-        return null;
-      } else {
-        return experiment;
-      }
-    } catch (EntityNotFoundException e) {
-      return null;
-    }
-  }
-
-  public boolean updateExperiment(
-      Experiment newExperiment, Experiment oldExperiment) {
+  public boolean updateExperiment(Experiment newExperiment, Experiment oldExperiment) {
     if (newExperiment == null || oldExperiment == null) {
       return false;
     }
@@ -130,24 +103,6 @@ public class DAO {
     return (key.getId() == experiment.getId());
   }
 
-  /*
-   *
-   * Observer's experiments
-   */
-  public List<Experiment> getObserverExperiments(String user) {
-    Query q = new Query("experiment");
-
-    // deleted == false && observer == true
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
-
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
-  }
-
-  /*
-   *
-   * Subject's experiments
-   */
   public boolean joinExperiment(
       String user, Experiment observedExperiment, SignalSchedule signalSchedule) {
     if (observedExperiment.hasId() == false) {
@@ -173,17 +128,6 @@ public class DAO {
     return ((observedExperimentKey.getId() == observedExperiment.getId()));
   }
 
-  public List<Experiment> getSubjectExperiments(String user) {
-    Query q = new Query("experiment");
-
-    // deleted == false && published == true && subject == true
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
-        FilterOperator.EQUAL.of("subjects", user)));
-
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
-  }
-
   public boolean leaveExperiment(String user, Experiment experiment) {
     if (user == null || experiment == null) {
       return false;
@@ -203,9 +147,43 @@ public class DAO {
     return ((key.getId() == experiment.getId()));
   }
 
+  public List<Experiment> getViewedExperiments(String user) {
+    Query q = new Query("experiment");
+
+    // deleted == false && published == true && (viewer == true || viewer == null)
+    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+        FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
+            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("viewers", null))));
+
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+  }
+
+  public List<Experiment> getSubjectedExperiments(String user) {
+    Query q = new Query("experiment");
+
+    // deleted == false && published == true && subject == true
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
+        FilterOperator.EQUAL.of("subjects", user)));
+
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+  }
+
+  public List<Experiment> getObservedExperiments(String user) {
+    Query q = new Query("experiment");
+
+    // deleted == false && observer == true
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
+
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+  }
+
+
+
   /*
    *
-   * Subject's events
+   * Events
    */
   public boolean createEvent(String user, Event event, Experiment experiment) {
     if (user == null || event == null || experiment == null) {

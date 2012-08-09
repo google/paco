@@ -19,7 +19,7 @@ public abstract class PacoExperimentResource extends PacoResource {
     super.doInit();
 
     long experimentId = Long.valueOf((String) getRequest().getAttributes().get("experimentId"));
-    experiment = dao.getObservedExperiment(experimentId);
+    experiment = dao.getExperiment(experimentId);
 
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
