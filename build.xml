@@ -14,23 +14,25 @@
     </path>
     <target name="clean">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="test"/>
+        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${PacoAndroidLib.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Paco-Server.location}" inheritAll="false" target="clean"/>
+        <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="clean"/>
     </target>
     
     <target description="Build all projects." name="build">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="build"/>
-        <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="build"/>
-        <ant antfile="build.xml" dir="${Paco-Server.location}" inheritAll="false" target="build"/>
+	<copy file="${Shared.location}/dist/shared.jar" todir="${Paco.location}/libs" />
+	<copy file="${Shared.location}/dist/shared.jar" todir="${Paco-Server.location}/war/WEB-INF/lib" />
+        <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="debug"/>	
+        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="debug"/>	
+        <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="build"/>
     </target>
 
     <target description="Run tests in all projects." name="test">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="test"/>
         <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="test"/>
-        <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="test"/>
-        <ant antfile="build.xml" dir="${Paco-Server.location}" inheritAll="false" target="test"/>
+        <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="test"/>
     </target>
 
 </project>
