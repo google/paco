@@ -227,4 +227,65 @@ public class Event {
 
     return outputs.toString();
   }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null) {
+      return false;
+    }
+
+    if (!(obj instanceof Event)) {
+      return false;
+    }
+
+    Event other = (Event) obj;
+
+    if (getId().equals(other.getId()) == false) {
+      System.out.println("bad id");
+      return false;
+    }
+
+    if (getSubject().equals(other.getSubject()) == false) {
+      System.out.println("bad subject");
+      return false;
+    }
+
+    if (getExperimentId().equals(other.getExperimentId()) == false) {
+      System.out.println("bad experimentid");
+      return false;
+    }
+
+    if (getCreateTime().equals(other.getCreateTime()) == false) {
+      System.out.println("bad createtime");
+      return false;
+    }
+
+    if (getSignalTime().equals(other.getSignalTime()) == false) {
+      System.out.println("bad signaltime");
+      return false;
+    }
+
+    if (getResponseTime().equals(other.getResponseTime()) == false) {
+      System.out.println("bad responsetime");
+      return false;
+    }
+
+    if (getOutputs().equals(other.getOutputs()) == false) {
+      System.out.println("bad outputs");
+      System.out.println(getOutputsString());
+      System.out.println(other.getOutputsString());
+      return false;
+    }
+
+    return true;
+  }
 }

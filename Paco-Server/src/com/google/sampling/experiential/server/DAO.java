@@ -4,19 +4,14 @@ package com.google.sampling.experiential.server;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.EmbeddedEntity;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
-import com.google.appengine.api.datastore.Text;
-import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.Event;
@@ -56,7 +51,7 @@ public class DAO {
     experiment.setId(null);
     experiment.setVersion(1);
 
-    Entity entity = experimentToEntity(experiment);
+    Entity entity = DAOHelper.toEntity(experiment);
     ds.put(entity);
 
     experiment.setId(entity.getKey().getId());
@@ -72,12 +67,12 @@ public class DAO {
         FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
             FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("viewers", null))));
 
-    return queryToExperiments(q);
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   public Experiment getExperiment(long id) {
     try {
-      Experiment experiment = entityToExperiment(ds.get(KeyFactory.createKey("experiment", id)));
+      Experiment experiment = DAOHelper.entityTo(ds.get(KeyFactory.createKey("experiment", id)));
 
       if (experiment.isDeleted()) {
         return null;
@@ -91,8 +86,8 @@ public class DAO {
 
   public ObservedExperiment getObservedExperiment(long id) {
     try {
-      ObservedExperiment experiment =
-          entityToObservedExperiment(ds.get(KeyFactory.createKey("experiment", id)));
+      ObservedExperiment experiment = DAOHelper.entityTo(
+          ds.get(KeyFactory.createKey("experiment", id)), ObservedExperiment.class);
 
       if (experiment.isDeleted()) {
         return null;
@@ -117,7 +112,7 @@ public class DAO {
     newExperiment.setId(oldExperiment.getId());
     newExperiment.setVersion(oldExperiment.getVersion() + 1);
 
-    Entity newEntity = experimentToEntity(newExperiment);
+    Entity newEntity = DAOHelper.toEntity(newExperiment);
     Key newKey = ds.put(newEntity);
 
     return (newKey.getId() == newExperiment.getId());
@@ -130,7 +125,7 @@ public class DAO {
 
     experiment.setDeleted(true);
 
-    Entity entity = experimentToEntity(experiment);
+    Entity entity = DAOHelper.toEntity(experiment);
     Key key = ds.put(entity);
 
     return (key.getId() == experiment.getId());
@@ -147,7 +142,7 @@ public class DAO {
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
 
-    return queryToObservedExperiments(q);
+    return DAOHelper.preparedQueryTo(ds.prepare(q), ObservedExperiment.class);
   }
 
   /*
@@ -166,14 +161,12 @@ public class DAO {
 
     Transaction txn = ds.beginTransaction();
 
-    Entity observedExperimentEntity = experimentToEntity(observedExperiment);
-    Key observedExperimentKey = ds.put(observedExperimentEntity);
-
-    Entity signalScheduleEntity = null;
+    Key observedExperimentKey = ds.put(DAOHelper.toEntity(observedExperiment));
 
     if (signalSchedule != null) {
-      signalScheduleEntity = signalScheduleToEntity(user, signalSchedule, observedExperimentKey);
-      ds.put(signalScheduleEntity);
+      signalSchedule.setSubject(user);
+      signalSchedule.setExperimentId(observedExperiment.getId());
+      ds.put(DAOHelper.toEntity(signalSchedule));
     }
 
     txn.commit();
@@ -189,7 +182,7 @@ public class DAO {
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
         FilterOperator.EQUAL.of("subjects", user)));
 
-    return queryToExperiments(q);
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   public boolean leaveExperiment(String user, ObservedExperiment experiment) {
@@ -205,7 +198,7 @@ public class DAO {
       return false;
     }
 
-    Entity entity = experimentToEntity(experiment);
+    Entity entity = DAOHelper.toEntity(experiment);
     Key key = ds.put(entity);
 
     return ((key.getId() == experiment.getId()));
@@ -213,7 +206,7 @@ public class DAO {
 
   /*
    *
-   * Subject's responses
+   * Subject's events
    */
   public boolean createEvent(String user, Event event, Experiment experiment) {
     if (user == null || event == null || experiment == null) {
@@ -229,7 +222,7 @@ public class DAO {
       return false;
     }
 
-    Entity entity = eventToEntity(event);
+    Entity entity = DAOHelper.toEntity(event);
     ds.put(entity);
 
     event.setId(entity.getKey().getId());
@@ -237,162 +230,31 @@ public class DAO {
     return event.hasId();
   }
 
-  /*
-   *
-   * Helper functions
-   */
-  private List<Experiment> queryToExperiments(Query q) {
-    PreparedQuery pq = ds.prepare(q);
-    List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
-    return entitiesToExperiments(entities);
-  }
-
-  private List<Experiment> entitiesToExperiments(List<Entity> entities) {
-    List<Experiment> experiments = Lists.newArrayList();
-
-    for (Entity entity : entities) {
-      experiments.add(entityToExperiment(entity));
-    }
-
-    return experiments;
-  }
-
-  private Experiment entityToExperiment(Entity entity) {
-    if (entity == null) {
+  public Event getEvent(long id) {
+    try {
+      return DAOHelper.entityTo(ds.get(KeyFactory.createKey("event", id)));
+    } catch (EntityNotFoundException e) {
       return null;
     }
-
-    Text json = (Text) entity.getProperty("json");
-
-
-    if (json == null) {
-      return null;
-    }
-
-
-    Experiment experiment = DAOHelper.jsonTo(json, Experiment.class);
-
-    if (experiment == null) {
-      return null;
-    }
-
-    experiment.setId(entity.getKey().getId());
-    experiment.setVersion((Long) entity.getProperty("version"));
-    experiment.setDeleted((Boolean) entity.getProperty("deleted"));
-
-    return experiment;
   }
 
-  private List<ObservedExperiment> queryToObservedExperiments(Query q) {
-    PreparedQuery pq = ds.prepare(q);
-    List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
-    return entitiesToObservedExperiments(entities);
+  public List<Event> getEvents(Experiment experiment) {
+    Query q = new Query("event");
+
+    // experimentId == experiment.id
+    q.setFilter(FilterOperator.EQUAL.of("experimentId", experiment.getId()));
+
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Event.class);
   }
 
-  private List<ObservedExperiment> entitiesToObservedExperiments(List<Entity> entities) {
-    List<ObservedExperiment> experiments = Lists.newArrayList();
+  public List<Event> getEvents(Experiment experiment, String user) {
+    Query q = new Query("event");
 
-    for (Entity entity : entities) {
-      experiments.add(entityToObservedExperiment(entity));
-    }
+    // experimentId == experiment.id && subject == user
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("experimentId", experiment.getId()),
+        FilterOperator.EQUAL.of("subject", user)));
 
-    return experiments;
-  }
-
-  @SuppressWarnings("unchecked")
-  private ObservedExperiment entityToObservedExperiment(Entity entity) {
-    if (entity == null) {
-      return null;
-    }
-
-    Text json = (Text) entity.getProperty("json");
-
-    if (json == null) {
-      return null;
-    }
-
-    ObservedExperiment experiment = DAOHelper.jsonTo(json, ObservedExperiment.class);
-
-    if (experiment == null) {
-      return null;
-    }
-
-    experiment.setId(entity.getKey().getId());
-    experiment.setVersion((Long) entity.getProperty("version"));
-    experiment.setDeleted((Boolean) entity.getProperty("deleted"));
-    experiment.setPublished((Boolean) entity.getProperty("published"));
-    experiment.setObservers((List<String>) entity.getProperty("observers"));
-    experiment.setSubjects((List<String>) entity.getProperty("subjects"));
-    experiment.setViewers((List<String>) entity.getProperty("viewers"));
-
-    return experiment;
-  }
-
-  private Entity experimentToEntity(ObservedExperiment experiment) {
-    String json = DAOHelper.toJson(experiment);
-
-    if (json == null) {
-      return null;
-    }
-
-    Entity entity;
-
-    if (experiment.hasId()) {
-      entity = new Entity("experiment", experiment.getId());
-    } else {
-      entity = new Entity("experiment");
-    }
-
-    entity.setProperty("version", experiment.getVersion());
-    entity.setProperty("deleted", experiment.isDeleted());
-    entity.setProperty("published", experiment.isPublished());
-    entity.setProperty("observers", experiment.getObservers());
-    entity.setProperty("subjects", experiment.getSubjects());
-    entity.setProperty("viewers", experiment.getViewers());
-    entity.setProperty("json", new Text(json));
-
-    return entity;
-  }
-
-  private Entity signalScheduleToEntity(
-      String subject, SignalSchedule signalSchedule, Key observedExperiment) {
-    String json = DAOHelper.toJson(signalSchedule);
-
-    if (json == null) {
-      return null;
-    }
-
-    Entity entity = new Entity("schedule", observedExperiment);
-
-    entity.setProperty("subject", subject);
-    entity.setProperty("signalSchedule", new Text(json));
-
-    return entity;
-  }
-
-  private Entity eventToEntity(Event event) {
-    Entity entity;
-
-    if (event.hasId()) {
-      entity = new Entity("event", event.getId());
-    } else {
-      entity = new Entity("event");
-    }
-
-    entity.setProperty("subject", event.getSubject());
-    entity.setProperty("experimentId", event.getExperimentId());
-    entity.setProperty("experimentVersion", event.getExperimentVersion());
-    entity.setProperty("createTime", event.getCreateTime());
-    entity.setProperty("signalTime", event.getSignalTime());
-    entity.setProperty("responseTime", event.getResponseTime());
-
-    EmbeddedEntity outputsEntity = new EmbeddedEntity();
-    for (String key : event.getOutputs().keySet()) {
-      outputsEntity.setProperty(key, event.getOutputByKey(key));
-    }
-
-    entity.setProperty("outputs", outputsEntity);
-
-    return entity;
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Event.class);
   }
 }

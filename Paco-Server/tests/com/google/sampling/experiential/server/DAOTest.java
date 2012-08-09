@@ -62,6 +62,7 @@ public class DAOTest {
     Experiment experiment = new Experiment();
 
     experiment.setId(id);
+    experiment.setVersion(1);
     experiment.setTitle("title");
     experiment.setDescription("description");
     experiment.setCreator("creator");
@@ -77,6 +78,7 @@ public class DAOTest {
   private Event constructEvent() {
     Event event = new Event();
 
+    event.setExperimentVersion(1);
     event.setSignalTime(new Date(3));
     event.setResponseTime(new Date(13));
     event.setOutputByKey("test", "value");
@@ -558,5 +560,189 @@ public class DAOTest {
     event.setExperimentVersion(2);
 
     assertFalse(dao.createEvent("test@google.com", event, experiment));
+  }
+
+  @Test
+  public void testGetEvent() {
+    Event event = dao.getEvent(1l);
+
+    assertNull(event);
+  }
+
+  @Test
+  public void testGetEventAfterCreate() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    Event retrievedEvent = dao.getEvent(1l);
+
+    assertEquals(event, retrievedEvent);
+  }
+
+  @Test
+  public void testGetEvents() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    List<Event> events = dao.getEvents(experiment);
+
+    assertEquals(0, events.size());
+  }
+
+  @Test
+  public void testGetEventsAfterCreate() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    List<Event> events = dao.getEvents(experiment);
+
+    assertEquals(1, events.size());
+    assertEquals(event, events.get(0));
+  }
+
+  @Test
+  public void testGetEventsWithSubjectAfterCreate() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    List<Event> events = dao.getEvents(experiment, "test@google.com");
+
+    assertEquals(1, events.size());
+    assertEquals(event, events.get(0));
+  }
+
+  @Test
+  public void testGetEventsWithImpostorAfterCreate() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    List<Event> events = dao.getEvents(experiment, "impostor@google.com");
+
+    assertEquals(0, events.size());
+  }
+
+  @Test
+  public void testGetEventsAfterCreateWithVersion() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setVersion(2l);
+
+    List<Event> events = dao.getEvents(experiment);
+
+    assertEquals(1, events.size());
+    assertEquals(event, events.get(0));
+  }
+
+  @Test
+  public void testGetEventsWithSubjectAfterCreateWithVersion() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setVersion(2l);
+
+    List<Event> events = dao.getEvents(experiment, "test@google.com");
+
+    assertEquals(1, events.size());
+    assertEquals(event, events.get(0));
+  }
+
+  @Test
+  public void testGetEventsWithImpostorAfterCreateWithVersion() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setVersion(2l);
+
+    List<Event> events = dao.getEvents(experiment, "impostor@google.com");
+
+    assertEquals(0, events.size());
+  }
+
+  @Test
+  public void testGetEventsAfterCreateWithId() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setId(2l);
+
+    List<Event> events = dao.getEvents(experiment);
+
+    assertEquals(0, events.size());
+  }
+
+  @Test
+  public void testGetEventsWithSubjectAfterCreateWithId() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setId(2l);
+
+    List<Event> events = dao.getEvents(experiment, "test@google.com");
+
+    assertEquals(0, events.size());
+  }
+
+  @Test
+  public void testGetEventsWithImpostorAfterCreateWithId() {
+    ObservedExperiment experiment = constructObservedExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    Event event = constructEvent();
+
+    assertTrue(dao.createEvent("test@google.com", event, experiment));
+
+    experiment.setId(2l);
+
+    List<Event> events = dao.getEvents(experiment, "impostor@google.com");
+
+    assertEquals(0, events.size());
   }
 }
