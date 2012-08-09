@@ -144,7 +144,7 @@ public class SyncService extends Service {
     ResponsePair responsePair = new ResponsePair();
     
     String json = toJson(events, responsePair);
-    if (responsePair.overallCode != 200) {
+    if (responsePair.overallCode == 500) {
       return responsePair;
     }
     
