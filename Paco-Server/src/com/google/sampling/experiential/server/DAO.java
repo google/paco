@@ -13,7 +13,6 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
@@ -43,7 +42,7 @@ public class DAO {
    *
    * General experiments
    */
-  public boolean createExperiment(ObservedExperiment experiment) {
+  public boolean createExperiment(Experiment experiment) {
     if (experiment == null) {
       return false;
     }
@@ -84,10 +83,10 @@ public class DAO {
     }
   }
 
-  public ObservedExperiment getObservedExperiment(long id) {
+  public Experiment getObservedExperiment(long id) {
     try {
-      ObservedExperiment experiment = DAOHelper.entityTo(
-          ds.get(KeyFactory.createKey("experiment", id)), ObservedExperiment.class);
+      Experiment experiment = DAOHelper.entityTo(
+          ds.get(KeyFactory.createKey("experiment", id)), Experiment.class);
 
       if (experiment.isDeleted()) {
         return null;
@@ -100,7 +99,7 @@ public class DAO {
   }
 
   public boolean updateExperiment(
-      ObservedExperiment newExperiment, ObservedExperiment oldExperiment) {
+      Experiment newExperiment, Experiment oldExperiment) {
     if (newExperiment == null || oldExperiment == null) {
       return false;
     }
@@ -118,7 +117,7 @@ public class DAO {
     return (newKey.getId() == newExperiment.getId());
   }
 
-  public boolean deleteExperiment(ObservedExperiment experiment) {
+  public boolean deleteExperiment(Experiment experiment) {
     if (experiment.hasId() == false) {
       return false;
     }
@@ -135,14 +134,14 @@ public class DAO {
    *
    * Observer's experiments
    */
-  public List<ObservedExperiment> getObserverExperiments(String user) {
+  public List<Experiment> getObserverExperiments(String user) {
     Query q = new Query("experiment");
 
     // deleted == false && observer == true
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), ObservedExperiment.class);
+    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   /*
@@ -150,7 +149,7 @@ public class DAO {
    * Subject's experiments
    */
   public boolean joinExperiment(
-      String user, ObservedExperiment observedExperiment, SignalSchedule signalSchedule) {
+      String user, Experiment observedExperiment, SignalSchedule signalSchedule) {
     if (observedExperiment.hasId() == false) {
       return false;
     }
@@ -185,7 +184,7 @@ public class DAO {
     return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
-  public boolean leaveExperiment(String user, ObservedExperiment experiment) {
+  public boolean leaveExperiment(String user, Experiment experiment) {
     if (user == null || experiment == null) {
       return false;
     }

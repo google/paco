@@ -20,7 +20,6 @@ import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.TextInput;
 
 public class SubjectsResourceTest {
@@ -41,8 +40,8 @@ public class SubjectsResourceTest {
     helper.tearDown();
   }
 
-  private ObservedExperiment createExperiment() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+  private Experiment createExperiment() {
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setDeleted(false);
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(Lists.newArrayList("test@google.com"));
@@ -125,9 +124,10 @@ public class SubjectsResourceTest {
 
     Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
     Response response = new PacoApplication().handle(request);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
+    assertEquals("[" + json +"]", response.getEntityAsText());
   }
 
   @Test

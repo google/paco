@@ -11,7 +11,6 @@ import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -58,6 +57,24 @@ public class DAOHelper {
   /*
    * Convert to json
    */
+  public static String toJson(Object value, Class<?> view) {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+    try {
+      return mapper.writerWithView(view).writeValueAsString(value);
+    } catch (JsonGenerationException e) {
+      e.printStackTrace();
+      return null;
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+      return null;
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
   public static String toJson(Object value) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -106,7 +123,7 @@ public class DAOHelper {
 
   @SuppressWarnings("unchecked")
   public static <T> T entityTo(Entity entity, Class<T> type) {
-    if (ObservedExperiment.class == type) {
+    if (Experiment.class == type) {
       return (T) entityToObservedExperiment(entity);
     }
 
@@ -148,7 +165,7 @@ public class DAOHelper {
   }
 
   @SuppressWarnings("unchecked")
-  private static ObservedExperiment entityToObservedExperiment(Entity entity) {
+  private static Experiment entityToObservedExperiment(Entity entity) {
     if (entity == null) {
       return null;
     }
@@ -159,7 +176,7 @@ public class DAOHelper {
       return null;
     }
 
-    ObservedExperiment experiment = DAOHelper.jsonTo(json, ObservedExperiment.class);
+    Experiment experiment = DAOHelper.jsonTo(json, Experiment.class);
 
     if (experiment == null) {
       return null;
@@ -208,8 +225,8 @@ public class DAOHelper {
   }
 
   public static <T> Entity toEntity(T object, Class<? extends Object> type) {
-    if (ObservedExperiment.class == type) {
-      return observedExperimentToEntity((ObservedExperiment) object);
+    if (Experiment.class == type) {
+      return observedExperimentToEntity((Experiment) object);
     }
 
     if (Event.class == type) {
@@ -223,7 +240,7 @@ public class DAOHelper {
     throw new UnsupportedOperationException("toEntity2(" + type.toString() + ")");
   }
 
-  private static Entity observedExperimentToEntity(ObservedExperiment experiment) {
+  private static Entity observedExperimentToEntity(Experiment experiment) {
     String json = DAOHelper.toJson(experiment);
 
     if (json == null) {

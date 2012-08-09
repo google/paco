@@ -14,7 +14,7 @@ import org.restlet.data.Status;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
-import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.sampling.experiential.shared.Experiment;
 
 public class ObserversResourceTest {
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
@@ -34,8 +34,8 @@ public class ObserversResourceTest {
     helper.tearDown();
   }
 
-  private ObservedExperiment createExperiment() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+  private Experiment createExperiment() {
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(false);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -61,16 +61,17 @@ public class ObserversResourceTest {
 
   @Test
   public void testListAfterCreate() {
-    ObservedExperiment experiment = createExperiment();
+    Experiment experiment = createExperiment();
 
     experiment.setId(1l);
     experiment.addObserver("test@google.com");
 
     Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
     Response response = new PacoApplication().handle(request);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
+    assertEquals("[" + json + "]", response.getEntityAsText());
   }
 
   @Test
@@ -119,7 +120,7 @@ public class ObserversResourceTest {
 
   @Test
   public void testUpdate() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(false);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -135,7 +136,7 @@ public class ObserversResourceTest {
   public void testUpdateAfterCreate() {
     createExperiment();
 
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -153,7 +154,7 @@ public class ObserversResourceTest {
 
     helper.setEnvEmail("imposter@google.com");
 
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);

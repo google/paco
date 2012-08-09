@@ -40,8 +40,7 @@ public class ExperimentResource extends PacoExperimentResource {
 
   @Get("json|gwt")
   public Experiment show() {
-    // FIXME: This shouldn't really be hitting the datastore twice since we already have experiment
-    return dao.getExperiment(experiment.getId());
+    return experiment;
   }
 
   @Post("gwt|json")

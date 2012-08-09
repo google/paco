@@ -15,7 +15,6 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
@@ -37,7 +36,7 @@ public class ExperimentsResource extends PacoResource {
   }
 
   @Post("gwt|json")
-  public void create(ObservedExperiment experiment) {
+  public void create(Experiment experiment) {
     if (experiment == null) {
       setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
       return;

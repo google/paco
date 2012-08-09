@@ -1,38 +1,28 @@
-/*
- * Copyright 2011 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-// Copyright 2010 Google Inc. All Rights Reserved.
+// Copyright 2012 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.shared;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonView;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- *
- * Definition of an Experiment (a tracker). This holds together a bunch of objects: * A list of
- * Input objects which are the data that will be gathered. Usually it is questions, but it could be
- * sensors as well (photos, audio, gps, accelerometer, compass, etc..) * A list of Feedback objects
- * that presents visualizations or interventions to the user. * A SignalSchedule object which
- * contains the frequency to gather data.
- *
- * @author Bob Evans
+ * @author corycornelius@google.com (Cory Cornelius)
  *
  */
 public class Experiment {
+  public static class Views {
+    public static class Summary { }
+    public static class Subject extends Summary { }
+    public static class Observer extends Subject { }
+  }
+
   public static String DEFAULT_TITLE = "";
   public static String DEFAULT_DESCRIPTION = "";
   public static String DEFAULT_CREATOR = "";
@@ -44,13 +34,28 @@ public class Experiment {
   @JsonIgnore
   private boolean deleted;
 
+  @JsonView(Views.Summary.class)
   private String title;
+  @JsonView(Views.Summary.class)
   private String description;
+  @JsonView(Views.Summary.class)
   private String creator;
+  @JsonView(Views.Subject.class)
   private String consentForm;
+  @JsonView(Views.Subject.class)
   private List<Input> inputs;
+  @JsonView(Views.Subject.class)
   private SignalSchedule signalSchedule;
+  @JsonView(Views.Subject.class)
   private List<Feedback> feedbacks;
+  @JsonView(Views.Observer.class)
+  private boolean published;
+  @JsonView(Views.Observer.class)
+  private Set<String> observers; // List of users who can edit this experiment
+  @JsonView(Views.Observer.class)
+  private Set<String> subjects; // List of users who have joined this experiment
+  @JsonView(Views.Observer.class)
+  private Set<String> viewers; // List of users who can view this experiment, null if anyone
 
   /**
    *
@@ -69,6 +74,11 @@ public class Experiment {
     this.inputs = Lists.newArrayList();
     this.signalSchedule = null;
     this.feedbacks = Lists.newArrayList();
+
+    this.published = false;
+    this.observers = Sets.newHashSet();
+    this.subjects = Sets.newHashSet();
+    this.viewers = null;
   }
 
   /**
@@ -249,10 +259,159 @@ public class Experiment {
     }
   }
 
+  /**
+   * @return whether the experiment is published
+   */
+  public boolean isPublished() {
+    return published;
+  }
+
+  /**
+   * @param published whether the experiment is published
+   */
+  public void setPublished(boolean published) {
+    this.published = published;
+  }
+
+  /**
+   * @return the observers
+   */
+  public Set<String> getObservers() {
+    return observers;
+  }
+
+  /**
+   * @param observers the observers to List
+   */
+  public void setObservers(List<String> observers) {
+    if (observers == null) {
+      this.observers = Sets.newLinkedHashSet();
+    } else {
+      this.observers = new LinkedHashSet<String>(observers);
+    }
+  }
+
+  /**
+   * @return the subjects
+   */
+  public Set<String> getSubjects() {
+    return subjects;
+  }
+
+  /**
+   * @param subjects the subjects to List
+   */
+  public void setSubjects(List<String> subjects) {
+    if (subjects == null) {
+      this.subjects = Sets.newLinkedHashSet();
+    } else {
+      this.subjects = new LinkedHashSet<String>(subjects);
+    }
+  }
+
+  /**
+   * @return the viewers
+   */
+  public Set<String> getViewers() {
+    return viewers;
+  }
+
+  /**
+   * @param viewers the viewers to List
+   */
+  public void setViewers(List<String> viewers) {
+    if (viewers == null) {
+      this.viewers = null;
+    } else {
+      this.viewers = new LinkedHashSet<String>(viewers);
+    }
+  }
+
+  /**
+   * @param user
+   */
+  public boolean hasObserver(String user) {
+    return observers.contains(user);
+  }
+
+  /**
+   * @param user
+   */
+  public boolean hasSubject(String user) {
+    return subjects.contains(user);
+  }
+
+  /**
+   * @param user
+   */
+  @JsonIgnore
+  public boolean hasViewer(String user) {
+    if (isPrivate()) {
+      return viewers.contains(user);
+    } else {
+      return true;
+    }
+  }
+
+  /**
+   * @return whether the experiment is public
+   */
+  @JsonIgnore
+  public boolean isPrivate() {
+    return (viewers != null);
+  }
+
+  /**
+   * @param subject
+   * @return whether the subject was added
+   */
+  public boolean addSubject(String subject) {
+    return subjects.add(subject);
+  }
+
+  /**
+   * @param subject
+   * @return whether the subject was removed
+   */
+  public boolean removeSubject(String subject) {
+    return subjects.remove(subject);
+  }
+
+  /**
+   * @param observer
+   * @return whether the observer was added
+   */
+  public boolean addObserver(String observer) {
+    return observers.add(observer);
+  }
+
+  /**
+   * @param observer
+   * @return whether the observer was removed
+   */
+  public boolean removeObserver(String observer) {
+    return subjects.remove(observer);
+  }
+
+  /**
+   * @param viewer
+   * @return whether the viewer was added
+   */
+  public boolean addViewer(String viewer) {
+    return observers.add(viewer);
+  }
+
+  /**
+   * @param viewer
+   * @return whether the viewer was removed
+   */
+  public boolean removeViewer(String viewer) {
+    return subjects.remove(viewer);
+  }
   /*
    * (non-Javadoc)
    *
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @see com.google.sampling.experiential.shared.Experiment#equals(java.lang.Object)
    */
   @Override
   public boolean equals(Object obj) {
@@ -320,6 +479,28 @@ public class Experiment {
 
     if (getFeedbacks().equals(other.getFeedbacks()) == false) {
       return false;
+    }
+
+    if (isPublished() != other.isPublished()) {
+      return false;
+    }
+
+    if (getObservers().equals(other.getObservers()) == false) {
+      return false;
+    }
+
+    if (getSubjects().equals(other.getSubjects()) == false) {
+      return false;
+    }
+
+    if (isPrivate()) {
+      if (getViewers().equals(other.getViewers()) == false) {
+        return false;
+      }
+    } else {
+      if (other.isPrivate()) {
+        return false;
+      }
     }
 
     return true;

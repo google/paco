@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.FixedSignal;
-import com.google.sampling.experiential.shared.ObservedExperiment;
 import com.google.sampling.experiential.shared.SharedTestHelper;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
@@ -55,7 +54,7 @@ public class ExperimentsResourceTest {
 
   @Test
   public void testCreate() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
     observedExperiment.setSignalSchedule(null);
@@ -70,7 +69,7 @@ public class ExperimentsResourceTest {
 
   @Test
   public void testCreateNull() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(null);
 
@@ -90,12 +89,13 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
 
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
+    assertEquals("[" + json + "]", response.getEntityAsText());
   }
 
   private void createWithViewers() {
-    ObservedExperiment observedExperiment = DAOTest.constructObservedExperiment();
+    Experiment observedExperiment = DAOTest.constructObservedExperiment();
     observedExperiment.setPublished(true);
     observedExperiment.setViewers(Lists.newArrayList("test@google.com"));
     observedExperiment.setSignalSchedule(null);
@@ -118,8 +118,9 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Summary.class);
 
-    assertEquals("[" + DAOHelper.toJson(experiment) + "]", response.getEntityAsText());
+    assertEquals("[" + json + "]", response.getEntityAsText());
   }
 
   @Test
@@ -149,12 +150,12 @@ public class ExperimentsResourceTest {
 
     Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
     Response response = new PacoApplication().handle(request);
-
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Subject.class);
 
-    assertEquals(DAOHelper.toJson(experiment), response.getEntityAsText());
+    assertEquals(json, response.getEntityAsText());
   }
 
   @Test
@@ -169,8 +170,9 @@ public class ExperimentsResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
 
     Experiment experiment = DAOTest.constructExperiment(1l);
+    String json = DAOHelper.toJson(experiment, Experiment.Views.Subject.class);
 
-    assertEquals(DAOHelper.toJson(experiment), response.getEntityAsText());
+    assertEquals(json, response.getEntityAsText());
   }
 
   @Test

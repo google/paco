@@ -15,7 +15,7 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.shared.ExperimentStats;
-import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.sampling.experiential.shared.Experiment;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
@@ -46,7 +46,7 @@ public class ObserverExperimentResource extends PacoExperimentResource {
   }
 
   @Post("gwt|json")
-  public void update(ObservedExperiment experiment) {
+  public void update(Experiment experiment) {
     if (dao.updateExperiment(experiment, this.experiment)) {
       setStatus(Status.SUCCESS_NO_CONTENT);
     } else {

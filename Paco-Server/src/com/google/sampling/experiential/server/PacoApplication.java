@@ -26,6 +26,8 @@ import org.restlet.routing.Router;
 public class PacoApplication extends Application {
   @Override
   public Restlet createInboundRoot() {
+    PacoJacksonConverter.replaceConverter();
+
     Router router = new Router(getContext());
 
     router.attach("/experiments", ExperimentsResource.class);

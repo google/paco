@@ -2,7 +2,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.ObservedExperiment;
+import com.google.sampling.experiential.shared.Experiment;
 
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -12,7 +12,7 @@ import org.restlet.resource.ResourceException;
  *
  */
 public abstract class PacoExperimentResource extends PacoResource {
-  protected ObservedExperiment experiment;
+  protected Experiment experiment;
 
   @Override
   protected void doInit() throws ResourceException {
