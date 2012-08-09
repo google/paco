@@ -132,19 +132,23 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     
     
-    Experiment experiment = ExperimentRetriever.getExperiment(experimentId);
+    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
     
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
     }
     
-    if (!ExperimentRetriever.isWhoAllowedToPostToExperiment(experiment, loggedInWho.getEmail())) {
+    if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail())) {
       throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
     }
     
     
-    EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-        "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
+    try {
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
+          "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
+    } catch (Throwable e) {
+      throw new IllegalArgumentException("Could not post Event: ", e);
+    }
   }
 
   private boolean isCorpInstance() {

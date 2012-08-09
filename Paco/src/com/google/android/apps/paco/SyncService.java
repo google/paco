@@ -22,8 +22,10 @@ import java.io.StringWriter;
 import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Service;
 import android.content.Context;
@@ -36,10 +38,12 @@ import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
+import com.google.paco.shared.Outcome;
 
 public class SyncService extends Service {
 
 
+  private static final int UPLOAD_EVENT_GROUP_SIZE = 50;
   private static final String AUTH_TOKEN_PREFERENCE = null;
   private static final String AUTH_TOKEN_PREFERENCE_NAME_KEY = null;
   private static final String AUTH_TOKEN_PREFERENCE_EXPIRE_KEY = null;
@@ -84,28 +88,43 @@ public class SyncService extends Service {
     }
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
-      List<Event> events = experimentProviderUtil.getEventsNeedingUpload();
-      if (events.size() == 0) {
+      List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
+      if (allEvents.size() == 0) {
         Log.d(PacoConstants.TAG, "Nothing to sync");
         return;
       }
       boolean hasErrorOcurred = false;
       Log.d(PacoConstants.TAG, "Tasks found in db");
 
-      switch (sendToPaco(events)) {
-      case 200:
-        for (Event event : events) {
-          event.setUploaded(true);
-          experimentProviderUtil.updateEvent(event);
+      int uploadGroupSize = UPLOAD_EVENT_GROUP_SIZE;
+      int uploaded = 0;
+      while (uploaded < allEvents.size() && !hasErrorOcurred) {
+        int groupSize = Math.min(allEvents.size() - uploaded, uploadGroupSize);
+        int end = uploaded + groupSize;
+        List<Event> events = allEvents.subList(uploaded, end);
+        ResponsePair response = sendToPaco(events);
+        switch (response.overallCode) {
+        case 200:
+          for (int i = 0; i < response.outcomes.size(); i++) {
+            Outcome current = response.outcomes.get(i);
+            if (current.succeeded()) {
+              Event correspondingEvent = events.get((int) current.getEventId());
+              correspondingEvent.setUploaded(true);
+              experimentProviderUtil.updateEvent(correspondingEvent);
+            }
+          }
+          uploaded = end;
+          break;
+        default:
+          hasErrorOcurred = true;
+          break;
         }
-        break;
-      default:
-        hasErrorOcurred = true;
-        break;
       }
  
       if (!hasErrorOcurred) {
         Log.d(PacoConstants.TAG, "syncing complete");
+      } else {
+        Log.d(PacoConstants.TAG, "could not complete upload of events");
       }
     }
   }
@@ -116,7 +135,59 @@ public class SyncService extends Service {
     return networkInfo != null && networkInfo.isConnected();
   }
 
-  private int sendToPaco(List<Event> events) {
+  private static class ResponsePair {
+    int overallCode;
+    List<Outcome> outcomes;
+  }
+  
+  private ResponsePair sendToPaco(List<Event> events) {
+    ResponsePair responsePair = new ResponsePair();
+    
+    String json = toJson(events, responsePair);
+    if (responsePair.overallCode != 200) {
+      return responsePair;
+    }
+    
+    UrlContentManager um = null;
+    try {
+      um = new UrlContentManager(this, true, userPrefs.getGoogleEmailType());
+      Log.i("" + this, "Preparing to post.");
+      
+      Response response = um.createRequest().setUrl("https://"+userPrefs.getServerAddress()+"/events").
+          setPostData(json).addHeader("http.useragent", "PacoDroid2").
+          execute();
+      
+      responsePair.overallCode = response.getHttpCode();
+      readOutcomesFromJson(responsePair, response.getContentAsString());
+      return responsePair;
+    } finally {
+      if (um != null) {
+        um.cleanUp(); 
+      }
+    }
+    
+  }
+
+  private void readOutcomesFromJson(ResponsePair responsePair, String contentAsString) {
+    if (contentAsString != null) {
+      ObjectMapper mapper2 = new ObjectMapper();
+      mapper2.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);        
+      try {
+        responsePair.outcomes = mapper2.readValue(contentAsString, new TypeReference<List<Outcome>>() {});
+      } catch (JsonParseException e) {
+        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        responsePair.overallCode = 500;
+      } catch (JsonMappingException e) {
+        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        responsePair.overallCode = 500;
+      } catch (IOException e) {
+        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        responsePair.overallCode = 500;
+      }
+    } 
+  }
+
+  private String toJson(List<Event> events, ResponsePair responsePair) {
     ObjectMapper mapper = new ObjectMapper();
     StringWriter stringWriter = new StringWriter();
     Log.d(PacoConstants.TAG, "syncing events");
@@ -124,34 +195,16 @@ public class SyncService extends Service {
       mapper.writeValue(stringWriter, events);      
     } catch (JsonGenerationException e) {
       Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
+      responsePair.overallCode = 500;
     } catch (JsonMappingException e) {
       Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
+      responsePair.overallCode = 500;
     } catch (IOException e) {
       Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
+      responsePair.overallCode = 500;
     }
-    UrlContentManager um = null;
-    try {
-      String emailSuffix = userPrefs.getGoogleEmailType();
-      um = new UrlContentManager(this, true, emailSuffix);
-
-
-      Log.i("" + this, "Preparing to post.");
-      String json = stringWriter.toString();
-      Response response = um.createRequest()
-      .setUrl("https://"+userPrefs.getServerAddress()+"/events")
-      .setPostData(json)
-      .addHeader("http.useragent", "PacoDroid2")
-      .execute();
-      return response.getHttpCode();
-    } finally {
-      if (um != null) {
-        um.cleanUp(); 
-      }
-    }
-    
+    String json = stringWriter.toString();
+    return json;
   }
 
 }

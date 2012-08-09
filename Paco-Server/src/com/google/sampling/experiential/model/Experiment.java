@@ -37,6 +37,7 @@ import org.joda.time.DateTime;
 
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
@@ -361,7 +362,7 @@ public class Experiment {
   }
 
   public Input getInputWithName(String name) {
-    if (name == null) {
+    if (Strings.isNullOrEmpty(name)) {
       return null;
     }
     for (Input input : getInputs()) {
@@ -389,4 +390,13 @@ public class Experiment {
       return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
     }
   }
+  
+  @JsonIgnore
+  public boolean isWhoAllowedToPostToExperiment(String who) {
+    who = who.toLowerCase();
+    return getAdmins().contains(who) || 
+      (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
+  }
+
+
 }

@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
@@ -15,13 +16,19 @@ public class ExperimentRetriever {
 
   private static final Logger log = Logger.getLogger(ExperimentRetriever.class.getName());
   
-  public static boolean isWhoAllowedToPostToExperiment(Experiment experiment, String who) {
-    who = who.toLowerCase();
-    return experiment.getAdmins().contains(who) || 
-      (experiment.getPublished() && (experiment.getPublishedUsers().isEmpty() || experiment.getPublishedUsers().contains(who)));
+  private static ExperimentRetriever instance;
+  
+  public synchronized static ExperimentRetriever getInstance() {
+    if (instance == null) {
+      instance = new ExperimentRetriever();      
+    }
+    return instance;
   }
-
-  public static Experiment getExperiment(String experimentId) {
+  
+  @VisibleForTesting
+  ExperimentRetriever() {};
+  
+  public Experiment getExperiment(String experimentId) {
     PersistenceManager pm = null;
     try {
       if (experimentId != null) {

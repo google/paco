@@ -30,6 +30,7 @@ import javax.jdo.Transaction;
 
 import org.joda.time.DateTimeZone;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -49,7 +50,8 @@ public class EventRetriever {
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   
-  private EventRetriever() {
+  @VisibleForTesting
+  EventRetriever() {
   }
 
   public static synchronized EventRetriever getInstance() {
@@ -62,7 +64,7 @@ public class EventRetriever {
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId, 
       String experimentName, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
-    long t1 = System.currentTimeMillis();
+//    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
         experimentId, experimentName, responseTime, scheduledTime, blobs);
@@ -78,8 +80,8 @@ public class EventRetriever {
       }
       pm.close();
     }
-    long t2 = System.currentTimeMillis();
-    log.info("POST Event time: " + (t2 - t1));
+//    long t2 = System.currentTimeMillis();
+//    log.info("POST Event time: " + (t2 - t1));
   }
 
   @SuppressWarnings("unchecked")

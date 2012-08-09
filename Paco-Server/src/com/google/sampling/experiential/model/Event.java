@@ -117,9 +117,8 @@ public class Event {
       Set<What> what, boolean shared, String experimentId, String experimentName, 
       Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
     super();
-    if (/*what.size() == 0 || */who == null || when == null || appId == null) {
-      throw new IllegalArgumentException("There must be a who, a when, an appId, and "
-          + "at least one what to make an event");
+    if (/*what.size() == 0 || */who == null || when == null) {
+      throw new IllegalArgumentException("There must be a who and a when");
     }
     this.who = who;
     this.lat = lat;
@@ -313,6 +312,25 @@ public class Event {
       parts[csvIndex++] = value;
     }
     return parts;
+  }
+
+  public String toString() {
+    java.text.SimpleDateFormat simpleDateFormat =
+      new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+
+    StringBuilder buf = new StringBuilder();
+    buf.append(who).append("\n");
+    buf.append(simpleDateFormat.format(when)).append("\n");    
+    buf.append(experimentId).append("\n");
+    buf.append(experimentName).append("\n");
+    buf.append(responseTime != null ? simpleDateFormat.format(responseTime) : null).append("\n");
+    buf.append(scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null).append("\n");
+    Map<String, String> whatMap = getWhatMap();
+    for (String key : whatMap.keySet()) {
+      String value = whatMap.get(key);
+      buf.append(key).append("=").append(value).append("\n");
+    }
+    return buf.toString();
   }
 
   public static String getAnonymousId(String who) {
