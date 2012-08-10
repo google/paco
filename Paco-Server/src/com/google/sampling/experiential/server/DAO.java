@@ -9,14 +9,13 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.SignalSchedule;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,118 +41,106 @@ public class DAO {
    *
    * Experiments
    */
-  public boolean createExperiment(Experiment experiment) {
-    if (experiment == null) {
-      return false;
+  public Long createExperiment(Experiment experiment) {
+    Entity entity = DAOHelper.toEntity(experiment);
+    Key key;
+
+    try {
+      key = ds.put(entity);
+    } catch (Exception ex) {
+      return null;
     }
 
-    experiment.setId(null);
-    experiment.setVersion(1);
-
-    Entity entity = DAOHelper.toEntity(experiment);
-    ds.put(entity);
-
-    experiment.setId(entity.getKey().getId());
-
-    return experiment.hasId();
+    return key.getId();
   }
 
   public Experiment getExperiment(long id) {
-    try {
-      Experiment experiment = DAOHelper.entityTo(ds.get(KeyFactory.createKey("experiment", id)));
+    Key key = KeyFactory.createKey("experiment", id);
+    Entity entity;
 
-      if (experiment.isDeleted()) {
-        return null;
-      } else {
-        return experiment;
-      }
-    } catch (EntityNotFoundException e) {
+    try {
+      entity = ds.get(key);
+    } catch (Exception ex) {
+      ex.printStackTrace();
       return null;
     }
+
+    Experiment experiment = DAOHelper.entityTo(entity);
+
+    return (experiment.isDeleted() ? null : experiment);
   }
 
-  public boolean updateExperiment(Experiment newExperiment, Experiment oldExperiment) {
-    if (newExperiment == null || oldExperiment == null) {
-      return false;
-    }
-
-    if (oldExperiment.hasId() == false) {
-      return false;
-    }
-
-    newExperiment.setId(oldExperiment.getId());
-    newExperiment.setVersion(oldExperiment.getVersion() + 1);
-
+  public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
     Entity newEntity = DAOHelper.toEntity(newExperiment);
-    Key newKey = ds.put(newEntity);
+    Entity oldEntity = DAOHelper.toEntity(oldExperiment);
+    List<Entity> entities = Lists.newArrayList(newEntity, oldEntity);
+    List<Key> keys;
 
-    return (newKey.getId() == newExperiment.getId());
+    try {
+      keys = ds.put(entities);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return false;
+    }
+
+    return true;
   }
 
   public boolean deleteExperiment(Experiment experiment) {
-    if (experiment.hasId() == false) {
-      return false;
-    }
-
     experiment.setDeleted(true);
 
     Entity entity = DAOHelper.toEntity(experiment);
-    Key key = ds.put(entity);
+    Key key;
 
-    return (key.getId() == experiment.getId());
+    try {
+      key = ds.put(entity);
+    } catch (Exception ex) {
+      return false;
+    }
+
+    return true;
   }
 
-  public boolean joinExperiment(
-      String user, Experiment observedExperiment, SignalSchedule signalSchedule) {
-    if (observedExperiment.hasId() == false) {
-      return false;
-    }
-
-    if (observedExperiment.addSubject(user) == false) {
-      return false;
-    }
-
-    Transaction txn = ds.beginTransaction();
-
-    Key observedExperimentKey = ds.put(DAOHelper.toEntity(observedExperiment));
+  public boolean joinExperiment(Experiment experiment, SignalSchedule signalSchedule) {
+    Entity experimentEntity = DAOHelper.toEntity(experiment);
+    List<Entity> entities = Lists.newArrayList(experimentEntity);
+    List<Key> keys;
 
     if (signalSchedule != null) {
-      signalSchedule.setSubject(user);
-      signalSchedule.setExperimentId(observedExperiment.getId());
-      ds.put(DAOHelper.toEntity(signalSchedule));
+      entities.add(DAOHelper.toEntity(signalSchedule));
     }
 
-    txn.commit();
+    try {
+      keys = ds.put(entities);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return false;
+    }
 
-    return ((observedExperimentKey.getId() == observedExperiment.getId()));
+    return true;
   }
 
-  public boolean leaveExperiment(String user, Experiment experiment) {
-    if (user == null || experiment == null) {
-      return false;
-    }
-
-    if (experiment.hasId() == false) {
-      return false;
-    }
-
-    if (experiment.removeSubject(user) == false) {
-      return false;
-    }
-
+  public boolean leaveExperiment(Experiment experiment) {
     Entity entity = DAOHelper.toEntity(experiment);
-    Key key = ds.put(entity);
+    Key key;
 
-    return ((key.getId() == experiment.getId()));
+    try {
+      key = ds.put(entity);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return false;
+    }
+
+    return true;
   }
 
   public List<Experiment> getViewedExperiments(String user) {
     Query q = new Query("experiment");
 
-    // deleted == false && published == true && (viewer == true || viewer == null)
+    // deleted == false && published == true && (viewers == null || viewers == user)
     q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
         FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
-            FilterOperator.EQUAL.of("viewers", user), FilterOperator.EQUAL.of("viewers", null))));
+            FilterOperator.EQUAL.of("viewers", null), FilterOperator.EQUAL.of("viewers", user))));
 
     return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
@@ -161,7 +148,7 @@ public class DAO {
   public List<Experiment> getSubjectedExperiments(String user) {
     Query q = new Query("experiment");
 
-    // deleted == false && published == true && subject == true
+    // deleted == false && published == true && subjects == user
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
         FilterOperator.EQUAL.of("subjects", user)));
@@ -172,7 +159,7 @@ public class DAO {
   public List<Experiment> getObservedExperiments(String user) {
     Query q = new Query("experiment");
 
-    // deleted == false && observer == true
+    // deleted == false && observers == user
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
 
@@ -185,29 +172,22 @@ public class DAO {
    *
    * Events
    */
-  public boolean createEvent(String user, Event event, Experiment experiment) {
-    if (user == null || event == null || experiment == null) {
-      return false;
-    }
-
-    event.setId(null);
-    event.setSubject(user);
-    event.setCreateTime(new Date());
-    event.setExperimentId(experiment.getId());
-
-    if (event.getExperimentVersion() > experiment.getVersion()) {
-      return false;
+  public Long createEvent(Event event) {
+    if (event == null || event.hasId() == true) {
+      throw new UnsupportedOperationException();
     }
 
     Entity entity = DAOHelper.toEntity(event);
-    ds.put(entity);
+    Key key = ds.put(entity);
 
-    event.setId(entity.getKey().getId());
-
-    return event.hasId();
+    return key.getId();
   }
 
   public Event getEvent(long id) {
+    if (id <= 0) {
+      throw new UnsupportedOperationException();
+    }
+
     try {
       return DAOHelper.entityTo(ds.get(KeyFactory.createKey("event", id)));
     } catch (EntityNotFoundException e) {
@@ -216,6 +196,10 @@ public class DAO {
   }
 
   public List<Event> getEvents(Experiment experiment) {
+    if (experiment == null || experiment.hasId() == false) {
+      throw new UnsupportedOperationException();
+    }
+
     Query q = new Query("event");
 
     // experimentId == experiment.id
@@ -225,6 +209,10 @@ public class DAO {
   }
 
   public List<Event> getEvents(Experiment experiment, String user) {
+    if (experiment == null || experiment.hasId() == false || user == null) {
+      throw new UnsupportedOperationException();
+    }
+
     Query q = new Query("event");
 
     // experimentId == experiment.id && subject == user

@@ -14,13 +14,11 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.ExperimentStats;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 
 /**
@@ -40,25 +38,17 @@ public class SubjectExperimentResource extends PacoExperimentResource {
 
   @Get("gwt|json")
   public ExperimentStats stats() {
-    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
-    return null;
-  }
-
-  @Post("gwt|json")
-  public void update(Event event) {
-    if (dao.createEvent(user, event, experiment)) {
-      setStatus(Status.SUCCESS_NO_CONTENT);
-    } else {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-    }
+    throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
   }
 
   @Delete("gwt|json")
   public void leave() {
-    if (dao.leaveExperiment(user, experiment)) {
-      setStatus(Status.SUCCESS_NO_CONTENT);
-    } else {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    experiment.removeSubject(user);
+
+    if (dao.leaveExperiment(experiment) == false) {
+      throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
     }
+
+    setStatus(Status.SUCCESS_NO_CONTENT);
   }
 }

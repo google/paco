@@ -124,10 +124,6 @@ public class DAOHelper {
   @SuppressWarnings("unchecked")
   public static <T> T entityTo(Entity entity, Class<T> type) {
     if (Experiment.class == type) {
-      return (T) entityToObservedExperiment(entity);
-    }
-
-    if (Experiment.class == type) {
       return (T) entityToExperiment(entity);
     }
 
@@ -138,34 +134,8 @@ public class DAOHelper {
     throw new UnsupportedOperationException("entityTo2(" + type.toString() + ")");
   }
 
-  private static Experiment entityToExperiment(Entity entity) {
-    if (entity == null) {
-      return null;
-    }
-
-    Text json = (Text) entity.getProperty("json");
-
-
-    if (json == null) {
-      return null;
-    }
-
-
-    Experiment experiment = DAOHelper.jsonTo(json, Experiment.class);
-
-    if (experiment == null) {
-      return null;
-    }
-
-    experiment.setId(entity.getKey().getId());
-    experiment.setVersion((Long) entity.getProperty("version"));
-    experiment.setDeleted((Boolean) entity.getProperty("deleted"));
-
-    return experiment;
-  }
-
   @SuppressWarnings("unchecked")
-  private static Experiment entityToObservedExperiment(Entity entity) {
+  private static Experiment entityToExperiment(Entity entity) {
     if (entity == null) {
       return null;
     }
@@ -221,12 +191,20 @@ public class DAOHelper {
    * Convert to entity
    */
   public static <T> Entity toEntity(T object) {
+    if (object == null) {
+      return null;
+    }
+
     return toEntity(object, object.getClass());
   }
 
   public static <T> Entity toEntity(T object, Class<? extends Object> type) {
+    if (object == null || type == null) {
+      return null;
+    }
+
     if (Experiment.class == type) {
-      return observedExperimentToEntity((Experiment) object);
+      return experimentToEntity((Experiment) object);
     }
 
     if (Event.class == type) {
@@ -240,7 +218,7 @@ public class DAOHelper {
     throw new UnsupportedOperationException("toEntity2(" + type.toString() + ")");
   }
 
-  private static Entity observedExperimentToEntity(Experiment experiment) {
+  private static Entity experimentToEntity(Experiment experiment) {
     String json = DAOHelper.toJson(experiment);
 
     if (json == null) {

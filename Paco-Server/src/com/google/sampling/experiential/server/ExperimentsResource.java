@@ -20,6 +20,7 @@ import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+import org.restlet.resource.ResourceException;
 
 import java.util.List;
 
@@ -30,27 +31,28 @@ import java.util.List;
  *
  */
 public class ExperimentsResource extends PacoResource {
-  @Get("json|gwt")
-  public List<Experiment> index() {
-    return dao.getViewedExperiments(user);
-  }
-
   @Post("gwt|json")
   public void create(Experiment experiment) {
     if (experiment == null) {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-      return;
+      throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     }
 
-    if (experiment.hasObserver(user) == false) {
-      experiment.addObserver(user);
+    experiment.setId(null);
+    experiment.setVersion(1);
+    experiment.addObserver(user);
+
+    Long id = dao.createExperiment(experiment);
+
+    if (id == null) {
+      throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     }
 
-    if (dao.createExperiment(experiment)) {
-      setStatus(Status.SUCCESS_CREATED);
-      setLocationRef(new Reference("/observer/experiments/" + experiment.getId()));
-    } else {
-      setStatus(Status.SERVER_ERROR_INTERNAL);
-    }
+    setStatus(Status.SUCCESS_CREATED);
+    setLocationRef(new Reference("/observer/experiments/" + id));
+  }
+
+  @Get("json|gwt")
+  public List<Experiment> index() {
+    return dao.getViewedExperiments(user);
   }
 }

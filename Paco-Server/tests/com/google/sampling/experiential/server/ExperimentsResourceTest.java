@@ -4,18 +4,8 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.*;
 
-import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.FixedSignal;
-import com.google.sampling.experiential.shared.SharedTestHelper;
-import com.google.sampling.experiential.shared.SignalSchedule;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.restlet.Response;
 import org.restlet.Request;
@@ -25,24 +15,33 @@ import org.restlet.data.Status;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class ExperimentsResourceTest {
-  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
-      new LocalUserServiceTestConfig(), new LocalDatastoreServiceTestConfig());
+public class ExperimentsResourceTest extends PacoResourceTest {
+  /*
+   * create tests
+   */
+  @Test
+  public void testCreate() {
+    Experiment experiment = ExperimentTestHelper.constructExperiment();
 
-  @Before
-  public void setUp() {
-    helper.setEnvIsAdmin(false);
-    helper.setEnvIsLoggedIn(true);
-    helper.setEnvEmail("test@google.com");
-    helper.setEnvAuthDomain("google.com");
-    helper.setUp();
+    Request request =
+        ServerTestHelper.createJsonPostRequest("/experiments", DAOHelper.toJson(experiment));
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
+    assertEquals("/observer/experiments/1", response.getLocationRef().getPath());
   }
 
-  @After
-  public void tearDown() {
-    helper.tearDown();
+  @Test
+  public void testCreateWhenExperimentNull() {
+    Request request = ServerTestHelper.createJsonPostRequest("/experiments", "");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.CLIENT_ERROR_BAD_REQUEST, response.getStatus());
   }
 
+  /*
+   * index tests
+   */
   @Test
   public void testIndex() {
     Request request = ServerTestHelper.createJsonGetRequest("/experiments");
@@ -53,159 +52,84 @@ public class ExperimentsResourceTest {
   }
 
   @Test
-  public void testCreate() {
-    Experiment observedExperiment = DAOTest.constructObservedExperiment();
-    observedExperiment.setPublished(true);
-    observedExperiment.setViewers(null);
-    observedExperiment.setSignalSchedule(null);
-
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/experiments", DAOHelper.toJson(observedExperiment));
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
-    assertEquals("/observer/experiments/1", response.getLocationRef().getPath());
-  }
-
-  @Test
-  public void testCreateNull() {
-    Experiment observedExperiment = DAOTest.constructObservedExperiment();
-    observedExperiment.setPublished(true);
-    observedExperiment.setViewers(null);
-
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments", "");
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.CLIENT_ERROR_BAD_REQUEST, response.getStatus());
-  }
-
-  @Test
-  public void testIndexAfterCreate() {
-    testCreate();
+  public void testIndexAfterCreatePublishedPublic() {
+    ExperimentTestHelper.createPublishedPublicExperiment();
 
     Request request = ServerTestHelper.createJsonGetRequest("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
 
-    Experiment experiment = DAOTest.constructExperiment(1l);
     String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
-    assertEquals("[" + json + "]", response.getEntityAsText());
-  }
-
-  private void createWithViewers() {
-    Experiment observedExperiment = DAOTest.constructObservedExperiment();
-    observedExperiment.setPublished(true);
-    observedExperiment.setViewers(Lists.newArrayList("test@google.com"));
-    observedExperiment.setSignalSchedule(null);
-
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/experiments", DAOHelper.toJson(observedExperiment));
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
-    assertEquals("/observer/experiments/1", response.getLocationRef().getPath());
-  }
-
-  @Test
-  public void testIndexAfterCreateWithViewers() {
-    createWithViewers();
-
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
-    Response response = new PacoApplication().handle(request);
-
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-
-    Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
-
     assertEquals("[" + json + "]", response.getEntityAsText());
   }
 
   @Test
-  public void testIndexAsNonViewerAfterCreateWithViewers() {
-    createWithViewers();
-
-    helper.setEnvEmail("impostor@google.com");
+  public void testIndexAfterCreatePublishedPrivate() {
+    ExperimentTestHelper.createPublishedPrivateExperiment();
 
     Request request = ServerTestHelper.createJsonGetRequest("/experiments");
     Response response = new PacoApplication().handle(request);
+
+    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[" + json + "]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testIndexAfterCreateUnpublished() {
+    ExperimentTestHelper.createUnpublishedExperiment();
+
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[]", response.getEntityAsText());
   }
 
   @Test
-  public void testShow() {
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
+  public void testIndexAsImposterAfterCreatePublishedPrivate() {
+    ExperimentTestHelper.createPublishedPrivateExperiment();
+
+    helper.setEnvEmail("imposter@google.com");
+
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
-  }
+    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
 
-  @Test
-  public void testShowAfterCreate() {
-    testCreate();
+    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
-    Response response = new PacoApplication().handle(request);
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-
-    Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Viewer.class);
-
-    assertEquals(json, response.getEntityAsText());
+    assertEquals("[]", response.getEntityAsText());
   }
 
   @Test
-  public void testShowAsImposterAfterCreate() {
-    testCreate();
+  public void testIndexAfterCreateAndDestroy() {
+    ExperimentTestHelper.createPublishedPublicExperiment();
+    ExperimentTestHelper.destroyExperiment();
 
-    helper.setEnvEmail("impostor@google.com");
-
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments/1");
+    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-
-    Experiment experiment = DAOTest.constructExperiment(1l);
-    String json = DAOHelper.toJson(experiment, Experiment.Viewer.class);
-
-    assertEquals(json, response.getEntityAsText());
-  }
-
-  @Test
-  public void testJoin() {
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments/1", "");
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
-  }
-
-  @Test
-  public void testJoinAfterCreate() {
-    testCreate();
-
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments/1", "");
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
-    assertEquals("/subject/experiments/1", response.getLocationRef().getPath());
-  }
-
-  @Test
-  public void testJoinWithSignalScheduleAfterCreate() {
-    testCreate();
-
-    SignalSchedule signalSchedule =
-        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule());
-
-    Request request =
-        ServerTestHelper.createJsonPostRequest("/experiments/1", DAOHelper.toJson(signalSchedule));
-    Response response = new PacoApplication().handle(request);
-
-    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
-    assertEquals("/subject/experiments/1", response.getLocationRef().getPath());
+    assertEquals("[]", response.getEntityAsText());
   }
 }

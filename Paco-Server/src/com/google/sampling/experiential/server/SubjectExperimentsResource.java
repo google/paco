@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class SubjectExperimentsResource extends PacoResource {
   @Get("gwt|json")
-  public List<Experiment> list() {
+  public List<Experiment> index() {
     return dao.getSubjectedExperiments(user);
   }
 }

@@ -17,9 +17,12 @@ import java.util.Set;
  *
  */
 public class Experiment {
-  public static class Summary { }
-  public static class Viewer extends Summary { }
-  public static class Observer extends Viewer { }
+  public static class Summary {
+  }
+  public static class Viewer extends Summary {
+  }
+  public static class Observer extends Viewer {
+  }
 
   public static String DEFAULT_TITLE = "";
   public static String DEFAULT_DESCRIPTION = "";
@@ -27,7 +30,6 @@ public class Experiment {
   public static String DEFAULT_CONSENT_FORM = "";
 
   private Long id;
-  @JsonIgnore
   private long version;
   @JsonIgnore
   private boolean deleted;
@@ -396,7 +398,11 @@ public class Experiment {
    * @return whether the viewer was added
    */
   public boolean addViewer(String viewer) {
-    return observers.add(viewer);
+    if (viewers == null) {
+      viewers = new LinkedHashSet<String>();
+    }
+
+    return viewers.add(viewer);
   }
 
   /**
@@ -406,6 +412,7 @@ public class Experiment {
   public boolean removeViewer(String viewer) {
     return subjects.remove(viewer);
   }
+
   /*
    * (non-Javadoc)
    *

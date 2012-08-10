@@ -14,7 +14,6 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.ExperimentStats;
 import com.google.sampling.experiential.shared.Experiment;
 
 import org.restlet.data.Status;
@@ -39,27 +38,36 @@ public class ObserverExperimentResource extends PacoExperimentResource {
   }
 
   @Get("gwt|json")
-  public ExperimentStats stats() {
-    setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
-
-    return null;
+  public Experiment show() {
+    return experiment;
   }
 
   @Post("gwt|json")
-  public void update(Experiment experiment) {
-    if (dao.updateExperiment(experiment, this.experiment)) {
-      setStatus(Status.SUCCESS_NO_CONTENT);
-    } else {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+  public void update(Experiment newExperiment) {
+    if (newExperiment.getVersion() != experiment.getVersion()) {
+      throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
     }
+
+    // FIXME: Revision old experiment
+
+    newExperiment.setId(experiment.getId());
+    newExperiment.setVersion(experiment.getVersion() + 1);
+
+    if (dao.updateExperiment(experiment, newExperiment) == false) {
+      throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+    }
+
+    setStatus(Status.SUCCESS_NO_CONTENT);
   }
 
   @Delete("gwt|json")
   public void destroy() {
-    if (dao.deleteExperiment(experiment)) {
-      setStatus(Status.SUCCESS_NO_CONTENT);
-    } else {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    experiment.setDeleted(true);
+
+    if (dao.deleteExperiment(experiment) == false) {
+      throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     }
+
+    setStatus(Status.SUCCESS_NO_CONTENT);
   }
 }

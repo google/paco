@@ -33,7 +33,7 @@ public class ExperimentResource extends PacoExperimentResource {
   protected void doInit() throws ResourceException {
     super.doInit();
 
-    if (experiment.hasViewer(user) == false) {
+    if (experiment.isPublished() == false || experiment.hasViewer(user) == false) {
       throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
     }
   }
@@ -45,11 +45,18 @@ public class ExperimentResource extends PacoExperimentResource {
 
   @Post("gwt|json")
   public void join(SignalSchedule signalSchedule) {
-    if (dao.joinExperiment(user, experiment, signalSchedule)) {
-      setStatus(Status.SUCCESS_CREATED);
-      setLocationRef(new Reference("/subject/experiments/" + experiment.getId()));
-    } else {
-      setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    experiment.addSubject(user);
+
+    if (signalSchedule != null) {
+      signalSchedule.setExperimentId(experiment.getId());
+      signalSchedule.setSubject(user);
     }
+
+    if (dao.joinExperiment(experiment, signalSchedule) == false) {
+      throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+    }
+
+    setStatus(Status.SUCCESS_CREATED);
+    setLocationRef(new Reference("/subject/experiments/" + experiment.getId()));
   }
 }
