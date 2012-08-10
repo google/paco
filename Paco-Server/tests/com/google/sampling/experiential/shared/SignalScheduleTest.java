@@ -24,8 +24,8 @@ public class SignalScheduleTest {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
-    signalSchedule1.setUserEditable(true);
-    signalSchedule2.setUserEditable(true);
+    signalSchedule1.setEditable(true);
+    signalSchedule2.setEditable(true);
 
     assertTrue(signalSchedule1.equals(signalSchedule2));
   }
@@ -74,8 +74,8 @@ public class SignalScheduleTest {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
-    signalSchedule1.setUserEditable(true);
-    signalSchedule2.setUserEditable(false);
+    signalSchedule1.setEditable(true);
+    signalSchedule2.setEditable(false);
 
     assertFalse(signalSchedule1.equals(signalSchedule2));
   }

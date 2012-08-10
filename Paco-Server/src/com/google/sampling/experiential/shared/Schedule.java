@@ -41,7 +41,6 @@ public abstract class Schedule {
   protected String type;
   protected Date startDate;
   protected Date endDate;
-  protected boolean editable;
 
   /**
    *
@@ -52,7 +51,6 @@ public abstract class Schedule {
     this.type = type;
     this.startDate = null;
     this.endDate = null;
-    this.editable = false;
   }
 
   /**
@@ -112,20 +110,6 @@ public abstract class Schedule {
     this.type = type;
   }
 
-  /**
-   * @return the editable
-   */
-  public boolean isEditable() {
-    return editable;
-  }
-
-  /**
-   * @param editable the editable to set
-   */
-  public void setEditable(boolean editable) {
-    this.editable = editable;
-  }
-
   /*
    * (non-Javadoc)
    *
@@ -169,10 +153,6 @@ public abstract class Schedule {
       if (other.hasEndDate()) {
         return false;
       }
-    }
-
-    if (isEditable() != other.isEditable()) {
-      return false;
     }
 
     return true;

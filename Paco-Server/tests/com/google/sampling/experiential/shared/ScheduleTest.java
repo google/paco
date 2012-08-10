@@ -124,28 +124,6 @@ public class ScheduleTest {
   }
 
   @Test
-  public void testEqualityWhenEditableSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setEditable(true);
-    schedule2.setEditable(true);
-
-    assertTrue(schedule1.equals(schedule2));
-  }
-
-  @Test
-  public void testInequalityWhenEditableSetFalse() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
-
-    schedule1.setEditable(false);
-    schedule1.setEditable(true);
-
-    assertFalse(schedule1.equals(schedule2));
-  }
-
-  @Test
   public void testStartDateIsNullable() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
 

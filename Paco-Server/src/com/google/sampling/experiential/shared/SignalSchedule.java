@@ -14,7 +14,7 @@ public class SignalSchedule {
   @JsonIgnore
   private long experimentId;
 
-  private boolean isUserEditable;
+  private boolean editable;
   private Signal signal;
   private Schedule schedule;
 
@@ -24,23 +24,23 @@ public class SignalSchedule {
   public SignalSchedule() {
     super();
 
-    this.isUserEditable = false;
+    this.editable = false;
     this.signal = null;
     this.schedule = null;
   }
 
   /**
-   * @return the isUserEditable
+   * @return the isEditable
    */
-  public boolean isUserEditable() {
-    return isUserEditable;
+  public boolean isEditable() {
+    return editable;
   }
 
   /**
-   * @param isUserEditable the isUserEditable to set
+   * @param isEditable the isUserEditable to set
    */
-  public void setUserEditable(boolean isUserEditable) {
-    this.isUserEditable = isUserEditable;
+  public void setEditable(boolean isEditable) {
+    this.editable = isEditable;
   }
 
   /**
@@ -127,7 +127,7 @@ public class SignalSchedule {
 
     SignalSchedule other = (SignalSchedule) obj;
 
-    if (isUserEditable() != other.isUserEditable()) {
+    if (isEditable() != other.isEditable()) {
       return false;
     }
 
