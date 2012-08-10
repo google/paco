@@ -1,19 +1,16 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
@@ -48,15 +45,13 @@ import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
 
 import org.restlet.client.resource.ClientResource;
 
 /**
- * Default Entry point into the GWT application.
- * Checks login. Renders Joined Experiments view by default.
- * 
+ * Default Entry point into the GWT application. Checks login. Renders Joined Experiments view by
+ * default.
+ *
  * @author Bob Evans
  *
  */
@@ -72,8 +67,6 @@ public class Main implements EntryPoint, ExperimentListener {
   private List<Experiment> joinedExperiments;
   private List<Experiment> adminedExperiments;
 
-  private MapServiceAsync mapService = GWT.create(MapService.class);
-
   private LoginInfo loginInfo = null;
   private Anchor signInLink = new Anchor("Sign In");
   private Anchor signOutLink = new Anchor("Sign out");
@@ -83,26 +76,28 @@ public class Main implements EntryPoint, ExperimentListener {
       new Label("Please sign in to your Google Account " + "to access the application.");
 
 
+  @Override
   public void onModuleLoad() {
     checkLoginStatusAndLoadPage();
   }
 
   private void checkLoginStatusAndLoadPage() {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL()+"Main.html", new AsyncCallback<LoginInfo>() {
-      public void onFailure(Throwable error) {
-      }
+    loginService.login(GWT.getHostPageBaseURL() + "Main.html", new AsyncCallback<LoginInfo>() {
+      @Override
+      public void onFailure(Throwable error) {}
 
+      @Override
       public void onSuccess(LoginInfo result) {
-        loginInfo = result; 
+        loginInfo = result;
         if (loginInfo.isLoggedIn()) {
-//          Maps.loadMapsApi("", "2", false, new Runnable() {
-//            public void run() {
-              createHomePage();
-              signOutLink.setHref(loginInfo.getLogoutUrl());
+          // Maps.loadMapsApi("", "2", false, new Runnable() {
+          // public void run() {
+          createHomePage();
+          signOutLink.setHref(loginInfo.getLogoutUrl());
 
-//            }
-//          });
+          // }
+          // });
 
         } else {
           loadLogin();
@@ -140,6 +135,7 @@ public class Main implements EntryPoint, ExperimentListener {
     MenuBar joinedSubMenuBar = new MenuBar(true);
     MenuItem joinedMenuItem = new MenuItem("Joined Experiments", false, joinedSubMenuBar);
     MenuItem mntmShowAllJoined = new MenuItem("Show All", false, new Command() {
+      @Override
       public void execute() {
         loadJoinedExperiments();
       }
@@ -147,6 +143,7 @@ public class Main implements EntryPoint, ExperimentListener {
     joinedSubMenuBar.addItem(mntmShowAllJoined);
 
     MenuItem mntmFindExperiments = new MenuItem("Find Experiments", false, new Command() {
+      @Override
       public void execute() {
         findExperiments();
       }
@@ -158,6 +155,7 @@ public class Main implements EntryPoint, ExperimentListener {
     MenuBar adminMenuBar = new MenuBar(true);
     MenuItem adminMenuItem = new MenuItem("Administer Experiments", false, adminMenuBar);
     MenuItem mntmShowAllAdmin = new MenuItem("Show All", false, new Command() {
+      @Override
       public void execute() {
         loadAdministeredExperiments(false);
       }
@@ -165,6 +163,7 @@ public class Main implements EntryPoint, ExperimentListener {
     adminMenuBar.addItem(mntmShowAllAdmin);
 
     MenuItem mntmCreateNew = new MenuItem("Create New", false, new Command() {
+      @Override
       public void execute() {
         createNewExperiment();
       }
@@ -174,6 +173,7 @@ public class Main implements EntryPoint, ExperimentListener {
     // //////////////////
 
     MenuItem mntmQR_Code = new MenuItem("Get Android Client", false, new Command() {
+      @Override
       public void execute() {
         showAndroidDownloadPage();
       }
@@ -187,24 +187,27 @@ public class Main implements EntryPoint, ExperimentListener {
     rootMenuBar.addItem(helpMenuItem);
 
     MenuItem helpContentsMenuItem = new MenuItem("Help Contents", false, new Command() {
+      @Override
       public void execute() {
         launchHelp();
       }
     });
-    //helpContentsMenuItem.setEnabled(false);
+    // helpContentsMenuItem.setEnabled(false);
     helpMenuBar.addItem(helpContentsMenuItem);
 
     MenuItem aboutMenuItem = new MenuItem("About", false, new Command() {
+      @Override
       public void execute() {
         launchAbout();
       }
     });
     aboutMenuItem.setEnabled(false);
     helpMenuBar.addItem(aboutMenuItem);
-    
+
     // logout
 
     MenuItem mntmLogout = new MenuItem("Logout", false, new Command() {
+      @Override
       public void execute() {
         logout();
       }
@@ -246,7 +249,7 @@ public class Main implements EntryPoint, ExperimentListener {
     flexTable = new FlexTable();
     String height = (Window.getClientHeight() - 200) + "px";
     ScrollPanel sp = new ScrollPanel(flexTable);
-    //flexTable.setSize("400px", height);
+    // flexTable.setSize("400px", height);
     experimentPanel.add(flexTable);
 
     contentPanel = new VerticalPanel();
@@ -271,17 +274,22 @@ public class Main implements EntryPoint, ExperimentListener {
     setContentTitle("Download the PACO Android Client");
     VerticalPanel dl = new VerticalPanel();
 
-    HTML barCodeLabel = new HTML("1) Ensure that you can install applications from Unknown Sources.");
+    HTML barCodeLabel =
+        new HTML("1) Ensure that you can install applications from Unknown Sources.");
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
-    dl.add(new HTML("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
- 
-    HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
+    dl.add(
+        new HTML(
+            "On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
+
+    HTML barCodeLabel2 = new HTML(
+        "2a) Scan this code with your phone which will launch the browser and download Paco.");
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
-    
-    HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
+
+    HTML downloadLink = new HTML(
+        "2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
 
@@ -292,14 +300,13 @@ public class Main implements EntryPoint, ExperimentListener {
     // Create a callback to be called when the visualization API
     // has been loaded.
     Runnable onLoadCallback = new Runnable() {
-      public void run() {
-      }
+      @Override
+      public void run() {}
     };
     // Load the visualization api, passing the onLoadCallback to be called
     // when loading is done.
     VisualizationUtils.loadVisualizationApi(onLoadCallback, /*
-                                                             * ColumnChart.PACKAGE
-                                                             * , Table.PACKAGE,
+                                                             * ColumnChart.PACKAGE , Table.PACKAGE,
                                                              */
     LineChart.PACKAGE/* , ScatterChart.PACKAGE */);
   }
@@ -364,8 +371,7 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private List<ExperimentRow> createExperimentRows(
-      boolean joined, List<Experiment> experiments) {
+  private List<ExperimentRow> createExperimentRows(boolean joined, List<Experiment> experiments) {
     List<ExperimentRow> exRows = new ArrayList<ExperimentRow>();
     for (Experiment experiment : experiments) {
       exRows.add(new ExperimentRow(resources, experiment, this, joined));
@@ -398,14 +404,6 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     };
 
-    /*
-    if (joined) {
-      mapService.getUsersJoinedExperiments(callback);
-    } else {
-      mapService.getExperimentsForUser(callback);
-    }
-    */
-
     String reference;
 
     if (joined) {
@@ -414,19 +412,12 @@ public class Main implements EntryPoint, ExperimentListener {
       reference = "/observer/experiments";
     }
 
-    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    ExperimentResourceProxy experimentsResource = GWT.create(ExperimentResourceProxy.class);
     experimentsResource.getClientResource().setReference(reference);
-    experimentsResource.list(callback);
+    experimentsResource.index(callback);
   }
 
-  private List<Experiment> retrieveAdminedExperiments() {
-    List<Experiment> experiments = new ArrayList<Experiment>();
-    experiments.add(new Experiment());
-    experiments.add(new Experiment());
-    experiments.add(new Experiment());
-    return experiments;
-  }
-
+  @Override
   public void eventFired(int experimentCode, Experiment experiment, boolean joined) {
     switch (experimentCode) {
       case ExperimentListener.STATS_CODE:
@@ -442,11 +433,11 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           joinedStr = ":who=" + loginInfo.getEmailAddress();
         }
-        //Window.Location.assign(
-        //    "/responses?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
+        // Window.Location.assign(
+        // "/responses?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
         break;
       case ExperimentListener.DELETE_CODE:
-        if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
+        if (Window.confirm("Are you sure you want to deleted this experiment definition? "
             + "Perhaps you want to unpublish it to hide it from new users?")) {
           deleteExperiment(experiment, joined);
         }
@@ -471,8 +462,8 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           whoStr = ":who=" + loginInfo.getEmailAddress();
         }
-        //Window.Location.assign(
-        //    "/responses?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+        // Window.Location.assign(
+        // "/responses?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
         break;
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
@@ -484,14 +475,14 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           who2Str = ":who=" + loginInfo.getEmailAddress();
         }
-        //Window.Location.assign(
-        //    "/responses?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+        // Window.Location.assign(
+        // "/responses?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
         break;
     }
   }
 
   private void copyExperiment(Experiment experiment) {
-    //experiment.setId(null);
+    // experiment.setId(null);
   }
 
 
@@ -516,9 +507,9 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     };
 
-    //mapService.saveExperiment(experiment, callback);
+    // mapService.saveExperiment(experiment, callback);
 
-    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    ExperimentResourceProxy experimentsResource = GWT.create(ExperimentResourceProxy.class);
     experimentsResource.getClientResource().setReference("/experiments");
     experimentsResource.create(experiment, callback);
   }
@@ -546,12 +537,13 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     };
 
-    //mapService.saveExperiment(experiment, callback);
+    // mapService.saveExperiment(experiment, callback);
 
-    //PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
-    //experimentsResource.getClientResource().setReference("/observer/experiments/" + experiment.getId());
-    //experimentsResource.update(experiment, callback);
- }
+    // PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+    // experimentsResource.getClientResource().setReference("/observer/experiments/" +
+    // experiment.getId());
+    // experimentsResource.update(experiment, callback);
+  }
 
   /**
    * @param experiment
@@ -570,8 +562,8 @@ public class Main implements EntryPoint, ExperimentListener {
    */
   private void deleteExperimentDefinition(Experiment experiment) {
     statusLabel.setVisible(true);
-    mapService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
 
+    AsyncCallback<Void> callback = new AsyncCallback<Void>() {
       @Override
       public void onFailure(Throwable caught) {
         Window.alert("Error deleting experiment.");
@@ -579,20 +571,21 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(Boolean result) {
-        // Window.alert("Success deleting experiment.");
-        // flexTable.removeRow(obj.getRowIndex());
+      public void onSuccess(Void result) {
         loadAdministeredExperiments(true);
       }
+    };
 
-    });
+    ExperimentResourceProxy experimentsResource = GWT.create(ExperimentResourceProxy.class);
+    experimentsResource.getClientResource()
+        .setReference("/observer/experiments/" + experiment.getId());
+    experimentsResource.update(experiment, callback);
   }
 
   /**
    * @param experiment
    */
-  private void deleteData(Experiment experiment) {
-  }
+  private void deleteData(Experiment experiment) {}
 
   private void showChart(final Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
@@ -618,11 +611,11 @@ public class Main implements EntryPoint, ExperimentListener {
         statusLabel.setVisible(false);
       }
     };
-    //String queryText = "experimentId=" + experiment.getId();
-    //if (joined) {
-    //  queryText += ":who=" + loginInfo.getEmailAddress();
-    //}
-    //mapService.mapWithTags(queryText, callback);
+    // String queryText = "experimentId=" + experiment.getId();
+    // if (joined) {
+    // queryText += ":who=" + loginInfo.getEmailAddress();
+    // }
+    // mapService.mapWithTags(queryText, callback);
     // for each question in the experiment
     // print the title of the experiment
     // lookup the question in the responses list,
@@ -634,7 +627,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showExperimentDetailPanel(Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
-    ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
+    ExperimentDefinitionPanel ep =
+        new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
     contentPanel.add(ep);
     statusLabel.setVisible(false);
   }
@@ -659,21 +653,18 @@ public class Main implements EntryPoint, ExperimentListener {
     };
 
     // TODO (bobevans) move this to the server
-    //mapService.statsForExperiment(experiment.getId(), joined, callback);
+    // mapService.statsForExperiment(experiment.getId(), joined, callback);
 
 
     /*
-    String reference;
-
-    if (joined) {
-      reference = "/subject/experiments/" + experiment.getId();
-    } else {
-      reference = "/observer/experiments/" + experiment.getId();
-    }
-
-    PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
-    experimentsResource.getClientResource().setReference(reference);
-    experimentsResource.stats(callback);
-    */
+     *String reference;
+     *
+     * if (joined) { reference = "/subject/experiments/" + experiment.getId(); } else { reference =
+     * "/observer/experiments/" + experiment.getId(); }
+     *
+     * PacoResourceProxy experimentsResource = GWT.create(PacoResourceProxy.class);
+     * experimentsResource.getClientResource().setReference(reference);
+     * experimentsResource.stats(callback);
+     */
   }
 }
