@@ -20,21 +20,23 @@ public class SignalScheduleTest {
   }
 
   @Test
-  public void testEqualityWhenSignalSet() {
+  public void testEqualityWhenUserEditableSet() {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
-    signalSchedule1.setSignal(new FixedSignal());
-    signalSchedule2.setSignal(new FixedSignal());
+    signalSchedule1.setUserEditable(true);
+    signalSchedule2.setUserEditable(true);
 
     assertTrue(signalSchedule1.equals(signalSchedule2));
   }
 
   @Test
-  public void testEqualityWhenScheduleSet() {
+  public void testEqualityWhenSignalSetAndScheduleSet() {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
+    signalSchedule1.setSignal(new FixedSignal());
+    signalSchedule2.setSignal(new FixedSignal());
     signalSchedule1.setSchedule(new DailySchedule());
     signalSchedule2.setSchedule(new DailySchedule());
 
@@ -42,25 +44,66 @@ public class SignalScheduleTest {
   }
 
   @Test
-  public void testInequalityWhenSignalSet() {
+  public void testEqualityWhenSignalSetNullAndScheduleSet() {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
-    signalSchedule1.setSignal(new FixedSignal());
-    signalSchedule2.setSignal(new RandomSignal());
+    signalSchedule1.setSignal(null);
+    signalSchedule2.setSignal(null);
+    signalSchedule1.setSchedule(new DailySchedule());
+    signalSchedule2.setSchedule(new DailySchedule());
 
     assertTrue(signalSchedule1.equals(signalSchedule2));
   }
 
   @Test
-  public void testInequalityWhenScheduleSet() {
+  public void testEqualityWhenSignalSetAndScheduleSetNull() {
     SignalSchedule signalSchedule1 = new SignalSchedule();
     SignalSchedule signalSchedule2 = new SignalSchedule();
 
+    signalSchedule1.setSignal(new FixedSignal());
+    signalSchedule2.setSignal(new FixedSignal());
+    signalSchedule1.setSchedule(null);
+    signalSchedule2.setSchedule(null);
+
+    assertTrue(signalSchedule1.equals(signalSchedule2));
+  }
+
+  @Test
+  public void testInequalityWhenUserEditableSet() {
+    SignalSchedule signalSchedule1 = new SignalSchedule();
+    SignalSchedule signalSchedule2 = new SignalSchedule();
+
+    signalSchedule1.setUserEditable(true);
+    signalSchedule2.setUserEditable(false);
+
+    assertFalse(signalSchedule1.equals(signalSchedule2));
+  }
+
+  @Test
+  public void testInequalityWhenSignalSetAndScheduleSet() {
+    SignalSchedule signalSchedule1 = new SignalSchedule();
+    SignalSchedule signalSchedule2 = new SignalSchedule();
+
+    signalSchedule1.setSignal(new FixedSignal());
+    signalSchedule2.setSignal(new RandomSignal());
+    signalSchedule1.setSchedule(new DailySchedule());
+    signalSchedule2.setSchedule(new DailySchedule());
+
+    assertFalse(signalSchedule1.equals(signalSchedule2));
+  }
+
+  @Test
+  public void testInequalityWhenSignalAndScheduleSet() {
+    SignalSchedule signalSchedule1 = new SignalSchedule();
+    SignalSchedule signalSchedule2 = new SignalSchedule();
+
+    signalSchedule1.setSignal(new RandomSignal());
+    signalSchedule2.setSignal(new RandomSignal());
     signalSchedule1.setSchedule(new DailySchedule());
     signalSchedule2.setSchedule(new WeeklySchedule());
 
-    assertTrue(signalSchedule1.equals(signalSchedule2));
+    assertFalse(signalSchedule1.equals(signalSchedule2));
   }
 
   @Test
