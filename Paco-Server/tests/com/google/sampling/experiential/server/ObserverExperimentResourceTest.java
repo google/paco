@@ -17,7 +17,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
    */
   @Test
   public void testShow() {
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
+    Request request = PacoTestHelper.get("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -25,11 +25,11 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testShowAfterCreate() {
-    ExperimentTestHelper.createUnpublishedExperiment();
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
+    PacoTestHelper.createUnpublishedExperiment();
+    Request request = PacoTestHelper.get("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
     experiment.addObserver("subject@google.com");
@@ -41,11 +41,11 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testShowAsImposterAfterCreate() {
-    ExperimentTestHelper.createUnpublishedExperiment();
+    PacoTestHelper.createUnpublishedExperiment();
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments/1");
+    Request request = PacoTestHelper.get("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -56,13 +56,12 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
    */
   @Test
   public void testUpdate() {
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setPublished(false);
     experiment.setViewers(null);
     experiment.setSignalSchedule(null);
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -70,13 +69,12 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testUpdateWithVersionEqualAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(1);
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -84,13 +82,12 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testUpdateWithVersionGreaterAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(2);
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());
@@ -98,13 +95,12 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testUpdateWithVersionLessAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(0);
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());
@@ -112,15 +108,14 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testUpdateAsImpostorAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
     helper.setEnvEmail("imposter@google.com");
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(1);
 
-    Request request = ServerTestHelper.createJsonPostRequest(
-        "/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -131,7 +126,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
    */
   @Test
   public void testDestroy() {
-    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
+    Request request = PacoTestHelper.delete("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -139,9 +134,9 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testDestroyAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
+    Request request = PacoTestHelper.delete("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -149,11 +144,11 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
   @Test
   public void testDestroyAsImpostorAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper.createJsonDeleteRequest("/observer/experiments/1");
+    Request request = PacoTestHelper.delete("/observer/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());

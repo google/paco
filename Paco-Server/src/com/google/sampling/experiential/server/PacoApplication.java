@@ -35,9 +35,13 @@ public class PacoApplication extends Application {
 
     router.attach("/subject/experiments", SubjectExperimentsResource.class);
     router.attach("/subject/experiments/{experimentId}", SubjectExperimentResource.class);
+    router.attach("/subject/experiments/{experimentId}/events", SubjectEventsResource.class);
+    router.attach("/subject/experiments/{experimentId}/events/{eventId}", SubjectEventResource.class);
 
     router.attach("/observer/experiments", ObserverExperimentsResource.class);
     router.attach("/observer/experiments/{experimentId}", ObserverExperimentResource.class);
+    router.attach("/observer/experiments/{experimentId}/events", ObserverEventsResource.class);
+    router.attach("/observer/experiments/{experimentId}/events/{eventId}", ObserverEventResource.class);
 
     return router;
   }

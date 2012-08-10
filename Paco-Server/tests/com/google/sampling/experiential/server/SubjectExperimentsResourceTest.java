@@ -21,7 +21,7 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
    */
   @Test
   public void testList() {
-    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
+    Request request = PacoTestHelper.get("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -30,9 +30,9 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testListAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
+    Request request = PacoTestHelper.get("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -41,13 +41,13 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testListAfterCreateAndJoin() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
-    ExperimentTestHelper.joinExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.joinExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
+    Request request = PacoTestHelper.get("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -58,12 +58,12 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testListAsImpostorAfterCreateAndJoin() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
-    ExperimentTestHelper.joinExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.joinExperiment();
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = ServerTestHelper.createJsonGetRequest("/subject/experiments");
+    Request request = PacoTestHelper.get("/subject/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());

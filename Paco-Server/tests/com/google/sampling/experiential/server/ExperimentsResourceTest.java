@@ -21,10 +21,9 @@ public class ExperimentsResourceTest extends PacoResourceTest {
    */
   @Test
   public void testCreate() {
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
 
-    Request request =
-        ServerTestHelper.createJsonPostRequest("/experiments", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/experiments", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -33,7 +32,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testCreateWhenExperimentNull() {
-    Request request = ServerTestHelper.createJsonPostRequest("/experiments", "");
+    Request request = PacoTestHelper.post("/experiments", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_BAD_REQUEST, response.getStatus());
@@ -44,7 +43,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
    */
   @Test
   public void testIndex() {
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -53,12 +52,12 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testIndexAfterCreatePublishedPublic() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -70,12 +69,12 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testIndexAfterCreatePublishedPrivate() {
-    ExperimentTestHelper.createPublishedPrivateExperiment();
+    PacoTestHelper.createPublishedPrivateExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -87,12 +86,12 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testIndexAfterCreateUnpublished() {
-    ExperimentTestHelper.createUnpublishedExperiment();
+    PacoTestHelper.createUnpublishedExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -104,14 +103,14 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testIndexAsImposterAfterCreatePublishedPrivate() {
-    ExperimentTestHelper.createPublishedPrivateExperiment();
+    PacoTestHelper.createPublishedPrivateExperiment();
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -123,10 +122,10 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testIndexAfterCreateAndDestroy() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
-    ExperimentTestHelper.destroyExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.destroyExperiment();
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());

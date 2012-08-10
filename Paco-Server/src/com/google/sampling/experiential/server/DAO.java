@@ -48,6 +48,7 @@ public class DAO {
     try {
       key = ds.put(entity);
     } catch (Exception ex) {
+      ex.printStackTrace();
       return null;
     }
 
@@ -61,7 +62,7 @@ public class DAO {
     try {
       entity = ds.get(key);
     } catch (Exception ex) {
-      ex.printStackTrace();
+      //ex.printStackTrace();
       return null;
     }
 
@@ -95,6 +96,7 @@ public class DAO {
     try {
       key = ds.put(entity);
     } catch (Exception ex) {
+      ex.printStackTrace();
       return false;
     }
 

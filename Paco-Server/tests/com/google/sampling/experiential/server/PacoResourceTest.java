@@ -41,7 +41,7 @@ public class PacoResourceTest {
   public void testClientNotLoggedIn() {
     helper.setEnvIsLoggedIn(false);
 
-    Request request = ServerTestHelper.createJsonGetRequest("/experiments");
+    Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_UNAUTHORIZED, response.getStatus());

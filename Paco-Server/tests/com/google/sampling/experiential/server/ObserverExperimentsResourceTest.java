@@ -21,7 +21,7 @@ public class ObserverExperimentsResourceTest extends PacoResourceTest {
    */
   @Test
   public void testList() {
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
+    Request request = PacoTestHelper.get("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -30,11 +30,11 @@ public class ObserverExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testListAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
+    PacoTestHelper.createPublishedPublicExperiment();
+    Request request = PacoTestHelper.get("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
-    Experiment experiment = ExperimentTestHelper.constructExperiment();
+    Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
 
@@ -45,11 +45,11 @@ public class ObserverExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testListAsImposterAfterCreate() {
-    ExperimentTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.createPublishedPublicExperiment();
 
     helper.setEnvEmail("imposter@google.com");
 
-    Request request = ServerTestHelper.createJsonGetRequest("/observer/experiments");
+    Request request = PacoTestHelper.get("/observer/experiments");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
