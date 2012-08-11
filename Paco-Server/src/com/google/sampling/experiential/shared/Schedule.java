@@ -110,6 +110,14 @@ public abstract class Schedule {
     this.type = type;
   }
 
+  /**
+   * @return whether the schedule is fixed in duration
+   */
+  @JsonIgnore
+  public boolean isFixedDuration() {
+    return hasEndDate();
+  }
+
   /*
    * (non-Javadoc)
    *

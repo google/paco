@@ -5,11 +5,14 @@ package com.google.sampling.experiential.server;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
+import com.google.sampling.experiential.shared.RandomSignal;
+import com.google.sampling.experiential.shared.SignalSchedule;
 import com.google.sampling.experiential.shared.TextInput;
 
 import org.restlet.Request;
@@ -27,6 +30,18 @@ import java.util.Date;
  */
 public class PacoTestHelper {
   /*
+   * SignalSchedule
+   */
+  public static SignalSchedule constructSignalSchedule() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    signalSchedule.setSignal(new RandomSignal());
+    signalSchedule.setSchedule(new DailySchedule());
+
+    return signalSchedule;
+  }
+
+  /*
    * Experiment
    */
   public static Experiment constructExperiment() {
@@ -38,7 +53,7 @@ public class PacoTestHelper {
     experiment.setConsentForm("consent form");
     experiment.setPublished(false);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
-    experiment.setSignalSchedule(null);
+    experiment.setSignalSchedule(constructSignalSchedule());
     experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
     experiment.addObserver("observer@google.com");
 

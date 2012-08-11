@@ -176,4 +176,24 @@ public class ScheduleTest {
 
     assertFalse(schedule.hasEndDate());
   }
+
+  @Test
+  public void testIsFixedDuration() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setStartDate(new Date(0));
+    schedule.setEndDate(new Date(1));
+
+    assertTrue(schedule.isFixedDuration());
+  }
+
+  @Test
+  public void testIsFixedDurationWhenNull() {
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+
+    schedule.setStartDate(null);
+    schedule.setEndDate(new Date(1));
+
+    assertTrue(schedule.isFixedDuration());
+  }
 }
