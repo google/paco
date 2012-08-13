@@ -1,189 +1,165 @@
-/*
- * Copyright 2011 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
+// Copyright 2012 Google Inc. All Rights Reserved.
+
 package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.Experiment;
+import com.google.sampling.experiential.shared.DailySchedule;
+import com.google.sampling.experiential.shared.MonthlySchedule;
 import com.google.sampling.experiential.shared.Schedule;
+import com.google.sampling.experiential.shared.WeeklySchedule;
 
 /**
- * Container for all scheduling configuration panels.
- *
- * @author Bob Evans
+ * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class SchedulePanel extends Composite {
-
-  private static final boolean EVERYDAY = true;
-  private VerticalPanel scheduleDetailsPanel;
-  private DurationView durationPanel;
-  private Schedule schedule;
-
-  public SchedulePanel(Schedule schedule) {
-    this.schedule = schedule;
-
-    VerticalPanel verticalPanel = new VerticalPanel();
-    initWidget(verticalPanel);
-
-    verticalPanel.add(createDurationPanel());
-
-    HorizontalPanel horizontalPanel = new HorizontalPanel();
-    horizontalPanel.setSpacing(3);
-    verticalPanel.add(horizontalPanel);
-
-    Label lblSignalSchedule = new Label("Signal Schedule:");
-    lblSignalSchedule.setStyleName("keyLabel");
-    horizontalPanel.add(lblSignalSchedule);
-    horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
-    lblSignalSchedule.setWidth("114px");
-
-    final ListBox listBox = createScheduleTypeListBox();
-    horizontalPanel.add(listBox);
-    horizontalPanel.setCellVerticalAlignment(listBox, HasVerticalAlignment.ALIGN_MIDDLE);
-    listBox.setVisibleItemCount(1);
-
-    scheduleDetailsPanel = new VerticalPanel();
-    verticalPanel.add(scheduleDetailsPanel);
-    setPanelForScheduleType();
-    addListSelectionListener(listBox);
-    verticalPanel.add(createUserEditable(schedule));
-
+public class SchedulePanel extends VerticalPanel implements ChangeHandler {
+  private enum Type {
+    Daily, Weekly, Monthly
   }
 
-  private Widget createUserEditable(Schedule schedule2) {
-    HorizontalPanel userEditablePanel = new HorizontalPanel();
-    userEditablePanel.setSpacing(2);
-    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    userEditablePanel.setWidth("");
-    Label lblUserEditable = new Label("User Editable: ");
-    lblUserEditable.setStyleName("gwt-Label-Header");
-    userEditablePanel.add(lblUserEditable);
+  private ListBox typesListBox;
+  private DailySchedulePanel dailyPanel;
+  private WeeklySchedulePanel weeklyPanel;
+  private MonthlySchedulePanel monthlyPanel;
 
-    final CheckBox userEditableCheckBox = new CheckBox("");
-    userEditablePanel.add(userEditableCheckBox);
-    userEditableCheckBox.setValue(
-        schedule.getUserEditable() != null ? schedule.getUserEditable() : Boolean.TRUE);
-    userEditableCheckBox.addClickHandler(new ClickHandler() {
+  /**
+   * @param signalSchedule
+   */
+  public SchedulePanel() {
+    addTypesPanel();
+    addDailyPanel();
+    addWeeklyPanel();
+    addMonthlyPanel();
+  }
 
-      @Override
-      public void onClick(ClickEvent event) {
-        schedule.setUserEditable(userEditableCheckBox.getValue());
+  /**
+   * @return
+   */
+  public Schedule getSchedule() {
+    Type type = Type.valueOf(typesListBox.getItemText(typesListBox
+        .getSelectedIndex()));
+
+    Schedule schedule = null;
+
+    switch (type) {
+    case Daily:
+      schedule = dailyPanel.getSchedule();
+      break;
+    case Weekly:
+      schedule = weeklyPanel.getSchedule();
+      break;
+    case Monthly:
+      schedule = monthlyPanel.getSchedule();
+      break;
+    }
+
+    return schedule;
+  }
+
+  /**
+   * @param schedule
+   */
+  public void setSchedule(Schedule schedule) {
+    updateTypesPanel(schedule);
+    updateDailyPanel(schedule);
+    updateWeeklyPanel(schedule);
+    updateMonthlyPanel(schedule);
+  }
+
+  private void addTypesPanel() {
+    Panel panel = new HorizontalPanel();
+    Label label = new Label("Schedule: ");
+
+    typesListBox = new ListBox();
+    typesListBox.addChangeHandler(this);
+
+    for (int i = 0; i < Type.values().length; i++) {
+      typesListBox.addItem(Type.values()[i].name());
+    }
+
+    panel.add(label);
+    panel.add(typesListBox);
+  }
+
+  private void updateTypesPanel(Schedule schedule) {
+    typesListBox.setSelectedIndex(Type.valueOf(schedule.getType()).ordinal());
+  }
+
+  private void addDailyPanel() {
+    dailyPanel = new DailySchedulePanel();
+
+    add(dailyPanel);
+  }
+
+  private void updateDailyPanel(Schedule schedule) {
+    if (schedule.getType().equals(Schedule.DAILY) == false) {
+      return;
+    }
+
+    dailyPanel.setSchedule((DailySchedule) schedule);
+  }
+
+  private void addWeeklyPanel() {
+    weeklyPanel = new WeeklySchedulePanel();
+
+    add(weeklyPanel);
+  }
+
+  private void updateWeeklyPanel(Schedule schedule) {
+    if (schedule.getType().equals(Schedule.WEEKLY) == false) {
+      return;
+    }
+
+    weeklyPanel.setSchedule((WeeklySchedule) schedule);
+  }
+
+  private void addMonthlyPanel() {
+    monthlyPanel = new MonthlySchedulePanel();
+
+    add(monthlyPanel);
+  }
+
+  private void updateMonthlyPanel(Schedule schedule) {
+    if (schedule.getType().equals(Schedule.MONTHLY) == false) {
+      return;
+    }
+
+    monthlyPanel.setSchedule((MonthlySchedule) schedule);
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.google.gwt.event.dom.client.ChangeHandler#onChange(com.google.gwt.event
+   * .dom.client.ChangeEvent)
+   */
+  @Override
+  public void onChange(ChangeEvent event) {
+    if (event.getSource() == typesListBox) {
+      if (typesListBox.getSelectedIndex() == 0) {
+        dailyPanel.setVisible(true);
+      } else {
+        dailyPanel.setVisible(false);
       }
 
-    });
-    return userEditablePanel;
-  }
-
-  private void addListSelectionListener(final ListBox listBox) {
-    listBox.addChangeHandler(new ChangeHandler() {
-      @Override
-      public void onChange(ChangeEvent event) {
-        int index = listBox.getSelectedIndex();
-        schedule.setScheduleType(index);
-        setPanelForScheduleType();
+      if (typesListBox.getSelectedIndex() == 1) {
+        weeklyPanel.setVisible(true);
+      } else {
+        weeklyPanel.setVisible(false);
       }
-    });
-  }
 
-  private void setPanelForScheduleType() {
-    switch (schedule.getScheduleType()) {
-      case 0:
-        setDailyPanel(EVERYDAY);
-        break;
-      case 1:
-        setWeekdayPanel(!EVERYDAY);
-        break;
-      case 2:
-        setWeeklyPanel();
-        break;
-      case 3:
-        setMonthlyPanel();
-        break;
-      case 4:
-        setEsmPanel();
-        break;
-      case 5:
-        scheduleDetailsPanel.clear();
-        break;
-      case 6:
-        scheduleDetailsPanel.clear();
-        scheduleDetailsPanel.add(new HTML("<b>Advanced is not implemented yet!</b>"));
-        break;
-      default:
-        throw new IllegalArgumentException("No case to match default list selection!");
-    }
-  }
-
-  private ListBox createScheduleTypeListBox() {
-    final ListBox listBox = new ListBox();
-    for (int i = 0; i < Schedule.SCHEDULE_TYPES_NAMES.length; i++) {
-      listBox.addItem(Schedule.SCHEDULE_TYPES_NAMES[i]);
-    }
-    listBox.setSelectedIndex(schedule.getScheduleType() != null ? schedule.getScheduleType() : 0);
-    return listBox;
-  }
-
-  protected void setEsmPanel() {
-    setPanel(new EsmPanel(schedule));
-  }
-
-  private void setDailyPanel(boolean everyday) {
-    setPanel(new DailyPanel(schedule));
-  }
-
-  private void setWeekdayPanel(boolean everyday) {
-    setPanel(new DailyPanel(schedule));
-  }
-
-  private void setPanel(Widget panel) {
-    scheduleDetailsPanel.clear();
-    scheduleDetailsPanel.add(panel);
-  }
-
-  private void setWeeklyPanel() {
-    setPanel(new WeeklyPanel(schedule));
-  }
-
-  private void setMonthlyPanel() {
-    setPanel(new MonthlyPanel(schedule));
-  }
-
-  private DurationView createDurationPanel() {
-    durationPanel = new DurationView(schedule.isFixedDuration(), schedule.getStartDate(),
-        schedule.getEndDate());
-    return durationPanel;
-  }
-
-  private void setDurationOn() {
-    if (durationPanel.isFixedDuration()) {
-      schedule.setStartDate(null);
-      schedule.setEndDate(null);
-    } else {
-      schedule.setStartDate(durationPanel.getStartDate());
-      schedule.setEndDate(durationPanel.getEndDate());
+      if (typesListBox.getSelectedIndex() == 2) {
+        monthlyPanel.setVisible(true);
+      } else {
+        monthlyPanel.setVisible(false);
+      }
     }
   }
 }

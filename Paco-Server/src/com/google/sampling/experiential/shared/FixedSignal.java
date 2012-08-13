@@ -44,6 +44,18 @@ public class FixedSignal extends Signal {
     }
   }
 
+  /**
+   * @param time the time
+   * @return whether the time was added
+   */
+  public boolean addTime(Date time) {
+    if (times == null) {
+      times = Sets.newLinkedHashSet();
+    }
+
+    return times.add(time);
+  }
+
   /*
    * (non-Javadoc)
    *
