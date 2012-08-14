@@ -1,34 +1,29 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.google.sampling.experiential.client;
 
 /*
  * Copyright 2008 Google Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
 
@@ -50,12 +45,11 @@ import com.google.gwt.widgetideas.client.ValueSpinner;
 import com.google.gwt.widgetideas.client.ValueSpinner.ValueSpinnerResources;
 
 /**
- * 
- * This is a copy of package com.google.gwt.gen2.picker.client; 
- * that fixes a bug in which the time editing events do not actually get fired. 
- * See bug report: 
+ *
+ * This is a copy of package com.google.gwt.gen2.picker.client; that fixes a bug in which the time
+ * editing events do not actually get fired. See bug report:
  * http://code.google.com/p/google-web-toolkit-incubator/issues/detail?id=267
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -73,6 +67,7 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
       getSpinner().setValue(date.getTime(), true);
     }
 
+    @Override
     protected String formatValue(long value) {
       if (dateTimeFormat != null) {
         return dateTimeFormat.format(new Date(value));
@@ -80,6 +75,7 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
       return "";
     }
 
+    @Override
     protected long parseValue(String value) {
       Date parsedDate = new Date(dateInMillis);
       dateTimeFormat.parse(value, 0, parsedDate);
@@ -98,17 +94,16 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
   private boolean enabled = true;
 
   private SpinnerListener listener = new SpinnerListener() {
+    @Override
     public void onSpinning(long value) {
-      // ValueChangeEvent.fireIfNotEqual(TimePicker.this, new
-      // Date(dateInMillis),
       long oldValue = dateInMillis;
       dateInMillis = value;
       ValueChangeEvent.fireIfNotEqual(TimePickerFixed.this, new Date(oldValue), new Date(value));
-    };
+    }
   };
 
   /**
-   * @param use24Hours if set to true the {@link TimePicker} will use 24h format
+   * @param use24Hours if set to true the TimePicker will use 24h format
    */
   public TimePickerFixed(boolean use24Hours) {
     this(new Date(), use24Hours);
@@ -116,24 +111,21 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
 
   /**
    * @param date the date providing the initial time to display
-   * @param use24Hours if set to true the {@link TimePicker} will use 24h format
+   * @param use24Hours if set to true the TimePicker will use 24h format
    */
   public TimePickerFixed(Date date, boolean use24Hours) {
-    this(date, use24Hours ? null : DateTimeFormat.getFormat("aa"),
-        use24Hours ? DateTimeFormat.getFormat("hh") : DateTimeFormat.getFormat("hh"),
-        DateTimeFormat.getFormat("mm"), DateTimeFormat.getFormat("ss"));
+    this(date, use24Hours ? null : DateTimeFormat.getFormat("aa"), use24Hours ? DateTimeFormat
+        .getFormat("hh")
+        : DateTimeFormat.getFormat("hh"), DateTimeFormat.getFormat("mm"), DateTimeFormat.getFormat(
+        "ss"));
   }
 
   /**
    * @param date the date providing the initial time to display
-   * @param amPmFormat the format to display AM/PM. Can be null to hide AM/PM
-   *        field
-   * @param hoursFormat the format to display the hours. Can be null to hide
-   *        hours field
-   * @param minutesFormat the format to display the minutes. Can be null to hide
-   *        minutes field
-   * @param secondsFormat the format to display the seconds. Can be null to
-   *        seconds field
+   * @param amPmFormat the format to display AM/PM. Can be null to hide AM/PM field
+   * @param hoursFormat the format to display the hours. Can be null to hide hours field
+   * @param minutesFormat the format to display the minutes. Can be null to hide minutes field
+   * @param secondsFormat the format to display the seconds. Can be null to seconds field
    */
   public TimePickerFixed(Date date, DateTimeFormat amPmFormat, DateTimeFormat hoursFormat,
       DateTimeFormat minutesFormat, DateTimeFormat secondsFormat) {
@@ -142,20 +134,20 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
 
   /**
    * @param date the date providing the initial time to display
-   * @param amPmFormat the format to display AM/PM. Can be null to hide AM/PM
-   *        field
-   * @param hoursFormat the format to display the hours. Can be null to hide
-   *        hours field
-   * @param minutesFormat the format to display the minutes. Can be null to hide
-   *        minutes field
-   * @param secondsFormat the format to display the seconds. Can be null to
-   *        seconds field
+   * @param amPmFormat the format to display AM/PM. Can be null to hide AM/PM field
+   * @param hoursFormat the format to display the hours. Can be null to hide hours field
+   * @param minutesFormat the format to display the minutes. Can be null to hide minutes field
+   * @param secondsFormat the format to display the seconds. Can be null to seconds field
    * @param styles styles to be used by this TimePicker instance
    * @param images images to be used by all nested Spinner widgets
    *
    */
-  public TimePickerFixed(Date date, DateTimeFormat amPmFormat, DateTimeFormat hoursFormat,
-      DateTimeFormat minutesFormat, DateTimeFormat secondsFormat, ValueSpinnerResources styles,
+  public TimePickerFixed(Date date,
+      DateTimeFormat amPmFormat,
+      DateTimeFormat hoursFormat,
+      DateTimeFormat minutesFormat,
+      DateTimeFormat secondsFormat,
+      ValueSpinnerResources styles,
       SpinnerResources images) {
     this.dateInMillis = date.getTime();
     HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -193,12 +185,13 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
     initWidget(horizontalPanel);
   }
 
+  @Override
   public HandlerRegistration addValueChangeHandler(ValueChangeHandler<Date> handler) {
     return addHandler(handler, ValueChangeEvent.getType());
   }
 
   /**
-   * @return the date specified by this {@link TimePicker}
+   * @return the date specified by this TimePicker
    */
   public Date getDateTime() {
     return new Date(dateInMillis);
@@ -212,8 +205,8 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
   }
 
   /**
-   * @param date the date to be set. Only the date part will be set, the time
-   *        part will not be affected
+   * @param date the date to be set. Only the date part will be set, the time part will not be
+   *        affected
    */
   public void setDate(Date date) {
     // Only change the date part, leave time part untouched
