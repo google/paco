@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
  * @author Bob Evans
  *
  */
-public class TimePanel extends Composite {
+public class TimePickerPanel extends Composite {
   private HorizontalPanel mainPanel;
   private TimePickerFixed timePicker;
   private Button removeButton;
@@ -35,7 +35,7 @@ public class TimePanel extends Composite {
   /**
    *
    */
-  public TimePanel() {
+  public TimePickerPanel() {
     mainPanel = new HorizontalPanel();
 
     initWidget(mainPanel);
@@ -64,9 +64,9 @@ public class TimePanel extends Composite {
   }
 
   /**
-   * @param listener a click handler
+   * @param handler a click handler
    */
-  public void addClickListener(ClickHandler listener) {
-    removeButton.addClickHandler(listener);
+  public void addClickHandler(ClickHandler handler) {
+    removeButton.addClickHandler(handler);
   }
 }

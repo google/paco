@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -18,7 +19,7 @@ import com.google.sampling.experiential.shared.FixedSignal;
  */
 public class FixedSignalPanel extends VerticalPanel implements ClickHandler {
   private VerticalPanel timePanels;
-  TimePickerFixed timePickers;
+  private Button addButton;
 
   /**
    *
@@ -49,11 +50,14 @@ public class FixedSignalPanel extends VerticalPanel implements ClickHandler {
 
   private void addTimePanel() {
     timePanels = new VerticalPanel();
+    addButton = new Button("+");
+    addButton.addClickHandler(this);
 
     Panel panel = new HorizontalPanel();
 
     panel.add(new Label("Times:"));
     panel.add(timePanels);
+    panel.add(addButton);
 
     add(panel);
   }
@@ -62,15 +66,16 @@ public class FixedSignalPanel extends VerticalPanel implements ClickHandler {
     timePanels.clear();
 
     for (Date time : signal.getTimes()) {
-      TimePanel timePanel = new TimePanel();
+      TimePickerPanel timePanel = new TimePickerPanel();
       timePanel.setTime(time);
+      timePanel.addClickHandler(this);
       timePanels.add(timePanel);
     }
   }
 
   private void retrieveTimePanel(FixedSignal signal) {
     for (int i = 0; i < timePanels.getWidgetCount(); i++) {
-      signal.addTime(((TimePanel) timePanels.getWidget(i)).getTime());
+      signal.addTime(((TimePickerPanel) timePanels.getWidget(i)).getTime());
     }
   }
 
@@ -83,8 +88,12 @@ public class FixedSignalPanel extends VerticalPanel implements ClickHandler {
    */
   @Override
   public void onClick(ClickEvent event) {
-    if (event.getSource() instanceof TimePanel) {
-      timePanels.remove((TimePanel) event.getSource());
+    if (event.getSource() instanceof TimePickerPanel) {
+      timePanels.remove((TimePickerPanel) event.getSource());
+    } else if (event.getSource() == addButton) {
+      TimePickerPanel timePanel = new TimePickerPanel();
+      timePanel.addClickHandler(this);
+      timePanels.add(timePanel);
     }
   }
 }
