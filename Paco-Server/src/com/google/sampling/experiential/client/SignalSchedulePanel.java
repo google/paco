@@ -35,6 +35,8 @@ public class SignalSchedulePanel extends VerticalPanel {
    *
    */
   public SignalSchedulePanel() {
+    super();
+
     addSignalSchedulePanel();
     addSchedulePanel();
     addSignalPanel();

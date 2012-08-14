@@ -19,7 +19,7 @@ import com.google.sampling.experiential.shared.Signal.Type;
  *
  */
 public class SignalPanel extends VerticalPanel implements ChangeHandler {
-  ListBox typesListBox;
+  ListBox typeListBox;
   FixedSignalPanel fixedPanel;
   RandomSignalPanel randomPanel;
 
@@ -27,6 +27,8 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
    *
    */
   public SignalPanel() {
+    super();
+
     addTypePanel();
     addFixedPanel();
     addRandomPanel();
@@ -45,12 +47,9 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
    * @return the signal
    */
   public Signal getSignal() {
-    Type type = Type.valueOf(typesListBox.getItemText(typesListBox
-        .getSelectedIndex()));
-
     Signal signal = null;
 
-    switch (type) {
+    switch (getType()) {
     case Fixed:
       signal = fixedPanel.getSignal();
       break;
@@ -66,17 +65,19 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
     Panel panel = new HorizontalPanel();
     Label label = new Label("Schedule: ");
 
-    typesListBox = new ListBox();
-    typesListBox.addChangeHandler(this);
-    typesListBox.addItem("Fixed");
-    typesListBox.addItem("Random");
+    typeListBox = new ListBox();
+    typeListBox.addChangeHandler(this);
+
+    for (int i = 0; i < Type.values().length; i++) {
+      typeListBox.addItem(Type.values()[i].name());
+    }
 
     panel.add(label);
-    panel.add(typesListBox);
+    panel.add(typeListBox);
   }
 
   private void updateTypePanel(Signal signal) {
-    typesListBox.setSelectedIndex(signal.getType().ordinal());
+    typeListBox.setSelectedIndex(signal.getType().ordinal());
   }
 
   private void addFixedPanel() {
@@ -107,6 +108,10 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
     randomPanel.setSignal((RandomSignal) signal);
   }
 
+  private Type getType() {
+    return Type.valueOf(typeListBox.getItemText(typeListBox.getSelectedIndex()));
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -116,14 +121,16 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
    */
   @Override
   public void onChange(ChangeEvent event) {
-    if (event.getSource() == typesListBox) {
-      if (typesListBox.getSelectedIndex() == 0) {
+    if (event.getSource() == typeListBox) {
+      Type type = getType();
+
+      if (type == Type.Fixed) {
         fixedPanel.setVisible(true);
       } else {
         fixedPanel.setVisible(false);
       }
 
-      if (typesListBox.getSelectedIndex() == 1) {
+      if (type == Type.Random) {
         randomPanel.setVisible(true);
       } else {
         randomPanel.setVisible(false);

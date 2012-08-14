@@ -20,7 +20,7 @@ import com.google.sampling.experiential.shared.WeeklySchedule;
  *
  */
 public class SchedulePanel extends VerticalPanel implements ChangeHandler {
-  private ListBox typesListBox;
+  private ListBox typeListBox;
   private DailySchedulePanel dailyPanel;
   private WeeklySchedulePanel weeklyPanel;
   private MonthlySchedulePanel monthlyPanel;
@@ -29,7 +29,9 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
    *
    */
   public SchedulePanel() {
-    addTypesPanel();
+    super();
+
+    addTypePanel();
     addDailyPanel();
     addWeeklyPanel();
     addMonthlyPanel();
@@ -39,12 +41,9 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
    * @return the schedule
    */
   public Schedule getSchedule() {
-    Type type = Type.valueOf(typesListBox.getItemText(typesListBox
-        .getSelectedIndex()));
-
     Schedule schedule = null;
 
-    switch (type) {
+    switch (getType()) {
     case Daily:
       schedule = dailyPanel.getSchedule();
       break;
@@ -63,29 +62,29 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
    * @param schedule the schedule
    */
   public void setSchedule(Schedule schedule) {
-    updateTypesPanel(schedule);
+    updateTypePanel(schedule);
     updateDailyPanel(schedule);
     updateWeeklyPanel(schedule);
     updateMonthlyPanel(schedule);
   }
 
-  private void addTypesPanel() {
+  private void addTypePanel() {
     Panel panel = new HorizontalPanel();
     Label label = new Label("Schedule: ");
 
-    typesListBox = new ListBox();
-    typesListBox.addChangeHandler(this);
+    typeListBox = new ListBox();
+    typeListBox.addChangeHandler(this);
 
     for (int i = 0; i < Type.values().length; i++) {
-      typesListBox.addItem(Type.values()[i].name());
+      typeListBox.addItem(Type.values()[i].name());
     }
 
     panel.add(label);
-    panel.add(typesListBox);
+    panel.add(typeListBox);
   }
 
-  private void updateTypesPanel(Schedule schedule) {
-    typesListBox.setSelectedIndex(schedule.getType().ordinal());
+  private void updateTypePanel(Schedule schedule) {
+    typeListBox.setSelectedIndex(schedule.getType().ordinal());
   }
 
   private void addDailyPanel() {
@@ -130,6 +129,10 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
     monthlyPanel.setSchedule((MonthlySchedule) schedule);
   }
 
+  private Type getType() {
+    return Type.valueOf(typeListBox.getItemText(typeListBox.getSelectedIndex()));
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -139,20 +142,22 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
    */
   @Override
   public void onChange(ChangeEvent event) {
-    if (event.getSource() == typesListBox) {
-      if (typesListBox.getSelectedIndex() == 0) {
+    if (event.getSource() == typeListBox) {
+      Type type = getType();
+
+      if (type == Type.Daily) {
         dailyPanel.setVisible(true);
       } else {
         dailyPanel.setVisible(false);
       }
 
-      if (typesListBox.getSelectedIndex() == 1) {
+      if (type == Type.Weekly) {
         weeklyPanel.setVisible(true);
       } else {
         weeklyPanel.setVisible(false);
       }
 
-      if (typesListBox.getSelectedIndex() == 2) {
+      if (type == Type.Monthly) {
         monthlyPanel.setVisible(true);
       } else {
         monthlyPanel.setVisible(false);
