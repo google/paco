@@ -16,13 +16,13 @@ public class WeeklySchedule extends DailySchedule {
    *
    */
   public WeeklySchedule() {
-    this(Schedule.WEEKLY);
+    this(Schedule.Type.Weekly);
   }
 
   /**
    * @param type
    */
-  protected WeeklySchedule(String type) {
+  protected WeeklySchedule(Type type) {
     super(type);
 
     this.dayRepeat = 0;

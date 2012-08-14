@@ -20,7 +20,7 @@ public class RandomSignal extends Signal {
    *
    */
   public RandomSignal() {
-    super(Signal.RANDOM);
+    super(Signal.Type.Random);
   }
 
   /**

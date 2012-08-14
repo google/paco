@@ -56,8 +56,6 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
     PacoTestHelper.createPublishedPublicExperiment();
     PacoTestHelper.joinExperiment();
 
-    Event event = PacoTestHelper.constructEvent();
-
     Request request = PacoTestHelper.post("/subject/experiments/1/events", "");
     Response response = new PacoApplication().handle(request);
 
@@ -115,8 +113,6 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
 
     Request request = PacoTestHelper.get("/subject/experiments/1/events");
     Response response = new PacoApplication().handle(request);
-
-    Event event = PacoTestHelper.constructEvent();
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
   }

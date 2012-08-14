@@ -24,7 +24,7 @@ public class ListInput extends Input {
   *
   */
   public ListInput() {
-    super(Input.LIST);
+    super(Input.Type.List);
 
     this.question = DEFAULT_QUESTION;
     this.choices = Lists.newArrayList();

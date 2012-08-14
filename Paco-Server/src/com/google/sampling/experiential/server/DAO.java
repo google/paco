@@ -75,10 +75,9 @@ public class DAO {
     Entity newEntity = DAOHelper.toEntity(newExperiment);
     Entity oldEntity = DAOHelper.toEntity(oldExperiment);
     List<Entity> entities = Lists.newArrayList(newEntity, oldEntity);
-    List<Key> keys;
 
     try {
-      keys = ds.put(entities);
+      ds.put(entities);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;
@@ -91,10 +90,9 @@ public class DAO {
     experiment.setDeleted(true);
 
     Entity entity = DAOHelper.toEntity(experiment);
-    Key key;
 
     try {
-      key = ds.put(entity);
+      ds.put(entity);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;
@@ -106,14 +104,13 @@ public class DAO {
   public boolean joinExperiment(Experiment experiment, SignalSchedule signalSchedule) {
     Entity experimentEntity = DAOHelper.toEntity(experiment);
     List<Entity> entities = Lists.newArrayList(experimentEntity);
-    List<Key> keys;
 
     if (signalSchedule != null) {
       entities.add(DAOHelper.toEntity(signalSchedule));
     }
 
     try {
-      keys = ds.put(entities);
+      ds.put(entities);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;
@@ -124,10 +121,9 @@ public class DAO {
 
   public boolean leaveExperiment(Experiment experiment) {
     Entity entity = DAOHelper.toEntity(experiment);
-    Key key;
 
     try {
-      key = ds.put(entity);
+      ds.put(entity);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;

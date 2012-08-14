@@ -16,13 +16,13 @@ public class DailySchedule extends Schedule {
    *
    */
   public DailySchedule() {
-    this(Schedule.DAILY);
+    this(Schedule.Type.Daily);
   }
 
   /**
    * @param type
    */
-  protected DailySchedule(String type) {
+  protected DailySchedule(Type type) {
     super(type);
 
     this.every = 0;

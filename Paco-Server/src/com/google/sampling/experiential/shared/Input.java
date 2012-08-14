@@ -31,27 +31,21 @@ import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 @JsonSubTypes({@Type(TextInput.class), @Type(LikertInput.class), @Type(ListInput.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 public abstract class Input {
-  public static final String TEXT = "text";
-  public static final String LIKERT = "likert";
-  public static final String LIST = "list";
-  public static final String LOCATION = "location";
-  public static final String PHOTO = "photo";
-  public static final String SOUND = "sound";
-  public static final String ACTIVITY = "activity";
-
-  public static String[] TYPES = {TEXT, LIKERT, LIST, LOCATION, PHOTO, SOUND, ACTIVITY};
+  public enum Type {
+    Text, Likert, List
+  }
 
   public static final String DEFAULT_NAME = "";
 
   protected String name;
-  protected String type;
+  protected Type type;
   protected boolean required;
   protected String conditionalExpression;
 
   /**
    *
    */
-  public Input(String type) {
+  public Input(Type type) {
     super();
 
     this.name = DEFAULT_NAME;
@@ -89,14 +83,14 @@ public abstract class Input {
    * @return the type
    */
   @JsonIgnore
-  public String getType() {
+  public Type getType() {
     return type;
   }
 
   /**
    * @param type the type to set
    */
-  protected void setType(String type) {
+  protected void setType(Type type) {
     this.type = type;
   }
 

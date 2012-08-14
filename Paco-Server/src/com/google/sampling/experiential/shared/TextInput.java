@@ -19,7 +19,7 @@ public class TextInput extends Input {
    *
    */
   public TextInput() {
-    super(Input.TEXT);
+    super(Input.Type.Text);
 
     this.question = DEFAULT_QUESTION;
     this.multiline = false;

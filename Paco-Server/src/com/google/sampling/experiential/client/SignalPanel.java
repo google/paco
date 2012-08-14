@@ -12,16 +12,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.FixedSignal;
 import com.google.sampling.experiential.shared.RandomSignal;
 import com.google.sampling.experiential.shared.Signal;
+import com.google.sampling.experiential.shared.Signal.Type;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
 public class SignalPanel extends VerticalPanel implements ChangeHandler {
-  private enum Type {
-    Fixed, Random
-  }
-
   ListBox typesListBox;
   FixedSignalPanel fixedPanel;
   RandomSignalPanel randomPanel;
@@ -79,7 +76,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateTypePanel(Signal signal) {
-    typesListBox.setSelectedIndex(Type.valueOf(signal.getType()).ordinal());
+    typesListBox.setSelectedIndex(signal.getType().ordinal());
   }
 
   private void addFixedPanel() {
@@ -89,7 +86,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateFixedPanel(Signal signal) {
-    if (signal.getType().equals(Signal.FIXED) == false) {
+    if (signal.getType().equals(Type.Fixed) == false) {
       return;
     }
 
@@ -103,7 +100,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateRandomPanel(Signal signal) {
-    if (signal.getType().equals(Signal.RANDOM) == false) {
+    if (signal.getType().equals(Type.Random) == false) {
       return;
     }
 

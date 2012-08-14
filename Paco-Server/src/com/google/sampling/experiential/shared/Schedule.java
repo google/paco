@@ -34,18 +34,18 @@ import java.util.Date;
     @Type(DailySchedule.class), @Type(WeeklySchedule.class), @Type(MonthlySchedule.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 public abstract class Schedule {
-  public static final String DAILY = "daily";
-  public static final String WEEKLY = "weekly";
-  public static final String MONTHLY = "monthly";
+  public enum Type {
+    Daily, Weekly, Monthly
+  }
 
-  protected String type;
+  protected Type type;
   protected Date startDate;
   protected Date endDate;
 
   /**
    *
    */
-  public Schedule(String type) {
+  public Schedule(Type type) {
     super();
 
     this.type = type;
@@ -99,14 +99,14 @@ public abstract class Schedule {
    * @return the type
    */
   @JsonIgnore
-  public String getType() {
+  public Type getType() {
     return type;
   }
 
   /**
    * @param type the type to set
    */
-  protected void setType(String type) {
+  protected void setType(Type type) {
     this.type = type;
   }
 

@@ -95,8 +95,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.setId(1l);
     experiment.setVersion(1);
 
-    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
-
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[]", response.getEntityAsText());
   }
@@ -113,8 +111,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
-
-    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[]", response.getEntityAsText());

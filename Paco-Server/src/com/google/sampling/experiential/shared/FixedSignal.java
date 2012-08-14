@@ -21,7 +21,7 @@ public class FixedSignal extends Signal {
    *
    */
   public FixedSignal() {
-    super(Signal.FIXED);
+    super(Signal.Type.Fixed);
 
     this.times = Sets.newLinkedHashSet();
   }

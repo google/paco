@@ -14,31 +14,31 @@ import java.util.Date;
  */
 public class ScheduleTest {
   private class ScheduleImpl extends Schedule {
-    public ScheduleImpl(String type) {
+    public ScheduleImpl(Type type) {
       super(type);
     }
   }
 
   @Test
   public void testEquality() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     assertTrue(schedule1.equals(schedule2));
   }
 
   @Test
   public void testInequality() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.WEEKLY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Weekly);
 
     assertFalse(schedule1.equals(schedule2));
   }
 
   @Test
   public void testEqualityWhenStartDateSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setStartDate(new Date(3));
     schedule2.setStartDate(new Date(3));
@@ -48,8 +48,8 @@ public class ScheduleTest {
 
   @Test
   public void testEqualityWhenStartDateSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setStartDate(null);
     schedule2.setStartDate(null);
@@ -59,8 +59,8 @@ public class ScheduleTest {
 
   @Test
   public void testInequalityWhenStartDateSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setStartDate(new Date(3));
     schedule2.setStartDate(new Date(4));
@@ -70,8 +70,8 @@ public class ScheduleTest {
 
   @Test
   public void testInequalityWhenStartDateSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setStartDate(null);
     schedule2.setStartDate(new Date(4));
@@ -81,8 +81,8 @@ public class ScheduleTest {
 
   @Test
   public void testEqualityWhenEndDateSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setEndDate(new Date(3));
     schedule2.setEndDate(new Date(3));
@@ -92,8 +92,8 @@ public class ScheduleTest {
 
   @Test
   public void testEqualityWhenEndDateSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setEndDate(null);
     schedule2.setEndDate(null);
@@ -103,8 +103,8 @@ public class ScheduleTest {
 
   @Test
   public void testInequalityWhenEndDateSet() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setEndDate(new Date(3));
     schedule2.setEndDate(new Date(4));
@@ -114,8 +114,8 @@ public class ScheduleTest {
 
   @Test
   public void testInequalityWhenEndDateSetNull() {
-    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.DAILY);
-    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
+    ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setEndDate(null);
     schedule2.setEndDate(new Date(4));
@@ -125,7 +125,7 @@ public class ScheduleTest {
 
   @Test
   public void testStartDateIsNullable() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(null);
 
@@ -134,7 +134,7 @@ public class ScheduleTest {
 
   @Test
   public void testEndDateIsNullable() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setEndDate(null);
 
@@ -143,7 +143,7 @@ public class ScheduleTest {
 
   @Test
   public void testHasStartDate() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(new Date(3));
 
@@ -152,7 +152,7 @@ public class ScheduleTest {
 
   @Test
   public void testHasEndDate() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setEndDate(new Date(3));
 
@@ -161,7 +161,7 @@ public class ScheduleTest {
 
   @Test
   public void testHasStartDateWhenNull() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(null);
 
@@ -170,7 +170,7 @@ public class ScheduleTest {
 
   @Test
   public void testHasEndDateWhenNull() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setEndDate(null);
 
@@ -179,7 +179,7 @@ public class ScheduleTest {
 
   @Test
   public void testIsFixedDuration() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(new Date(0));
     schedule.setEndDate(new Date(1));
@@ -189,7 +189,7 @@ public class ScheduleTest {
 
   @Test
   public void testIsFixedDurationWhenNull() {
-    ScheduleImpl schedule = new ScheduleImpl(Schedule.DAILY);
+    ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(null);
     schedule.setEndDate(new Date(1));

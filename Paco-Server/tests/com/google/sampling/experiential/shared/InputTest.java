@@ -12,23 +12,23 @@ import org.junit.Test;
  */
 public class InputTest {
   private class InputImpl extends Input {
-    public InputImpl(String type) {
+    public InputImpl(Type type) {
       super(type);
     }
   }
 
   @Test
   public void testEquality() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     assertTrue(input1.equals(input2));
   }
 
   @Test
   public void testEqualityWhenNameSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setName("name");
     input2.setName("name");
@@ -38,8 +38,8 @@ public class InputTest {
 
   @Test
   public void testEqualityWhenRequiredSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setRequired(true);
     input2.setRequired(true);
@@ -49,8 +49,8 @@ public class InputTest {
 
   @Test
   public void testEqualityWhenConditionalExpressionSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setConditionalExpression("expression");
     input2.setConditionalExpression("expression");
@@ -60,8 +60,8 @@ public class InputTest {
 
   @Test
   public void testEqualityWhenConditionalExpressionSetNull() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setConditionalExpression(null);
     input2.setConditionalExpression(null);
@@ -71,16 +71,16 @@ public class InputTest {
 
   @Test
   public void testInequality() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.LIST);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.List);
 
     assertFalse(input1.equals(input2));
   }
 
   @Test
   public void testInequalityWhenNameSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setName("name1");
     input2.setName("name2");
@@ -90,8 +90,8 @@ public class InputTest {
 
   @Test
   public void testInequalityWhenRequiredSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setRequired(true);
     input2.setRequired(false);
@@ -101,8 +101,8 @@ public class InputTest {
 
   @Test
   public void testInequalityWhenConditionalExpressionSet() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setConditionalExpression("expression1");
     input2.setConditionalExpression("expression2");
@@ -112,8 +112,8 @@ public class InputTest {
 
   @Test
   public void testInequalityWhenConditionalExpressionSetNull() {
-    InputImpl input1 = new InputImpl(Input.TEXT);
-    InputImpl input2 = new InputImpl(Input.TEXT);
+    InputImpl input1 = new InputImpl(Input.Type.Text);
+    InputImpl input2 = new InputImpl(Input.Type.Text);
 
     input1.setConditionalExpression(null);
     input2.setConditionalExpression("expression2");
@@ -123,7 +123,7 @@ public class InputTest {
 
   @Test
   public void testNameIsNotNullable() {
-    InputImpl input = new InputImpl(Input.TEXT);
+    InputImpl input = new InputImpl(Input.Type.Text);
 
     input.setName(null);
 
@@ -132,7 +132,7 @@ public class InputTest {
 
   @Test
   public void testConditionalExpressionIsNullable() {
-    InputImpl input = new InputImpl(Input.TEXT);
+    InputImpl input = new InputImpl(Input.Type.Text);
 
     input.setConditionalExpression(null);
 
@@ -141,7 +141,7 @@ public class InputTest {
 
   @Test
   public void testIsConditional() {
-    InputImpl input = new InputImpl(Input.TEXT);
+    InputImpl input = new InputImpl(Input.Type.Text);
 
     input.setConditionalExpression("expression");
 
@@ -150,7 +150,7 @@ public class InputTest {
 
   @Test
   public void testIsConditionalWhenNull() {
-    InputImpl input = new InputImpl(Input.TEXT);
+    InputImpl input = new InputImpl(Input.Type.Text);
 
     input.setConditionalExpression(null);
 

@@ -55,6 +55,6 @@ public class WeeklyScheduleTest {
   public void testType() {
     WeeklySchedule schedule = new WeeklySchedule();
 
-    assertEquals(schedule.getType(), Schedule.WEEKLY);
+    assertEquals(schedule.getType(), Schedule.Type.Weekly);
   }
 }

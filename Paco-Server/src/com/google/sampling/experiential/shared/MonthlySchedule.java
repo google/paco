@@ -17,13 +17,13 @@ public class MonthlySchedule extends WeeklySchedule {
    *
    */
   public MonthlySchedule() {
-    this(Schedule.MONTHLY);
+    this(Schedule.Type.Monthly);
   }
 
   /**
    * @param type
    */
-  protected MonthlySchedule(String type) {
+  protected MonthlySchedule(Type type) {
     super(type);
 
     this.byDayOfWeek = false;

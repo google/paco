@@ -16,15 +16,16 @@ import org.codehaus.jackson.annotate.JsonTypeInfo.As;
 @JsonSubTypes({@Type(FixedSignal.class), @Type(RandomSignal.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 public abstract class Signal {
-  public static final String FIXED = "fixed";
-  public static final String RANDOM = "random";
+  public enum Type {
+    Fixed, Random
+  }
 
-  protected String type;
+  protected Type type;
 
   /**
    *
    */
-  public Signal(String type) {
+  public Signal(Type type) {
     super();
 
     this.type = type;
@@ -34,14 +35,14 @@ public abstract class Signal {
    * @return the type
    */
   @JsonIgnore
-  public String getType() {
+  public Type getType() {
     return type;
   }
 
   /**
    * @param type the type to set
    */
-  protected void setType(String type) {
+  protected void setType(Type type) {
     this.type = type;
   }
 

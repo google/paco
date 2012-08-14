@@ -12,23 +12,23 @@ import org.junit.Test;
  */
 public class SignalTest {
   private class SignalImpl extends Signal {
-    public SignalImpl(String type) {
+    public SignalImpl(Type type) {
       super(type);
     }
   }
 
   @Test
   public void testEquality() {
-    SignalImpl signal1 = new SignalImpl(Signal.FIXED);
-    SignalImpl signal2 = new SignalImpl(Signal.FIXED);
+    SignalImpl signal1 = new SignalImpl(Signal.Type.Fixed);
+    SignalImpl signal2 = new SignalImpl(Signal.Type.Fixed);
 
     assertTrue(signal1.equals(signal2));
   }
 
   @Test
   public void testInequality() {
-    SignalImpl signal1 = new SignalImpl(Signal.FIXED);
-    SignalImpl signal2 = new SignalImpl(Signal.RANDOM);
+    SignalImpl signal1 = new SignalImpl(Signal.Type.Fixed);
+    SignalImpl signal2 = new SignalImpl(Signal.Type.Random);
 
     assertFalse(signal1.equals(signal2));
   }

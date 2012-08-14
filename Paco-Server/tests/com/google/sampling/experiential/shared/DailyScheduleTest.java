@@ -53,6 +53,6 @@ public class DailyScheduleTest {
   public void testType() {
     DailySchedule schedule = new DailySchedule();
 
-    assertEquals(schedule.getType(), Schedule.DAILY);
+    assertEquals(schedule.getType(), Schedule.Type.Daily);
   }
 }

@@ -77,6 +77,6 @@ public class MonthlyScheduleTest {
   public void testType() {
     MonthlySchedule schedule = new MonthlySchedule();
 
-    assertEquals(schedule.getType(), Schedule.MONTHLY);
+    assertEquals(schedule.getType(), Schedule.Type.Monthly);
   }
 }

@@ -64,8 +64,6 @@ public class SubjectEventResourceTest extends PacoResourceTest {
     Request request = PacoTestHelper.get("/subject/experiments/1/events/2");
     Response response = new PacoApplication().handle(request);
 
-    Event event = PacoTestHelper.constructEvent();
-
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
   }
 
@@ -80,8 +78,6 @@ public class SubjectEventResourceTest extends PacoResourceTest {
 
     Request request = PacoTestHelper.get("/subject/experiments/1/events/2");
     Response response = new PacoApplication().handle(request);
-
-    Event event = PacoTestHelper.constructEvent();
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
   }

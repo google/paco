@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.MonthlySchedule;
 import com.google.sampling.experiential.shared.Schedule;
+import com.google.sampling.experiential.shared.Schedule.Type;
 import com.google.sampling.experiential.shared.WeeklySchedule;
 
 /**
@@ -19,10 +20,6 @@ import com.google.sampling.experiential.shared.WeeklySchedule;
  *
  */
 public class SchedulePanel extends VerticalPanel implements ChangeHandler {
-  private enum Type {
-    Daily, Weekly, Monthly
-  }
-
   private ListBox typesListBox;
   private DailySchedulePanel dailyPanel;
   private WeeklySchedulePanel weeklyPanel;
@@ -88,7 +85,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateTypesPanel(Schedule schedule) {
-    typesListBox.setSelectedIndex(Type.valueOf(schedule.getType()).ordinal());
+    typesListBox.setSelectedIndex(schedule.getType().ordinal());
   }
 
   private void addDailyPanel() {
@@ -98,7 +95,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateDailyPanel(Schedule schedule) {
-    if (schedule.getType().equals(Schedule.DAILY) == false) {
+    if (schedule.getType().equals(Type.Daily) == false) {
       return;
     }
 
@@ -112,7 +109,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateWeeklyPanel(Schedule schedule) {
-    if (schedule.getType().equals(Schedule.WEEKLY) == false) {
+    if (schedule.getType().equals(Type.Weekly) == false) {
       return;
     }
 
@@ -126,7 +123,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   private void updateMonthlyPanel(Schedule schedule) {
-    if (schedule.getType().equals(Schedule.MONTHLY) == false) {
+    if (schedule.getType().equals(Type.Monthly) == false) {
       return;
     }
 

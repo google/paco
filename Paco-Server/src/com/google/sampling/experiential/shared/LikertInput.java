@@ -25,7 +25,7 @@ public class LikertInput extends Input {
    *
    */
   public LikertInput() {
-    super(Input.LIKERT);
+    super(Input.Type.Likert);
 
     this.question = DEFAULT_QUESTION;
     this.labels = Lists.newArrayList();
