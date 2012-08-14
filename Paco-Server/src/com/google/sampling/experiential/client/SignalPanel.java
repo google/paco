@@ -24,7 +24,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   RandomSignalPanel randomPanel;
 
   /**
-   * @param signalSchedule
+   *
    */
   public SignalPanel() {
     addTypePanel();
@@ -33,7 +33,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   }
 
   /**
-   * @param signal
+   * @param signal the signal
    */
   public void setSignal(Signal signal) {
     updateTypePanel(signal);
@@ -42,7 +42,7 @@ public class SignalPanel extends VerticalPanel implements ChangeHandler {
   }
 
   /**
-   * @return
+   * @return the signal
    */
   public Signal getSignal() {
     Type type = Type.valueOf(typesListBox.getItemText(typesListBox

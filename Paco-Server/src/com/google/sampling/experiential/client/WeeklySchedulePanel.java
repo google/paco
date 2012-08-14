@@ -34,7 +34,7 @@ public class WeeklySchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @return
+   * @return the schedule
    */
   public WeeklySchedule getSchedule() {
     WeeklySchedule schedule = new WeeklySchedule();
@@ -46,7 +46,7 @@ public class WeeklySchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @param schedule
+   * @param schedule the schedule
    */
   public void setSchedule(WeeklySchedule schedule) {
     updateRepeatPanel(schedule);

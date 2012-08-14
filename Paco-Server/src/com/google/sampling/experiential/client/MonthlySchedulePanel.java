@@ -47,7 +47,7 @@ public class MonthlySchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @return
+   * @return the monthly schedule
    */
   public MonthlySchedule getSchedule() {
     MonthlySchedule schedule = new MonthlySchedule();
@@ -60,7 +60,7 @@ public class MonthlySchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @param schedule
+   * @param schedule the monthly schedule
    */
   public void setSchedule(MonthlySchedule schedule) {
     updateRepeatPanel(schedule);

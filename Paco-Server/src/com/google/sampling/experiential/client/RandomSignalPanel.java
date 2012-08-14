@@ -30,7 +30,7 @@ public class RandomSignalPanel extends VerticalPanel {
   }
 
   /**
-   * @return
+   * @return the random signal
    */
   public RandomSignal getSignal() {
     RandomSignal signal = new RandomSignal();
@@ -42,7 +42,7 @@ public class RandomSignalPanel extends VerticalPanel {
   }
 
   /**
-   * @param signal
+   * @param signal the random signal
    */
   public void setSignal(RandomSignal signal) {
     updateFrequencyPanel(signal);

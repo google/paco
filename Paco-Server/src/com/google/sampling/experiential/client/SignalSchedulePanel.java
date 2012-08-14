@@ -41,7 +41,7 @@ public class SignalSchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @param signalSchedule
+   * @param signalSchedule the signal schedule
    */
   public void setSignalSchedule(SignalSchedule signalSchedule) {
     updateSignalSchedulePanel(signalSchedule);
@@ -50,7 +50,7 @@ public class SignalSchedulePanel extends VerticalPanel {
   }
 
   /**
-   * @return
+   * @return the signal schedule
    */
   public SignalSchedule getSignalSchedule() {
     SignalSchedule signalSchedule = new SignalSchedule();

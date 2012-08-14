@@ -26,7 +26,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   private MonthlySchedulePanel monthlyPanel;
 
   /**
-   * @param signalSchedule
+   *
    */
   public SchedulePanel() {
     addTypesPanel();
@@ -36,7 +36,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   /**
-   * @return
+   * @return the schedule
    */
   public Schedule getSchedule() {
     Type type = Type.valueOf(typesListBox.getItemText(typesListBox
@@ -60,7 +60,7 @@ public class SchedulePanel extends VerticalPanel implements ChangeHandler {
   }
 
   /**
-   * @param schedule
+   * @param schedule the schedule
    */
   public void setSchedule(Schedule schedule) {
     updateTypesPanel(schedule);
