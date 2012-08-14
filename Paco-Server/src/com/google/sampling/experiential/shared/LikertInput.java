@@ -69,6 +69,17 @@ public class LikertInput extends Input {
   }
 
   /**
+   * @param label the label
+   */
+  public boolean addLabel(String label) {
+    if (labels == null) {
+      labels = Lists.newArrayList();
+    }
+
+    return labels.add(label);
+  }
+
+  /**
    * @return the useSmileys
    */
   public boolean isSmileys() {

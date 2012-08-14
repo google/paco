@@ -67,6 +67,14 @@ public class ListInput extends Input {
     }
   }
 
+  public boolean addChoice(String choice) {
+    if (choices == null) {
+      choices = Lists.newArrayList();
+    }
+
+    return choices.add(choice);
+  }
+
   /**
    * @return the multiselect
    */
