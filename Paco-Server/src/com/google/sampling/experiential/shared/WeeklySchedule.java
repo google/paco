@@ -10,6 +10,10 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  */
 @JsonTypeName("weekly")
 public class WeeklySchedule extends DailySchedule {
+  public enum Day {
+    Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+  }
+
   private int dayRepeat;
 
   /**
@@ -40,6 +44,15 @@ public class WeeklySchedule extends DailySchedule {
    */
   public void setDayRepeat(int dayRepeat) {
     this.dayRepeat = dayRepeat;
+  }
+
+  /**
+   * @param day the day
+   * @return whether the day is set
+   */
+  public boolean onDay(Day day) {
+    int bit = 1 << day.ordinal();
+    return ((dayRepeat & bit) == bit);
   }
 
   /*

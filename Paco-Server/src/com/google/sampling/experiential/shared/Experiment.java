@@ -28,6 +28,7 @@ public class Experiment {
   public static String DEFAULT_DESCRIPTION = "";
   public static String DEFAULT_CREATOR = "";
   public static String DEFAULT_CONSENT_FORM = "";
+  public static String DEFAULT_FEEDBACK = "";
 
   private Long id;
   private long version;
@@ -47,7 +48,7 @@ public class Experiment {
   @JsonView(Viewer.class)
   private SignalSchedule signalSchedule;
   @JsonView(Viewer.class)
-  private List<Feedback> feedbacks;
+  private String feedback;
   @JsonView(Observer.class)
   private boolean published;
   @JsonView(Observer.class)
@@ -73,7 +74,7 @@ public class Experiment {
     this.consentForm = DEFAULT_CONSENT_FORM;
     this.inputs = Lists.newArrayList();
     this.signalSchedule = null;
-    this.feedbacks = Lists.newArrayList();
+    this.feedback = DEFAULT_FEEDBACK;
 
     this.published = false;
     this.observers = Sets.newHashSet();
@@ -242,20 +243,20 @@ public class Experiment {
   }
 
   /**
-   * @return the feedbacks
+   * @return the feedback
    */
-  public List<Feedback> getFeedbacks() {
-    return feedbacks;
+  public String getFeedback() {
+    return feedback;
   }
 
   /**
-   * @param feedbacks the feedbacks to List
+   * @param feedback the feedback
    */
-  public void setFeedbacks(List<Feedback> feedbacks) {
-    if (feedbacks == null) {
-      this.feedbacks = Lists.newArrayList();
+  public void setFeedback(String feedback) {
+    if (feedback == null) {
+      this.feedback = DEFAULT_FEEDBACK;
     } else {
-      this.feedbacks = feedbacks;
+      this.feedback = feedback;
     }
   }
 
@@ -482,7 +483,7 @@ public class Experiment {
       }
     }
 
-    if (getFeedbacks().equals(other.getFeedbacks()) == false) {
+    if (getFeedback().equals(other.getFeedback()) == false) {
       return false;
     }
 

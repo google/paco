@@ -56,8 +56,8 @@ public class MonthlyScheduleTest {
     MonthlySchedule schedule1 = new MonthlySchedule();
     MonthlySchedule schedule2 = new MonthlySchedule();
 
-    schedule1.setByDayOfWeek(true);
-    schedule2.setByDayOfWeek(true);
+    schedule1.setByDay(true);
+    schedule2.setByDay(true);
 
     assertTrue(schedule1.equals(schedule2));
   }
@@ -67,8 +67,8 @@ public class MonthlyScheduleTest {
     MonthlySchedule schedule1 = new MonthlySchedule();
     MonthlySchedule schedule2 = new MonthlySchedule();
 
-    schedule1.setByDayOfWeek(true);
-    schedule2.setByDayOfWeek(false);
+    schedule1.setByDay(true);
+    schedule2.setByDay(false);
 
     assertFalse(schedule1.equals(schedule2));
   }

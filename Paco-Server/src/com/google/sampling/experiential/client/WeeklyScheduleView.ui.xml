@@ -1,0 +1,16 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui">
+  <ui:style>
+  </ui:style>
+  <g:HTMLPanel>
+    Every <g:TextBox ui:field="every" /> week(s)
+    On
+    <g:CheckBox ui:field="sunday">Sunday</g:CheckBox>
+    <g:CheckBox ui:field="monday">Monday</g:CheckBox>
+    <g:CheckBox ui:field="tuesday">Tuesday</g:CheckBox>
+    <g:CheckBox ui:field="wednesday">Wednesday</g:CheckBox>
+    <g:CheckBox ui:field="thursday">Thursday</g:CheckBox>
+    <g:CheckBox ui:field="friday">Friday</g:CheckBox>
+    <g:CheckBox ui:field="saturday">Saturday</g:CheckBox>
+  </g:HTMLPanel>
+</ui:UiBinder>

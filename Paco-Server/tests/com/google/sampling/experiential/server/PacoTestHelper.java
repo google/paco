@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.DailySchedule;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.Feedback;
 import com.google.sampling.experiential.shared.LikertInput;
 import com.google.sampling.experiential.shared.ListInput;
 import com.google.sampling.experiential.shared.RandomSignal;
@@ -54,7 +53,7 @@ public class PacoTestHelper {
     experiment.setPublished(false);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
     experiment.setSignalSchedule(constructSignalSchedule());
-    experiment.setFeedbacks(Lists.newArrayList(new Feedback()));
+    experiment.setFeedback("feedback");
     experiment.addObserver("observer@google.com");
 
     return experiment;

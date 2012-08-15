@@ -18,7 +18,6 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -40,13 +39,9 @@ import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.sampling.experiential.shared.Event;
 import com.google.sampling.experiential.shared.Experiment;
 import com.google.sampling.experiential.shared.ExperimentStats;
-import com.google.sampling.experiential.shared.Feedback;
-import com.google.sampling.experiential.shared.Input;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-
-import org.restlet.client.resource.ClientResource;
 
 /**
  * Default Entry point into the GWT application. Checks login. Renders Joined Experiments view by
@@ -627,9 +622,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showExperimentDetailPanel(Experiment experiment, boolean joined) {
     statusLabel.setVisible(true);
-    ExperimentDefinitionPanel ep =
-        new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
-    contentPanel.add(ep);
+    ExperimentView experimentView = new ExperimentView(experiment);
+    contentPanel.add(experimentView);
     statusLabel.setVisible(false);
   }
 

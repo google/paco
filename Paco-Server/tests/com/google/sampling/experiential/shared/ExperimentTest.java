@@ -125,8 +125,8 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setFeedbacks(Lists.newArrayList(new Feedback()));
-    experiment2.setFeedbacks(Lists.newArrayList(new Feedback()));
+    experiment1.setFeedback("feedback");
+    experiment2.setFeedback("feedback");
 
     assertTrue(experiment1.equals(experiment2));
   }
@@ -235,8 +235,8 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setFeedbacks(Lists.newArrayList(Feedback.create("feedback1")));
-    experiment2.setFeedbacks(Lists.newArrayList(Feedback.create("feedback2")));
+    experiment1.setFeedback("feedback1");
+    experiment2.setFeedback("feedback2");
 
     assertFalse(experiment1.equals(experiment2));
   }
@@ -246,8 +246,8 @@ public class ExperimentTest {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
 
-    experiment1.setFeedbacks(null);
-    experiment2.setFeedbacks(Lists.newArrayList(Feedback.create("feedback2")));
+    experiment1.setFeedback(null);
+    experiment2.setFeedback("feedback2");
 
     assertFalse(experiment1.equals(experiment2));
   }

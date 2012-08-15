@@ -1,0 +1,13 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder" xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:paco="urn:import:com.google.sampling.experiential.client">
+  <ui:style>
+  </ui:style>
+  <g:HTMLPanel>
+    Start Date: <g:TextBox ui:field="startDate" />
+    End Date: <g:TextBox ui:field="endDate" />
+    <g:ListBox ui:field="types" />
+    <paco:DailyScheduleView ui:field="dailySchedule" visible="false" />
+    <paco:WeeklyScheduleView ui:field="weeklySchedule" visible="false" />
+    <paco:MonthlyScheduleView ui:field="monthlySchedule" visible="false" />
+  </g:HTMLPanel>
+</ui:UiBinder>

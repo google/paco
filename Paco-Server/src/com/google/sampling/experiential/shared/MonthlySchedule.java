@@ -10,7 +10,11 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  */
 @JsonTypeName("monthly")
 public class MonthlySchedule extends WeeklySchedule {
-  private boolean byDayOfWeek;
+  public enum Week {
+    First, Second, Third, Fourth, Fifth
+  }
+
+  private boolean byDay;
   private int weekRepeat;
 
   /**
@@ -26,22 +30,22 @@ public class MonthlySchedule extends WeeklySchedule {
   protected MonthlySchedule(Type type) {
     super(type);
 
-    this.byDayOfWeek = false;
+    this.byDay = false;
     this.weekRepeat = 0;
   }
 
   /**
-   * @return the byDayOfWeek
+   * @return whether the schedule is by day
    */
-  public boolean isByDayOfWeek() {
-    return byDayOfWeek;
+  public boolean isByDay() {
+    return byDay;
   }
 
   /**
    * @param byDayOfWeek the byDayOfWeek to set
    */
-  public void setByDayOfWeek(boolean byDayOfWeek) {
-    this.byDayOfWeek = byDayOfWeek;
+  public void setByDay(boolean byDayOfWeek) {
+    this.byDay = byDayOfWeek;
   }
 
   /**
@@ -71,7 +75,7 @@ public class MonthlySchedule extends WeeklySchedule {
 
     MonthlySchedule other = (MonthlySchedule) obj;
 
-    if (isByDayOfWeek() != other.isByDayOfWeek()) {
+    if (isByDay() != other.isByDay()) {
       return false;
     }
 
