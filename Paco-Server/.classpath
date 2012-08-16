@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/gwt-maps.jar"/>
 	<classpathentry kind="lib" path="lib/gwt-incubator-20101117-r1766.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09-gwt.jar"/>
+	<classpathentry kind="lib" path="lib/gwt-guava-r09.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib/gwt-restlet-2.0.14.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-2.1rc5.jar"/>
