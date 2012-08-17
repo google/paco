@@ -26,12 +26,12 @@ public class SubjectEventsResource extends PacoExperimentResource {
     }
   }
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public List<Event> summary() {
     return dao.getEvents(experiment, user);
   }
 
-  @Post("gwt|json")
+  @Post("json|gwt")
   public void add(Event event) {
     if (event == null) {
       throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);

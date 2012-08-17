@@ -31,7 +31,7 @@ import java.util.List;
  *
  */
 public class ExperimentsResource extends PacoResource {
-  @Post("gwt|json")
+  @Post("json|gwt")
   public void create(Experiment experiment) {
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);

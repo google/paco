@@ -36,12 +36,12 @@ public class SubjectExperimentResource extends PacoExperimentResource {
     }
   }
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public ExperimentStats stats() {
     throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
   }
 
-  @Delete("gwt|json")
+  @Delete("json|gwt")
   public void leave() {
     experiment.removeSubject(user);
 

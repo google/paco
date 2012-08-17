@@ -22,7 +22,7 @@ public class ObserverEventResource extends PacoEventResource {
     }
   }
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public Event show() {
     return event;
   }

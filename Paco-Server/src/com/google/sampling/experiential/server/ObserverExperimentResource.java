@@ -37,12 +37,12 @@ public class ObserverExperimentResource extends PacoExperimentResource {
     }
   }
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public Experiment show() {
     return experiment;
   }
 
-  @Post("gwt|json")
+  @Post("json|gwt")
   public void update(Experiment newExperiment) {
     if (newExperiment.getVersion() != experiment.getVersion()) {
       throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
@@ -60,7 +60,7 @@ public class ObserverExperimentResource extends PacoExperimentResource {
     setStatus(Status.SUCCESS_NO_CONTENT);
   }
 
-  @Delete("gwt|json")
+  @Delete("json|gwt")
   public void destroy() {
     experiment.setDeleted(true);
 

@@ -43,7 +43,7 @@ public class ExperimentResource extends PacoExperimentResource {
     return experiment;
   }
 
-  @Post("gwt|json")
+  @Post("json|gwt")
   public void join(SignalSchedule signalSchedule) {
     experiment.addSubject(user);
 

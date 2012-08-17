@@ -16,15 +16,15 @@ import java.util.List;
  *
  */
 public interface EventResourceProxy extends ClientProxy {
-  @Get("gwt|json")
+  @Get("json|gwt")
   public void show(AsyncCallback<Event> callback);
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public void list(AsyncCallback<List<Event>> callback);
 
-  @Get("gwt|json")
+  @Get("json|gwt")
   public void summary(AsyncCallback<List<Event>> callback);
 
-  @Post("gwt|json")
+  @Post("json|gwt")
   public void add(Event event, AsyncCallback<Void> callback);
 }
