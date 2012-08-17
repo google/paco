@@ -12,3 +12,11 @@ Paco-Server/war/WEB-INF/lib/gwt-servlet-deps.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
 Paco-Server/war/paco.apk
 Paco-Server/war/pacoserver/
+Paco-Server/war/WEB-INF/lib/appengine-api-labs-1.7.0.jar
+Paco-Server/war/WEB-INF/lib/datanucleus-appengine-1.0.10.final.jar
+Paco-Server/war/WEB-INF/lib/datanucleus-core-1.1.5.jar
+Paco-Server/war/WEB-INF/lib/datanucleus-jpa-1.1.5.jar
+Paco-Server/war/WEB-INF/lib/geronimo-jpa_3.0_spec-1.1.1.jar
+Paco-Server/war/WEB-INF/lib/geronimo-jta_1.1_spec-1.1.1.jar
+Paco-Server/war/WEB-INF/lib/jdo2-api-2.3-eb.jar
+
