@@ -45,7 +45,7 @@ public class SubjectEventsResource extends PacoExperimentResource {
     if (id != null) {
       // FIXME: Should set location to upload url if experiment contain's a blob
       setStatus(Status.SUCCESS_CREATED);
-      setLocationRef(new Reference("/subject/experiment/" + experiment.getId() + "/events/" + id));
+      setLocationRef("/subject/experiment/" + experiment.getId() + "/events/" + id);
     } else {
       setStatus(Status.SERVER_ERROR_INTERNAL);
     }

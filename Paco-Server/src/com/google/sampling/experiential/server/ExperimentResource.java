@@ -57,6 +57,6 @@ public class ExperimentResource extends PacoExperimentResource {
     }
 
     setStatus(Status.SUCCESS_CREATED);
-    setLocationRef(new Reference("/subject/experiments/" + experiment.getId()));
+    setLocationRef("/subject/experiments/" + experiment.getId());
   }
 }

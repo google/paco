@@ -48,7 +48,7 @@ public class ExperimentsResource extends PacoResource {
     }
 
     setStatus(Status.SUCCESS_CREATED);
-    setLocationRef(new Reference("/observer/experiments/" + id));
+    setLocationRef("/observer/experiments/" + id);
   }
 
   @Get("json|gwt")
