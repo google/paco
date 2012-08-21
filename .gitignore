@@ -18,7 +18,9 @@ Paco-Server/war/paco.apk
 Paco-Server/war/pacoserver/
 PacoTest/local.properties
 PacoTest/bin/*
+PacoTest/testbin/*
 PacoTest/gen/*
+PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
 Shared/testbin
