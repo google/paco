@@ -43,7 +43,6 @@ import com.google.paco.shared.Outcome;
 public class SyncService extends Service {
 
 
-  private static final int UPLOAD_EVENT_GROUP_SIZE = 50;
   private static final String AUTH_TOKEN_PREFERENCE = null;
   private static final String AUTH_TOKEN_PREFERENCE_NAME_KEY = null;
   private static final String AUTH_TOKEN_PREFERENCE_EXPIRE_KEY = null;
@@ -89,45 +88,13 @@ public class SyncService extends Service {
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
-      if (allEvents.size() == 0) {
-        Log.d(PacoConstants.TAG, "Nothing to sync");
-        return;
-      }
-      boolean hasErrorOcurred = false;
-      Log.d(PacoConstants.TAG, "Tasks found in db");
-
-      int uploadGroupSize = UPLOAD_EVENT_GROUP_SIZE;
-      int uploaded = 0;
-      while (uploaded < allEvents.size() && !hasErrorOcurred) {
-        int groupSize = Math.min(allEvents.size() - uploaded, uploadGroupSize);
-        int end = uploaded + groupSize;
-        List<Event> events = allEvents.subList(uploaded, end);
-        ResponsePair response = sendToPaco(events);
-        switch (response.overallCode) {
-        case 200:
-          for (int i = 0; i < response.outcomes.size(); i++) {
-            Outcome current = response.outcomes.get(i);
-            if (current.succeeded()) {
-              Event correspondingEvent = events.get((int) current.getEventId());
-              correspondingEvent.setUploaded(true);
-              experimentProviderUtil.updateEvent(correspondingEvent);
-            }
-          }
-          uploaded = end;
-          break;
-        default:
-          hasErrorOcurred = true;
-          break;
-        }
-      }
- 
-      if (!hasErrorOcurred) {
-        Log.d(PacoConstants.TAG, "syncing complete");
-      } else {
-        Log.d(PacoConstants.TAG, "could not complete upload of events");
-      }
+      EventUploader eventUploader = new EventUploader(new UrlContentManager(this, true, userPrefs.getGoogleEmailType()), 
+                        userPrefs.getServerAddress(), 
+                        experimentProviderUtil);
+      eventUploader.uploadEvents(allEvents); 
     }
   }
+
 
   private boolean isConnected() {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -135,76 +102,5 @@ public class SyncService extends Service {
     return networkInfo != null && networkInfo.isConnected();
   }
 
-  private static class ResponsePair {
-    int overallCode;
-    List<Outcome> outcomes;
-  }
-  
-  private ResponsePair sendToPaco(List<Event> events) {
-    ResponsePair responsePair = new ResponsePair();
-    
-    String json = toJson(events, responsePair);
-    if (responsePair.overallCode == 500) {
-      return responsePair;
-    }
-    
-    UrlContentManager um = null;
-    try {
-      um = new UrlContentManager(this, true, userPrefs.getGoogleEmailType());
-      Log.i("" + this, "Preparing to post.");
-      
-      Response response = um.createRequest().setUrl("https://"+userPrefs.getServerAddress()+"/events").
-          setPostData(json).addHeader("http.useragent", "PacoDroid2").
-          execute();
-      
-      responsePair.overallCode = response.getHttpCode();
-      readOutcomesFromJson(responsePair, response.getContentAsString());
-      return responsePair;
-    } finally {
-      if (um != null) {
-        um.cleanUp(); 
-      }
-    }
-    
-  }
-
-  private void readOutcomesFromJson(ResponsePair responsePair, String contentAsString) {
-    if (contentAsString != null) {
-      ObjectMapper mapper2 = new ObjectMapper();
-      mapper2.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);        
-      try {
-        responsePair.outcomes = mapper2.readValue(contentAsString, new TypeReference<List<Outcome>>() {});
-      } catch (JsonParseException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
-        responsePair.overallCode = 500;
-      } catch (JsonMappingException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
-        responsePair.overallCode = 500;
-      } catch (IOException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
-        responsePair.overallCode = 500;
-      }
-    } 
-  }
-
-  private String toJson(List<Event> events, ResponsePair responsePair) {
-    ObjectMapper mapper = new ObjectMapper();
-    StringWriter stringWriter = new StringWriter();
-    Log.d(PacoConstants.TAG, "syncing events");
-    try {
-      mapper.writeValue(stringWriter, events);      
-    } catch (JsonGenerationException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      responsePair.overallCode = 500;
-    } catch (JsonMappingException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      responsePair.overallCode = 500;
-    } catch (IOException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      responsePair.overallCode = 500;
-    }
-    String json = stringWriter.toString();
-    return json;
-  }
 
 }
