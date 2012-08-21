@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco.test;
+package com.google.android.apps.paco;
 
 import java.util.ArrayList;
 import java.util.Collections;

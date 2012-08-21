@@ -250,7 +250,7 @@ Test targets suppressed because -junit argument was not specified when running w
 
   <target name="test" description="Run development and production mode tests">
     <antcall target="test.dev" />
-    <antcall target="test.prod" />
+    <!--  <antcall target="test.prod" /> -->
   </target>
 
 

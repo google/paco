@@ -1,4 +1,4 @@
-package com.google.android.apps.paco.test;
+package com.google.android.apps.paco;
 
 import org.joda.time.DateTime;
 
