@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -148,16 +149,25 @@ public class ChartPanel extends Composite {
           continue;
         }
 
+        String formattedResponseTime = formatTime(event.getResponseTime());
+        String formattedScheduledTime = formatTime(event.getScheduledTime());
         HTML picture = new HTML("<div style=\"text-align:center;margin-left:2;margin-right:2;\">"
             + "<img height=\"375\" src=\"data:image/jpg;base64," 
             + blobData 
-            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formatter.format(event.getResponseTime()) + "</b>"
-            + "<br><b>" + formatter.format(event.getScheduledTime()) + "</b>"
+            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formattedResponseTime + "</b>"
+            + "<br><b>" + formattedScheduledTime + "</b>"
             +"</div>");
         horizontalPanel.add(picture);
       }
     }
     return photosPanel;
+  }
+
+  private String formatTime(Date time) {
+    if (time == null) {
+      return "";
+    }
+    return formatter.format(time);
   }
 
   /**
