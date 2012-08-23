@@ -19,7 +19,7 @@ import com.google.sampling.experiential.shared.Experiment;
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 
 /**
@@ -42,13 +42,11 @@ public class ObserverExperimentResource extends PacoExperimentResource {
     return experiment;
   }
 
-  @Post("json|gwt")
+  @Put("json|gwt")
   public void update(Experiment newExperiment) {
     if (newExperiment.getVersion() != experiment.getVersion()) {
       throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
     }
-
-    // FIXME: Revision old experiment
 
     newExperiment.setId(experiment.getId());
     newExperiment.setVersion(experiment.getVersion() + 1);

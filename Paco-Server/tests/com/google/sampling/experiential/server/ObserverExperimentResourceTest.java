@@ -61,7 +61,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     experiment.setViewers(null);
     experiment.setSignalSchedule(null);
 
-    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.put("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_NOT_FOUND, response.getStatus());
@@ -74,7 +74,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(1);
 
-    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.put("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
@@ -87,7 +87,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(2);
 
-    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.put("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());
@@ -100,7 +100,7 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setVersion(0);
 
-    Request request = PacoTestHelper.post("/observer/experiments/1", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.put("/observer/experiments/1", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());

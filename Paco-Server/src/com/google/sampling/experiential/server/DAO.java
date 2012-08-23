@@ -73,11 +73,14 @@ public class DAO {
 
   public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
     Entity newEntity = DAOHelper.toEntity(newExperiment);
-    Entity oldEntity = DAOHelper.toEntity(oldExperiment);
-    List<Entity> entities = Lists.newArrayList(newEntity, oldEntity);
+
+    // FIXME: Version these entities
+    // Entity oldEntity = DAOHelper.toEntity(oldExperiment);
+    // List<Entity> entities = Lists.newArrayList(newEntity, oldEntity);
 
     try {
-      ds.put(entities);
+      //ds.put(entities);
+      ds.put(newEntity);
     } catch (Exception ex) {
       ex.printStackTrace();
       return false;

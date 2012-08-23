@@ -80,7 +80,7 @@ public class PacoTestHelper {
       experiment.setViewers(null);
     }
 
-    Request request = post("/experiments", DAOHelper.toJson(experiment));
+    Request request = post("/observer/experiments", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -142,16 +142,28 @@ public class PacoTestHelper {
    * Json HTTP methods
    */
   public static Request get(String uri) {
-    Request request = new Request(Method.GET, uri);
+    Request request = new Request(Method.GET, "http://localhost" + uri);
 
+    request.getResourceRef().setBaseRef(request.getResourceRef().getHostIdentifier());
     request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));
 
     return request;
   }
 
   public static Request post(String uri, String entity) {
-    Request request = new Request(Method.POST, uri);
+    Request request = new Request(Method.POST, "http://localhost" + uri);
 
+    request.getResourceRef().setBaseRef(request.getResourceRef().getHostIdentifier());
+    request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));
+    request.setEntity(entity, MediaType.APPLICATION_JSON);
+
+    return request;
+  }
+
+  public static Request put(String uri, String entity) {
+    Request request = new Request(Method.PUT, "http://localhost" + uri);
+
+    request.getResourceRef().setBaseRef(request.getResourceRef().getHostIdentifier());
     request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));
     request.setEntity(entity, MediaType.APPLICATION_JSON);
 
@@ -159,8 +171,9 @@ public class PacoTestHelper {
   }
 
   public static Request delete(String uri) {
-    Request request = new Request(Method.DELETE, uri);
+    Request request = new Request(Method.DELETE, "http://localhost" + uri);
 
+    request.getResourceRef().setBaseRef(request.getResourceRef().getHostIdentifier());
     request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));
 
     return request;

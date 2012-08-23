@@ -23,7 +23,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
   public void testCreate() {
     Experiment experiment = PacoTestHelper.constructExperiment();
 
-    Request request = PacoTestHelper.post("/experiments", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments", DAOHelper.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -32,7 +32,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
   @Test
   public void testCreateWhenExperimentNull() {
-    Request request = PacoTestHelper.post("/experiments", "");
+    Request request = PacoTestHelper.post("/observer/experiments", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_BAD_REQUEST, response.getStatus());
