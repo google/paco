@@ -2,17 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-visualization.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-maps.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-incubator-20101117-r1766.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-guava-r09.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-restlet-2.0.14.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-2.1rc5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-ext-gwt-2.1rc5.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-ext-jackson-2.1rc5.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-ext-servlet-2.1rc5.jar"/>
 	<classpathentry kind="lib" path="lib/appengine-api-labs.jar"/>

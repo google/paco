@@ -38,84 +38,6 @@
 
   <!-- Servlets -->
   <servlet>
-    <servlet-name>loginService</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.LoginServiceImpl</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>loginService</servlet-name>
-    <url-pattern>/pacoserver/login</url-pattern>
-  </servlet-mapping>
-
-  <!--
-  <servlet>
-    <servlet-name>mapServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MapServiceImpl</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>mapServlet</servlet-name>
-    <url-pattern>/pacoserver/maps</url-pattern>
-  </servlet-mapping>
-
-  <filter-mapping>
-    <filter-name>whitelistFilter</filter-name>
-    <servlet-name>mapServlet</servlet-name>
-  </filter-mapping>
-  -->
-
-  <!--
-  <servlet>
-    <servlet-name>eventServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.EventServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>eventServlet</servlet-name>
-    <url-pattern>/events</url-pattern>
-  </servlet-mapping>
-
-  <filter-mapping>
-    <filter-name>whitelistFilter</filter-name>
-    <servlet-name>eventServlet</servlet-name>
-  </filter-mapping>
-
-  <filter-mapping>
-    <filter-name>dbQuotaFilter</filter-name>
-    <url-pattern>/events*</url-pattern>
-  </filter-mapping>
-  -->
-
-  <!--
-  <servlet>
-    <servlet-name>experimentServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>experimentServlet</servlet-name>
-    <url-pattern>/experiments</url-pattern>
-  </servlet-mapping>
-
-  <filter-mapping>
-    <filter-name>whitelistFilter</filter-name>
-    <servlet-name>experimentServlet</servlet-name>
-  </filter-mapping>
-  -->
-
-  <servlet>
-    <display-name>Remote API Servlet</display-name>
-    <servlet-name>RemoteApiServlet</servlet-name>
-    <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>RemoteApiServlet</servlet-name>
-    <url-pattern>/remote_api</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
     <servlet-name>RestletServlet</servlet-name>
     <servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
     <init-param>
@@ -132,10 +54,7 @@
   <!-- Security Constraints -->
   <security-constraint>
     <web-resource-collection>
-      <url-pattern>/pacoserver/maps*</url-pattern>
-      <url-pattern>/events*</url-pattern>
-      <url-pattern>/experiments*</url-pattern>
-      <url-pattern>/Main.html*</url-pattern>
+      <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>*</role-name>

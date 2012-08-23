@@ -25,13 +25,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class WhitelistFilter implements Filter {
-
   private Whitelist whitelist;
   private static final Logger log = Logger.getLogger(WhitelistFilter.class.getName());
 
@@ -51,7 +48,7 @@ public class WhitelistFilter implements Filter {
           .createLoginURL(((HttpServletRequest) arg0).getRequestURL().toString(), "google.com");
       resp.sendRedirect(loginUrl);
     } else if (!whitelist.allowed(user.getEmail())) {
-      ((HttpServletResponse) arg1).sendError(HttpStatus.SC_FORBIDDEN);
+      ((HttpServletResponse) arg1).sendError(403);
     } else {
       log.info("Allowing user: " + user.getEmail());
       arg2.doFilter(arg0, arg1);
@@ -62,5 +59,4 @@ public class WhitelistFilter implements Filter {
   public void init(FilterConfig arg0) throws ServletException {
     whitelist = new Whitelist();
   }
-
 }
