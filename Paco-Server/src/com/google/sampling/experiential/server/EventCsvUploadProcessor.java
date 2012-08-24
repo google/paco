@@ -31,11 +31,11 @@ import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.paco.shared.Outcome;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class EventCsvUploadProcessor {
@@ -143,8 +143,8 @@ public class EventCsvUploadProcessor {
       pacoVersion = rowData.get("pacoVersion");
       rowData.remove("pacoVersion");
     }
-    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+    SimpleDateFormat df = new SimpleDateFormat(DATETIME_FORMAT);
+    SimpleDateFormat oldDf = new SimpleDateFormat(DATETIME_FORMAT_OLD);
     Date whenDate = new Date();
 
     String experimentId = null;

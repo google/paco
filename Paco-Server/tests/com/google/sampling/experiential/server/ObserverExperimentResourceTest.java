@@ -9,7 +9,7 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
 
-import com.google.sampling.experiential.shared.Experiment;
+import com.google.paco.shared.model.Experiment;
 
 public class ObserverExperimentResourceTest extends PacoResourceTest {
   /*

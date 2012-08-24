@@ -21,14 +21,16 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.paco.shared.Outcome;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class EventJsonUploadProcessor {
+  public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT_OLD = "yyyyMMdd:HH:mm:ssZ";
 
   private static final Logger log = Logger.getLogger(EventJsonUploadProcessor.class.getName());
   private ExperimentRetriever experimentRetriever;
@@ -176,8 +178,8 @@ public class EventJsonUploadProcessor {
       }
     }
 
-    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+    SimpleDateFormat df = new SimpleDateFormat(DATETIME_FORMAT);
+    SimpleDateFormat oldDf = new SimpleDateFormat(DATETIME_FORMAT_OLD);
 
     if (eventJson.has("responseTime")) {
       String responseTimeStr = eventJson.getString("responseTime");

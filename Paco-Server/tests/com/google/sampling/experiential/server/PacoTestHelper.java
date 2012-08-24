@@ -5,14 +5,14 @@ package com.google.sampling.experiential.server;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.DailySchedule;
-import com.google.sampling.experiential.shared.Event;
-import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.LikertInput;
-import com.google.sampling.experiential.shared.ListInput;
-import com.google.sampling.experiential.shared.RandomSignal;
-import com.google.sampling.experiential.shared.SignalSchedule;
-import com.google.sampling.experiential.shared.TextInput;
+import com.google.paco.shared.model.DailySchedule;
+import com.google.paco.shared.model.Event;
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.LikertInput;
+import com.google.paco.shared.model.ListInput;
+import com.google.paco.shared.model.RandomSignal;
+import com.google.paco.shared.model.SignalSchedule;
+import com.google.paco.shared.model.TextInput;
 
 import org.restlet.Request;
 import org.restlet.Response;
