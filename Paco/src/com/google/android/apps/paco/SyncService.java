@@ -22,8 +22,10 @@ import java.io.StringWriter;
 import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Service;
 import android.content.Context;
@@ -36,6 +38,7 @@ import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
+import com.google.paco.shared.Outcome;
 
 public class SyncService extends Service {
 
@@ -84,31 +87,14 @@ public class SyncService extends Service {
     }
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
-      List<Event> events = experimentProviderUtil.getEventsNeedingUpload();
-      if (events.size() == 0) {
-        Log.d(PacoConstants.TAG, "Nothing to sync");
-        return;
-      }
-      boolean hasErrorOcurred = false;
-      Log.d(PacoConstants.TAG, "Tasks found in db");
-
-      switch (sendToPaco(events)) {
-      case 200:
-        for (Event event : events) {
-          event.setUploaded(true);
-          experimentProviderUtil.updateEvent(event);
-        }
-        break;
-      default:
-        hasErrorOcurred = true;
-        break;
-      }
- 
-      if (!hasErrorOcurred) {
-        Log.d(PacoConstants.TAG, "syncing complete");
-      }
+      List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
+      EventUploader eventUploader = new EventUploader(new UrlContentManager(this, true, userPrefs.getGoogleEmailType()), 
+                        userPrefs.getServerAddress(), 
+                        experimentProviderUtil);
+      eventUploader.uploadEvents(allEvents); 
     }
   }
+
 
   private boolean isConnected() {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -116,42 +102,5 @@ public class SyncService extends Service {
     return networkInfo != null && networkInfo.isConnected();
   }
 
-  private int sendToPaco(List<Event> events) {
-    ObjectMapper mapper = new ObjectMapper();
-    StringWriter stringWriter = new StringWriter();
-    Log.d(PacoConstants.TAG, "syncing events");
-    try {
-      mapper.writeValue(stringWriter, events);      
-    } catch (JsonGenerationException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
-    } catch (JsonMappingException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
-    } catch (IOException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
-      return 500;
-    }
-    UrlContentManager um = null;
-    try {
-      String emailSuffix = userPrefs.getGoogleEmailType();
-      um = new UrlContentManager(this, true, emailSuffix);
-
-
-      Log.i("" + this, "Preparing to post.");
-      String json = stringWriter.toString();
-      Response response = um.createRequest()
-      .setUrl("https://"+userPrefs.getServerAddress()+"/events")
-      .setPostData(json)
-      .addHeader("http.useragent", "PacoDroid2")
-      .execute();
-      return response.getHttpCode();
-    } finally {
-      if (um != null) {
-        um.cleanUp(); 
-      }
-    }
-    
-  }
 
 }

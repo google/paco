@@ -1,8 +1,12 @@
 local.properties
+.settings
+.DS_Store
+*.keystore
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
 PacoAndroidLib/gen/*
+Paco-Server/reports/*
 Paco-Server/war/WEB-INF/appengine-generated/
 Paco-Server/war/WEB-INF/classes/*
 Paco-Server/war/WEB-INF/lib/appengine-api-1.0-sdk-1.5.0.1.jar
@@ -19,4 +23,16 @@ Paco-Server/war/WEB-INF/lib/datanucleus-jpa-1.1.5.jar
 Paco-Server/war/WEB-INF/lib/geronimo-jpa_3.0_spec-1.1.1.jar
 Paco-Server/war/WEB-INF/lib/geronimo-jta_1.1_spec-1.1.1.jar
 Paco-Server/war/WEB-INF/lib/jdo2-api-2.3-eb.jar
+PacoTest/local.properties
+PacoTest/bin/*
+PacoTest/testbin/*
+PacoTest/gen/*
+PacoTest/reports/*
+ServerTools/bin/*
+Shared/bin
+Shared/testbin
+Shared/dist
+Shared/reports
+Paco/libs/shared.jar
+Paco-Server/war/WEB-INF/lib/shared.jar
 

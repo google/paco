@@ -6,3 +6,4 @@ gaeIsEclipseDefaultInstPath=true
 googleCloudSqlEnabled=false
 localDevMySqlEnabled=true
 ormEnhancementInclusions=
+

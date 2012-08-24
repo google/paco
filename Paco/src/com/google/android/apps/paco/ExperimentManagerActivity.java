@@ -19,20 +19,15 @@ package com.google.android.apps.paco;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.TextView;
-
-import com.google.sampling.experiential.android.lib.GoogleAccountLoginHelper;
 
 /**
  * 
@@ -51,7 +46,6 @@ public class ExperimentManagerActivity extends Activity {
 
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
   
-  private GoogleAccountLoginHelper loginHelper;
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
   
@@ -152,60 +146,6 @@ public class ExperimentManagerActivity extends Activity {
   private boolean hasRegisteredExperiments() {
     return experimentProviderUtil.hasJoinedExperiments();
   }
-
- 
-  private void login(final GoogleAccountLoginHelper loginHelper) {
-//    final ProgressDialog progressDialog = new ProgressDialog(
-//        ExperimentManagerActivity.this, android.R.style.Theme_Light_Panel);
-//    
-    
-    if (loginHelper.isAuthorized()) {
-      ((TextView) findViewById(R.id.StatusBar)).setText("");
-      return;
-    } else {
-      final ProgressDialog p = ProgressDialog.show(ExperimentManagerActivity.this, "Login",
-          "Logging into Paco Server", true, true, null/*new OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-              postNoLogin(handler);
-            }
-          }*/);    
-      final Handler handler = new Handler();
-
-      new Thread(new Runnable() {
-        public void run() {
-          String statusText = "";
-
-          if (!loginHelper.authorize()) {
-            statusText = "Could not authenticate to a Google.com account or Paco Service.";
-          }
-          final String finalStatusText = statusText; 
-          handler.post(new Runnable() {
-            public void run() {
-              //            setProgressBarVisibility(false);
-              if (p != null) {
-                p.dismiss();
-              }
-              ((TextView) findViewById(R.id.StatusBar)).setText(finalStatusText);
-            }
-
-          });
-        }
-      }).start();
-    }
-  }
-
-  private GoogleAccountLoginHelper getLoginHelper() {
-    if (loginHelper == null) {
-      loginHelper = new GoogleAccountLoginHelper(this);
-    }
-    return loginHelper;
-  }
-
-  // @VisibleForTesting
-  public void setAccountLoginHelper(GoogleAccountLoginHelper helper) {
-    this.loginHelper = helper;
-  }
-  
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
