@@ -31,7 +31,7 @@
 
     <target description="Run tests in all projects." name="test">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="test"/>
-        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="test"/>
+        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="emutest"/>
 <!--        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="javatest"/> -->
         <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="test"/>
     </target>

@@ -160,7 +160,9 @@
    <antcall target="emulator" />
    <sleep seconds="100"/>
    <antcall target="killadb"/>
+   <sleep seconds="5"/>
    <antcall target="startadb"/>
+   <sleep seconds="5"/>
    <antcall target="test"/>
    <antcall target="killemu"/>
   </target>
