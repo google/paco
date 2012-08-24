@@ -9,9 +9,9 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.Event;
-import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.paco.shared.model.Event;
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.SignalSchedule;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;

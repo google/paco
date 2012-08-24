@@ -2,7 +2,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Event;
+import com.google.paco.shared.model.Event;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Get;

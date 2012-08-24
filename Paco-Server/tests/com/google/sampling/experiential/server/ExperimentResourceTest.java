@@ -4,11 +4,11 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.sampling.experiential.shared.DailySchedule;
-import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.FixedSignal;
-import com.google.sampling.experiential.shared.SharedTestHelper;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.paco.shared.model.DailySchedule;
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.FixedSignal;
+import com.google.paco.shared.model.SharedTestHelper;
+import com.google.paco.shared.model.SignalSchedule;
 
 import org.junit.Test;
 import org.restlet.Request;

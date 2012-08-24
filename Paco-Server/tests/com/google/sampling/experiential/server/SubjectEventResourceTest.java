@@ -4,7 +4,7 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.sampling.experiential.shared.Event;
+import com.google.paco.shared.model.Event;
 
 import org.junit.Test;
 import org.restlet.Request;

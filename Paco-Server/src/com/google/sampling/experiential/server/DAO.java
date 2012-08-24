@@ -12,9 +12,9 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.Experiment;
-import com.google.sampling.experiential.shared.Event;
-import com.google.sampling.experiential.shared.SignalSchedule;
+import com.google.paco.shared.model.Event;
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.SignalSchedule;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.Experiment;
+import com.google.paco.shared.model.Experiment;
 
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;

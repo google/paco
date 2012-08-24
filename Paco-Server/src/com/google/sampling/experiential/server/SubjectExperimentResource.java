@@ -14,7 +14,7 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.shared.ExperimentStats;
+import com.google.paco.shared.model.ExperimentStats;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
