@@ -6,9 +6,9 @@
 	<classpathentry kind="lib" path="libs/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="lib" path="libs/joda-time-1.6.jar" sourcepath="/Users/bobevans/.m2/repository/joda-time/joda-time/1.6/joda-time-1.6-sources.jar"/>
-	<classpathentry kind="lib" path="libs/jackson-core-asl-1.5.6.jar"/>
-	<classpathentry kind="lib" path="libs/jackson-mapper-asl-1.5.6.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
+	<classpathentry kind="lib" path="libs/jackson-core-asl-1.9.9.jar"/>
+	<classpathentry kind="lib" path="libs/jackson-mapper-asl-1.9.9.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
