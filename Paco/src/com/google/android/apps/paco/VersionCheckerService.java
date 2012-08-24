@@ -46,8 +46,8 @@ public class VersionCheckerService extends Service {
     (new Thread(runnable)).start();
   }
 
-
-  protected void createUpdateNotification() {
+  //@VisibleForTesting
+  void createUpdateNotification() {
     int icon = R.drawable.paco64;
     CharSequence tickerText = "Paco Update - New Version Available";
 
@@ -57,12 +57,10 @@ public class VersionCheckerService extends Service {
     CharSequence contentText = "A new version of Paco is available";
 
     String url = new UserPreferences(getApplicationContext()).getServerAddress();
-    url = "http://" + url + "/";
-    Intent updateIntent = new Intent(Intent.ACTION_VIEW);
-    updateIntent.setData(Uri.parse(url));
-
-
+    url = "http://" + url + "/paco.apk";
+    Intent updateIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
     PendingIntent notificationIntent = PendingIntent.getActivity(this, 0, updateIntent, 0);
+    
     notification.setLatestEventInfo(this, contentTitle, contentText, notificationIntent);
     notification.defaults |= Notification.DEFAULT_SOUND;
     notification.defaults |= Notification.DEFAULT_VIBRATE;
@@ -70,6 +68,7 @@ public class VersionCheckerService extends Service {
     notification.flags |= Notification.FLAG_AUTO_CANCEL;
     notification.flags |= Notification.FLAG_NO_CLEAR;
 
+    Log.d(PacoConstants.TAG, "creating notification that an update is available at " + url);
     NotificationManager notificationManager =
         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.notify(0, notification);
