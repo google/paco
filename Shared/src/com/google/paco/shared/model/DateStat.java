@@ -14,9 +14,8 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.sampling.experiential.shared;
+package com.google.paco.shared.model;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class DateStat implements Comparable<DateStat>, Serializable {
+public class DateStat implements Comparable<DateStat> {
 
   private Date when;
   private Double average;
@@ -106,17 +105,17 @@ public class DateStat implements Comparable<DateStat>, Serializable {
   }
 
   public static List<DateStat> calculateParameterDailyStats(String changingParameterKey,
-      List<EventDAO> eventList) {
+      List<Event> events) {
     Map<String, DateStat> dateStats = Maps.newHashMap();
-    for (EventDAO event : eventList) {
+    for (Event event : events) {
       Date date = event.getResponseTime();
       if (date == null) {
-        date = event.getScheduledTime();
+        date = event.getSignalTime();
       }
       // TODO (bobevans): Find a better way to match dates
       // Could use joda, but not in gwt. Could use calendar, but not in gwt.
       String key = date.getYear() + ":" + date.getMonth() + ":" + date.getDate();
-      String whatByKey = event.getWhatByKey(changingParameterKey);
+      String whatByKey = event.getOutputByKey(changingParameterKey);
       if (whatByKey == null || whatByKey.equals("null")) {
         continue;
       }

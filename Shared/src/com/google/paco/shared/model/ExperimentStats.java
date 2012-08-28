@@ -16,9 +16,7 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.shared;
-
-import java.io.Serializable;
+package com.google.paco.shared.model;
 
 /**
  * 
@@ -27,23 +25,23 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class ExperimentStatsDAO implements Serializable {
+public class ExperimentStats {
 
-  private EventDAO[] joinedEventsList;
+  private Event[] joinedResponsesList;
   private DateStat[] dailyResponseRate;
   private DateStat[] sevenDayDateStats;
   private String responseRate;
   private String responseTime;
 
-  public ExperimentStatsDAO() {
+  public ExperimentStats() {
   }
   
-  public EventDAO[] getJoinedEventsList() {
-    return joinedEventsList;
+  public Event[] getJoinedResponsesList() {
+    return joinedResponsesList;
   }
 
-  public void setJoinedEventsList(EventDAO[] joinedEventsList) {
-    this.joinedEventsList = joinedEventsList;
+  public void setJoinedEventsList(Event[] joinedEventsList) {
+    this.joinedResponsesList = joinedEventsList;
   }
 
   /**
