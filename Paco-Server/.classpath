@@ -20,8 +20,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-core-asl-1.5.6.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-mapper-asl-1.5.6.jar" sourcepath="/Users/bobevans/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.5.6/jackson-mapper-asl-1.5.6-sources.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-maps.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-incubator-20101117-r1766.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09-gwt.jar"/>
@@ -31,5 +29,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-core-asl-1.9.9.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-mapper-asl-1.9.9.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-2.1rc5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-ext-jackson-2.1rc5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/restlet-ext-servlet-2.1rc5.jar"/>
+	<classpathentry kind="lib" path="lib/appengine-testing.jar"/>
+	<classpathentry kind="lib" path="lib/appengine-api-stubs.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
