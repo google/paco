@@ -52,10 +52,7 @@ public class ObserverExperimentsResource extends PacoResource {
       throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     }
 
-    // Ensure the user is an observer
-    experiment.addObserver(user);
-
-    Long id = dao.createExperiment(experiment);
+    Long id = dao.createExperiment(experiment, user);
 
     if (id == null) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);

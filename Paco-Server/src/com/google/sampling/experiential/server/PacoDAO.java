@@ -62,12 +62,13 @@ public class PacoDAO {
    * @param experiment the experiment to create
    * @return the id of the experiment or null if there was a problem
    */
-  public Long createExperiment(Experiment experiment) {
-    Entity entity = PacoConverter.toEntity(experiment);
-    Key key;
-
+  public Long createExperiment(Experiment experiment, String user) {
     experiment.setId(null);
     experiment.setVersion(1);
+    experiment.addObserver(user);
+
+    Entity entity = PacoConverter.toEntity(experiment);
+    Key key;
 
     try {
       key = ds.put(entity);
@@ -112,10 +113,10 @@ public class PacoDAO {
    * @return whether or not the experiment was updated
    */
   public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
-    Entity newEntity = PacoConverter.toEntity(newExperiment);
-
     newExperiment.setId(oldExperiment.getId());
     newExperiment.setVersion(oldExperiment.getVersion() + 1);
+
+    Entity newEntity = PacoConverter.toEntity(newExperiment);
 
     // FIXME: Save oldExperiment as ExperimentRevision with reference to newExperiment
 
