@@ -51,7 +51,6 @@ public class PacoTestHelper {
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
     experiment.setSignalSchedule(constructSignalSchedule());
     experiment.setFeedback("feedback");
-    experiment.addObserver("observer@google.com");
 
     return experiment;
   }
@@ -92,7 +91,6 @@ public class PacoTestHelper {
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
   }
-
 
   /*
    * Json HTTP methods

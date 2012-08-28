@@ -39,6 +39,34 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
         PacoConverter.toJson(experiment), response.getEntityAsText());
   }
 
+
+  @Test
+  public void testShowAfterCreateWithVersion() {
+    Experiment experiment = PacoTestHelper.constructExperiment();
+
+    experiment.setVersion(10);
+    experiment.setId(100l);
+
+    Request request = PacoTestHelper.post("/observer/experiments", PacoConverter.toJson(experiment));
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
+    assertEquals("/observer/experiments/1", response.getLocationRef().getPath());
+
+    request = PacoTestHelper.get("/observer/experiments/1");
+    response = new PacoApplication().handle(request);
+
+    Experiment experiment2 = PacoTestHelper.constructExperiment();
+    experiment2.setId(1l);
+    experiment2.setVersion(1);
+    experiment2.addObserver("observer@google.com");
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals(
+        PacoConverter.toJson(experiment2), response.getEntityAsText());
+  }
+
+
   @Test
   public void testShowAsImposterAfterCreate() {
     PacoTestHelper.createUnpublishedExperiment();

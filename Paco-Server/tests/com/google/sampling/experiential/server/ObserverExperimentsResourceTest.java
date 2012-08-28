@@ -60,6 +60,7 @@ public class ObserverExperimentsResourceTest extends PacoResourceTest {
     experiment.setId(1l);
     experiment.setVersion(1);
     experiment.setPublished(true);
+    experiment.addObserver("observer@google.com");
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + PacoConverter.toJson(experiment) + "]",
