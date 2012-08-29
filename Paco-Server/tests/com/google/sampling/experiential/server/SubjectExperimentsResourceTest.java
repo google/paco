@@ -1,0 +1,78 @@
+// Copyright 2012 Google Inc. All Rights Reserved.
+
+package com.google.sampling.experiential.server;
+
+import static org.junit.Assert.assertEquals;
+
+import com.google.paco.shared.model.Experiment;
+
+import org.junit.Test;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.data.Status;
+
+/**
+ * @author corycornelius@google.com (Cory Cornelius)
+ *
+ */
+public class SubjectExperimentsResourceTest extends PacoResourceTest {
+  /*
+   * list tests
+   */
+  @Test
+  public void testList() {
+    Request request = PacoTestHelper.get("/subject/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testListAfterCreate() {
+    PacoTestHelper.createPublishedPublicExperiment();
+
+    Request request = PacoTestHelper.get("/subject/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testListAfterCreateAndJoin() {
+    PacoTestHelper.createPublishedPublicExperiment();
+
+    helper.setEnvEmail("subject@google.com");
+
+    PacoTestHelper.joinExperiment();
+
+    Request request = PacoTestHelper.get("/subject/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    Experiment experiment = PacoTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.addSubject("subject@google.com");
+    experiment.setPublished(true);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[" + PacoConverter.toJson(experiment) + "]",
+        response.getEntityAsText());
+  }
+
+  @Test
+  public void testListAsImpostorAfterCreateAndJoin() {
+    PacoTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.joinExperiment();
+
+    helper.setEnvEmail("impostor@google.com");
+
+    Request request = PacoTestHelper.get("/subject/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[]", response.getEntityAsText());
+  }
+}
