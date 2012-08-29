@@ -28,6 +28,12 @@ public class PacoApplication extends Application {
   public Restlet createInboundRoot() {
     Router router = new Router(getContext());
 
+    router.attach("/experiments", ExperimentsResource.class);
+    router.attach("/experiments/{experimentId}", ExperimentResource.class);
+
+    router.attach("/subject/experiments", SubjectExperimentsResource.class);
+    router.attach("/subject/experiments/{experimentId}", SubjectExperimentResource.class);
+
     router.attach("/observer/experiments", ObserverExperimentsResource.class);
     router.attach("/observer/experiments/{experimentId}", ObserverExperimentResource.class);
 

@@ -16,10 +16,12 @@ package com.google.sampling.experiential.server;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.SignalSchedule;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -165,7 +167,7 @@ public class PacoConverter {
       return null;
     }
 
-    Experiment experiment = PacoConverter.jsonTo(json, Experiment.class);
+    Experiment experiment = jsonTo(json, Experiment.class);
 
     if (experiment == null) {
       return null;
@@ -214,6 +216,10 @@ public class PacoConverter {
       return experimentToEntity((Experiment) object);
     }
 
+    if (SignalSchedule.class == type) {
+      return signalScheduleToEntity((SignalSchedule) object);
+    }
+
     throw new UnsupportedOperationException("toEntity2(" + type.toString() + ")");
   }
 
@@ -226,7 +232,7 @@ public class PacoConverter {
    * @return an entity representing the experiment
    */
   private static Entity experimentToEntity(Experiment experiment) {
-    String json = PacoConverter.toJson(experiment);
+    String json = toJson(experiment);
 
     if (json == null) {
       return null;
@@ -252,6 +258,32 @@ public class PacoConverter {
   }
 
   /**
+   * Converts the specified signal-schedule into an entity. As above, some
+   * properties are stored natively for performance reasons, and, as such, they
+   * are authoritative. The whole signal-schedule is jsonified and stored as a
+   * Text value.
+   *
+   * @param signalSchedule a signal-schedule to convert
+   * @return an entity representing the signal-schedule
+   */
+  private static Entity signalScheduleToEntity(SignalSchedule signalSchedule) {
+    String json = toJson(signalSchedule);
+
+    if (json == null) {
+      return null;
+    }
+
+    Entity entity = new Entity(
+        "schedule", KeyFactory.createKey("experiment", signalSchedule.getExperimentId()));
+
+    entity.setProperty("experiment", signalSchedule.getExperimentId());
+    entity.setProperty("subject", signalSchedule.getSubject());
+    entity.setProperty("signalSchedule", new Text(json));
+
+    return entity;
+  }
+
+  /**
    * Generically converts the specified PreparedQuery into a list of pojos of
    * the specified type.
    *
@@ -261,6 +293,6 @@ public class PacoConverter {
    */
   public static <T> List<T> preparedQueryTo(PreparedQuery pq, Class<T> type) {
     List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
-    return PacoConverter.entitiesTo(entities, type);
+    return entitiesTo(entities, type);
   }
 }
