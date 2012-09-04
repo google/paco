@@ -27,7 +27,7 @@ import java.util.List;
  * @author corycornelius@google.com (Cory Cornelius)
  *
  */
-public class DAOHelper {
+public class PacoConverter {
   /*
    * Convert from json
    */
@@ -131,6 +131,10 @@ public class DAOHelper {
       return (T) entityToEvent(entity);
     }
 
+    if (SignalSchedule.class == type) {
+      return (T) entityToSignalSchedule(entity);
+    }
+
     throw new UnsupportedOperationException("entityTo2(" + type.toString() + ")");
   }
 
@@ -146,7 +150,7 @@ public class DAOHelper {
       return null;
     }
 
-    Experiment experiment = DAOHelper.jsonTo(json, Experiment.class);
+    Experiment experiment = PacoConverter.jsonTo(json, Experiment.class);
 
     if (experiment == null) {
       return null;
@@ -161,6 +165,22 @@ public class DAOHelper {
     experiment.setViewers((List<String>) entity.getProperty("viewers"));
 
     return experiment;
+  }
+
+  private static SignalSchedule entityToSignalSchedule(Entity entity) {
+    if (entity == null) {
+      return null;
+    }
+
+    Text json = (Text) entity.getProperty("signalSchedule");
+
+    SignalSchedule signalSchedule = PacoConverter.jsonTo(json, SignalSchedule.class);
+
+    if (signalSchedule == null) {
+      return null;
+    }
+
+    return signalSchedule;
   }
 
   private static Event entityToEvent(Entity entity) {
@@ -219,7 +239,7 @@ public class DAOHelper {
   }
 
   private static Entity experimentToEntity(Experiment experiment) {
-    String json = DAOHelper.toJson(experiment);
+    String json = PacoConverter.toJson(experiment);
 
     if (json == null) {
       return null;
@@ -245,7 +265,7 @@ public class DAOHelper {
   }
 
   private static Entity signalScheduleToEntity(SignalSchedule signalSchedule) {
-    String json = DAOHelper.toJson(signalSchedule);
+    String json = PacoConverter.toJson(signalSchedule);
 
     if (json == null) {
       return null;
@@ -293,6 +313,6 @@ public class DAOHelper {
 
   public static <T> List<T> preparedQueryTo(PreparedQuery pq, Class<T> type) {
     List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
-    return DAOHelper.entitiesTo(entities, type);
+    return PacoConverter.entitiesTo(entities, type);
   }
 }

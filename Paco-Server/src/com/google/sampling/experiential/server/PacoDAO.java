@@ -21,28 +21,27 @@ import java.util.List;
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  */
-public class DAO {
-  private static DAO instance;
+public class PacoDAO {
+  private static PacoDAO instance;
 
-  public static synchronized DAO getInstance() {
+  public static synchronized PacoDAO getInstance() {
     if (instance == null) {
-      instance = new DAO();
+      instance = new PacoDAO();
     }
     return instance;
   }
 
   private DatastoreService ds;
 
-  public DAO() {
+  public PacoDAO() {
     ds = DatastoreServiceFactory.getDatastoreService();
   }
 
   /*
-   *
    * Experiments
    */
   public Long createExperiment(Experiment experiment) {
-    Entity entity = DAOHelper.toEntity(experiment);
+    Entity entity = PacoConverter.toEntity(experiment);
     Key key;
 
     try {
@@ -62,24 +61,24 @@ public class DAO {
     try {
       entity = ds.get(key);
     } catch (Exception ex) {
-      //ex.printStackTrace();
+      // ex.printStackTrace();
       return null;
     }
 
-    Experiment experiment = DAOHelper.entityTo(entity);
+    Experiment experiment = PacoConverter.entityTo(entity);
 
     return (experiment.isDeleted() ? null : experiment);
   }
 
   public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
-    Entity newEntity = DAOHelper.toEntity(newExperiment);
+    Entity newEntity = PacoConverter.toEntity(newExperiment);
 
     // FIXME: Version these entities
     // Entity oldEntity = DAOHelper.toEntity(oldExperiment);
     // List<Entity> entities = Lists.newArrayList(newEntity, oldEntity);
 
     try {
-      //ds.put(entities);
+      // ds.put(entities);
       ds.put(newEntity);
     } catch (Exception ex) {
       ex.printStackTrace();
@@ -92,7 +91,7 @@ public class DAO {
   public boolean deleteExperiment(Experiment experiment) {
     experiment.setDeleted(true);
 
-    Entity entity = DAOHelper.toEntity(experiment);
+    Entity entity = PacoConverter.toEntity(experiment);
 
     try {
       ds.put(entity);
@@ -105,11 +104,11 @@ public class DAO {
   }
 
   public boolean joinExperiment(Experiment experiment, SignalSchedule signalSchedule) {
-    Entity experimentEntity = DAOHelper.toEntity(experiment);
+    Entity experimentEntity = PacoConverter.toEntity(experiment);
     List<Entity> entities = Lists.newArrayList(experimentEntity);
 
     if (signalSchedule != null) {
-      entities.add(DAOHelper.toEntity(signalSchedule));
+      entities.add(PacoConverter.toEntity(signalSchedule));
     }
 
     try {
@@ -122,8 +121,30 @@ public class DAO {
     return true;
   }
 
+  public SignalSchedule getSignalSchedule(String user, Experiment experiment) {
+    Query q = new Query("schedule");
+
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("experiment", experiment.getId()),
+        FilterOperator.EQUAL.of("subject", user)));
+
+    List<SignalSchedule> signalSchedules =
+        PacoConverter.preparedQueryTo(ds.prepare(q), SignalSchedule.class);
+
+    if (signalSchedules.size() > 1) {
+      throw new IllegalStateException("Multiple signal schedules for " + user + " "
+          + experiment.getId());
+    }
+
+    if (signalSchedules.size() == 0) {
+      return null;
+    }
+
+    return signalSchedules.get(0);
+  }
+
   public boolean leaveExperiment(Experiment experiment) {
-    Entity entity = DAOHelper.toEntity(experiment);
+    Entity entity = PacoConverter.toEntity(experiment);
 
     try {
       ds.put(entity);
@@ -139,38 +160,38 @@ public class DAO {
     Query q = new Query("experiment");
 
     // deleted == false && published == true && (viewers == null || viewers == user)
-    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
-        FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
-            FilterOperator.EQUAL.of("viewers", null), FilterOperator.EQUAL.of("viewers", user))));
+    q.setFilter(CompositeFilterOperator.and(
+        FilterOperator.EQUAL.of("deleted", false),
+        FilterOperator.EQUAL.of("published", true),
+        CompositeFilterOperator.or(FilterOperator.EQUAL.of("viewers", null),
+            FilterOperator.EQUAL.of("viewers", user))));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+    return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   public List<Experiment> getSubjectedExperiments(String user) {
     Query q = new Query("experiment");
 
     // deleted == false && published == true && subjects == user
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
-        FilterOperator.EQUAL.of("subjects", user)));
+    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+        FilterOperator.EQUAL.of("published", true), FilterOperator.EQUAL.of("subjects", user)));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+    return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   public List<Experiment> getObservedExperiments(String user) {
     Query q = new Query("experiment");
 
     // deleted == false && observers == user
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
+    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+        FilterOperator.EQUAL.of("observers", user)));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Experiment.class);
+    return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
 
 
   /*
-   *
    * Events
    */
   public Long createEvent(Event event) {
@@ -178,7 +199,7 @@ public class DAO {
       throw new UnsupportedOperationException();
     }
 
-    Entity entity = DAOHelper.toEntity(event);
+    Entity entity = PacoConverter.toEntity(event);
     Key key = ds.put(entity);
 
     return key.getId();
@@ -190,7 +211,7 @@ public class DAO {
     }
 
     try {
-      return DAOHelper.entityTo(ds.get(KeyFactory.createKey("event", id)));
+      return PacoConverter.entityTo(ds.get(KeyFactory.createKey("event", id)));
     } catch (EntityNotFoundException e) {
       return null;
     }
@@ -206,7 +227,7 @@ public class DAO {
     // experimentId == experiment.id
     q.setFilter(FilterOperator.EQUAL.of("experimentId", experiment.getId()));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Event.class);
+    return PacoConverter.preparedQueryTo(ds.prepare(q), Event.class);
   }
 
   public List<Event> getEvents(Experiment experiment, String user) {
@@ -221,6 +242,6 @@ public class DAO {
         FilterOperator.EQUAL.of("experimentId", experiment.getId()),
         FilterOperator.EQUAL.of("subject", user)));
 
-    return DAOHelper.preparedQueryTo(ds.prepare(q), Event.class);
+    return PacoConverter.preparedQueryTo(ds.prepare(q), Event.class);
   }
 }

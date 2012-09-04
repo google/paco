@@ -44,7 +44,7 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
 
     Event event = PacoTestHelper.constructEvent();
 
-    Request request = PacoTestHelper.post("/subject/experiments/1/events", DAOHelper.toJson(event));
+    Request request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -71,7 +71,7 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
 
     Event event = PacoTestHelper.constructEvent();
 
-    Request request = PacoTestHelper.post("/subject/experiments/1/events", DAOHelper.toJson(event));
+    Request request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -100,7 +100,7 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
     Event event = PacoTestHelper.constructEvent();
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(event) + "]", response.getEntityAsText());
+    assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());
   }
 
   @Test

@@ -23,7 +23,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
   public void testCreate() {
     Experiment experiment = PacoTestHelper.constructExperiment();
 
-    Request request = PacoTestHelper.post("/observer/experiments", DAOHelper.toJson(experiment));
+    Request request = PacoTestHelper.post("/observer/experiments", PacoConverter.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -61,7 +61,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.setId(1l);
     experiment.setVersion(1);
 
-    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
+    String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + json + "]", response.getEntityAsText());
@@ -78,7 +78,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.setId(1l);
     experiment.setVersion(1);
 
-    String json = DAOHelper.toJson(experiment, Experiment.Summary.class);
+    String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + json + "]", response.getEntityAsText());

@@ -51,7 +51,7 @@ public class ObserverEventResourceTest extends PacoResourceTest {
     Event event = PacoTestHelper.constructEvent();
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(event) + "]", response.getEntityAsText());
+    assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());
   }
 
   @Test
@@ -97,6 +97,6 @@ public class ObserverEventResourceTest extends PacoResourceTest {
     Event event = PacoTestHelper.constructEvent();
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(event) + "]", response.getEntityAsText());
+    assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());
   }
 }
