@@ -4,6 +4,8 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Date;
+
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.DailySchedule;
 import com.google.paco.shared.model.Event;
@@ -21,8 +23,6 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
 
-import java.util.Date;
-
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
@@ -31,9 +31,10 @@ public class PacoTestHelper {
   /*
    * SignalSchedule
    */
-  public static SignalSchedule constructSignalSchedule() {
+  public static SignalSchedule constructSignalSchedule(boolean editable) {
     SignalSchedule signalSchedule = new SignalSchedule();
 
+    signalSchedule.setEditable(editable);
     signalSchedule.setSignal(new RandomSignal());
     signalSchedule.setSchedule(new DailySchedule());
 
@@ -44,6 +45,10 @@ public class PacoTestHelper {
    * Experiment
    */
   public static Experiment constructExperiment() {
+    return constructExperiment(true);
+  }
+
+  public static Experiment constructExperiment(boolean editable) {
     Experiment experiment = new Experiment();
 
     experiment.setTitle("title");
@@ -52,27 +57,38 @@ public class PacoTestHelper {
     experiment.setConsentForm("consent form");
     experiment.setPublished(false);
     experiment.setInputs(Lists.newArrayList(new TextInput(), new ListInput(), new LikertInput()));
-    experiment.setSignalSchedule(constructSignalSchedule());
+    experiment.setSignalSchedule(constructSignalSchedule(editable));
     experiment.setFeedback("feedback");
-    experiment.addObserver("observer@google.com");
 
     return experiment;
   }
 
   public static String createPublishedPublicExperiment() {
-    return createExperiment(true, false);
+    return createPublishedPublicExperiment(true);
+  }
+
+  public static String createPublishedPublicExperiment(boolean editable) {
+    return createExperiment(true, false, editable);
   }
 
   public static String createPublishedPrivateExperiment() {
-    return createExperiment(true, true);
+    return createPublishedPrivateExperiment(true);
+  }
+
+  public static String createPublishedPrivateExperiment(boolean editable) {
+    return createExperiment(true, true, editable);
   }
 
   public static String createUnpublishedExperiment() {
-    return createExperiment(false, false);
+    return createUnpublishedExperiment(true);
   }
 
-  private static String createExperiment(boolean published, boolean specific) {
-    Experiment experiment = constructExperiment();
+  public static String createUnpublishedExperiment(boolean editable) {
+    return createExperiment(false, false, editable);
+  }
+
+  private static String createExperiment(boolean published, boolean specific, boolean editable) {
+    Experiment experiment = constructExperiment(editable);
     experiment.setPublished(published);
     if (specific) {
       experiment.addViewer("subject@google.com");
@@ -111,7 +127,6 @@ public class PacoTestHelper {
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
   }
 
-
   /*
    * Event
    */
@@ -136,7 +151,6 @@ public class PacoTestHelper {
 
     return response.getLocationRef().getPath();
   }
-
 
   /*
    * Json HTTP methods

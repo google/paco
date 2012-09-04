@@ -21,12 +21,17 @@ import org.restlet.resource.Get;
 import java.util.List;
 
 /**
- *
+ * A resource for experiments a user has joined. According to the router, this resource is available
+ * at /subject/experiments.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SubjectExperimentsResource extends PacoResource {
+  /**
+   * Retrieves a list of experiments the user has joined.
+   *
+   * @return the list of experiments the user has joined
+   */
   @Get("json|gwt")
   public List<Experiment> index() {
     return dao.getSubjectedExperiments(user);

@@ -23,11 +23,19 @@ import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 
 /**
+ * A resource for a specific observed experiment. According to the router, these methods are
+ * accessible via /observer/experiments/{experimentId}.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ObserverExperimentResource extends PacoExperimentResource {
+  /*
+   * Ensure the logged-in user is an observer of the experiment they are trying to access.
+   *
+   * (non-Javadoc)
+   *
+   * @see com.google.sampling.experiential.server.PacoExperimentResource#doInit()
+   */
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
@@ -37,19 +45,28 @@ public class ObserverExperimentResource extends PacoExperimentResource {
     }
   }
 
-  @Get("json|gwt")
+  /**
+   * Returns a single observed experiment
+   *
+   * @return the observed experiment
+   */
+  @Get("json")
   public Experiment show() {
     return experiment;
   }
 
-  @Put("json|gwt")
+  /**
+   * Updated the observed experiment with the specified experiment. If the versions numbers do not
+   * match an conflict is raised. Otherwise the update is forced to be on the same experiment with
+   * the version number incremented.
+   *
+   * @param newExperiment the updated experiment
+   */
+  @Put("json")
   public void update(Experiment newExperiment) {
     if (newExperiment.getVersion() != experiment.getVersion()) {
       throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
     }
-
-    newExperiment.setId(experiment.getId());
-    newExperiment.setVersion(experiment.getVersion() + 1);
 
     if (dao.updateExperiment(experiment, newExperiment) == false) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
@@ -58,10 +75,11 @@ public class ObserverExperimentResource extends PacoExperimentResource {
     setStatus(Status.SUCCESS_NO_CONTENT);
   }
 
-  @Delete("json|gwt")
+  /**
+   * Soft-deletes the observed experiment.
+   */
+  @Delete("json")
   public void destroy() {
-    experiment.setDeleted(true);
-
     if (dao.deleteExperiment(experiment) == false) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     }

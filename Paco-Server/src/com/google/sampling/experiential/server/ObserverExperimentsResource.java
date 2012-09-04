@@ -24,28 +24,35 @@ import org.restlet.resource.ResourceException;
 import java.util.List;
 
 /**
- *
+ * A resource for observed experiments. According to the router, these methods are accessible via
+ * /observer/experiments/.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ObserverExperimentsResource extends PacoResource {
-  @Get("json|gwt")
+  /**
+   * Retrieves a list of experiments the user observes.
+   *
+   * @return a list of observed experiments
+   */
+  @Get("json")
   public List<Experiment> index() {
     return dao.getObservedExperiments(user);
   }
 
-  @Post("json|gwt")
+  /**
+   * Creates an observed experiment and returns a location to the newly created observed experiment
+   * if successful.
+   *
+   * @param experiment the experiment to create
+   */
+  @Post("json")
   public void create(Experiment experiment) {
     if (experiment == null) {
       throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     }
 
-    experiment.setId(null);
-    experiment.setVersion(1);
-    experiment.addObserver(user);
-
-    Long id = dao.createExperiment(experiment);
+    Long id = dao.createExperiment(experiment, user);
 
     if (id == null) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);

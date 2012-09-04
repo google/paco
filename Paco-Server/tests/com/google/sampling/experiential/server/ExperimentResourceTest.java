@@ -41,6 +41,8 @@ public class ExperimentResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
@@ -50,12 +52,17 @@ public class ExperimentResourceTest extends PacoResourceTest {
   public void testShowAfterCreatePublishedPrivate() {
     PacoTestHelper.createPublishedPrivateExperiment();
 
+    helper.setEnvEmail("subject@google.com");
+
     Request request = PacoTestHelper.get("/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.addViewer("subject@google.com");
+    experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
@@ -112,7 +119,21 @@ public class ExperimentResourceTest extends PacoResourceTest {
     SignalSchedule signalSchedule =
         SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule());
 
-    Request request = PacoTestHelper.post("/experiments/1", PacoConverter.toJson(signalSchedule));
+    Request request = PacoTestHelper.put("/experiments/1", PacoConverter.toJson(signalSchedule));
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_CREATED, response.getStatus());
+    assertEquals("/subject/experiments/1", response.getLocationRef().getPath());
+  }
+
+  @Test
+  public void testJoinWithSignalScheduleAfterCreatePublishedPublicWhenUneditable() {
+    PacoTestHelper.createPublishedPublicExperiment(false);
+
+    SignalSchedule signalSchedule =
+        SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule());
+
+    Request request = PacoTestHelper.put("/experiments/1", PacoConverter.toJson(signalSchedule));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -123,7 +144,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
   public void testJoinAfterCreatePublishedPublic() {
     PacoTestHelper.createPublishedPublicExperiment();
 
-    Request request = PacoTestHelper.post("/experiments/1", "");
+    Request request = PacoTestHelper.put("/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -134,7 +155,9 @@ public class ExperimentResourceTest extends PacoResourceTest {
   public void testJoinAfterCreatePublishedPrivate() {
     PacoTestHelper.createPublishedPrivateExperiment();
 
-    Request request = PacoTestHelper.post("/experiments/1", "");
+    helper.setEnvEmail("subject@google.com");
+
+    Request request = PacoTestHelper.put("/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -145,7 +168,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
   public void testJoinAfterCreateUnpublished() {
     PacoTestHelper.createUnpublishedExperiment();
 
-    Request request = PacoTestHelper.post("/experiments/1", "");
+    Request request = PacoTestHelper.put("/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
@@ -157,7 +180,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
-    Request request = PacoTestHelper.post("/experiments/1", "");
+    Request request = PacoTestHelper.put("/experiments/1", "");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
