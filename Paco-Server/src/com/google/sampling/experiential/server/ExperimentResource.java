@@ -19,7 +19,7 @@ import com.google.paco.shared.model.SignalSchedule;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Get;
-import org.restlet.resource.Post;
+import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 
 /**
@@ -42,7 +42,7 @@ public class ExperimentResource extends PacoExperimentResource {
     return experiment;
   }
 
-  @Post("json|gwt")
+  @Put("json|gwt")
   public void join(SignalSchedule signalSchedule) {
     experiment.addSubject(user);
 
