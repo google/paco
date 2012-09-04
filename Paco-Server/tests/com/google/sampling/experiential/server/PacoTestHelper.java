@@ -80,7 +80,7 @@ public class PacoTestHelper {
       experiment.setViewers(null);
     }
 
-    Request request = post("/observer/experiments", DAOHelper.toJson(experiment));
+    Request request = post("/observer/experiments", PacoConverter.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -129,7 +129,7 @@ public class PacoTestHelper {
   public static String addEvent() {
     Event event = constructEvent();
 
-    Request request = post("/subject/experiments/1/events", DAOHelper.toJson(event));
+    Request request = post("/subject/experiments/1/events", PacoConverter.toJson(event));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
