@@ -17,7 +17,6 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class PacoResourceTest {
   protected final LocalServiceTestHelper helper = new LocalServiceTestHelper(
@@ -27,7 +26,7 @@ public class PacoResourceTest {
   public void setUp() {
     helper.setEnvIsAdmin(false);
     helper.setEnvIsLoggedIn(true);
-    helper.setEnvEmail("subject@google.com");
+    helper.setEnvEmail("observer@google.com");
     helper.setEnvAuthDomain("google.com");
     helper.setUp();
   }
@@ -38,7 +37,7 @@ public class PacoResourceTest {
   }
 
   @Test
-  public void testClientNotLoggedIn() {
+  public void testUserNotLoggedIn() {
     helper.setEnvIsLoggedIn(false);
 
     Request request = PacoTestHelper.get("/experiments");

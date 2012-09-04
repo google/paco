@@ -19,9 +19,9 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
 /**
+ * The main entry point into the paco application. Here we establish restful routes.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class PacoApplication extends Application {
   @Override

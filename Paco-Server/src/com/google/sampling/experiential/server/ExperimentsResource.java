@@ -20,14 +20,19 @@ import org.restlet.resource.Get;
 
 import java.util.List;
 
-
 /**
+ * A resource for publicly viewable experiments. According to the router, this resource is available
+ * at /experiments.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ExperimentsResource extends PacoResource {
-  @Get("json|gwt")
+  /**
+   * Retrieves a list of viewable experiments.
+   *
+   * @return a list of viewable experiments.
+   */
+  @Get("json")
   public List<Experiment> index() {
     return dao.getViewedExperiments(user);
   }

@@ -42,6 +42,9 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
   @Test
   public void testListAfterCreateAndJoin() {
     PacoTestHelper.createPublishedPublicExperiment();
+
+    helper.setEnvEmail("subject@google.com");
+
     PacoTestHelper.joinExperiment();
 
     Request request = PacoTestHelper.get("/subject/experiments");
@@ -50,6 +53,9 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.addSubject("subject@google.com");
+    experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + PacoConverter.toJson(experiment, Experiment.Summary.class) + "]",

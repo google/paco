@@ -22,8 +22,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 /**
- * @author corycornelius@google.com (Cory Cornelius)
+ * A simple abstract class to ensure the user is logged in according to the UserServiceFactory. All
+ * resources should at least inherit from this resource.
  *
+ * @author corycornelius@google.com (Cory Cornelius)
  */
 public abstract class PacoResource extends ServerResource {
   protected PacoDAO dao = PacoDAO.getInstance();

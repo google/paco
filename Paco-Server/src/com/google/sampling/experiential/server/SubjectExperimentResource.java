@@ -22,11 +22,19 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
 
 /**
+ * A resource for a specific joined experiment. According to the router, this resource is available
+ * at /subject/experiments/{experimentId}.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SubjectExperimentResource extends PacoExperimentResource {
+  /*
+   * Ensure the user has joined the current experiment.
+   *
+   * (non-Javadoc)
+   *
+   * @see com.google.sampling.experiential.server.PacoExperimentResource#doInit()
+   */
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
@@ -41,11 +49,12 @@ public class SubjectExperimentResource extends PacoExperimentResource {
     throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
   }
 
+  /**
+   * Unenrolls the current user from the experiment.
+   */
   @Delete("json|gwt")
   public void leave() {
-    experiment.removeSubject(user);
-
-    if (dao.leaveExperiment(experiment) == false) {
+    if (dao.leaveExperiment(experiment, user) == false) {
       throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
     }
 

@@ -23,11 +23,19 @@ import org.restlet.resource.Put;
 import org.restlet.resource.ResourceException;
 
 /**
+ * A resource for a specific viewable experiment. According to the router, this resource is
+ * available at /experiments/{experimentId}.
  *
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ExperimentResource extends PacoExperimentResource {
+  /*
+   * Ensure the experiment is published and the user can view it.
+   *
+   * (non-Javadoc)
+   *
+   * @see com.google.sampling.experiential.server.PacoExperimentResource#doInit()
+   */
   @Override
   protected void doInit() throws ResourceException {
     super.doInit();
@@ -37,21 +45,24 @@ public class ExperimentResource extends PacoExperimentResource {
     }
   }
 
-  @Get("json|gwt")
+  /**
+   * Retrieves the viewable experiment.
+   *
+   * @return the viewable experiment
+   */
+  @Get("json")
   public Experiment show() {
     return experiment;
   }
 
-  @Put("json|gwt")
+  /**
+   * Enrolls the current user into the experiment with an (optionally) specified signal-schedule.
+   *
+   * @param signalSchedule a (optional) customized signal-schedule
+   */
+  @Put("json")
   public void join(SignalSchedule signalSchedule) {
-    experiment.addSubject(user);
-
-    if (signalSchedule != null) {
-      signalSchedule.setExperimentId(experiment.getId());
-      signalSchedule.setSubject(user);
-    }
-
-    if (dao.joinExperiment(experiment, signalSchedule) == false) {
+    if (dao.joinExperiment(experiment, user, signalSchedule) == false) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     }
 

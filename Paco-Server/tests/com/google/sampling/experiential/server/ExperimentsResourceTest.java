@@ -60,6 +60,8 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
+    experiment.setPublished(true);
+    experiment.addObserver("observer@google.com");
 
     String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
 
@@ -71,12 +73,17 @@ public class ExperimentsResourceTest extends PacoResourceTest {
   public void testIndexAfterCreatePublishedPrivate() {
     PacoTestHelper.createPublishedPrivateExperiment();
 
+    helper.setEnvEmail("subject@google.com");
+
     Request request = PacoTestHelper.get("/experiments");
     Response response = new PacoApplication().handle(request);
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
     experiment.setVersion(1);
+    experiment.setPublished(true);
+    experiment.addObserver("observer@google.com");
+    experiment.addViewer("subject@google.com");
 
     String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
 
