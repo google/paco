@@ -43,7 +43,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
     experiment.setVersion(1);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(DAOHelper.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
   }
 
   @Test
@@ -58,7 +58,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
     experiment.setVersion(1);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(DAOHelper.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
   }
 
   @Test
@@ -112,7 +112,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
     SignalSchedule signalSchedule =
         SharedTestHelper.createSignalSchedule(new FixedSignal(), new DailySchedule());
 
-    Request request = PacoTestHelper.post("/experiments/1", DAOHelper.toJson(signalSchedule));
+    Request request = PacoTestHelper.post("/experiments/1", PacoConverter.toJson(signalSchedule));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());

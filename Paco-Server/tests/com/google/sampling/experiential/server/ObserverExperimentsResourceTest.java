@@ -39,7 +39,7 @@ public class ObserverExperimentsResourceTest extends PacoResourceTest {
     experiment.setVersion(1);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + DAOHelper.toJson(experiment, Experiment.Summary.class) + "]",
+    assertEquals("[" + PacoConverter.toJson(experiment, Experiment.Summary.class) + "]",
         response.getEntityAsText());
   }
 
