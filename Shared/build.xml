@@ -6,6 +6,9 @@
     <property name="source" value="1.6"/>
     <path id="Shared.classpath">
         <pathelement location="bin"/>
+        <pathelement location="lib/guava-r09.jar" />
+        <pathelement location="lib/jackson-core-asl-1.9.9.jar" />
+        <pathelement location="lib/jackson-mapper-asl-1.9.9.jar" />
     </path>
     <target name="clean">
         <delete dir="bin"/>
@@ -55,6 +58,9 @@
           <path refid="Shared.classpath" />
           <pathelement location="testbin" />
           <pathelement location="lib/junit-4.10.jar" />
+          <pathelement location="lib/guava-r09.jar" />
+          <pathelement location="lib/jackson-core-asl-1.9.9.jar" />
+          <pathelement location="lib/jackson-mapper-asl-1.9.9.jar" />
         </classpath>
         <batchtest todir="reports/test" >
           <fileset dir="test" >
