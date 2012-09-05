@@ -178,14 +178,6 @@
     <script type="text/x-handlebars-template" id="signal-template">
       <legend>Signal</legend>
       <div class="control-group">
-        <label class="control-label" for="signalSchedule-editable">Editable</label>
-        <div class="controls">
-          <label class="checkbox">
-            <input name="editable" type="checkbox" id="signalSchedule-editable" value="true" {{#editable}}checked{{/editable}} />
-          </label>
-        </div>
-      </div>
-      <div class="control-group">
         <label class="control-label" for="signal-type">Type</label>
         <div class="controls">
           <select name="signal.type" id="signal-type" class="input-xxlarge">
@@ -214,19 +206,19 @@
       <div class="control-group">
         <label class="control-label" for="randomSignal-startTime">Start Time</label>
         <div class="controls">
-          <input name="signal.startTime" type="time" class="input-xxlarge" id="randomSignal-startTime" value="{{signal.startTime}}" />
+          <input name="signal.startTime" type="time" class="input-xxlarge" id="randomSignal-startTime" value="{{signalSchedule.signal.startTime}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="randomSignal-endTime">End Time</label>
         <div class="controls">
-          <input name="signal.endTime" type="time" class="input-xxlarge" id="randomSignal-endTime" value="{{signal.endTime}}" />
+          <input name="signal.endTime" type="time" class="input-xxlarge" id="randomSignal-endTime" value="{{signalSchedule.signal.endTime}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="randomSignal-frequency">Frequency</label>
         <div class="controls">
-          <input name="signal.frequency" type="number" class="input-xxlarge" id="randomSignal-frequency" value="{{signal.frequency}}" />
+          <input name="signal.frequency" type="number" class="input-xxlarge" id="randomSignal-frequency" value="{{signalSchedule.signal.frequency}}" />
         </div>
       </div>
     </script>
@@ -236,13 +228,13 @@
       <div class="control-group">
         <label class="control-label" for="schedule-startDate">Start Date</label>
         <div class="controls">
-          <input name="schedule.startDate" type="date" class="input-xxlarge" id="schedule-startDate" value="{{schedule.startDate}}" />
+          <input name="schedule.startDate" type="date" class="input-xxlarge" id="schedule-startDate" value="{{signalSchedule.schedule.startDate}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="schedule-endDate">End Date</label>
         <div class="controls">
-          <input name="schedule.endDate" type="date" class="input-xxlarge" id="schedule-endDate" value="{{schedule.endDate}}" />
+          <input name="schedule.endDate" type="date" class="input-xxlarge" id="schedule-endDate" value="{{signalSchedule.schedule.endDate}}" />
         </div>
       </div>
       <div class="control-group">
@@ -262,7 +254,7 @@
       <div class="control-group">
         <label class="control-label" for="dailySchedule-every">Every</label>
         <div class="controls">
-          <input name="schedule.every" type="number" class="input-xxlarge" id="dailySchedule-every" value="{{schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="dailySchedule-every" value="{{signalSchedule.schedule.every}}" />
         </div>
       </div>
     </script>
@@ -271,13 +263,13 @@
       <div class="control-group" id="weeklySchedule">
         <label class="control-label" for="weeklySchedule-every">Every</label>
         <div class="controls">
-          <input name="schedule.every" type="number" class="input-xxlarge" id="weeklySchedule-every" value="{{schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="weeklySchedule-every" value="{{signalSchedule.schedule.every}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="weeklySchedule-dayRepeat">Day Repeat</label>
         <div class="controls">
-          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="weeklySchedule-dayRepeat" value="{{schedule.dayRepeat}}" />
+          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="weeklySchedule-dayRepeat" value="{{signalSchedule.schedule.dayRepeat}}" />
         </div>
       </div>
     </script>
@@ -286,27 +278,27 @@
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-every">Every</label>
         <div class="controls">
-          <input name="schedule.every" type="number" class="input-xxlarge" id="monthlySchedule-every" value="{{schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="monthlySchedule-every" value="{{signalSchedule.schedule.every}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-dayRepeat">Day Repeat</label>
         <div class="controls">
-          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="monthlySchedule-dayRepeat" value="{{schedule.dayRepeat}}" />
+          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="monthlySchedule-dayRepeat" value="{{signalSchedule.schedule.dayRepeat}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-byDay">By Day</label>
         <div class="controls">
           <label class="checkbox">
-            <input name="schedule.byDay" type="checkbox" id="monthlySchedule-byDay" value="true" {{#schedule.byDay}}checked{{/schedule.byDay}} />
+            <input name="schedule.byDay" type="checkbox" id="monthlySchedule-byDay" value="true" {{#if signalSchedule.schedule.byDay}}checked="true"{{/if}} />
           </label>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-weekRepeat">Week Repeat</label>
         <div class="controls">
-          <input name="schedule.weekRepeat" type="number" class="input-xxlarge" id="monthlySchedule-weekRepeat" value="{{schedule.weekRepeat}}" />
+          <input name="schedule.weekRepeat" type="number" class="input-xxlarge" id="monthlySchedule-weekRepeat" value="{{signalSchedule.schedule.weekRepeat}}" />
         </div>
       </div>
     </script>
