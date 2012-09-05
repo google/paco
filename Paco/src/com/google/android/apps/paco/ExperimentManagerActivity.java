@@ -71,7 +71,6 @@ public class ExperimentManagerActivity extends Activity {
     }
 
     Eula.showEula(this);
-    //loginHelper = getLoginHelper();
     setContentView(R.layout.experiment_manager_main);
     currentExperimentsButton = (ImageButton) findViewById(R.id.CurrentExperimentsBtn);
     
@@ -103,7 +102,14 @@ public class ExperimentManagerActivity extends Activity {
     ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);    
     createExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        new AlertDialog.Builder(v.getContext()).setMessage("Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments. \n\nPlease point your browser to " + getResources().getString(R.string.server)+ " to create an experiment.").setTitle("How to Create an Experiment").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+        String homepageAddr = getResources().getString(R.string.server)+ "/Main.html";
+        new AlertDialog.Builder(v.getContext())
+            .setMessage("Since creating experiments involves a fair amount of text entry, " +
+                "a phone is not so well-suited to creating experiments. \n\n" +
+                "Please point your browser to " + homepageAddr + " to create an experiment.")
+        		.setTitle("How to Create an Experiment")
+        		.setCancelable(true)
+        		.setPositiveButton("OK", new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
