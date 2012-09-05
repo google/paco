@@ -150,6 +150,10 @@ Paco.ListInputView = Backbone.View.extend({
 });
 
 // Subject Experiment
+Paco.Event = Backbone.Model.extend({
+  urlRoot: function() { return '/subject/experiments/' + this.get('experiment_id') + '/events' }
+});
+
 Paco.SubjectExperiment = Backbone.Model.extend({
   urlRoot: '/subject/experiments'
 });
@@ -158,7 +162,7 @@ Paco.SubjectExperimentView = Backbone.View.extend({
   el: '#content',
   template: '#experiment-template',
   events: {
-    'submit form': 'joinExperiment'
+    'submit form': 'addResponse'
   },
 
   initialize: function() {
@@ -180,10 +184,12 @@ Paco.SubjectExperimentView = Backbone.View.extend({
     return this;
   },
 
-  joinExperiment: function(e) {
+  addResponse: function(e) {
     e.preventDefault();
 
-    this.model.save(this.$('form').toObject());
+    var event = new Paco.Event(this.$('form').toObject({skipEmpty: false}));
+
+    event.save();
   },
 });
 
@@ -215,8 +221,8 @@ Paco.SubjectExperimentsView = Backbone.View.extend({
 
 Paco.Router = Backbone.Router.extend({
   routes: {
-    ':id':     'getSubjectExperiment',
-    '' :        'getSubjectExperiments'
+    ':id':  'getSubjectExperiment',
+    '' :    'getSubjectExperiments'
   },
 
   getSubjectExperiments: function() {
