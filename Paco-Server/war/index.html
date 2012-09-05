@@ -32,8 +32,9 @@
           </div>
           <div class="nav-collapse">
             <ul class="nav">
-              <li><a href="#observer/experiments">Observer</a></li>
-              <li><a href="#subject/experiments">Subject</a></li>
+              <li><a href="index.html">All</a></li>
+              <li><a href="subject.html">Subject</a></li>
+              <li><a href="observer.html">Observer</a></li>
             </ul>
           </div>
         </div>
@@ -128,74 +129,28 @@
         {{#each experiments}}
         <li class="span3">
           <div class="thumbnail well">
-            <h2><a href="#observer/experiments/{{id}}">{{title}}</a></h2>
+            <h2><a href="#{{id}}">{{title}}</a></h2>
             <p>{{description}}</p>
           </div>
         </li>
         {{/each}}
-        <li class="span3">
-          <div class="thumbnail well">
-            <h1><a href="#observer/experiments/create">Add Experiment</a></h1>
-          </div>
-        </li>
       </ul>
     </script>
 
     <script type="text/x-handlebars-template" id="experiment-template">
       <div class="page-header">
-        <h1>Experiment</h1>
+        <h1>{{title}}</h1>
       </div>
-      <div class="span8">
+      <div>
+          {{description}}
+      </div>
+      <div>
         <form class="form-horizontal" id="experiment">
-          <fieldset>
-            <input type="hidden" name="version" value="{{version}}" />
-            <div class="control-group">
-              <label class="control-label" for="experiment-title">Title</label>
-              <div class="controls">
-                <input name="title" type="text" class="input-xxlarge" id="experiment-title" value="{{title}}" />
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-description">Description</label>
-              <div class="controls">
-                <textarea name="description" class="input-xxlarge" id="experiment-description" rows="3">{{description}}</textarea>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-consentForm">Consent Form</label>
-              <div class="controls">
-                <textarea name="consentForm" class="input-xxlarge" id="experiment-consentForm" rows="3">{{consentForm}}</textarea>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-feedback">Feedback</label>
-              <div class="controls">
-                <textarea name="feedback" class="input-xxlarge" id="experiment-feedback" rows="3">{{feedback}}</textarea>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-published">Published</label>
-              <div class="controls">
-                <label class="checkbox">
-                  <input name="published" type="checkbox" id="experiment-published" value="{{published}}">
-                </label>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-observers">Observers</label>
-              <div class="controls" id="experiment-observers" />
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="experiment-viewers">Viewers</label>
-              <div class="controls" id="experiment-viewers" />
-            </div>
-          </fieldset>
           <div id="experiment-signalSchedule" />
-          <div id="experiment-inputs" />
           <fieldset>
             <div class="control-group">
               <div class="controls">
-                <button type="submit" class="btn">Create</button>
+                <button type="submit" class="btn">Join</button>
               </div>
             </div>
           </fieldset>
@@ -226,14 +181,14 @@
         <label class="control-label" for="signalSchedule-editable">Editable</label>
         <div class="controls">
           <label class="checkbox">
-            <input name="signalSchedule.editable" type="checkbox" id="signalSchedule-editable" value="{{signalSchedule.editable}}">
+            <input name="editable" type="checkbox" id="signalSchedule-editable" value="true" {{#editable}}checked{{/editable}} />
           </label>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="signal-type">Type</label>
         <div class="controls">
-          <select name="signalSchedule.signal.type" id="signal-type" class="input-xxlarge">
+          <select name="signal.type" id="signal-type" class="input-xxlarge">
             <option value="fixed">Fixed</option>
             <option value="random">Random</option>
           </select>
@@ -251,7 +206,7 @@
 
     <script type="text/x-handlebars-template" id="fixedSignal-time-template">
       <div class="input-append" id="fixedSignal-time">
-        <input name="signalSchedule.signal.times[]" type="time" class="input-xxlarge" value="{{value}}"><button class="btn" type="button" id="remove"><i class="icon-minus" /></button><button class="btn" type="button" id="add"><i class="icon-plus" /></button>
+        <input name="signal.times[]" type="time" class="input-xxlarge" value="{{value}}" /><button class="btn" type="button" id="remove"><i class="icon-minus" /></button><button class="btn" type="button" id="add"><i class="icon-plus" /></button>
       </div>
     </script>
 
@@ -259,19 +214,19 @@
       <div class="control-group">
         <label class="control-label" for="randomSignal-startTime">Start Time</label>
         <div class="controls">
-          <input name="signalSchedule.signal.startTime" type="time" class="input-xxlarge" id="randomSignal-startTime" value="{{signalSchedule.signal.startTime}}" />
+          <input name="signal.startTime" type="time" class="input-xxlarge" id="randomSignal-startTime" value="{{signal.startTime}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="randomSignal-endTime">End Time</label>
         <div class="controls">
-          <input name="signalSchedule.signal.endTime" type="time" class="input-xxlarge" id="randomSignal-endTime" value="{{signalSchedule.signal.endTime}}" />
+          <input name="signal.endTime" type="time" class="input-xxlarge" id="randomSignal-endTime" value="{{signal.endTime}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="randomSignal-frequency">Frequency</label>
         <div class="controls">
-          <input name="signalSchedule.signal.frequency" type="number" class="input-xxlarge" id="randomSignal-frequency" value="{{signalSchedule.signal.frequency}}" />
+          <input name="signal.frequency" type="number" class="input-xxlarge" id="randomSignal-frequency" value="{{signal.frequency}}" />
         </div>
       </div>
     </script>
@@ -281,19 +236,19 @@
       <div class="control-group">
         <label class="control-label" for="schedule-startDate">Start Date</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.startDate" type="date" class="input-xxlarge" id="schedule-startDate" value="{{signalSchedule.schedule.startDate}}" />
+          <input name="schedule.startDate" type="date" class="input-xxlarge" id="schedule-startDate" value="{{schedule.startDate}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="schedule-endDate">End Date</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.endDate" type="date" class="input-xxlarge" id="schedule-endDate" value="{{signalSchedule.schedule.endDate}}" />
+          <input name="schedule.endDate" type="date" class="input-xxlarge" id="schedule-endDate" value="{{schedule.endDate}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="schedule-type">Type</label>
         <div class="controls">
-          <select name="signalSchedule.schedule.type" id="schedule-type" class="input-xxlarge">
+          <select name="schedule.type" id="schedule-type" class="input-xxlarge">
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
@@ -307,7 +262,7 @@
       <div class="control-group">
         <label class="control-label" for="dailySchedule-every">Every</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.every" type="number" class="input-xxlarge" id="dailySchedule-every" value="{{signalSchedule.schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="dailySchedule-every" value="{{schedule.every}}" />
         </div>
       </div>
     </script>
@@ -316,13 +271,13 @@
       <div class="control-group" id="weeklySchedule">
         <label class="control-label" for="weeklySchedule-every">Every</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.every" type="number" class="input-xxlarge" id="weeklySchedule-every" value="{{signalSchedule.schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="weeklySchedule-every" value="{{schedule.every}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="weeklySchedule-dayRepeat">Day Repeat</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.dayRepeat" type="number" class="input-xxlarge" id="weeklySchedule-dayRepeat" value="{{signalSchedule.schedule.dayRepeat}}" />
+          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="weeklySchedule-dayRepeat" value="{{schedule.dayRepeat}}" />
         </div>
       </div>
     </script>
@@ -331,145 +286,28 @@
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-every">Every</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.every" type="number" class="input-xxlarge" id="monthlySchedule-every" value="{{signalSchedule.schedule.every}}" />
+          <input name="schedule.every" type="number" class="input-xxlarge" id="monthlySchedule-every" value="{{schedule.every}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-dayRepeat">Day Repeat</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.dayRepeat" type="number" class="input-xxlarge" id="monthlySchedule-dayRepeat" value="{{signalSchedule.schedule.dayRepeat}}" />
+          <input name="schedule.dayRepeat" type="number" class="input-xxlarge" id="monthlySchedule-dayRepeat" value="{{schedule.dayRepeat}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-byDay">By Day</label>
         <div class="controls">
           <label class="checkbox">
-            <input name="signalSchedule.schedule.byDay" type="checkbox" id="monthlySchedule-byDay" value="{{signalSchedule.schedule.byDay}}">
+            <input name="schedule.byDay" type="checkbox" id="monthlySchedule-byDay" value="true" {{#schedule.byDay}}checked{{/schedule.byDay}} />
           </label>
         </div>
       </div>
       <div class="control-group">
         <label class="control-label" for="monthlySchedule-weekRepeat">Week Repeat</label>
         <div class="controls">
-          <input name="signalSchedule.schedule.weekRepeat" type="number" class="input-xxlarge" id="monthlySchedule-weekRepeat" value="{{signalSchedule.schedule.weekRepeat}}" />
+          <input name="schedule.weekRepeat" type="number" class="input-xxlarge" id="monthlySchedule-weekRepeat" value="{{schedule.weekRepeat}}" />
         </div>
-      </div>
-    </script>
-
-    <script type="text/x-handlebars-template" id="inputs-template">
-      <legend>Inputs</legend>
-      <div id="inputs-inputs" />
-    </script>
-
-    <script type="text/x-handlebars-template" id="input-template">
-      <div class="control-group">
-        <label class="control-label" for="input-type">Type</label>
-        <div class="controls">
-          <select name="inputs[{{id}}].type" id="input-type" class="input-xxlarge">
-            <option value="text">Text</option>
-            <option value="likert">Likert</option>
-            <option value="list">List</option>
-          </select>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="input-name">Name</label>
-        <div class="controls">
-          <input name="inputs[{{id}}].name" type="text" class="input-xxlarge" class="input-name" value="{{name}}" />
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="input-required">Required</label>
-        <div class="controls">
-          <label class="checkbox">
-            <input name="inputs[{{id}}].required" type="checkbox" class="input-required" value="{{required}}">
-          </label>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="input-conditionalExpression">Conditional Expression</label>
-        <div class="controls">
-          <input name="inputs[{{id}}].conditionalExpression" type="text" class="input-xxlarge" class="input-conditionalExpression" value="{{conditionalExpression}}" />
-        </div>
-      </div>
-      <div id="input-widget" />
-      <div class="control-group">
-        <div class="controls">
-          <button class="btn" type="button" id="input-add">Add</button>
-          <button class="btn" type="button" id="input-remove">Remove</button>
-        </div>
-      </div>
-      <hr />
-    </script>
-
-    <script type="text/x-handlebars-template" id="textInput-template">
-      <div class="control-group">
-        <label class="control-label" for="textInput-question">Question</label>
-        <div class="controls">
-          <input name="inputs[{{id}}].question" type="text" class="input-xxlarge" class="textInput-question" value="{{question}}" />
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="textInput-multiline">Multline</label>
-        <div class="controls">
-          <label class="checkbox">
-            <input name="inputs[{{id}}].multiline" type="checkbox" class="textInput-multiline" value="{{multiline}}">
-          </label>
-        </div>
-      </div>
-    </script>
-
-    <script type="text/x-handlebars-template" id="likertInput-template">
-      <div class="control-group">
-        <label class="control-label" for="likertInput-question">Question</label>
-        <div class="controls">
-          <input name="inputs[{{id}}].question" type="text" class="input-xxlarge" class="likertInput-question" value="{{question}}" />
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="likertInput-smileys">Smileys</label>
-        <div class="controls">
-          <label class="checkbox">
-            <input name="inputs[{{id}}].smileys" type="checkbox" class="likertInput-smileys" value="{{smileys}}">
-          </label>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="likertInput-labels">Labels</label>
-        <div class="controls" id="likertInput-labels" />
-      </div>
-    </script>
-
-    <script type="text/x-handlebars-template" id="likertInput-label-template">
-      <div class="input-append" id="likertInput-label">
-        <input name="inputs[{{id}}].labels[]" type="text" class="input-xxlarge" value="{{value}}"><button class="btn" type="button" id="remove"><i class="icon-minus" /></button><button class="btn" type="button" id="add"><i class="icon-plus" /></button>
-      </div>
-    </script>
-
-    <script type="text/x-handlebars-template" id="listInput-template">
-      <div class="control-group">
-        <label class="control-label" for="listInput-question">Question</label>
-        <div class="controls">
-          <input name="inputs[{{id}}].question" type="text" class="input-xxlarge" class="listInput-question" value="{{question}}" />
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="listInput-multiselect">Multiselect</label>
-        <div class="controls">
-          <label class="checkbox">
-            <input name="inputs[{{id}}].multiselect" type="checkbox" class="listInput-multiselect" value="{{multiselect}}">
-          </label>
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="listInput-choices">Choices</label>
-        <div class="controls" id="listInput-choices" />
-      </div>
-    </script>
-
-    <script type="text/x-handlebars-template" id="listInput-choice-template">
-      <div class="input-append" id="listInput-choice">
-        <input name="inputs[{{id}}].choices[]" type="text" class="input-xxlarge" value="{{value}}"><button class="btn" type="button" id="remove"><i class="icon-minus" /></button><button class="btn" type="button" id="add"><i class="icon-plus" /></button>
       </div>
     </script>
 
