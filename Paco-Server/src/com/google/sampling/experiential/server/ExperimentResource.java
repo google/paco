@@ -62,6 +62,10 @@ public class ExperimentResource extends PacoExperimentResource {
    */
   @Put("json")
   public void join(SignalSchedule signalSchedule) {
+    if (experiment.hasSubject(user)) {
+      throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+    }
+
     if (dao.joinExperiment(experiment, user, signalSchedule) == false) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
     }
