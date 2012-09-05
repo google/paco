@@ -24,7 +24,7 @@ public class ObserverEventsResource extends PacoExperimentResource {
     }
   }
 
-  @Get("json|gwt")
+  @Get("json")
   public List<Event> list() {
     return dao.getEvents(experiment);
   }

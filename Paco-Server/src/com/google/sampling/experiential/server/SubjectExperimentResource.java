@@ -45,7 +45,7 @@ public class SubjectExperimentResource extends PacoExperimentResource {
     }
   }
 
-  @Get("json|gwt")
+  @Get("json")
   public Experiment show() {
     SignalSchedule signalSchedule = dao.getSignalSchedule(experiment, user);
 
@@ -59,7 +59,7 @@ public class SubjectExperimentResource extends PacoExperimentResource {
   /**
    * Unenrolls the current user from the experiment.
    */
-  @Delete("json|gwt")
+  @Delete("json")
   public void leave() {
     if (dao.leaveExperiment(experiment, user) == false) {
       throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);

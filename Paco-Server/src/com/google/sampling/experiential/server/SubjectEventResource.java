@@ -26,7 +26,7 @@ public class SubjectEventResource extends PacoEventResource {
     }
   }
 
-  @Get("json|gwt")
+  @Get("json")
   public Event show() {
     return event;
   }
