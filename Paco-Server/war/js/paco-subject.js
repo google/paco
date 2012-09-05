@@ -187,8 +187,7 @@ Paco.SubjectExperimentView = Backbone.View.extend({
   addResponse: function(e) {
     e.preventDefault();
 
-    var event = new Paco.Event(this.$('form').toObject({skipEmpty: false}));
-
+    var event = new Paco.Event(this.$('form').toObject());
     event.save();
   },
 });
