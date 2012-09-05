@@ -32,7 +32,7 @@ public class SubjectExperimentsResource extends PacoResource {
    *
    * @return the list of experiments the user has joined
    */
-  @Get("json|gwt")
+  @Get("json")
   public List<Experiment> index() {
     return dao.getSubjectedExperiments(user);
   }
