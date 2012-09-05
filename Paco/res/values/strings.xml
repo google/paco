@@ -19,7 +19,7 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.66</string>
+  <string name='version'>2.0.67</string>
   <string name='server'>quantifiedself.appspot.com</string>
   <string name='app_package'>com.google.android.apps.paco</string>
   <string name='emailSuffix'>\@gmail.com</string>
@@ -117,16 +117,17 @@
    <string name='experiment_title'>Experiment Title</string>
    <string name='refresh_questions'>Refresh Questions</string>
    <string name='save_response'>Save Response</string>
-   <string name='contact_us'>Contact Us</string>
-   <string name='find_experiments'>Find Experiments</string>
-   <string name='running_experiments'>Running Experiments</string>
+   <string name='contact_us'>Contact us</string>
+   <string name='find_experiments'>Find experiments</string>
+   <string name='running_experiments'>Current experiments</string>
    <string name='experiment_manager_screen_subtitle'>Personal Analytics COmpanion</string>
    <string name='experiment_manager_screen_welcome_to_paco'>Welcome to PACO!</string>
    <string name='go_to_website_button_text'>Browse Website</string>
-   <string name='go_to_user_group'>Browse User Group</string>
-   <string name='email_us'>Email User Group</string>
+   <string name='go_to_user_group'>Browse user group</string>
+   <string name='email_us'>Email user group</string>
    <string name='ways_to_talk_to_paco'>Ways to Talk to Paco</string>
-   <string name='explore_data'>Explore Data</string>
-   <string name='create_experiment'>Create An Experiment</string>
+   <string name='explore_data'>Explore your data</string>
+   <string name='create_experiment'>Create an experiment</string>
+   <string name='intro_howto_title'>Getting Started</string>
    
 </resources>
