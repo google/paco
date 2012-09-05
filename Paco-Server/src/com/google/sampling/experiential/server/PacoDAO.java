@@ -169,7 +169,7 @@ public class PacoDAO {
   public boolean joinExperiment(Experiment experiment, String user, SignalSchedule signalSchedule) {
     experiment.addSubject(user);
 
-    if (experiment.getSignalSchedule().isEditable()) {
+    if (experiment.getSignalSchedule().isEditable() == false) {
       signalSchedule = null;
     }
 

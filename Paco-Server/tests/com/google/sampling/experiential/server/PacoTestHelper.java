@@ -106,7 +106,17 @@ public class PacoTestHelper {
   }
 
   public static void joinExperiment() {
-    Request request = post("/experiments/1", "");
+    joinExperiment(null);
+  }
+
+  public static void joinExperiment(SignalSchedule signalSchedule) {
+    String json = "";
+
+    if (signalSchedule != null) {
+      json = PacoConverter.toJson(signalSchedule);
+    }
+
+    Request request = put("/experiments/1", json);
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
