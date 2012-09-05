@@ -7,12 +7,16 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Status;
 
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.FixedSignal;
+import com.google.paco.shared.model.SignalSchedule;
+
 public class SubjectExperimentResourceTest extends PacoResourceTest {
   /*
-   * stats test
+   * show test
    */
   @Test
-  public void testStats() {
+  public void testShow() {
     Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
@@ -20,7 +24,7 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
   }
 
   @Test
-  public void testStatsAfterCreate() {
+  public void testShowAfterCreate() {
     PacoTestHelper.createPublishedPublicExperiment();
 
     Request request = PacoTestHelper.get("/subject/experiments/1");
@@ -30,19 +34,86 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
   }
 
   @Test
-  public void testStatsAfterCreateAndJoin() {
+  public void testShowAfterCreateAndJoin() {
     PacoTestHelper.createPublishedPublicExperiment();
     PacoTestHelper.joinExperiment();
+
+    Experiment experiment = PacoTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.setPublished(true);
 
     Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("{}", response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
   }
 
   @Test
-  public void testStatsAsImpostorAfterCreateAndJoin() {
+  public void testShowAfterCreateAndJoinEditable() {
+    PacoTestHelper.createPublishedPublicExperiment(true);
+    PacoTestHelper.joinExperiment();
+
+    Experiment experiment = PacoTestHelper.constructExperiment(true);
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.setPublished(true);
+
+    Request request = PacoTestHelper.get("/subject/experiments/1");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+  }
+
+  @Test
+  public void testShowAfterCreateAndJoinWithCustomSignalSchedule() {
+    SignalSchedule signalSchedule = PacoTestHelper.constructSignalSchedule(true);
+    signalSchedule.setSignal(new FixedSignal());
+
+    PacoTestHelper.createPublishedPublicExperiment(true);
+    PacoTestHelper.joinExperiment(signalSchedule);
+
+    Experiment experiment = PacoTestHelper.constructExperiment(true);
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.setPublished(true);
+    experiment.setSignalSchedule(signalSchedule);
+
+    Request request = PacoTestHelper.get("/subject/experiments/1");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+  }
+
+  @Test
+  public void testShowAfterCreateAndJoinWithUneditableCustomSignalSchedule() {
+    SignalSchedule signalSchedule = PacoTestHelper.constructSignalSchedule(true);
+    signalSchedule.setSignal(new FixedSignal());
+
+    PacoTestHelper.createPublishedPublicExperiment(false);
+    PacoTestHelper.joinExperiment(signalSchedule);
+
+    Experiment experiment = PacoTestHelper.constructExperiment(false);
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.addObserver("observer@google.com");
+    experiment.setPublished(true);
+
+    Request request = PacoTestHelper.get("/subject/experiments/1");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+  }
+
+  @Test
+  public void testShowAsImpostorAfterCreateAndJoin() {
     PacoTestHelper.createPublishedPublicExperiment();
     PacoTestHelper.joinExperiment();
 

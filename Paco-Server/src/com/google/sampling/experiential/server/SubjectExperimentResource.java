@@ -14,7 +14,8 @@
 
 package com.google.sampling.experiential.server;
 
-import com.google.paco.shared.model.ExperimentStats;
+import com.google.paco.shared.model.Experiment;
+import com.google.paco.shared.model.SignalSchedule;
 
 import org.restlet.data.Status;
 import org.restlet.resource.Delete;
@@ -45,8 +46,14 @@ public class SubjectExperimentResource extends PacoExperimentResource {
   }
 
   @Get("json|gwt")
-  public ExperimentStats stats() {
-    throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+  public Experiment show() {
+    SignalSchedule signalSchedule = dao.getSignalSchedule(experiment, user);
+
+    if (signalSchedule != null) {
+      experiment.setSignalSchedule(signalSchedule);
+    }
+
+    return experiment;
   }
 
   /**
