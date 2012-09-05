@@ -185,4 +185,15 @@ public class ExperimentResourceTest extends PacoResourceTest {
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
   }
+
+  @Test
+  public void testJoinAfterJoin() {
+    PacoTestHelper.createPublishedPublicExperiment();
+    PacoTestHelper.joinExperiment();
+
+    Request request = PacoTestHelper.put("/experiments/1", "");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, response.getStatus());
+  }
 }
