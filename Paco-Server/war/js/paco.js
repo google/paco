@@ -1,323 +1,6 @@
 // Namespace
 window.Paco = { }
 
-// Input
-Paco.InputsView = Backbone.View.extend({
-  template: '#inputs-template',
-  tagName: 'fieldset',
-  id: 'inputs',
-  count: 0,
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model.toJSON();
-  },
-
-  render: function() {
-    this.$el.html(this.template(this.serialize()));
-
-    var inputs = this.model.attributes.inputs;
-
-    if (inputs) {
-      for (i in inputs) {
-        var model = new Paco.Input();
-        this.appendInput(model);
-        model.set(inputs[i]);
-      }
-    } else {
-      var model = new Paco.Input();
-      this.appendInput(model);
-    }
-  },
-
-  createInput: function(model) {
-    // Need to index each input for an experiment
-    model.attributes.id = this.count;
-    this.count += 1;
-
-    var input = new Paco.InputView({ model: model }).render();
-
-    input.on('add', this.addInput, this);
-    input.on('remove', this.removeInput, this);
-
-    return input;
-  },
-
-  appendInput: function(model) {
-    this.$('#inputs-inputs').append(this.createInput(model).el);
-  },
-
-  addInput: function(input) {
-    input.$el.after(this.createInput(new Paco.Input(input)).el);
-  },
-
-  removeInput: function(input) {
-    input.$el.remove();
-
-    if (this.$el.find('#experiment-input').length == 0) {
-      this.appendInput(new Paco.Input());
-    }
-  }
-})
-
-Paco.Input = Backbone.Model.extend();
-
-Paco.InputView = Backbone.View.extend({
-  template: '#input-template',
-  id: 'input',
-  events: {
-    'change #input-type':   'onTypeChange',
-    'click #input-add':     'onAddClick',
-    'click #input-remove':  'onRemoveClick'
-  },
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-    this.template = Handlebars.compile($(this.template).html());
-
-    // Create sub-views
-    this.textInputView = new Paco.TextInputView({ model: this.model });
-    this.likertInputView = new Paco.LikertInputView({ model: this.model });
-    this.listInputView = new Paco.ListInputView({ model: this.model });
-  },
-
-  serialize: function() {
-    return this.model.toJSON();
-  },
-
-  render: function() {
-    this.$el.html(this.template(this.serialize()));
-
-    // Update sub-views
-    this.$('#input-type').val(this.model.attributes.type);
-    this.onTypeChange();
-
-    return this;
-  },
-
-  onTypeChange: function() {
-    this.textInputView.$el.detach();
-    this.likertInputView.$el.detach();
-    this.listInputView.$el.detach();
-
-    switch (this.$('#input-type').val()) {
-      case 'text':
-        this.$('#input-widget').html(this.textInputView.$el);
-        break;
-      case 'likert':
-        this.$('#input-widget').html(this.likertInputView.$el);
-        break;
-      case 'list':
-        this.$('#input-widget').html(this.listInputView.$el);
-        break;
-    }
-  },
-
-  onAddClick: function() {
-    this.trigger('add', this);
-  },
-
-  onRemoveClick: function() {
-    this.trigger('remove', this);
-  }
-});
-
-Paco.TextInputView = Backbone.View.extend({
-  template: '#textInput-template',
-  id: 'textInput',
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model.toJSON();
-  },
-
-  render: function() {
-    this.$el.html(this.template(this.serialize()));
-
-    return this;
-  }
-});
-
-Paco.LikertInputView = Backbone.View.extend({
-  template: '#likertInput-template',
-  id: 'likertInput',
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model.toJSON();
-  },
-
-  render: function() {
-    this.$el.html(this.template(this.serialize()));
-
-    var id      = this.model.attributes.id,
-        labels  = this.model.attributes.labels;
-
-    if (labels) {
-      for (i in labels) {
-        this.appendLabelView({id: id, value: labels[i]});
-      }
-    } else {
-      this.appendLabelView({id: id});
-    }
-
-    return this;
-  },
-
-  createLabelView: function(model) {
-    var labelView = new Paco.LikertInputView.LabelView({ model: model }).render();
-
-    labelView.on('add', this.addLabelView, this);
-    labelView.on('remove', this.removeLabelView, this);
-
-    return labelView;
-  },
-
-  appendLabelView: function(model) {
-    this.$('#likertInput-labels').append(this.createLabelView(model).el);
-  },
-
-  addLabelView: function(labelView) {
-    labelView.$el.after(this.createLabelView({ id: this.model.attributes.id }).el);
-  },
-
-  removeLabelView: function(labelView) {
-    labelView.$el.remove();
-
-    if (this.$el.find('#likertInput-label').length == 0) {
-      this.appendLabelView({id: this.model.attributes.id});
-    }
-  }
-});
-
-Paco.LikertInputView.LabelView = Backbone.View.extend({
-  template: '#likertInput-label-template',
-  events: {
-    'click #add': 'onAddClick',
-    'click #remove': 'onRemoveClick',
-  },
-
-  initialize: function() {
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model;
-  },
-
-  render: function() {
-    this.setElement(this.template(this.serialize()));
-
-    return this;
-  },
-
-  onAddClick: function() {
-    this.trigger('add', this);
-  },
-
-  onRemoveClick: function() {
-    this.trigger('remove', this);
-  }
-});
-
-Paco.ListInputView = Backbone.View.extend({
-  template: '#listInput-template',
-  id: 'listInput',
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model.toJSON();
-  },
-
-  render: function() {
-    this.$el.html(this.template(this.serialize()));
-
-    var id      = this.model.attributes.id,
-        choices = this.model.attributes.choices;
-
-    if (choices) {
-      for (i in choices) {
-        this.appendChoiceView({ id: id, value: choices[i] });
-      }
-    } else {
-      this.appendChoiceView({ id: id });
-    }
-
-    return this;
-  },
-
-  createChoiceView: function(model) {
-    var choiceView = new Paco.ListInputView.ChoiceView({ model: model }).render();
-
-    choiceView.on('add', this.addChoiceView, this);
-    choiceView.on('remove', this.removeChoiceView, this);
-
-    return choiceView;
-  },
-
-  appendChoiceView: function(model) {
-    this.$('#listInput-choices').append(this.createChoiceView(model).el);
-  },
-
-  addChoiceView: function(choiceView) {
-    choiceView.$el.after(this.createChoiceView({ id: this.model.attributes.id }).el);
-  },
-
-  removeChoiceView: function(choiceView) {
-    choiceView.$el.remove();
-
-    if (this.$el.find('#listInput-choice').length == 0) {
-      this.appendChoiceView({ id: this.model.attributes.id });
-    }
-  }
-});
-
-Paco.ListInputView.ChoiceView = Backbone.View.extend({
-  template: '#listInput-choice-template',
-  events: {
-    'click #add': 'onAddClick',
-    'click #remove': 'onRemoveClick',
-  },
-
-  initialize: function() {
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model;
-  },
-
-  render: function() {
-    this.setElement(this.template(this.serialize()));
-
-    return this;
-  },
-
-  onAddClick: function() {
-    this.trigger('add', this);
-  },
-
-  onRemoveClick: function() {
-    this.trigger('remove', this);
-  }
-});
-
 // Signal
 Paco.SignalView = Backbone.View.extend({
   template: '#signal-template',
@@ -343,7 +26,7 @@ Paco.SignalView = Backbone.View.extend({
     this.$el.html(this.template(this.serialize()));
 
     // Update sub-views
-    this.$('#signal-type').val(this.model.attributes.signalSchedule.signal.type);
+    this.$('#signal-type').val(this.model.get('signal').type);
     this.onTypeChange();
 
     return this;
@@ -379,7 +62,7 @@ Paco.FixedSignalView = Backbone.View.extend({
   render: function() {
     this.$el.html(this.template(this.serialize()));
 
-    var times = this.model.attributes.signalSchedule.signal.times;
+    var times = this.model.get('signal').times;
 
     if (times) {
       for (i in times) {
@@ -461,7 +144,7 @@ Paco.RandomSignalView = Backbone.View.extend({
   },
 
   render: function() {
-    this.$el.append(this.template(this.serialize()));
+    this.$el.html(this.template(this.serialize()));
 
     return this;
   }
@@ -493,7 +176,7 @@ Paco.ScheduleView = Backbone.View.extend({
     this.$el.html(this.template(this.serialize()));
 
     // Update sub-views
-    this.$('#schedule-type').val(this.model.attributes.signalSchedule.schedule.type);
+    this.$('#schedule-type').val(this.model.get('schedule').type);
     this.onTypeChange();
 
     return this;
@@ -598,7 +281,7 @@ Paco.SignalScheduleView = Backbone.View.extend({
   },
 
   render: function() {
-    this.$el.append(this.template(this.serialize()));
+    this.$el.html(this.template(this.serialize()));
     this.$('#signalSchedule-signal').html(this.signalView.$el);
     this.$('#signalSchedule-schedule').html(this.scheduleView.$el);
 
@@ -606,48 +289,29 @@ Paco.SignalScheduleView = Backbone.View.extend({
   }
 });
 
+Paco.SignalSchedule = Backbone.Model.extend({
+  urlRoot: '/experiments'
+});
+
 // Experiment
 Paco.Experiment = Backbone.Model.extend({
-  urlRoot: '/observer/experiments',
-  defaults: {
-    'title': '',
-    'description': '',
-    'consentForm': '',
-    'inputs': [
-      { 'type': 'text' }
-    ],
-    'signalSchedule': {
-        'editable': true,
-        'signal': {
-            'type': 'random',
-        },
-        'schedule': {
-            'type': 'daily',
-        }
-    },
-    'feedback': 'Thanks for taking my experiment!',
-    'published': false,
-    'observers': null,
-    'viewers': null
-  }
+  urlRoot: '/experiments'
 });
 
 Paco.ExperimentView = Backbone.View.extend({
   el: '#content',
   template: '#experiment-template',
   events: {
-    'submit form': 'createExperiment'
+    'submit form': 'joinExperiment'
   },
 
   initialize: function() {
     this.model.bind('change', this.render, this);
+    this.signalSchedule = new Paco.SignalSchedule({ id: this.model.id });
     this.template = Handlebars.compile($(this.template).html());
 
     // Create sub-views
-    this.observersView      = new Paco.ObserversView({ model: this.model });
-    this.viewersView        = new Paco.ViewersView({ model: this.model });
-    this.signalScheduleView = new Paco.SignalScheduleView({ model: this.model });
-    this.inputsView         = new Paco.InputsView({ model: this.model });
+    this.signalScheduleView = new Paco.SignalScheduleView({ model: this.signalSchedule });
   },
 
   serialize: function() {
@@ -655,180 +319,25 @@ Paco.ExperimentView = Backbone.View.extend({
   },
 
   render: function() {
+    this.signalSchedule.set(this.model.get('signalSchedule'));
+
     this.$el.html(this.template(this.serialize()));
-    this.$('#experiment-observers').html(this.observersView.$el);
-    this.$('#experiment-viewers').html(this.viewersView.$el);
     this.$('#experiment-signalSchedule').html(this.signalScheduleView.$el);
-    this.$('#experiment-inputs').html(this.inputsView.$el);
 
     return this;
   },
 
-  createExperiment: function(e) {
+  joinExperiment: function(e) {
     e.preventDefault();
 
-    this.model.save(this.$('form').toObject());
+    this.signalSchedule.save(this.$('form').toObject());
   },
-});
-
-Paco.ObserversView = Backbone.View.extend({
-  id: 'observers',
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-  },
-
-  render: function() {
-    var observers = this.model.attributes.observers;
-
-    if (observers) {
-      for (i in observers) {
-        this.appendObserverView({ value: observers[i] });
-      }
-    } else {
-      this.appendObserverView({});
-    }
-
-    return this;
-  },
-
-  createObserverView: function(model) {
-    var observerView = new Paco.ObserversView.ObserverView({ model: model }).render();
-
-    observerView.on('add', this.addObserverView, this);
-    observerView.on('remove', this.removeObserverView, this);
-
-    return observerView;
-  },
-
-  appendObserverView: function(model) {
-    this.$el.append(this.createObserverView(model).el);
-  },
-
-  addObserverView: function(observerView) {
-    observerView.$el.after(this.createObserverView({}).el);
-  },
-
-  removeObserverView: function(observerView) {
-    observerView.$el.remove();
-
-    if (this.$el.children().length == 0) {
-      this.appendObserverView({});
-    }
-  }
-});
-
-Paco.ObserversView.ObserverView = Backbone.View.extend({
-  template: '#experiment-observer-template',
-  events: {
-    'click #add': 'onAddClick',
-    'click #remove': 'onRemoveClick',
-  },
-
-  initialize: function() {
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model;
-  },
-
-  render: function() {
-    this.setElement(this.template(this.serialize()));
-
-    return this;
-  },
-
-  onAddClick: function() {
-    this.trigger('add', this);
-  },
-
-  onRemoveClick: function() {
-    this.trigger('remove', this);
-  }
-});
-
-Paco.ViewersView = Backbone.View.extend({
-  id: 'viewers',
-
-  initialize: function() {
-    this.model.bind('change', this.render, this);
-  },
-
-  render: function() {
-    var viewers = this.model.attributes.viewers;
-    
-    if (viewers) {
-      for (i in viewers) {
-        this.appendViewerView({ value: viewers[i] });
-      }
-    } else {
-      this.appendViewerView({});
-    }
-
-    return this;
-  },
-
-  createViewerView: function(model) {
-    var viewerView = new Paco.ViewersView.ViewerView({ model: model }).render();
-
-    viewerView.on('add', this.addViewerView, this);
-    viewerView.on('remove', this.removeViewerView, this);
-
-    return viewerView;
-  },
-
-  appendViewerView: function(model) {
-    this.$el.append(this.createViewerView(model).el);
-  },
-
-  addViewerView: function(viewerView) {
-    viewerView.$el.after(this.createViewerView({}).el);
-  },
-
-  removeViewerView: function(viewerView) {
-    viewerView.$el.remove();
-
-    if (this.$el.children().length == 0) {
-      this.appendViewerView({});
-    }
-  }
-});
-
-Paco.ViewersView.ViewerView = Backbone.View.extend({
-  template: '#experiment-viewer-template',
-  events: {
-    'click #add': 'onAddClick',
-    'click #remove': 'onRemoveClick',
-  },
-
-  initialize: function() {
-    this.template = Handlebars.compile($(this.template).html());
-  },
-
-  serialize: function() {
-    return this.model;
-  },
-
-  render: function() {
-    this.setElement(this.template(this.serialize()));
-
-    return this;
-  },
-
-  onAddClick: function() {
-    this.trigger('add', this);
-  },
-
-  onRemoveClick: function() {
-    this.trigger('remove', this);
-  }
 });
 
 // Experiments
 Paco.Experiments = Backbone.Collection.extend({
   model: Paco.Experiment,
-  url: '/observer/experiments'
+  url: '/experiments'
 });
 
 Paco.ExperimentsView = Backbone.View.extend({
@@ -853,26 +362,18 @@ Paco.ExperimentsView = Backbone.View.extend({
 
 Paco.Router = Backbone.Router.extend({
   routes: {
-    'observer/experiments/create':  'createObserverExperiment',
-    'observer/experiments/:id':     'getObserverExperiment',
-    'observer/experiments' :        'getObserverExperiments'
+    ':id':     'getExperiment',
+    '' :        'getExperiments'
   },
 
-  createObserverExperiment: function() {
-    this.model = new Paco.Experiment();
-    this.view = new Paco.ExperimentView({ model: this.model });
-
-    this.model.trigger('change');
-  },
-
-  getObserverExperiments: function() {
+  getExperiments: function() {
     this.model  = new Paco.Experiments();
     this.view   = new Paco.ExperimentsView({ model: this.model });
 
     this.model.fetch();
   },
  
-  getObserverExperiment: function(id) {
+  getExperiment: function(id) {
     this.model = new Paco.Experiment({ id: id });
     this.view  = new Paco.ExperimentView({ model: this.model });
 
