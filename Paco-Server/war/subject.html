@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Paco - The Personal Analytics COmpanion</title>
+
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="./css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="./css/paco.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="/">Paco</a>
+          <div class="btn-group pull-right">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="icon-user"></i> Username
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Profile</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Sign Out</a></li>
+            </ul>
+          </div>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="index.html">All</a></li>
+              <li><a href="subject.html">Subject</a></li>
+              <li><a href="observer.html">Observer</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row-fluid">
+        <div id="content" />
+      </div>
+
+      <hr />
+
+      <footer>
+        <p>&copy; 2012</p>
+      </footer>
+    </div>
+
+    <script type="text/x-handlebars-template" id="experiments-template">
+      <div class="page-header">
+        <h1>Experiments</h1>
+      </div>
+
+      <ul class="thumbnails">
+        {{#each experiments}}
+        <li class="span3">
+          <div class="thumbnail well">
+            <h2><a href="#{{id}}">{{title}}</a></h2>
+            <p>{{description}}</p>
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+    </script>
+
+    <script type="text/x-handlebars-template" id="experiment-template">
+      <div class="page-header">
+        <h1>{{title}}</h1>
+      </div>
+      <div>
+        <form class="form" id="experiment">
+          <div id="experiment-inputs" />
+          <fieldset>
+            <div class="control-group">
+              <div class="controls">
+                <button type="submit" class="btn">Respond</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars-template" id="inputs-template">
+      <div id="inputs-inputs" />
+    </script>
+
+    <script type="text/x-handlebars-template" id="textInput-template">
+      <div class="control-group">
+        <label class="control-label" for="textInput-question">{{question}}</label>
+        <div class="controls">
+          {{#if multiline}}
+          <input name="{{name}}" type="text" class="input-xxlarge" class="textInput-question" />
+          {{else}}
+          <textarea name="{{name}}" type="text" class="input-xxlarge" class="textInput-question"></textarea>
+          {{/if}}
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars-template" id="likertInput-template">
+      <div class="control-group">
+        <label class="control-label" for="likertInput-question">{{question}}</label>
+        <div class="controls">
+          {{#each_with_name labels}}
+          <label class="radio">
+            <input type="radio" name="{{name}}" value="{{value}}" /> {{value}}
+          </label>
+          {{/each_with_name}}
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars-template" id="listInput-template">
+      <div class="control-group">
+        <label class="control-label" for="likertInput-question">{{question}}</label>
+        <div class="controls">
+          <select name="{{name}}" {{#if multiselect}}multiple="multiple"{{/if}}>
+          {{#each_with_name choices}}
+            <option value="{{value}}">{{value}}</option>
+          {{/each_with_name}}
+          </select>
+        </div>
+      </div>
+    </script>
+
+    <script src="./js/jquery.js"></script>
+    <script src="./js/bootstrap.js"></script>
+    <script src="./js/underscore.js"></script>
+    <script src="./js/backbone.js"></script>
+    <script src="./js/handlebars.js"></script>
+    <script src="./js/form2js.js"></script>
+    <script src="./js/jquery.toObject.js"></script>
+    <script src="./js/paco-subject.js"></script>
+  </body>
+</html>
