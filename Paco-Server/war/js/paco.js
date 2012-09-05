@@ -26,7 +26,7 @@ Paco.SignalView = Backbone.View.extend({
     this.$el.html(this.template(this.serialize()));
 
     // Update sub-views
-    this.$('#signal-type').val(this.model.get('signal').type);
+    this.$('#signal-type').val(this.model.attributes.signalSchedule.signal.type);
     this.onTypeChange();
 
     return this;
@@ -62,7 +62,7 @@ Paco.FixedSignalView = Backbone.View.extend({
   render: function() {
     this.$el.html(this.template(this.serialize()));
 
-    var times = this.model.get('signal').times;
+    var times = this.model.attributes.signalSchedule.signal.times;
 
     if (times) {
       for (i in times) {
@@ -176,7 +176,7 @@ Paco.ScheduleView = Backbone.View.extend({
     this.$el.html(this.template(this.serialize()));
 
     // Update sub-views
-    this.$('#schedule-type').val(this.model.get('schedule').type);
+    this.$('#schedule-type').val(this.model.attributes.signalSchedule.schedule.type);
     this.onTypeChange();
 
     return this;
@@ -307,11 +307,10 @@ Paco.ExperimentView = Backbone.View.extend({
 
   initialize: function() {
     this.model.bind('change', this.render, this);
-    this.signalSchedule = new Paco.SignalSchedule({ id: this.model.id });
     this.template = Handlebars.compile($(this.template).html());
 
     // Create sub-views
-    this.signalScheduleView = new Paco.SignalScheduleView({ model: this.signalSchedule });
+    this.signalScheduleView = new Paco.SignalScheduleView({ model: this.model });
   },
 
   serialize: function() {
@@ -319,8 +318,6 @@ Paco.ExperimentView = Backbone.View.extend({
   },
 
   render: function() {
-    this.signalSchedule.set(this.model.get('signalSchedule'));
-
     this.$el.html(this.template(this.serialize()));
     this.$('#experiment-signalSchedule').html(this.signalScheduleView.$el);
 
@@ -330,7 +327,8 @@ Paco.ExperimentView = Backbone.View.extend({
   joinExperiment: function(e) {
     e.preventDefault();
 
-    this.signalSchedule.save(this.$('form').toObject());
+    var signalSchedule = new Paco.SignalSchedule(this.$('form').toObject());
+    signalSchedule.save();
   },
 });
 
