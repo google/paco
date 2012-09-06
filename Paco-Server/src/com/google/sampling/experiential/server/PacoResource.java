@@ -16,6 +16,7 @@ package com.google.sampling.experiential.server;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.utils.SystemProperty;
 
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -33,12 +34,16 @@ public abstract class PacoResource extends ServerResource {
 
   @Override
   protected void doInit() throws ResourceException {
-    UserService userService = UserServiceFactory.getUserService();
+    if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+      user = "dxoigmn@gmail.com";
+    } else {
+      UserService userService = UserServiceFactory.getUserService();
 
-    if (userService.isUserLoggedIn() == false) {
-      throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+      if (userService.isUserLoggedIn() == false) {
+        throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+      }
+
+      user = userService.getCurrentUser().getEmail();
     }
-
-    user = userService.getCurrentUser().getEmail();
   }
 }
