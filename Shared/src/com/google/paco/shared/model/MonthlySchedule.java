@@ -62,6 +62,11 @@ public class MonthlySchedule extends WeeklySchedule {
     this.weekRepeat = weekRepeat;
   }
 
+  @Override
+  public int getPeriod() {
+    return 30;
+  }
+
   /*
    * (non-Javadoc)
    *

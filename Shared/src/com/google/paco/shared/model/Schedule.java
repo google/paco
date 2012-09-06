@@ -21,8 +21,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-
-import java.util.Date;
+import org.joda.time.LocalDate;
 
 /**
  * The Schedule for signaling an experiment response.
@@ -39,8 +38,8 @@ public abstract class Schedule {
   }
 
   protected Type type;
-  protected Date startDate;
-  protected Date endDate;
+  protected LocalDate startDate;
+  protected LocalDate endDate;
 
   /**
    *
@@ -63,14 +62,14 @@ public abstract class Schedule {
   /**
    * @return the startDate
    */
-  public Date getStartDate() {
+  public LocalDate getStartDate() {
     return startDate;
   }
 
   /**
    * @param startDate the startDate to set
    */
-  public void setStartDate(Date startDate) {
+  public void setStartDate(LocalDate startDate) {
     this.startDate = startDate;
   }
 
@@ -84,14 +83,14 @@ public abstract class Schedule {
   /**
    * @return the endDate
    */
-  public Date getEndDate() {
+  public LocalDate getEndDate() {
     return endDate;
   }
 
   /**
    * @param endDate the endDate to set
    */
-  public void setEndDate(Date endDate) {
+  public void setEndDate(LocalDate endDate) {
     this.endDate = endDate;
   }
 
@@ -117,6 +116,24 @@ public abstract class Schedule {
   public boolean isFixedDuration() {
     return hasEndDate();
   }
+
+  @JsonIgnore
+  public boolean isDaily() {
+    return type.equals(Schedule.Type.Daily);
+  }
+
+  @JsonIgnore
+  public boolean isWeekly() {
+    return type.equals(Schedule.Type.Weekly);
+  }
+
+  @JsonIgnore
+  public boolean isMonthly() {
+    return type.equals(Schedule.Type.Monthly);
+  }
+
+  @JsonIgnore
+  public abstract int getPeriod();
 
   /*
    * (non-Javadoc)

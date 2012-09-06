@@ -4,8 +4,6 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
-
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.DailySchedule;
 import com.google.paco.shared.model.Event;
@@ -16,6 +14,7 @@ import com.google.paco.shared.model.RandomSignal;
 import com.google.paco.shared.model.SignalSchedule;
 import com.google.paco.shared.model.TextInput;
 
+import org.joda.time.DateTime;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.ClientInfo;
@@ -116,7 +115,7 @@ public class PacoTestHelper {
       json = PacoConverter.toJson(signalSchedule);
     }
 
-    Request request = put("/experiments/1", json);
+    Request request = post("/experiments/1", json);
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -144,8 +143,8 @@ public class PacoTestHelper {
     Event event = new Event();
 
     event.setExperimentVersion(1);
-    event.setSignalTime(new Date(3));
-    event.setResponseTime(new Date(13));
+    event.setSignalTime(new DateTime(3));
+    event.setResponseTime(new DateTime(13));
     event.setOutputByKey("test", "value");
 
     return event;

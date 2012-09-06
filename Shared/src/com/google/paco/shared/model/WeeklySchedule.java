@@ -55,6 +55,11 @@ public class WeeklySchedule extends DailySchedule {
     return ((dayRepeat & bit) == bit);
   }
 
+  @Override
+  public int getPeriod() {
+    return 7;
+  }
+
   /*
    * (non-Javadoc)
    *

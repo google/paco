@@ -61,4 +61,9 @@ public class DailySchedule extends Schedule {
 
     return true;
   }
+
+  @Override
+  public int getPeriod() {
+    return 1;
+  }
 }

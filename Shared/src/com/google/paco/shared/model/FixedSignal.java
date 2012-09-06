@@ -5,8 +5,8 @@ package com.google.paco.shared.model;
 import com.google.common.collect.Sets;
 
 import org.codehaus.jackson.annotate.JsonTypeName;
+import org.joda.time.LocalTime;
 
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Set;
  */
 @JsonTypeName("fixed")
 public class FixedSignal extends Signal {
-  private Set<Date> times;
+  private Set<LocalTime> times;
 
   /**
    *
@@ -29,14 +29,14 @@ public class FixedSignal extends Signal {
   /**
    * @return the times
    */
-  public Set<Date> getTimes() {
+  public Set<LocalTime> getTimes() {
     return times;
   }
 
   /**
    * @param times the times to set
    */
-  public void setTimes(Set<Date> times) {
+  public void setTimes(Set<LocalTime> times) {
     if (times == null) {
       this.times = Sets.newLinkedHashSet();
     } else {
@@ -48,7 +48,7 @@ public class FixedSignal extends Signal {
    * @param time the time
    * @return whether the time was added
    */
-  public boolean addTime(Date time) {
+  public boolean addTime(LocalTime time) {
     if (times == null) {
       times = Sets.newLinkedHashSet();
     }

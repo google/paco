@@ -14,7 +14,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
- <project default="compile" basedir=".">
+ <project default="build" basedir=".">
   <property name="sdk.dir" location="../tools/appengine-java-sdk-latest" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
@@ -43,7 +43,7 @@
     </copy>
   </target>
 
-  <target name="compile" depends="copyjars"
+  <target name="build" depends="copyjars"
       description="Compiles Java source and copies other source files to the WAR.">
     <mkdir dir="war/WEB-INF/classes" />
     <copy todir="war/WEB-INF/classes">
@@ -58,7 +58,7 @@
         debug="on" />
   </target>
 
-  <target name="runserver" depends="compile"
+  <target name="runserver" depends="build"
       description="Starts the development server.">
     <dev_appserver war="war" address="0.0.0.0">
       <options>
@@ -86,7 +86,7 @@
     </dev_appserver>
   </target>
 
-  <target name="update" depends="compile"
+  <target name="update" depends="build"
       description="Uploads the application to App Engine.">
     <appcfg action="update" war="war" />
   </target>
@@ -182,9 +182,9 @@ Test targets suppressed because -junit argument was not specified when running w
   </target>
   -->
 
-  <target name="hosted" depends="compile" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
+  <target name="hosted" depends="build" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
 
-  <target name="war" depends="compile" description="Create a war file">
+  <target name="war" depends="build" description="Create a war file">
     <zip destfile="paco.war" basedir="war"/>
   </target>
 
