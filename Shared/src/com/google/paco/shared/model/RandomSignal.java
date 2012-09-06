@@ -3,8 +3,7 @@
 package com.google.paco.shared.model;
 
 import org.codehaus.jackson.annotate.JsonTypeName;
-
-import java.util.Date;
+import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -12,8 +11,8 @@ import java.util.Date;
  */
 @JsonTypeName("random")
 public class RandomSignal extends Signal {
-  private Date startTime;
-  private Date endTime;
+  private LocalTime startTime;
+  private LocalTime endTime;
   private int frequency;
 
   /**
@@ -26,28 +25,28 @@ public class RandomSignal extends Signal {
   /**
    * @return the startTime
    */
-  public Date getStartTime() {
+  public LocalTime getStartTime() {
     return startTime;
   }
 
   /**
    * @param startTime the startTime to set
    */
-  public void setStartTime(Date startTime) {
+  public void setStartTime(LocalTime startTime) {
     this.startTime = startTime;
   }
 
   /**
    * @return the endTime
    */
-  public Date getEndTime() {
+  public LocalTime getEndTime() {
     return endTime;
   }
 
   /**
    * @param endTime the endTime to set
    */
-  public void setEndTime(Date endTime) {
+  public void setEndTime(LocalTime endTime) {
     this.endTime = endTime;
   }
 

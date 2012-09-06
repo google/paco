@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/guava-r09.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

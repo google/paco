@@ -46,6 +46,16 @@ public abstract class Signal {
     this.type = type;
   }
 
+  @JsonIgnore
+  public boolean isFixed() {
+    return type.equals(Signal.Type.Fixed);
+  }
+
+  @JsonIgnore
+  public boolean isRandom() {
+    return type.equals(Signal.Type.Random);
+  }
+
   /*
    * (non-Javadoc)
    *

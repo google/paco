@@ -7,13 +7,12 @@ import static org.junit.Assert.*;
 import com.google.paco.shared.model.FixedSignal;
 import com.google.paco.shared.model.RandomSignal;
 
+import org.joda.time.LocalTime;
 import org.junit.Test;
-
-import java.util.Date;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
+ * 
  */
 public class RandomSignalTest {
   @Test
@@ -37,8 +36,8 @@ public class RandomSignalTest {
     RandomSignal signal1 = new RandomSignal();
     RandomSignal signal2 = new RandomSignal();
 
-    signal1.setStartTime(new Date(3));
-    signal2.setStartTime(new Date(3));
+    signal1.setStartTime(new LocalTime(3));
+    signal2.setStartTime(new LocalTime(3));
 
     assertTrue(signal1.equals(signal2));
   }
@@ -59,7 +58,7 @@ public class RandomSignalTest {
     RandomSignal signal1 = new RandomSignal();
     RandomSignal signal2 = new RandomSignal();
 
-    signal1.setStartTime(new Date(3));
+    signal1.setStartTime(new LocalTime(3));
     signal2.setStartTime(null);
 
     assertFalse(signal1.equals(signal2));
@@ -70,8 +69,8 @@ public class RandomSignalTest {
     RandomSignal signal1 = new RandomSignal();
     RandomSignal signal2 = new RandomSignal();
 
-    signal1.setEndTime(new Date(3));
-    signal2.setEndTime(new Date(3));
+    signal1.setEndTime(new LocalTime(3));
+    signal2.setEndTime(new LocalTime(3));
 
     assertTrue(signal1.equals(signal2));
   }
@@ -92,7 +91,7 @@ public class RandomSignalTest {
     RandomSignal signal1 = new RandomSignal();
     RandomSignal signal2 = new RandomSignal();
 
-    signal1.setEndTime(new Date(3));
+    signal1.setEndTime(new LocalTime(3));
     signal2.setEndTime(null);
 
     assertFalse(signal1.equals(signal2));

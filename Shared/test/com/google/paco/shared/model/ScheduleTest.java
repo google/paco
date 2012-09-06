@@ -6,9 +6,8 @@ import static org.junit.Assert.*;
 
 import com.google.paco.shared.model.Schedule;
 
+import org.joda.time.LocalDate;
 import org.junit.Test;
-
-import java.util.Date;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -18,6 +17,11 @@ public class ScheduleTest {
   private class ScheduleImpl extends Schedule {
     public ScheduleImpl(Type type) {
       super(type);
+    }
+
+    @Override
+    public int getPeriod() {
+      return 0;
     }
   }
 
@@ -42,8 +46,8 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule1.setStartDate(new Date(3));
-    schedule2.setStartDate(new Date(3));
+    schedule1.setStartDate(new LocalDate(1, 1, 1));
+    schedule2.setStartDate(new LocalDate(1, 1, 1));
 
     assertTrue(schedule1.equals(schedule2));
   }
@@ -64,8 +68,8 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule1.setStartDate(new Date(3));
-    schedule2.setStartDate(new Date(4));
+    schedule1.setStartDate(new LocalDate(1, 1, 1));
+    schedule2.setStartDate(new LocalDate(1, 1, 2));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -76,7 +80,7 @@ public class ScheduleTest {
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setStartDate(null);
-    schedule2.setStartDate(new Date(4));
+    schedule2.setStartDate(new LocalDate(4));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -86,8 +90,8 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule1.setEndDate(new Date(3));
-    schedule2.setEndDate(new Date(3));
+    schedule1.setEndDate(new LocalDate(3));
+    schedule2.setEndDate(new LocalDate(3));
 
     assertTrue(schedule1.equals(schedule2));
   }
@@ -108,8 +112,8 @@ public class ScheduleTest {
     ScheduleImpl schedule1 = new ScheduleImpl(Schedule.Type.Daily);
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule1.setEndDate(new Date(3));
-    schedule2.setEndDate(new Date(4));
+    schedule1.setEndDate(new LocalDate(1, 1, 1));
+    schedule2.setEndDate(new LocalDate(1, 1, 2));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -120,7 +124,7 @@ public class ScheduleTest {
     ScheduleImpl schedule2 = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule1.setEndDate(null);
-    schedule2.setEndDate(new Date(4));
+    schedule2.setEndDate(new LocalDate(4));
 
     assertFalse(schedule1.equals(schedule2));
   }
@@ -147,7 +151,7 @@ public class ScheduleTest {
   public void testHasStartDate() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule.setStartDate(new Date(3));
+    schedule.setStartDate(new LocalDate(3));
 
     assertTrue(schedule.hasStartDate());
   }
@@ -156,7 +160,7 @@ public class ScheduleTest {
   public void testHasEndDate() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule.setEndDate(new Date(3));
+    schedule.setEndDate(new LocalDate(3));
 
     assertTrue(schedule.hasEndDate());
   }
@@ -183,8 +187,8 @@ public class ScheduleTest {
   public void testIsFixedDuration() {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
-    schedule.setStartDate(new Date(0));
-    schedule.setEndDate(new Date(1));
+    schedule.setStartDate(new LocalDate(0));
+    schedule.setEndDate(new LocalDate(1));
 
     assertTrue(schedule.isFixedDuration());
   }
@@ -194,7 +198,7 @@ public class ScheduleTest {
     ScheduleImpl schedule = new ScheduleImpl(Schedule.Type.Daily);
 
     schedule.setStartDate(null);
-    schedule.setEndDate(new Date(1));
+    schedule.setEndDate(new LocalDate(1));
 
     assertTrue(schedule.isFixedDuration());
   }

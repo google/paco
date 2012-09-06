@@ -13,10 +13,10 @@
  */
 package com.google.paco.shared.model;
 
-import java.util.Date;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Maps;
 
@@ -34,11 +34,11 @@ public class Event {
   @JsonIgnore
   private long experimentId;
   @JsonIgnore
-  private Date createTime;
+  private DateTime createTime;
 
   private long experimentVersion;
-  private Date signalTime;
-  private Date responseTime;
+  private DateTime signalTime;
+  private DateTime responseTime;
   private Map<String, String> outputs;
 
   /**
@@ -51,7 +51,7 @@ public class Event {
     this.subject = null;
     this.experimentId = 0;
     this.experimentVersion = 0;
-    this.createTime = new Date();
+    this.createTime = new DateTime();
     this.signalTime = null;
     this.responseTime = null;
     this.outputs = Maps.newHashMap();
@@ -123,42 +123,42 @@ public class Event {
   /**
    * @return the createTime
    */
-  public Date getCreateTime() {
+  public DateTime getCreateTime() {
     return createTime;
   }
 
   /**
    * @param createTime the createTime to set
    */
-  public void setCreateTime(Date createTime) {
+  public void setCreateTime(DateTime createTime) {
     this.createTime = createTime;
   }
 
   /**
    * @return the signalTime
    */
-  public Date getSignalTime() {
+  public DateTime getSignalTime() {
     return signalTime;
   }
 
   /**
    * @param signalTime the signalTime to set
    */
-  public void setSignalTime(Date signalTime) {
+  public void setSignalTime(DateTime signalTime) {
     this.signalTime = signalTime;
   }
 
   /**
    * @return the responseTime
    */
-  public Date getResponseTime() {
+  public DateTime getResponseTime() {
     return responseTime;
   }
 
   /**
    * @param responseTime the responseTime to set
    */
-  public void setResponseTime(Date responseTime) {
+  public void setResponseTime(DateTime responseTime) {
     this.responseTime = responseTime;
   }
 
@@ -213,7 +213,7 @@ public class Event {
       return -1;
     }
 
-    return responseTime.getTime() - signalTime.getTime();
+    return responseTime.getMillis() - signalTime.getMillis();
   }
 
   /**

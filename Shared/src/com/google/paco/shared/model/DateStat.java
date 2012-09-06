@@ -17,16 +17,17 @@
 package com.google.paco.shared.model;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class DateStat implements Comparable<DateStat> {
 
-  private Date when;
+  private DateTime when;
   private Double average;
   private Double sd;
   private Double med;
@@ -38,12 +39,12 @@ public class DateStat implements Comparable<DateStat> {
     
   }
   
-  public DateStat(Date when) {
+  public DateStat(DateTime when) {
     this.when = when;
     this.values = Lists.newArrayList();
   }
 
-  public Date getWhen() {
+  public DateTime getWhen() {
     return when;
   }
 
@@ -108,13 +109,13 @@ public class DateStat implements Comparable<DateStat> {
       List<Event> responses) {
     Map<String, DateStat> dateStats = Maps.newHashMap();
     for (Event response : responses) {
-      Date date = response.getResponseTime();
+      DateTime date = response.getResponseTime();
       if (date == null) {
         date = response.getSignalTime();
       }
       // TODO (bobevans): Find a better way to match dates
       // Could use joda, but not in gwt. Could use calendar, but not in gwt.
-      String key = date.getYear() + ":" + date.getMonth() + ":" + date.getDate();
+      String key = date.getYear() + ":" + date.getMonthOfYear() + ":" + date.getDayOfMonth();
       String whatByKey = response.getOutputByKey(changingParameterKey);
       if (whatByKey == null || whatByKey.equals("null")) {
         continue;

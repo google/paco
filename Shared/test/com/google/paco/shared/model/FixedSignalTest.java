@@ -8,9 +8,9 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.model.FixedSignal;
 import com.google.paco.shared.model.RandomSignal;
 
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
-import java.util.Date;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -49,8 +49,8 @@ public class FixedSignalTest {
     FixedSignal signal1 = new FixedSignal();
     FixedSignal signal2 = new FixedSignal();
 
-    signal1.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(4)));
-    signal2.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(4)));
+    signal1.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(4)));
+    signal2.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(4)));
 
     assertTrue(signal1.equals(signal2));
   }
@@ -60,8 +60,8 @@ public class FixedSignalTest {
     FixedSignal signal1 = new FixedSignal();
     FixedSignal signal2 = new FixedSignal();
 
-    signal1.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(4)));
-    signal2.setTimes(Sets.newHashSet(new Date(4), new Date(3), new Date(1)));
+    signal1.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(4)));
+    signal2.setTimes(Sets.newHashSet(new LocalTime(4), new LocalTime(3), new LocalTime(1)));
 
     assertTrue(signal1.equals(signal2));
   }
@@ -71,8 +71,8 @@ public class FixedSignalTest {
     FixedSignal signal1 = new FixedSignal();
     FixedSignal signal2 = new FixedSignal();
 
-    signal1.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(4)));
-    signal2.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(5)));
+    signal1.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(4)));
+    signal2.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(5)));
 
     assertFalse(signal1.equals(signal2));
   }
@@ -83,7 +83,7 @@ public class FixedSignalTest {
     FixedSignal signal2 = new FixedSignal();
 
     signal1.setTimes(null);
-    signal2.setTimes(Sets.newHashSet(new Date(1), new Date(3), new Date(4)));
+    signal2.setTimes(Sets.newHashSet(new LocalTime(1), new LocalTime(3), new LocalTime(4)));
 
     assertFalse(signal1.equals(signal2));
   }

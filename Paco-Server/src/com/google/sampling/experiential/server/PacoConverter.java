@@ -30,6 +30,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.Date;
@@ -255,9 +256,9 @@ public class PacoConverter {
     event.setSubject((String) entity.getProperty("subject"));
     event.setExperimentId((Long) entity.getProperty("experimentId"));
     event.setExperimentVersion((Long) entity.getProperty("experimentVersion"));
-    event.setCreateTime((Date) entity.getProperty("createTime"));
-    event.setSignalTime((Date) entity.getProperty("signalTime"));
-    event.setResponseTime((Date) entity.getProperty("responseTime"));
+    event.setCreateTime(new DateTime((Date) entity.getProperty("createTime")));
+    event.setSignalTime(new DateTime((Date) entity.getProperty("signalTime")));
+    event.setResponseTime(new DateTime((Date) entity.getProperty("responseTime")));
 
     EmbeddedEntity entityOutputs = (EmbeddedEntity) entity.getProperty("outputs");
 
@@ -380,9 +381,9 @@ public class PacoConverter {
     entity.setProperty("subject", event.getSubject());
     entity.setProperty("experimentId", event.getExperimentId());
     entity.setProperty("experimentVersion", event.getExperimentVersion());
-    entity.setProperty("createTime", event.getCreateTime());
-    entity.setProperty("signalTime", event.getSignalTime());
-    entity.setProperty("responseTime", event.getResponseTime());
+    entity.setProperty("createTime", event.getCreateTime().toDate());
+    entity.setProperty("signalTime", event.getSignalTime().toDate());
+    entity.setProperty("responseTime", event.getResponseTime().toDate());
 
     EmbeddedEntity outputsEntity = new EmbeddedEntity();
     for (String key : event.getOutputs().keySet()) {
