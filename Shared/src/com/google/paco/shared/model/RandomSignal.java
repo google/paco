@@ -64,6 +64,12 @@ public class RandomSignal extends Signal {
     this.frequency = frequency;
   }
 
+  @Override
+  public LocalTime getNextTime(LocalTime now, long seed) {
+    // TODO: Fill me in
+    return null;
+  }
+
   /*
    * (non-Javadoc)
    *

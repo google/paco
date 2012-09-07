@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 import com.google.paco.shared.model.Signal;
 
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 /**
@@ -16,6 +17,11 @@ public class SignalTest {
   private class SignalImpl extends Signal {
     public SignalImpl(Type type) {
       super(type);
+    }
+
+    @Override
+    public LocalTime getNextTime(LocalTime now, long seed) {
+      return null;
     }
   }
 

@@ -8,6 +8,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -46,6 +47,8 @@ public abstract class Signal {
     this.type = type;
   }
 
+  public abstract LocalTime getNextTime(LocalTime now, long seed);
+
   @JsonIgnore
   public boolean isFixed() {
     return type.equals(Signal.Type.Fixed);
@@ -54,6 +57,16 @@ public abstract class Signal {
   @JsonIgnore
   public boolean isRandom() {
     return type.equals(Signal.Type.Random);
+  }
+
+  @JsonIgnore
+  public FixedSignal asFixed() {
+    return (FixedSignal) this;
+  }
+
+  @JsonIgnore
+  public RandomSignal asRandom() {
+    return (RandomSignal) this;
   }
 
   /*
