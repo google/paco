@@ -12,7 +12,6 @@ import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 @JsonSubTypes({@Type(FixedSignal.class), @Type(RandomSignal.class)})
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
