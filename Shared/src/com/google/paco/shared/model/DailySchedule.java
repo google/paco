@@ -3,6 +3,7 @@
 package com.google.paco.shared.model;
 
 import org.codehaus.jackson.annotate.JsonTypeName;
+import org.joda.time.LocalDate;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -20,6 +21,11 @@ public class DailySchedule extends Schedule {
   @Override
   protected String getRData() {
     return String.format("RRULE:FREQ=DAILY;INTERVAL=%d", getEvery());
+  }
+
+  @Override
+  protected boolean isValidDate(LocalDate date) {
+    return true;
   }
 
   /*

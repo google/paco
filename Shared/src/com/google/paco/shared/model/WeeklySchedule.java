@@ -103,28 +103,6 @@ public class WeeklySchedule extends Schedule {
     dayRepeat |= bit;
   }
 
-  @JsonIgnore
-  private Day getDay(int dayOfWeek) {
-    switch (dayOfWeek) {
-      case DateTimeConstants.MONDAY:
-        return Day.Monday;
-      case DateTimeConstants.TUESDAY:
-        return Day.Tuesday;
-      case DateTimeConstants.WEDNESDAY:
-        return Day.Wednesday;
-      case DateTimeConstants.THURSDAY:
-        return Day.Thursday;
-      case DateTimeConstants.FRIDAY:
-        return Day.Friday;
-      case DateTimeConstants.SATURDAY:
-        return Day.Saturday;
-      case DateTimeConstants.SUNDAY:
-        return Day.Sunday;
-      default:
-        return null;
-    }
-  }
-
   private String daysString() {
     StringBuffer days = new StringBuffer();
 
@@ -142,32 +120,33 @@ public class WeeklySchedule extends Schedule {
     return days.toString();
   }
 
-  @Override
-  public LocalDate getStartDate() {
-    LocalDate startDate = super.getStartDate();
-
-    if (startDate == null) {
-      return null;
-    }
-
-    Day day = getDay(startDate.getDayOfWeek());
-    int days = 0;
-
-    while (!onDay(day)) {
-      day = day.next();
-      days += 1;
-
-      if (days > 7) {
-        return null;
-      }
-    }
-
-    return startDate.plusDays(days);
-  }
-
+  @JsonIgnore
   @Override
   protected String getRData() {
     return String.format("RRULE:FREQ=WEEKLY;WKST=SU;INTERVAL=%d;BYDAY=%s", every, daysString());
+  }
+
+  @JsonIgnore
+  @Override
+  protected boolean isValidDate(LocalDate date) {
+    switch (date.getDayOfWeek()) {
+      case DateTimeConstants.MONDAY:
+        return onDay(Day.Monday);
+      case DateTimeConstants.TUESDAY:
+        return onDay(Day.Tuesday);
+      case DateTimeConstants.WEDNESDAY:
+        return onDay(Day.Wednesday);
+      case DateTimeConstants.THURSDAY:
+        return onDay(Day.Thursday);
+      case DateTimeConstants.FRIDAY:
+        return onDay(Day.Friday);
+      case DateTimeConstants.SATURDAY:
+        return onDay(Day.Saturday);
+      case DateTimeConstants.SUNDAY:
+        return onDay(Day.Sunday);
+      default:
+        return false;
+    }
   }
 
   /*

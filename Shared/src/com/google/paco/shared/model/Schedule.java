@@ -1,11 +1,11 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- *
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * 
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -30,9 +30,9 @@ import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
 /**
  * The Schedule for signaling an experiment response.
- *
+ * 
  * @author Bob Evans
- *
+ * 
  */
 @JsonSubTypes({@Type(DailySchedule.class), @Type(WeeklySchedule.class),
     @Type(MonthlySchedule.class)})
@@ -171,21 +171,21 @@ public abstract class Schedule {
   // public abstract LocalDate getNextDate(LocalDate now);
   protected abstract String getRData();
 
+  protected abstract boolean isValidDate(LocalDate date);
+
   public LocalDate getCurrentDate(LocalDate now, long seed) {
     if (hasStartDate() == false || getEvery() < 1) {
       return null;
     }
 
-    LocalDate start = getStartDate();
-
-    if (start == null || now.isBefore(start)) {
+    if (now.isBefore(getStartDate())) {
       return null;
     }
 
     LocalDateIterator ldi;
 
     try {
-      ldi = LocalDateIteratorFactory.createLocalDateIterator(getRData(), start, true);
+      ldi = LocalDateIteratorFactory.createLocalDateIterator(getRData(), getStartDate(), true);
     } catch (ParseException e) {
       e.printStackTrace();
       return null;
@@ -207,23 +207,29 @@ public abstract class Schedule {
 
     ldi.advanceTo(last);
 
-    while (!last.isAfter(now)) {
-      LocalDate date = ldi.next();
+    LocalDate date = ldi.next();
 
-      System.out.println("now = " + now + "; last = " + last + "; date = " + date);
+    if (!isValidDate(date)) {
+      if (now.isAfter(date)) {
+        date = ldi.next();
+        last = date;
+      } else {
+        return null;
+      }
+    }
 
-      if (date.isAfter(now)) {
+    while (!date.isAfter(now)) {
+      if (hasEndDate() && date.isAfter(getEndDate())) {
         break;
       }
 
       last = date;
+      date = ldi.next();
     }
 
-    /*
     if (hasEndDate() && last.isAfter(getEndDate())) {
       return null;
     }
-    */
 
     return last;
   }
@@ -237,16 +243,10 @@ public abstract class Schedule {
       return null;
     }
 
-    LocalDate start = getStartDate();
-
-    if (start == null) {
-      return null;
-    }
-
     LocalDateIterator ldi;
 
     try {
-      ldi = LocalDateIteratorFactory.createLocalDateIterator(getRData(), start, true);
+      ldi = LocalDateIteratorFactory.createLocalDateIterator(getRData(), getStartDate(), true);
     } catch (ParseException e) {
       e.printStackTrace();
       return null;
@@ -255,6 +255,10 @@ public abstract class Schedule {
     ldi.advanceTo(now);
 
     LocalDate date = ldi.next();
+
+    if (!isValidDate(date)) {
+      date = ldi.next();
+    }
 
     if (now.isEqual(date)) {
       date = ldi.next();
@@ -269,7 +273,7 @@ public abstract class Schedule {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override

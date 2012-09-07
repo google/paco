@@ -7,6 +7,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+
+import com.google.ical.compat.jodatime.LocalDateIterator;
+import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 import com.google.paco.shared.model.MonthlySchedule;
 import com.google.paco.shared.model.Schedule;
 import com.google.paco.shared.model.WeeklySchedule;
@@ -332,5 +336,19 @@ public class MonthlyScheduleTest {
     schedule.setEvery(2);
 
     assertNull(schedule.getNextDate(new LocalDate(2012, 9, 2), 0));
+  }
+
+  @Test
+  public void doTest() throws ParseException {
+    // Every 2 months on the 1st from 9/2 to 11/1
+    LocalDate start = new LocalDate(2012, 9, 2);
+    String rdata = "RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=1";
+    LocalDateIterator ldi = LocalDateIteratorFactory.createLocalDateIterator(rdata, start, true);
+
+    System.out.println(ldi.next()); // check if valid, skip otherwise
+    System.out.println(ldi.next());
+    System.out.println(ldi.next());
+    System.out.println(ldi.next());
+    System.out.println(ldi.next());
   }
 }
