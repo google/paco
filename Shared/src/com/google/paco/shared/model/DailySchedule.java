@@ -10,36 +10,16 @@ import org.codehaus.jackson.annotate.JsonTypeName;
  */
 @JsonTypeName("daily")
 public class DailySchedule extends Schedule {
-  protected int every;
-
   /**
    *
    */
   public DailySchedule() {
-    this(Schedule.Type.Daily);
+    super(Schedule.Type.Daily);
   }
 
-  /**
-   * @param type
-   */
-  protected DailySchedule(Type type) {
-    super(type);
-
-    this.every = 0;
-  }
-
-  /**
-   * @return the repeatEvery
-   */
-  public int getEvery() {
-    return every;
-  }
-
-  /**
-   * @param every the repeat to set
-   */
-  public void setEvery(int every) {
-    this.every = every;
+  @Override
+  protected String getRData() {
+    return String.format("RRULE:FREQ=DAILY;INTERVAL=%d", getEvery());
   }
 
   /*
@@ -60,10 +40,5 @@ public class DailySchedule extends Schedule {
     }
 
     return true;
-  }
-
-  @Override
-  public int getPeriod() {
-    return 1;
   }
 }

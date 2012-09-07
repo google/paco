@@ -56,6 +56,29 @@ public class FixedSignal extends Signal {
     return times.add(time);
   }
 
+  @Override
+  public LocalTime getNextTime(LocalTime now, long seed) {
+    int minDiff = -1;
+    LocalTime minDiffTime = null;
+
+    for (LocalTime time : getTimes()) {
+      // Skip times that are before now
+      if (time.isEqual(now) || time.isBefore(now)) {
+        continue;
+      }
+
+      // Find time with minimum difference
+      int diff = time.getMillisOfDay() - now.getMillisOfDay();
+
+      if (minDiffTime == null || diff < minDiff) {
+        minDiffTime = time;
+        minDiff = diff;
+      }
+    }
+
+    return minDiffTime;
+  }
+
   /*
    * (non-Javadoc)
    *

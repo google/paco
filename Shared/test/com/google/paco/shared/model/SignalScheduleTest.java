@@ -10,6 +10,9 @@ import com.google.paco.shared.model.RandomSignal;
 import com.google.paco.shared.model.SignalSchedule;
 import com.google.paco.shared.model.WeeklySchedule;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 /**
@@ -168,5 +171,114 @@ public class SignalScheduleTest {
     signalSchedule.setSchedule(null);
 
     assertFalse(signalSchedule.hasSignalSchedule());
+  }
+
+  @Test
+  public void testGetNextAlarm() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    assertNull(signalSchedule.getNextAlarm(new DateTime(), 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithSignal() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    signalSchedule.setSignal(new FixedSignal());
+
+    assertNull(signalSchedule.getNextAlarm(new DateTime(), 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithSchedule() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    signalSchedule.setSchedule(new DailySchedule());
+
+    assertNull(signalSchedule.getNextAlarm(new DateTime(), 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithSignalSchedule() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    signalSchedule.setSignal(new FixedSignal());
+    signalSchedule.setSchedule(new DailySchedule());
+
+    assertNull(signalSchedule.getNextAlarm(new DateTime(), 0));
+  }
+
+  private SignalSchedule createFixedDaily() {
+    SignalSchedule signalSchedule = new SignalSchedule();
+
+    FixedSignal signal = new FixedSignal();
+    signal.addTime(new LocalTime(12, 0, 0));
+
+    DailySchedule schedule = new DailySchedule();
+    schedule.setStartDate(new LocalDate(2012, 9, 2));
+    schedule.setEndDate(new LocalDate(2012, 9, 3));
+    schedule.setEvery(1);
+
+    signalSchedule.setSignal(signal);
+    signalSchedule.setSchedule(schedule);
+
+    return signalSchedule;
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleBad() {
+    SignalSchedule signalSchedule = createFixedDaily();
+    signalSchedule.getSchedule().asDaily().setEvery(1);
+    signalSchedule.getSignal().asFixed().setTimes(null);
+
+    assertNull(signalSchedule.getNextAlarm(new DateTime(2012, 9, 2, 0, 0, 0), 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleBefore() {
+    DateTime now        = new DateTime(2012, 9, 2, 6, 0, 0);
+    DateTime expected   = new DateTime(2012, 9, 2, 12, 0, 0);
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleOn1() {
+    DateTime now        = new DateTime(2012, 9, 2, 12, 0, 0);
+    DateTime expected   = new DateTime(2012, 9, 3, 12, 0, 0);
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleDuring1() {
+    DateTime now        = new DateTime(2012, 9, 2, 18, 0, 0);
+    DateTime expected   = new DateTime(2012, 9, 3, 12, 0, 0);
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleDuring2() {
+    DateTime now        = new DateTime(2012, 9, 3, 6, 0, 0);
+    DateTime expected   = new DateTime(2012, 9, 3, 12, 0, 0);
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleOn2() {
+    DateTime now        = new DateTime(2012, 9, 3, 12, 0, 0);
+    DateTime expected   = null;
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
+  }
+
+  @Test
+  public void testGetNextAlarmWithFixedSignalDailyScheduleAfter() {
+    DateTime now        = new DateTime(2012, 9, 3, 18, 0, 0);
+    DateTime expected   = null;
+
+    assertEquals(expected, createFixedDaily().getNextAlarm(now, 0));
   }
 }

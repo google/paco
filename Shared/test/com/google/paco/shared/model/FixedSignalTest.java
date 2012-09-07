@@ -11,7 +11,6 @@ import com.google.paco.shared.model.RandomSignal;
 import org.joda.time.LocalTime;
 import org.junit.Test;
 
-
 /**
  * @author corycornelius@google.com (Cory Cornelius)
  *
@@ -102,5 +101,74 @@ public class FixedSignalTest {
     signal.setTimes(null);
 
     assertNotNull(signal.getTimes());
+  }
+
+  @Test
+  public void testGetNextTime() {
+    FixedSignal signal = new FixedSignal();
+
+    LocalTime now = new LocalTime(3, 0, 0);
+
+    assertNull(signal.getNextTime(now, 0));
+  }
+
+  @Test
+  public void testGetNextTimeWithTimesBefore() {
+    FixedSignal signal = new FixedSignal();
+
+    signal.setTimes(Sets.newHashSet(new LocalTime(6, 0, 0), new LocalTime(12, 0, 0)));
+
+    LocalTime now = new LocalTime(3, 0, 0);
+    LocalTime expected = new LocalTime(6, 0, 0);
+
+    assertEquals(expected, signal.getNextTime(now, 0));
+  }
+
+  @Test
+  public void testGetNextTimeWithTimesOn1() {
+    FixedSignal signal = new FixedSignal();
+
+    signal.setTimes(Sets.newHashSet(new LocalTime(6, 0, 0), new LocalTime(12, 0, 0)));
+
+    LocalTime now = new LocalTime(6, 0, 0);
+    LocalTime expected = new LocalTime(12, 0, 0);
+
+    assertEquals(expected, signal.getNextTime(now, 0));
+  }
+
+  @Test
+  public void testGetNextTimeWithTimesDuring() {
+    FixedSignal signal = new FixedSignal();
+
+    signal.setTimes(Sets.newHashSet(new LocalTime(6, 0, 0), new LocalTime(12, 0, 0)));
+
+    LocalTime now = new LocalTime(8, 0, 0);
+    LocalTime expected = new LocalTime(12, 0, 0);
+
+    assertEquals(expected, signal.getNextTime(now, 0));
+  }
+
+  @Test
+  public void testGetNextTimeWithTimesOn2() {
+    FixedSignal signal = new FixedSignal();
+
+    signal.setTimes(Sets.newHashSet(new LocalTime(6, 0, 0), new LocalTime(12, 0, 0)));
+
+    LocalTime now = new LocalTime(12, 0, 0);
+    LocalTime expected = null;
+
+    assertEquals(expected, signal.getNextTime(now, 0));
+  }
+
+  @Test
+  public void testGetNextTimeWithTimesAfter() {
+    FixedSignal signal = new FixedSignal();
+
+    signal.setTimes(Sets.newHashSet(new LocalTime(6, 0, 0), new LocalTime(12, 0, 0)));
+
+    LocalTime now = new LocalTime(18, 0, 0);
+    LocalTime expected = null;
+
+    assertEquals(expected, signal.getNextTime(now, 0));
   }
 }

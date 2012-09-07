@@ -20,8 +20,8 @@ public class ScheduleTest {
     }
 
     @Override
-    public int getPeriod() {
-      return 0;
+    protected String getRData() {
+      return null;
     }
   }
 

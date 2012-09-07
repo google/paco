@@ -3,6 +3,9 @@
 package com.google.paco.shared.model;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -104,6 +107,41 @@ public class SignalSchedule {
    */
   public boolean hasSignalSchedule() {
     return (signal != null && schedule != null);
+  }
+
+  public DateTime getNextAlarm(DateTime now, long seed) {
+    if (hasSignalSchedule() == false) {
+      return null;
+    }
+
+    LocalDate date = schedule.getCurrentDate(now.toLocalDate(), seed);
+    LocalTime time = signal.getNextTime(now.toLocalTime(), seed);
+
+    // Check if now is before start date (or pre-condition failed)
+    if (date == null) {
+      return null;
+    }
+
+    // Now is after all signal times, roll over to next date (or there are no times)
+    if (time == null) {
+      date = schedule.getNextDate(now.toLocalDate(), seed);
+
+      // Now is past end date
+      if (date == null) {
+        return null;
+      }
+
+      // Get first time since we rolled over on date
+      time = signal.getNextTime(new LocalTime(0, 0, 0), seed);
+
+      // There are no times
+      if (time == null) {
+        return null;
+      }
+    }
+
+    return new DateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(),
+        time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
   }
 
   /*
