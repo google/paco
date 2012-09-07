@@ -188,7 +188,7 @@ public class WeeklyScheduleTest {
     schedule.setEvery(2);
 
     LocalDate now = new LocalDate(2012, 9, 3);
-    LocalDate expected = new LocalDate(2012, 9, 2);
+    LocalDate expected = new LocalDate(2012, 9, 9);
 
     assertEquals(expected, schedule.getCurrentDate(now, 0));
   }
@@ -203,7 +203,7 @@ public class WeeklyScheduleTest {
     schedule.setEvery(2);
 
     LocalDate now = new LocalDate(2012, 9, 2);
-    LocalDate expected = new LocalDate(2012, 9, 2);
+    LocalDate expected = null;
 
     assertEquals(expected, schedule.getCurrentDate(now, 0));
   }
@@ -319,7 +319,7 @@ public class WeeklyScheduleTest {
     schedule.setEvery(2);
 
     LocalDate now = new LocalDate(2012, 9, 2);
-    LocalDate expected = new LocalDate(2012, 9, 16);
+    LocalDate expected = new LocalDate(2012, 9, 9);
 
     assertEquals(expected, schedule.getNextDate(now, 0));
   }

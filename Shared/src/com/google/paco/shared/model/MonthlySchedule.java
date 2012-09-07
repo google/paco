@@ -2,11 +2,14 @@
 
 package com.google.paco.shared.model;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonTypeName;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDate;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
+ * 
  */
 @JsonTypeName("monthly")
 public class MonthlySchedule extends Schedule {
@@ -113,27 +116,47 @@ public class MonthlySchedule extends Schedule {
     dayRepeat |= bit;
   }
 
+  public void setOnDay(Day day) {
+    setOnDay(day.ordinal());
+  }
+
   public boolean onDay(int day) {
     int bit = 1 << day;
     return ((dayRepeat & bit) == bit);
-  }
-
-  public void setOnDay(Day day) {
-    setOnDay(day.ordinal());
   }
 
   public boolean onDay(Day day) {
     return onDay(day.ordinal());
   }
 
+
   public void setOnWeek(Week week) {
     int bit = 1 << week.ordinal();
     weekRepeat |= bit;
   }
 
+  public void setOnWeek(int weekOfMonth) {
+    for (Week week : Week.values()) {
+      if (week.ordwk == weekOfMonth) {
+        setOnWeek(week);
+        return;
+      }
+    }
+  }
+
   public boolean onWeek(Week week) {
     int bit = 1 << week.ordinal();
     return ((weekRepeat & bit) == bit);
+  }
+
+  public boolean onWeek(int weekOfMonth) {
+    for (Week week : Week.values()) {
+      if (week.ordwk == weekOfMonth) {
+        return onWeek(week);
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -193,9 +216,65 @@ public class MonthlySchedule extends Schedule {
     return String.format("RRULE:FREQ=MONTHLY;WKST=SU;INTERVAL=%d;%s", every, rdata);
   }
 
+  @JsonIgnore
+  private int getDayOfWeekOrdinal(LocalDate date) {
+    switch (date.getDayOfWeek()) {
+      case DateTimeConstants.SUNDAY:
+        return 0;
+      case DateTimeConstants.MONDAY:
+        return 1;
+      case DateTimeConstants.TUESDAY:
+        return 2;
+      case DateTimeConstants.WEDNESDAY:
+        return 3;
+      case DateTimeConstants.THURSDAY:
+        return 4;
+      case DateTimeConstants.FRIDAY:
+        return 5;
+      case DateTimeConstants.SATURDAY:
+        return 6;
+      default:
+        return -1;
+    }
+  }
+
+  @Override
+  protected boolean isValidDate(LocalDate date) {
+    if (getWeekRepeat() == 0) {
+      return onDay(date.getDayOfMonth());
+    } else {
+      // This assumes Sunday is the first day of the week
+      int firstDayOfMonth = getDayOfWeekOrdinal(date.withDayOfMonth(1));
+      int weekOfMonth = ((date.getDayOfMonth() + firstDayOfMonth - 1) / 7) + 1;
+
+      if (!onWeek(weekOfMonth)) {
+        return false;
+      }
+
+      switch (date.getDayOfWeek()) {
+        case DateTimeConstants.MONDAY:
+          return onDay(Day.Monday);
+        case DateTimeConstants.TUESDAY:
+          return onDay(Day.Tuesday);
+        case DateTimeConstants.WEDNESDAY:
+          return onDay(Day.Wednesday);
+        case DateTimeConstants.THURSDAY:
+          return onDay(Day.Thursday);
+        case DateTimeConstants.FRIDAY:
+          return onDay(Day.Friday);
+        case DateTimeConstants.SATURDAY:
+          return onDay(Day.Saturday);
+        case DateTimeConstants.SUNDAY:
+          return onDay(Day.Sunday);
+        default:
+          return false;
+      }
+    }
+  }
+
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
    */
   @Override

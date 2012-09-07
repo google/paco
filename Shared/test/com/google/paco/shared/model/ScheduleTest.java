@@ -23,6 +23,11 @@ public class ScheduleTest {
     protected String getRData() {
       return null;
     }
+
+    @Override
+    protected boolean isValidDate(LocalDate date) {
+      return false;
+    }
   }
 
   @Test
