@@ -2,14 +2,12 @@
 
 package com.google.paco.shared.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- * 
  */
 @JsonTypeName("monthly")
 public class MonthlySchedule extends Schedule {
@@ -203,6 +201,11 @@ public class MonthlySchedule extends Schedule {
     return monthDays.toString();
   }
 
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#getRData()
+   */
   @Override
   protected String getRData() {
     String rdata;
@@ -216,41 +219,25 @@ public class MonthlySchedule extends Schedule {
     return String.format("RRULE:FREQ=MONTHLY;WKST=SU;INTERVAL=%d;%s", every, rdata);
   }
 
-  @JsonIgnore
-  private int getDayOfWeekOrdinal(LocalDate date) {
-    switch (date.getDayOfWeek()) {
-      case DateTimeConstants.SUNDAY:
-        return 0;
-      case DateTimeConstants.MONDAY:
-        return 1;
-      case DateTimeConstants.TUESDAY:
-        return 2;
-      case DateTimeConstants.WEDNESDAY:
-        return 3;
-      case DateTimeConstants.THURSDAY:
-        return 4;
-      case DateTimeConstants.FRIDAY:
-        return 5;
-      case DateTimeConstants.SATURDAY:
-        return 6;
-      default:
-        return -1;
-    }
-  }
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#isValidDate(org.joda.time.LocalDate)
+   */
   @Override
   protected boolean isValidDate(LocalDate date) {
     if (getWeekRepeat() == 0) {
+      // Make sure the date is a valid day of the month
       return onDay(date.getDayOfMonth());
     } else {
-      // This assumes Sunday is the first day of the week
-      int firstDayOfMonth = getDayOfWeekOrdinal(date.withDayOfMonth(1));
-      int weekOfMonth = ((date.getDayOfMonth() + firstDayOfMonth - 1) / 7) + 1;
+      int weekOfMonth = ((date.getDayOfMonth() - 1) / 7) + 1; // ceiling
 
+      // Make sure the date is on a valid week of the month
       if (!onWeek(weekOfMonth)) {
         return false;
       }
 
+      // Make sure the date is on a valid day of the week
       switch (date.getDayOfWeek()) {
         case DateTimeConstants.MONDAY:
           return onDay(Day.Monday);
@@ -274,7 +261,7 @@ public class MonthlySchedule extends Schedule {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
    */
   @Override

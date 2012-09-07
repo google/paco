@@ -9,7 +9,6 @@ import org.joda.time.LocalDate;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 @JsonTypeName("weekly")
 public class WeeklySchedule extends Schedule {
@@ -120,12 +119,22 @@ public class WeeklySchedule extends Schedule {
     return days.toString();
   }
 
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#getRData()
+   */
   @JsonIgnore
   @Override
   protected String getRData() {
     return String.format("RRULE:FREQ=WEEKLY;WKST=SU;INTERVAL=%d;BYDAY=%s", every, daysString());
   }
 
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#isValidDate(org.joda.time.LocalDate)
+   */
   @JsonIgnore
   @Override
   protected boolean isValidDate(LocalDate date) {

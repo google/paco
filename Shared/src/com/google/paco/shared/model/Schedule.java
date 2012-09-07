@@ -30,9 +30,9 @@ import com.google.ical.compat.jodatime.LocalDateIteratorFactory;
 
 /**
  * The Schedule for signaling an experiment response.
- * 
+ *
  * @author Bob Evans
- * 
+ * @author corycornelius@google.com (Cory Cornelius)
  */
 @JsonSubTypes({@Type(DailySchedule.class), @Type(WeeklySchedule.class),
     @Type(MonthlySchedule.class)})
@@ -167,21 +167,40 @@ public abstract class Schedule {
     return (MonthlySchedule) this;
   }
 
-  // public abstract LocalDate getCurrentDate(LocalDate now);
-  // public abstract LocalDate getNextDate(LocalDate now);
+  /**
+   * @return a valid iCal recurrence
+   */
   protected abstract String getRData();
 
+  /**
+   * Determines whether the specified date is valid according to the schedule.
+   *
+   * @param date a date
+   * @return whether the date is valid according to the schedule
+   */
   protected abstract boolean isValidDate(LocalDate date);
 
+  /**
+   * Compute the valid date in the schedule that is closest to the base date without going over. We
+   * accomplish this by iterating through the schedule until it is after the base date and returning
+   * a pointer to the previous valid schedule date that we stored.
+   *
+   * @param now the base date
+   * @param seed the seed for the random number generator
+   * @return a valid date in the schedule just before or equal to the base date
+   */
   public LocalDate getCurrentDate(LocalDate now, long seed) {
+    // Check pre-conditions
     if (hasStartDate() == false || getEvery() < 1) {
       return null;
     }
 
+    // Don't bother if the base date is before the start date
     if (now.isBefore(getStartDate())) {
       return null;
     }
 
+    // Create schedule iterator
     LocalDateIterator ldi;
 
     try {
@@ -191,6 +210,7 @@ public abstract class Schedule {
       return null;
     }
 
+    // Compute the first possible date before now by subtracting the appropriate amount of epochs
     LocalDate last = now;
 
     switch (getType()) {
@@ -205,28 +225,38 @@ public abstract class Schedule {
         break;
     }
 
+    // Skip to this date...
     ldi.advanceTo(last);
 
+    // ...and get the next date.
     LocalDate date = ldi.next();
 
+    // If the next date is not valid...
     if (!isValidDate(date)) {
+      // Make sure that date is not after the base date, otherwise we've gone to far...
       if (now.isAfter(date)) {
+        // ..get the next date and start from there
         date = ldi.next();
         last = date;
       } else {
+        // ...which means this is a bad schedule
         return null;
       }
     }
 
+    // Now iterate through the schedule until the next date is after now
     while (!date.isAfter(now)) {
+      // Ensure we don't move past the end date, if it exists
       if (hasEndDate() && date.isAfter(getEndDate())) {
         break;
       }
 
+      // Iterate and save the date!
       last = date;
       date = ldi.next();
     }
 
+    // If we went past the end date, then we have a bad schedule.
     if (hasEndDate() && last.isAfter(getEndDate())) {
       return null;
     }
@@ -234,15 +264,25 @@ public abstract class Schedule {
     return last;
   }
 
+  /**
+   * Compute the next valid date in the schedule after the specified date.
+   *
+   * @param now the base date
+   * @param seed the seed for the random number generator
+   * @return the next valid date in the schedule after the specified date now
+   */
   public LocalDate getNextDate(LocalDate now, long seed) {
+    // Check pre-conditions
     if (hasStartDate() == false || getEvery() < 1) {
       return null;
     }
 
+    // Don't bother if we're already past the end date
     if (hasEndDate() && now.isAfter(getEndDate())) {
       return null;
     }
 
+    // Create schedule iterator
     LocalDateIterator ldi;
 
     try {
@@ -252,18 +292,18 @@ public abstract class Schedule {
       return null;
     }
 
+    // Skip to the base date...
     ldi.advanceTo(now);
 
+    // ..and get the next date
     LocalDate date = ldi.next();
 
-    if (!isValidDate(date)) {
+    // If its not valid or we just arrived at the base date, then get the next date
+    if (!isValidDate(date) || now.isEqual(date)) {
       date = ldi.next();
     }
 
-    if (now.isEqual(date)) {
-      date = ldi.next();
-    }
-
+    // If there is an end date, ensure we haven't gone past it.
     if (hasEndDate() && date.isAfter(getEndDate())) {
       return null;
     }
@@ -273,7 +313,7 @@ public abstract class Schedule {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
