@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.shared;
 
 import java.util.ArrayList;
 
@@ -9,9 +9,6 @@ public class Whitelist {
 
   public Whitelist() {
     allowedEmails = new ArrayList<String>();
-    
-//    allowedEmails.add("");
-
   }
 
   public boolean allowed(String email) {

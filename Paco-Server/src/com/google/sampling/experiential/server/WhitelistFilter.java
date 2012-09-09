@@ -32,6 +32,7 @@ import org.apache.http.HttpStatus;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.sampling.experiential.shared.Whitelist;
 
 public class WhitelistFilter implements Filter {
 

@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -40,6 +39,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
+
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
@@ -50,6 +50,7 @@ import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.Whitelist;
 
 /**
  * Default Entry point into the GWT application.
@@ -93,7 +94,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       public void onSuccess(LoginInfo result) {
         loginInfo = result; 
-        if (loginInfo.isLoggedIn()) {
+        if (loginInfo.isLoggedIn() && new Whitelist().allowed(loginInfo.getEmailAddress())) {
 //          Maps.loadMapsApi("", "2", false, new Runnable() {
 //            public void run() {
               createHomePage();
