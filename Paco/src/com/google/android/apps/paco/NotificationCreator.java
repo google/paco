@@ -166,7 +166,7 @@ public class NotificationCreator {
   }
 
   private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder) {
-    int icon = R.drawable.calculator_lb16;
+    int icon = R.drawable.paco32;
 
     Notification notification = new Notification(icon, "Time for " + experiment.getTitle(), notificationHolder.getAlarmTime()); 
     
