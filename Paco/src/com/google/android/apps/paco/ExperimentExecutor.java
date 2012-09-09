@@ -42,7 +42,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -288,14 +290,26 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private void showForm() {
     renderInputs();
+    renderSaveButton();
+   
     
+  }
+
+  private void renderSaveButton() {
+    View saveButtonView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_save_buttons, 
+                                                                                              inputsScrollPane, 
+                                                                                              true);
+//    inputsScrollPane.removeView(saveButtonView);
+    //LinearLayout saveButtonLayout = (LinearLayout)findViewById(R.id.ExecutorButtonLayout);
     Button saveButton = (Button)findViewById(R.id.SaveResponseButton);
+    //saveButtonLayout.removeView(saveButton);
+//    inputsScrollPane.addView(saveButtonView);
     saveButton.setOnClickListener(new OnClickListener() {        
       public void onClick(View v) {
         save();
       }
     });   
-    
+
   }
 
   private void save() {
@@ -400,12 +414,26 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
     } else {
       for (Input input : experiment.getInputs()) {
-        InputLayout inputView = renderInput(input);
+        InputLayout inputView = renderInput(input);        
         inputs.add(inputView);
         inputsScrollPane.addView(inputView);
         inputView.addChangeListener(this);
       }
+      //setNextActionOnOpenTexts();
     }
+  }
+
+  private void setNextActionOnOpenTexts() {
+    int size = inputs.size() - 1;
+    for (int i = 0; i < size; i++) {
+      InputLayout inputLayout = inputs.get(i);
+      if (inputLayout.getInput().getResponseType().equals(Input.OPEN_TEXT)) {
+        EditText openText = ((EditText)inputLayout.getComponentWithValue());
+        openText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+        openText.setImeActionLabel("Next", EditorInfo.IME_ACTION_NEXT);
+      }
+    }
+    
   }
 
   /**

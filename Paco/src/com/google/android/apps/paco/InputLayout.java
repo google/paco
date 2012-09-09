@@ -44,6 +44,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -81,6 +82,14 @@ public class InputLayout extends LinearLayout {
     componentWithValue = getInputResponseTypeView(input);
     inputChangeListeners = new ArrayList<ChangeListener>();
     setVisible(input.getConditional() == null || !input.getConditional());
+  }
+
+  public View getComponentWithValue() {
+    return componentWithValue;
+  }
+  
+  public void setComponentWithValue(View componentWithValue) {
+    this.componentWithValue = componentWithValue;
   }
 
   // start location impl
@@ -664,17 +673,17 @@ public class InputLayout extends LinearLayout {
   private View renderOpenText() {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
-    final EditText findViewById = (EditText) findViewById(R.id.open_text_answer);
-    findViewById.setOnFocusChangeListener(new OnFocusChangeListener() {
+    final EditText openTextView = (EditText) findViewById(R.id.open_text_answer);
+    openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
-        if (v.equals(findViewById) && !hasFocus) {
+        if (v.equals(openTextView) && !hasFocus) {
           notifyChangeListeners();
         }
       }
 
     });
-    return findViewById;
+    return openTextView;
   }
 
   private TextView getInputTextView() {
