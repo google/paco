@@ -109,6 +109,8 @@
             </intent-filter>
         </activity>
         <activity android:name='com.google.android.apps.paco.WelcomeActivity'/>
+        <activity android:name='com.google.android.apps.paco.AccountChooser'/>
+        
         <activity android:label='ESM Signal Viewer' android:screenOrientation='portrait' android:name='.ESMSignalViewer'>
             <intent-filter>
                 <action android:name='com.google.android.apps.paco.ESM_SIGNALS'/>

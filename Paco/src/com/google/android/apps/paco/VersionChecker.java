@@ -35,7 +35,7 @@ public class VersionChecker {
     try {
       UserPreferences userPrefs = new UserPreferences(context);  
       String emailSuffix = userPrefs.getGoogleEmailType();
-      um = new UrlContentManager(context, true, emailSuffix);
+      um = new UrlContentManager(context, emailSuffix);
 
       Log.i(PacoConstants.TAG, "Checking version of client");
       Response response = um.createRequest()

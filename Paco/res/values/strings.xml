@@ -129,5 +129,7 @@
    <string name='explore_data'>Explore your data</string>
    <string name='create_experiment'>Create an experiment</string>
    <string name='intro_howto_title'>Getting Started</string>
+   <string name='account_chooser_title'>Choose an Account</string>
+   
    
 </resources>
