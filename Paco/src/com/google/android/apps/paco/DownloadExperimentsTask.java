@@ -64,7 +64,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       UrlContentManager manager = null;
       try {
         String emailSuffix = userPrefs.getGoogleEmailType();
-        manager = new UrlContentManager(enclosingActivity, true, emailSuffix);
+        manager = new UrlContentManager(enclosingActivity, emailSuffix);
         String serverAddress = userPrefs.getServerAddress();
         Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();
         String contentAsString = response.getContentAsString();

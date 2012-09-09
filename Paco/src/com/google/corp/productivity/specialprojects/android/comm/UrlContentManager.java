@@ -105,7 +105,6 @@ public class UrlContentManager {
 
   private final LoginRedirectHandler loginHandler;
   private final SerializableCookieStore cookieStore;
-  private String userForLogin;
   private String emailSuffix;
   /**
    * Used in case we need to persist anything under the application context.
@@ -122,32 +121,18 @@ public class UrlContentManager {
    * {@link UrlContentManager#createRequest()}.
    *
    * @param context Android's application {@link Context}.
-   * @param checkCredentialPermission Triggers account manager calls to check if
-   *        appropriate permissions is granted by the user to access
-   *        AccountManager's credentials, the check would only be effective if
-   *        the <code>context</code> is an activity, otherwise any actions that
-   *        are required (e.g. create account and grant permissions) will happen
-   *        on demand when the {@link #execute(HttpUriRequest)} method is
-   *        called.
    */
-  public UrlContentManager(Context context, boolean checkCredentialPermission, String emailSuffix) {
+  public UrlContentManager(Context context, String emailSuffix) {
     this.applicationContext = context.getApplicationContext();
     this.loginHandler = new LoginRedirectHandler(emailSuffix);
     this.emailSuffix = emailSuffix;
-    SharedPreferences preferences =
-        context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+    SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
     this.cookieStore = new SerializableCookieStore(preferences);
-    if (checkCredentialPermission) {
-      loginHandler.checkCredentialPermission(context);
-    }
-  }
-
-  public UrlContentManager(Context context, String emailSuffix) {
-    this(context, true, emailSuffix);
+    loginHandler.checkCredentialPermission(context);
   }
 
   public UrlContentManager(Context context) {
-    this(context, true, "@google.com");
+    this(context, "@google.com");
   }
   
   public String getEmailSuffix() {
@@ -187,16 +172,6 @@ public class UrlContentManager {
     return new RequestImpl();
   }
 
-  public String getUserForLogin() {
-    if (userForLogin == null) {
-      Account account = loginHandler.findAccount(AccountManager.get(applicationContext), null);
-      if (account != null) {
-        userForLogin = account.name;
-      }
-    }
-    return userForLogin;
-  }
-
   /**
    * Resets all connections that are currently opened and reclaims resources
    * used in making connections.
@@ -207,8 +182,7 @@ public class UrlContentManager {
     httpClient = null;
     if (tmp != null) {
       Log.d(LOG_TAG, "cleaning up");
-      SharedPreferences preferences =
-          applicationContext.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+      SharedPreferences preferences = applicationContext.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
       cookieStore.saveIfDirty(preferences);
       tmp.clearRequestInterceptors();
       tmp.clearResponseInterceptors();
@@ -233,8 +207,7 @@ public class UrlContentManager {
           HttpClientParams.setRedirecting(params, true);
          
           // Use a thread-safe connection manager.
-          ThreadSafeClientConnManager connManager =
-              new ThreadSafeClientConnManager(params, registry);
+          ThreadSafeClientConnManager connManager = new ThreadSafeClientConnManager(params, registry);
           ConnManagerParams.setMaxConnectionsPerRoute(params, new ConnPerRoute() {
             @Override
             public int getMaxForRoute(HttpRoute route) {

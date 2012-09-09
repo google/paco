@@ -21,6 +21,8 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 
+import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -56,6 +58,11 @@ public class UserPreferences {
   private static final String LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
 
   private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
+  
+  private static final String SELECTED_ACCOUNT_KEY = "selected_account";
+
+  private static final String SELECTED_ACCOUNT_PREF = "selected_account_pref";
+
   
   private SharedPreferences signallingPrefs;
   private Context context;
@@ -142,6 +149,26 @@ public class UserPreferences {
   
   public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
     getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
+  }
+
+  public void saveSelectedAccount(Context context, String name) {
+    SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
+    prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();    
+  }
+
+  public void saveSelectedAccount(Activity activity, Account account) {
+    saveSelectedAccount(activity, account.name);
+  }
+
+  public String getSelectedAccount(Context activity) {
+    SharedPreferences prefs = activity.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
+    String accountName = prefs.getString(SELECTED_ACCOUNT_KEY, null);
+    if (accountName == null) {
+      return null;
+    } else {
+      return accountName;
+    }
+    
   }
 
 }

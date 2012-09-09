@@ -29,9 +29,15 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -45,8 +51,13 @@ import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 
+import com.google.android.apps.paco.R;
+import com.google.android.apps.paco.UserPreferences;
+
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An HTTP redirect handler that intercepts redirection to Google appspot login page,
@@ -54,9 +65,10 @@ import java.net.URLEncoder;
  *
  */
 public class LoginRedirectHandler extends DefaultRedirectHandler {
+
   private static final String LOG_TAG = "login";
 
-  private static final String AUTH_TOKEN_TYPE = "ah";
+  public static final String AUTH_TOKEN_TYPE = "ah";
   private static final String GOOGLE_ACCOUNT = "com.google";
   private static final String[] LOGIN_REDIRECT_PATTERNS = {"/ServiceLogin?", "/login.corp."};
 
@@ -133,21 +145,23 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
     if (context instanceof Activity) {
       Activity activity = (Activity) context;
       AccountManager accountManager = AccountManager.get(context);
-      Account account = findAccount(accountManager, null);
-      AccountManagerFuture<Bundle> future;
+      UserPreferences userPrefs = new UserPreferences(context);
+      String accountName = userPrefs.getSelectedAccount(activity); 
+      Account account = findAccount(accountManager, context, accountName);
+      
+      AccountManagerFuture<Bundle> future = null;
       if (account != null) {
+        // when this is gotten, it will just work or throw an error?
         future = accountManager.getAuthToken(account, AUTH_TOKEN_TYPE, null, activity, null, null);
-      } else {
-        future = accountManager.addAccount
-            (accountType, AUTH_TOKEN_TYPE, null, null, activity, null, null);
       }
       try {
-        future.getResult();
+        Bundle b = future.getResult();
       } catch (Exception e) {
         Log.w(LOG_TAG, e);
       }
     }
   }
+
 
   private boolean isTargetAnAppEngineHost(HttpResponse response) {
 	  return true;
@@ -195,40 +209,45 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
    */
   private Account checkAccount(final HttpContext httpContext, final Context context,
       final AccountManager accountManager) {
-    Account account = findAccount(accountManager, null);
-    if (account == null) {
-      // Account not found - ask user to create account
-      AccountManagerFuture<Bundle> future =
-        accountManager.addAccount(accountType, AUTH_TOKEN_TYPE, null, null, null, null, null);
-      try {
-        // This is a blocking call
-        Bundle result = future.getResult();
-        String aName = result.getString(AccountManager.KEY_ACCOUNT_NAME);
-        Log.d(LOG_TAG, "--- account name : " + aName);
-        if (aName == null && result.containsKey(AccountManager.KEY_INTENT)) {
-          String message = Messages.get(Messages.ACCOUNT_NOT_FOUND, accountType);
-          Object intent = result.get(AccountManager.KEY_INTENT);
-          httpContext.setAttribute(KEY_FAILURE_MESSAGE, message);
-          httpContext.setAttribute(KEY_REQUIRED_ACTION_INTENT, intent);
-        }
-      } catch (Exception e) {
-        Log.e(LOG_TAG, "failed to add account", e);
-        httpContext.setAttribute(KEY_LOGIN_OK, Boolean.FALSE);
-        httpContext.setAttribute(KEY_FAILURE_MESSAGE, e.getMessage());
-      }
-      account = findAccount(accountManager, null);
-    }
+    UserPreferences userPrefs = new UserPreferences(context);
+    String accountName = userPrefs.getSelectedAccount(context);
+    Account account = findAccount(accountManager, context, accountName);
+//    if (account == null) {
+//      // Account not found - ask user to create account
+//      AccountManagerFuture<Bundle> future =
+//        accountManager.addAccount(accountType, AUTH_TOKEN_TYPE, null, null, null, null, null);
+//      try {
+//        // This is a blocking call
+//        Bundle result = future.getResult();
+//        String aName = result.getString(AccountManager.KEY_ACCOUNT_NAME);
+//        Log.d(LOG_TAG, "--- account name : " + aName);
+//        if (aName == null && result.containsKey(AccountManager.KEY_INTENT)) {
+//          String message = Messages.get(Messages.ACCOUNT_NOT_FOUND, accountType);
+//          Object intent = result.get(AccountManager.KEY_INTENT);
+//          httpContext.setAttribute(KEY_FAILURE_MESSAGE, message);
+//          httpContext.setAttribute(KEY_REQUIRED_ACTION_INTENT, intent);
+//        }
+//      } catch (Exception e) {
+//        Log.e(LOG_TAG, "failed to add account", e);
+//        httpContext.setAttribute(KEY_LOGIN_OK, Boolean.FALSE);
+//        httpContext.setAttribute(KEY_FAILURE_MESSAGE, e.getMessage());
+//      }
+//      account = findAccount(accountManager, context, null);
+//    }
     return account;
   }
 
-  protected Account findAccount(AccountManager am, String accountName) {
+  protected Account findAccount(AccountManager am, Context context, String accountName) {
     Account[] accounts = am.getAccountsByType(accountType);
+    final List<Account> matchingAccounts = new ArrayList<Account>();
     for (Account account : accounts) {
-      if (account.name.endsWith(emailSuffix)
-          && (accountName == null || accountName.equals(account.name))) {
-        return account;
+      if (account.name.endsWith(emailSuffix) && (accountName == null || accountName.equals(account.name))) {
+       matchingAccounts.add(account);
       }
     }
+    if (matchingAccounts.size() == 1) {
+      return matchingAccounts.get(0);
+    } 
     return null;
   }
 
