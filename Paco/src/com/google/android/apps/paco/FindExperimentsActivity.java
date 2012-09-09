@@ -1,5 +1,6 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
+* Copyright 2011 Google Inc. All Rights Reserved.
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance  with the License.  
@@ -19,12 +20,14 @@ package com.google.android.apps.paco;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,7 +35,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -56,7 +62,7 @@ public class FindExperimentsActivity extends Activity {
   private ProgressDialog  p;
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
-  private SimpleCursorAdapter adapter;
+  private BaseAdapter adapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -94,12 +100,16 @@ public class FindExperimentsActivity extends Activity {
     }
     cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE },
         selectionArgs, null, null);
-
-    adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor,
-        new String[] { ExperimentColumns.TITLE }, new int[] { android.R.id.text1 }) {};
-
+    if (showingJoinedExperiments) {
+      adapter = new ExperimentListAdapter(this, cursor);
+    } else {
+      adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor,
+                                        new String[] { ExperimentColumns.TITLE },
+                                        new int[] { android.R.id.text1 }) {
+      };
+    }
     list.setAdapter(adapter);
-    // list.setItemsCanFocus(true);
+    list.setItemsCanFocus(true);
     list.setOnItemClickListener(new OnItemClickListener() {
 
       public void onItemClick(AdapterView<?> listview, View textview, int position, long id) {
@@ -114,11 +124,18 @@ public class FindExperimentsActivity extends Activity {
           // Launch activity to view/edit or run the currently selected
           // experiment
           if (showingJoinedExperiments) {
-            // if (position == 0) {
-            Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentExecutor.class);
-            experimentIntent.setData(uri);
-            startActivity(experimentIntent);
-            finish();
+            if (position == 0) {
+              Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentExecutor.class);
+              experimentIntent.setData(uri);
+              startActivity(experimentIntent);
+              finish();
+            } else if (position == 1) {
+              showDataForExperiment(id);
+            } else if (position == 2) {
+              editExperiment(id);
+            } else if (position == 3) {
+              deleteExperiment(id);
+            }
           } else {
             Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
             experimentIntent.setData(uri);
@@ -248,5 +265,76 @@ public class FindExperimentsActivity extends Activity {
     };
     new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
   }
+
+  private class ExperimentListAdapter extends CursorAdapter {
+
+    private LayoutInflater mInflater;
+    private int titleColumn;
+    private int idColumn;
+
+    ExperimentListAdapter(Context context, Cursor cursor) {
+        super(context, cursor);
+        mInflater = LayoutInflater.from(context);
+        titleColumn = cursor.getColumnIndex( ExperimentColumns.TITLE);
+        idColumn = cursor.getColumnIndex(ExperimentColumns._ID);
+      }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+      View v = mInflater.inflate(R.layout.experiment_list_row, parent, false);
+      return v;
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+      String id = cursor.getString(idColumn);
+      
+      TextView tv = (TextView) view.findViewById(R.id.experimentListRowTitle);
+      tv.setText(cursor.getString(titleColumn));
+      tv.setOnClickListener(myButtonListener);      
+      
+      tv.setTag(id);
+      
+      Button editButton = (Button)view.findViewById(R.id.editExperimentButton);
+      editButton.setOnClickListener(myButtonListener);
+      editButton.setTag(id);
+
+      Button quitButton = (Button)view.findViewById(R.id.quitExperimentButton);
+      quitButton.setOnClickListener(myButtonListener);
+      quitButton.setTag(id);
+      
+      Button exploreButton = (Button)view.findViewById(R.id.exploreDataExperimentButton);
+      exploreButton.setOnClickListener(myButtonListener);
+      exploreButton.setTag(id);
+      // show icon
+      // ImageView iv = (ImageView) view.findViewById(R.id.explore_data_icon);
+      // iv.setImageResource();
+
+    }
+    
+    private OnClickListener myButtonListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        final int position = list.getPositionForView(v);
+        if (position == ListView.INVALID_POSITION) {
+          return;          
+        } else if (v.getId() == R.id.editExperimentButton) {
+          editExperiment(Long.parseLong((String) v.getTag()));
+        } else if (v.getId() == R.id.exploreDataExperimentButton) {
+          showDataForExperiment(Long.parseLong((String) v.getTag()));
+        } else if (v.getId() == R.id.quitExperimentButton) {
+          deleteExperiment(Long.parseLong((String) v.getTag()));
+        } else if (v.getId() == R.id.experimentListRowTitle) {
+          Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentExecutor.class);
+          Uri uri = ContentUris.withAppendedId(getIntent().getData(), Long.parseLong((String)v.getTag()));
+          experimentIntent.setData(uri);
+          startActivity(experimentIntent);
+          finish();
+        }
+      }
+    };
+
+  }
+    
 
 }

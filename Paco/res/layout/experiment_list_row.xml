@@ -18,15 +18,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="wrap_content"
 	android:orientation="horizontal">
-	<TextView android:text="" android:id="@+id/experimentTitle"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-
-
-	<Button android:text="Edit" android:id="@+id/editExperimentButton"
+	<TextView android:text="Title" android:id="@+id/experimentListRowTitle"
+	    android:layout_gravity="left"
+	    android:gravity="left"
+	    android:textSize="20dip"
+		android:layout_width="130dip" 
+		android:layout_height="wrap_content"
+		android:focusable="true"
+		android:clickable="true"
+		/>
+    
+    <Button android:textSize="10dip" android:text="Data" android:id="@+id/exploreDataExperimentButton"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="right" android:minWidth="50dip"
+        />
+	<Button android:textSize="10dip" android:text="Schedule" android:id="@+id/editExperimentButton"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_gravity="right" android:minWidth="50dip"></Button>
+		android:layout_gravity="right" android:minWidth="50dip"
+		/>
 	
-	<Button android:text="Quit" android:id="@+id/quitExperimentButton"
+	<Button android:textSize="10dip" android:text="X" android:id="@+id/quitExperimentButton"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_gravity="right" android:minWidth="50dip"></Button>
+		android:layout_gravity="right" android:minWidth="50dip"
+        />
 </LinearLayout>
