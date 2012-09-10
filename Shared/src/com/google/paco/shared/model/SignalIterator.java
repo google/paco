@@ -38,12 +38,12 @@ public abstract class SignalIterator implements Iterator<LocalTime> {
       return false;
     }
 
-    return (index < times.size());
+    return (index < times.size() && times.size() > 0);
   }
 
   @Override
   public LocalTime next() {
-    if (times == null) {
+    if (times == null || times.size() == 0) {
       return null;
     }
 

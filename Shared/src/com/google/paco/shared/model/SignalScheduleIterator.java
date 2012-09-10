@@ -50,6 +50,10 @@ public class SignalScheduleIterator implements Iterator<DateTime> {
 
   @Override
   public DateTime next() {
+    if (!hasNext()) {
+      return null;
+    }
+
     if (date == null) {
       date = schedule.next();
     }
@@ -62,6 +66,10 @@ public class SignalScheduleIterator implements Iterator<DateTime> {
     }
 
     time = signal.next();
+
+    if (time == null) {
+      return null;
+    }
 
     return new DateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(),
         time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
