@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.joda.time.LocalTime;
 
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -57,26 +58,13 @@ public class FixedSignal extends Signal {
   }
 
   @Override
-  public LocalTime getNextTime(LocalTime now, long seed) {
-    int minDiff = -1;
-    LocalTime minDiffTime = null;
+  public SignalIterator iterator() {
+    return new FixedSignalIterator(this);
+  }
 
-    for (LocalTime time : getTimes()) {
-      // Skip times that are before now
-      if (time.isEqual(now) || time.isBefore(now)) {
-        continue;
-      }
-
-      // Find time with minimum difference
-      int diff = time.getMillisOfDay() - now.getMillisOfDay();
-
-      if (minDiffTime == null || diff < minDiff) {
-        minDiffTime = time;
-        minDiff = diff;
-      }
-    }
-
-    return minDiffTime;
+  @Override
+  public SignalIterator iterator(Random random) {
+    return iterator(); // we don't care about randomness
   }
 
   /*

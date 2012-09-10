@@ -4,6 +4,8 @@ package com.google.paco.shared.model;
 
 import static org.junit.Assert.*;
 
+import java.util.Random;
+
 import com.google.paco.shared.model.Schedule;
 
 import org.joda.time.LocalDate;
@@ -20,13 +22,13 @@ public class ScheduleTest {
     }
 
     @Override
-    protected String getRData() {
+    public ScheduleIterator iterator() {
       return null;
     }
 
     @Override
-    protected boolean isValidDate(LocalDate date) {
-      return false;
+    public ScheduleIterator iterator(Random random) {
+      return null;
     }
   }
 

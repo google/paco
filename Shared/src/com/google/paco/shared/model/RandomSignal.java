@@ -2,12 +2,13 @@
 
 package com.google.paco.shared.model;
 
+import java.util.Random;
+
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 @JsonTypeName("random")
 public class RandomSignal extends Signal {
@@ -37,6 +38,13 @@ public class RandomSignal extends Signal {
   }
 
   /**
+   * @return whether the signal has a start time
+   */
+  public boolean hasStartTime() {
+    return (startTime != null);
+  }
+
+  /**
    * @return the endTime
    */
   public LocalTime getEndTime() {
@@ -48,6 +56,13 @@ public class RandomSignal extends Signal {
    */
   public void setEndTime(LocalTime endTime) {
     this.endTime = endTime;
+  }
+
+  /**
+   * @return whether the signal has an end time
+   */
+  public boolean hasEndTime() {
+    return (endTime != null);
   }
 
   /**
@@ -65,9 +80,13 @@ public class RandomSignal extends Signal {
   }
 
   @Override
-  public LocalTime getNextTime(LocalTime now, long seed) {
-    // TODO: Fill me in
-    return null;
+  public SignalIterator iterator() {
+    return new RandomSignalIterator(this, new Random());
+  }
+
+  @Override
+  public SignalIterator iterator(Random random) {
+    return new RandomSignalIterator(this, random);
   }
 
   /*

@@ -2,6 +2,8 @@
 
 package com.google.paco.shared.model;
 
+import java.util.Random;
+
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -127,7 +129,6 @@ public class MonthlySchedule extends Schedule {
     return onDay(day.ordinal());
   }
 
-
   public void setOnWeek(Week week) {
     int bit = 1 << week.ordinal();
     weekRepeat |= bit;
@@ -164,70 +165,74 @@ public class MonthlySchedule extends Schedule {
     this.weekRepeat = weekRepeat;
   }
 
-  private String daysString() {
-    StringBuffer days = new StringBuffer();
-
-    for (Day day : Day.values()) {
-      for (Week week : Week.values()) {
-        if (onDay(day) && onWeek(week)) {
-          days.append(week.ordwk);
-          days.append(day.abbrev);
-          days.append(",");
-        }
-      }
-    }
-
-    if (days.length() > 1) {
-      days.setLength(days.length() - 1);
-    }
-
-    return days.toString();
+  /**
+   * @return
+   */
+  public boolean byDay() {
+    return (weekRepeat == 0);
   }
 
-  private String monthDaysString() {
-    StringBuffer monthDays = new StringBuffer();
+  @Override
+  public LocalDate getStartDate() {
+    LocalDate startDate = super.getStartDate();
 
-    for (int i = 1; i < 32; i++) {
-      if (onDay(i)) {
-        monthDays.append(i);
-        monthDays.append(",");
-      }
+    while (!isValidDate(startDate)) {
+      startDate = startDate.plusDays(1);
     }
 
-    if (monthDays.length() > 1) {
-      monthDays.setLength(monthDays.length() - 1);
+    return startDate;
+  }
+
+  @Override
+  public boolean isValid() {
+    return (super.isValid() && getDayRepeat() > 0);
+  }
+
+  @Override
+  public ScheduleIterator iterator() {
+    if (!isValid()) {
+      return null;
     }
 
-    return monthDays.toString();
+    return new MonthlyScheduleIterator(this);
+  }
+
+  @Override
+  public ScheduleIterator iterator(Random random) {
+    return iterator(); // we don't care about randomness
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see com.google.paco.shared.model.Schedule#getRData()
+   * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
    */
   @Override
-  protected String getRData() {
-    String rdata;
-
-    if (weekRepeat == 0) {
-      rdata = String.format("BYMONTHDAY=%s", monthDaysString());
-    } else {
-      rdata = String.format("BYDAY=%s", daysString());
+  public boolean equals(Object obj) {
+    if (super.equals(obj) == false) {
+      return false;
     }
 
-    return String.format("RRULE:FREQ=MONTHLY;WKST=SU;INTERVAL=%d;%s", every, rdata);
+    MonthlySchedule other = (MonthlySchedule) obj;
+
+    if (getEvery() != other.getEvery()) {
+      return false;
+    }
+
+    if (getDayRepeat() != other.getDayRepeat()) {
+      return false;
+    }
+
+    if (getWeekRepeat() != other.getWeekRepeat()) {
+      return false;
+    }
+
+    return true;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#isValidDate(org.joda.time.LocalDate)
-   */
-  @Override
   protected boolean isValidDate(LocalDate date) {
+    // Make sure the date is a valid day of the month
     if (getWeekRepeat() == 0) {
-      // Make sure the date is a valid day of the month
       return onDay(date.getDayOfMonth());
     } else {
       int weekOfMonth = ((date.getDayOfMonth() - 1) / 7) + 1; // ceiling
@@ -257,33 +262,5 @@ public class MonthlySchedule extends Schedule {
           return false;
       }
     }
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) == false) {
-      return false;
-    }
-
-    MonthlySchedule other = (MonthlySchedule) obj;
-
-    if (getEvery() != other.getEvery()) {
-      return false;
-    }
-
-    if (getDayRepeat() != other.getDayRepeat()) {
-      return false;
-    }
-
-    if (getWeekRepeat() != other.getWeekRepeat()) {
-      return false;
-    }
-
-    return true;
   }
 }
