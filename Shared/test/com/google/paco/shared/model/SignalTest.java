@@ -4,14 +4,14 @@ package com.google.paco.shared.model;
 
 import static org.junit.Assert.*;
 
+import java.util.Random;
+
 import com.google.paco.shared.model.Signal;
 
-import org.joda.time.LocalTime;
 import org.junit.Test;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SignalTest {
   private class SignalImpl extends Signal {
@@ -20,7 +20,12 @@ public class SignalTest {
     }
 
     @Override
-    public LocalTime getNextTime(LocalTime now, long seed) {
+    public SignalIterator iterator() {
+      return null;
+    }
+
+    @Override
+    public SignalIterator iterator(Random random) {
       return null;
     }
   }

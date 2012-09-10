@@ -2,7 +2,8 @@
 
 package com.google.paco.shared.model;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import java.util.Random;
+
 import org.codehaus.jackson.annotate.JsonTypeName;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
@@ -102,60 +103,34 @@ public class WeeklySchedule extends Schedule {
     dayRepeat |= bit;
   }
 
-  private String daysString() {
-    StringBuffer days = new StringBuffer();
+  @Override
+  public LocalDate getStartDate() {
+    LocalDate startDate = super.getStartDate();
 
-    for (Day day : Day.values()) {
-      if (onDay(day)) {
-        days.append(day.abbrev);
-        days.append(",");
-      }
+    while (!isValidDate(startDate)) {
+      startDate = startDate.plusDays(1);
     }
 
-    if (days.length() > 1) {
-      days.setLength(days.length() - 1);
-    }
-
-    return days.toString();
+    return startDate;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#getRData()
-   */
-  @JsonIgnore
   @Override
-  protected String getRData() {
-    return String.format("RRULE:FREQ=WEEKLY;WKST=SU;INTERVAL=%d;BYDAY=%s", every, daysString());
+  public boolean isValid() {
+    return (super.isValid() && getDayRepeat() > 0);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#isValidDate(org.joda.time.LocalDate)
-   */
-  @JsonIgnore
   @Override
-  protected boolean isValidDate(LocalDate date) {
-    switch (date.getDayOfWeek()) {
-      case DateTimeConstants.MONDAY:
-        return onDay(Day.Monday);
-      case DateTimeConstants.TUESDAY:
-        return onDay(Day.Tuesday);
-      case DateTimeConstants.WEDNESDAY:
-        return onDay(Day.Wednesday);
-      case DateTimeConstants.THURSDAY:
-        return onDay(Day.Thursday);
-      case DateTimeConstants.FRIDAY:
-        return onDay(Day.Friday);
-      case DateTimeConstants.SATURDAY:
-        return onDay(Day.Saturday);
-      case DateTimeConstants.SUNDAY:
-        return onDay(Day.Sunday);
-      default:
-        return false;
+  public ScheduleIterator iterator() {
+    if (!isValid()) {
+      return null;
     }
+
+    return new WeeklyScheduleIterator(this);
+  }
+
+  @Override
+  public ScheduleIterator iterator(Random random) {
+    return iterator(); // we don't care about randomness
   }
 
   /*
@@ -180,5 +155,26 @@ public class WeeklySchedule extends Schedule {
     }
 
     return true;
+  }
+
+  private boolean isValidDate(LocalDate date) {
+    switch (date.getDayOfWeek()) {
+      case DateTimeConstants.MONDAY:
+        return onDay(Day.Monday);
+      case DateTimeConstants.TUESDAY:
+        return onDay(Day.Tuesday);
+      case DateTimeConstants.WEDNESDAY:
+        return onDay(Day.Wednesday);
+      case DateTimeConstants.THURSDAY:
+        return onDay(Day.Thursday);
+      case DateTimeConstants.FRIDAY:
+        return onDay(Day.Friday);
+      case DateTimeConstants.SATURDAY:
+        return onDay(Day.Saturday);
+      case DateTimeConstants.SUNDAY:
+        return onDay(Day.Sunday);
+      default:
+        return false;
+    }
   }
 }

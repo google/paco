@@ -2,13 +2,14 @@
 
 package com.google.paco.shared.model;
 
+import java.util.Random;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
 import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.joda.time.LocalTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -46,8 +47,6 @@ public abstract class Signal {
     this.type = type;
   }
 
-  public abstract LocalTime getNextTime(LocalTime now, long seed);
-
   @JsonIgnore
   public boolean isFixed() {
     return type.equals(Signal.Type.Fixed);
@@ -67,6 +66,9 @@ public abstract class Signal {
   public RandomSignal asRandom() {
     return (RandomSignal) this;
   }
+
+  public abstract SignalIterator iterator();
+  public abstract SignalIterator iterator(Random random);
 
   /*
    * (non-Javadoc)

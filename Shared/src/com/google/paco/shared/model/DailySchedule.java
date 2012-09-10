@@ -2,8 +2,9 @@
 
 package com.google.paco.shared.model;
 
+import java.util.Random;
+
 import org.codehaus.jackson.annotate.JsonTypeName;
-import org.joda.time.LocalDate;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -17,24 +18,18 @@ public class DailySchedule extends Schedule {
     super(Schedule.Type.Daily);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#getRData()
-   */
   @Override
-  protected String getRData() {
-    return String.format("RRULE:FREQ=DAILY;INTERVAL=%d", getEvery());
+  public ScheduleIterator iterator() {
+    if (!isValid()) {
+      return null;
+    }
+
+    return new DailyScheduleIterator(this);
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#isValidDate(org.joda.time.LocalDate)
-   */
   @Override
-  protected boolean isValidDate(LocalDate date) {
-    return true;
+  public ScheduleIterator iterator(Random random) {
+    return iterator(); // we don't care about randomness
   }
 
   /*
