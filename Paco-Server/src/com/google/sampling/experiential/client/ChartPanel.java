@@ -185,7 +185,7 @@ public class ChartPanel extends Composite {
   }
 
   private Widget renderEventsOnMap() {
-	  return null;
+	  return new HTML();
 //    markers.clear();
 //    createMap();
 //    LatLngBounds bounds = LatLngBounds.newInstance();

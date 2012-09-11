@@ -54,7 +54,9 @@ public class ExperimentChartsPanel extends Composite {
 
     for (InputDAO input : experiment.getInputs()) {
       ChartPanel cp = new ChartPanel(input, eventList);
-      verticalPanel.add(cp);
+      if (cp != null) { 
+        verticalPanel.add(cp);
+      }
     }
 
   }
