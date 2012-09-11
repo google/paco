@@ -33,9 +33,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.ConsoleMessage;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -168,6 +170,7 @@ public class FeedbackActivity extends Activity {
       }
 
       
+      
     };
     return webViewClient;
   }
@@ -220,6 +223,22 @@ public class FeedbackActivity extends Activity {
         }
         return super.onJsConfirm(view, url, message, result);
       }
+
+      @Override
+      public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+          Log.d(PacoConstants.TAG, message + " -- From line "
+                               + lineNumber + " of "
+                               + sourceID);
+      }
+
+      @Override
+      public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+        Log.d(PacoConstants.TAG,  consoleMessage.message() + " -- From line "
+            + consoleMessage.lineNumber() + " of "
+            + consoleMessage.sourceId() );
+        return true;
+      }
+      
     });
   }
 
