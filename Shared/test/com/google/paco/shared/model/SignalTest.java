@@ -28,6 +28,11 @@ public class SignalTest {
     public SignalIterator iterator(Random random) {
       return null;
     }
+
+    @Override
+    public String toString() {
+      return null;
+    }
   }
 
   @Test

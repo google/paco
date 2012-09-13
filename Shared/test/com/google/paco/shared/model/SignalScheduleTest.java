@@ -10,11 +10,13 @@ import com.google.paco.shared.model.RandomSignal;
 import com.google.paco.shared.model.SignalSchedule;
 import com.google.paco.shared.model.WeeklySchedule;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
+ * 
  */
 public class SignalScheduleTest {
   @Test
@@ -168,5 +170,69 @@ public class SignalScheduleTest {
     signalSchedule.setSchedule(null);
 
     assertFalse(signalSchedule.hasSignalSchedule());
+  }
+
+  @Test
+  public void testToStringWhenRandomDaily() {
+    DailySchedule schedule = new DailySchedule();
+    schedule.setEvery(2);
+
+    RandomSignal signal = new RandomSignal();
+    signal.setFrequency(8);
+    signal.setStartTime(new LocalTime(9, 0, 0));
+    signal.setEndTime(new LocalTime(17, 0, 0));
+
+    SignalSchedule signalSchedule = new SignalSchedule();
+    signalSchedule.setSchedule(schedule);
+    signalSchedule.setSignal(signal);
+
+    System.out.println(signalSchedule.toString());
+
+    assertNotNull(signalSchedule.toString());
+  }
+
+  @Test
+  public void testToStringWhenFixedWeekly() {
+    WeeklySchedule schedule = new WeeklySchedule();
+    schedule.setEvery(1);
+    schedule.setOnDay(WeeklySchedule.Day.Monday);
+    schedule.setOnDay(WeeklySchedule.Day.Wednesday);
+    schedule.setOnDay(WeeklySchedule.Day.Friday);
+    schedule.setStartDate(new LocalDate(2012, 9, 11));
+    schedule.setEndDate(null);
+
+    FixedSignal signal = new FixedSignal();
+    signal.addTime(new LocalTime(9, 0, 0));
+    signal.addTime(new LocalTime(17, 0, 0));
+
+    SignalSchedule signalSchedule = new SignalSchedule();
+    signalSchedule.setSchedule(schedule);
+    signalSchedule.setSignal(signal);
+
+    System.out.println(signalSchedule.toString());
+
+    assertNotNull(signalSchedule.toString());
+  }
+
+  @Test
+  public void testToStringWhenFixedMonthly() {
+    MonthlySchedule schedule = new MonthlySchedule();
+    schedule.setEvery(2);
+    schedule.setOnWeek(MonthlySchedule.Week.First);
+    schedule.setOnDay(MonthlySchedule.Day.Sunday);
+    schedule.setStartDate(null);
+    schedule.setEndDate(new LocalDate(2012, 9, 30));
+
+    FixedSignal signal = new FixedSignal();
+    signal.addTime(new LocalTime(9, 0, 0));
+    signal.addTime(new LocalTime(17, 0, 0));
+
+    SignalSchedule signalSchedule = new SignalSchedule();
+    signalSchedule.setSchedule(schedule);
+    signalSchedule.setSignal(signal);
+
+    System.out.println(signalSchedule.toString());
+
+    assertNotNull(signalSchedule.toString());
   }
 }

@@ -40,9 +40,9 @@ public abstract class Schedule {
   }
 
   private Type type;
-  private LocalDate startDate;
-  private LocalDate endDate;
-  private int every;
+  protected LocalDate startDate;
+  protected LocalDate endDate;
+  protected int every;
 
   /**
    *
@@ -170,6 +170,7 @@ public abstract class Schedule {
   }
 
   public abstract ScheduleIterator iterator();
+
   public abstract ScheduleIterator iterator(Random random);
 
   /*
@@ -219,4 +220,11 @@ public abstract class Schedule {
 
     return true;
   }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  public abstract String toString();
 }

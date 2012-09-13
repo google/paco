@@ -30,6 +30,11 @@ public class ScheduleTest {
     public ScheduleIterator iterator(Random random) {
       return null;
     }
+
+    @Override
+    public String toString() {
+      return null;
+    }
   }
 
   @Test
