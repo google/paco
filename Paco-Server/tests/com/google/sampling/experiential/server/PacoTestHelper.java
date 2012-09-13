@@ -15,6 +15,8 @@ import com.google.paco.shared.model.SignalSchedule;
 import com.google.paco.shared.model.TextInput;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.ClientInfo;
@@ -24,18 +26,26 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class PacoTestHelper {
   /*
    * SignalSchedule
    */
   public static SignalSchedule constructSignalSchedule(boolean editable) {
+    RandomSignal signal = new RandomSignal();
+    signal.setStartTime(new LocalTime(9, 0, 0));
+    signal.setEndTime(new LocalTime(17, 0, 0));
+
+    DailySchedule schedule = new DailySchedule();
+    schedule.setStartDate(new LocalDate(2012, 9, 11));
+    schedule.setEndDate(new LocalDate(2012, 9, 15));
+    schedule.setEvery(1);
+
     SignalSchedule signalSchedule = new SignalSchedule();
 
     signalSchedule.setEditable(editable);
-    signalSchedule.setSignal(new RandomSignal());
-    signalSchedule.setSchedule(new DailySchedule());
+    signalSchedule.setSignal(signal);
+    signalSchedule.setSchedule(schedule);
 
     return signalSchedule;
   }

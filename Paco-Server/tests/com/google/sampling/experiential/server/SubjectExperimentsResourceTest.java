@@ -58,7 +58,7 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
     experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals("[" + PacoConverter.toJson(experiment, Experiment.Summary.class) + "]",
+    assertEquals("[" + PacoConverter.toJson(experiment, Experiment.Viewer.class) + "]",
         response.getEntityAsText());
   }
 

@@ -5,6 +5,8 @@ package com.google.paco.shared.model;
 import java.util.Random;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonView;
+import org.joda.time.DateTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -19,6 +21,8 @@ public class SignalSchedule {
   private boolean editable;
   private Signal signal;
   private Schedule schedule;
+  @JsonView(Experiment.Subject.class)
+  private DateTime joinDate;
 
   /**
    *
@@ -29,6 +33,7 @@ public class SignalSchedule {
     this.editable = false;
     this.signal = null;
     this.schedule = null;
+    this.joinDate = null;
   }
 
   /**
@@ -102,6 +107,27 @@ public class SignalSchedule {
   }
 
   /**
+   * @return
+   */
+  public boolean isJoined() {
+    return joinDate != null;
+  }
+
+  /**
+   * @return
+   */
+  public DateTime getJoinDate() {
+    return joinDate;
+  }
+
+  /**
+   * @param joinDate
+   */
+  public void setJoinDate(DateTime joinDate) {
+    this.joinDate = joinDate;
+  }
+
+  /**
    * @return whether the signalSchedule exists
    */
   public boolean hasSignalSchedule() {
@@ -139,6 +165,16 @@ public class SignalSchedule {
 
     if (isEditable() != other.isEditable()) {
       return false;
+    }
+
+    if (isJoined()) {
+      if (getJoinDate().equals(other.getJoinDate()) == false) {
+        return false;
+      }
+    } else {
+      if (other.isJoined()) {
+        return false;
+      }
     }
 
     if (hasSignalSchedule()) {
