@@ -17,11 +17,11 @@ import java.util.Set;
  *
  */
 public class Experiment {
-  public static class Summary {
+  public static class Viewer {
   }
-  public static class Viewer extends Summary {
+  public static class Subject extends Viewer {
   }
-  public static class Observer extends Viewer {
+  public static class Observer extends Subject {
   }
 
   public static String DEFAULT_TITLE = "";
@@ -35,19 +35,19 @@ public class Experiment {
   @JsonIgnore
   private boolean deleted;
 
-  @JsonView(Summary.class)
+  @JsonView(Viewer.class)
   private String title;
-  @JsonView(Summary.class)
+  @JsonView(Viewer.class)
   private String description;
-  @JsonView(Summary.class)
+  @JsonView(Viewer.class)
   private String creator;
-  @JsonView(Viewer.class)
+  @JsonView(Subject.class)
   private String consentForm;
-  @JsonView(Viewer.class)
+  @JsonView(Subject.class)
   private List<Input> inputs;
-  @JsonView(Viewer.class)
+  @JsonView(Subject.class)
   private SignalSchedule signalSchedule;
-  @JsonView(Viewer.class)
+  @JsonView(Subject.class)
   private String feedback;
   @JsonView(Observer.class)
   private boolean published;
@@ -250,14 +250,17 @@ public class Experiment {
   }
 
   /**
+   * @return whether the experiment has a feedback
+   */
+  public boolean hasFeedback() {
+    return feedback != null;
+  }
+
+  /**
    * @param feedback the feedback
    */
   public void setFeedback(String feedback) {
-    if (feedback == null) {
-      this.feedback = DEFAULT_FEEDBACK;
-    } else {
-      this.feedback = feedback;
-    }
+    this.feedback = feedback;
   }
 
   /**
@@ -483,8 +486,14 @@ public class Experiment {
       }
     }
 
-    if (getFeedback().equals(other.getFeedback()) == false) {
-      return false;
+    if (hasFeedback()) {
+      if (getFeedback().equals(other.getFeedback()) == false) {
+        return false;
+      }
+    } else {
+      if (other.hasFeedback()) {
+        return false;
+      }
     }
 
     if (isPublished() != other.isPublished()) {

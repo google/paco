@@ -123,6 +123,30 @@ public abstract class Input {
     this.conditionalExpression = conditionalExpression;
   }
 
+  public boolean isLikert() {
+    return type.equals(Type.Likert);
+  }
+
+  public boolean isList() {
+    return type.equals(Type.List);
+  }
+
+  public boolean isText() {
+    return type.equals(Type.Text);
+  }
+
+  public LikertInput asLikert() {
+    return (LikertInput) this;
+  }
+
+  public ListInput asList() {
+    return (ListInput) this;
+  }
+
+  public TextInput asText() {
+    return (TextInput) this;
+  }
+
   /*
    * (non-Javadoc)
    *

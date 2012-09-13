@@ -45,7 +45,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
     experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test
@@ -65,7 +65,7 @@ public class ExperimentResourceTest extends PacoResourceTest {
     experiment.setPublished(true);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test

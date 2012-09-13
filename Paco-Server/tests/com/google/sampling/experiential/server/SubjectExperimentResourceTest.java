@@ -48,7 +48,7 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test
@@ -66,7 +66,7 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test
@@ -88,7 +88,7 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test
@@ -109,7 +109,7 @@ public class SubjectExperimentResourceTest extends PacoResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
-    assertEquals(PacoConverter.toJson(experiment, Experiment.Viewer.class), response.getEntityAsText());
+    assertEquals(PacoConverter.toJson(experiment, Experiment.Subject.class), response.getEntityAsText());
   }
 
   @Test

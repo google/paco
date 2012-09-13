@@ -21,6 +21,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Text;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.PacoJacksonModule;
 import com.google.paco.shared.model.Event;
 import com.google.paco.shared.model.Experiment;
 import com.google.paco.shared.model.SignalSchedule;
@@ -29,7 +30,8 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -61,8 +63,7 @@ public class PacoConverter {
    * @return an instance of the pojo converted from the json vaue
    */
   public static <T> T jsonTo(String value, Class<T> valueType) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = getMapper();
 
     try {
       return mapper.readValue(value, valueType);
@@ -86,8 +87,7 @@ public class PacoConverter {
    * @return a json encoded string representing the pojo
    */
   public static String toJson(Object value, Class<?> view) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = getMapper();
 
     try {
       return mapper.writerWithView(view).writeValueAsString(value);
@@ -110,8 +110,7 @@ public class PacoConverter {
    * @return a json encoded string representing the pojo
    */
   public static String toJson(Object value) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = getMapper();
 
     try {
       return mapper.writeValueAsString(value);
@@ -406,5 +405,19 @@ public class PacoConverter {
   public static <T> List<T> preparedQueryTo(PreparedQuery pq, Class<T> type) {
     List<Entity> entities = pq.asList(FetchOptions.Builder.withDefaults());
     return entitiesTo(entities, type);
+  }
+
+  private static ObjectMapper mapper;
+
+  private static ObjectMapper getMapper() {
+    if (mapper == null) {
+      mapper = new ObjectMapper();
+
+      mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+      mapper.registerModule(new PacoJacksonModule());
+    }
+
+    return mapper;
   }
 }

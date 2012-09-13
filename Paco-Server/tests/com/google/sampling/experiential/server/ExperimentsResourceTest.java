@@ -63,7 +63,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
 
-    String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
+    String json = PacoConverter.toJson(experiment, Experiment.Viewer.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + json + "]", response.getEntityAsText());
@@ -85,7 +85,7 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.addObserver("observer@google.com");
     experiment.addViewer("subject@google.com");
 
-    String json = PacoConverter.toJson(experiment, Experiment.Summary.class);
+    String json = PacoConverter.toJson(experiment, Experiment.Viewer.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + json + "]", response.getEntityAsText());
