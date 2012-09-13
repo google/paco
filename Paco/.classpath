@@ -5,10 +5,12 @@
 	<classpathentry kind="src" path="/PacoAndroidLib"/>
 	<classpathentry kind="lib" path="libs/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry exported="true" kind="lib" path="libs/joda-time-1.6.jar" sourcepath="/Users/bobevans/.m2/repository/joda-time/joda-time/1.6/joda-time-1.6-sources.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="libs/jackson-core-asl-1.9.9.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-mapper-asl-1.9.9.jar"/>
+	<classpathentry kind="lib" path="libs/rfc2445-4Mar2011.jar"/>
+	<classpathentry kind="lib" path="libs/guava-r09.jar"/>
+	<classpathentry kind="lib" path="libs/joda-time-2.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
