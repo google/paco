@@ -51,4 +51,35 @@ public class DailySchedule extends Schedule {
 
     return true;
   }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Every");
+    if (every < 2) {
+      sb.append(" day");
+    } else {
+      sb.append(" ").append(every).append(" days");
+    }
+    sb.append(" from");
+    if (hasStartDate()) {
+      sb.append(" ").append(startDate);
+    } else {
+      sb.append(" now");
+    }
+    sb.append(" to");
+    if (hasEndDate()) {
+      sb.append(" ").append(endDate);
+    } else {
+      sb.append(" forever");
+    }
+
+    return sb.toString();
+  }
 }

@@ -10,7 +10,6 @@ import org.joda.time.DateTime;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SignalSchedule {
   @JsonIgnore
@@ -114,17 +113,24 @@ public class SignalSchedule {
   }
 
   /**
-   * @return
+   * @return the join date
    */
   public DateTime getJoinDate() {
     return joinDate;
   }
 
   /**
-   * @param joinDate
+   * @param joinDate the join date
    */
   public void setJoinDate(DateTime joinDate) {
     this.joinDate = joinDate;
+  }
+
+  /**
+   * @return whether the signal-schedule has a join date
+   */
+  public boolean hasJoinDate() {
+    return (joinDate != null);
   }
 
   /**
@@ -189,5 +195,19 @@ public class SignalSchedule {
     }
 
     return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    if (!hasSignalSchedule()) {
+      return "Unknown";
+    }
+
+    return schedule.toString() + " " + signal.toString();
   }
 }

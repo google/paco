@@ -68,6 +68,7 @@ public abstract class Signal {
   }
 
   public abstract SignalIterator iterator();
+
   public abstract SignalIterator iterator(Random random);
 
   /*
@@ -97,4 +98,11 @@ public abstract class Signal {
 
     return true;
   }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  public abstract String toString();
 }

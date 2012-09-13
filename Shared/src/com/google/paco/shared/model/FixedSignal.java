@@ -12,7 +12,6 @@ import java.util.Set;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 @JsonTypeName("fixed")
 public class FixedSignal extends Signal {
@@ -85,5 +84,24 @@ public class FixedSignal extends Signal {
     }
 
     return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Signal#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("at ").append(times.size());
+    sb.append(" fixed times:");
+    for (LocalTime time : times) {
+      sb.append(" ").append(time).append(",");
+    }
+    sb.delete(sb.length() - 1, sb.length());
+
+    return sb.toString();
   }
 }

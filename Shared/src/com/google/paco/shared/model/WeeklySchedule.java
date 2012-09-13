@@ -133,6 +133,27 @@ public class WeeklySchedule extends Schedule {
     return iterator(); // we don't care about randomness
   }
 
+  private boolean isValidDate(LocalDate date) {
+    switch (date.getDayOfWeek()) {
+      case DateTimeConstants.MONDAY:
+        return onDay(Day.Monday);
+      case DateTimeConstants.TUESDAY:
+        return onDay(Day.Tuesday);
+      case DateTimeConstants.WEDNESDAY:
+        return onDay(Day.Wednesday);
+      case DateTimeConstants.THURSDAY:
+        return onDay(Day.Thursday);
+      case DateTimeConstants.FRIDAY:
+        return onDay(Day.Friday);
+      case DateTimeConstants.SATURDAY:
+        return onDay(Day.Saturday);
+      case DateTimeConstants.SUNDAY:
+        return onDay(Day.Sunday);
+      default:
+        return false;
+    }
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -157,24 +178,40 @@ public class WeeklySchedule extends Schedule {
     return true;
   }
 
-  private boolean isValidDate(LocalDate date) {
-    switch (date.getDayOfWeek()) {
-      case DateTimeConstants.MONDAY:
-        return onDay(Day.Monday);
-      case DateTimeConstants.TUESDAY:
-        return onDay(Day.Tuesday);
-      case DateTimeConstants.WEDNESDAY:
-        return onDay(Day.Wednesday);
-      case DateTimeConstants.THURSDAY:
-        return onDay(Day.Thursday);
-      case DateTimeConstants.FRIDAY:
-        return onDay(Day.Friday);
-      case DateTimeConstants.SATURDAY:
-        return onDay(Day.Saturday);
-      case DateTimeConstants.SUNDAY:
-        return onDay(Day.Sunday);
-      default:
-        return false;
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Every");
+    if (every < 2) {
+      sb.append(" week");
+    } else {
+      sb.append(" ").append(every).append(" weeks");
     }
+    sb.append(" on");
+    for (Day day : Day.values()) {
+      if (onDay(day)) {
+        sb.append(" ").append(day).append(",");
+      }
+    }
+    sb.delete(sb.length() - 1, sb.length()); // remove comma
+    sb.append(" from");
+    if (hasStartDate()) {
+      sb.append(" ").append(startDate);
+    } else {
+      sb.append(" now");
+    }
+    sb.append(" to");
+    if (hasEndDate()) {
+      sb.append(" ").append(endDate);
+    } else {
+      sb.append(" forever");
+    }
+    return sb.toString();
   }
 }

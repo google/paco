@@ -128,4 +128,21 @@ public class RandomSignal extends Signal {
 
     return true;
   }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Signal#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("at ").append(frequency);
+    sb.append(" random times");
+    sb.append(" between ").append(startTime);
+    sb.append(" and ").append(endTime);
+
+    return sb.toString();
+  }
 }

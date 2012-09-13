@@ -202,34 +202,6 @@ public class MonthlySchedule extends Schedule {
     return iterator(); // we don't care about randomness
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (super.equals(obj) == false) {
-      return false;
-    }
-
-    MonthlySchedule other = (MonthlySchedule) obj;
-
-    if (getEvery() != other.getEvery()) {
-      return false;
-    }
-
-    if (getDayRepeat() != other.getDayRepeat()) {
-      return false;
-    }
-
-    if (getWeekRepeat() != other.getWeekRepeat()) {
-      return false;
-    }
-
-    return true;
-  }
-
   protected boolean isValidDate(LocalDate date) {
     // Make sure the date is a valid day of the month
     if (getWeekRepeat() == 0) {
@@ -262,5 +234,81 @@ public class MonthlySchedule extends Schedule {
           return false;
       }
     }
+  }
+
+  /*
+   * (non-Javadoc)
+   *q
+   * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (super.equals(obj) == false) {
+      return false;
+    }
+
+    MonthlySchedule other = (MonthlySchedule) obj;
+
+    if (getEvery() != other.getEvery()) {
+      return false;
+    }
+
+    if (getDayRepeat() != other.getDayRepeat()) {
+      return false;
+    }
+
+    if (getWeekRepeat() != other.getWeekRepeat()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.google.paco.shared.model.Schedule#toString()
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("Every");
+    if (every < 2) {
+      sb.append(" month");
+    } else {
+      sb.append(" ").append(every).append(" months");
+    }
+    sb.append(" on the");
+    if (byDay()) {
+      sb.append(" ").append(getDayRepeat());
+    } else {
+      for (Week week : Week.values()) {
+        if (onWeek(week)) {
+          sb.append(" ").append(week).append(",");
+        }
+      }
+      sb.delete(sb.length() - 1, sb.length()); // remove comma
+      for (Day day : Day.values()) {
+        if (onDay(day)) {
+          sb.append(" ").append(day).append(",");
+        }
+      }
+      sb.delete(sb.length() - 1, sb.length()); // remove comma
+    }
+    sb.append(" from");
+    if (hasStartDate()) {
+      sb.append(" ").append(startDate);
+    } else {
+      sb.append(" now");
+    }
+    sb.append(" to");
+    if (hasEndDate()) {
+      sb.append(" ").append(endDate);
+    } else {
+      sb.append(" forever");
+    }
+
+    return sb.toString();
   }
 }
