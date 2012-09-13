@@ -10,7 +10,7 @@ require 'random_data'
 
 class Random
   def Random.time
-    "1980-01-01T%02d:%02d:%02dZ" % [rand(24), rand(60), rand(60)]
+    "%02d:%02d:%02d.000" % [rand(24), rand(60), rand(60)]
   end
 end
 
