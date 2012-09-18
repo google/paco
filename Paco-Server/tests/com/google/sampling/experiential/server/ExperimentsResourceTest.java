@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 
 import com.google.paco.shared.model.Experiment;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.restlet.Response;
 import org.restlet.Request;
@@ -13,7 +14,6 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ExperimentsResourceTest extends PacoResourceTest {
   /*
@@ -23,7 +23,8 @@ public class ExperimentsResourceTest extends PacoResourceTest {
   public void testCreate() {
     Experiment experiment = PacoTestHelper.constructExperiment();
 
-    Request request = PacoTestHelper.post("/observer/experiments", PacoConverter.toJson(experiment));
+    Request request =
+        PacoTestHelper.post("/observer/experiments", PacoConverter.toJson(experiment));
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
@@ -129,6 +130,40 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     PacoTestHelper.destroyExperiment();
 
     Request request = PacoTestHelper.get("/experiments");
+    Response response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testModifiedSinceBefore() {
+    DateTime before = DateTime.now().minusHours(1); // -1 hour to be safe
+    PacoTestHelper.createPublishedPublicExperiment();
+
+    Request request = PacoTestHelper.get("/experiments", before);
+    Response response = new PacoApplication().handle(request);
+
+    Experiment experiment = PacoTestHelper.constructExperiment();
+    experiment.setId(1l);
+    experiment.setVersion(1);
+    experiment.setPublished(true);
+    experiment.addObserver("observer@google.com");
+
+    System.out.println(response.getEntity().getModificationDate());
+
+    String json = PacoConverter.toJson(experiment, Experiment.Viewer.class);
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertEquals("[" + json + "]", response.getEntityAsText());
+  }
+
+  @Test
+  public void testModifiedSinceAfter() {
+    PacoTestHelper.createPublishedPublicExperiment();
+    DateTime after = DateTime.now().plusHours(1); // +1 hour to be safe
+
+    Request request = PacoTestHelper.get("/experiments", after);
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());

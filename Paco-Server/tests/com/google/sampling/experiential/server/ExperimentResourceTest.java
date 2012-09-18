@@ -2,7 +2,7 @@
 
 package com.google.sampling.experiential.server;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import com.google.paco.shared.model.DailySchedule;
 import com.google.paco.shared.model.Experiment;
@@ -10,6 +10,7 @@ import com.google.paco.shared.model.FixedSignal;
 import com.google.paco.shared.model.SharedTestHelper;
 import com.google.paco.shared.model.SignalSchedule;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -195,5 +196,22 @@ public class ExperimentResourceTest extends PacoResourceTest {
     Response response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, response.getStatus());
+  }
+
+  @Test
+  public void testCacheProperties() {
+    DateTime before = DateTime.now().minusMinutes(1);
+    PacoTestHelper.createPublishedPublicExperiment();
+    DateTime after = DateTime.now().plusMinutes(1);
+
+    Request request = PacoTestHelper.get("/experiments/1");
+    Response response = new PacoApplication().handle(request);
+
+    DateTime modificationDate = new DateTime(response.getEntity().getModificationDate());
+
+    assertEquals(Status.SUCCESS_OK, response.getStatus());
+    assertTrue(modificationDate.isAfter(before));
+    assertTrue(modificationDate.isBefore(after));
+    assertEquals("1", response.getEntity().getTag().toString());
   }
 }

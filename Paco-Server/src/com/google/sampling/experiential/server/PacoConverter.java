@@ -219,6 +219,7 @@ public class PacoConverter {
 
     experiment.setId(entity.getKey().getId());
     experiment.setVersion((Long) entity.getProperty("version"));
+    experiment.setModificationDate(new DateTime((Date) entity.getProperty("modificationDate")));
     experiment.setDeleted((Boolean) entity.getProperty("deleted"));
     experiment.setPublished((Boolean) entity.getProperty("published"));
     experiment.setObservers((List<String>) entity.getProperty("observers"));
@@ -333,6 +334,7 @@ public class PacoConverter {
     }
 
     entity.setProperty("version", experiment.getVersion());
+    entity.setProperty("modificationDate", experiment.getModificationDate().toDate());
     entity.setProperty("deleted", experiment.isDeleted());
     entity.setProperty("published", experiment.isPublished());
     entity.setProperty("observers", experiment.getObservers());
@@ -359,7 +361,7 @@ public class PacoConverter {
     }
 
     Entity entity =
-        new Entity("schedule", KeyFactory.createKey("experiment", signalSchedule.getExperimentId()));
+        new Entity("signal_schedule", KeyFactory.createKey("experiment", signalSchedule.getExperimentId()));
 
     entity.setProperty("experiment", signalSchedule.getExperimentId());
     entity.setProperty("subject", signalSchedule.getSubject());
@@ -381,7 +383,13 @@ public class PacoConverter {
     entity.setProperty("experimentId", event.getExperimentId());
     entity.setProperty("experimentVersion", event.getExperimentVersion());
     entity.setProperty("createTime", event.getCreateTime().toDate());
-    entity.setProperty("signalTime", event.getSignalTime().toDate());
+
+    if (event.hasSignalTime()) {
+      entity.setProperty("signalTime", event.getSignalTime().toDate());
+    } else {
+      entity.setProperty("signalTime", null);
+    }
+
     entity.setProperty("responseTime", event.getResponseTime().toDate());
 
     EmbeddedEntity outputsEntity = new EmbeddedEntity();

@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonView;
+import org.joda.time.DateTime;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,6 +33,8 @@ public class Experiment {
 
   private Long id;
   private long version;
+  @JsonIgnore
+  private DateTime modificationDate;
   @JsonIgnore
   private boolean deleted;
 
@@ -116,6 +119,21 @@ public class Experiment {
   public long getVersion() {
     return version;
   }
+
+  /**
+   * @param modificationDate the last modified date time
+   */
+  public void setModificationDate(DateTime modificationDate) {
+    this.modificationDate = modificationDate;
+  }
+
+  /**
+   * @return the last modified datetime
+   */
+  public DateTime getModificationDate() {
+    return modificationDate;
+  }
+
 
   /**
    * @return the title

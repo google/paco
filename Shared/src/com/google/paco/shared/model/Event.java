@@ -149,6 +149,13 @@ public class Event {
   }
 
   /**
+   * @return whether the event has a signal time
+   */
+  public boolean hasSignalTime() {
+    return (signalTime != null);
+  }
+
+  /**
    * @return the responseTime
    */
   public DateTime getResponseTime() {
