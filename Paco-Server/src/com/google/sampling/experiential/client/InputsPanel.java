@@ -128,7 +128,7 @@ public class InputsPanel extends Composite {
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
 
-    createScheduledDateColumn(upperLinePanel);
+    //createScheduledDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -281,38 +281,38 @@ public class InputsPanel extends Composite {
     });
   }
 
-  private void createScheduledDateColumn(final HorizontalPanel upperLine) {
-    Date scheduledDate;
-    if (input.getScheduleDate() != null) {
-      scheduledDate = new Date(input.getScheduleDate());
-    } else {
-      scheduledDate = new Date();
-      input.setScheduleDate(scheduledDate.getTime());
-    }
-
-    VerticalPanel kp = new VerticalPanel();
-    upperLine.add(kp);
-    DateBox scheduleDatePicker = null;
-    Label datePickerLabel = new Label("Specific Date:");
-    // datePickerLabel.setWordWrap(true);
-    datePickerLabel.setWidth("80px");
-    datePickerLabel.setStyleName("keyLabel");
-    kp.add(datePickerLabel);
-
-    scheduleDatePicker = new DateBox();
-    scheduleDatePicker.setWidth("80px");
-    scheduleDatePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-    scheduleDatePicker.setValue(scheduledDate);
-    kp.add(scheduleDatePicker);
-    scheduleDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-
-      @Override
-      public void onValueChange(ValueChangeEvent<Date> arg0) {
-        input.setScheduleDate(arg0.getValue().getTime());
-      }
-
-    });
-  }
-
+//  private void createScheduledDateColumn(final HorizontalPanel upperLine) {
+//    Date scheduledDate;
+//    if (input.getScheduleDate() != null) {
+//      scheduledDate = new Date(input.getScheduleDate());
+//    } else {
+//      scheduledDate = new Date();
+//      input.setScheduleDate(scheduledDate.getTime());
+//    }
+//
+//    VerticalPanel kp = new VerticalPanel();
+//    upperLine.add(kp);
+//    DateBox scheduleDatePicker = null;
+//    Label datePickerLabel = new Label("Specific Date:");
+//    // datePickerLabel.setWordWrap(true);
+//    datePickerLabel.setWidth("80px");
+//    datePickerLabel.setStyleName("keyLabel");
+//    kp.add(datePickerLabel);
+//
+//    scheduleDatePicker = new DateBox();
+//    scheduleDatePicker.setWidth("80px");
+//    scheduleDatePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+//    scheduleDatePicker.setValue(scheduledDate);
+//    kp.add(scheduleDatePicker);
+//    scheduleDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
+//
+//      @Override
+//      public void onValueChange(ValueChangeEvent<Date> arg0) {
+//        input.setScheduleDate(arg0.getValue().getTime());
+//      }
+//
+//    });
+//  }
+//
 
 }

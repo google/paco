@@ -140,7 +140,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
     createSchedulePanel(experiment);
 
-    formPanel.add(createContentTypeView("questionsChange", experiment.getQuestionsChange()));
+    //formPanel.add(createContentTypeView("questionsChange", experiment.getQuestionsChange()));
 
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
@@ -499,7 +499,7 @@ public class ExperimentDefinitionPanel extends Composite {
       setCreatorOn(experiment);
       setAdminsOn(experiment);
       setInformedConsentOn(experiment);
-      setQuestionsChangeOn(experiment);
+      //setQuestionsChangeOn(experiment);
       setDurationOn(experiment);
       setFeedbackOn(experiment);
       setPublishingOn(experiment);
@@ -526,10 +526,10 @@ public class ExperimentDefinitionPanel extends Composite {
     experiment.setTitle(((TextBox) fieldToWidgetMap.get("Title")).getText());
   }
 
-  private void setQuestionsChangeOn(ExperimentDAO experiment) {
-    experiment.setQuestionsChange(
-        ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
-  }
+//  private void setQuestionsChangeOn(ExperimentDAO experiment) {
+//    experiment.setQuestionsChange(
+//        ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
+//  }
 
   private void setInformedConsentOn(ExperimentDAO experiment) {
     experiment.setInformedConsentForm(

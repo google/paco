@@ -17,6 +17,8 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -64,7 +66,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private Label statusLabel;
   private FlexTable flexTable;
   Images resources;
-  private HTML lblYourExperiments;
+  private HTML listTitle;
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
@@ -127,6 +129,57 @@ public class Main implements EntryPoint, ExperimentListener {
     mainPanel.setSpacing(2);
     rootPanel.add(mainPanel);
 
+    HorizontalPanel menuPanel = createMenuBar();
+    createStatusPanelOnMenubar(menuPanel);
+
+    listTitle = new HTML("");
+    mainPanel.add(listTitle);
+    listTitle.setStyleName("paco-HTML-Large");
+    listTitle.setWordWrap(false);
+    listTitle.setSize("270px", "22");
+
+    mainPanel.setCellHorizontalAlignment(listTitle, HasHorizontalAlignment.ALIGN_CENTER);
+
+    HorizontalPanel horizontalPanel = new HorizontalPanel();
+    horizontalPanel.setSpacing(2);
+    horizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+    mainPanel.add(horizontalPanel);
+
+    experimentPanel = new VerticalPanel();
+    ScrollPanel scrollPanel = new ScrollPanel(experimentPanel);
+    horizontalPanel.add(scrollPanel);
+    experimentPanel.setStyleName("paco-experimentPanel");
+    experimentPanel.setSpacing(2);
+    experimentPanel.setVisible(false);
+    experimentPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+
+    flexTable = new FlexTable();
+    String height = (Window.getClientHeight() - 200) + "px";
+    ScrollPanel sp = new ScrollPanel(flexTable);
+    //flexTable.setSize("400px", height);
+    experimentPanel.add(flexTable);
+
+    contentPanel = new VerticalPanel();
+    contentPanel.setSpacing(2);
+    horizontalPanel.add(contentPanel);
+    contentPanel.setSize("479px", "325px");
+
+    loadJoinedExperiments();
+    createCallbackForGviz();
+  }
+
+  private void createStatusPanelOnMenubar(HorizontalPanel menuPanel) {
+    statusLabel = new Label("Loading");
+    statusLabel.setStyleName("paco-Loading-Panel");
+    statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+    statusLabel.setSize("80px", "24px");
+    statusLabel.setVisible(false);
+
+    menuPanel.add(statusLabel);
+  }
+
+  private HorizontalPanel createMenuBar() {
     HorizontalPanel menuPanel = new HorizontalPanel();
     mainPanel.add(menuPanel);
     Image pacoLogo = new Image(resources.pacoSmallLogo());
@@ -150,7 +203,7 @@ public class Main implements EntryPoint, ExperimentListener {
         findExperiments();
       }
     });
-    mntmFindExperiments.setEnabled(true);
+    mntmFindExperiments.setEnabled(false);
     joinedSubMenuBar.addItem(mntmFindExperiments);
     rootMenuBar.addItem(joinedMenuItem);
 
@@ -172,7 +225,7 @@ public class Main implements EntryPoint, ExperimentListener {
     rootMenuBar.addItem(adminMenuItem);
     // //////////////////
 
-    MenuItem mntmQR_Code = new MenuItem("Get Android Client", false, new Command() {
+    MenuItem mntmQR_Code = new MenuItem("Get Android app", false, new Command() {
       public void execute() {
         showAndroidDownloadPage();
       }
@@ -185,7 +238,7 @@ public class Main implements EntryPoint, ExperimentListener {
     MenuItem helpMenuItem = new MenuItem("Help", false, helpMenuBar);
     rootMenuBar.addItem(helpMenuItem);
 
-    MenuItem helpContentsMenuItem = new MenuItem("Help Contents", false, new Command() {
+    MenuItem helpContentsMenuItem = new MenuItem("User Guide", false, new Command() {
       public void execute() {
         launchHelp();
       }
@@ -209,52 +262,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     });
     rootMenuBar.addItem(mntmLogout);
-
-    // status label
-
-
-    statusLabel = new Label("Loading");
-    statusLabel.setStyleName("paco-Loading-Panel");
-    statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-    statusLabel.setSize("80px", "24px");
-    statusLabel.setVisible(false);
-
-    menuPanel.add(statusLabel);
-
-    lblYourExperiments = new HTML("");
-    mainPanel.add(lblYourExperiments);
-    lblYourExperiments.setStyleName("paco-HTML-Large");
-    lblYourExperiments.setWordWrap(false);
-    lblYourExperiments.setSize("270px", "22");
-
-    mainPanel.setCellHorizontalAlignment(lblYourExperiments, HasHorizontalAlignment.ALIGN_CENTER);
-
-    HorizontalPanel horizontalPanel = new HorizontalPanel();
-    horizontalPanel.setSpacing(2);
-    horizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-    mainPanel.add(horizontalPanel);
-
-    experimentPanel = new VerticalPanel();
-    horizontalPanel.add(experimentPanel);
-    experimentPanel.setStyleName("paco-experimentPanel");
-    experimentPanel.setSpacing(2);
-    experimentPanel.setVisible(false);
-    experimentPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-
-    flexTable = new FlexTable();
-    String height = (Window.getClientHeight() - 200) + "px";
-    ScrollPanel sp = new ScrollPanel(flexTable);
-    //flexTable.setSize("400px", height);
-    experimentPanel.add(flexTable);
-
-    contentPanel = new VerticalPanel();
-    contentPanel.setSpacing(2);
-    horizontalPanel.add(contentPanel);
-    contentPanel.setSize("479px", "325px");
-
-    loadJoinedExperiments();
-    createCallbackForGviz();
+    return menuPanel;
   }
 
   protected void logout() {
@@ -313,7 +321,7 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   private void setContentTitle(String text) {
-    lblYourExperiments.setHTML(text);
+    listTitle.setHTML(text);
   }
 
   protected void createNewExperiment() {
@@ -382,6 +390,14 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onSuccess(List<ExperimentDAO> result) {
+        Collections.sort(result, new Comparator<ExperimentDAO>() {
+
+          @Override
+          public int compare(ExperimentDAO arg0, ExperimentDAO arg1) {
+            return arg0.getTitle().compareTo(arg1.getTitle());            
+          }
+          
+        });
         if (joined) {
           if (joinedExperiments == null) {
             joinedExperiments = result;
