@@ -8,8 +8,6 @@ import com.google.paco.shared.model.Experiment;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.joda.time.DateTime;
-import org.restlet.data.Tag;
 import org.restlet.engine.Engine;
 import org.restlet.engine.converter.ConverterHelper;
 import org.restlet.ext.jackson.JacksonConverter;
@@ -17,6 +15,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -81,8 +80,7 @@ public class PacoJacksonConverter extends JacksonConverter {
     // Set tag and modification date
     if (object instanceof Experiment) {
       Experiment experiment = (Experiment) object;
-      representation.setModificationDate(experiment.getModificationDate().toDate());
-      representation.setTag(new Tag(Long.toString(experiment.getVersion()), false));
+      representation.setModificationDate(experiment.getModificationDate());
     } else if (object instanceof List<?>) {
       List<?> list = (List<?>) object;
 
@@ -93,16 +91,16 @@ public class PacoJacksonConverter extends JacksonConverter {
           @SuppressWarnings("unchecked")
           List<Experiment> experiments = (List<Experiment>) object;
 
-          DateTime modificationDate = null;
+          Date modificationDate = null;
 
           for (Experiment experiment : experiments) {
             if (modificationDate == null
-                || modificationDate.isBefore(experiment.getModificationDate())) {
+                || modificationDate.before(experiment.getModificationDate())) {
               modificationDate = experiment.getModificationDate();
             }
           }
 
-          representation.setModificationDate(modificationDate.toDate());
+          representation.setModificationDate(modificationDate);
         }
       }
     }

@@ -28,6 +28,7 @@ import com.google.paco.shared.model.Event;
 import com.google.paco.shared.model.Experiment;
 import com.google.paco.shared.model.SignalSchedule;
 
+import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -69,8 +70,7 @@ public class PacoDAO {
    */
   public Long createExperiment(Experiment experiment, String user) {
     experiment.setId(null);
-    experiment.setVersion(1);
-    experiment.setModificationDate(DateTime.now());
+    experiment.setModificationDate(new Date());
     experiment.addObserver(user);
 
     // Create entities
@@ -120,8 +120,7 @@ public class PacoDAO {
    */
   public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
     newExperiment.setId(oldExperiment.getId());
-    newExperiment.setVersion(oldExperiment.getVersion() + 1);
-    newExperiment.setModificationDate(DateTime.now());
+    newExperiment.setModificationDate(new Date());
 
     // Create entities
     Entity newEntity = PacoConverter.toEntity(newExperiment);

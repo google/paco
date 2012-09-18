@@ -64,9 +64,15 @@ public class ObserverExperimentResource extends PacoExperimentResource {
    */
   @Put("json")
   public void update(Experiment newExperiment) {
-    if (newExperiment.getVersion() != experiment.getVersion()) {
-      throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+    if (getConditions().getUnmodifiedSince() == null
+        || getConditions().getUnmodifiedSince().before(experiment.getModificationDate())) {
+      throw new ResourceException(Status.CLIENT_ERROR_PRECONDITION_FAILED);
     }
+
+    /*
+     * if (newExperiment.getVersion() != experiment.getVersion()) { throw new
+     * ResourceException(Status.CLIENT_ERROR_CONFLICT); }
+     */
 
     if (dao.updateExperiment(experiment, newExperiment) == false) {
       throw new ResourceException(Status.SERVER_ERROR_INTERNAL);

@@ -7,8 +7,8 @@ import com.google.common.collect.Sets;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonView;
-import org.joda.time.DateTime;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +32,8 @@ public class Experiment {
   public static String DEFAULT_FEEDBACK = "";
 
   private Long id;
-  private long version;
   @JsonIgnore
-  private DateTime modificationDate;
+  private Date modificationDate;
   @JsonIgnore
   private boolean deleted;
 
@@ -68,8 +67,8 @@ public class Experiment {
     super();
 
     this.id = null;
-    this.version = 0;
     this.deleted = false;
+    this.modificationDate = null;
 
     this.title = DEFAULT_TITLE;
     this.description = DEFAULT_DESCRIPTION;
@@ -107,30 +106,16 @@ public class Experiment {
   }
 
   /**
-   * @param version
+   * @param modificationDate the last modified date
    */
-  public void setVersion(long version) {
-    this.version = version;
-  }
-
-  /**
-   * @return the version
-   */
-  public long getVersion() {
-    return version;
-  }
-
-  /**
-   * @param modificationDate the last modified date time
-   */
-  public void setModificationDate(DateTime modificationDate) {
+  public void setModificationDate(Date modificationDate) {
     this.modificationDate = modificationDate;
   }
 
   /**
-   * @return the last modified datetime
+   * @return the last modified date
    */
-  public DateTime getModificationDate() {
+  public Date getModificationDate() {
     return modificationDate;
   }
 
@@ -482,7 +467,7 @@ public class Experiment {
       return false;
     }
 
-    if (getVersion() != other.getVersion()) {
+    if (getModificationDate() != other.getModificationDate()) {
       return false;
     }
 

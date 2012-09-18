@@ -218,8 +218,7 @@ public class PacoConverter {
     }
 
     experiment.setId(entity.getKey().getId());
-    experiment.setVersion((Long) entity.getProperty("version"));
-    experiment.setModificationDate(new DateTime((Date) entity.getProperty("modificationDate")));
+    experiment.setModificationDate((Date) entity.getProperty("modificationDate"));
     experiment.setDeleted((Boolean) entity.getProperty("deleted"));
     experiment.setPublished((Boolean) entity.getProperty("published"));
     experiment.setObservers((List<String>) entity.getProperty("observers"));
@@ -333,8 +332,7 @@ public class PacoConverter {
       entity = new Entity("experiment");
     }
 
-    entity.setProperty("version", experiment.getVersion());
-    entity.setProperty("modificationDate", experiment.getModificationDate().toDate());
+    entity.setProperty("modificationDate", experiment.getModificationDate());
     entity.setProperty("deleted", experiment.isDeleted());
     entity.setProperty("published", experiment.isPublished());
     entity.setProperty("observers", experiment.getObservers());

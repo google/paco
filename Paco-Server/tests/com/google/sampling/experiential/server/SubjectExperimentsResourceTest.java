@@ -53,7 +53,6 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.addObserver("observer@google.com");
     experiment.addSubject("subject@google.com");
     experiment.setPublished(true);
@@ -88,7 +87,6 @@ public class SubjectExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
 
