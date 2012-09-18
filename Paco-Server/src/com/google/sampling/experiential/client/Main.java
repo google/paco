@@ -137,7 +137,7 @@ public class Main implements EntryPoint, ExperimentListener {
     menuPanel.add(rootMenuBar);
 
     MenuBar joinedSubMenuBar = new MenuBar(true);
-    MenuItem joinedMenuItem = new MenuItem("Joined Experiments", false, joinedSubMenuBar);
+    MenuItem joinedMenuItem = new MenuItem("Current Experiments (Joined)", false, joinedSubMenuBar);
     MenuItem mntmShowAllJoined = new MenuItem("Show All", false, new Command() {
       public void execute() {
         loadJoinedExperiments();
@@ -340,7 +340,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void loadJoinedExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Joined Experiments");
+    setContentTitle("Current Experiments (Personal Data)");
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
@@ -471,6 +471,14 @@ public class Main implements EntryPoint, ExperimentListener {
         Window.Location.assign(
             "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
         break;
+      case ExperimentListener.DATA_CODE:
+        String dataQuery = "";
+        if (joined) {
+          dataQuery = ":who=" + loginInfo.getEmailAddress();
+        }
+        Window.Location.assign("/events?q='experimentId=" + experiment.getId() + dataQuery + "'");
+        break;
+
         
     }
   }

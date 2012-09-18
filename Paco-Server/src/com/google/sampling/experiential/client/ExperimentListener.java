@@ -37,6 +37,7 @@ public interface ExperimentListener {
   public static final int CSV_ANON_CODE = 9;
   public static final int COPY_EXPERIMENT_CODE = 10;
   public static final int ANON_MAPPING_CODE = 11;
+  public static final int DATA_CODE = 12;
 
   void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
 }
