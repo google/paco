@@ -36,10 +36,7 @@ public class SubjectEventsResource extends PacoExperimentResource {
       throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
     }
 
-    event.setSubject(user);
-    event.setExperimentId(experiment.getId());
-
-    Long id = dao.createEvent(event);
+    Long id = dao.createEvent(event, experiment, user);
 
     if (id != null) {
       // FIXME: Should set location to upload url if experiment contain's a blob

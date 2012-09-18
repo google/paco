@@ -23,6 +23,7 @@ import org.restlet.data.ClientInfo;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
+import org.restlet.data.Tag;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
@@ -175,7 +176,23 @@ public class PacoTestHelper {
    * Json HTTP methods
    */
   public static Request get(String uri) {
+    return get(uri, null, null);
+  }
+
+  public static Request get(String uri, DateTime modifiedSince) {
+    return get(uri, modifiedSince, null);
+  }
+
+  public static Request get(String uri, DateTime modifiedSince, String etag) {
     Request request = new Request(Method.GET, "http://localhost" + uri);
+
+    if (modifiedSince != null) {
+      request.getConditions().setModifiedSince(modifiedSince.toDate());
+    }
+
+    if (etag != null) {
+      request.getConditions().setMatch(Lists.newArrayList(new Tag(etag, true)));
+    }
 
     request.getResourceRef().setBaseRef(request.getResourceRef().getHostIdentifier());
     request.setClientInfo(new ClientInfo(MediaType.APPLICATION_JSON));

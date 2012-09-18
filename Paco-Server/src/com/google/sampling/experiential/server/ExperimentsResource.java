@@ -16,6 +16,7 @@ package com.google.sampling.experiential.server;
 
 import com.google.paco.shared.model.Experiment;
 
+import org.joda.time.DateTime;
 import org.restlet.resource.Get;
 
 import java.util.List;
@@ -34,6 +35,12 @@ public class ExperimentsResource extends PacoResource {
    */
   @Get("json")
   public List<Experiment> index() {
-    return dao.getViewedExperiments(user);
+    DateTime modifiedSince = null;
+
+    if (getConditions().getModifiedSince() != null) {
+      modifiedSince = new DateTime(getConditions().getModifiedSince());
+    }
+
+    return dao.getViewedExperiments(user, modifiedSince);
   }
 }

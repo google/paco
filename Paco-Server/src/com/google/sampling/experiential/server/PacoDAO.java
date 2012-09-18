@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.common.collect.Lists;
@@ -29,10 +30,11 @@ import com.google.paco.shared.model.SignalSchedule;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 /**
- * A class to provide CRUD methods for various entities in the appengine
- * datastore. Uses PacoConverter to generically convert between entities and
- * objects in a elegant way.
+ * A class to provide CRUD methods for various entities in the appengine datastore. Uses
+ * PacoConverter to generically convert between entities and objects in a elegant way.
  *
  * @author corycornelius@google.com (Cory Cornelius)
  */
@@ -59,8 +61,8 @@ public class PacoDAO {
   }
 
   /**
-   * Creates an experiment in the datastore. We null out the id and set the
-   * version to 1 since this must be a new entity.
+   * Creates an experiment in the datastore. We null out the id and set the version to 1 since this
+   * must be a new entity.
    *
    * @param experiment the experiment to create
    * @return the id of the experiment or null if there was a problem
@@ -68,6 +70,7 @@ public class PacoDAO {
   public Long createExperiment(Experiment experiment, String user) {
     experiment.setId(null);
     experiment.setVersion(1);
+    experiment.setModificationDate(DateTime.now());
     experiment.addObserver(user);
 
     // Create entities
@@ -97,7 +100,7 @@ public class PacoDAO {
     try {
       entity = ds.get(key);
     } catch (Exception ex) {
-      //ex.printStackTrace();
+      // ex.printStackTrace();
       return null;
     }
 
@@ -107,10 +110,9 @@ public class PacoDAO {
   }
 
   /**
-   * Update the oldExperiment with a newExperiment. This *should* version the
-   * old experiment by saving it as another entity and providing a reference to
-   * the new experiment. For we just overwrite it until a elegant solution can
-   * be found.
+   * Update the oldExperiment with a newExperiment. This *should* version the old experiment by
+   * saving it as another entity and providing a reference to the new experiment. For we just
+   * overwrite it until a elegant solution can be found.
    *
    * @param oldExperiment the old experiment to version
    * @param newExperiment the new experiment to update with
@@ -119,6 +121,7 @@ public class PacoDAO {
   public boolean updateExperiment(Experiment oldExperiment, Experiment newExperiment) {
     newExperiment.setId(oldExperiment.getId());
     newExperiment.setVersion(oldExperiment.getVersion() + 1);
+    newExperiment.setModificationDate(DateTime.now());
 
     // Create entities
     Entity newEntity = PacoConverter.toEntity(newExperiment);
@@ -136,8 +139,8 @@ public class PacoDAO {
   }
 
   /**
-   * Deletes the specified experiment from the datastore. This is a soft-delete
-   * in that the entity is not actually deleted but a flag is set.
+   * Deletes the specified experiment from the datastore. This is a soft-delete in that the entity
+   * is not actually deleted but a flag is set.
    *
    * @param experiment the experiment to delete
    * @return whether the experiment was deleted
@@ -159,8 +162,8 @@ public class PacoDAO {
   }
 
   /**
-   * Adds the specified user as a subject of the specified experiments, optionally
-   * associating a customized signal-schedule if allowed.
+   * Adds the specified user as a subject of the specified experiments, optionally associating a
+   * customized signal-schedule if allowed.
    *
    * @param experiment the experiment to join
    * @param signalSchedule a customized signal-schedule (or null if not customized)
@@ -197,7 +200,7 @@ public class PacoDAO {
   }
 
   public SignalSchedule getSignalSchedule(Experiment experiment, String user) {
-    Query q = new Query("schedule");
+    Query q = new Query("signal_schedule");
 
     q.setFilter(CompositeFilterOperator.and(
         FilterOperator.EQUAL.of("experiment", experiment.getId()),
@@ -240,54 +243,80 @@ public class PacoDAO {
   }
 
   /**
-   * Retrieves a list of experiments that the specified user can view. Note,
-   * that this ignores any soft-deleted and unpublished experiments.
+   * Retrieves a list of experiments that the specified user can view. Note, that this ignores any
+   * soft-deleted and unpublished experiments.
    *
    * @param user a user
    * @return a list of experiments the user can view
    */
-  public List<Experiment> getViewedExperiments(String user) {
+  public List<Experiment> getViewedExperiments(String user, DateTime modifiedSince) {
     Query q = new Query("experiment");
 
     // deleted == false && published == true && (viewers == null || viewers == user)
-    q.setFilter(CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
-        FilterOperator.EQUAL.of("published", true), CompositeFilterOperator.or(
-            FilterOperator.EQUAL.of("viewers", null), FilterOperator.EQUAL.of("viewers", user))));
+    CompositeFilter filter =
+        CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL
+            .of("published", true), CompositeFilterOperator.or(
+            FilterOperator.EQUAL.of("viewers", null), FilterOperator.EQUAL.of("viewers", user)));
+
+    if (modifiedSince != null) {
+      filter =
+          CompositeFilterOperator.and(filter,
+              FilterOperator.GREATER_THAN.of("modificationDate", modifiedSince.toDate()));
+    }
+
+    q.setFilter(filter);
 
     return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   /**
-   * Retrieves a list of experiments that the specified user has joined. Note,
-   * that this ignores any soft-deleted and unpublished experiments.
+   * Retrieves a list of experiments that the specified user has joined. Note, that this ignores any
+   * soft-deleted and unpublished experiments.
    *
    * @param user a user
    * @return a list of experiments the user has joined
    */
-  public List<Experiment> getSubjectedExperiments(String user) {
+  public List<Experiment> getSubjectedExperiments(String user, DateTime modifiedSince) {
     Query q = new Query("experiment");
 
     // deleted == false && published == true && subjects == user
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("published", true),
-        FilterOperator.EQUAL.of("subjects", user)));
+    CompositeFilter filter =
+        CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+            FilterOperator.EQUAL.of("published", true), FilterOperator.EQUAL.of("subjects", user));
+
+    if (modifiedSince != null) {
+      filter =
+          CompositeFilterOperator.and(filter,
+              FilterOperator.GREATER_THAN.of("modificationDate", modifiedSince.toDate()));
+    }
+
+    q.setFilter(filter);
 
     return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
 
   /**
-   * Retrieves a list of experiments that the specified user can observe. Note,
-   * that this ignores any soft-deleted experiments.
+   * Retrieves a list of experiments that the specified user can observe. Note, that this ignores
+   * any soft-deleted experiments.
    *
    * @param user a user
    * @return a list of experiments that the specified user can observe.
    */
-  public List<Experiment> getObservedExperiments(String user) {
+  public List<Experiment> getObservedExperiments(String user, DateTime modifiedSince) {
     Query q = new Query("experiment");
 
     // deleted == false && observers == user
-    q.setFilter(CompositeFilterOperator.and(
-        FilterOperator.EQUAL.of("deleted", false), FilterOperator.EQUAL.of("observers", user)));
+    CompositeFilter filter =
+        CompositeFilterOperator.and(FilterOperator.EQUAL.of("deleted", false),
+            FilterOperator.EQUAL.of("observers", user));
+
+    if (modifiedSince != null) {
+      filter =
+          CompositeFilterOperator.and(filter,
+              FilterOperator.GREATER_THAN.of("modificationDate", modifiedSince.toDate()));
+    }
+
+    q.setFilter(filter);
 
     return PacoConverter.preparedQueryTo(ds.prepare(q), Experiment.class);
   }
@@ -295,10 +324,14 @@ public class PacoDAO {
   /*
    * Events
    */
-  public Long createEvent(Event event) {
+  public Long createEvent(Event event, Experiment experiment, String user) {
     if (event == null || event.hasId() == true) {
       throw new UnsupportedOperationException();
     }
+
+    event.setExperimentId(experiment.getId());
+    event.setSubject(user);
+    event.setCreateTime(DateTime.now());
 
     Entity entity = PacoConverter.toEntity(event);
     Key key = ds.put(entity);
