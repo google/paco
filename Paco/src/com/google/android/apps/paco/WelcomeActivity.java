@@ -49,11 +49,7 @@ public class WelcomeActivity extends Activity {
     findViewById(R.id.welcome_read_later).setOnClickListener(
         new OnClickListener() {
           public void onClick(View v) {
-            if (!IntroHowTo.alreadyShown(WelcomeActivity.this)) {
-              IntroHowTo.showHowto(WelcomeActivity.this);
-            } else {
-              finish();
-            }
+            finish();
           }
         });
 

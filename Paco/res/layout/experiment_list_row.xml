@@ -33,7 +33,7 @@
         android:textSize="5dip" 
         android:text="Data" 
         android:id="@+id/exploreDataExperimentButton"
-        android:layout_width="51px" android:layout_height="wrap_content"
+        android:layout_width="35dp" android:layout_height="wrap_content"
         android:layout_gravity="right" android:minWidth="50dip"
         android:src="@drawable/calculator_lb48" 
         android:background="@null"
@@ -42,17 +42,17 @@
 	    android:textSize="5dip" 
 	    android:text="Schedule" 
 	    android:id="@+id/editExperimentButton"
-		android:layout_width="51px" android:layout_height="wrap_content"
+		android:layout_width="35dp" android:layout_height="wrap_content"
 		android:layout_gravity="right" android:minWidth="50dip"
 		android:src="@drawable/clock48"
 		 android:background="@null"
 		android:contentDescription="Edit Schedule"/>
-	
+		
 	<ImageButton 
 	    android:textSize="5dip" 
 	    android:text="Stop" 
 	    android:id="@+id/quitExperimentButton"
-		android:layout_width="51px" android:layout_height="wrap_content"
+		android:layout_width="35dp" android:layout_height="wrap_content"
 		android:layout_gravity="right" android:minWidth="50dip"
 		android:src="@drawable/stop48"
 		 android:background="@null"
