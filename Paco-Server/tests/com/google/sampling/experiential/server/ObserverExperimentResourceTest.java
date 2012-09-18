@@ -32,7 +32,6 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.addObserver("observer@google.com");
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -42,10 +41,9 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
 
   @Test
-  public void testShowAfterCreateWithVersion() {
+  public void testShowAfterCreateWithId() {
     Experiment experiment = PacoTestHelper.constructExperiment();
 
-    experiment.setVersion(10);
     experiment.setId(100l);
 
     Request request =
@@ -60,7 +58,6 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
 
     Experiment experiment2 = PacoTestHelper.constructExperiment();
     experiment2.setId(1l);
-    experiment2.setVersion(1);
     experiment2.addObserver("observer@google.com");
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
@@ -109,45 +106,53 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
   }
 
   @Test
-  public void testUpdateWithVersionEqualAfterCreate() {
+  public void testUpdateWithModificationDateEqualAfterCreate() {
     PacoTestHelper.createPublishedPublicExperiment();
+    Request request = PacoTestHelper.get("/observer/experiments/1");
+    Response response = new PacoApplication().handle(request);
+    DateTime modificationDate = new DateTime(response.getEntity().getModificationDate());
 
     Experiment experiment = PacoTestHelper.constructExperiment();
-    experiment.setVersion(1);
 
-    Request request =
-        PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
-    Response response = new PacoApplication().handle(request);
+    request = PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
+    request.getConditions().setUnmodifiedSince(modificationDate.toDate());
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
   }
 
   @Test
-  public void testUpdateWithVersionGreaterAfterCreate() {
+  public void testUpdateWithModificationDateGreaterAfterCreate() {
     PacoTestHelper.createPublishedPublicExperiment();
+    Request request = PacoTestHelper.get("/observer/experiments/1");
+    Response response = new PacoApplication().handle(request);
+    DateTime modificationDate = new DateTime(response.getEntity().getModificationDate()).plusSeconds(1);
 
     Experiment experiment = PacoTestHelper.constructExperiment();
-    experiment.setVersion(2);
 
-    Request request =
-        PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
-    Response response = new PacoApplication().handle(request);
+    request = PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
+    request.getConditions().setUnmodifiedSince(modificationDate.toDate());
 
-    assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());
+    response = new PacoApplication().handle(request);
+
+    assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
   }
 
   @Test
-  public void testUpdateWithVersionLessAfterCreate() {
+  public void testUpdateWithModificationDateLessAfterCreate() {
     PacoTestHelper.createPublishedPublicExperiment();
+    Request request = PacoTestHelper.get("/observer/experiments/1");
+    Response response = new PacoApplication().handle(request);
+    DateTime modificationDate =
+        new DateTime(response.getEntity().getModificationDate()).minusSeconds(1);
 
     Experiment experiment = PacoTestHelper.constructExperiment();
-    experiment.setVersion(0);
 
-    Request request =
-        PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
-    Response response = new PacoApplication().handle(request);
+    request = PacoTestHelper.put("/observer/experiments/1", PacoConverter.toJson(experiment));
+    request.getConditions().setUnmodifiedSince(modificationDate.toDate());
+    response = new PacoApplication().handle(request);
 
-    assertEquals(Status.CLIENT_ERROR_CONFLICT, response.getStatus());
+    assertEquals(Status.CLIENT_ERROR_PRECONDITION_FAILED, response.getStatus());
   }
 
   @Test
@@ -157,7 +162,6 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     helper.setEnvEmail("imposter@google.com");
 
     Experiment experiment = PacoTestHelper.constructExperiment();
-    experiment.setVersion(1);
 
     Request request =
         PacoTestHelper.post("/observer/experiments/1", PacoConverter.toJson(experiment));
@@ -213,6 +217,5 @@ public class ObserverExperimentResourceTest extends PacoResourceTest {
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertTrue(modificationDate.isAfter(before));
     assertTrue(modificationDate.isBefore(after));
-    assertEquals("1", response.getEntity().getTag().toString());
   }
 }

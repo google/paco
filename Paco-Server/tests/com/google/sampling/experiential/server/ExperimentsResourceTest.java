@@ -60,7 +60,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
 
@@ -81,7 +80,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
     experiment.addViewer("subject@google.com");
@@ -101,7 +99,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[]", response.getEntityAsText());
@@ -118,7 +115,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[]", response.getEntityAsText());
@@ -146,7 +142,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
 
     Experiment experiment = PacoTestHelper.constructExperiment();
     experiment.setId(1l);
-    experiment.setVersion(1);
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
 
