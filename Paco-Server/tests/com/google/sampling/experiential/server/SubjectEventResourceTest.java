@@ -13,7 +13,6 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SubjectEventResourceTest extends PacoResourceTest {
   /*
@@ -44,10 +43,13 @@ public class SubjectEventResourceTest extends PacoResourceTest {
     PacoTestHelper.joinExperiment();
     PacoTestHelper.addEvent();
 
-    Request request = PacoTestHelper.get("/subject/experiments/1/events/2");
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
-    Event event = PacoTestHelper.constructEvent();
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    request = PacoTestHelper.get("/subject/experiments/1/events/2");
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals(PacoConverter.toJson(event), response.getEntityAsText());

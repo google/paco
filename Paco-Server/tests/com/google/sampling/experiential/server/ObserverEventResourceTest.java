@@ -13,7 +13,6 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class ObserverEventResourceTest extends PacoResourceTest {
   /*
@@ -45,10 +44,13 @@ public class ObserverEventResourceTest extends PacoResourceTest {
     PacoTestHelper.joinExperiment();
     PacoTestHelper.addEvent();
 
-    Request request = PacoTestHelper.get("/observer/experiments/1/events");
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
-    Event event = PacoTestHelper.constructEvent();
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    request = PacoTestHelper.get("/observer/experiments/1/events");
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());
@@ -89,12 +91,15 @@ public class ObserverEventResourceTest extends PacoResourceTest {
     PacoTestHelper.joinExperiment();
     PacoTestHelper.addEvent();
 
-    helper.setEnvEmail("observer@google.com");
-
-    Request request = PacoTestHelper.get("/observer/experiments/1/events");
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
-    Event event = PacoTestHelper.constructEvent();
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    helper.setEnvEmail("observer@google.com");
+
+    request = PacoTestHelper.get("/observer/experiments/1/events");
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());

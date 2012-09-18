@@ -13,10 +13,10 @@
  */
 package com.google.paco.shared.model;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.joda.time.DateTime;
 
 import com.google.common.collect.Maps;
 
@@ -34,11 +34,11 @@ public class Event {
   @JsonIgnore
   private long experimentId;
   @JsonIgnore
-  private DateTime createTime;
+  private Date createTime;
 
-  private long experimentVersion;
-  private DateTime signalTime;
-  private DateTime responseTime;
+  private Date experimentModifcationDate;
+  private Date signalTime;
+  private Date responseTime;
   private Map<String, String> outputs;
 
   /**
@@ -50,8 +50,8 @@ public class Event {
     this.id = null;
     this.subject = null;
     this.experimentId = 0;
-    this.experimentVersion = 0;
-    this.createTime = new DateTime();
+    this.experimentModifcationDate = null;
+    this.createTime = new Date();
     this.signalTime = null;
     this.responseTime = null;
     this.outputs = Maps.newHashMap();
@@ -109,42 +109,42 @@ public class Event {
   /**
    * @return the experimentVersion
    */
-  public Long getExperimentVersion() {
-    return experimentVersion;
+  public Date getExperimentModificationDate() {
+    return experimentModifcationDate;
   }
 
   /**
    * @param experimentVersion the experimentVersion to set
    */
-  public void setExperimentVersion(long experimentVersion) {
-    this.experimentVersion = experimentVersion;
+  public void setExperimentModificationDate(Date experimentModifcationDate) {
+    this.experimentModifcationDate = experimentModifcationDate;
   }
 
   /**
    * @return the createTime
    */
-  public DateTime getCreateTime() {
+  public Date getCreateTime() {
     return createTime;
   }
 
   /**
    * @param createTime the createTime to set
    */
-  public void setCreateTime(DateTime createTime) {
+  public void setCreateTime(Date createTime) {
     this.createTime = createTime;
   }
 
   /**
    * @return the signalTime
    */
-  public DateTime getSignalTime() {
+  public Date getSignalTime() {
     return signalTime;
   }
 
   /**
    * @param signalTime the signalTime to set
    */
-  public void setSignalTime(DateTime signalTime) {
+  public void setSignalTime(Date signalTime) {
     this.signalTime = signalTime;
   }
 
@@ -158,14 +158,14 @@ public class Event {
   /**
    * @return the responseTime
    */
-  public DateTime getResponseTime() {
+  public Date getResponseTime() {
     return responseTime;
   }
 
   /**
    * @param responseTime the responseTime to set
    */
-  public void setResponseTime(DateTime responseTime) {
+  public void setResponseTime(Date responseTime) {
     this.responseTime = responseTime;
   }
 
@@ -220,7 +220,7 @@ public class Event {
       return -1;
     }
 
-    return responseTime.getMillis() - signalTime.getMillis();
+    return responseTime.getTime() - signalTime.getTime();
   }
 
   /**

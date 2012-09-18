@@ -13,7 +13,6 @@ import org.restlet.data.Status;
 
 /**
  * @author corycornelius@google.com (Cory Cornelius)
- *
  */
 public class SubjectEventsResourceTest extends PacoResourceTest {
   /*
@@ -42,10 +41,13 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
     PacoTestHelper.createPublishedPublicExperiment();
     PacoTestHelper.joinExperiment();
 
-    Event event = PacoTestHelper.constructEvent();
-
-    Request request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
+
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
     assertEquals("/subject/experiment/1/events/2", response.getLocationRef().getPath());
@@ -69,10 +71,13 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
 
     helper.setEnvEmail("impostor@google.com");
 
-    Event event = PacoTestHelper.constructEvent();
-
-    Request request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
+
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    request = PacoTestHelper.post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
   }
@@ -94,10 +99,13 @@ public class SubjectEventsResourceTest extends PacoResourceTest {
     PacoTestHelper.joinExperiment();
     PacoTestHelper.addEvent();
 
-    Request request = PacoTestHelper.get("/subject/experiments/1/events");
+    Request request = PacoTestHelper.get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
 
-    Event event = PacoTestHelper.constructEvent();
+    Event event = PacoTestHelper.constructEvent(response.getEntity().getModificationDate());
+
+    request = PacoTestHelper.get("/subject/experiments/1/events");
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());
     assertEquals("[" + PacoConverter.toJson(event) + "]", response.getEntityAsText());

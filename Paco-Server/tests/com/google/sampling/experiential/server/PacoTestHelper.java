@@ -4,6 +4,8 @@ package com.google.sampling.experiential.server;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Date;
+
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.DailySchedule;
 import com.google.paco.shared.model.Event;
@@ -150,22 +152,25 @@ public class PacoTestHelper {
   /*
    * Event
    */
-  public static Event constructEvent() {
+  public static Event constructEvent(Date modificationDate) {
     Event event = new Event();
 
-    event.setExperimentVersion(1);
-    event.setSignalTime(new DateTime(3));
-    event.setResponseTime(new DateTime(13));
+    event.setExperimentModificationDate(modificationDate);
+    event.setSignalTime(new Date(3));
+    event.setResponseTime(new Date(13));
     event.setOutputByKey("test", "value");
 
     return event;
   }
 
   public static String addEvent() {
-    Event event = constructEvent();
-
-    Request request = post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    Request request = get("/subject/experiments/1");
     Response response = new PacoApplication().handle(request);
+
+    Event event = constructEvent(response.getEntity().getModificationDate());
+
+    request = post("/subject/experiments/1/events", PacoConverter.toJson(event));
+    response = new PacoApplication().handle(request);
 
     assertEquals(Status.SUCCESS_CREATED, response.getStatus());
 
