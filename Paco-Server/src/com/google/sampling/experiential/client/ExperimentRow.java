@@ -102,15 +102,15 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.setSpacing(1);
     verticalPanel.add(horizontalPanel_1);
 
-    Button statsButton = new Button("Stats");
-    statsButton.setStyleName("paco-ExperimentRow-Button");
-    statsButton.addClickHandler(new ClickHandler() {
+    Button dataButton = new Button("Data");
+    dataButton.setStyleName("paco-ExperimentRow-Button");
+    dataButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
-        showStats();
+        showData();
       }
     });
-    horizontalPanel_1.add(statsButton);
-    horizontalPanel.setCellVerticalAlignment(statsButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    horizontalPanel_1.add(dataButton);
+    horizontalPanel.setCellVerticalAlignment(dataButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
     Button chartButton = new Button("Charts");
     chartButton.setStyleName("paco-ExperimentRow-Button");
@@ -122,6 +122,16 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(chartButton);
     horizontalPanel.setCellVerticalAlignment(chartButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
+    Button statsButton = new Button("Stats");
+    statsButton.setStyleName("paco-ExperimentRow-Button");
+    statsButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showStats();
+      }
+    });
+    horizontalPanel_1.add(statsButton);
+    horizontalPanel.setCellVerticalAlignment(statsButton, HasVerticalAlignment.ALIGN_MIDDLE);
+
     Button csvButton = new Button("CSV");
     csvButton.setStyleName("paco-ExperimentRow-Button");
     csvButton.addClickHandler(new ClickHandler() {
@@ -132,26 +142,27 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(csvButton);
     horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
     
-    Button csvAnonButton = new Button("AnonCSV");
-    csvAnonButton.setStyleName("paco-ExperimentRow-Button");
-    csvAnonButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showCSVAnon();
-      }
-    });
-    horizontalPanel_1.add(csvAnonButton);
-    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
-
-    Button anonMappingButton = new Button("AnonMap");
-    anonMappingButton.setStyleName("paco-ExperimentRow-Button");
-    anonMappingButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showAnonMapping();
-      }
-    });
-    horizontalPanel_1.add(anonMappingButton);
-    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
-
+    if (!joined) {
+      Button csvAnonButton = new Button("AnonCSV");
+      csvAnonButton.setStyleName("paco-ExperimentRow-Button");
+      csvAnonButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          showCSVAnon();
+        }
+      });
+      horizontalPanel_1.add(csvAnonButton);
+      horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  
+      Button anonMappingButton = new Button("AnonMap");
+      anonMappingButton.setStyleName("paco-ExperimentRow-Button");
+      anonMappingButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          showAnonMapping();
+        }
+      });
+      horizontalPanel_1.add(anonMappingButton);
+      horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    }
     
     Button copyButton = new Button("Copy");
     copyButton.setStyleName("paco-ExperimentRow-Button");
@@ -204,6 +215,10 @@ public class ExperimentRow extends Composite {
 
   protected void softDeleteExperiment() {
     fireExperimentCode(ExperimentListener.SOFT_DELETE_CODE);
+  }
+
+  protected void showData() {
+    fireExperimentCode(ExperimentListener.DATA_CODE);
   }
 
   protected void showCSV() {
