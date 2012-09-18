@@ -96,17 +96,6 @@ public class ExperimentTest {
   }
 
   @Test
-  public void testEqualityWhenVersionSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setVersion(3);
-    experiment2.setVersion(3);
-
-    assertTrue(experiment1.equals(experiment2));
-  }
-
-  @Test
   public void testEqualityWhenDeletedSet() {
     Experiment experiment1 = new Experiment();
     Experiment experiment2 = new Experiment();
@@ -201,17 +190,6 @@ public class ExperimentTest {
 
     experiment1.setConsentForm("consent form1");
     experiment2.setConsentForm("consent form2");
-
-    assertFalse(experiment1.equals(experiment2));
-  }
-
-  @Test
-  public void testInequalityWhenVersionSet() {
-    Experiment experiment1 = new Experiment();
-    Experiment experiment2 = new Experiment();
-
-    experiment1.setVersion(3);
-    experiment2.setVersion(4);
 
     assertFalse(experiment1.equals(experiment2));
   }
