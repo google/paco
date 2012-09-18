@@ -330,7 +330,7 @@ public class PacoDAO {
 
     event.setExperimentId(experiment.getId());
     event.setSubject(user);
-    event.setCreateTime(DateTime.now());
+    event.setCreateTime(new Date());
 
     Entity entity = PacoConverter.toEntity(event);
     Key key = ds.put(entity);

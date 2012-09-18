@@ -7,9 +7,9 @@ import static org.junit.Assert.*;
 import com.google.common.collect.Maps;
 import com.google.paco.shared.model.Event;
 
-import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -27,7 +27,7 @@ public class EventTest {
   @Test
   public void testIstMissedSignalWhenNot() {
     Event response = new Event();
-    response.setResponseTime(new DateTime());
+    response.setResponseTime(new Date());
 
     assertFalse(response.isMissedSignal());
   }
@@ -35,8 +35,8 @@ public class EventTest {
   @Test
   public void testResponseTime() {
     Event response = new Event();
-    response.setSignalTime(new DateTime(3));
-    response.setResponseTime(new DateTime(10));
+    response.setSignalTime(new Date(3));
+    response.setResponseTime(new Date(10));
 
     assertEquals(response.responseTime(), 7l);
   }
@@ -54,7 +54,7 @@ public class EventTest {
   public void testResponseTimeWhenSignalTimeIsNull() {
     Event response = new Event();
     response.setSignalTime(null);
-    response.setResponseTime(new DateTime(3));
+    response.setResponseTime(new Date(3));
 
     assertEquals(response.responseTime(), -1l);
   }
@@ -62,7 +62,7 @@ public class EventTest {
   @Test
   public void testResponseTimeWhenResponseTimeIsNull() {
     Event response = new Event();
-    response.setSignalTime(new DateTime(3));
+    response.setSignalTime(new Date(3));
     response.setResponseTime(null);
 
     assertEquals(response.responseTime(), -1l);
