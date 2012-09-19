@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -41,9 +42,11 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   protected void createLayout() {
     createMainPanel();
     createExperimentHeader();    
-    renderInputItems();    
-    renderSaveButton();
-    renderCancelButton();
+    renderInputItems();  
+    HorizontalPanel buttonPanel = new HorizontalPanel();
+    mainPanel.add(buttonPanel);
+    renderSaveButton(buttonPanel);
+    renderCancelButton(buttonPanel);
   }
 
   protected abstract void renderInputItems();
@@ -60,9 +63,9 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     initWidget(mainPanel);
   }
 
-  protected void renderSaveButton() {
+  protected void renderSaveButton(HorizontalPanel buttonPanel) {
     Button saveButton = new Button("Save");
-    mainPanel.add(saveButton);
+    buttonPanel.add(saveButton);
     saveButton.addClickHandler(new ClickHandler() {
       
       @Override
@@ -72,9 +75,9 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     });    
   }
 
-  private void renderCancelButton() {
+  private void renderCancelButton(HorizontalPanel buttonPanel) {
     Button cancelButton = new Button("Cancel");
-    mainPanel.add(cancelButton);
+    buttonPanel.add(cancelButton);
     cancelButton.addClickHandler(new ClickHandler() {
       
       @Override
