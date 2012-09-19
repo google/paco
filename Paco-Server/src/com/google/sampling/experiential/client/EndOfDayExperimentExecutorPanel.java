@@ -23,7 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.InputDAO;
@@ -48,18 +50,25 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
     super(experimentListener, experiment, mapService);
     this.eventList = eventList;
     this.referredExperiment = referredExperiment;
+    createLayout();
   }
+
 
   protected void createExperimentHeader() {
     super.createExperimentHeader();
-    mainPanel.add(new Label(experiment.getDescription()));
+    Label descriptionLabel = new Label(experiment.getDescription());    
+    mainPanel.add(descriptionLabel);
+    mainPanel.add(new HTML("<br/>"));
   }
 
   @Override
   protected void renderInputItems() {
     for (EventDAO eventDAO : this.eventList) {
-      mainPanel.add(renderEventPanel(eventDAO));
-      renderInputsPanelForEvent(this.experiment, eventDAO);
+      VerticalPanel itemPanel = new VerticalPanel();
+      mainPanel.add(itemPanel);
+      itemPanel.add(renderEventPanel(eventDAO));
+      renderInputsPanelForEvent(itemPanel, this.experiment, eventDAO);
+      mainPanel.add(new HTML("<br/>"));
     }
   }
 
@@ -78,11 +87,11 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
     return new EventPanel(this, eventDAO, inputsByName);
   }
 
-  private void renderInputsPanelForEvent(ExperimentDAO experiment, EventDAO eventDAO) {
+  private void renderInputsPanelForEvent(VerticalPanel itemPanel, ExperimentDAO experiment, EventDAO eventDAO) {
     InputDAO[] inputs = experiment.getInputs();
     for (int i = 0; i < inputs.length; i++) {
       EndOfDayInputExecutorPanel inputsPanel = new EndOfDayInputExecutorPanel(inputs[i], eventDAO);
-      mainPanel.add(inputsPanel);
+      itemPanel.add(inputsPanel);
       inputsPanelsList.add(inputsPanel);
     }
   }

@@ -101,4 +101,20 @@ public class ExperimentRetriever {
     
   }
 
+  public void setReferredExperiment(Long referringExperimentId, Long referencedExperimentId) {
+    if (referringExperimentId == null || referencedExperimentId == null) {
+      throw new IllegalArgumentException("Nust have two valid ids for referencing");
+    }
+    ExperimentReference ref = new ExperimentReference(referringExperimentId, referencedExperimentId);
+    PersistenceManager pm = null;
+    try {
+        pm = PMF.get().getPersistenceManager();
+        pm.makePersistent(ref);
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+  }
+
 }

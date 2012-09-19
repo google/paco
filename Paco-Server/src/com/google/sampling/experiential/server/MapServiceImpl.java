@@ -506,4 +506,10 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     return null;
   }
+
+  @Override
+  public void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId) {
+    ExperimentRetriever.getInstance().setReferredExperiment(referringExperimentId, referencedExperimentId);
+    
+  }
 }

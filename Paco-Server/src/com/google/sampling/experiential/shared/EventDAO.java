@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+
 /**
  * 
  * Dumb data object for passing the event data to the
@@ -231,10 +233,11 @@ public class EventDAO implements Serializable {
   }
 
   public String getIdFromTimes() {
+    DateTimeFormat df = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
     if (getScheduledTime() != null) {
-      return Long.toString(getScheduledTime().getTime());
+      return df.format(getScheduledTime());
     } else/* if (getResponseTime() != null) */{
-      return Long.toString(getResponseTime().getTime());
+      return df.format(getResponseTime());
     } // one of those two has to exist
   }
 

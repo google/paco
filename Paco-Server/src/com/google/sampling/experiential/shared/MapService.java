@@ -51,4 +51,6 @@ public interface MapService extends RemoteService {
   void saveEvent(EventDAO event);
 
   ExperimentDAO referencedExperiment(Long referencedExperimentId);
+
+  void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
 }

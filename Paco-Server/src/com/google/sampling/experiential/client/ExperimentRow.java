@@ -225,6 +225,22 @@ public class ExperimentRow extends Composite {
       horizontalPanel.setCellVerticalAlignment(qrCodeButton, HasVerticalAlignment.ALIGN_MIDDLE);
     }
 
+    if (!joined) {
+      Button refButton = new Button("EOD Ref");
+      refButton.setStyleName("paco-ExperimentRow-Button");
+      refButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          showRefDialog();
+        }
+      });
+      horizontalPanel_1.add(refButton);
+      horizontalPanel.setCellVerticalAlignment(refButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    }
+
+  }
+
+  protected void showRefDialog() {
+    fireExperimentCode(ExperimentListener.SHOW_REF_CODE);    
   }
 
   protected void showQRCode() {

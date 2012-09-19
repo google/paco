@@ -36,7 +36,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     this.mapService = mapService;
     this.experimentListener = experimentListener;
     inputsPanelsList = new ArrayList<InputExecutorPanel>();
-    createLayout();
+    //createLayout();
   }
 
   protected void createLayout() {
@@ -57,7 +57,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     mainPanel.add(label);
   }
 
-  private void createMainPanel() {
+  protected void createMainPanel() {
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -75,7 +75,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     });    
   }
 
-  private void renderCancelButton(HorizontalPanel buttonPanel) {
+  protected void renderCancelButton(HorizontalPanel buttonPanel) {
     Button cancelButton = new Button("Cancel");
     buttonPanel.add(cancelButton);
     cancelButton.addClickHandler(new ClickHandler() {
