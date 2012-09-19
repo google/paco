@@ -8,6 +8,7 @@ public class ExperimentExecutorPanel extends AbstractExperimentExecutorPanel {
 
   public ExperimentExecutorPanel(ExperimentListener listener, MapServiceAsync mapService, ExperimentDAO experiment) {
     super(listener, experiment,mapService);
+    createLayout();
   }
 
   protected void renderInputItems() {

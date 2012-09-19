@@ -5,14 +5,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.Base64;
-
 import com.google.common.collect.Lists;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -32,6 +31,7 @@ public class EventPanel extends Composite {
     
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
+    mainPanel.setBorderWidth(1);
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     initWidget(mainPanel);
     //mainPanel.setWidth("258px");
@@ -41,12 +41,29 @@ public class EventPanel extends Composite {
   }
 
   private void renderEventData(EventDAO eventDAO) {
-    mainPanel.add(new Label("Scheduled Time: " + eventDAO.getScheduledTime()));
-    mainPanel.add(new Label("Response Time: " + eventDAO.getResponseTime()));
+    HorizontalPanel stPanel = new HorizontalPanel();
+    mainPanel.add(stPanel);
+    
+    Label scheduledTimeLabel = new Label("Scheduled Time: ");
+    scheduledTimeLabel.setStyleName("keyLabel");
+    stPanel.add(scheduledTimeLabel);
+    Label timeLabel = new Label(eventDAO.getScheduledTime() != null ? eventDAO.getScheduledTime().toString() : "");
+    stPanel.add(timeLabel);
+    
+    HorizontalPanel rtPanel = new HorizontalPanel();
+    mainPanel.add(rtPanel);
+
+    Label responseTimeLabel = new Label("Response Time: ");
+    responseTimeLabel.setStyleName("keyLabel");
+    rtPanel.add(responseTimeLabel);
+    Label responseTimeValueLabel = new Label(eventDAO.getResponseTime() != null ? eventDAO.getResponseTime().toString() : null);
+    rtPanel.add(responseTimeValueLabel);
   }
 
   private void renderResponseValues() {
-    mainPanel.add(new Label("Responses: "));
+    Label responseLabel = new Label("Responses: ");
+    responseLabel.setStyleName("keyLabel");
+    mainPanel.add(responseLabel);
     
     Map<String, String> whatMap = event.getWhat();
     Set<String> keys = whatMap.keySet();
@@ -55,7 +72,8 @@ public class EventPanel extends Composite {
       Collections.sort(keysAsList);
       Collections.reverse(keysAsList);
       
-      Grid grid = new Grid();
+      Grid grid = new Grid(keysAsList.size(), 2);
+      //grid.setBorderWidth(1);
       mainPanel.add(grid);
       int row = 0;
       
@@ -63,18 +81,29 @@ public class EventPanel extends Composite {
         String key = keysAsList.get(i);        
         String value = whatMap.get(key);
         InputDAO input = inputs.get(key);
-        if (value == null || value.length() == 0) {
+        if (input == null) {
+          addColumnToGrid(grid, i, "", key);
+        } else if (value == null || value.length() == 0) {
           value = "";
-        } else if (input.getResponseType().equals(InputDAO.PHOTO) && !value.equals("==")) {
+          addColumnToGrid(grid, i, value, input.getText());
+        } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && !value.equals("==")) {
             value = "<img height=\"375\" src=\"data:image/jpg;base64," + value + "\">";
+            addColumnToGrid(grid, i, value, input.getText());
         } else {
           value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
+          addColumnToGrid(grid, i, value, input.getText());
         }
-        SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(input.getText()).toSafeHtml();
-        grid.setHTML(0, i, questionText);
-        grid.setHTML(1, i, value);
+        
       }
     }
+  }
+
+  private void addColumnToGrid(Grid grid, int i, String value, String text) {
+    SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(text).toSafeHtml();
+    Label label = new Label(questionText.asString());
+    label.setStyleName("keyLabel");
+    grid.setWidget(i, 0, label);
+    grid.setHTML(i, 1, value);
   }
 
 }

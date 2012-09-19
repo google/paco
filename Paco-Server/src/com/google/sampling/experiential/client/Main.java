@@ -23,10 +23,14 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -38,6 +42,7 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
@@ -509,8 +514,64 @@ public class Main implements EntryPoint, ExperimentListener {
         Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
                     "_blank","");
         break;   
+      case ExperimentListener.SHOW_REF_CODE:
+        contentPanel.clear();
+        showExperimentReferencePanel(experiment);
+        break;   
         
     }
+  }
+
+  class ExperimentReferenceDialog extends DialogBox {
+
+    private Long referringExperimentId;
+
+    public ExperimentReferenceDialog(Long referringId) {
+      super();
+      this.referringExperimentId = referringId;
+      setText("Enter Id of Referenced Experiment");
+      VerticalPanel referenceDialogPanel = new VerticalPanel();
+      Label label = new Label("Enter id of references Experiment");
+      referenceDialogPanel.add(label);
+      final TextBox id = new TextBox();
+      referenceDialogPanel.add(id);
+      Button ok = new Button("OK");
+      referenceDialogPanel.add(ok);
+      ok.addClickHandler(new ClickHandler() {
+
+        @Override
+        public void onClick(ClickEvent event) {
+          String value = id.getValue();
+          Long referencedExperimentId = null;
+          if (value != null) {
+            referencedExperimentId = Long.parseLong(value);
+            AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+              @Override
+              public void onFailure(Throwable caught) {
+                Window.alert("Could not make reference between experiments. " + caught.getMessage());                
+              }
+
+              @Override
+              public void onSuccess(Void result) {
+                Window.alert("Success.");                
+              }
+              
+            };
+            mapService.setReferencedExperiment(referringExperimentId, referencedExperimentId, callback);
+          }
+          ExperimentReferenceDialog.this.hide();
+          
+        }
+      });
+      setWidget(referenceDialogPanel);
+    }
+    
+  }
+  
+  private void showExperimentReferencePanel(ExperimentDAO experiment) {
+    statusLabel.setVisible(true);
+    new ExperimentReferenceDialog(experiment.getId()).show();
   }
 
   private void copyExperiment(ExperimentDAO experiment) {

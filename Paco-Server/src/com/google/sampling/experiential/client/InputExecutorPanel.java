@@ -96,16 +96,27 @@ public class InputExecutorPanel extends Composite {
 
   private void renderLikert() {
     likerts = new ArrayList<RadioButton>();
+    String groupName = "likert_choices_"+Long.toString(System.currentTimeMillis());
     for (int i = 0; i < input.getLikertSteps(); i++) {
       String name = "";
       if (i == input.getLikertSteps() - 1 && input.getRightSideLabel() != null) {
         name = input.getRightSideLabel();
       } else if (i == 0 && input.getLeftSideLabel() != null) {
-        name = input.getLeftSideLabel();
+        Label leftLabel = new Label(input.getLeftSideLabel());
+        leftLabel.setStyleName("keyLabel");
+        lowerLinePanel.add(leftLabel);
       }
-      RadioButton radio = new RadioButton("likert_choices", name);
+      
+      RadioButton radio = new RadioButton(groupName, "");     
       likerts.add(radio);
       lowerLinePanel.add(radio);
+      
+      if (i == input.getLikertSteps() - 1 && input.getRightSideLabel() != null) {
+        Label rightLabel = new Label(input.getRightSideLabel());
+        rightLabel.setStyleName("keyLabel");
+        lowerLinePanel.add(rightLabel);
+      }
+      
     }
   }
 
@@ -124,6 +135,7 @@ public class InputExecutorPanel extends Composite {
 
   private void createTextPrompt() {
     Label label = new Label(input.getText());
+    label.setStyleName("keyLabel");
     upperLinePanel.add(label);    
   }
 

@@ -19,6 +19,11 @@ public class ExperimentReference {
   @Persistent
   private Long referredId;
 
+  public ExperimentReference(Long referringExperimentId, Long referencedExperimentId) {
+    this.referringId = referringExperimentId;
+    this.referredId = referencedExperimentId;
+  }
+
   public Long getReferringExperimentId() {
     return referringId;  
   }

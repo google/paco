@@ -66,4 +66,6 @@ public interface MapServiceAsync {
 
   void referencedExperiment(Long referencedExperimentId, AsyncCallback<ExperimentDAO> referencedCheckCallback);
 
+  void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId, AsyncCallback<Void> callback);
+
 }
