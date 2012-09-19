@@ -442,8 +442,8 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           joinedStr = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
+        Window.open(
+            "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'", "_blank","");
         break;
       case ExperimentListener.DELETE_CODE:
         if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
@@ -471,8 +471,8 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           whoStr = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+        Window.open(
+            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'","_blank","");
         break;
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
@@ -484,15 +484,15 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           who2Str = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+        Window.open(
+            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'", "_blank","");
         break;
       case ExperimentListener.DATA_CODE:
         String dataQuery = "";
         if (joined) {
           dataQuery = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign("/events?q='experimentId=" + experiment.getId() + dataQuery + "'");
+        Window.open("/events?q='experimentId=" + experiment.getId() + dataQuery + "'", "_blank", "");
         break;   
       case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
@@ -503,6 +503,11 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
         showExperimentExecutorPanel(experiment, joined);
+        break;   
+      case ExperimentListener.SHOW_QR_CODE:
+        String experimentId = "0000"+Long.toString(experiment.getId());
+        Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
+                    "_blank","");
         break;   
         
     }

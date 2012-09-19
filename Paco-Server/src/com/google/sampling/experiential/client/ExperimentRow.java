@@ -212,6 +212,24 @@ public class ExperimentRow extends Composite {
       horizontalPanel_1.add(deleteButton);
       horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
     }
+    
+    if (!joined) {
+      Button qrCodeButton = new Button("QR Code");
+      qrCodeButton.setStyleName("paco-ExperimentRow-Button");
+      qrCodeButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          showQRCode();
+        }
+      });
+      horizontalPanel_1.add(qrCodeButton);
+      horizontalPanel.setCellVerticalAlignment(qrCodeButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    }
+
+  }
+
+  protected void showQRCode() {
+    fireExperimentCode(ExperimentListener.SHOW_QR_CODE);
+    
   }
 
   protected void showExecutorPanel() {
