@@ -8,6 +8,7 @@ import javax.jdo.Query;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
@@ -66,6 +67,38 @@ public class ExperimentRetriever {
       }
     }
     return null;
+  }
+
+  public Experiment getReferredExperiment(Long referringExperimentId) {
+    PersistenceManager pm = null;
+    try {
+      if (referringExperimentId != null) {
+        pm = PMF.get().getPersistenceManager();
+        javax.jdo.Query q = pm.newQuery(ExperimentReference.class);
+        q.setFilter("referringId == idParam");
+        q.declareParameters("Long idParam");
+        List<ExperimentReference> experimentRefs = (List<ExperimentReference>) q.execute(Long.valueOf(referringExperimentId));
+        if (experimentRefs.size() == 1) {
+          ExperimentReference experimentRef = experimentRefs.get(0);
+          return getExperiment(Long.toString(experimentRef.getReferencedExperimentId()));
+        } else if (experimentRefs.size() > 1) {
+          String message = "There are multiple experiments references for referring id: " + referringExperimentId;
+          log.info(message);
+          //throw new IllegalArgumentException(message);
+        } else if (experimentRefs.size() < 1) {
+          String message = "There are no experiments references for referring id: " + referringExperimentId;
+          log.info(message);
+          //throw new IllegalArgumentException(message);
+        }
+      }
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+    return null;
+
+    
   }
 
 }

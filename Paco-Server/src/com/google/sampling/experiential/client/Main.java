@@ -493,8 +493,17 @@ public class Main implements EntryPoint, ExperimentListener {
           dataQuery = ":who=" + loginInfo.getEmailAddress();
         }
         Window.Location.assign("/events?q='experimentId=" + experiment.getId() + dataQuery + "'");
+        break;   
+      case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
+        contentPanel.clear();
         break;
-
+      case ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE:
+        contentPanel.clear();
+        break;     
+      case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
+        contentPanel.clear();
+        showExperimentExecutorPanel(experiment, joined);
+        break;   
         
     }
   }
@@ -634,6 +643,67 @@ public class Main implements EntryPoint, ExperimentListener {
     // if the response type is number (likert, etc.) - simple connected line
     // else if the response type is open text - word cloud? or skip - yes!
 
+  }
+
+  private void showExperimentExecutorPanel(final ExperimentDAO experiment, final boolean joined) {
+    statusLabel.setVisible(true);
+    
+    AsyncCallback<ExperimentDAO> referencedCheckCallback = new AsyncCallback<ExperimentDAO>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        //Window.alert("Could not find referenced experiment");
+        statusLabel.setVisible(false);
+        showRegularExperimentEntry(experiment, joined);
+      }
+
+      @Override
+      public void onSuccess(ExperimentDAO referringExperiment) {
+        statusLabel.setVisible(false);
+        if (referringExperiment == null) {
+          showRegularExperimentEntry(experiment, joined);
+        } else {
+          showReferredExperimentExecutor(experiment, referringExperiment);
+        }
+      }
+    };
+    mapService.referencedExperiment(experiment.getId(), referencedCheckCallback);
+
+  }
+
+  protected void showReferredExperimentExecutor(final ExperimentDAO experiment, final ExperimentDAO referencedExperiment) {
+    statusLabel.setVisible(true);
+    AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        Window.alert("Could not retrieve events from referenced experiment.<br/>" + caught.getMessage());
+        statusLabel.setVisible(false);
+
+      }
+
+      @Override
+      public void onSuccess(List<EventDAO> eventList) {
+        if (eventList.size() == 0) {
+          Window.alert("No events found for referencing.");
+          statusLabel.setVisible(false);
+          return;
+        }
+        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, experiment, eventList, referencedExperiment);
+        contentPanel.add(ep);
+        statusLabel.setVisible(false);
+      }
+    };
+    String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress();
+    mapService.mapWithTags(queryText, callback);
+    
+  }
+
+  protected void showRegularExperimentEntry(ExperimentDAO experiment, boolean joined) {
+    statusLabel.setVisible(true);
+    AbstractExperimentExecutorPanel ep = new ExperimentExecutorPanel(this, mapService, experiment);
+    contentPanel.add(ep);
+    statusLabel.setVisible(false);
   }
 
   private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {

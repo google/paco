@@ -32,6 +32,8 @@ import java.util.Map;
 public class EventDAO implements Serializable {
 
   private Long id;
+  
+  private Long experimentId;
 
   private String who;
 
@@ -80,7 +82,7 @@ public class EventDAO implements Serializable {
 
   public EventDAO(String who, Date when, String experimentName, String lat, String lon, 
       String appId, String pacoVersion, Map<String, String> map, boolean shared, Date responseTime, 
-      Date scheduledTime, String[] blobs) {
+      Date scheduledTime, String[] blobs, Long experimentId) {
     super();
     this.who = who;
     this.lat = lat;
@@ -226,6 +228,22 @@ public class EventDAO implements Serializable {
 
   public void setBlobs(String[] blobs) {
     this.blobs = blobs;
+  }
+
+  public String getIdFromTimes() {
+    if (getScheduledTime() != null) {
+      return Long.toString(getScheduledTime().getTime());
+    } else/* if (getResponseTime() != null) */{
+      return Long.toString(getResponseTime().getTime());
+    } // one of those two has to exist
+  }
+
+  public Long getExperimentId() {
+    return experimentId;
+  }
+  
+  public void setExperimentId(Long id) {
+    this.experimentId = id;
   }
   
   

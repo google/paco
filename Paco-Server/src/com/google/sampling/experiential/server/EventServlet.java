@@ -16,29 +16,21 @@
  */
 package com.google.sampling.experiential.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -46,12 +38,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -60,11 +49,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.appengine.api.blobstore.BlobstoreService;
@@ -73,18 +58,12 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gwt.libideas.logging.shared.Log;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -202,7 +181,7 @@ public class EventServlet extends HttpServlet {
         }
         eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
                                    event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
-                                   event.getResponseTime(), event.getScheduledTime(), null));
+                                   event.getResponseTime(), event.getScheduledTime(), null, Long.parseLong(event.getExperimentId())));
       }
       return mapper.writeValueAsString(eventDAOs);
     } catch (JsonGenerationException e) {
@@ -364,7 +343,7 @@ public class EventServlet extends HttpServlet {
               value = "\"" + value + "\"";
             }
             out.append("<td>");
-            out.append(key).append(" = ").append(value);
+            out.append(key).append(" = ").append(StringEscapeUtils.escapeHtml4(value));
             out.append("</td>");
           }
         }
