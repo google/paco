@@ -101,8 +101,21 @@ public class ExperimentRow extends Composite {
     HorizontalPanel horizontalPanel_1 = new HorizontalPanel();
     horizontalPanel_1.setSpacing(1);
     verticalPanel.add(horizontalPanel_1);
-
-    Button dataButton = new Button("Data");
+//
+    if (joined) {
+      Button enterButton = new Button("Respond");
+      enterButton.setStyleName("paco-ExperimentRow-Button");
+      enterButton.addClickHandler(new ClickHandler() {
+        public void onClick(ClickEvent event) {
+          showExecutorPanel();
+        }
+      });
+      horizontalPanel_1.add(enterButton);
+      horizontalPanel.setCellVerticalAlignment(enterButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    }
+    
+    //
+    Button dataButton = new Button("View Data");
     dataButton.setStyleName("paco-ExperimentRow-Button");
     dataButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -199,6 +212,11 @@ public class ExperimentRow extends Composite {
       horizontalPanel_1.add(deleteButton);
       horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
     }
+  }
+
+  protected void showExecutorPanel() {
+    fireExperimentCode(ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE);
+    
   }
 
   protected void showAnonMapping() {

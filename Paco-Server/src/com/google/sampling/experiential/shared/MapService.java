@@ -47,4 +47,8 @@ public interface MapService extends RemoteService {
   ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
   
   List<ExperimentDAO> getUsersJoinedExperiments();
+
+  void saveEvent(EventDAO event);
+
+  ExperimentDAO referencedExperiment(Long referencedExperimentId);
 }

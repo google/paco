@@ -85,7 +85,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
           event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs())));
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId())));
     }
     return eventDAOs;
   }
@@ -462,5 +462,48 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       ids.add("'" + experimentId +"'");
     }
     return ids;
+  }
+
+  @Override
+  public void saveEvent(EventDAO event) {
+    String who = event.getWho();
+    Long experimentId = event.getExperimentId();
+    Date scheduledTimeDate = event.getScheduledTime();
+    Date responseTimeDate = event.getResponseTime();
+    Date whenDate = new Date();
+    Set<What> whats = parseWhats(event.getWhat());
+    User loggedInWho = getWhoFromLogin();    
+    if (loggedInWho == null || (who != null && !who.isEmpty() 
+        && !loggedInWho.getEmail().equals(who))) {
+      throw new IllegalArgumentException("Who passed in is not the logged in user!");
+    }
+    
+    
+    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
+    
+    if (experiment == null) {
+      throw new IllegalArgumentException("Must post to an existing experiment!");
+    }
+    
+    if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail())) {
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+    }
+    
+    
+    try {
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
+          "1", whats, event.isShared(), Long.toString(experimentId), null, responseTimeDate, scheduledTimeDate, null);
+    } catch (Throwable e) {
+      throw new IllegalArgumentException("Could not post Event: ", e);
+    }
+  }
+
+  @Override
+  public ExperimentDAO referencedExperiment(Long referringExperimentId) {
+    Experiment experiment = ExperimentRetriever.getInstance().getReferredExperiment(referringExperimentId);
+    if (experiment != null) {
+      return DAOConverter.createDAO(experiment);
+    }
+    return null;
   }
 }

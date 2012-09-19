@@ -62,4 +62,8 @@ public interface MapServiceAsync {
   
   void getUsersJoinedExperiments(AsyncCallback<List<ExperimentDAO>> callback);
 
+  void saveEvent(EventDAO event, AsyncCallback<Void> asyncCallback);
+
+  void referencedExperiment(Long referencedExperimentId, AsyncCallback<ExperimentDAO> referencedCheckCallback);
+
 }

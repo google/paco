@@ -38,6 +38,9 @@ public interface ExperimentListener {
   public static final int COPY_EXPERIMENT_CODE = 10;
   public static final int ANON_MAPPING_CODE = 11;
   public static final int DATA_CODE = 12;
+  public static final int EXPERIMENT_RESPONSE_CODE = 13;
+  public static final int EXPERIMENT_RESPONSE_CANCELED_CODE = 14;
+  public static final int SHOW_EXPERIMENT_RESPONSE_CODE = 15;
 
   void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
 }
