@@ -104,17 +104,6 @@ public class WeeklySchedule extends Schedule {
   }
 
   @Override
-  public LocalDate getStartDate() {
-    LocalDate startDate = super.getStartDate();
-
-    while (!isValidDate(startDate)) {
-      startDate = startDate.plusDays(1);
-    }
-
-    return startDate;
-  }
-
-  @Override
   public boolean isValid() {
     return (super.isValid() && getDayRepeat() > 0);
   }
@@ -133,7 +122,7 @@ public class WeeklySchedule extends Schedule {
     return iterator(); // we don't care about randomness
   }
 
-  private boolean isValidDate(LocalDate date) {
+  protected boolean isValidDate(LocalDate date) {
     switch (date.getDayOfWeek()) {
       case DateTimeConstants.MONDAY:
         return onDay(Day.Monday);
@@ -187,7 +176,8 @@ public class WeeklySchedule extends Schedule {
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
-    sb.append("Every");
+    sb.append(super.toString());
+    sb.append(" every");
     if (every < 2) {
       sb.append(" week");
     } else {
@@ -200,18 +190,7 @@ public class WeeklySchedule extends Schedule {
       }
     }
     sb.delete(sb.length() - 1, sb.length()); // remove comma
-    sb.append(" from");
-    if (hasStartDate()) {
-      sb.append(" ").append(startDate);
-    } else {
-      sb.append(" now");
-    }
-    sb.append(" to");
-    if (hasEndDate()) {
-      sb.append(" ").append(endDate);
-    } else {
-      sb.append(" forever");
-    }
+
     return sb.toString();
   }
 }

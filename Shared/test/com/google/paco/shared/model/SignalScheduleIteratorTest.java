@@ -83,7 +83,7 @@ public class SignalScheduleIteratorTest {
     iterator.advanceTo(new DateTime(2012, 9, 2, 12, 0, 0));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new DateTime(2012, 9, 3, 12, 0, 0), iterator.next());
+    assertEquals(new DateTime(2012, 9, 2, 12, 0, 0), iterator.next());
   }
 
   @Test
@@ -92,7 +92,7 @@ public class SignalScheduleIteratorTest {
     iterator.advanceTo(new DateTime(2012, 9, 2, 18, 0, 0));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new DateTime(2012, 9, 3, 12, 0, 0), iterator.next());
+    assertEquals(new DateTime(2012, 9, 2, 12, 0, 0), iterator.next());
   }
 
   @Test
@@ -167,7 +167,7 @@ public class SignalScheduleIteratorTest {
     iterator.advanceTo(new DateTime(2012, 9, 2, 12, 0, 0));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new DateTime(2012, 9, 3, 9, 8, 0), iterator.next());
+    assertEquals(new DateTime(2012, 9, 2, 9, 8, 0), iterator.next());
   }
 
   @Test
@@ -176,7 +176,7 @@ public class SignalScheduleIteratorTest {
     iterator.advanceTo(new DateTime(2012, 9, 2, 18, 0, 0));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new DateTime(2012, 9, 3, 9, 8, 0), iterator.next());
+    assertEquals(new DateTime(2012, 9, 2, 9, 8, 0), iterator.next());
   }
 
   @Test

@@ -23,6 +23,10 @@ public class DailyScheduleIterator extends ScheduleIterator {
     sb.append("FREQ=").append("DAILY").append(";");
     sb.append("INTERVAL=").append(schedule.getEvery()).append(";");
 
+    if (!schedule.shouldIncludeWeekends()) {
+      sb.append("BYDAY=").append("MO,TU,WE,TH,FR").append(";");
+    }
+
     if (schedule.hasEndDate()) {
       sb.append("UNTIL=").append(schedule.getEndDate().toString("yyyyMMdd")).append(";");
     }

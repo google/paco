@@ -127,13 +127,6 @@ public class SignalSchedule {
   }
 
   /**
-   * @return whether the signal-schedule has a join date
-   */
-  public boolean hasJoinDate() {
-    return (joinDate != null);
-  }
-
-  /**
    * @return whether the signalSchedule exists
    */
   public boolean hasSignalSchedule() {

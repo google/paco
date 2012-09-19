@@ -30,12 +30,15 @@ public class SignalScheduleIterator implements Iterator<DateTime> {
     schedule.advanceTo(newStart.toLocalDate());
     signal.advanceTo(newStart.toLocalTime());
 
-    if (!signal.hasNext()) {
-      schedule.next();
+    if (!signal.hasNext() && schedule.hasNext()) {
+      date = schedule.next();
 
-      if (schedule.hasNext()) {
-        signal.advanceTo(new LocalTime(0, 0, 0));
+      // If the start we desire isn't before the current date, then we want the next date
+      if (!newStart.toLocalDate().isBefore(date)) {
+        date = null;
       }
+
+      signal.advanceTo(new LocalTime(0, 0, 0));
     }
   }
 
@@ -60,6 +63,7 @@ public class SignalScheduleIterator implements Iterator<DateTime> {
 
     if (!signal.hasNext()) {
       signal.advanceTo(new LocalTime(0, 0, 0));
+
       if (schedule.hasNext()) {
         date = schedule.next();
       }

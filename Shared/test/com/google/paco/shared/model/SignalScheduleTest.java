@@ -186,8 +186,6 @@ public class SignalScheduleTest {
     signalSchedule.setSchedule(schedule);
     signalSchedule.setSignal(signal);
 
-    System.out.println(signalSchedule.toString());
-
     assertNotNull(signalSchedule.toString());
   }
 
@@ -209,8 +207,6 @@ public class SignalScheduleTest {
     signalSchedule.setSchedule(schedule);
     signalSchedule.setSignal(signal);
 
-    System.out.println(signalSchedule.toString());
-
     assertNotNull(signalSchedule.toString());
   }
 
@@ -230,8 +226,6 @@ public class SignalScheduleTest {
     SignalSchedule signalSchedule = new SignalSchedule();
     signalSchedule.setSchedule(schedule);
     signalSchedule.setSignal(signal);
-
-    System.out.println(signalSchedule.toString());
 
     assertNotNull(signalSchedule.toString());
   }

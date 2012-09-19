@@ -22,7 +22,7 @@ public class MonthlyScheduleIterator extends ScheduleIterator {
 
     sb.append("RRULE:");
     sb.append("WKST=").append("SU").append(";");
-    sb.append("FREQ=").append("WEEKLY").append(";");
+    sb.append("FREQ=").append("MONTHLY").append(";");
     sb.append("INTERVAL=").append(schedule.getEvery()).append(";");
 
     if (schedule.byDay()) {
