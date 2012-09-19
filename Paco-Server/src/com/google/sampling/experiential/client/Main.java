@@ -529,14 +529,17 @@ public class Main implements EntryPoint, ExperimentListener {
     public ExperimentReferenceDialog(Long referringId) {
       super();
       this.referringExperimentId = referringId;
-      setText("Enter Id of Referenced Experiment");
+      setText("Reference an Experiment from this Experiment");
       VerticalPanel referenceDialogPanel = new VerticalPanel();
-      Label label = new Label("Enter id of references Experiment");
+      Label label = new Label("Enter ID of referenced Experiment");
       referenceDialogPanel.add(label);
       final TextBox id = new TextBox();
       referenceDialogPanel.add(id);
+      
+      HorizontalPanel buttonPanel = new HorizontalPanel();
+      referenceDialogPanel.add(buttonPanel);
       Button ok = new Button("OK");
-      referenceDialogPanel.add(ok);
+      buttonPanel.add(ok);
       ok.addClickHandler(new ClickHandler() {
 
         @Override
@@ -564,6 +567,18 @@ public class Main implements EntryPoint, ExperimentListener {
           
         }
       });
+      Button cancel = new Button("Cancel");
+      buttonPanel.add(cancel);
+      cancel.addClickHandler(new ClickHandler() {
+
+        @Override
+        public void onClick(ClickEvent event) {
+          ExperimentReferenceDialog.this.hide();
+          
+        }
+      });
+      
+
       setWidget(referenceDialogPanel);
     }
     
@@ -571,7 +586,9 @@ public class Main implements EntryPoint, ExperimentListener {
   
   private void showExperimentReferencePanel(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
-    new ExperimentReferenceDialog(experiment.getId()).show();
+    ExperimentReferenceDialog experimentReferenceDialog = new ExperimentReferenceDialog(experiment.getId());
+    experimentReferenceDialog.center();
+    experimentReferenceDialog.show();
   }
 
   private void copyExperiment(ExperimentDAO experiment) {
