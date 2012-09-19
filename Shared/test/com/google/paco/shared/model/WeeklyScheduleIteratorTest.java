@@ -24,9 +24,7 @@ public class WeeklyScheduleIteratorTest {
   public void testIterator() {
     WeeklySchedule schedule = new WeeklySchedule();
 
-    ScheduleIterator iterator = schedule.iterator();
-
-    assertFalse(iterator.hasNext());
+    assertNull(schedule.iterator());
   }
 
   @Test
@@ -34,10 +32,7 @@ public class WeeklyScheduleIteratorTest {
     WeeklySchedule schedule = new WeeklySchedule();
     schedule.setStartDate(new LocalDate(2012, 9, 1));
 
-    ScheduleIterator iterator = schedule.iterator();
-    iterator.advanceTo(new LocalDate(2012, 9, 1));
-
-    assertFalse(iterator.hasNext());
+    assertNull(schedule.iterator());
   }
 
   @Test
@@ -64,7 +59,7 @@ public class WeeklyScheduleIteratorTest {
     iterator.advanceTo(new LocalDate(2012, 9, 3));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new LocalDate(2012, 9, 7), iterator.next());
+    assertEquals(new LocalDate(2012, 9, 3), iterator.next());
   }
 
   @Test
@@ -82,7 +77,7 @@ public class WeeklyScheduleIteratorTest {
     iterator.advanceTo(new LocalDate(2012, 9, 7));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new LocalDate(2012, 9, 17), iterator.next());
+    assertEquals(new LocalDate(2012, 9, 7), iterator.next());
   }
 
   @Test
@@ -108,7 +103,8 @@ public class WeeklyScheduleIteratorTest {
     ScheduleIterator iterator = createIterator();
     iterator.advanceTo(new LocalDate(2012, 9, 17));
 
-    assertFalse(iterator.hasNext());
+    assertTrue(iterator.hasNext());
+    assertEquals(new LocalDate(2012, 9, 17), iterator.next());
   }
 
   @Test
@@ -131,7 +127,7 @@ public class WeeklyScheduleIteratorTest {
     iterator.advanceTo(new LocalDate(2012, 9, 2));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new LocalDate(2012, 9, 9), iterator.next());
+    assertEquals(new LocalDate(2012, 9, 2), iterator.next());
   }
 
   @Test
@@ -146,7 +142,7 @@ public class WeeklyScheduleIteratorTest {
     iterator.advanceTo(new LocalDate(2012, 9, 2));
 
     assertTrue(iterator.hasNext());
-    assertEquals(new LocalDate(2012, 9, 9), iterator.next());
+    assertEquals(new LocalDate(2012, 9, 2), iterator.next());
   }
 
   @Test
@@ -161,6 +157,7 @@ public class WeeklyScheduleIteratorTest {
     ScheduleIterator iterator = schedule.iterator();
     iterator.advanceTo(new LocalDate(2012, 9, 2));
 
-    assertFalse(iterator.hasNext());
+    assertTrue(iterator.hasNext());
+    assertEquals(new LocalDate(2012, 9, 2), iterator.next());
   }
 }

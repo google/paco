@@ -145,8 +145,6 @@ public class ExperimentsResourceTest extends PacoResourceTest {
     experiment.setPublished(true);
     experiment.addObserver("observer@google.com");
 
-    System.out.println(response.getEntity().getModificationDate());
-
     String json = PacoConverter.toJson(experiment, Experiment.Viewer.class);
 
     assertEquals(Status.SUCCESS_OK, response.getStatus());

@@ -238,7 +238,7 @@ public class MonthlySchedule extends Schedule {
 
   /*
    * (non-Javadoc)
-   *q
+   *
    * @see com.google.paco.shared.model.Schedule#equals(java.lang.Object)
    */
   @Override
@@ -273,7 +273,8 @@ public class MonthlySchedule extends Schedule {
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
-    sb.append("Every");
+    sb.append(super.toString());
+    sb.append(" every");
     if (every < 2) {
       sb.append(" month");
     } else {
@@ -295,18 +296,6 @@ public class MonthlySchedule extends Schedule {
         }
       }
       sb.delete(sb.length() - 1, sb.length()); // remove comma
-    }
-    sb.append(" from");
-    if (hasStartDate()) {
-      sb.append(" ").append(startDate);
-    } else {
-      sb.append(" now");
-    }
-    sb.append(" to");
-    if (hasEndDate()) {
-      sb.append(" ").append(endDate);
-    } else {
-      sb.append(" forever");
     }
 
     return sb.toString();

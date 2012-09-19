@@ -95,8 +95,7 @@ public class FixedSignal extends Signal {
   public String toString() {
     StringBuilder sb = new StringBuilder();
 
-    sb.append("at ").append(times.size());
-    sb.append(" fixed times:");
+    sb.append("at ");
     for (LocalTime time : times) {
       sb.append(" ").append(time).append(",");
     }

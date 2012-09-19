@@ -1,11 +1,11 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -66,6 +66,10 @@ public abstract class Schedule {
    * @return the startDate
    */
   public LocalDate getStartDate() {
+    while (!isValidDate(startDate)) {
+      startDate = startDate.plusDays(1);
+    }
+
     return startDate;
   }
 
@@ -173,6 +177,8 @@ public abstract class Schedule {
 
   public abstract ScheduleIterator iterator(Random random);
 
+  protected abstract boolean isValidDate(LocalDate date);
+
   /*
    * (non-Javadoc)
    *
@@ -226,5 +232,22 @@ public abstract class Schedule {
    *
    * @see java.lang.Object#toString()
    */
-  public abstract String toString();
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+
+    sb.append("From");
+    if (hasStartDate()) {
+      sb.append(" ").append(startDate);
+    } else {
+      sb.append(" now");
+    }
+    sb.append(" to");
+    if (hasEndDate()) {
+      sb.append(" ").append(endDate);
+    } else {
+      sb.append(" forever");
+    }
+
+    return sb.toString();
+  }
 }

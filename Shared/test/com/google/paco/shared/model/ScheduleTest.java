@@ -35,6 +35,11 @@ public class ScheduleTest {
     public String toString() {
       return null;
     }
+
+    @Override
+    protected boolean isValidDate(LocalDate date) {
+      return true;
+    }
   }
 
   @Test
