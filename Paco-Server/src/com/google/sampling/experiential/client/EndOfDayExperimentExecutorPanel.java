@@ -64,6 +64,9 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   @Override
   protected void renderInputItems() {
     for (EventDAO eventDAO : this.eventList) {
+      if (eventDAO.isJoinEvent()) {
+        continue;
+      }
       VerticalPanel itemPanel = new VerticalPanel();
       mainPanel.add(itemPanel);
       itemPanel.add(renderEventPanel(eventDAO));
