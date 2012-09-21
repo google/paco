@@ -15,9 +15,9 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest package='com.google.android.apps.paco' android:versionCode='69' xmlns:android='http://schemas.android.com/apk/res/android' android:versionName='2.0.69'>
+<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='com.google.android.apps.paco' android:versionName='2.0.70' android:versionCode='70'>
 
-    <application android:icon='@drawable/paco64' android:debuggable='true' android:theme='@style/PacoTheme' android:label='@string/app_name'>
+    <application android:label='@string/app_name' android:theme='@style/PacoTheme' android:icon='@drawable/paco64' android:debuggable='true'>
         <activity android:name='com.google.android.apps.paco.ExperimentManagerActivity'>
             <intent-filter>
                 <action android:name='android.intent.action.MAIN'/>
@@ -43,7 +43,7 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:configChanges='orientation|keyboard|keyboardHidden' android:name='com.google.android.apps.paco.ExploreDataActivity'>
+        <activity android:name='com.google.android.apps.paco.ExploreDataActivity' android:configChanges='orientation|keyboard|keyboardHidden'>
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
 
@@ -69,9 +69,9 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.ExperimentScheduleActivity' android:screenOrientation='portrait' android:windowSoftInputMode='stateHidden'/>
-        <activity android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.InformedConsentActivity' android:screenOrientation='portrait'/>
-        <activity android:configChanges='orientation|keyboardHidden' android:label='Record Data in Experiment' android:name='com.google.android.apps.paco.ExperimentExecutor' android:windowSoftInputMode='stateHidden'>
+        <activity android:windowSoftInputMode='stateHidden' android:name='com.google.android.apps.paco.ExperimentScheduleActivity' android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden'/>
+        <activity android:name='com.google.android.apps.paco.InformedConsentActivity' android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden'/>
+        <activity android:label='Record Data in Experiment' android:windowSoftInputMode='stateHidden' android:name='com.google.android.apps.paco.ExperimentExecutor' android:configChanges='orientation|keyboardHidden'>
             <intent-filter>
                 <category android:name='android.intent.category.LAUNCHER'/>
             </intent-filter>
@@ -157,7 +157,7 @@
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
         </receiver>
-        <receiver android:process=':remote' android:name='com.google.android.apps.paco.NetworkChangeReceiver'>
+        <receiver android:name='com.google.android.apps.paco.NetworkChangeReceiver' android:process=':remote'>
             <intent-filter>
                 <action android:name='android.net.conn.CONNECTIVITY_CHANGE'/>
             </intent-filter>
@@ -176,8 +176,8 @@
             </intent-filter>
         </receiver>
 
-        <provider android:exported='false' android:name='SignalProvider' android:authorities='com.google.android.apps.paco.signal'/>
-        <provider android:exported='false' android:name='ExperimentProvider' android:authorities='com.google.android.apps.paco.ExperimentProvider'/>
+        <provider android:name='SignalProvider' android:exported='false' android:authorities='com.google.android.apps.paco.signal'/>
+        <provider android:name='ExperimentProvider' android:exported='false' android:authorities='com.google.android.apps.paco.ExperimentProvider'/>
     </application>
 
     <uses-permission android:name='android.permission.GET_ACCOUNTS'>

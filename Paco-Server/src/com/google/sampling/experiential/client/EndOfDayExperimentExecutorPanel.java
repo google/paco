@@ -63,15 +63,24 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
 
   @Override
   protected void renderInputItems() {
+    boolean first = true;
+
     for (EventDAO eventDAO : this.eventList) {
-      if (eventDAO.isJoinEvent()) {
+      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal()) {
         continue;
       }
+      
+      if (first) {
+        first = false;
+      } else {
+        mainPanel.add(new HTML("<hr/>"));
+      }
+      
       VerticalPanel itemPanel = new VerticalPanel();
       mainPanel.add(itemPanel);
       itemPanel.add(renderEventPanel(eventDAO));
       renderInputsPanelForEvent(itemPanel, this.experiment, eventDAO);
-      mainPanel.add(new HTML("<br/>"));
+      
     }
   }
 

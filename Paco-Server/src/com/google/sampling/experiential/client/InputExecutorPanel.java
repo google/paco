@@ -56,11 +56,32 @@ public class InputExecutorPanel extends Composite {
   }
 
   protected String readList() {
-    int chosenIndex = list.getSelectedIndex();
-    if (chosenIndex == -1) {
-      return null;
+    if (list.isMultipleSelect()) {
+      return readMultiselectList();
+    } else {
+      int chosenIndex = list.getSelectedIndex();
+      if (chosenIndex == -1) {
+        return null;
+      }
+      return Integer.toString(chosenIndex + 1);
     }
-    return Integer.toString(chosenIndex + 1);
+  }
+
+  private String readMultiselectList() {
+    StringBuilder buf = new StringBuilder();
+    boolean first = true;
+    for (int i=0; i < list.getItemCount() - 1; i++) {
+      if (list.isItemSelected(i)) {
+        if (first) {
+          first = false;
+        } else {
+          buf.append(",");
+        }        
+        buf.append(i + 1);
+      }
+    }
+    return buf.toString();
+
   }
 
   protected String readOpenText() {
@@ -130,6 +151,7 @@ public class InputExecutorPanel extends Composite {
 
   private void renderOpenText() {
     text = new TextBox();
+    text.setWidth("40em");
     lowerLinePanel.add(text);    
   }
 
