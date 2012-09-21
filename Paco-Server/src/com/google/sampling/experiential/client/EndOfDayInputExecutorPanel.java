@@ -29,6 +29,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Button;
@@ -45,6 +46,7 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.Output;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  *
@@ -64,7 +66,9 @@ public class EndOfDayInputExecutorPanel extends InputExecutorPanel {
 
   public Output getValue() {
     Output output = super.getValue();
-    output.setName(referredEvent.getIdFromTimes() + "_" + input.getName());
+    DateTimeFormat df = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
+
+    output.setName(df.format(referredEvent.getIdFromTimes()) + "_" + input.getName());
     return output;
   }
 

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jdo.annotations.Extension;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -88,12 +89,15 @@ public class Event {
   private Date responseTime;
 
   @Persistent
+  @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private Set<What> what;
 
   @Persistent
+  @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private List<String> keysList;
   
   @Persistent
+  @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private List<String> valuesList;
   
   @Persistent

@@ -291,11 +291,26 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
     ExperimentStatsDAO stats = new ExperimentStatsDAO();
-    if (!justUser) {
-      stats.setJoinedEventsList(getJoinedForExperiment(experimentId));
+    
+    String queryString = "";
+    if (justUser) {
+      queryString = "who="+getWho()+":";
     }
-    getDailyResponseRateFor(experimentId, stats, justUser);
-    System.out.println("leaving statsForExperiment");
+    List<EventDAO> events = getEventsForQuery(queryString + "experimentId="+experimentId);
+    
+    if (!justUser) {      
+      HashSet<EventDAO> uniqueEvents = new HashSet<EventDAO>();
+      for (EventDAO eventDAO : events) {
+        if (eventDAO.isJoinEvent()) {
+          uniqueEvents.add(eventDAO);
+        }
+      }
+      
+      EventDAO[] arr = new EventDAO[uniqueEvents.size()];
+      EventDAO[] joinedForExperiment = uniqueEvents.toArray(arr);
+      stats.setJoinedEventsList(joinedForExperiment);
+    }
+    getDailyResponseRateFor(experimentId, events, stats, justUser);
     return stats;    
   }
 
@@ -304,18 +319,14 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
    * @param justUser 
    * @return
    */
-  private void getDailyResponseRateFor(Long experimentId, ExperimentStatsDAO accum, 
+  private void getDailyResponseRateFor(Long experimentId, List<EventDAO> events, 
+                                       ExperimentStatsDAO accum, 
       boolean justUser) {
     Map<DateMidnight, DateStat> dateStatsMap = Maps.newHashMap();
     Map<DateMidnight, Set<String>> sevenDayMap = Maps.newHashMap();
     
     int missedSignals = 0;
     long totalMillisToRespond = 0;
-    String queryString = "";
-    if (justUser) {
-      queryString = "who="+getWho()+":";
-    }
-    List<EventDAO> events = getEventsForQuery(queryString + "experimentId="+experimentId);
     for(EventDAO event : events) {
       if (event.isJoinEvent()) {
         continue;
@@ -397,17 +408,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return dateMidnight;
   }
 
-  /**
-   * @param experimentId
-   * @return
-   */
-  private EventDAO[] getJoinedForExperiment(Long experimentId) {
-    List<EventDAO> eventsForQuery = getEventsForQuery("joined:experimentId="+ experimentId);
-    HashSet<EventDAO> uniqueEvents = new HashSet<EventDAO>(eventsForQuery);
-    EventDAO[] arr = new EventDAO[eventsForQuery.size()];
-    return uniqueEvents.toArray(arr);
-  }
-  
   public List<ExperimentDAO> getUsersJoinedExperiments() {
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
           getWhoFromLogin().getEmail());
