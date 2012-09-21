@@ -41,8 +41,14 @@ public class InputExecutorPanel extends Composite {
       value = readList();
     } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
       value = readLikert();
+    } else if (input.getResponseType().equals(InputDAO.NUMBER)) {
+      value = readNumber();
     }
     return new Output(input.getName(), value);
+  }
+
+  private String readNumber() {
+    return text.getText();
   }
 
   protected String readLikert() {
@@ -111,6 +117,8 @@ public class InputExecutorPanel extends Composite {
       renderList();
     } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
       renderLikert();
+    } else if (input.getResponseType().equals(InputDAO.NUMBER)) {
+      renderOpenText();
     }
     
   }
