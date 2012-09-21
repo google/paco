@@ -21,11 +21,14 @@
 	android:layout_width="wrap_content" android:layout_height="wrap_content"
 	android:orientation="horizontal" android:layout_gravity="center">
 
-	<TextView 
-		android:id="@+id/RepeatPeriodLabelPrepend"
+	<TextView
+	    android:id="@+id/RepeatPeriodLabelPrepend"
 	    android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:textSize="20dip"
-		android:text="Repeat Every "></TextView>
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center|top|left"
+	    android:text="Repeat Every "
+	    android:textSize="20dip" >
+</TextView>
 
 	<Spinner 
 		android:id="@+id/RepeatRate" 

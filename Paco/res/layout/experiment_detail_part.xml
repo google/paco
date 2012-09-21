@@ -40,39 +40,44 @@
 
 			</LinearLayout>
 			<LinearLayout android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:orientation="horizontal"
-				android:layout_gravity="left">
-				<LinearLayout android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:orientation="vertical"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:layout_gravity="left">
+                <LinearLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:orientation="vertical"
+                    android:layout_gravity="left">
+                    <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:textStyle="bold"
+                        android:text="Schedule: " android:layout_gravity="left"></TextView>
+                    <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="schedule"
+                        android:id="@+id/schedule" android:layout_gravity="left"></TextView>
+                </LinearLayout>
+                
+	            <LinearLayout android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:orientation="horizontal"
 					android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="Schedule: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="schedule"
-						android:id="@+id/schedule" android:layout_gravity="left"></TextView>
+					<LinearLayout android:layout_width="wrap_content"
+						android:id="@+id/startDatePanel" android:layout_height="wrap_content"
+						android:orientation="vertical" android:layout_gravity="left">
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textStyle="bold"
+							android:text="Start Date: " android:layout_gravity="left"></TextView>
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:text="starts"
+							android:id="@+id/startDate" android:layout_gravity="left"></TextView>
+					</LinearLayout>
+					<LinearLayout android:layout_width="wrap_content"
+						android:id="@+id/endDatePanel" android:layout_height="wrap_content"
+						android:orientation="vertical" android:layout_gravity="left">
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textStyle="bold"
+							android:text="End Date: " android:layout_gravity="left"></TextView>
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:text="end"
+							android:id="@+id/endDate" android:layout_gravity="left"></TextView>
+					</LinearLayout>
 				</LinearLayout>
-				<LinearLayout android:layout_width="wrap_content"
-					android:id="@+id/startDatePanel" android:layout_height="wrap_content"
-					android:orientation="vertical" android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="Start Date: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="starts"
-						android:id="@+id/startDate" android:layout_gravity="left"></TextView>
-				</LinearLayout>
-				<LinearLayout android:layout_width="wrap_content"
-					android:id="@+id/endDatePanel" android:layout_height="wrap_content"
-					android:orientation="vertical" android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="End Date: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="end"
-						android:id="@+id/endDate" android:layout_gravity="left"></TextView>
-				</LinearLayout>
-			</LinearLayout>
+			</LinearLayout>	
 			<LinearLayout android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:orientation="horizontal"
 				android:layout_gravity="left">
