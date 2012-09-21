@@ -90,10 +90,10 @@ public class EventPanel extends Composite {
           addColumnToGrid(grid, i, value, input.getText());
         } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
             !value.equals("==") &&
-            !value.isEmpty()) {
-            String blobData = event.getBlobs().length > 0 ? event.getBlobs()[0] : "";
+            !value.isEmpty() && event.getBlobs().length > 0 ) {            
+            String blobData = event.getBlobs()[0];
             value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
-            addColumnToGrid(grid, i, value, input.getText());
+            addColumnToGrid(grid, i, value, input.getName());
         } else {
           if (value.equals("blob") && input.getResponseType().equals("photo")) {
             value = "";
