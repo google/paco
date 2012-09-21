@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -92,8 +93,34 @@ public class EventPanel extends Composite {
             !value.equals("==") &&
             !value.isEmpty() && event.getBlobs().length > 0 ) {            
             String blobData = event.getBlobs()[0];
-            value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
+            if (blobData.isEmpty()) {
+              value = "";
+            } else {
+              value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
+            }
             addColumnToGrid(grid, i, value, input.getName());
+        } else if (input.getResponseType().equals(InputDAO.LIST)) {
+          String[] listChocies = input.getListChoices();
+          if (input.getMultiselect() != null && input.getMultiselect()) {
+            StringBuffer buff = new StringBuffer(); 
+            boolean first = true;
+            for (String currentChoice : Splitter.on(',').split(value)) {
+              if (first) {
+                first = false;
+              } else {
+                buff.append(",");
+              }
+              int zeroBasedIndex = Integer.parseInt(currentChoice) - 1;
+              String answerString = listChocies[zeroBasedIndex];
+              buff.append(answerString);
+            }
+            value = buff.toString();
+          } else {
+            int zeroBasedIndex = Integer.parseInt(value) - 1;
+            String answerString = listChocies[zeroBasedIndex];
+            value = answerString;
+          }
+          addColumnToGrid(grid, i, value, input.getText());
         } else {
           if (value.equals("blob") && input.getResponseType().equals("photo")) {
             value = "";
