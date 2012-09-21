@@ -2,10 +2,12 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Composite;
@@ -14,6 +16,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
 
@@ -75,7 +78,6 @@ public class EventPanel extends Composite {
       Grid grid = new Grid(keysAsList.size(), 2);
       //grid.setBorderWidth(1);
       mainPanel.add(grid);
-      int row = 0;
       
       for (int i=0;i < keysAsList.size(); i++) {        
         String key = keysAsList.get(i);        
@@ -88,9 +90,9 @@ public class EventPanel extends Composite {
           addColumnToGrid(grid, i, value, input.getText());
         } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
             !value.equals("==") &&
-            !value.equals("blob") &&
             !value.isEmpty()) {
-            value = "<img height=\"375\" src=\"data:image/jpg;base64," + value + "\">";
+            String blobData = event.getBlobs().length > 0 ? event.getBlobs()[0] : "";
+            value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
             addColumnToGrid(grid, i, value, input.getText());
         } else {
           if (value.equals("blob") && input.getResponseType().equals("photo")) {

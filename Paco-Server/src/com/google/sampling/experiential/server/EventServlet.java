@@ -340,10 +340,12 @@ public class EventServlet extends HttpServlet {
                 value = "";
               }
             } else if (value.indexOf(" ") != -1) {
-              value = "\"" + value + "\"";
+              value = "\"" + StringEscapeUtils.escapeHtml4(value) + "\"";
+            } else {
+              value = StringEscapeUtils.escapeHtml4(value);
             }
             out.append("<td>");
-            out.append(key).append(" = ").append(StringEscapeUtils.escapeHtml4(value));
+            out.append(key).append(" = ").append(value);
             out.append("</td>");
           }
         }
