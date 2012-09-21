@@ -86,10 +86,16 @@ public class EventPanel extends Composite {
         } else if (value == null || value.length() == 0) {
           value = "";
           addColumnToGrid(grid, i, value, input.getText());
-        } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && !value.equals("==")) {
+        } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
+            !value.equals("==") &&
+            !value.equals("blob") &&
+            !value.isEmpty()) {
             value = "<img height=\"375\" src=\"data:image/jpg;base64," + value + "\">";
             addColumnToGrid(grid, i, value, input.getText());
         } else {
+          if (value.equals("blob") && input.getResponseType().equals("photo")) {
+            value = "";
+          }
           value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
           addColumnToGrid(grid, i, value, input.getText());
         }
