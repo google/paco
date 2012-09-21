@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 
 /**
  * 
@@ -232,12 +231,11 @@ public class EventDAO implements Serializable {
     this.blobs = blobs;
   }
 
-  public String getIdFromTimes() {
-    DateTimeFormat df = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
+  public Date getIdFromTimes() {
     if (getScheduledTime() != null) {
-      return df.format(getScheduledTime());
+      return getScheduledTime();
     } else/* if (getResponseTime() != null) */{
-      return df.format(getResponseTime());
+      return getResponseTime();
     } // one of those two has to exist
   }
 
