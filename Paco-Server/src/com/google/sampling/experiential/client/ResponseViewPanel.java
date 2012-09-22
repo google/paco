@@ -121,6 +121,7 @@ public class ResponseViewPanel extends Composite {
 
   private void setLikertValueInWidget() {
     if (input.getLikertSteps() == null) {
+      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
       stepsText.setValue(Integer.toString(InputDAO.DEFAULT_LIKERT_STEPS));
     } else {
       stepsText.setValue(Integer.toString(input.getLikertSteps()));
