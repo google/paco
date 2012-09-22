@@ -291,23 +291,17 @@ public class EventServlet extends HttpServlet {
       out.append("<h1>Results</h1>");
       out.append("<table border=1>");
       out.append("<tr><th>Experiment Name</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
-      for (Event eventRating : greetings) {
+      for (Event event : greetings) {
         long e1 = System.currentTimeMillis();
         out.append("<tr>");
-        out.append("<td>").append(eventRating.getExperimentName()).append("</td>");
-        Date scheduledTime = eventRating.getScheduledTime();
-        String scheduledTimeString = "";
-        if (scheduledTime != null) {
-          scheduledTimeString = jodaFormatter.print(new DateTime(scheduledTime));
-        }
-        out.append("<td>").append(scheduledTimeString).append("</td>");
-        Date responseTime = eventRating.getResponseTime();
-        String responseTimeString = "";
-        if (responseTime != null) {
-          responseTimeString = jodaFormatter.print(new DateTime(responseTime));
-        }
-        out.append("<td>").append(responseTimeString).append("</td>");
-        String who = eventRating.getWho();
+        
+        out.append("<td>").append(event.getExperimentName()).append("</td>");
+        
+        out.append("<td>").append(getTimeString(event, event.getScheduledTime())).append("</td>");
+        
+        out.append("<td>").append(getTimeString(event, event.getResponseTime())).append("</td>");
+        
+        String who = event.getWho();
         if (anon) {
           who = Event.getAnonymousId(who);
         }
@@ -322,12 +316,12 @@ public class EventServlet extends HttpServlet {
         // that is work that is otherwise necessary for now. Go
         // pretotyping!
         // TODO clean all the accesses of what could be tainted data.
-        List<PhotoBlob> photos = eventRating.getBlobs();
+        List<PhotoBlob> photos = event.getBlobs();
         Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
         for (PhotoBlob photoBlob : photos) {
           photoByNames.put(photoBlob.getName(), photoBlob);
         }
-        Map<String, String> whatMap = eventRating.getWhatMap();
+        Map<String, String> whatMap = event.getWhatMap();
         Set<String> keys = whatMap.keySet();
         if (keys != null) {
           ArrayList<String> keysAsList = Lists.newArrayList(keys);
@@ -369,6 +363,14 @@ public class EventServlet extends HttpServlet {
       out.append("</table></body></html>");
       resp.getWriter().println(out.toString());
     }
+  }
+
+  private String getTimeString(Event event, Date time) {
+    String scheduledTimeString = "";
+    if (time != null) {
+      scheduledTimeString = jodaFormatter.print(new DateTime(time));
+    }
+    return scheduledTimeString;
   }
 
   private void sortEvents(List<Event> greetings) {
