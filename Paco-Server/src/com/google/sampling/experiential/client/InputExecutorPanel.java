@@ -126,6 +126,10 @@ public class InputExecutorPanel extends Composite {
   private void renderLikert() {
     likerts = new ArrayList<RadioButton>();
     String groupName = "likert_choices_"+Long.toString(System.currentTimeMillis());
+    if (input.getLikertSteps() == null) {
+      // backward compatibility for a short while
+      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+    }
     for (int i = 0; i < input.getLikertSteps(); i++) {
       String name = "";
       if (i == input.getLikertSteps() - 1 && input.getRightSideLabel() != null) {
