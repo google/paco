@@ -399,7 +399,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
           @Override
           public int compare(ExperimentDAO arg0, ExperimentDAO arg1) {
-            return arg0.getTitle().compareTo(arg1.getTitle());            
+            return arg0.getTitle().toLowerCase().compareTo(arg1.getTitle().toLowerCase());            
           }
           
         });
