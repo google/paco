@@ -295,8 +295,18 @@ public class EventServlet extends HttpServlet {
         long e1 = System.currentTimeMillis();
         out.append("<tr>");
         out.append("<td>").append(eventRating.getExperimentName()).append("</td>");
-        out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getScheduledTime()))).append("</td>");
-        out.append("<td>").append(jodaFormatter.print(new DateTime(eventRating.getResponseTime()))).append("</td>");
+        Date scheduledTime = eventRating.getScheduledTime();
+        String scheduledTimeString = "";
+        if (scheduledTime != null) {
+          scheduledTimeString = jodaFormatter.print(new DateTime(scheduledTime));
+        }
+        out.append("<td>").append(scheduledTimeString).append("</td>");
+        Date responseTime = eventRating.getResponseTime();
+        String responseTimeString = "";
+        if (responseTime != null) {
+          responseTimeString = jodaFormatter.print(new DateTime(responseTime));
+        }
+        out.append("<td>").append(responseTimeString).append("</td>");
         String who = eventRating.getWho();
         if (anon) {
           who = Event.getAnonymousId(who);
