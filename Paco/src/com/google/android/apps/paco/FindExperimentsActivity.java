@@ -104,7 +104,7 @@ public class FindExperimentsActivity extends Activity {
       selectionArgs = ExperimentColumns.JOIN_DATE + " IS NULL";
     }
     cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE, ExperimentColumns.CREATOR, ExperimentColumns.ICON },
-        selectionArgs, null, ExperimentColumns.TITLE);
+        selectionArgs, null, ExperimentColumns.TITLE + " COLLATE NOCASE ASC");
     if (showingJoinedExperiments) {
       adapter = new RunningExperimentListAdapter(this, cursor);
     } else {
