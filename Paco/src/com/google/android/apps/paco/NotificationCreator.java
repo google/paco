@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import android.R.anim;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -184,7 +185,17 @@ public class NotificationCreator {
         "Time to participate!", notificationIntent);
     notification.when = notificationHolder.getAlarmTime();
     
-    notification.defaults |= Notification.DEFAULT_SOUND;
+    
+    String ringtoneUri = new UserPreferences(context).getRingtone();
+    if (ringtoneUri == null) {
+      notification.defaults |= Notification.DEFAULT_SOUND;
+//      notification.sound = Uri.parse(android.os.Environment.getExternalStorageDirectory().getAbsolutePath() 
+//                                     + "/Android/data/" + context.getPackageName() + "/" +
+//                                     "deepbark_trial.mp3");
+    } else {
+      notification.sound = Uri.parse(ringtoneUri);
+    }
+    
     notification.defaults |= Notification.DEFAULT_VIBRATE;
     notification.defaults |= Notification.DEFAULT_LIGHTS;
     notification.flags |= Notification.FLAG_AUTO_CANCEL;
