@@ -63,6 +63,12 @@ public class UserPreferences {
 
   private static final String SELECTED_ACCOUNT_PREF = "selected_account_pref";
 
+  private static final String RINGTONE_PREF_KEY = "ringtone_pref";
+
+  private static final String RINGTONE_KEY = "ringtone_key";
+
+  private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
+
   
   private SharedPreferences signallingPrefs;
   private Context context;
@@ -167,8 +173,27 @@ public class UserPreferences {
       return null;
     } else {
       return accountName;
-    }
-    
+    }    
+  }
+  
+  public void setRingtone(String ringtoneUri) {
+    getAppPrefs().edit().putString(RINGTONE_KEY, ringtoneUri).commit();    
+  }
+  
+  public String getRingtone() {
+    return getAppPrefs().getString(RINGTONE_KEY, null);
+  }
+  
+  public boolean clearRingtone() {
+    return getAppPrefs().edit().clear().commit();
+  }
+
+  public boolean hasInstalledPacoBarkRingtone() {
+    return getAppPrefs().getBoolean(RINGTONE_INSTALLED_KEY, false);
+  }
+  
+  public void setPacoBarkRingtoneInstalled() {
+    getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
   }
 
 }
