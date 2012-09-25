@@ -19,6 +19,7 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,8 +66,9 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   protected void renderInputItems() {
     boolean first = true;
 
+//    boolean showingToday = false;
     for (EventDAO eventDAO : this.eventList) {
-      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal()) {
+      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal() || !isToday(eventDAO)) {
         continue;
       }
       
@@ -76,6 +78,16 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         mainPanel.add(new HTML("<hr/>"));
       }
       
+//      if (isToday(eventDAO)) {
+//        if (!showingToday) {
+//          showingToday = true;
+//          mainPanel.add(new HTML("<h1>TODAY'S EVENTS</h1>"));
+//        }
+//      } else if (!isToday(eventDAO) && showingToday) {
+//        showingToday = false;
+//        mainPanel.add(new HTML("<h1>PREVIOUS DAYS' EVENTS</h1><p>Do not answer if you have already answered</p><br/>"));
+//      }
+      
       VerticalPanel itemPanel = new VerticalPanel();
       mainPanel.add(itemPanel);
       itemPanel.add(renderEventPanel(eventDAO));
@@ -83,6 +95,22 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
       
     }
   }
+
+  private boolean isToday(EventDAO eventDAO) {
+    Date now = new Date();
+    Date time = null;
+    if (eventDAO.getScheduledTime() == null && eventDAO.getResponseTime() == null) {
+      return false;
+    } else if (eventDAO.getScheduledTime() != null) {
+      time = eventDAO.getScheduledTime();
+    } else {
+      time = eventDAO.getResponseTime();
+    }
+    return time.getYear() == now.getYear() &&
+        time.getMonth() == now.getMonth() &&
+        time.getDate() == now.getDate();
+  }
+
 
   protected void addOutputsToEvent(EventDAO event) {
     super.addOutputsToEvent(event);

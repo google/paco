@@ -772,7 +772,8 @@ public class Main implements EntryPoint, ExperimentListener {
           statusLabel.setVisible(false);
           return;
         }
-        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, experiment, eventList, referencedExperiment);
+        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
+                                                                                 experiment, eventList, referencedExperiment);
         contentPanel.add(ep);
         statusLabel.setVisible(false);
       }
