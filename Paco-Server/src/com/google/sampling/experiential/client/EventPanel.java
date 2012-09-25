@@ -117,8 +117,11 @@ public class EventPanel extends Composite {
             value = buff.toString();
           } else {
             int zeroBasedIndex = Integer.parseInt(value) - 1;
-            String answerString = listChocies[zeroBasedIndex];
-            value = answerString;
+            if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
+              value = ""; 
+            } else {               
+              value = listChocies[zeroBasedIndex]; 
+            }
           }
           addColumnToGrid(grid, i, value, input.getText());
         } else {
