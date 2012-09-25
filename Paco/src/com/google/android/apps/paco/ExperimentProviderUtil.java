@@ -371,6 +371,7 @@ public class ExperimentProviderUtil {
     int joinDateIndex = cursor.getColumnIndex(ExperimentColumns.JOIN_DATE);
     int questionsChangeIndex = cursor.getColumnIndex(ExperimentColumns.QUESTIONS_CHANGE);
     int iconIndex = cursor.getColumnIndex(ExperimentColumns.ICON);
+    int webRecommendedIndex = cursor.getColumnIndex(ExperimentColumns.WEB_RECOMMENDED);
     
     Experiment experiment = new Experiment();
     
@@ -426,6 +427,11 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(iconIndex)) {
       experiment.setIcon(cursor.getBlob(iconIndex));
     }
+    
+    if (!cursor.isNull(webRecommendedIndex)) {
+      experiment.setWebRecommended(cursor.getLong(webRecommendedIndex) == 1);
+    }
+
     return experiment;
   }
   
@@ -472,6 +478,7 @@ public class ExperimentProviderUtil {
           values.put(ExperimentColumns.ICON, experiment.getIcon() );
     }
 
+    values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
     return values;
   }
 

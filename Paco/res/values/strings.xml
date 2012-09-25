@@ -19,7 +19,7 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.70</string>
+  <string name='version'>2.0.71</string>
   <string name='server'>quantifiedself.appspot.com</string>
   <string name='app_package'>com.google.android.apps.paco</string>
   <string name='emailSuffix'>\@gmail.com</string>
@@ -130,6 +130,9 @@
    <string name='create_experiment'>Create an experiment</string>
    <string name='intro_howto_title'>Getting Started</string>
    <string name='account_chooser_title'>Choose an Account</string>
+   <string name='do_on_phone_anyway'>I will respond here anyway</string>
+   <string name='do_on_web'>I will respond on the web</string>
+   <string name='webRecommendedWarning'>NOTE: It is recommended that you fill this study out on your computer instead.</string>
    
    
 </resources>

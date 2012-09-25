@@ -17,6 +17,7 @@ import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
@@ -124,7 +125,19 @@ public class ExperimentCacheHelper {
       pm = PMF.get().getPersistenceManager();
       javax.jdo.Query q = pm.newQuery(Experiment.class);
       List<Experiment> experiments = (List<Experiment>) q.execute();
-      return DAOConverter.createDAOsFor(experiments);      
+      
+      List<Long> referringIds = Lists.newArrayList();
+      List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class).execute();
+      for (ExperimentReference experimentReference : references) {
+        referringIds.add(experimentReference.getReferringExperimentId());
+      }
+      
+      
+      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+      for (ExperimentDAO experiment : experimentDAOs) {
+        experiment.setWebRecommended(referringIds.contains(experiment.getId()));        
+      }
+      return experimentDAOs;      
     } finally {
       if (pm != null) {
         pm.close();
