@@ -46,6 +46,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,36 +82,48 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     experimentProviderUtil = new ExperimentProviderUtil(this);
     userPrefs = new UserPreferences(this);
     experiment = getExperimentFromIntent();
-    if (experiment == null) {
-      displayNoExperimentMessage();
-    } else {       
-      getSignallingData();
+  }
 
-      inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
-      
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);      
-
-      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);                  
-      setContentView(mainLayout);
-      
-      inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
-      displayExperimentTitle();
-
-      refreshButton = (Button)findViewById(R.id.RefreshQuestionsButton);
-      if (!experiment.hasFreshInputs()) {
-        refreshButton.setVisibility(View.VISIBLE);
-        ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.GONE);
-        refreshButton.setOnClickListener(new OnClickListener() {          
-          public void onClick(View v) {
-            refreshExperiment();
-          }
-        });
-      } else {
-        showForm();
+  private void enableRefreshExperimentsButton() {
+    refreshButton.setVisibility(View.VISIBLE);
+    ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.GONE);
+    refreshButton.setOnClickListener(new OnClickListener() {          
+      public void onClick(View v) {
+        refreshExperiment();
       }
-    }
+    });
+  }
+
+  private void renderWebRecommendedMessage() {
+    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
+    scrollView.setVisibility(View.GONE);
+    ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_web_recommended_buttons, 
+                                                                                              mainLayout, 
+                                                                                              true);
+    final View buttonView = findViewById(R.id.ExecutorButtonLayout);
+    TextView warningText = (TextView)findViewById(R.id.webRecommendedWarningText);
+    warningText.setText(warningText.getText() +" Please point your computer browser to https://"+getString(R.string.server) + "/Main.html");
+    
+    Button doOnPhoneButton = (Button)findViewById(R.id.DoOnPhoneButton);
+    doOnPhoneButton.setVisibility(View.GONE);
+//    doOnPhoneButton.setOnClickListener(new OnClickListener() {        
+//      public void onClick(View v) {
+//        buttonView.setVisibility(View.GONE);
+//        //mainLayout.removeView(buttonView);
+//        scrollView.setVisibility(View.VISIBLE);        
+//        showForm();
+//      }
+//    });
+    
+    Button doOnWebButton = (Button)findViewById(R.id.DoOnWebButtonButton);
+    doOnWebButton.setOnClickListener(new OnClickListener() {        
+      public void onClick(View v) {
+        deleteNotification();
+        finish();
+      }
+    });
+    
+    
   }
 
   private void getSignallingData() {
@@ -156,6 +169,35 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   @Override
   protected void onResume() {
     super.onResume();
+    if (experiment == null) {
+      displayNoExperimentMessage();
+    } else {       
+      getSignallingData();
+
+      inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
+      
+      experimentProviderUtil.loadInputsForExperiment(experiment);
+      experimentProviderUtil.loadFeedbackForExperiment(experiment);      
+
+      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);                  
+      setContentView(mainLayout);
+      
+      inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
+      displayExperimentTitle();
+
+      refreshButton = (Button)findViewById(R.id.RefreshQuestionsButton);
+      if (!experiment.hasFreshInputs()) {
+        enableRefreshExperimentsButton();
+      } else {
+        if (experiment.isWebRecommended()) {
+          renderWebRecommendedMessage();
+        } else {
+          showForm();
+        }
+      }
+    }
+
     registerLocationListenerIfNecessary();
   }
 
@@ -291,8 +333,6 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private void showForm() {
     renderInputs();
     renderSaveButton();
-   
-    
   }
 
   private void renderSaveButton() {
@@ -325,14 +365,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       experimentProviderUtil.insertEvent(event);
       
       
-      if (notificationHolderId != null) {
-        experimentProviderUtil.deleteNotification(notificationHolderId);
-      }
-      if (shouldExpireNotificationHolder) {
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(new Long(notificationHolderId).intValue());
-        shouldExpireNotificationHolder = false;
-      }
+      deleteNotification();
 
       Bundle extras = getIntent().getExtras();
       if (extras != null) {
@@ -349,6 +382,17 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         .setIcon(R.drawable.paco64)
         .setTitle("Required Answers Missing")
         .setMessage(ise.getMessage()).show();
+    }
+  }
+
+  private void deleteNotification() {
+    if (notificationHolderId != null) {
+      experimentProviderUtil.deleteNotification(notificationHolderId);
+    }
+    if (shouldExpireNotificationHolder) {
+      NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+      notificationManager.cancel(new Long(notificationHolderId).intValue());
+      shouldExpireNotificationHolder = false;
     }
   }
 

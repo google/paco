@@ -81,6 +81,7 @@ public class Experiment implements Parcelable {
         experiment.feedback.add(feedback);
       }
       
+      experiment.webRecommended = source.readInt() == 1;
       return experiment;
     }
 
@@ -112,6 +113,8 @@ public class Experiment implements Parcelable {
   private DateTime endDate;
 //  private Integer esmFrequency;
 //  private Integer esmPeriodInDays;
+  public Boolean webRecommended;
+
 
 
 
@@ -334,7 +337,8 @@ public class Experiment implements Parcelable {
     for (Feedback feedbackItem : feedback) {
       dest.writeParcelable(feedbackItem, 0);
     }
-
+    
+    dest.writeInt(webRecommended ? 1 : 0);
   }
 
   
@@ -551,6 +555,14 @@ public class Experiment implements Parcelable {
   @Override
   public String toString() {
     return getTitle();
+  }
+
+  public Boolean isWebRecommended() {
+    return webRecommended;
+  }
+  
+  public void setWebRecommended(Boolean webRecommended) {
+    this.webRecommended = webRecommended;
   }
   
   

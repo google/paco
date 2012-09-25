@@ -45,7 +45,7 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   private static final String DATABASE_NAME = "experiments.db";
-  private static final int DATABASE_VERSION = 10;
+  private static final int DATABASE_VERSION = 11;
   
   private static final String EXPERIMENTS_TABLE_NAME = "experiments";
   private static final String SCHEDULES_TABLE_NAME = "schedules";
@@ -115,7 +115,8 @@ public class ExperimentProvider extends ContentProvider {
 //        + ExperimentColumns.ESM_PERIOD + " INTEGER, "
         + ExperimentColumns.JOIN_DATE + " INTEGER, "
         + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
-        + ExperimentColumns.ICON + " BLOB "
+        + ExperimentColumns.ICON + " BLOB, "
+        + ExperimentColumns.WEB_RECOMMENDED + " INTEGER "
         + ");");
 	  db.execSQL("CREATE TABLE " + SCHEDULES_TABLE_NAME + " ("
           + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -205,7 +206,11 @@ public class ExperimentProvider extends ContentProvider {
           + SignalScheduleColumns.USER_EDITABLE + " INTEGER default 1"
           + ";");
 	  }
-      
+	  if (oldVersion <= 10) {
+      db.execSQL("ALTER TABLE " + EXPERIMENTS_TABLE_NAME+ " ADD "
+          + ExperimentColumns.WEB_RECOMMENDED + " INTEGER default 0"
+          + ";");
+    }  
 	 }
 	
 //	public void insertValues(SQLiteDatabase db) {

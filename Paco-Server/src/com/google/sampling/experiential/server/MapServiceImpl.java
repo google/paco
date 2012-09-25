@@ -446,7 +446,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         }
         for (Long id : idList) {
           experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "", 
-              null, null, null, null, null, null, null, null, null, null, null, null));
+              null, null, null, null, null, null, null, null, null, null, null, null, null));
         }
       } finally {
         if (pm != null) {
@@ -510,6 +510,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   @Override
   public void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId) {
     ExperimentRetriever.getInstance().setReferredExperiment(referringExperimentId, referencedExperimentId);
+    ExperimentCacheHelper.getInstance().clearCache();
     
   }
 }

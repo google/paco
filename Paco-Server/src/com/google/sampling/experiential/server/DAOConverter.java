@@ -77,7 +77,7 @@ public class DAOConverter {
 
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalScheduleDAO,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted);
+            userEmailsStrArray, deleted, null);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];

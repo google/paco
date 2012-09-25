@@ -26,13 +26,16 @@ import java.io.OutputStream;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +47,8 @@ import android.widget.ImageButton;
  */
 public class ExperimentManagerActivity extends Activity {
 
+  private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
+  private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
   private static final int RINGTONE_REQUESTCODE = 945;
   private static final int ABOUT_PACO_ITEM = 3;
   private static final int DEBUG_ITEM = 4;
@@ -224,10 +229,38 @@ public class ExperimentManagerActivity extends Activity {
   }
 
   private void installPacoBarkRingtone(UserPreferences userPreferences) {
+    File f = copyRingtoneFromAssetsToSdCard();
+    if (f == null) {
+      return;
+    }
+    ContentValues values = createBarkRingtoneDatabaseEntry(f);
+    Uri uri = MediaStore.Audio.Media.getContentUriForPath(f.getAbsolutePath());
+    ContentResolver mediaStoreContentProvider = getBaseContext().getContentResolver();
+    Cursor existingRingtoneCursor = mediaStoreContentProvider.query(uri, null, null, null, null); // Note: i want to just retrieve MediaStore.MediaColumns.TITLE and to search on the match, but it is returning null for the TITLE value!!!
+    Cursor c = mediaStoreContentProvider.query(uri, null, null, null, null);
+    boolean alreadyInstalled = false;
+    while (c.moveToNext()) {
+      if (PACO_BARK_RINGTONE_TITLE.equals(c.getString(7))) {
+        alreadyInstalled = true;
+      }
+    }
+    existingRingtoneCursor.close();
+
+    if (!alreadyInstalled) {
+      Uri newUri = mediaStoreContentProvider.insert(uri, values);
+    }
+
+    userPreferences.setPacoBarkRingtoneInstalled();      
+  }
+
+  private File copyRingtoneFromAssetsToSdCard()  {
+    InputStream fis = null;
+    OutputStream fos = null;
     try {
-      InputStream fis = getAssets().open("deepbark_trial.mp3");
+      fis = getAssets().open(BARK_RINGTONE_FILENAME);
+    
       if (fis == null) {
-        return;
+        return null;
       }
 
       File path = new File(android.os.Environment.getExternalStorageDirectory().getAbsolutePath() 
@@ -236,41 +269,51 @@ public class ExperimentManagerActivity extends Activity {
         path.mkdirs();
       }
 
-      File f = new File(path, "deepbark_trial.mp3");
-
-      OutputStream fos = new FileOutputStream(f);
+      File f = new File(path, BARK_RINGTONE_FILENAME);
+      fos = new FileOutputStream(f);
       byte[] buf = new byte[1024];
       int len;
       while ((len = fis.read(buf)) > 0) {
         fos.write(buf, 0, len);
       }
-      fos.close();
-      fis.close();
-
-      ContentValues values = new ContentValues();
-      values.put(MediaStore.MediaColumns.DATA, f.getAbsolutePath());
-      values.put(MediaStore.MediaColumns.TITLE, "Paco Bark");
-      values.put(MediaStore.MediaColumns.SIZE, f.length());
-      values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
-      values.put(MediaStore.Audio.Media.ARTIST, "Paco");
-      // values.put(MediaStore.Audio.Media.DURATION, ""); This is not needed
-      values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
-      values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
-      values.put(MediaStore.Audio.Media.IS_ALARM, false);
-      values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-
-      Uri uri = MediaStore.Audio.Media.getContentUriForPath(f.getAbsolutePath());
-      Uri newUri = getBaseContext().getContentResolver().insert(uri, values);
-
-      // Set as default
-      //Uri currentRingtone = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION);
-      //RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, newUri);
-      //RingtoneManager.setActualDefaultRingtoneUri(getBaseContext(), RingtoneManager.TYPE_RINGTONE, currentRingtone);
-      userPreferences.setPacoBarkRingtoneInstalled();      
+      return f;
     } catch (FileNotFoundException e) {
+      Log.e(PacoConstants.TAG, "Could not create ringtone file on sd card. Error = " + e.getMessage());
     } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "Either Could not open ringtone from assets. Or could not write to sd card. Error = " + e.getMessage());
+      return null;
+    } finally {
+      if (fos != null) {
+        try {
+          fos.close();
+        } catch (IOException e) {
+          Log.e(PacoConstants.TAG, "could not close sd card file handle. Error = " + e.getMessage());
+        }
+      }
+      if (fis != null) {
+        try {
+          fis.close();
+        } catch (IOException e) {
+          Log.e(PacoConstants.TAG, "could not close asset file handle. Error = " + e.getMessage());
+        }
+      }
     }
+    return null;
+  }
 
+  private ContentValues createBarkRingtoneDatabaseEntry(File f) {
+    ContentValues values = new ContentValues();
+    values.put(MediaStore.MediaColumns.DATA, f.getAbsolutePath());
+    values.put(MediaStore.MediaColumns.TITLE, PACO_BARK_RINGTONE_TITLE);
+    values.put(MediaStore.MediaColumns.SIZE, f.length());
+    values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
+    values.put(MediaStore.Audio.Media.ARTIST, "Paco");
+    // values.put(MediaStore.Audio.Media.DURATION, ""); This is not needed
+    values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
+    values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
+    values.put(MediaStore.Audio.Media.IS_ALARM, false);
+    values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+    return values;
   }
 
   private void launchServerConfiguration() {
