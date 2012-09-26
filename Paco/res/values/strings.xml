@@ -19,7 +19,7 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.71</string>
+  <string name='version'>2.0.72</string>
   <string name='server'>quantifiedself.appspot.com</string>
   <string name='app_package'>com.google.android.apps.paco</string>
   <string name='emailSuffix'>\@gmail.com</string>

@@ -219,10 +219,13 @@ public class ExperimentManagerActivity extends Activity {
     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Signal Tone");
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
     if (uri != null) {
       intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uri));
-    } else {
-      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri)null);
+    } 
+    else {
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
     }
     
     startActivityForResult(intent, RINGTONE_REQUESTCODE);
