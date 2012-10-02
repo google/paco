@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -44,9 +45,9 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
@@ -81,15 +82,19 @@ public class Main implements EntryPoint, ExperimentListener {
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
   private LoginInfo loginInfo = null;
-  private Anchor signInLink = new Anchor("Sign In");
-  private Anchor signOutLink = new Anchor("Sign out");
+  private Anchor signInLink = new Anchor("Login");
+  private Anchor signOutLink = new Anchor("Logout");
 
-  private VerticalPanel loginPanel = new VerticalPanel();
+  private FlowPanel loginPanel = new FlowPanel();
   private Label loginLabel =
       new Label("Please sign in to your Google Account " + "to access the application.");
 
 
   public void onModuleLoad() {
+    if (GWT.getHostPageBaseURL().startsWith("http://")) {
+      Window.Location.assign(GWT.getHostPageBaseURL().replace("http://", "https://")+"Main.html");
+    }
+    resources = GWT.create(Images.class);
     checkLoginStatusAndLoadPage();
   }
 
@@ -102,13 +107,19 @@ public class Main implements EntryPoint, ExperimentListener {
       public void onSuccess(LoginInfo result) {
         loginInfo = result; 
         if (loginInfo.isLoggedIn() && new Whitelist().allowed(loginInfo.getEmailAddress())) {
-//          Maps.loadMapsApi("", "2", false, new Runnable() {
+//          ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
+//          loadLibraries.add(LoadLibrary.ADSENSE);
+//          loadLibraries.add(LoadLibrary.DRAWING);
+//          loadLibraries.add(LoadLibrary.GEOMETRY);
+//          loadLibraries.add(LoadLibrary.PANORAMIO);
+//          loadLibraries.add(LoadLibrary.PLACES);
+//          loadLibraries.add(LoadLibrary.WEATHER);
+//          
+//          LoadApi.go(new Runnable() {
 //            public void run() {
+              loginPanel.setVisible(false);
               createHomePage();
               signOutLink.setHref(loginInfo.getLogoutUrl());
-
-//            }
-//          });
 
         } else {
           loadLogin();
@@ -118,16 +129,23 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   private void loadLogin() {
+    loginPanel.setStyleName("front_page");
+    HTML index2Html  = new HTML(resources.indexHtml().getText());    
+    
     signInLink.setHref(loginInfo.getLoginUrl());
-    loginPanel.add(loginLabel);
+    signInLink.setStyleName("paco-HTML-Large");
+    signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+    
+    //loginPanel.add(loginLabel);
     loginPanel.add(signInLink);
+    loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
+    //RootPanel.get().add(index2Html);
   }
 
 
 
   private void createHomePage() {
-    resources = GWT.create(Images.class);
     RootPanel rootPanel = RootPanel.get();
 
     mainPanel = new VerticalPanel();
@@ -178,7 +196,7 @@ public class Main implements EntryPoint, ExperimentListener {
     statusLabel.setStyleName("paco-Loading-Panel");
     statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-    statusLabel.setSize("80px", "24px");
+    statusLabel.setSize("80px", "30px");
     statusLabel.setVisible(false);
 
     menuPanel.add(statusLabel);
