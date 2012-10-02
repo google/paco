@@ -90,8 +90,7 @@ public class ServerCommunication {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     UrlContentManager manager = null;
     try {
-      String emailSuffix = userPrefs.getGoogleEmailType();
-      manager = new UrlContentManager(context, emailSuffix);
+      manager = new UrlContentManager(context);
       
       String serverAddress = userPrefs.getServerAddress();
       Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();

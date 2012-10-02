@@ -109,8 +109,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       buttonView.setVisibility(View.GONE);
       
       warningText = (TextView) findViewById(R.id.webRecommendedWarningText);
-      warningText.setText(warningText.getText() + " Please point your computer browser to https://"
-                          + getString(R.string.server) + "/Main.html");
+      warningText.setText(warningText.getText() + " Please point your computer browser to http://"
+                          + getString(R.string.about_weburl));
 
       doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
       doOnPhoneButton.setVisibility(View.GONE);

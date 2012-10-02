@@ -43,5 +43,9 @@ public interface Images extends ClientBundle {
 
   @Source(value = "helptext.html")
   TextResource helpHtml();
+  
+  @Source(value = "index2.html")
+  TextResource indexHtml();
+
 } 
  

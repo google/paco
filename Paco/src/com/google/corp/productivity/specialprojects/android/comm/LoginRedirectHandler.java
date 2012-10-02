@@ -25,19 +25,10 @@ import static com.google.corp.productivity.specialprojects.android.comm.Constant
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_REQUIRED_ACTION_INTENT;
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_SECOND_ATTEMPT;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerFuture;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -51,13 +42,15 @@ import org.apache.http.impl.client.DefaultRedirectHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 
-import com.google.android.apps.paco.R;
-import com.google.android.apps.paco.UserPreferences;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.apps.paco.UserPreferences;
 
 /**
  * An HTTP redirect handler that intercepts redirection to Google appspot login page,
@@ -76,26 +69,19 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
   private static final int LOGIN_STATUS_FAILED = 1;
   private static final int LOGIN_STATUS_ERROR = 2;
 
-  private static final String DEFAULT_EMAIL_SUFFIX = "@google.com";
 
   private final String accountType;
-  private final String emailSuffix;
   /**
    * Used to perform logins only.
    */
   private final DefaultHttpClient httpClient;
 
   public LoginRedirectHandler() {
-    this(GOOGLE_ACCOUNT, DEFAULT_EMAIL_SUFFIX);
+    this(GOOGLE_ACCOUNT);
   }
 
-  public LoginRedirectHandler(String emailSuffix) {
-    this(GOOGLE_ACCOUNT, emailSuffix);
-  }
-
-  public LoginRedirectHandler(String accountType, String emailSuffix) {
+  LoginRedirectHandler(String accountType) {
     this.accountType = accountType;
-    this.emailSuffix = emailSuffix;
     // Sets up a no-redirect http client used only for performing the actual login.
     BasicHttpParams params = new BasicHttpParams();
     HttpClientParams.setRedirecting(params, false);
@@ -241,13 +227,10 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
     Account[] accounts = am.getAccountsByType(accountType);
     final List<Account> matchingAccounts = new ArrayList<Account>();
     for (Account account : accounts) {
-      if (account.name.endsWith(emailSuffix) && (accountName == null || accountName.equals(account.name))) {
-       matchingAccounts.add(account);
+      if (accountName.equals(account.name)) {
+       return account;
       }
     }
-    if (matchingAccounts.size() == 1) {
-      return matchingAccounts.get(0);
-    } 
     return null;
   }
 

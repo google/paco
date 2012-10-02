@@ -22,7 +22,7 @@
 	    android:layout_gravity="left"
 	    android:gravity="left"
 	    android:textSize="20dip"
-		android:layout_width="180dip"
+		android:layout_width="170dip"
 		android:layout_height="wrap_content"
 		android:focusable="true"
 		android:clickable="true"
