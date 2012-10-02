@@ -111,7 +111,6 @@
       <url-pattern>/pacoserver/maps*</url-pattern>
       <url-pattern>/events*</url-pattern>
       <url-pattern>/experiments*</url-pattern>
-      <url-pattern>/Main.html*</url-pattern>
    </web-resource-collection>
    <auth-constraint>
        <role-name>*</role-name> 

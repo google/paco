@@ -112,5 +112,14 @@ table, tbody, tr, td {
   color: #333333;
 }
 
+.front_page {
+	background-image:url('/images/back.jpg');
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	color:#234069;
+	text-align:center;
+	font-family: Times;
+}
+
 
 
