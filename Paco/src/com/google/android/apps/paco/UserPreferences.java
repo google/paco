@@ -145,10 +145,6 @@ public class UserPreferences {
     return pref.getString(LAST_PHOTO_ADDRESS, null);
   }
 
-  public String getGoogleEmailType() {
-    return (String) context.getText(R.string.emailSuffix);    
-  }  
-
   public long getNextServerCommunicationServiceAlarmTime() {
     return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());    
   }

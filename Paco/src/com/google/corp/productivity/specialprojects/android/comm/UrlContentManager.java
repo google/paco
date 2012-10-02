@@ -105,7 +105,6 @@ public class UrlContentManager {
 
   private final LoginRedirectHandler loginHandler;
   private final SerializableCookieStore cookieStore;
-  private String emailSuffix;
   /**
    * Used in case we need to persist anything under the application context.
    */
@@ -122,21 +121,12 @@ public class UrlContentManager {
    *
    * @param context Android's application {@link Context}.
    */
-  public UrlContentManager(Context context, String emailSuffix) {
+  public UrlContentManager(Context context) {
     this.applicationContext = context.getApplicationContext();
-    this.loginHandler = new LoginRedirectHandler(emailSuffix);
-    this.emailSuffix = emailSuffix;
+    this.loginHandler = new LoginRedirectHandler();
     SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
     this.cookieStore = new SerializableCookieStore(preferences);
     loginHandler.checkCredentialPermission(context);
-  }
-
-  public UrlContentManager(Context context) {
-    this(context, "@google.com");
-  }
-  
-  public String getEmailSuffix() {
-    return emailSuffix;
   }
 
   protected Response execute(HttpUriRequest request) {

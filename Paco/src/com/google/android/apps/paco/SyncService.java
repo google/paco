@@ -88,7 +88,7 @@ public class SyncService extends Service {
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
-      EventUploader eventUploader = new EventUploader(new UrlContentManager(this, userPrefs.getGoogleEmailType()), 
+      EventUploader eventUploader = new EventUploader(new UrlContentManager(this), 
                         userPrefs.getServerAddress(), 
                         experimentProviderUtil);
       eventUploader.uploadEvents(allEvents); 

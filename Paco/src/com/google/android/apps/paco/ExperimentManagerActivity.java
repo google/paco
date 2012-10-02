@@ -116,11 +116,11 @@ public class ExperimentManagerActivity extends Activity {
     ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);    
     createExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        String homepageAddr = getResources().getString(R.string.server)+ "/Main.html";
+        String homepageAddr = getResources().getString(R.string.about_weburl);
         new AlertDialog.Builder(v.getContext())
             .setMessage("Since creating experiments involves a fair amount of text entry, " +
                 "a phone is not so well-suited to creating experiments. \n\n" +
-                "Please point your browser to " + homepageAddr + " to create an experiment.")
+                "Please point your browser to http://" + homepageAddr + "/ to create an experiment.")
         		.setTitle("How to Create an Experiment")
         		.setCancelable(true)
         		.setPositiveButton("OK", new Dialog.OnClickListener() {

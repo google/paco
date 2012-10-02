@@ -187,8 +187,7 @@ public class ExperimentDetailActivity extends Activity {
 //      times.add(0, System.currentTimeMillis());
       UrlContentManager manager = null;
       try {
-        String emailSuffix = userPrefs.getGoogleEmailType();
-        manager = new UrlContentManager(ExperimentDetailActivity.this, emailSuffix);
+        manager = new UrlContentManager(ExperimentDetailActivity.this);
         
         String serverAddress = userPrefs.getServerAddress();
         Response response = manager.createRequest().setUrl(
