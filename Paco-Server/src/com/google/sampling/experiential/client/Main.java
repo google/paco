@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.gargoylesoftware.htmlunit.html.xpath.IsDescendantOfContextualFormFunction;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -91,7 +92,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
 
   public void onModuleLoad() {
-    if (GWT.getHostPageBaseURL().startsWith("http://")) {
+    if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
+        GWT.getHostPageBaseURL().contains("localhost"))) {
       Window.Location.assign(GWT.getHostPageBaseURL().replace("http://", "https://")+"Main.html");
     }
     resources = GWT.create(Images.class);

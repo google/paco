@@ -19,11 +19,16 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -49,7 +54,14 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
                                          List<EventDAO> eventList, 
                                          ExperimentDAO referredExperiment) {
     super(experimentListener, experiment, mapService);
-    this.eventList = eventList;
+    this.eventList = eventList;    
+    Collections.sort(this.eventList, new Comparator<EventDAO>() {
+
+      @Override
+      public int compare(EventDAO o1, EventDAO o2) {
+        return o2.getIdFromTimes().compareTo(o1.getIdFromTimes());
+      }
+    });
     this.referredExperiment = referredExperiment;
     createLayout();
   }
@@ -66,33 +78,54 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   protected void renderInputItems() {
     boolean first = true;
 
-//    boolean showingToday = false;
+    boolean showingToday = false;
+    Date lastDateShown = null;
+    DisclosurePanel currentDateDisclosurePanel = null;
+    VerticalPanel itemPanel = null;
+
     for (EventDAO eventDAO : this.eventList) {
-      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal() || !isToday(eventDAO)) {
+      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal()) {
         continue;
       }
       
       if (first) {
         first = false;
+        lastDateShown = eventDAO.getIdFromTimes();
       } else {
-        mainPanel.add(new HTML("<hr/>"));
+        if (itemPanel != null) {
+          itemPanel.add(new HTML("<hr/>"));
+        } else {
+          mainPanel.add(new HTML("<hr/>"));
+        }
       }
       
-//      if (isToday(eventDAO)) {
-//        if (!showingToday) {
-//          showingToday = true;
-//          mainPanel.add(new HTML("<h1>TODAY'S EVENTS</h1>"));
-//        }
-//      } else if (!isToday(eventDAO) && showingToday) {
-//        showingToday = false;
-//        mainPanel.add(new HTML("<h1>PREVIOUS DAYS' EVENTS</h1><p>Do not answer if you have already answered</p><br/>"));
-//      }
+      if (isToday(eventDAO)) { 
+        if (!showingToday) {
+          showingToday = true;
+          mainPanel.add(new HTML("<h1>TODAY'S EVENTS</h1>"));
+        }
+      } else if (!isToday(eventDAO) && showingToday) {
+        showingToday = false;
+        mainPanel.add(new HTML("<h2>PREVIOUS DAYS' EVENTS</h2><p>(Do not answer if you have already answered)</p>"));
+      }
       
-      VerticalPanel itemPanel = new VerticalPanel();
-      mainPanel.add(itemPanel);
+      
+      if (eventDAO.getIdFromTimes().getDate() != lastDateShown.getDate()) {
+        Button button = new Button("<h3>"+DateTimeFormat.getFullDateFormat().format(eventDAO.getIdFromTimes())+" EVENTS</h3>");
+        currentDateDisclosurePanel = new DisclosurePanel(button);
+        itemPanel = new VerticalPanel();
+        currentDateDisclosurePanel.add(itemPanel);
+        mainPanel.add(currentDateDisclosurePanel);
+      }
+      
+      
+      if (currentDateDisclosurePanel == null) {
+        itemPanel = new VerticalPanel();
+        mainPanel.add(itemPanel);
+      }
       itemPanel.add(renderEventPanel(eventDAO));
       renderInputsPanelForEvent(itemPanel, this.experiment, eventDAO);
-      
+      lastDateShown = eventDAO.getIdFromTimes();
     }
   }
 
