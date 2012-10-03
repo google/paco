@@ -16,11 +16,13 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import android.app.Activity;
@@ -56,15 +58,19 @@ public class ExperimentManagerActivity extends Activity {
   private static final int UPDATE_ITEM = 6;
   private static final int ACCOUNT_CHOOSER_ITEM = 7;
   private static final int RINGTONE_CHOOSER_ITEM = 8;
-
+  private static final int SEND_LOG_ITEM = 9;
+  
   private static final CharSequence ABOUT_PACO_STRING = "About Paco";
   private static final CharSequence DEBUG_STRING = "Debug";
   private static final CharSequence SERVER_ADDRESS_STRING = "Server Address";
   private static final String CHECK_FOR_UPDATES = "Check Updates";
   private static final String ACCOUNT_CHOOSER = "Choose Account";
   private static final String RINGTONE_CHOOSER = "Choose Alert";
-
+  private static final CharSequence SEND_LOG_STRING = "Send Log";
+  
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
+  
+  
   
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
@@ -181,6 +187,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
     menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, ACCOUNT_CHOOSER);
     menu.add(0, RINGTONE_CHOOSER_ITEM, 3, RINGTONE_CHOOSER);
+    menu.add(0, SEND_LOG_ITEM, 3, SEND_LOG_STRING);
     return true;
   }
 
@@ -205,9 +212,42 @@ public class ExperimentManagerActivity extends Activity {
     case RINGTONE_CHOOSER_ITEM:
       launchRingtoneChooser();
       return true;
+    case SEND_LOG_ITEM:
+      launchLogSender();
+      return true;
+      
     default:
       return false;
     }
+  }
+
+  private void launchLogSender() {
+    String log = readLog();
+    createEmailIntent(log);
+  }
+
+  private void createEmailIntent(String log) {
+    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.setType("plain/text");
+    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
+    startActivity(emailIntent);
+  }
+
+  private String readLog() {
+    StringBuilder log = new StringBuilder();
+    try {
+      Process process = Runtime.getRuntime().exec("logcat -d");
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        log.append(line).append("\n");
+      }
+    } catch (IOException e) {
+      return null;
+    }
+    return log.toString();
   }
 
   private void launchRingtoneChooser() {
