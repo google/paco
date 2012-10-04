@@ -43,6 +43,8 @@ public interface ExperimentListener {
   public static final int SHOW_EXPERIMENT_RESPONSE_CODE = 15;
   public static final int SHOW_QR_CODE = 16;
   public static final int SHOW_REF_CODE = 17;
+  public static final int INDIVIDUAL_STATS_CODE = 18;
+  
 
   void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
 }

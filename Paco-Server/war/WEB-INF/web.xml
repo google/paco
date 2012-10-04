@@ -75,6 +75,11 @@
     <servlet-name>experimentServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
     </servlet>
+
+    <servlet>
+    <servlet-name>participantServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
+    </servlet>
   
   <servlet>
     <display-name>Remote API Servlet</display-name>
@@ -106,11 +111,17 @@
     <url-pattern>/experiments</url-pattern>
   </servlet-mapping>  
 
+  <servlet-mapping>
+    <servlet-name>participantServlet</servlet-name>
+    <url-pattern>/participantStats</url-pattern>
+  </servlet-mapping>  
+ 
  <security-constraint>
    <web-resource-collection>
       <url-pattern>/pacoserver/maps*</url-pattern>
       <url-pattern>/events*</url-pattern>
       <url-pattern>/experiments*</url-pattern>
+      <url-pattern>/participantStats*</url-pattern>
    </web-resource-collection>
    <auth-constraint>
        <role-name>*</role-name> 

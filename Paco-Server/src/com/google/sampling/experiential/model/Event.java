@@ -337,6 +337,10 @@ public class Event {
     return buf.toString();
   }
 
+  public boolean isJoined() {
+    return getWhatByKey("joined") != null;
+  }
+
   public static String getAnonymousId(String who) {
     MessageDigest messageDigest = null;
     try {
