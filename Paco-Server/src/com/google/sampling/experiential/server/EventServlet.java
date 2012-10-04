@@ -62,6 +62,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -246,11 +247,12 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
+  private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {    
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
     List<Event> greetings = getEventsWithQuery(req, query);
+    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(greetings.get(0).getExperimentId());
     sortEvents(greetings);
-    printEvents(resp, greetings, anon);
+    printEvents(resp, greetings, experiment, anon);
   }
 
   private String stripQuotes(String parameter) {
@@ -279,19 +281,27 @@ public class EventServlet extends HttpServlet {
     return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req));
   }
 
-  private void printEvents(HttpServletResponse resp, List<Event> greetings, boolean anon) throws IOException {
+  private void printEvents(HttpServletResponse resp, List<Event> events, Experiment experiment, boolean anon) throws IOException {
     long t1 = System.currentTimeMillis();
     long eventTime = 0;
     long whatTime = 0;
-    if (greetings.isEmpty()) {
+    if (events.isEmpty()) {
       resp.getWriter().println("Nothing to see here.");
     } else {
       StringBuilder out = new StringBuilder();
-      out.append("<html><head><title>Current Ratings</title></head><body>");
-      out.append("<h1>Results</h1>");
-      out.append("<table border=1>");
+      out.append("<html><head><title>Current Results for " + experiment.getTitle() + "</title>" +
+          "<style type=\"text/css\">"+
+              "body {font-family: verdana,arial,sans-serif;color:#333333}" +
+            "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: #666666;border-collapse: collapse;}" +
+            "table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}" +
+            "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
+            "</style>" +
+                 "</head><body>");
+      out.append("<h1>" + experiment.getTitle() + " Results</h1>");
+      out.append("<div><span style\"font-weight: bold;\">Number of results:</span> <span>" + events.size() +"</span></div>" );
+      out.append("<table class=\"gridtable\">");
       out.append("<tr><th>Experiment Name</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
-      for (Event event : greetings) {
+      for (Event event : events) {
         long e1 = System.currentTimeMillis();
         out.append("<tr>");
         

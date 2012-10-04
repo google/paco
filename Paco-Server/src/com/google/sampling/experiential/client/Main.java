@@ -530,14 +530,19 @@ public class Main implements EntryPoint, ExperimentListener {
         break;   
       case ExperimentListener.SHOW_QR_CODE:
         String experimentId = "0000"+Long.toString(experiment.getId());
-        Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
+        Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=" +
+        		"L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
                     "_blank","");
         break;   
       case ExperimentListener.SHOW_REF_CODE:
         contentPanel.clear();
         showExperimentReferencePanel(experiment);
         break;   
-        
+      case ExperimentListener.INDIVIDUAL_STATS_CODE:        
+        Window.open("/participantStats?experimentId=" + experiment.getId(),
+                    "_blank","");
+        break;   
+
     }
   }
 
@@ -829,7 +834,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onSuccess(ExperimentStatsDAO stats) {
-        StatsPanel p = new StatsPanel(stats, experiment, joined);
+        StatsPanel p = new StatsPanel(stats, experiment, joined, Main.this);
         contentPanel.add(p);
         statusLabel.setVisible(false);
       }

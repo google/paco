@@ -68,9 +68,14 @@ public class ExperimentServlet extends HttpServlet {
     } else {
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
       String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
+      if (experimentsJson != null) {
+        log.info("Got cached experiments for " + user.getEmail());
+      }
       List<ExperimentDAO> experiments;
       if (experimentsJson == null) {
+        log.info("No cached experiments for " + user.getEmail());
         experiments = cacheHelper.getJoinableExperiments();
+        log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
         String email = getEmailOfUser(req, user);
         List<ExperimentDAO> availableExperiments = null;
         if (experiments == null) {
@@ -105,7 +110,7 @@ public class ExperimentServlet extends HttpServlet {
     Collections.sort(availableExperiments, new Comparator<ExperimentDAO>() {
       @Override
       public int compare(ExperimentDAO o1, ExperimentDAO o2) {
-        return o1.getTitle().compareTo(o2.getTitle());
+        return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
       }      
     });
     return availableExperiments;
@@ -114,7 +119,7 @@ public class ExperimentServlet extends HttpServlet {
 
   private boolean arrayContains(String[] strings, String targetString) {
     for (int i = 0; i < strings.length; i++) {
-      if (strings[i].equals(targetString)) {
+      if (strings[i].toLowerCase().equals(targetString.toLowerCase())) {
         return true;
       }
     }
