@@ -36,6 +36,7 @@
 <inherits name="com.google.gwt.gen2.picker.Picker" />                      
 <inherits name="com.google.gwt.http.HTTP" />
 <inherits name="com.google.gwt.json.JSON" />
+<inherits name="com.google.gwt.i18n.I18N"/>
 
 <!-- <inherits name="com.google.gwt.maps.GoogleMaps" /> -->
 <!-- <inherits name='com.google.gwt.maps.Apis_Google_Maps' /> -->
