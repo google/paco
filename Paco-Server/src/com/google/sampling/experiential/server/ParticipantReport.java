@@ -67,13 +67,13 @@ public class ParticipantReport {
     return scheduled;
   }
 
-  public int getSignaledResponseRate() {
+  public float getSignaledResponseRate() {
     ensureComputed();
-    return scheduled > 0 ? signaledResponses / scheduled : 0;
+    return scheduled > 0 ? ((float)signaledResponses / (float)scheduled) : 0f;
   }
 
 
-  public int getTodaysResponseCount() {
+  public int getTodaysSignaledResponseCount() {
     ensureComputed();
     return todaysSignaledResponses;
   }
@@ -83,9 +83,9 @@ public class ParticipantReport {
     return todaysScheduled;
   }
 
-  public int getTodaysSignaledResponseRate() {
+  public float getTodaysSignaledResponseRate() {
     ensureComputed();
-    return todaysScheduled > 0 ? todaysSignaledResponses / todaysScheduled : 0;
+    return todaysScheduled > 0 ? ((float)todaysSignaledResponses / (float)todaysScheduled): 0;
   }
 
   public int getTodaysSelfReportResponseCount() {
@@ -98,6 +98,7 @@ public class ParticipantReport {
   private void compute() {
     scheduled = 0;
     selfReportResponses = 0;
+    signaledResponses = 0;
     for (Event event : events) {
       if (event.isJoined()) {
         continue;
@@ -154,6 +155,22 @@ public class ParticipantReport {
     if (!alreadyComputed) {
       throw new IllegalArgumentException("Have not computed stats yet");
     }
+  }
+
+  public int getSelfReportAndSignaledResponseCount() {
+    return signaledResponses + selfReportResponses;
+  }
+
+  public int getTodaysMissedCount() {
+    return todaysScheduled - todaysSignaledResponses;
+  }
+
+  public int getSignaledResponseCount() {
+    return signaledResponses;
+  }
+
+  public int getMissedCount() {
+    return scheduled - signaledResponses;
   }
 
   

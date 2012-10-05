@@ -80,7 +80,13 @@
     <servlet-name>participantServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
     </servlet>
-  
+    
+    <servlet>
+    <servlet-name>whitelistService</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.WhitelistServiceImpl</servlet-class>
+  </servlet>
+    
+
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -106,6 +112,11 @@
     <url-pattern>/pacoserver/login</url-pattern>
   </servlet-mapping>  
 
+    <servlet-mapping>
+    <servlet-name>whitelistService</servlet-name>
+    <url-pattern>/pacoserver/whitelist</url-pattern>
+  </servlet-mapping>  
+  
  <servlet-mapping>
     <servlet-name>experimentServlet</servlet-name>
     <url-pattern>/experiments</url-pattern>
@@ -115,20 +126,34 @@
     <servlet-name>participantServlet</servlet-name>
     <url-pattern>/participantStats</url-pattern>
   </servlet-mapping>  
- 
- <security-constraint>
-   <web-resource-collection>
-      <url-pattern>/pacoserver/maps*</url-pattern>
-      <url-pattern>/events*</url-pattern>
-      <url-pattern>/experiments*</url-pattern>
-      <url-pattern>/participantStats*</url-pattern>
-   </web-resource-collection>
-   <auth-constraint>
-       <role-name>*</role-name> 
-   </auth-constraint>
-   <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-   </user-data-constraint>
-
- </security-constraint>
-</web-app>
+   
+  	 <security-constraint>
+	   <web-resource-collection>
+	      <url-pattern>/pacoserver/maps*</url-pattern>
+	      <url-pattern>/events*</url-pattern>
+	      <url-pattern>/experiments*</url-pattern>
+	      <url-pattern>/participantStats*</url-pattern>
+	   </web-resource-collection>
+	   <auth-constraint>
+	       <role-name>*</role-name> 
+	   </auth-constraint>
+	   <user-data-constraint>
+	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+	   </user-data-constraint>
+	
+	 </security-constraint>
+	 
+	 <security-constraint>
+	        <web-resource-collection>
+	            <url-pattern>/whitelist.html*</url-pattern>
+	            <url-pattern>/pacoserver/whitelist*</url-pattern>
+	        </web-resource-collection>
+	        <auth-constraint>
+	            <role-name>admin</role-name>
+	        </auth-constraint>
+	           <user-data-constraint>
+	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+	   </user-data-constraint>
+	        
+	    </security-constraint>
+	</web-app>

@@ -466,18 +466,29 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   @Override
   public void saveEvent(EventDAO event) {
+    User loggedInWho = getWhoFromLogin();
+    if (loggedInWho == null) {
+      throw new IllegalArgumentException("Not logged in");
+    }
+
     String who = event.getWho();
+    if (who != null && !who.isEmpty() && !loggedInWho.getEmail().equals(who)) {
+      throw new IllegalArgumentException("Who passed in is not the logged in user!");
+    }
+
+    if (event == null) {
+      throw new IllegalArgumentException("No event data to save.");
+    }
+
     Long experimentId = event.getExperimentId();
+    if (experimentId == null) {
+      throw new IllegalArgumentException("Invalid event. No id.");
+    }
     Date scheduledTimeDate = event.getScheduledTime();
     Date responseTimeDate = event.getResponseTime();
     Date whenDate = new Date();
     Set<What> whats = parseWhats(event.getWhat());
-    User loggedInWho = getWhoFromLogin();    
-    if (loggedInWho == null || (who != null && !who.isEmpty() 
-        && !loggedInWho.getEmail().equals(who))) {
-      throw new IllegalArgumentException("Who passed in is not the logged in user!");
-    }
-    
+        
     
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
     
