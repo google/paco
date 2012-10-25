@@ -133,6 +133,7 @@
     <pathelement location="war/WEB-INF/classes"/>
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>
     <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+    <fileset dir="${sdk.dir}" includes="*.jar"/>
     <!-- Add any additional non-server libs (such as JUnit) -->
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
@@ -256,7 +257,7 @@ Test targets suppressed because -junit argument was not specified when running w
 
   <target name="hosted" depends="devmode" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
 
-  <target name="build" depends="gwtc,datanucleusenhance" description="Build this project" />
+  <target name="build" depends="copyjars,gwtc,datanucleusenhance" description="Build this project" />
 
   <target name="war" depends="build" description="Create a war file">
     <zip destfile="paco.war" basedir="war"/>
