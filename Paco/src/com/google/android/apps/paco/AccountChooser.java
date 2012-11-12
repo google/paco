@@ -37,7 +37,7 @@ public class AccountChooser extends ListActivity {
   protected void onResume() {
     super.onResume();
     userPrefs = new UserPreferences(this);
-    String chosenAccount = userPrefs.getSelectedAccount(this);
+    String chosenAccount = userPrefs.getSelectedAccount();
     if (chosenAccount != null) {
       TextView acctTextView = ((TextView)findViewById(R.id.ChosenAccountText));
       acctTextView.setText("current: " + chosenAccount);
@@ -69,7 +69,7 @@ public class AccountChooser extends ListActivity {
   }
 
   private void setChosenAccountNameAsResult(String accountName) {
-    userPrefs.saveSelectedAccount(this, accountName);
+    userPrefs.saveSelectedAccount(accountName);
     Intent result = new Intent();
     result.putExtra(ACCOUNT_NAME, accountName);
     setResult(0, result);

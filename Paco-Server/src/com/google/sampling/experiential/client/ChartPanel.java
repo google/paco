@@ -18,8 +18,11 @@ package com.google.sampling.experiential.client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+//import com.google.gwt.maps.client.MapWidget;
+//import com.google.gwt.maps.client.overlays.Marker;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -185,10 +188,10 @@ public class ChartPanel extends Composite {
   }
 
   private Widget renderEventsOnMap() {
-	  return new HTML();
+//	  return new HTML();
 //    markers.clear();
 //    createMap();
-//    LatLngBounds bounds = LatLngBounds.newInstance();
+//    LatLngBounds bounds = LatLngBounds.newInstance(null, null);
 //    map.setCenter(bounds.getCenter());
 //    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
 //    for (final EventDAO eventRating : data) {
@@ -206,15 +209,17 @@ public class ChartPanel extends Composite {
 //
 //        MarkerOptions markerOptions = MarkerOptions.newInstance();
 //        markerOptions.setTitle(eventRating.getWhatString());
-//        final Marker marker = new Marker(LatLng.newInstance(latitude, longitude), markerOptions);
-//        bounds.extend(marker.getPoint());
-//        marker.addMarkerClickHandler(new MarkerClickHandler() {
-//
+//        LatLng newInstance = LatLng.newInstance(latitude, longitude);
+//        final Marker marker = new Marker();
+//        marker.setPosition(newInstance);
+//        marker.setOptions(markerOptions);
+//        bounds.extend(marker.getPosition());
+//        marker.addClickHandler(new ClickMapHandler() {
+//          
 //          @Override
-//          public void onClick(MarkerClickEvent event) {
+//          public void onEvent(ClickMapEvent event) {
 //            openInfoWindowForMarker(eventRating, marker);
 //          }
-//
 //        });
 //        markers.put(eventRating, marker);
 //        map.addOverlay(marker);
@@ -227,13 +232,15 @@ public class ChartPanel extends Composite {
 //    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
 //    map.checkResizeAndCenter();
 //    return map;
+    return null;
+    
   }
 
 //  private void openInfoWindowForMarker(final EventDAO eventRating, final Marker marker) {
-//    map.getInfoWindow().open(marker.getPoint(), createInfoWindowForEventRating(eventRating));
+//    map.getInfoWindow().open(marker.getPosition(), createInfoWindowForEventRating(eventRating));
 //  }
-
-
+//
+//
 //  private InfoWindowContent createInfoWindowForEventRating(final EventDAO eventRating) {
 //    return new InfoWindowContent(
 //        "What: " + eventRating.getWhatString() + "<br/>Who: " + eventRating.getWho() + "<br/>When: "

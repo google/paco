@@ -98,7 +98,7 @@ table, tbody, tr, td {
 }
 .paco-Logo {
   margin-top: 0px;
-  margin-right: 5px;
+  margin-right: 8px;
   margin-left: 3px;
 }
 .gwt-Label-Header {
@@ -106,9 +106,25 @@ table, tbody, tr, td {
   font-size: .9em;
   font-weight: 600;
 }
+.paco-Name-Greeting {
+  margin-top: 5px;
+  padding-top: 3px;
+  color: #333333;
+  font-size: .9em;
+  font-weight: bold;
+}
+
+
 .paco-HTML {
 . padding: 2px;
   font-weight: bold;
+  color: #333333;
+}
+
+.paco-small {
+. padding: 1px;
+  font-weight: normal;
+  font-size: smaller;
   color: #333333;
 }
 

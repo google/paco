@@ -47,6 +47,7 @@ import com.google.sampling.experiential.model.What;
  */
 public class EventRetriever {
 
+  private static final int DEFAULT_FETCH_LIMIT = 100;
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   
@@ -99,11 +100,14 @@ public class EventRetriever {
   }
 
   public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, 
-      String loggedInuser, DateTimeZone clientTimeZone) {
+      String loggedInuser, DateTimeZone clientTimeZone, int offset, int limit) {
+    if (limit == 0) {
+      limit = DEFAULT_FETCH_LIMIT;
+    }
     doOneTimeCleanup();
     Set<Event> allEvents = Sets.newHashSet();
     PersistenceManager pm = PMF.get().getPersistenceManager();
-    EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
+    EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone, offset, limit);
 
     long t11 = System.currentTimeMillis();
     
@@ -192,7 +196,7 @@ public class EventRetriever {
 
   private void addAllSharedEvents(List<com.google.sampling.experiential.server.Query> queryFilters,
       DateTimeZone clientTimeZone, Set<Event> allEvents, PersistenceManager pm) {
-    EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
+    EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone, 0, 0);
     sharedQ.addFilters("shared == true");
     Query queryShared = sharedQ.getQuery(); 
     List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(
@@ -287,9 +291,11 @@ public class EventRetriever {
 
   private EventJDOQuery createJDOQueryFrom(PersistenceManager pm, 
       List<com.google.sampling.experiential.server.Query> queryFilters, 
-      DateTimeZone clientTimeZone) {
+      DateTimeZone clientTimeZone, int offset, int limit) {
     Query newQuery = pm.newQuery(Event.class);
-    JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
+    //newQuery.getFetchPlan().setFetchSize(limit);
+    //newQuery.setRange(offset, limit);
+    JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);    
     queryBuilder.addFilters(queryFilters, clientTimeZone);
     return queryBuilder.getQuery();
   }

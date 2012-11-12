@@ -2,13 +2,11 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Composite;
@@ -17,7 +15,6 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.InputDAO;
 
@@ -100,7 +97,7 @@ public class EventPanel extends Composite {
             }
             addColumnToGrid(grid, i, value, input.getName());
         } else if (input.getResponseType().equals(InputDAO.LIST)) {
-          String[] listChocies = input.getListChoices();
+          String[] listChoices = input.getListChoices();
           if (input.getMultiselect() != null && input.getMultiselect()) {
             StringBuffer buff = new StringBuffer(); 
             boolean first = true;
@@ -110,18 +107,13 @@ public class EventPanel extends Composite {
               } else {
                 buff.append(",");
               }
-              int zeroBasedIndex = Integer.parseInt(currentChoice) - 1;
-              String answerString = listChocies[zeroBasedIndex];
+              
+              String answerString = getListChoiceForAnswer(currentChoice, listChoices);
               buff.append(answerString);
             }
             value = buff.toString();
           } else {
-            int zeroBasedIndex = Integer.parseInt(value) - 1;
-            if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
-              value = ""; 
-            } else {               
-              value = listChocies[zeroBasedIndex]; 
-            }
+            value = getListChoiceForAnswer(value, listChoices);
           }
           addColumnToGrid(grid, i, value, input.getText());
         } else {
@@ -134,6 +126,21 @@ public class EventPanel extends Composite {
         
       }
     }
+  }
+
+  private String getListChoiceForAnswer(String value, String[] listChocies) {
+    int zeroBasedIndex = -1; 
+    try {
+      zeroBasedIndex = Integer.parseInt(value) - 1;
+    } catch (NumberFormatException nfe) {
+      // Log this error.
+    }
+    if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
+      value = ""; 
+    } else {               
+      value = listChocies[zeroBasedIndex]; 
+    }
+    return value;
   }
 
   private void addColumnToGrid(Grid grid, int i, String value, String text) {

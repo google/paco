@@ -106,7 +106,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         }
       } else if (!isToday(eventDAO) && showingToday) {
         showingToday = false;
-        mainPanel.add(new HTML("<h2>PREVIOUS DAYS' EVENTS</h2><p>(Do not answer if you have already answered)</p>"));
+        mainPanel.add(new HTML("<h2>PREVIOUS DAYS' EVENTS</h2><p>Note: Previous Answers will not be displayed but they are recorded</p>"));
       }
       
       

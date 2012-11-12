@@ -3,10 +3,12 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.InputDAO;
@@ -120,7 +122,7 @@ public class InputExecutorPanel extends Composite {
     } else if (input.getResponseType().equals(InputDAO.NUMBER)) {
       renderOpenText();
     }
-    
+    mainPanel.add(new HTML("<br/>"));
   }
 
   private void renderLikert() {
@@ -162,9 +164,19 @@ public class InputExecutorPanel extends Composite {
   }
 
   private void renderOpenText() {
+    VerticalPanel holder = new VerticalPanel();
+    lowerLinePanel.add(holder);
     text = new TextBox();
     text.setWidth("40em");
-    lowerLinePanel.add(text);    
+//    text.setCharacterWidth(80);
+//    text.setVisibleLines(6);
+
+    text.setMaxLength(500);
+    holder.add(text);
+        
+    Label fivehundredlimit = new Label("(Limit 500 chars)");
+    fivehundredlimit.setStyleName("paco-small");
+    holder.add(fivehundredlimit);
   }
 
   private void createTextPrompt() {

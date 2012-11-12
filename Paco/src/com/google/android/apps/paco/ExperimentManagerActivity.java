@@ -158,6 +158,7 @@ public class ExperimentManagerActivity extends Activity {
       }
     });
 
+    
   }  
 
   private Experiment getExperimentFromIntent() {
@@ -172,7 +173,7 @@ public class ExperimentManagerActivity extends Activity {
   protected void onResume() {
     super.onResume();
     //login(loginHelper);
-    currentExperimentsButton.setEnabled(hasRegisteredExperiments());
+    currentExperimentsButton.setEnabled(hasRegisteredExperiments());    
   }
 
   private boolean hasRegisteredExperiments() {

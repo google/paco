@@ -186,7 +186,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel = new VerticalPanel();
     contentPanel.setSpacing(2);
     horizontalPanel.add(contentPanel);
-    contentPanel.setSize("479px", "325px");
+    contentPanel.setSize("550px", "325px");
 
     loadJoinedExperiments();
     createCallbackForGviz();
@@ -197,11 +197,11 @@ public class Main implements EntryPoint, ExperimentListener {
     statusLabel.setStyleName("paco-Loading-Panel");
     statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-    statusLabel.setSize("80px", "30px");
+    statusLabel.setSize("80px", "26px");
     statusLabel.setVisible(false);
 
     menuPanel.add(statusLabel);
-  }
+  } 
 
   private HorizontalPanel createMenuBar() {
     HorizontalPanel menuPanel = new HorizontalPanel();
@@ -210,11 +210,19 @@ public class Main implements EntryPoint, ExperimentListener {
     pacoLogo.setStylePrimaryName("paco-Logo");
     menuPanel.add(pacoLogo);
 
+    VerticalPanel rootMenuAndGreetingBar = new VerticalPanel();
+    menuPanel.add(rootMenuAndGreetingBar);
     MenuBar rootMenuBar = new MenuBar(false);
-    menuPanel.add(rootMenuBar);
+    rootMenuAndGreetingBar.add(rootMenuBar);
+    
+    Label greeting = new Label("Hello, " + loginInfo.getEmailAddress());
+    greeting.setStyleName("paco-Name-Greeting");
+    //greeting.setSize("200px", "20px");
+    rootMenuAndGreetingBar.add(greeting);
+    
 
     MenuBar joinedSubMenuBar = new MenuBar(true);
-    MenuItem joinedMenuItem = new MenuItem("Current Experiments (Joined)", false, joinedSubMenuBar);
+    MenuItem joinedMenuItem = new MenuItem("Experiments You Joined", false, joinedSubMenuBar);
     MenuItem mntmShowAllJoined = new MenuItem("Show All", false, new Command() {
       public void execute() {
         loadJoinedExperiments();
@@ -372,7 +380,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void loadJoinedExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Current Experiments (Personal Data)");
+    setContentTitle("Experiments You Joined ");
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);

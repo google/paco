@@ -142,7 +142,7 @@ public class StatsPanel extends Composite {
       return false;
     }
     for (int i = 0; i < admins.length; i++) {
-      if (admins[i].equals(loggedInUser)) return true;
+      if (admins[i].toLowerCase().equals(loggedInUser)) return true;
     }
     return false;
   }
