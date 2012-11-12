@@ -85,7 +85,7 @@
     <import file="${sdk.dir}/tools/ant/build.xml" />
     
     <!--  override the signjar task to deal with jdk1.7 changes in jarsign tool. Note this requires ant 1.8.3 or better. -->
-    <signjar
+<!--    <signjar
                     sigalg="MD5withRSA"
                     digestalg="SHA1"
                     jar="${out.packaged.file}"
@@ -95,5 +95,6 @@
                     alias="${key.alias}"
                     keypass="${key.alias.password}"
                     verbose="${verbose}" />
+-->
 
 </project>
