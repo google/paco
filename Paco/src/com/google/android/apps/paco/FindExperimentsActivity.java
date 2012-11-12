@@ -80,8 +80,7 @@ public class FindExperimentsActivity extends Activity {
     }
     showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
 
-    userPrefs = new UserPreferences(this);
-    ensureGoogleAccountChosen();
+    userPrefs = new UserPreferences(this);    
     list = (ListView) findViewById(R.id.find_experiments_list);
     createListHeader();
 
@@ -143,8 +142,13 @@ public class FindExperimentsActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (!showingJoinedExperiments && listIsStale()) {
-      refreshList();
+    if (userPrefs.getSelectedAccount() == null) {
+      Intent acctChooser = new Intent(this, AccountChooser.class);
+      this.startActivity(acctChooser);
+    } else {
+      if (!showingJoinedExperiments && listIsStale()) {
+        refreshList();
+      }
     }
 
   }
@@ -152,7 +156,7 @@ public class FindExperimentsActivity extends Activity {
 
 
   private void ensureGoogleAccountChosen() {
-    if (userPrefs.getSelectedAccount(this) == null) {
+    if (userPrefs.getSelectedAccount() == null) {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
     }    

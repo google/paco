@@ -317,8 +317,9 @@ public class ExperimentDefinitionPanel extends Composite {
     adminList.setHeight("100");
     String[] adminStrArray = experiment.getAdmins();
     List<String> admins = Lists.newArrayList(adminStrArray);
-    if (!admins.contains(loginInfo.getEmailAddress())) {
-      admins.add(loginInfo.getEmailAddress());
+    String loginEmailLowercase = loginInfo.getEmailAddress().toLowerCase();
+    if (!admins.contains(loginEmailLowercase)) {
+      admins.add(loginEmailLowercase);
     }
     adminList.setText(toCSVString(admins));
 
@@ -452,7 +453,7 @@ public class ExperimentDefinitionPanel extends Composite {
       } else {
         buf.append(", ");
       }
-      buf.append(item);
+      buf.append(item.toLowerCase());
     }
     return buf.toString();
   }

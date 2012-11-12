@@ -153,23 +153,18 @@ public class UserPreferences {
     getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
   }
 
-  public void saveSelectedAccount(Context context, String name) {
+  public void saveSelectedAccount(String name) {
     SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
     prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();    
   }
 
-  public void saveSelectedAccount(Activity activity, Account account) {
-    saveSelectedAccount(activity, account.name);
+  public void saveSelectedAccount(Account account) {
+    saveSelectedAccount(account.name);
   }
 
-  public String getSelectedAccount(Context activity) {
-    SharedPreferences prefs = activity.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
-    String accountName = prefs.getString(SELECTED_ACCOUNT_KEY, null);
-    if (accountName == null) {
-      return null;
-    } else {
-      return accountName;
-    }    
+  public String getSelectedAccount() {
+    SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
+    return prefs.getString(SELECTED_ACCOUNT_KEY, null);
   }
   
   public void setRingtone(String ringtoneUri) {

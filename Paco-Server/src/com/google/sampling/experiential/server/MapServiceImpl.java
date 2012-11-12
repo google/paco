@@ -109,7 +109,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   private List<EventDAO> getEventsForQuery(String tags) {
     List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse(tags);
     List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(), 
-        EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
+        EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
     return convertEventsToDAOs(result);
   }
 
@@ -195,7 +195,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     
     if (experiment.getId() != null) {
       User loggedInUser = getWhoFromLogin();
-      String loggedInUserEmail = loggedInUser.getEmail();
+      String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
       if (!(experiment.getCreator().equals(loggedInUser) || 
         experiment.getAdmins().contains(loggedInUserEmail))) {
         // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
@@ -286,7 +286,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     Query q = pm.newQuery(Experiment.class);
     q.setFilter("admins == whoParam");
     q.declareParameters("String whoParam");
-    return (List<Experiment>) q.execute(user.getEmail());         
+    return (List<Experiment>) q.execute(user.getEmail().toLowerCase());         
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -412,7 +412,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
           getWhoFromLogin().getEmail());
       List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(), 
-          EventServlet.getTimeZoneForClient(getThreadLocalRequest()));
+          EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
       Set<Long> experimentIds = Sets.newHashSet();
       for(Event event : events) {
         if (event.getExperimentId() == null) {

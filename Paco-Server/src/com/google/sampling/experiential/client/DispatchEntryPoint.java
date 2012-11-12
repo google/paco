@@ -56,6 +56,8 @@ public class DispatchEntryPoint implements EntryPoint {
       new PacoEventServer().onModuleLoad();
     } else if (path.endsWith("PostEvent.html")) {
       new PostEvent().onModuleLoad();
+    } else if (path.endsWith("whitelist.html")) {
+      new WhitelistModule().onModuleLoad();
     }
   }
 

@@ -33,12 +33,13 @@ public class WhitelistTest {
   
   @Test
   public void testGooglerFakeDouble() {
-    assertFalse(new Whitelist().allowed("bob@google.com@google.com"));
+    assertFalse(new Whitelist().allowed("bob@evil.com@google.com"));
   }
 
   @Test
   public void testGooglerFakeBlank() {    
     assertFalse(new Whitelist().allowed("@google.com"));
   }
+
 
 }

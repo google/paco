@@ -47,7 +47,7 @@ public class ParticipantStatServlet extends HttpServlet {
         Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),
-                                                                    EventServlet.getTimeZoneForClient(req));
+                                                                    EventServlet.getTimeZoneForClient(req), 0, 20000);
         Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
         for (Event event : events) {
           ParticipantReport participantReport = participantReports.get(event.getWho());
@@ -128,7 +128,7 @@ public class ParticipantStatServlet extends HttpServlet {
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         for (ParticipantReport report : participantReportValues) {
           writer.write("<tr style=\"text-align:right;\">");
-          writer.write("<td style=\"text-align:left;\">" + report.getWho() + "</td>");
+          writer.write("<td style=\"text-align:left;\">" + Event.getAnonymousId(report.getWho()) + "</td>");
           writer.write("<td style=\"background-color: #dedede;\">" + 
               percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
           

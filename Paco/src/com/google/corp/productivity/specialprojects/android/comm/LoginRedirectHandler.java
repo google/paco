@@ -132,7 +132,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
       Activity activity = (Activity) context;
       AccountManager accountManager = AccountManager.get(context);
       UserPreferences userPrefs = new UserPreferences(context);
-      String accountName = userPrefs.getSelectedAccount(activity); 
+      String accountName = userPrefs.getSelectedAccount(); 
       Account account = findAccount(accountManager, context, accountName);
       
       AccountManagerFuture<Bundle> future = null;
@@ -196,7 +196,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
   private Account checkAccount(final HttpContext httpContext, final Context context,
       final AccountManager accountManager) {
     UserPreferences userPrefs = new UserPreferences(context);
-    String accountName = userPrefs.getSelectedAccount(context);
+    String accountName = userPrefs.getSelectedAccount();
     Account account = findAccount(accountManager, context, accountName);
 //    if (account == null) {
 //      // Account not found - ask user to create account

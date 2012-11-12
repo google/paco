@@ -110,7 +110,7 @@ public class EventServlet extends HttpServlet {
 
   private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query);
+    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
     sortEvents(events);
     Set<String> whos = new HashSet<String>();
     for (Event event : events) {
@@ -164,7 +164,7 @@ public class EventServlet extends HttpServlet {
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query);
+    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
     sortEvents(events);
     String jsonOutput = jsonifyEvents(events, anon);
     resp.getWriter().println(jsonOutput);
@@ -198,11 +198,11 @@ public class EventServlet extends HttpServlet {
   private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
 
-    String loggedInuser = getWhoFromLogin().getEmail();
+    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin;
     }
-    List<Event> events = EventRetriever.getInstance().getEvents(query, loggedInuser, getTimeZoneForClient(req));
+    List<Event> events = EventRetriever.getInstance().getEvents(query, loggedInuser, getTimeZoneForClient(req), 0, 20000);
     sortEvents(events);
 
     List<String[]> eventsCSV = Lists.newArrayList();
@@ -248,11 +248,24 @@ public class EventServlet extends HttpServlet {
   }
 
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {    
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    List<Event> greetings = getEventsWithQuery(req, query);
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(greetings.get(0).getExperimentId());
-    sortEvents(greetings);
-    printEvents(resp, greetings, experiment, anon);
+    String q = stripQuotes(getParam(req, "q"));
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(q);
+    String offsetStr = getParam(req, "offset");
+    int offset = 0;
+    int limit = 100;
+    if (offsetStr != null && !offsetStr.isEmpty()) {
+      offset = Integer.parseInt(offsetStr);
+    }
+    String limitStr = getParam(req, "limit");
+    if (limitStr != null && !limitStr.isEmpty()) {
+      limit = Integer.parseInt(limitStr);
+    }
+    List<Event> events = getEventsWithQuery(req, query, offset, limit);
+    if (events.size() > 0) {   
+      Experiment experiment = ExperimentRetriever.getInstance().getExperiment(events.get(0).getExperimentId());
+      sortEvents(events);
+      printEvents(resp, events, experiment, anon, offset, limit, q);
+    }
   }
 
   private String stripQuotes(String parameter) {
@@ -269,19 +282,19 @@ public class EventServlet extends HttpServlet {
   }
 
   private List<Event> getEventsWithQuery(HttpServletRequest req,
-                                         List<com.google.sampling.experiential.server.Query> queries) {
+                                         List<com.google.sampling.experiential.server.Query> queries, int offset, int limit) {
     User whoFromLogin = getWhoFromLogin();
     if (!isDevInstance(req) && whoFromLogin == null) {
       throw new IllegalArgumentException("Must be logged in to retrieve data.");
     }
     String who = null;
     if (whoFromLogin != null) {
-      who = whoFromLogin.getEmail();
+      who = whoFromLogin.getEmail().toLowerCase();
     }
-    return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req));
+    return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req), offset, limit);
   }
 
-  private void printEvents(HttpServletResponse resp, List<Event> events, Experiment experiment, boolean anon) throws IOException {
+  private void printEvents(HttpServletResponse resp, List<Event> events, Experiment experiment, boolean anon, int offset, int limit, String q) throws IOException {
     long t1 = System.currentTimeMillis();
     long eventTime = 0;
     long whatTime = 0;
@@ -298,6 +311,11 @@ public class EventServlet extends HttpServlet {
             "</style>" +
                  "</head><body>");
       out.append("<h1>" + experiment.getTitle() + " Results</h1>");
+      out.append("<div><span style\"font-weight: bold;\">");
+      //out.append("<a href=\"/events?q='" + q + "'&offset=" + ((offset == 0) ? offset : offset - limit) + "&limit=" + limit +"\"> < </a>");  
+      out.append("Showing results: </span> <span>" + (offset + 1) +" - " + (offset + events.size()));
+      //out.append("<a href=\"/events?q='" + q + "'&offset=" + (offset + limit) + "&limit=" + limit +"\"> > </a>");
+      out.append("</span></div>" );
       out.append("<div><span style\"font-weight: bold;\">Number of results:</span> <span>" + events.size() +"</span></div>" );
       out.append("<table class=\"gridtable\">");
       out.append("<tr><th>Experiment Name</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
@@ -443,7 +461,7 @@ public class EventServlet extends HttpServlet {
       throw new IllegalArgumentException("Empty Post body");
     } 
 
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail());
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase());
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

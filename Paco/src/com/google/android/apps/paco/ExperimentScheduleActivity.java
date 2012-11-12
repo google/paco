@@ -65,11 +65,9 @@ public class ExperimentScheduleActivity extends Activity {
   private TimePicker timePicker;
   private EditText frequencyField;
   private Spinner periodField;
-  private SharedPreferences pagingHoursPreferences;
   private TextView startHourField;
   private TextView endHourField;
   private Spinner repeatRate;
-  private ListView dow;
   private boolean[] selections;
   private Button dowButton;
 
@@ -615,10 +613,25 @@ public class ExperimentScheduleActivity extends Activity {
     }
 
     private void save() {
+      Validation valid = isValid();
+      if (!valid.ok()) {        
+        Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
+        return;
+      }
       saveExperimentRegistration();
       setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));        
       finish();
+    }
+
+    private Validation isValid() {
+      Validation validation = new Validation();
+      if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM))  {
+        if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
+          validation.addMessage("Start hour must be before end hour");          
+        }
+      }
+      return validation;
     }
 
     private Long getHourOffsetFromPicker() {
