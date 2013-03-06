@@ -79,7 +79,7 @@ public class ExperimentDetailActivity extends Activity {
     }
     
     if (experiment == null) {
-      new AlertDialog.Builder(this).setMessage("Selected Experiment does not exist on the phone. Refresh Experiments from Server?").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+      new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
         
         public void onClick(DialogInterface dialog, int which) {
 //          ExperimentDetailActivity.this.finish();
@@ -105,8 +105,8 @@ public class ExperimentDetailActivity extends Activity {
     ((TextView)findViewById(R.id.creator)).setText(experiment.getCreator());
     //    Schedule scheduleDetails = experiment.getScheduleDetails();
     ((TextView)findViewById(R.id.schedule)).setText(SignalSchedule.SCHEDULE_TYPES_NAMES[experiment.getSchedule().getScheduleType()]);
-    String startDate = "ongoing";
-    String endDate = "ongoing";
+    String startDate = getString(R.string.ongoing_duration);
+    String endDate = getString(R.string.ongoing_duration);
     if (experiment.isFixedDuration()) {
       startDate = df.print(experiment.getStartDate());
       endDate = df.print(experiment.getEndDate());
@@ -177,7 +177,7 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    p = ProgressDialog.show(this, "Experiment List Refresh", "Checking Server for New Experiments", true, true);
+    p = ProgressDialog.show(this, getString(R.string.experiment_refresh), getString(R.string.checking_server_for_new_and_updated_experiment_definitions), true, true);
     new DownloadExperimentsTask().execute();
   }
   
@@ -193,7 +193,7 @@ public class ExperimentDetailActivity extends Activity {
         Response response = manager.createRequest().setUrl(
             "https://"+serverAddress+"/experiments").execute();
         String contentAsString = response.getContentAsString();
-        Log.i("FindExperimentsActivity", "data: " + contentAsString);
+        Log.i("ExperimentDetailActivity", "data: " + contentAsString);
         if (contentAsString != null) {
           ObjectMapper mapper = new ObjectMapper();
           mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);

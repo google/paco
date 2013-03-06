@@ -22,6 +22,8 @@ import java.util.List;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.google.sampling.experiential.android.lib.R.string;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,7 +59,6 @@ public class ExperimentScheduleActivity extends Activity {
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
-  private CharSequence[] dows = new CharSequence[] {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
   
   private Uri uri;
   private Experiment experiment;
@@ -99,7 +100,7 @@ public class ExperimentScheduleActivity extends Activity {
 	experimentProviderUtil = new ExperimentProviderUtil(this);
     experiment = experimentProviderUtil.getExperiment(uri);
     if (experiment == null) {
-      Toast.makeText(this, "Cannot find the experiment!", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
       // setup ui pieces for times lists and esm start/end timepickers
@@ -162,14 +163,14 @@ public class ExperimentScheduleActivity extends Activity {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
         unsetTimesViewParent();
         dialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog dialog = dialogBuilder.setTitle("Start Time").create();
+        final AlertDialog dialog = dialogBuilder.setTitle(R.string.start_time_title).create();
 
         Long offset = experiment.getSchedule().getEsmStartHour();
         DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
         timePicker.setCurrentHour(startHour.getHourOfDay());
         timePicker.setCurrentMinute(startHour.getMinuteOfHour());      
 
-        dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+        dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button), new DialogInterface.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
@@ -189,14 +190,14 @@ public class ExperimentScheduleActivity extends Activity {
         final AlertDialog.Builder endHourDialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
         unsetTimesViewParent();
         endHourDialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog endHourDialog = endHourDialogBuilder.setTitle("End Time").create();
+        final AlertDialog endHourDialog = endHourDialogBuilder.setTitle(R.string.end_time_title).create();
 
         Long offset = experiment.getSchedule().getEsmEndHour();
         DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
         timePicker.setCurrentHour(endHour.getHourOfDay());
         timePicker.setCurrentMinute(endHour.getMinuteOfHour());      
 
-        endHourDialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+        endHourDialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button), new DialogInterface.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
@@ -220,7 +221,7 @@ public class ExperimentScheduleActivity extends Activity {
     periodField = (Spinner)findViewById(R.id.experimentEsmPeriod);
     ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, 
         android.R.layout.simple_spinner_item,
-        SignalSchedule.ESM_PERIODS_NAMES);
+        getStrings(SignalSchedule.ESM_PERIODS_NAMES));
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     periodField.setAdapter(adapter);
     periodField.setSelection(experiment.getSchedule().getEsmPeriodInDays());
@@ -233,6 +234,14 @@ public class ExperimentScheduleActivity extends Activity {
       public void onNothingSelected(AdapterView<?> arg0) {
       }
     });
+  }
+
+  private CharSequence[] getStrings(int[] ids) {
+    String[] values = new String[ids.length];
+    for (int i = 0; i < ids.length; i++) {
+      values[i] = getString(ids[i]);
+    }
+    return values;
   }
 
   private void showDailyScheduleConfiguration() {
@@ -456,13 +465,13 @@ public class ExperimentScheduleActivity extends Activity {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
         unsetTimesViewParent();
         dialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog dialog = dialogBuilder.setTitle("Modify Time").create();
+        final AlertDialog dialog = dialogBuilder.setTitle(R.string.modify_time_title).create();
         
         DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).intValue());
         timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
         timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());      
 
-        dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+        dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button), new DialogInterface.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             timePicker.clearFocus(); // Maybe this will save whatever value is there, 
@@ -491,10 +500,10 @@ public class ExperimentScheduleActivity extends Activity {
   protected Dialog onCreateDialog(int id, Bundle args) {
     
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder( this )
-    .setTitle( "Days of Week" );
+    .setTitle( R.string.days_of_week_title );
     
     if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
-      dialogBldr.setMultiChoiceItems(dows, selections, new OnMultiChoiceClickListener() {      
+      dialogBldr.setMultiChoiceItems(R.array.days_of_week, selections, new OnMultiChoiceClickListener() {      
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
           selections[which] = isChecked;
         }
@@ -507,7 +516,7 @@ public class ExperimentScheduleActivity extends Activity {
           break;
         }
       }
-      dialogBldr.setSingleChoiceItems(dows, selected, new DialogInterface.OnClickListener() {        
+      dialogBldr.setSingleChoiceItems(R.array.days_of_week, selected, new DialogInterface.OnClickListener() {        
         public void onClick(DialogInterface dialog, int which) {
           for(int i =0; i < selections.length; i++) {
             selections[i] = (i == which);
@@ -516,7 +525,7 @@ public class ExperimentScheduleActivity extends Activity {
       });
     }
     
-    dialogBldr.setPositiveButton( "OK", new DialogInterface.OnClickListener() {      
+    dialogBldr.setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {      
       public void onClick(DialogInterface dialog, int which) {
         int selected = 0;
         
@@ -628,7 +637,7 @@ public class ExperimentScheduleActivity extends Activity {
       Validation validation = new Validation();
       if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM))  {
         if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
-          validation.addMessage("Start hour must be before end hour");          
+          validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));          
         }
       }
       return validation;

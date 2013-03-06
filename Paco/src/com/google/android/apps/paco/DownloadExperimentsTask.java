@@ -56,7 +56,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       this.experimentProviderUtil = experimentProviderUtil;
       this.runnable = runnable;
       
-      p = ProgressDialog.show(enclosingActivity, "Experiment Refresh", "Checking Server for New and Updated Experiment Definitions", true, true);
+      p = ProgressDialog.show(enclosingActivity, findExperimentsActivity.getString(R.string.experiment_refresh), findExperimentsActivity.getString(R.string.checking_server_for_new_and_updated_experiment_definitions), true, true);
     }
     
     protected String doInBackground(Void... params) {

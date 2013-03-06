@@ -85,7 +85,7 @@ public class ExploreDataActivity extends Activity {
     experimentProviderUtil = new ExperimentProviderUtil(this);
     experiments = experimentProviderUtil.getJoinedExperiments();
     if (experiments.size()<1){
-      new AlertDialog.Builder(mainLayout.getContext()).setMessage("You haven't loaded any experiments yet, so this option does not make sense. Please come back after your have loaded an experiment and input data.").setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+      new AlertDialog.Builder(mainLayout.getContext()).setMessage(R.string.no_experimental_data_warning).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 
         public void onClick(DialogInterface dialog, int which) {
           dialog.dismiss();
@@ -136,10 +136,10 @@ public class ExploreDataActivity extends Activity {
     
     final Button varOkButton = (Button) findViewById(R.id.VarOkButton);
     switch (whichOption){
-      case 1: varOkButton.setText("  Show Trends  "); break;
-      case 2: varOkButton.setText("  Show Relationships  "); break;
-      case 3: varOkButton.setText("  Show Distributions  "); break;
-      default: varOkButton.setText("  OK  "); break;
+      case 1: varOkButton.setText(R.string.show_trends_button); break;
+      case 2: varOkButton.setText(R.string.show_relationships_button); break;
+      case 3: varOkButton.setText(R.string.show_distributions_button); break;
+      default: varOkButton.setText("  " + getString(R.string.ok) + "  "); break;
     }
     
     varOkButton.setOnClickListener(new OnClickListener() {
@@ -179,7 +179,7 @@ public class ExploreDataActivity extends Activity {
          renderMultiSelectListButton(id, (TextView) ((TwoLineListItem) textview).getChildAt(1));
          varOkButton.setVisibility(View.VISIBLE);
         } else{    
-          Toast.makeText(ExploreDataActivity.this, "You didn't pick a proper experiment.",
+          Toast.makeText(ExploreDataActivity.this, R.string.experiment_choice_warning,
           Toast.LENGTH_SHORT).show();
         }
       }
@@ -210,7 +210,7 @@ public class ExploreDataActivity extends Activity {
     };
 
     AlertDialog.Builder builder = new AlertDialog.Builder(mainLayout.getContext());
-    builder.setTitle("Make selections");
+    builder.setTitle(R.string.make_selections);
 
     boolean[] checkedChoicesBoolArray = new boolean[inputIds.size()];
     int count = inputIds.size();
@@ -223,7 +223,7 @@ public class ExploreDataActivity extends Activity {
     String[] listChoices = new String[inputIds.size()];
     inpNames.toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
-    builder.setPositiveButton("OK",
+    builder.setPositiveButton(R.string.ok,
       new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog,
@@ -289,7 +289,7 @@ public class ExploreDataActivity extends Activity {
   private void showTrendOrDistributionOfOneVar(Long expId, Long inpId, int whichOpt) {
     Experiment experiment = getFullyLoadedExperiment(expId);
     if (experiment == null) {
-      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+      Toast.makeText(ExploreDataActivity.this, R.string.experiment_does_not_exist_warning,
         Toast.LENGTH_SHORT).show();
     } else {
       setContentView(R.layout.feedback);
@@ -309,6 +309,7 @@ public class ExploreDataActivity extends Activity {
             
       env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
+      webView.addJavascriptInterface(new JavascriptEventLoader(experimentProviderUtil, experiment), "eventLoader");
       
       setWebChromeClientThatHandlesAlertsAsDialogs();
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();      
@@ -331,7 +332,7 @@ public class ExploreDataActivity extends Activity {
       Long inputId = choices.get(experimentId).get(0);
       Experiment fullyLoadedExperiment = getFullyLoadedExperiment(experimentId);
       if (fullyLoadedExperiment == null) {
-        Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ExploreDataActivity.this, R.string.experiment_does_not_exist_warning, Toast.LENGTH_SHORT).show();
         return;
       }
       experimentInputPairs.add(new Pair<Experiment, Long>(fullyLoadedExperiment, inputId));
@@ -368,7 +369,7 @@ public class ExploreDataActivity extends Activity {
   private void showRelationshipForVarsInSameExperiment(Long experimentId, long xAxisInputId, long yAxisInputId) {
     Experiment experiment = getFullyLoadedExperiment(experimentId);
     if (experiment == null) {
-      Toast.makeText(ExploreDataActivity.this, "Experiment does not exist!",
+      Toast.makeText(ExploreDataActivity.this, R.string.experiment_does_not_exist_warning,
         Toast.LENGTH_SHORT).show();
     } else {
       setContentView(R.layout.feedback);
@@ -398,12 +399,12 @@ public class ExploreDataActivity extends Activity {
   }
    
   public void chooseOneVarToast(){
-    Toast.makeText(ExploreDataActivity.this, "Sorry, please select exactly one variable.",
+    Toast.makeText(ExploreDataActivity.this, R.string.sorry_please_select_exactly_one_variable_warning,
         Toast.LENGTH_SHORT).show();
   }
   
   public void chooseTwoVarsToast(){
-    Toast.makeText(ExploreDataActivity.this, "Sorry, please select exactly two variables.", Toast.LENGTH_SHORT).show();
+    Toast.makeText(ExploreDataActivity.this, R.string.sorry_please_select_exactly_two_variables_warning, Toast.LENGTH_SHORT).show();
   }
   
   private List<String> getInputNames(List<Input> i){
@@ -491,7 +492,7 @@ public class ExploreDataActivity extends Activity {
       @Override
       public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
 
-        new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+        new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
@@ -508,13 +509,13 @@ public class ExploreDataActivity extends Activity {
             result.confirm();
             return true;
           } else{
-            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
               public void onClick(DialogInterface dialog, int which) {
                 showDialog = false;
                 dialog.dismiss();
                 result.confirm();
               }
-            }).setNegativeButton("Cancel", new Dialog.OnClickListener() {
+            }).setNegativeButton(R.string.cancel_button, new Dialog.OnClickListener() {
               public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 result.cancel();

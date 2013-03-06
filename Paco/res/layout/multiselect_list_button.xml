@@ -19,5 +19,5 @@
 	    <Button android:id="@+id/multiselect_list_button"
     		android:layout_width="wrap_content"
     		android:layout_height="wrap_content"
-    		android:text="Make selections"/>
+    		android:text="@string/make_selections"/>
 </merge>

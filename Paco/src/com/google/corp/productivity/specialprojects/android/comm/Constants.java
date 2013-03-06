@@ -18,6 +18,7 @@ package com.google.corp.productivity.specialprojects.android.comm;
 
 import org.apache.http.protocol.HTTP;
 
+import com.google.android.apps.paco.R;
 import java.nio.charset.Charset;
 
 /**

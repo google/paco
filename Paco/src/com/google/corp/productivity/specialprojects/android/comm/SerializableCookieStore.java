@@ -18,6 +18,7 @@ package com.google.corp.productivity.specialprojects.android.comm;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import com.google.android.apps.paco.R;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;

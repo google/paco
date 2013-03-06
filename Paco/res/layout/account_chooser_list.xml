@@ -19,7 +19,7 @@
 	android:layout_height="wrap_content" android:orientation="vertical"
 	android:gravity="center" android:layout_gravity="center|top"
 	android:layout_width="fill_parent">
-	<TextView android:text="Please Choose an Accounts to use with Paco" android:id="@+id/AccountListTitle"
+	<TextView android:text="@string/choose_account" android:id="@+id/AccountListTitle"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:gravity="center" android:textSize="25dip"></TextView>
 	<TextView android:text="" android:id="@+id/ChosenAccountText"
@@ -29,5 +29,5 @@
 		android:layout_height="match_parent" android:id="@id/android:list"
 		android:layout_gravity="center"></ListView>
 	<TextView android:id="@id/android:empty" android:layout_width="match_parent"
-		android:layout_height="match_parent" android:text="No data" />
+		android:layout_height="match_parent" android:text="@string/no_accounts_found" />
 </LinearLayout>

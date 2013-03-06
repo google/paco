@@ -17,7 +17,7 @@ public class VersionUpdateActivity extends Activity {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.updates_check);
       if (VersionChecker.checkForUpdate(this)) {
-        Toast.makeText(this, "Update Found", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.update_found, Toast.LENGTH_SHORT).show();
         Button installButton = (Button) findViewById(R.id.InstallButton);
         installButton.setVisibility(android.view.View.VISIBLE);
         installButton.setOnClickListener(new OnClickListener() {
@@ -26,7 +26,7 @@ public class VersionUpdateActivity extends Activity {
           }
         });
       } else {
-        Toast.makeText(this, "This version is current.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.version_is_current, Toast.LENGTH_SHORT).show();
         finish();
       }
     }

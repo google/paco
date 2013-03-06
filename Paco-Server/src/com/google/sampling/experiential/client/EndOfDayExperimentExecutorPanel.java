@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -102,16 +103,16 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
       if (isToday(eventDAO)) { 
         if (!showingToday) {
           showingToday = true;
-          mainPanel.add(new HTML("<h1>TODAY'S EVENTS</h1>"));
+          mainPanel.add(new HTML("<h1>" + myConstants.todaysResponses() + "</h1>"));
         }
       } else if (!isToday(eventDAO) && showingToday) {
         showingToday = false;
-        mainPanel.add(new HTML("<h2>PREVIOUS DAYS' EVENTS</h2><p>Note: Previous Answers will not be displayed but they are recorded</p>"));
+          mainPanel.add(new HTML("<h2>" + myConstants.previousDaysResponses() + "</h2><p>" + myConstants.previousResponsesWarning() + "</p>"));
       }
       
       
       if (eventDAO.getIdFromTimes().getDate() != lastDateShown.getDate()) {
-        Button button = new Button("<h3>"+DateTimeFormat.getFullDateFormat().format(eventDAO.getIdFromTimes())+" EVENTS</h3>");
+        Button button = new Button("<h3>" + myMessages.datedResponses(eventDAO.getIdFromTimes()) + " </h3>");
         currentDateDisclosurePanel = new DisclosurePanel(button);
         itemPanel = new VerticalPanel();
         currentDateDisclosurePanel.add(itemPanel);

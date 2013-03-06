@@ -216,10 +216,10 @@ public class FindExperimentsActivity extends Activity {
 //      SignalSchedule schedule = ((Experiment)(adapter.getItem(position))).getSchedule();
 //      if (schedule.getUserEditable() != null &&
 //          schedule.getUserEditable()) {
-        menu.add(0, EDIT_EXPERIMENT_OPTION, 0, "Edit Schedule");
+        menu.add(0, EDIT_EXPERIMENT_OPTION, 0, R.string.edit_schedule_menu_item);
 //      }
-      menu.add(0, STOP_EXPERIMENT_OPTION, 0, "Stop Experiment");
-      menu.add(0, DATA_EXPERIMENT_OPTION, 0, "Explore Data");
+      menu.add(0, STOP_EXPERIMENT_OPTION, 0, R.string.stop_experiment_menu_item);
+      menu.add(0, DATA_EXPERIMENT_OPTION, 0, R.string.explore_data_menu_item);
     }
   }
 
@@ -240,9 +240,9 @@ public class FindExperimentsActivity extends Activity {
 	TextView listHeader = (TextView)findViewById(R.id.ExperimentListTitle);
     String header = null;
     if (showingJoinedExperiments) {
-      header = "Running Experiments";
+      header = getString(R.string.running_experiments_title);
     } else {
-      header = "Available Experiments";
+      header = getString(R.string.available_experiments_title);
     }
     listHeader.setText(header);
     listHeader.setTextSize(25);
@@ -319,15 +319,15 @@ public class FindExperimentsActivity extends Activity {
         } else if (v.getId() == R.id.quitExperimentButton) {
           new AlertDialog.Builder(FindExperimentsActivity.this)
           .setCancelable(true)
-          .setTitle("Stop the Experiment?")
-          .setMessage("Are you sure you want to stop the experiment?")
-          .setPositiveButton("Yes", new Dialog.OnClickListener() {           
+          .setTitle(R.string.stop_the_experiment_dialog_title)
+          .setMessage(R.string.stop_experiment_dialog_body)
+          .setPositiveButton(R.string.yes, new Dialog.OnClickListener() {           
             @Override
             public void onClick(DialogInterface dialog, int which) {
               deleteExperiment(Long.parseLong((String) v.getTag()));                  
             }
           })
-          .setNegativeButton("No", new Dialog.OnClickListener() {           
+          .setNegativeButton(R.string.no, new Dialog.OnClickListener() {           
             @Override
             public void onClick(DialogInterface dialog, int which) {
               dialog.dismiss();
@@ -380,7 +380,7 @@ public class FindExperimentsActivity extends Activity {
       if (creatorColumn != -1) {
         creatorText = cursor.getString(creatorColumn);
       } else {
-        creatorText = "unknown author";
+        creatorText = context.getString(R.string.unknown_author_text);
       }
       TextView tv2 = (TextView) view.findViewById(R.id.experimentListRowCreator);
       tv2.setText(creatorText);

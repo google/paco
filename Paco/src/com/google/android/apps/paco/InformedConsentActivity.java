@@ -39,7 +39,7 @@ public class InformedConsentActivity extends Activity {
     uri = intent.getData();
     experiment = new ExperimentProviderUtil(this).getExperiment(uri);
     if (experiment == null) {
-      Toast.makeText(this, "Cannot find the experiment!", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
       // TextView title = (TextView)findViewById(R.id.experimentNameIc);

@@ -29,7 +29,7 @@
     android:layout_weight="1"
     >
 
-    <TextView android:text="What variable(s) would you like to explore?" android:id="@+id/VariableListTitle"
+    <TextView android:text="@string/explore_data_variable_title" android:id="@+id/VariableListTitle"
       android:gravity="center|top" android:layout_gravity="center|top"
       android:layout_width="fill_parent" android:layout_height="wrap_content"
       android:background="@drawable/list_header_background"
@@ -47,7 +47,7 @@
     android:layout_height="50dip"
     android:layout_weight="0"
     >
-      <Button android:text="OK" android:id="@+id/VarOkButton" android:layout_height="wrap_content" android:visibility="gone" android:layout_width="wrap_content"></Button>
+      <Button android:text="@string/ok" android:id="@+id/VarOkButton" android:layout_height="wrap_content" android:visibility="gone" android:layout_width="wrap_content"></Button>
   </LinearLayout>
 
 

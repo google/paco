@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -29,9 +30,15 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   protected List<InputExecutorPanel> inputsPanelsList;
   protected MapServiceAsync mapService;
   protected ExperimentListener experimentListener;
+  protected MyConstants myConstants;
+  protected MyMessages myMessages;
+
 
   public AbstractExperimentExecutorPanel(ExperimentListener experimentListener, 
                                          ExperimentDAO experiment, MapServiceAsync mapService) {
+    myConstants = GWT.create(MyConstants.class);
+    myMessages = GWT.create(MyMessages.class);
+
     this.experiment = experiment;
     this.mapService = mapService;
     this.experimentListener = experimentListener;
@@ -64,7 +71,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   }
 
   protected void renderSaveButton(HorizontalPanel buttonPanel) {
-    Button saveButton = new Button("Save");
+    Button saveButton = new Button(myConstants.save());
     buttonPanel.add(saveButton);
     saveButton.addClickHandler(new ClickHandler() {
       
@@ -76,7 +83,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   }
 
   protected void renderCancelButton(HorizontalPanel buttonPanel) {
-    Button cancelButton = new Button("Cancel");
+    Button cancelButton = new Button(myConstants.cancel());
     buttonPanel.add(cancelButton);
     cancelButton.addClickHandler(new ClickHandler() {
       
@@ -98,12 +105,12 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not save your response. Please try again.\n" + caught.getMessage());        
+        Window.alert(myMessages.saveFailed(caught.getMessage()));        
       }
   
       @Override
       public void onSuccess(Void result) {
-        Window.alert("Success!");        
+        Window.alert(myConstants.success());        
         experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CODE, experiment, true);
       }
       

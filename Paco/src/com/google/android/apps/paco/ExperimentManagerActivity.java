@@ -32,6 +32,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -59,14 +60,6 @@ public class ExperimentManagerActivity extends Activity {
   private static final int ACCOUNT_CHOOSER_ITEM = 7;
   private static final int RINGTONE_CHOOSER_ITEM = 8;
   private static final int SEND_LOG_ITEM = 9;
-  
-  private static final CharSequence ABOUT_PACO_STRING = "About Paco";
-  private static final CharSequence DEBUG_STRING = "Debug";
-  private static final CharSequence SERVER_ADDRESS_STRING = "Server Address";
-  private static final String CHECK_FOR_UPDATES = "Check Updates";
-  private static final String ACCOUNT_CHOOSER = "Choose Account";
-  private static final String RINGTONE_CHOOSER = "Choose Alert";
-  private static final CharSequence SEND_LOG_STRING = "Send Log";
   
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
   
@@ -123,13 +116,15 @@ public class ExperimentManagerActivity extends Activity {
     createExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         String homepageAddr = getResources().getString(R.string.about_weburl);
+        
+        Resources res = getResources();
+        String formattedMessage = String.format(res.getString(R.string.create_experiment_instructions), homepageAddr);
+            
         new AlertDialog.Builder(v.getContext())
-            .setMessage("Since creating experiments involves a fair amount of text entry, " +
-                "a phone is not so well-suited to creating experiments. \n\n" +
-                "Please point your browser to http://" + homepageAddr + "/ to create an experiment.")
-        		.setTitle("How to Create an Experiment")
+            .setMessage(formattedMessage)
+        		.setTitle(R.string.create_experiment_title)
         		.setCancelable(true)
-        		.setPositiveButton("OK", new Dialog.OnClickListener() {
+        		.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
@@ -182,13 +177,13 @@ public class ExperimentManagerActivity extends Activity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(0, ABOUT_PACO_ITEM, 1, ABOUT_PACO_STRING);
-    menu.add(0, DEBUG_ITEM, 1, DEBUG_STRING);
-    menu.add(0, SERVER_ADDRESS_ITEM, 1, SERVER_ADDRESS_STRING);
-    menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
-    menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, ACCOUNT_CHOOSER);
-    menu.add(0, RINGTONE_CHOOSER_ITEM, 3, RINGTONE_CHOOSER);
-    menu.add(0, SEND_LOG_ITEM, 3, SEND_LOG_STRING);
+    menu.add(0, ABOUT_PACO_ITEM, 1, R.string.about_paco_menu_item);
+    menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
+    menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
+    menu.add(0, UPDATE_ITEM, 4, R.string.check_updates_menu_item);
+    menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
+    menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
+    menu.add(0, SEND_LOG_ITEM, 4, R.string.send_log_menu_item);
     return true;
   }
 
@@ -259,7 +254,7 @@ public class ExperimentManagerActivity extends Activity {
     String uri = userPreferences.getRingtone();    
     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Signal Tone");
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
     if (uri != null) {

@@ -1,5 +1,5 @@
 function defaultPage(){
-  var jsondata = window.env.getValue("experimentalData");
+  var jsondata = window.env.getValue("lastResponse");
   var experimentData = $.parseJSON(jsondata);
   if (!experimentData) {
     // hack for samsung tmobile phones
@@ -15,7 +15,7 @@ function defaultPage(){
   var latestEvent = experimentData[0];
   try{
     var responses = latestEvent.responses;
-  }catch(err){
+  } catch(err){
     $("#responses").html('<br><br>You have not input any data! Please input data before exploring this option.');
     return;
   }
