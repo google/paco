@@ -30,10 +30,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
@@ -166,6 +168,9 @@ public class ExperimentProviderUtil {
    * @param experiments
    */
   public void insertOrUpdateExperiments(List<Experiment> experiments) {    
+//    DatabaseHelper dbHelper = new DatabaseHelper(context);
+//    SQLiteDatabase db = dbHelper.getWritableDatabase();
+//    db.beginTransaction();
     for (Experiment experiment : experiments) {
       Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
@@ -176,7 +181,7 @@ public class ExperimentProviderUtil {
             deleteFullExperiment(existingExperiment);
             experiment.setId(existingExperiment.getId());
             insertFullExperiment(experiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing/joined experiment: " + (System.currentTimeMillis() - startTime));
+            Log.i(PacoConstants.TAG, "Time to update one existing unjoined experiment: " + (System.currentTimeMillis() - startTime));
           } else {
             long startTime = System.currentTimeMillis();
             deleteAllInputsForExperiment(existingExperiment.getId());            
@@ -191,7 +196,7 @@ public class ExperimentProviderUtil {
             insertFeedbackForJoinedExperiment(existingExperiment);
             copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
             updateJoinedExperiment(existingExperiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing (unjoined) experiment: " + (System.currentTimeMillis() - startTime));
+            Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
           }
         }
       } else /*if (existingList.size() == 0)*/ {
@@ -200,6 +205,8 @@ public class ExperimentProviderUtil {
         Log.i(PacoConstants.TAG, "Time to update one new experiment: " + (System.currentTimeMillis() - startTime));
       }
     }  
+//    db.setTransactionSuccessful();
+//    db.endTransaction();
   }
 
 
@@ -213,6 +220,7 @@ public class ExperimentProviderUtil {
     existingExperiment.setQuestionsChange(experiment.isQuestionsChange());
     existingExperiment.setStartDate(experiment.getStartDate());
     existingExperiment.setTitle(experiment.getTitle());
+    existingExperiment.setWebRecommended(experiment.isWebRecommended());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -1515,6 +1523,31 @@ public class ExperimentProviderUtil {
     } finally {
       if (query != null) {
         query.close();
+      }
+    }
+  }
+
+  public void loadLastEventForExperiment(Experiment experiment) {
+    String select = EventColumns.EXPERIMENT_ID + "=" + experiment.getId();
+    String sortOrder = EventColumns._ID +" DESC";
+
+    List<Event> events = new ArrayList<Event>();
+    Cursor cursor = null;
+    try {
+      cursor = context.getContentResolver().query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
+      if (cursor != null) {
+        if (cursor.moveToFirst()) {
+          Event event = createEvent(cursor);
+          event.setResponses(findResponsesFor(event));
+          events.add(event);
+        }
+      }
+      experiment.setEvents(events);
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
       }
     }
   }

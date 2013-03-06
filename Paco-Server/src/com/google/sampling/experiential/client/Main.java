@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
@@ -86,22 +87,32 @@ public class Main implements EntryPoint, ExperimentListener {
   private Anchor signOutLink = new Anchor("Logout");
 
   private FlowPanel loginPanel = new FlowPanel();
-  private Label loginLabel =
-      new Label("Please sign in to your Google Account " + "to access the application.");
+  private Label loginLabel = new Label("Please sign in to your Google Account " + "to access the application.");
+
+  protected MyConstants myConstants;
+  protected MyMessages myMessages;
 
 
   public void onModuleLoad() {
     if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
         GWT.getHostPageBaseURL().contains("localhost"))) {
-      Window.Location.assign(GWT.getHostPageBaseURL().replace("http://", "https://")+"Main.html");
+      Window.Location.assign(GWT.getHostPageBaseURL().replace("http://", "https://") );
     }
     resources = GWT.create(Images.class);
+    myConstants = GWT.create(MyConstants.class);
+    myMessages = GWT.create(MyMessages.class);
+
+
+    if (Document.get() != null) {
+      Document.get().setTitle(myConstants.pacoPageTitle());
+    }
+    
     checkLoginStatusAndLoadPage();
   }
 
   private void checkLoginStatusAndLoadPage() {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL()+"Main.html", new AsyncCallback<LoginInfo>() {
+    loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
       }
 
@@ -193,7 +204,7 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   private void createStatusPanelOnMenubar(HorizontalPanel menuPanel) {
-    statusLabel = new Label("Loading");
+    statusLabel = new Label(myConstants.loading());
     statusLabel.setStyleName("paco-Loading-Panel");
     statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
@@ -215,22 +226,22 @@ public class Main implements EntryPoint, ExperimentListener {
     MenuBar rootMenuBar = new MenuBar(false);
     rootMenuAndGreetingBar.add(rootMenuBar);
     
-    Label greeting = new Label("Hello, " + loginInfo.getEmailAddress());
+    Label greeting = new Label(myMessages.hello(loginInfo.getEmailAddress()));
     greeting.setStyleName("paco-Name-Greeting");
     //greeting.setSize("200px", "20px");
     rootMenuAndGreetingBar.add(greeting);
     
 
     MenuBar joinedSubMenuBar = new MenuBar(true);
-    MenuItem joinedMenuItem = new MenuItem("Experiments You Joined", false, joinedSubMenuBar);
-    MenuItem mntmShowAllJoined = new MenuItem("Show All", false, new Command() {
+    MenuItem joinedMenuItem = new MenuItem(myConstants.joinedExperiments(), false, joinedSubMenuBar);
+    MenuItem mntmShowAllJoined = new MenuItem(myConstants.showAll(), false, new Command() {
       public void execute() {
         loadJoinedExperiments();
       }
     });
     joinedSubMenuBar.addItem(mntmShowAllJoined);
 
-    MenuItem mntmFindExperiments = new MenuItem("Find Experiments", false, new Command() {
+    MenuItem mntmFindExperiments = new MenuItem(myConstants.findExperiments(), false, new Command() {
       public void execute() {
         findExperiments();
       }
@@ -240,15 +251,15 @@ public class Main implements EntryPoint, ExperimentListener {
     rootMenuBar.addItem(joinedMenuItem);
 
     MenuBar adminMenuBar = new MenuBar(true);
-    MenuItem adminMenuItem = new MenuItem("Administer Experiments", false, adminMenuBar);
-    MenuItem mntmShowAllAdmin = new MenuItem("Show All", false, new Command() {
+    MenuItem adminMenuItem = new MenuItem(myConstants.administerExperiments(), false, adminMenuBar);
+    MenuItem mntmShowAllAdmin = new MenuItem(myConstants.showAll(), false, new Command() {
       public void execute() {
         loadAdministeredExperiments(false);
       }
     });
     adminMenuBar.addItem(mntmShowAllAdmin);
 
-    MenuItem mntmCreateNew = new MenuItem("Create New", false, new Command() {
+    MenuItem mntmCreateNew = new MenuItem(myConstants.createNew(), false, new Command() {
       public void execute() {
         createNewExperiment();
       }
@@ -257,7 +268,7 @@ public class Main implements EntryPoint, ExperimentListener {
     rootMenuBar.addItem(adminMenuItem);
     // //////////////////
 
-    MenuItem mntmQR_Code = new MenuItem("Get Android app", false, new Command() {
+    MenuItem mntmQR_Code = new MenuItem(myConstants.getAndroid(), false, new Command() {
       public void execute() {
         showAndroidDownloadPage();
       }
@@ -267,10 +278,10 @@ public class Main implements EntryPoint, ExperimentListener {
 
     // ////////////////
     MenuBar helpMenuBar = new MenuBar(true);
-    MenuItem helpMenuItem = new MenuItem("Help", false, helpMenuBar);
+    MenuItem helpMenuItem = new MenuItem(myConstants.help(), false, helpMenuBar);
     rootMenuBar.addItem(helpMenuItem);
 
-    MenuItem helpContentsMenuItem = new MenuItem("User Guide", false, new Command() {
+    MenuItem helpContentsMenuItem = new MenuItem(myConstants.userGuide(), false, new Command() {
       public void execute() {
         launchHelp();
       }
@@ -278,7 +289,7 @@ public class Main implements EntryPoint, ExperimentListener {
     //helpContentsMenuItem.setEnabled(false);
     helpMenuBar.addItem(helpContentsMenuItem);
 
-    MenuItem aboutMenuItem = new MenuItem("About", false, new Command() {
+    MenuItem aboutMenuItem = new MenuItem(myConstants.about(), false, new Command() {
       public void execute() {
         launchAbout();
       }
@@ -288,7 +299,7 @@ public class Main implements EntryPoint, ExperimentListener {
     
     // logout
 
-    MenuItem mntmLogout = new MenuItem("Logout", false, new Command() {
+    MenuItem mntmLogout = new MenuItem(myConstants.logout(), false, new Command() {
       public void execute() {
         logout();
       }
@@ -307,20 +318,20 @@ public class Main implements EntryPoint, ExperimentListener {
   protected void showAndroidDownloadPage() {
     contentPanel.clear();
     experimentPanel.setVisible(false);
-    setContentTitle("Download the PACO Android Client");
+    setContentTitle(myConstants.downloadAppTitle());
     VerticalPanel dl = new VerticalPanel();
 
-    HTML barCodeLabel = new HTML("1) Ensure that you can install applications from Unknown Sources.");
+    HTML barCodeLabel = new HTML(myConstants.downloadAppStep1a());
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
-    dl.add(new HTML("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
+    dl.add(new HTML(myConstants.downloadAppStep1b()));
  
-    HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
+    HTML barCodeLabel2 = new HTML(myConstants.downloadAppStep2a());
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
     
-    HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
+    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("/paco.apk"));
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
 
@@ -345,7 +356,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void findExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Find Experiments");
+    setContentTitle(myConstants.findExperiments());
     contentPanel.clear();
     experimentPanel.setVisible(true);
     statusLabel.setVisible(false);
@@ -357,7 +368,7 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   protected void createNewExperiment() {
-    setContentTitle("Create New Experiment");
+    setContentTitle(myConstants.createNewExperiment());
     contentPanel.clear();
     experimentPanel.setVisible(false);
     ExperimentDAO experiment = new ExperimentDAO();
@@ -365,13 +376,13 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   protected void launchAbout() {
-    setContentTitle("About PACO");
+    setContentTitle(myConstants.about() + " PACO");
     contentPanel.clear();
     experimentPanel.setVisible(false);
   }
 
   protected void launchHelp() {
-    setContentTitle("Help");
+    setContentTitle(myConstants.help());
     contentPanel.clear();
     experimentPanel.setVisible(false);
     HelpPage hp = new HelpPage(this);
@@ -380,7 +391,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void loadJoinedExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Experiments You Joined ");
+    setContentTitle(myConstants.joinedExperiments());
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
@@ -389,7 +400,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void loadAdministeredExperiments(boolean experimentsDirty) {
     statusLabel.setVisible(true);
-    setContentTitle("Administered Experiments");
+    setContentTitle(myConstants.administerExperiments());
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
@@ -416,7 +427,7 @@ public class Main implements EntryPoint, ExperimentListener {
     AsyncCallback<List<ExperimentDAO>> callback = new AsyncCallback<List<ExperimentDAO>>() {
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve your experiments!!");
+        Window.alert(myMessages.loadExperimentsFailed(caught.getMessage()));
         statusLabel.setVisible(false);
       }
 
@@ -792,7 +803,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve events from referenced experiment.<br/>" + caught.getMessage());
+        Window.alert(myMessages.loadReferencedEventsFailed(caught.getMessage()));
         statusLabel.setVisible(false);
 
       }
@@ -800,7 +811,7 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(List<EventDAO> eventList) {
         if (eventList.size() == 0) {
-          Window.alert("No events found for referencing.");
+          Window.alert(myConstants.noEventsFoundForReferredExperiment());
           statusLabel.setVisible(false);
           return;
         }
@@ -835,7 +846,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve results for experiment: " + experiment.getTitle() + "\n"
+        Window.alert(myMessages.loadEventsForExperimentFailed(experiment.getTitle()) + "\n"
             + caught.getMessage());
         statusLabel.setVisible(false);
       }

@@ -37,6 +37,13 @@
 <inherits name="com.google.gwt.http.HTTP" />
 <inherits name="com.google.gwt.json.JSON" />
 <inherits name="com.google.gwt.i18n.I18N"/>
+ 
+ <extend-property name="locale" values="ja"/>
+  <extend-property name="locale" values="en"/>
+<set-property-fallback name="locale" value="en"/>
+
+<!-- <set-configuration-property name="locale.usemeta" value="N"/> -->
+ <set-configuration-property name="locale.searchorder" value="queryparam,useragent,cookie"/>
 
 <!-- <inherits name="com.google.gwt.maps.GoogleMaps" /> -->
 <!-- <inherits name='com.google.gwt.maps.Apis_Google_Maps' /> -->

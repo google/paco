@@ -109,7 +109,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       buttonView.setVisibility(View.GONE);
       
       warningText = (TextView) findViewById(R.id.webRecommendedWarningText);
-      warningText.setText(warningText.getText() + " Please point your computer browser to http://"
+      warningText.setText(warningText.getText() + getString(R.string.use_browser) + "http://"
                           + getString(R.string.about_weburl));
 
       doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
@@ -176,7 +176,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
       
       if (isExpiredEsmPing()) {
-        Toast.makeText(this, "This survey request has expired. No need to enter a response", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
     } 
@@ -240,15 +240,15 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     if (!lm.isProviderEnabled("gps")) {
       new AlertDialog.Builder(this)
-        .setMessage("Use GPS for improved location (outside only)? ")
+        .setMessage(R.string.gps_message)
         .setCancelable(true)
-        .setPositiveButton("Enable", new DialogInterface.OnClickListener() {          
+        .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
           public void onClick(DialogInterface dialog, int which) {
             launchGpsSettings();
             dialog.dismiss();
           }
         })
-        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {          
+        .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
           public void onClick(DialogInterface dialog, int which) {
             dialog.cancel();
           }
@@ -281,15 +281,15 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       
     } else {
       new AlertDialog.Builder(this)
-      .setMessage("You must enable some form of Location Service if you want to include location data. ")
+      .setMessage(R.string.need_location)
       .setCancelable(true)
-      .setPositiveButton("Enable", new DialogInterface.OnClickListener() {          
+      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
         public void onClick(DialogInterface dialog, int which) {
           launchGpsSettings();
           dialog.dismiss();
         }
       })
-      .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {          
+      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
         public void onClick(DialogInterface dialog, int which) {
           dialog.cancel();
         }
@@ -388,7 +388,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     } catch (IllegalStateException ise) {
       new AlertDialog.Builder(this)
         .setIcon(R.drawable.paco64)
-        .setTitle("Required Answers Missing")
+        .setTitle(R.string.required_answers_missing)
         .setMessage(ise.getMessage()).show();
     }
   }
@@ -431,7 +431,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       String answer = inputView.getValueAsString();
       if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*|| 
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
-        throw new IllegalStateException("Must answer: " + input.getText());
+        throw new IllegalStateException(getString(R.string.must_answer) + input.getText());
       }
       responseForInput.setAnswer(answer);
       responseForInput.setName(input.getName());
@@ -584,7 +584,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         experimentProviderUtil.loadFeedbackForExperiment(experiment);      
 
         if (experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, "I found new questions.", Toast.LENGTH_SHORT).show();
+          Toast.makeText(ExperimentExecutor.this, R.string.found_updated_questions, Toast.LENGTH_SHORT).show();
           refreshButton.setVisibility(View.GONE);
           ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.VISIBLE);
           // TODO - consolidate this logic into one method, shared with onCreate.
@@ -594,9 +594,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
           showForm();
         } else if (!experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, "I did not find new questions on the server.", Toast.LENGTH_SHORT);
+          Toast.makeText(ExperimentExecutor.this, R.string.didnt_find_updated_questions, Toast.LENGTH_SHORT);
         } else {
-          Toast.makeText(ExperimentExecutor.this, "Experiment may be invalid now. Closing screen. Please reopen.", Toast.LENGTH_LONG);
+          Toast.makeText(ExperimentExecutor.this, R.string.invalid_experiment_warning, Toast.LENGTH_LONG);
           finish();
         }
         

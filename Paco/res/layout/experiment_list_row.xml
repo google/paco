@@ -18,7 +18,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="wrap_content"
 	android:orientation="horizontal">
-	<TextView android:text="Title" android:id="@+id/experimentListRowTitle"
+	<TextView android:text="@string/title" android:id="@+id/experimentListRowTitle"
 	    android:layout_gravity="left"
 	    android:gravity="left"
 	    android:textSize="20dip"
@@ -30,31 +30,28 @@
 
 	
     <ImageButton 
-        android:textSize="5dip" 
-        android:text="Data" 
+        android:textSize="5dip"  
         android:id="@+id/exploreDataExperimentButton"
         android:layout_width="35dp" android:layout_height="wrap_content"
         android:layout_gravity="right" android:minWidth="50dip"
         android:src="@drawable/calculator_lb48" 
         android:background="@null"
-        android:contentDescription="Explore Data"/>
+        android:contentDescription="@string/explore_data"/>
 	<ImageButton 
 	    android:textSize="5dip" 
-	    android:text="Schedule" 
 	    android:id="@+id/editExperimentButton"
 		android:layout_width="35dp" android:layout_height="wrap_content"
 		android:layout_gravity="right" android:minWidth="50dip"
 		android:src="@drawable/clock48"
 		 android:background="@null"
-		android:contentDescription="Edit Schedule"/>
+		android:contentDescription="@string/edit_schedule"/>
 		
 	<ImageButton 
 	    android:textSize="5dip" 
-	    android:text="Stop" 
 	    android:id="@+id/quitExperimentButton"
 		android:layout_width="35dp" android:layout_height="wrap_content"
 		android:layout_gravity="right" android:minWidth="50dip"
 		android:src="@drawable/stop48"
 		 android:background="@null"
-        android:contentDescription="Stop Experiment"/>
+        android:contentDescription="@string/stop_experiment"/>
 </LinearLayout>

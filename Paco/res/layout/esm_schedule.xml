@@ -32,7 +32,7 @@
       android:textSize="25dip"
       android:id="@+id/experimentNameSchedule"
       android:layout_height="wrap_content"
-      android:text="Experiment name"
+      android:text="@string/experiment_name"
       android:layout_width="wrap_content"></TextView>
     <TextView
       android:layout_gravity="left"
@@ -41,7 +41,7 @@
       android:textSize="20dip"
       android:id="@+id/TextView03"
       android:layout_height="wrap_content"
-      android:text="Suggested signalling schedule:"
+      android:text="@string/suggested_signalling_schedule"
       android:layout_width="wrap_content"></TextView>
 
     <LinearLayout
@@ -57,14 +57,13 @@
         android:layout_height="wrap_content"
         android:textSize="20dip"
         android:id="@+id/experimentPeriodLabel"
-        android:text="Schedule Period:  "
+        android:text="@string/schedule_period"
         android:gravity="left" />
       <Spinner
         android:layout_height="wrap_content"
         android:textSize="10dip"
         android:layout_gravity="right"
         android:id="@+id/experimentEsmPeriod"
-        android:text="week"
         android:layout_width="100dip" />
     </LinearLayout>
 
@@ -81,7 +80,7 @@
         android:layout_height="wrap_content"
         android:textSize="20dip"
         android:id="@+id/experimentFrequencyLabel"
-        android:text="Times per period:"
+        android:text="@string/times_per_period"
         android:gravity="left|center_vertical" />
       <EditText
         android:layout_width="wrap_content"
@@ -105,7 +104,7 @@
         android:layout_height="wrap_content"
         android:textSize="20dip"
         android:id="@+id/experimentFrequencyLabel"
-        android:text="Weekends?"
+        android:text="@string/weekends"
         android:layout_gravity="left|center_vertical" />
       <CheckBox
         android:text=""
@@ -125,13 +124,13 @@
       <TextView
         android:textSize="20dip"
         android:id="@+id/TextView02"
-        android:text="Start Hour:  "
+        android:text="@string/start_hour"
         android:layout_width="wrap_content"
         android:layout_gravity="left|bottom"
         android:layout_height="wrap_content" />
       <Button
         android:textSize="20dip"
-        android:text="9:30am"
+        android:text="@string/default_start_time"
         android:layout_width="wrap_content"
         android:layout_gravity="left|bottom"
         android:layout_height="wrap_content"
@@ -149,13 +148,13 @@
       <TextView
         android:textSize="20dip"
         android:id="@+id/TextView01"
-        android:text="End Hour:   "
+        android:text="@string/end_hour"
         android:layout_width="wrap_content"
         android:layout_gravity="left|bottom"
         android:layout_height="wrap_content" />
       <Button
         android:textSize="20dip"
-        android:text="5:30am"
+        android:text="@string/default_end_hour"
         android:layout_width="wrap_content"
         android:layout_gravity="left|bottom"
         android:layout_height="wrap_content"
@@ -165,7 +164,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:id="@+id/SetDailyScheduleButton"
-      android:text="Save Schedule"
+      android:text="@string/save_schedule"
       android:layout_gravity="center"></Button>
 
 

@@ -23,7 +23,7 @@
         android:layout_weight="1"
 		android:text="" android:id="@+id/feedbackText" android:layout_height="0dip"/>
 	<Button android:id="@+id/rawDataButton"
-    android:text="Go to Raw Data" android:layout_width="fill_parent" android:padding="3dip" android:layout_height="wrap_content"></Button>
+    android:text="@string/raw_data_button_text" android:layout_width="fill_parent" android:padding="3dip" android:layout_height="wrap_content"></Button>
 
 
 </LinearLayout>

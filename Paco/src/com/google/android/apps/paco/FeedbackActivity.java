@@ -47,18 +47,19 @@ import android.widget.Button;
 public class FeedbackActivity extends Activity {
 
   private static final String TEMP_URL = null;
-  private ExperimentProviderUtil experimentProviderUtil;
-  private Experiment experiment;
+  ExperimentProviderUtil experimentProviderUtil;
+  Experiment experiment;
   private WebView webView;
   private Button rawDataButton;
   boolean showDialog = true;
   private Environment env;
   
-  private class Email {
+  private class JavascriptEmail {
     public void sendEmail(String body, String subject, String userEmail) {
       FeedbackActivity.this.sendEmail(body, subject, userEmail);
     }
   }
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -70,11 +71,11 @@ public class FeedbackActivity extends Activity {
       setContentView(R.layout.feedback);
       experimentProviderUtil.loadFeedbackForExperiment(experiment);
       experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadEventsForExperiment(experiment);
+      experimentProviderUtil.loadLastEventForExperiment(experiment);
       final Feedback feedback = experiment.getFeedback().get(0);
       
       final Map<String,String> map = new HashMap<String, String>();      
-      map.put("experimentalData", convertExperimentResultsToJsonString(feedback));
+      map.put("lastResponse", convertExperimentResultsToJsonString(feedback, experiment));
       map.put("title", experiment.getTitle());
       
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
@@ -93,14 +94,15 @@ public class FeedbackActivity extends Activity {
       
       String text = experiment.getFeedback().get(0).getText();                
       webView.addJavascriptInterface(text, "additions");      
-      webView.addJavascriptInterface(new Email(), "email");      
+      webView.addJavascriptInterface(new JavascriptEmail(), "email");
+      webView.addJavascriptInterface(new JavascriptEventLoader(experimentProviderUtil, experiment), "eventLoader");
             
       setWebChromeClientThatHandlesAlertsAsDialogs();
       
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
       webView.setWebViewClient(webViewClient);
       
-      if (experiment.getFeedback().size() > 0 && !experiment.getFeedback().get(0).isDefaultFeedback()) {
+      if (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0))) {
         loadCustomFeedbackIntoWebView();
       } else {
         loadDefaultFeedbackIntoWebView();  
@@ -189,7 +191,7 @@ public class FeedbackActivity extends Activity {
       @Override
       public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
 
-        new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+        new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
@@ -206,13 +208,13 @@ public class FeedbackActivity extends Activity {
             result.confirm();
             return true;
           } else{
-            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton("OK", new Dialog.OnClickListener() {
+            new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
               public void onClick(DialogInterface dialog, int which) {
                 showDialog = false;
                 dialog.dismiss();
                 result.confirm();
               }
-            }).setNegativeButton("Cancel", new Dialog.OnClickListener() {
+            }).setNegativeButton(R.string.cancel_button, new Dialog.OnClickListener() {
               public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 result.cancel();
@@ -242,7 +244,7 @@ public class FeedbackActivity extends Activity {
     });
   }
 
-  private String convertExperimentResultsToJsonString(final Feedback feedback) {
+  public static String convertExperimentResultsToJsonString(final Feedback feedback, final Experiment experiment) {
     final JSONArray experimentData = new JSONArray();
     for (Event event : experiment.getEvents()) {
       try {
@@ -360,5 +362,10 @@ public class FeedbackActivity extends Activity {
     outState.putString("url", webView.getUrl());
     outState.putString("showDialog", showDialog+"");
  }
+  
+  private boolean isDefaultFeedback(Feedback feedback) {
+    return feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
+      feedback.getText().equals(getString(R.string.thanks_for_participating_message));
+  }
   
 }

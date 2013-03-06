@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Composite;
@@ -24,8 +25,14 @@ public class EventPanel extends Composite {
   private EventDAO event;
   private VerticalPanel mainPanel;
   private Map<String, InputDAO> inputs;
+  protected MyConstants myConstants;
+  protected MyMessages myMessages;
+
 
   public EventPanel(AbstractExperimentExecutorPanel parent, EventDAO eventDAO, Map<String, InputDAO> inputsByName) {
+    myConstants = GWT.create(MyConstants.class);
+    myMessages = GWT.create(MyMessages.class);
+
     this.parent = parent;
     this.event = eventDAO;
     this.inputs = inputsByName;
@@ -45,7 +52,7 @@ public class EventPanel extends Composite {
     HorizontalPanel stPanel = new HorizontalPanel();
     mainPanel.add(stPanel);
     
-    Label scheduledTimeLabel = new Label("Scheduled Time: ");
+    Label scheduledTimeLabel = new Label(myConstants.scheduledTime() + ": ");
     scheduledTimeLabel.setStyleName("keyLabel");
     stPanel.add(scheduledTimeLabel);
     Label timeLabel = new Label(eventDAO.getScheduledTime() != null ? eventDAO.getScheduledTime().toString() : "");
@@ -54,7 +61,7 @@ public class EventPanel extends Composite {
     HorizontalPanel rtPanel = new HorizontalPanel();
     mainPanel.add(rtPanel);
 
-    Label responseTimeLabel = new Label("Response Time: ");
+    Label responseTimeLabel = new Label(myConstants.responseTime() + ": ");
     responseTimeLabel.setStyleName("keyLabel");
     rtPanel.add(responseTimeLabel);
     Label responseTimeValueLabel = new Label(eventDAO.getResponseTime() != null ? eventDAO.getResponseTime().toString() : null);
@@ -62,7 +69,7 @@ public class EventPanel extends Composite {
   }
 
   private void renderResponseValues() {
-    Label responseLabel = new Label("Responses: ");
+    Label responseLabel = new Label(myConstants.responses() + ": ");
     responseLabel.setStyleName("keyLabel");
     mainPanel.add(responseLabel);
     

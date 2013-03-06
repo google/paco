@@ -51,17 +51,17 @@ public class SignalSchedule implements Parcelable {
   public static final int[] SCHEDULE_TYPES = new int[] { DAILY, WEEKDAY,
       WEEKLY, MONTHLY, ESM, SELF_REPORT, ADVANCED };
 
-  public static final String[] SCHEDULE_TYPES_NAMES = new String[] { "Daily",
-      "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)",
-      "Self report only", "Advanced" };
+  public static final int[] SCHEDULE_TYPES_NAMES = new int[] { R.string.daily_schedule_type,
+      R.string.weekdays_schedule_type, R.string.weekly_schedule_type, R.string.monthly_schedule_type, R.string.random_sampling_esm_schedule_type,
+      R.string.self_report_only_schedule_type, R.string.advanced_schedule_type };
 
   public static final int ESM_PERIOD_DAY = 0;
   public static final int ESM_PERIOD_WEEK = 1;
   public static final int ESM_PERIOD_MONTH = 2;
 
   public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
-  public static final String[] ESM_PERIODS_NAMES = new String[] { "Day",
-      "Week", "Month" };
+  public static final int[] ESM_PERIODS_NAMES = new int[] { R.string.day_esm_period,
+      R.string.week_esm_period, R.string.month_esm_period };
   public static final Integer DEFAULT_REPEAT_RATE = 1;
   public static final int[] DAYS_OF_WEEK = new int[] { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -381,12 +381,12 @@ public class SignalSchedule implements Parcelable {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES[scheduleType]);
+    appendKeyValue(buf, "type", Integer.toString(SCHEDULE_TYPES_NAMES[scheduleType]));
     comma(buf);
     if (scheduleType == ESM) {
       appendKeyValue(buf, "frequency", esmFrequency.toString());
       comma(buf);
-      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES[esmPeriodInDays]);
+      appendKeyValue(buf,"esmPeriod", Integer.toString(ESM_PERIODS_NAMES[esmPeriodInDays]));
       comma(buf);
       appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
       comma(buf);

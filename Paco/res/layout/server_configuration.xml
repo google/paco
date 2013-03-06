@@ -22,13 +22,13 @@
 	android:layout_height="fill_parent" android:layout_gravity="center"
 	android:orientation="vertical" android:gravity="center" >
 	<TextView 
-			android:text="WARNING: Only change this if you know what you are doing."
+			android:text="@string/server_address_warning"
 			android:layout_width="fill_parent" 
 			android:gravity="center"
 			android:textSize="15dip"
 			android:padding="3dip" android:width="40dip" android:layout_height="wrap_content"/>
 	    <TextView 
-			android:text="Enter Server Address"
+			android:text="@string/enter_server_address"
 			android:layout_width="fill_parent" 
 			android:gravity="center"
 			android:textSize="15dip"
@@ -44,7 +44,7 @@
 
 		<Button android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_gravity="center"
-			android:layout_margin="5px" android:text="Save"
+			android:layout_margin="5px" android:text="@string/save"
 			android:id="@+id/ServerConfigurationSaveButton"/>
 	
 

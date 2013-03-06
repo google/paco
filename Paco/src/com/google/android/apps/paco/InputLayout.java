@@ -121,7 +121,7 @@ public class InputLayout extends LinearLayout {
 
   void setLocation(Location location) {
     this.location = location;
-    String latLonStr = "Retrieving";
+    String latLonStr = getContext().getString(R.string.retrieving_lat_lon);
     if (location != null) {
       double latitude = location.getLatitude();
       double longitude = location.getLongitude();
@@ -272,7 +272,7 @@ public class InputLayout extends LinearLayout {
       o2.inSampleSize = scale;
       b = BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
     } catch (FileNotFoundException e) {
-      Toast.makeText(getContext(), "Cannot find image file from camera!", Toast.LENGTH_LONG);
+      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG);
     }
     return b;
   }
@@ -283,7 +283,7 @@ public class InputLayout extends LinearLayout {
       double longitude = location.getLongitude();
       return Double.toString(latitude) + "," + Double.toString(longitude);
     }
-    return "Unknown";
+    return getContext().getString(R.string.unknown_location);
   }
 
   private Integer getLikertValue() {
@@ -410,8 +410,8 @@ public class InputLayout extends LinearLayout {
           startCameraForResult();
         } catch (IOException e) {
           e.printStackTrace();
-          new AlertDialog.Builder(getContext()).setCancelable(true).setTitle("Cannot Open Camera")
-              .setMessage("Error: \n" + e.getMessage()).setNegativeButton("OK", null).create().show();
+          new AlertDialog.Builder(getContext()).setCancelable(true).setTitle(R.string.cannot_open_camera_warning)
+              .setMessage("Error: \n" + e.getMessage()).setNegativeButton(R.string.ok, null).create().show();
         }
       }
     });
@@ -570,7 +570,7 @@ public class InputLayout extends LinearLayout {
     };
 
     AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
-    builder.setTitle("Make selections");
+    builder.setTitle(R.string.make_selections);
 
     boolean[] checkedChoicesBoolArray = new boolean[input.getListChoices().size()];
     int count = input.getListChoices().size();
@@ -581,7 +581,7 @@ public class InputLayout extends LinearLayout {
     String[] listChoices = new String[input.getListChoices().size()];
     input.getListChoices().toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
-    builder.setPositiveButton("Done", new Dialog.OnClickListener() {
+    builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
       
       @Override
       public void onClick(DialogInterface dialog, int which) {

@@ -40,15 +40,12 @@ public class AccountChooser extends ListActivity {
     String chosenAccount = userPrefs.getSelectedAccount();
     if (chosenAccount != null) {
       TextView acctTextView = ((TextView)findViewById(R.id.ChosenAccountText));
-      acctTextView.setText("current: " + chosenAccount);
+      acctTextView.setText(getString(R.string.current_account) + ": " + chosenAccount);
     }
     AccountManager am = AccountManager.get(this);
     accounts = am.getAccountsByType(accountType);
     if (accounts == null || accounts.length == 0) {
       am.addAccount(accountType, LoginRedirectHandler.AUTH_TOKEN_TYPE, null, null, null, null, null);
-    } else if (accounts.length == 1) {
-      String accountName = accounts[0].name;
-      setChosenAccountNameAsResult(accountName);
     } else {
       List<String> accountNames = new ArrayList<String>();
       for (Account acct : accounts) {

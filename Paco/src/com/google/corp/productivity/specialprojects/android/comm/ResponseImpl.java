@@ -17,6 +17,7 @@
 package com.google.corp.productivity.specialprojects.android.comm;
 
 import android.content.Intent;
+import com.google.android.apps.paco.R;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;

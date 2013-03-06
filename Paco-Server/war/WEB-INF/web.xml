@@ -23,7 +23,7 @@
 
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
+    <welcome-file>main.jsp</welcome-file>
   </welcome-file-list>
   
   <filter>
@@ -93,6 +93,15 @@
     <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
 </servlet>
+<servlet>
+    <servlet-name>remoteLoggingService</servlet-name>
+  <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
+</servlet>
+<servlet-mapping>
+  <servlet-name>remoteLoggingService</servlet-name>
+  <url-pattern>/pacoserver/logging</url-pattern>
+</servlet-mapping>
+  
 <servlet-mapping>
     <servlet-name>RemoteApiServlet</servlet-name>
     <url-pattern>/remote_api</url-pattern>
@@ -133,6 +142,7 @@
 	      <url-pattern>/events*</url-pattern>
 	      <url-pattern>/experiments*</url-pattern>
 	      <url-pattern>/participantStats*</url-pattern>
+	      <url-pattern>/join*</url-pattern>
 	   </web-resource-collection>
 	   <auth-constraint>
 	       <role-name>*</role-name> 
@@ -156,4 +166,6 @@
 	   </user-data-constraint>
 	        
 	    </security-constraint>
+	    
+	 
 	</web-app>
