@@ -25,6 +25,7 @@ import static com.google.corp.productivity.specialprojects.android.comm.Constant
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_REQUIRED_ACTION_INTENT;
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_SECOND_ATTEMPT;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -32,14 +33,22 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectHandler;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 import android.accounts.Account;
@@ -104,6 +113,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
             context.setAttribute(KEY_FAILURE_MESSAGE,
                 Messages.get(Messages.AH_LOGIN_FAILED, "unknown"));
           } else {
+          
             // If this is the login redirection for appspot, try logging in.
             Context appContext = (Context) context.getAttribute(KEY_APP_CONTEXT);
             HttpUriRequest request = (HttpUriRequest) context.getAttribute(KEY_ORIGINAL_REQUEST);
@@ -112,6 +122,11 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
             login(context, appContext, request.getURI());
           }
           return false;
+        } else if (locationURI.getHost().equals("10.0.2.2") && locationURI.getPath().equals("/_ah/login")) {
+          HttpUriRequest request = (HttpUriRequest) context.getAttribute(KEY_ORIGINAL_REQUEST);
+          Context appContext = (Context) context.getAttribute(KEY_APP_CONTEXT);
+          devLogin(context, appContext, request);
+          
         }
       } catch (ProtocolException e) {
         // Ignore this, only checking
@@ -119,6 +134,49 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
       }
     }
     return redirect;
+  }
+
+  private void devLogin(HttpContext context, Context appContext, HttpUriRequest request) {
+    String accountName = getSelectedAccountName(appContext);
+    String url = "http://"+request.getURI().getHost() + ":" + request.getURI().getPort()+ "/_ah/login?continue=" + request.getURI().toString();
+    Object cookieStore = context.getAttribute(KEY_COOKIE_STORE);
+    HttpResponse response;
+    synchronized (httpClient) {
+      if (cookieStore instanceof CookieStore) {
+        httpClient.setCookieStore((CookieStore) cookieStore);
+      }
+      try {
+        HttpPost httpPost = new HttpPost(url);
+        List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+        nvps.add(new BasicNameValuePair("email", accountName));
+        nvps.add(new BasicNameValuePair("isAdmin", "on"));
+        nvps.add(new BasicNameValuePair("continue", request.getURI().toString()));
+        nvps.add(new BasicNameValuePair("action", "Log In"));
+
+        httpPost.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8)); 
+        response = httpClient.execute(httpPost, context);
+        switch (getLoginStatus(response)) {
+        case LOGIN_STATUS_OK:
+          context.setAttribute(KEY_LOGIN_OK, Boolean.TRUE);
+        case LOGIN_STATUS_FAILED:
+          context.setAttribute(KEY_FAILURE_MESSAGE,
+              Messages.get(Messages.AH_LOGIN_CREDENTIAL, "blah"));
+          break;
+        case LOGIN_STATUS_ERROR:
+         context.setAttribute(KEY_FAILURE_MESSAGE,
+              Messages.get(Messages.AH_LOGIN_FAILED, response.getStatusLine().getReasonPhrase()));
+          break;
+      }
+
+      } catch (ClientProtocolException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+
+    
   }
 
   /**
@@ -132,8 +190,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
     if (context instanceof Activity) {
       Activity activity = (Activity) context;
       AccountManager accountManager = AccountManager.get(context);
-      UserPreferences userPrefs = new UserPreferences(context);
-      String accountName = userPrefs.getSelectedAccount(); 
+      String accountName = getSelectedAccountName(context); 
       Account account = findAccount(accountManager, context, accountName);
       
       AccountManagerFuture<Bundle> future = null;
@@ -147,6 +204,12 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
         Log.w(LOG_TAG, e);
       }
     }
+  }
+
+  private String getSelectedAccountName(Context context) {
+    UserPreferences userPrefs = new UserPreferences(context);
+    String accountName = userPrefs.getSelectedAccount();
+    return accountName;
   }
 
 
@@ -196,8 +259,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
    */
   private Account checkAccount(final HttpContext httpContext, final Context context,
       final AccountManager accountManager) {
-    UserPreferences userPrefs = new UserPreferences(context);
-    String accountName = userPrefs.getSelectedAccount();
+    String accountName = getSelectedAccountName(context);
     Account account = findAccount(accountManager, context, accountName);
 //    if (account == null) {
 //      // Account not found - ask user to create account

@@ -65,7 +65,8 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       try {
         manager = new UrlContentManager(enclosingActivity);
         String serverAddress = userPrefs.getServerAddress();
-        Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();
+        String path = "/experiments";
+        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path)).execute();
         String contentAsString = response.getContentAsString();
 //        Log.i("FindExperimentsActivity", "data: " + contentAsString);
         if (contentAsString != null) {

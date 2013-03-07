@@ -86,7 +86,7 @@ public class EventUploader {
     
     try {
       Log.i("" + this, "Preparing to post.");      
-      Response response = um.createRequest().setUrl("https://" + serverAddress + "/events").
+      Response response = um.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/events")).
           setPostData(json).addHeader("http.useragent", "PacoDroid2").
           execute();
       
