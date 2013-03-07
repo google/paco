@@ -32,7 +32,7 @@ public class VersionUpdateActivity extends Activity {
     }
 
     private void update() {
-      String url = "https://" + new UserPreferences(this).getServerAddress() + "/paco.apk";
+      String url = ServerAddressBuilder.createServerUrl(new UserPreferences(this).getServerAddress(), "/paco.apk");
       Intent i = new Intent(Intent.ACTION_VIEW);
       i.setData(Uri.parse(url));
       startActivity(i);

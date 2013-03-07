@@ -190,8 +190,7 @@ public class ExperimentDetailActivity extends Activity {
         manager = new UrlContentManager(ExperimentDetailActivity.this);
         
         String serverAddress = userPrefs.getServerAddress();
-        Response response = manager.createRequest().setUrl(
-            "https://"+serverAddress+"/experiments").execute();
+        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments")).execute();
         String contentAsString = response.getContentAsString();
         Log.i("ExperimentDetailActivity", "data: " + contentAsString);
         if (contentAsString != null) {

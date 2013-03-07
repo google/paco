@@ -26,6 +26,7 @@ import static com.google.corp.productivity.specialprojects.android.comm.Constant
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_SECOND_ATTEMPT;
 
 import com.google.android.apps.paco.R;
+import com.google.android.apps.paco.UserPreferences;
 import com.google.corp.productivity.specialprojects.android.comm.Response.Status;
 
 import android.accounts.Account;
@@ -56,6 +57,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
@@ -101,7 +103,6 @@ public class UrlContentManager {
   private static final int CONNPOOL_DEFAULT_MAX_TOTAL = 10;
   private static final int CONNPOOL_DEFAULT_MAX_PER_ROUTE = 5;
 
-  private static final String PREFERENCE_KEY = "url-content-manager";
   private static final String LOG_TAG = UrlContentManager.class.getSimpleName();
 
   private final LoginRedirectHandler loginHandler;
@@ -125,7 +126,7 @@ public class UrlContentManager {
   public UrlContentManager(Context context) {
     this.applicationContext = context.getApplicationContext();
     this.loginHandler = new LoginRedirectHandler();
-    SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+    SharedPreferences preferences = context.getSharedPreferences(UserPreferences.PREFERENCE_KEY, Context.MODE_PRIVATE);
     this.cookieStore = new SerializableCookieStore(preferences);
     loginHandler.checkCredentialPermission(context);
   }
@@ -149,7 +150,7 @@ public class UrlContentManager {
       Log.w(LOG_TAG, e);
     } finally {
       SharedPreferences preferences =
-          applicationContext.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+          applicationContext.getSharedPreferences(UserPreferences.PREFERENCE_KEY, Context.MODE_PRIVATE);
       cookieStore.saveIfDirty(preferences);
     }
     return getResponse(response, context, errorMessage);
@@ -173,7 +174,7 @@ public class UrlContentManager {
     httpClient = null;
     if (tmp != null) {
       Log.d(LOG_TAG, "cleaning up");
-      SharedPreferences preferences = applicationContext.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+      SharedPreferences preferences = applicationContext.getSharedPreferences(UserPreferences.PREFERENCE_KEY, Context.MODE_PRIVATE);
       cookieStore.saveIfDirty(preferences);
       tmp.clearRequestInterceptors();
       tmp.clearResponseInterceptors();

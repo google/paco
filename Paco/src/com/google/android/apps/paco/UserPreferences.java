@@ -75,6 +75,10 @@ public class UserPreferences {
 
   private SharedPreferences appPrefs;
 
+  public static final String COOKIE_PREFERENCE_KEY = "http-cookies";
+
+  public static final String PREFERENCE_KEY = "url-content-manager";
+
   public UserPreferences(Context context) {
     this.context = context;
   }
@@ -156,6 +160,12 @@ public class UserPreferences {
   public void saveSelectedAccount(String name) {
     SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
     prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();    
+    deleteAccountCookie();
+  }
+
+  private void deleteAccountCookie() {
+    SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+    preferences.edit().remove(COOKIE_PREFERENCE_KEY).commit();    
   }
 
   public void saveSelectedAccount(Account account) {
