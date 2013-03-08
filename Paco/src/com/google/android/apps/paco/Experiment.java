@@ -40,6 +40,7 @@ public class Experiment implements Parcelable {
       experiment.id = source.readLong();
       experiment.serverId = source.readLong();
       experiment.title = source.readString();
+      experiment.version = source.readInt();
       experiment.description = source.readString();
       
       // TODO (bobevans):set icon from parcelable bytes
@@ -124,6 +125,7 @@ public class Experiment implements Parcelable {
 
   private DateTime joinDate;
   private DateTime modifyDate;
+  private Integer version;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -297,6 +299,7 @@ public class Experiment implements Parcelable {
     dest.writeLong(id);
     dest.writeLong(serverId);
     dest.writeString(title);
+    dest.writeInt(version);
     dest.writeString(description);
     dest.writeInt(icon.length);
     dest.writeByteArray(icon);
@@ -525,11 +528,17 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
-  public long getExpirationTimeInMinutes() {
+  public Integer getExpirationTimeInMinutes() {
+    Integer timeout = getSchedule().getTimeout();
+    return timeout != null ? timeout : getOldDefaultValuesForTimeout();
+  }
+
+  private Integer getOldDefaultValuesForTimeout() {
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      return 59;
+      return 59;      
+    } else {
+      return 479;
     }
-    return 479;
   }
 
   @JsonIgnore
@@ -563,6 +572,14 @@ public class Experiment implements Parcelable {
   
   public void setWebRecommended(Boolean webRecommended) {
     this.webRecommended = webRecommended;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+  
+  public void setVersion(Integer version) {
+    this.version = version;
   }
   
   

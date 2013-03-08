@@ -164,6 +164,9 @@ public class Experiment {
   @JsonProperty("informedConsentForm")
   private Text informedConsentFormText;
 
+  @Persistent
+  private Integer version;
+
   public Long getId() {
     return id;
   }
@@ -396,6 +399,14 @@ public class Experiment {
     who = who.toLowerCase();
     return getAdmins().contains(who) || 
       (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
+  }
+
+  public Integer getVersion() {
+    return this.version;
+  }
+  
+  public void setVersion(Integer version) {
+    this.version = version;
   }
 
 

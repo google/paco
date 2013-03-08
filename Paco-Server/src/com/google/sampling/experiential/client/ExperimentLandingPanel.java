@@ -165,6 +165,7 @@ public class ExperimentLandingPanel extends Composite {
                                  formatTime(new Date()), 
                                  experiment.getId().toString(), 
                                  kvPairs, 
+                                 experiment.getVersion(),
                                  false, 
                                  new AsyncCallback<Void>() {
 

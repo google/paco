@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -37,8 +38,10 @@ import com.google.sampling.experiential.shared.SignalScheduleDAO;
 public class MonthlyPanel extends Composite {
 
   private SignalScheduleDAO schedule;
-
+  private MyConstants myConstants;
+  
   public MonthlyPanel(final SignalScheduleDAO schedule) {
+    myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -46,7 +49,7 @@ public class MonthlyPanel extends Composite {
     verticalPanel.setSize("290px", "43px");
     initWidget(verticalPanel);
 
-    RepeatEveryNPanel repeatPanel = new RepeatEveryNPanel("Months", schedule);
+    RepeatEveryNPanel repeatPanel = new RepeatEveryNPanel(myConstants.repeatTypeMonths(), schedule);
     verticalPanel.add(repeatPanel);
     repeatPanel.setWidth("239px");
 
@@ -64,8 +67,8 @@ public class MonthlyPanel extends Composite {
     domPanel.add(by);
     by.setWidth("30px");
 
-    RadioButton domRadio = new RadioButton("byGroup", "Day Of Month");
-    domRadio.setHTML("Day of Month");
+    RadioButton domRadio = new RadioButton(myConstants.byGroup(), myConstants.dayOfMonth());
+    domRadio.setHTML(myConstants.dayOfMonth());
     domPanel.add(domRadio);
 
     final ListBox listBox = createDayOfMonthListBox();
@@ -85,14 +88,14 @@ public class MonthlyPanel extends Composite {
     dowPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     byWhatPanel.add(dowPanel);
 
-    Label label = new Label("By: ");
+    Label label = new Label(myConstants.by() + ": ");
     label.setStyleName("gwt-Label-Header");
     dowPanel.add(label);
     label.setWidth("30px");
 
-    RadioButton dowRadio = new RadioButton("byGroup", "Day Of Week");
+    RadioButton dowRadio = new RadioButton(myConstants.byGroup(), myConstants.dayOfWeek());
 
-    dowRadio.setHTML("Day of Week");
+    dowRadio.setHTML(myConstants.dayOfWeek());
     dowPanel.add(dowRadio);
 
     HorizontalPanel weekdayPanel = new HorizontalPanel();
@@ -138,6 +141,11 @@ public class MonthlyPanel extends Composite {
       dowRadio.setValue(Boolean.TRUE);
       toggleDayOfMonthDayOfWeekPanels(schedule, listBox, nth, weekDayPanel, true);
     }
+    
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    verticalPanel.add(timeoutPanel);
+    timeoutPanel.setWidth("286px");
+
   }
 
   private ListBox createNthDayListBox(final SignalScheduleDAO schedule, 
@@ -145,11 +153,11 @@ public class MonthlyPanel extends Composite {
     final ListBox nth = new ListBox();
 
     weekdayPanel.setCellHorizontalAlignment(nth, HasHorizontalAlignment.ALIGN_RIGHT);
-    nth.addItem("First");
-    nth.addItem("Second");
-    nth.addItem("Third");
-    nth.addItem("Fourth");
-    nth.addItem("Fifth");
+    nth.addItem(myConstants.nthWeekOfMonthFirst());
+    nth.addItem(myConstants.nthWeekOfMonthSecond());
+    nth.addItem(myConstants.nthWeekOfMonthThird());
+    nth.addItem(myConstants.nthWeekOfMonthFourth());
+    nth.addItem(myConstants.nthWeekOfMonthFifth());
     if (Boolean.TRUE == schedule.getByDayOfWeek()) {
       nth.setSelectedIndex(schedule.getNthOfMonth());
     }

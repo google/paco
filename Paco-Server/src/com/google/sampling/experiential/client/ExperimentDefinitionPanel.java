@@ -99,6 +99,21 @@ public class ExperimentDefinitionPanel extends Composite {
     lblExperimentDefinition.setStyleName("paco-HTML-Large");
     formPanel.add(lblExperimentDefinition);
 
+    String experimentVersionStr = "1";
+    if (experiment.getVersion() != null) {
+      experimentVersionStr = experiment.getVersion().toString();
+    }
+    HorizontalPanel versionPanel = new HorizontalPanel();
+    formPanel.add(versionPanel);
+    
+    Label lblExperimentVersion = new Label("Version:");
+    lblExperimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(lblExperimentVersion);
+    
+    Label experimentVersion = new Label(experimentVersionStr);
+    experimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(experimentVersion);
+    
     createExperimentForm();
 
   }

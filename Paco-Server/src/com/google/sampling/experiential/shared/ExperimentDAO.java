@@ -52,6 +52,7 @@ public class ExperimentDAO implements Serializable {
   private String[] publishedUsers;
   private Boolean deleted = false;
   private Boolean webRecommended = false;
+  private Integer version;
 
 
   /**
@@ -70,7 +71,7 @@ public class ExperimentDAO implements Serializable {
       String email, SignalScheduleDAO schedule, Boolean fixedDuration, Boolean questionsChange, 
       Long startDate, Long endDate, String hash, Long joinDate,
       Long modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
-      Boolean deleted, Boolean webRecommended) {
+      Boolean deleted, Boolean webRecommended, Integer version) {
     super();
     this.id = id;
     this.title = title;
@@ -92,6 +93,7 @@ public class ExperimentDAO implements Serializable {
     this.publishedUsers = publishedUsers;
     this.deleted = deleted;
     this.webRecommended = webRecommended;
+    this.version = version;
   }
 
   /**
@@ -273,6 +275,14 @@ public class ExperimentDAO implements Serializable {
 
   public void setWebRecommended(Boolean webRecommended) {
     this.webRecommended = webRecommended;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+  
+  public void setVersion(Integer version) {
+    this.version = version;
   }
 
   

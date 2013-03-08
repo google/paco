@@ -55,6 +55,8 @@ public class SignalSchedule implements Parcelable {
       R.string.weekdays_schedule_type, R.string.weekly_schedule_type, R.string.monthly_schedule_type, R.string.random_sampling_esm_schedule_type,
       R.string.self_report_only_schedule_type, R.string.advanced_schedule_type };
 
+  public static final String[] SCHEDULE_TYPES_NAMES_DATA_STRINGS = new String[] { "daily", "weekday", "weekly", "monthly", "esm", "self report", "advanced"
+                                                                           };
   public static final int ESM_PERIOD_DAY = 0;
   public static final int ESM_PERIOD_WEEK = 1;
   public static final int ESM_PERIOD_MONTH = 2;
@@ -62,6 +64,8 @@ public class SignalSchedule implements Parcelable {
   public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
   public static final int[] ESM_PERIODS_NAMES = new int[] { R.string.day_esm_period,
       R.string.week_esm_period, R.string.month_esm_period };
+  public static final String[] ESM_PERIODS_NAMES_DATA_STRINGS= new String[] { "day",
+                                                            "week", "month"};
   public static final Integer DEFAULT_REPEAT_RATE = 1;
   public static final int[] DAYS_OF_WEEK = new int[] { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -124,6 +128,8 @@ public class SignalSchedule implements Parcelable {
   private Integer esmPeriodInDays;
   private Long esmStartHour;
   private Long esmEndHour;
+  /** timeout in minutes */
+  private Integer timeout;
 
   private List<Long> times;
   private Integer repeatRate = 1;
@@ -157,7 +163,7 @@ public class SignalSchedule implements Parcelable {
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable) {
+      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -175,6 +181,7 @@ public class SignalSchedule implements Parcelable {
       this.beginDate = beginDate;
     }
     this.userEditable = userEditable;
+    this.timeout = timeout;
   }
 
   /**
@@ -381,12 +388,12 @@ public class SignalSchedule implements Parcelable {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    appendKeyValue(buf, "type", Integer.toString(SCHEDULE_TYPES_NAMES[scheduleType]));
+    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES_DATA_STRINGS[scheduleType]);
     comma(buf);
     if (scheduleType == ESM) {
       appendKeyValue(buf, "frequency", esmFrequency.toString());
       comma(buf);
-      appendKeyValue(buf,"esmPeriod", Integer.toString(ESM_PERIODS_NAMES[esmPeriodInDays]));
+      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES_DATA_STRINGS[esmPeriodInDays]);
       comma(buf);
       appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
       comma(buf);
@@ -467,4 +474,28 @@ public class SignalSchedule implements Parcelable {
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
+  
+  public Integer getTimeout() {
+    if (timeout == null) {
+      return getOldDefaultTimeout();
+    }
+    return timeout;
+  }
+
+  
+  private Integer getOldDefaultTimeout() {
+    if (getScheduleType().equals(ESM)) {
+      setTimeout(59);
+      return 59;
+    } else {
+      setTimeout(479);
+      return 479;
+    }
+  }
+
+  public void setTimeout(Integer timeout) {
+    this.timeout = timeout;
+  }
+
+
 }

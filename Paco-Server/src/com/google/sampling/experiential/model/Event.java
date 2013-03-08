@@ -81,6 +81,8 @@ public class Event {
   @Persistent
   private String experimentId;
 
+  @Persistent
+  private Integer experimentVersion;
   
   @Persistent
   private Date scheduledTime;
@@ -118,7 +120,7 @@ public class Event {
   }
 
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
-      Set<What> what, boolean shared, String experimentId, String experimentName, 
+      Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion, 
       Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
     super();
     if (/*what.size() == 0 || */who == null || when == null) {
@@ -135,6 +137,7 @@ public class Event {
     this.shared = shared;
     this.experimentId = experimentId;
     this.experimentName = experimentName;
+    this.experimentVersion = experimentVersion;
     this.responseTime = responseTime;
     this.scheduledTime = scheduledTime;
     if (blobs != null) {
@@ -302,12 +305,11 @@ public class Event {
       parts[csvIndex++] = who;
     }
     parts[csvIndex++] = simpleDateFormat.format(when);
-    parts[csvIndex++] = lat;
-    parts[csvIndex++] = lon;
     parts[csvIndex++] = appId;
     parts[csvIndex++] = pacoVersion;
     parts[csvIndex++] = experimentId;
     parts[csvIndex++] = experimentName;
+    parts[csvIndex++] = experimentVersion != null ? Integer.toString(experimentVersion) : "0";
     parts[csvIndex++] = responseTime != null ? simpleDateFormat.format(responseTime) : null;
     parts[csvIndex++] = scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null;
     Map<String, String> whatMap = getWhatMap();
@@ -353,6 +355,14 @@ public class Event {
     messageDigest.update(who.getBytes(Charset.forName("UTF8")));
     byte[] resultByte = messageDigest.digest();
     return new String(Hex.encodeHex(resultByte));
+  }
+
+  public Integer getExperimentVersion() {
+    return experimentVersion;
+  }
+
+  public void setExperimentVersion(Integer experimentVersion) {
+    this.experimentVersion = experimentVersion;
   }
 
 }

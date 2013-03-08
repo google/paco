@@ -31,12 +31,8 @@ public interface MapService extends RemoteService {
 
   List<EventDAO> mapWithTags(String tags);
 
-  void saveEvent(String who, 
-      String scheduledTime, 
-      String responseTime, 
-      String experimentId,
-      Map<String, String> kvPairs, 
-      boolean shared);
+  void saveEvent(String who, String scheduledTime, String responseTime, String experimentId,
+                 Map<String, String> kvPairs, Integer experimentVersion, boolean shared);
   
   void saveExperiment(ExperimentDAO experiment);
   

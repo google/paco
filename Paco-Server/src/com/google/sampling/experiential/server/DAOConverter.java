@@ -74,10 +74,12 @@ public class DAOConverter {
     List<String> userEmails = experiment.getPublishedUsers();
     String[] userEmailsStrArray = new String[userEmails.size()];
     userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
+    
+    Integer version = experiment.getVersion();
 
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalScheduleDAO,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted, null);
+            userEmailsStrArray, deleted, null, version);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -103,11 +105,16 @@ public class DAOConverter {
             schedule.getDayOfMonth(), schedule.getEsmEndHour(), schedule.getEsmFrequency(),
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
             schedule.getRepeatRate(), toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(),
-            schedule.getEsmWeekends(), schedule.getUserEditable());
+            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout());
   }
 
   public static FeedbackDAO createDAO(Feedback feedback) {
-    return new FeedbackDAO(feedback.getId().getId(), feedback.getFeedbackType(), feedback.getLongText());
+    Key feedbackKey = feedback.getId();
+    Long id = null;
+    if (feedbackKey != null) {
+      id = feedbackKey.getId();
+    }
+    return new FeedbackDAO(id, feedback.getFeedbackType(), feedback.getLongText());
   }
 
   public static InputDAO createDAO(Input input) {
@@ -139,7 +146,7 @@ public class DAOConverter {
     return times.toArray(res);
   }
 
-  static Experiment fromExperimentDAO(ExperimentDAO experimentDAO, Experiment experiment, User whoFromLogin) {
+  public static Experiment fromExperimentDAO(ExperimentDAO experimentDAO, Experiment experiment, User whoFromLogin) {
     experiment.setId(experimentDAO.getId()); // still neccessary in the case of retrieval from cache
     experiment.setTitle(experimentDAO.getTitle());
     experiment.setDescription(experimentDAO.getDescription());
@@ -207,7 +214,7 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()), 
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(), 
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(), 
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout());
     return schedule;
   }
 

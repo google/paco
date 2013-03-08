@@ -212,6 +212,7 @@ public class ExperimentProviderUtil {
 
   private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
     existingExperiment.setCreator(experiment.getCreator());
+    existingExperiment.setVersion(experiment.getVersion());
     existingExperiment.setDescription(experiment.getDescription());
     existingExperiment.setEndDate(experiment.getEndDate());
     existingExperiment.setFixedDuration(experiment.isFixedDuration());
@@ -369,6 +370,7 @@ public class ExperimentProviderUtil {
     int idIndex = cursor.getColumnIndexOrThrow(ExperimentColumns._ID);
     int serverIdIndex = cursor.getColumnIndexOrThrow(ExperimentColumns.SERVER_ID);
     int titleIndex = cursor.getColumnIndex(ExperimentColumns.TITLE);
+    int versionIndex = cursor.getColumnIndex(ExperimentColumns.VERSION);
     int descIndex = cursor.getColumnIndex(ExperimentColumns.DESCRIPTION);
     int creatorIndex = cursor.getColumnIndex(ExperimentColumns.CREATOR);
     int icIndex = cursor.getColumnIndex(ExperimentColumns.INFORMED_CONSENT);
@@ -393,6 +395,10 @@ public class ExperimentProviderUtil {
     
     if (!cursor.isNull(titleIndex)) {
       experiment.setTitle(cursor.getString(titleIndex));
+    }
+    
+    if (!cursor.isNull(versionIndex)) {
+      experiment.setVersion(cursor.getInt(versionIndex));
     }
     
     if (!cursor.isNull(descIndex)) {
@@ -454,6 +460,9 @@ public class ExperimentProviderUtil {
     }
     if (experiment.getTitle() != null) {
       values.put(ExperimentColumns.TITLE, experiment.getTitle() );
+    }
+    if (experiment.getVersion() != null) {
+      values.put(ExperimentColumns.VERSION, experiment.getVersion() );
     }
     if (experiment.getDescription() != null) {
       values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription() );
@@ -908,6 +917,7 @@ public class ExperimentProviderUtil {
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE );
+    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT );
     
     SignalSchedule schedule = new SignalSchedule();    
     if (!cursor.isNull(idIndex)) {
@@ -967,7 +977,9 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(userEditableIndex)) {
       schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
     }
-
+    if (!cursor.isNull(timeoutIndex)) {
+      schedule.setTimeout(cursor.getInt(timeoutIndex));
+    }
     return schedule;
   }
   
@@ -1006,6 +1018,9 @@ public class ExperimentProviderUtil {
     }
     if (schedule.getUserEditable() != null) {
       values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0); 
+    }
+    if (schedule.getTimeout() != null) {
+      values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout()); 
     }
     StringBuilder buf = new StringBuilder();
     boolean first = true;
@@ -1076,6 +1091,9 @@ public class ExperimentProviderUtil {
     }
     if (event.getExperimentServerId() >= 0) {
       values.put(EventColumns.EXPERIMENT_SERVER_ID, event.getExperimentServerId());
+    }
+    if (event.getExperimentVersion() != null) {
+      values.put(EventColumns.EXPERIMENT_VERSION, event.getExperimentVersion());
     }
     if (event.getExperimentName() != null) {
       values.put(EventColumns.EXPERIMENT_NAME, event.getExperimentName());
@@ -1191,6 +1209,7 @@ public class ExperimentProviderUtil {
     int idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
     int experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
+    int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
     int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
     int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
     int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
@@ -1208,6 +1227,9 @@ public class ExperimentProviderUtil {
     
     if (!cursor.isNull(experimentServerIdIndex)) {
       input.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
+    }
+    if (!cursor.isNull(experimentVersionIndex)) {
+      input.setExperimentVersion(cursor.getInt(experimentVersionIndex));
     }
     if (!cursor.isNull(experimentNameIndex)) {
       input.setExperimentName(cursor.getString(experimentNameIndex));

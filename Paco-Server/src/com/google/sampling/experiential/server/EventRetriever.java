@@ -64,11 +64,11 @@ public class EventRetriever {
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId, 
-      String experimentName, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
 //    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, responseTime, scheduledTime, blobs);
+        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs);
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();

@@ -448,6 +448,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     if (scheduledTime != null && scheduledTime != 0L) {
       event.setScheduledTime(new DateTime(scheduledTime));
     }
+    event.setExperimentVersion(experiment.getVersion());
     event.setResponseTime(new DateTime());
     return event;
   }

@@ -69,6 +69,7 @@ public class SignalScheduleDAO implements Serializable {
     private Integer dayOfMonth = 1;
     private Boolean esmWeekends = false;
     private Boolean userEditable;
+    private Integer timeout;
 
     /**
      * 
@@ -89,7 +90,7 @@ public class SignalScheduleDAO implements Serializable {
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
         Long esmStartHour, Integer nthOfMonth, Integer repeatRate, Long[] times,
-        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable) {
+        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout) {
       this.id = id;
       this.scheduleType = scheduleType;
       this.byDayOfMonth = byDayOfMonth;
@@ -104,6 +105,7 @@ public class SignalScheduleDAO implements Serializable {
       this.times = times;
       this.weekDaysScheduled = weekDaysScheduled;
       this.userEditable = userEditable;
+      this.timeout = timeout;
     }
 
     /**
@@ -232,6 +234,14 @@ public class SignalScheduleDAO implements Serializable {
     
     public void setUserEditable(Boolean userEditable) {
       this.userEditable = userEditable;
+    }
+
+    public Integer getTimeout() {
+      return timeout;
+    }
+    
+    public void setTimeout(Integer timeout) {
+      this.timeout = timeout;
     }
     
 }

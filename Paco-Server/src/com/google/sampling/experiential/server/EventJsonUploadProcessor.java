@@ -110,6 +110,7 @@ public class EventJsonUploadProcessor {
     
     String experimentId = null;
     String experimentName = null;
+    Integer experimentVersion = null;
     Date responseTime = null;
     Date scheduledTime = null;
 
@@ -118,6 +119,10 @@ public class EventJsonUploadProcessor {
     }
     if (eventJson.has("experimentName")) {
       experimentName = eventJson.getString("experimentName");
+    }
+    
+    if (eventJson.has("experimentVersion")) {
+      experimentVersion = eventJson.getInt("experimentVersion");
     }
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
     Experiment experiment = experimentRetriever.getExperiment(experimentId);
@@ -197,7 +202,7 @@ public class EventJsonUploadProcessor {
              + ", what length = " + whats.size());
 
     eventRetriever.postEvent(who, null, null, whenDate, null, pacoVersion, whats, false, experimentId,
-                                           experimentName, responseTime, scheduledTime, blobs);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs);
     return outcome;
   }
 

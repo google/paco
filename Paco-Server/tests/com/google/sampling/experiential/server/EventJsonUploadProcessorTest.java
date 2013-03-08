@@ -34,14 +34,14 @@ public class EventJsonUploadProcessorTest {
     noOpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName,
+                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {        
       }
     };
     blowUpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName,
+                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
         throw new IllegalArgumentException("This event is bad");
       }
@@ -52,7 +52,7 @@ public class EventJsonUploadProcessorTest {
       
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName,
+                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
         if (!second) {
           second = true;
