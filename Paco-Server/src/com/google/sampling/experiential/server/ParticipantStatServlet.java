@@ -128,7 +128,9 @@ public class ParticipantStatServlet extends HttpServlet {
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         for (ParticipantReport report : participantReportValues) {
           writer.write("<tr style=\"text-align:right;\">");
-          writer.write("<td style=\"text-align:left;\">" + Event.getAnonymousId(report.getWho()) + "</td>");
+          String who = report.getWho();
+          String anonymousId = Event.getAnonymousId(who);
+          writer.write("<td style=\"text-align:left;\">" + who + "</td>");
           writer.write("<td style=\"background-color: #dedede;\">" + 
               percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
           
