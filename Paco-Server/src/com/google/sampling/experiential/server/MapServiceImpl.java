@@ -44,6 +44,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.sampling.experiential.datastore.ExperimentEntity;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
@@ -85,7 +86,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
           event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId())));
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion()));
     }
     return eventDAOs;
   }
@@ -117,7 +118,8 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       String scheduledTime, 
       String responseTime, 
       String experimentId,
-      Map<String, String> kvPairs, 
+      Map<String, String> kvPairs,
+      Integer experimentVersion,
       boolean shared) {
     
     Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
@@ -145,7 +147,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     
     try {
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-          "1", whats, shared, experimentId, null, responseTimeDate, scheduledTimeDate, null);
+          "1", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -191,7 +193,9 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       experiment = retrieveExperimentForDAO(experimentDAO, pm);
     } else {
       experiment = new Experiment();
+      experiment.setVersion(1);
     }
+    
     
     if (experiment.getId() != null) {
       User loggedInUser = getWhoFromLogin();
@@ -202,23 +206,37 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         // experiment;
         return;
       }
+      Integer existingExperimentVersion = experiment.getVersion();
+      if (existingExperimentVersion != null && existingExperimentVersion > experimentDAO.getVersion()) {
+        throw new IllegalStateException("Experiment has already been edited!");
+      } else {
+        experiment.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
+      }
+
       JDOHelper.makeDirty(experiment, "inputs");
       JDOHelper.makeDirty(experiment, "feedback");
       JDOHelper.makeDirty(experiment, "schedule");
     }
     DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
+    
     Transaction tx = null;
+    boolean committed = false;
     try {
       tx = pm.currentTransaction();
       tx.begin();    
       pm.makePersistent(experiment);
+      
       tx.commit();
+      committed  = true;
       ExperimentCacheHelper.getInstance().clearCache();
     } finally {
       if (tx.isActive()) {
         tx.rollback();
       }
       pm.close();
+    }
+    if (committed) {
+      ExperimentEntity.saveExperimentAsEntity(experiment);
     }
   }
 
@@ -446,7 +464,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         }
         for (Long id : idList) {
           experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "", 
-              null, null, null, null, null, null, null, null, null, null, null, null, null));
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null));
         }
       } finally {
         if (pm != null) {
@@ -484,6 +502,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     if (experimentId == null) {
       throw new IllegalArgumentException("Invalid event. No id.");
     }
+    Integer experimentVersion = event.getExperimentVersion();
     Date scheduledTimeDate = event.getScheduledTime();
     Date responseTimeDate = event.getResponseTime();
     Date whenDate = new Date();
@@ -503,7 +522,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     
     try {
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-          "1", whats, event.isShared(), Long.toString(experimentId), null, responseTimeDate, scheduledTimeDate, null);
+          "1", whats, event.isShared(), Long.toString(experimentId), null, experimentVersion, responseTimeDate, scheduledTimeDate, null);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }

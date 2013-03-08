@@ -33,7 +33,8 @@ public interface MapServiceAsync {
       String scheduledTime, 
       String responseTime, 
       String experimentId,
-      Map<String, String> kvPairs, 
+      Map<String, String> kvPairs,
+      Integer experimentVersion,
       boolean shared, AsyncCallback<Void> asyncCallback);
 
   /**

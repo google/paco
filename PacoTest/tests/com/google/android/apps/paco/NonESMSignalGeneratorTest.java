@@ -63,7 +63,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
       int repeatRate, DateTime beginDate, Integer weekDaysScheduled, boolean byDayOfMonth, 
       Integer dayOfMonth, Integer nthOfMonth) {
     SignalSchedule schedule = new SignalSchedule(1L, scheduleType, byDayOfMonth, dayOfMonth, 
-        null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis(), true);
+        null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis(), true, 479 /* default timeout for non-esm*/);
     return schedule;
   }
 

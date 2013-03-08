@@ -124,7 +124,7 @@ public class ExperimentDetailActivity extends Activity {
       : null;
     if (experiment.getSchedule().getScheduleType() == SignalSchedule.ESM && esm_frequency != null && esm_frequency.length() > 0) {
       findViewById(R.id.esmPanel).setVisibility(View.VISIBLE); 
-      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + SignalSchedule.ESM_PERIODS_NAMES[experiment.getSchedule().getEsmPeriodInDays()]);
+      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + getString(SignalSchedule.ESM_PERIODS_NAMES[experiment.getSchedule().getEsmPeriodInDays()]));
     }
     // TODO (bobevans): Update to show all the new shceduling types in a succinct readonly way
     if (isJoinedExperiment()) {

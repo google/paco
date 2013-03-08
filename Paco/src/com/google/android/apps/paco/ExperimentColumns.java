@@ -56,5 +56,6 @@ public class ExperimentColumns implements BaseColumns {
   public static final String QUESTIONS_CHANGE = "questions_change"; // should we setup a service to check for updates to the questions? QOTD case.
   
   public static final String WEB_RECOMMENDED = "web_recommended";
+  public static final String VERSION = "version";
     
 }

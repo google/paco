@@ -147,7 +147,7 @@ public class PostEvent implements EntryPoint {
         kvPairs.put(key, value);
       }
     }
-    mapService.saveEvent(who, null, responseTime, experimentId, kvPairs, shared, new AsyncCallback<Void>() {
+    mapService.saveEvent(who, null, responseTime, experimentId, kvPairs, null, shared, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {

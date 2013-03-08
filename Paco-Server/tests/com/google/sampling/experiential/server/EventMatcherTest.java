@@ -57,7 +57,7 @@ public class EventMatcherTest extends TestCase {
     cal.set(Calendar.DAY_OF_MONTH, 1);
     sep109 = cal.getTime();
     events.add(new Event("bobevans@google.com", 
-        null, null, aug3109, "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
+        null, null, aug3109, "test", null, newHashSet, true, "1", "foo", 1, sep109, sep109, null));
 
   }
 
@@ -99,12 +99,12 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "AmericanTable"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", 1, sep109, sep109, null));
     
     Set<What> nonRestaurantWhat = Sets.newHashSet();
     nonRestaurantWhat.add(new What("weight", "10"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, nonRestaurantWhat, true, "1", "foo", sep109, sep109, null));
+        null, null, new Date(), "test", null, nonRestaurantWhat, true, "1", "foo", 1, sep109, sep109, null));
     
     query.add(new Query("restaurant", null));
     assertEquals(2, eventMatcher.matchingEvents(events, query).size());
@@ -115,7 +115,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", 1, sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", "1"));
@@ -130,7 +130,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", 1, sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", null));
@@ -143,7 +143,7 @@ public class EventMatcherTest extends TestCase {
     newHashSet.add(new What("restaurant", "CafeMoma"));
     newHashSet.add(new What("rating", "1"));
     events.add(new Event("bobevans@google.com", 
-        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", sep109, sep109, null));
+        null, null, new Date(), "test", null, newHashSet, true, "1", "foo", 1, sep109, sep109, null));
         
     query.add(new Query("restaurant", "CafeMoma"));
     query.add(new Query("rating", ""));

@@ -182,7 +182,8 @@ public class EventServlet extends HttpServlet {
         }
         eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
                                    event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
-                                   event.getResponseTime(), event.getScheduledTime(), null, Long.parseLong(event.getExperimentId())));
+                                   event.getResponseTime(), event.getScheduledTime(), null, Long.parseLong(event.getExperimentId()),
+                                   event.getExperimentVersion()));
       }
       return mapper.writeValueAsString(eventDAOs);
     } catch (JsonGenerationException e) {
@@ -221,14 +222,13 @@ public class EventServlet extends HttpServlet {
     // add back in the standard pacot event columns
     columns.add(0, "who");
     columns.add(1, "when");
-    columns.add(2, "lat");
-    columns.add(3, "lon");
-    columns.add(4, "appId");
-    columns.add(5, "pacoVersion");
-    columns.add(6, "experimentId");
-    columns.add(7, "experimentName");
-    columns.add(8, "responseTime");
-    columns.add(9, "scheduledTime");
+    columns.add(2, "appId");
+    columns.add(3, "pacoVersion");
+    columns.add(4, "experimentId");
+    columns.add(5, "experimentName");
+    columns.add(6, "experimentVersion");
+    columns.add(7, "responseTime");
+    columns.add(8, "scheduledTime");
 
     resp.setContentType("text/csv;charset=UTF-8");
     CSVWriter csvWriter = null;
@@ -318,12 +318,14 @@ public class EventServlet extends HttpServlet {
       out.append("</span></div>" );
       out.append("<div><span style\"font-weight: bold;\">Number of results:</span> <span>" + events.size() +"</span></div>" );
       out.append("<table class=\"gridtable\">");
-      out.append("<tr><th>Experiment Name</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
+      out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
       for (Event event : events) {
         long e1 = System.currentTimeMillis();
         out.append("<tr>");
         
         out.append("<td>").append(event.getExperimentName()).append("</td>");
+        
+        out.append("<td>").append(event.getExperimentVersion()).append("</td>");
         
         out.append("<td>").append(getTimeString(event, event.getScheduledTime())).append("</td>");
         

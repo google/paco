@@ -23,6 +23,7 @@ import android.util.Log;
         + ExperimentColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + ExperimentColumns.SERVER_ID + " INTEGER,"
         + ExperimentColumns.TITLE + " TEXT, "
+        + ExperimentColumns.VERSION + " INTEGER,"
         + ExperimentColumns.DESCRIPTION + " TEXT, "
         + ExperimentColumns.CREATOR + " TEXT, "
         + ExperimentColumns.INFORMED_CONSENT + " TEXT, "
@@ -57,6 +58,7 @@ import android.util.Log;
           + SignalScheduleColumns.DAY_OF_MONTH + " INTEGER, "
           + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
           + SignalScheduleColumns.USER_EDITABLE + " INTEGER "
+          + SignalScheduleColumns.TIME_OUT + " INTEGER "
           + ");");
       db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
           + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -81,6 +83,7 @@ import android.util.Log;
           + EventColumns.EXPERIMENT_ID + " INTEGER, "
           + EventColumns.EXPERIMENT_SERVER_ID + " INTEGER, "
           + EventColumns.EXPERIMENT_NAME + " TEXT, "
+          + EventColumns.EXPERIMENT_VERSION + " INTEGER, "
           + EventColumns.SCHEDULE_TIME + " INTEGER, "
           + EventColumns.RESPONSE_TIME + " INTEGER,"
           + EventColumns.UPLOADED + " INTEGER"
@@ -128,10 +131,21 @@ import android.util.Log;
           + ";");
 	  }
 	  if (oldVersion <= 10) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME+ " ADD "
+      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
           + ExperimentColumns.WEB_RECOMMENDED + " INTEGER default 0"
           + ";");
     }  
+	  if (oldVersion <= 11) {
+	    db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
+          + ExperimentColumns.VERSION + " INTEGER default 0"
+          + ";");
+	    db.execSQL("ALTER TABLE " + ExperimentProvider.EVENTS_TABLE_NAME + " ADD "
+          + EventColumns.EXPERIMENT_VERSION + " INTEGER default 0"
+          + ";");
+	    db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+          + SignalScheduleColumns.TIME_OUT + " INTEGER"
+          + ";");
+	  }
 	 }
 	
 //	public void insertValues(SQLiteDatabase db) {

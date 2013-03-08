@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.appengine.api.users.User;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.paco.shared.Outcome;
@@ -160,7 +161,17 @@ public class EventCsvUploadProcessor {
       experimentName = rowData.get("experimentName");
       rowData.remove("experimentName");
     }
-
+    Integer experimentVersion = null;
+    if (rowData.containsKey("experimentVersion")) {
+      String experimentVersionStr = rowData.get("experimentVersion");
+      rowData.remove("experimentVersion");
+      if (!Strings.isNullOrEmpty(experimentVersionStr)) {
+        try {
+          experimentVersion = Integer.parseInt(experimentVersionStr);
+        } catch (NumberFormatException nfe) {          
+        }
+      }
+    }
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
 
     if (experiment == null) {
@@ -209,7 +220,7 @@ public class EventCsvUploadProcessor {
              + ", what length = " + whats.size());
 
     EventRetriever.getInstance().postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, responseTime, scheduledTime, blobs);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs);
 
   }
   

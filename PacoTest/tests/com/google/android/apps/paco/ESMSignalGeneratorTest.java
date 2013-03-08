@@ -171,7 +171,8 @@ public class ESMSignalGeneratorTest extends TestCase {
     
     assertEquals(8, signals.size());
     assertAllSignalsAreValid(createDayInterval(startDate, endHourMillis, startHourMillis), endHourMillis, startHourMillis, signals, esmWeekends);
-    assertSignalsRespectMinimumBuffer(signals);
+    Minutes timeoutInMinutes = Minutes.minutes(schedule.getTimeout());
+    assertSignalsRespectMinimumBuffer(signals, timeoutInMinutes);
   }
 
   public void testMinimumBufferAssertion() throws Exception {
@@ -181,19 +182,20 @@ public class ESMSignalGeneratorTest extends TestCase {
     DateTime endTime = startTime.plusMinutes(10);
     badSignals.add(startTime);
     badSignals.add(endTime);
+    Minutes timeoutInMinutes = Minutes.minutes(15);
     try {
-      assertSignalsRespectMinimumBuffer(badSignals);
+      assertSignalsRespectMinimumBuffer(badSignals, timeoutInMinutes);
       fail("should have thrown an exception");
     } catch (AssertionFailedError a) {}
   }
   
-  private void assertSignalsRespectMinimumBuffer(List<DateTime> signals) {
+  private void assertSignalsRespectMinimumBuffer(List<DateTime> signals, Minutes timeoutInMinutes) {
     Collections.sort(signals, DateTimeComparator.getInstance());
     DateTime lastSignal = signals.get(0);
     for (int i = 1; i < signals.size(); i++) {
       assertTrue("comparing " +lastSignal+", "+signals.get(i), 
               !Minutes.minutesBetween(lastSignal, 
-                                     signals.get(i)).isLessThan(EsmGenerator2.BUFFER_MILLIS));
+                                     signals.get(i)).isLessThan(timeoutInMinutes));
       lastSignal = signals.get(i);
     }
   }
@@ -490,7 +492,7 @@ public class ESMSignalGeneratorTest extends TestCase {
         false, null, // Not important to ESM testing
         endHourMillis, esmFrequency, esmPeriod, startHourMillis, esmWeekends, 
         null, null, null, null, // Not important to ESM testing
-        startDate.getMillis(), true);
+        startDate.getMillis(), true, 59);
     return schedule;
   }
 

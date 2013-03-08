@@ -67,7 +67,7 @@ public class EsmGenerator2 {
     Minutes dayLengthIntervalInMinutes = Minutes.minutesIn(new Interval(schedule.getEsmStartHour(), schedule.getEsmEndHour()));
     Minutes totalMinutesInPeriod = dayLengthIntervalInMinutes.multipliedBy(schedulableDays.size());
     Minutes sampleBlockTimeInMinutes = totalMinutesInPeriod.dividedBy(schedule.getEsmFrequency());
-    
+    Minutes timeoutInMinutes = Minutes.minutes(schedule.getTimeout());
     Random rand = new Random();
     for (int signal = 0; signal < schedule.getEsmFrequency(); signal++) {
       
@@ -92,9 +92,9 @@ public class EsmGenerator2 {
         candidateTime = plusDays.withMillisOfDay(schedule.getEsmStartHour().intValue()).plusMinutes(minutesToAdd);
         periodAttempts--;
       } while (periodAttempts > 0 && 
-          (!isMinimalBufferedDistanceFromOtherTimes(candidateTime) 
+          (!isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes) 
               || (!schedule.getEsmWeekends() && TimeUtil.isWeekend(candidateTime))));
-      if (isMinimalBufferedDistanceFromOtherTimes(candidateTime) &&
+      if (isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes) &&
 		  (schedule.getEsmWeekends() || !TimeUtil.isWeekend(candidateTime))) {
         times.add(candidateTime);
       }
@@ -144,7 +144,7 @@ public class EsmGenerator2 {
     return validPeriods;
   }
 
-  private boolean isMinimalBufferedDistanceFromOtherTimes(DateTime plusMinutes) {
+  private boolean isMinimalBufferedDistanceFromOtherTimes(DateTime plusMinutes, Minutes timeoutInMinutes) {
     for (DateTime time : times) {
       
       Minutes minutesBetween;
@@ -153,7 +153,8 @@ public class EsmGenerator2 {
       } else {
         minutesBetween = Minutes.minutesBetween(time, plusMinutes);
       }
-      if (minutesBetween.isLessThan(BUFFER_MILLIS)) {
+      
+      if (minutesBetween.isLessThan(timeoutInMinutes)) {
         return false;
       }
     }

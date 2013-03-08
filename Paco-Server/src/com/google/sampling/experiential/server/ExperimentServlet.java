@@ -29,15 +29,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.datastore.JsonConverter;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 
 /**
@@ -51,7 +48,7 @@ import com.google.sampling.experiential.shared.ExperimentDAO;
 @SuppressWarnings("serial")
 public class ExperimentServlet extends HttpServlet {
 
-  private static final Logger log = Logger.getLogger(EventServlet.class.getName());
+  public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
   public static final String DEV_HOST = "<Your machine name here>";
   private UserService userService;
 
@@ -84,7 +81,7 @@ public class ExperimentServlet extends HttpServlet {
         } else {
           availableExperiments = getSortedExperimentsAvailableToUser(experiments, email);        
         }
-        experimentsJson = jsonify(availableExperiments);
+        experimentsJson = JsonConverter.jsonify(availableExperiments);
         cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
       }    
       resp.getWriter().println(scriptBust(experimentsJson));
@@ -137,29 +134,6 @@ public class ExperimentServlet extends HttpServlet {
     }
     return email.toLowerCase();
   }
-
-  /**
-   * @param experiments
-   * @param printWriter 
-   * @return
-   */
-  private String jsonify(List<ExperimentDAO> experiments) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-    try {
-      return mapper.writeValueAsString(experiments);
-    } catch (JsonGenerationException e) {
-      log.severe("Json generation error " + e);
-      //printWriter.write("JsonGeneration error getting experiments: " + e.getMessage());
-    } catch (JsonMappingException e) {
-      log.severe("JsonMapping error getting experiments: " + e.getMessage());
-    } catch (IOException e) {
-      log.severe("IO error getting experiments: " + e.getMessage());
-    }
-    // TODO bobevans - add error handling into the return so that the client can tell errors
-    return null; 
-  }
-
 
   private User getWhoFromLogin() {
     UserService userService = UserServiceFactory.getUserService();

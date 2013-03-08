@@ -111,6 +111,93 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("No events found for referenced experiment.")
   String noEventsFoundForReferredExperiment();
 
+  @DefaultStringValue("Days")
+  String repeatTypeDays();
+  
+  @DefaultStringValue("Weeks")
+  String repeatTypeWeeks();
+
+  @DefaultStringValue("Repeat on")
+  String repeatOn();
+
+  @DefaultStringValue("Months")
+  String repeatTypeMonths();
+
     
 
+
+  @DefaultStringValue("Signal Time (s)")
+  String signalTimes();
+
+  @DefaultStringValue("Timeout")
+  String timeout();
+
+  @DefaultStringValue("Repeat every")
+  String repeatEvery();
+
+  @DefaultStringValue("minutes")
+  String minutes();
+
+  @DefaultStringValue("Frequency")
+  String frequency();
+
+  @DefaultStringValue("Period")
+  String period();
+
+  @DefaultStringValue("Include weekends")
+  String includeWeekends();
+
+  @DefaultStringValue("Start Time")
+  String startTime();
+
+  @DefaultStringValue("End Time")
+  String endTime();
+
+  @DefaultStringValue("S")
+  String sundayInitial();
+  
+  @DefaultStringValue("M")
+  String mondayInitial();
+  
+  @DefaultStringValue("T")
+  String tuesdayInitial();
+  
+  @DefaultStringValue("W")
+  String wednesdayInitial();
+  
+  @DefaultStringValue("T")
+  String thursdayInitial();
+  
+  @DefaultStringValue("SF")
+  String fridayInitial();
+  
+  @DefaultStringValue("S")
+  String satdayInitial();
+
+  @DefaultStringValue("byGroup")
+  String byGroup();
+
+  @DefaultStringValue("Day Of Month")
+  String dayOfMonth();
+
+  @DefaultStringValue("Day Of Week")
+  String dayOfWeek();
+
+  @DefaultStringValue("By")
+  String by();
+
+  @DefaultStringValue("First")
+  String nthWeekOfMonthFirst();
+
+  @DefaultStringValue("Second")
+  String nthWeekOfMonthSecond();
+
+  @DefaultStringValue("Third")
+  String nthWeekOfMonthThird();
+
+  @DefaultStringValue("Fourth")
+  String nthWeekOfMonthFourth();
+
+  @DefaultStringValue("Fifth")
+  String nthWeekOfMonthFifth();
 }
