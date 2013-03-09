@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -51,9 +52,10 @@ public class StatsPanel extends Composite {
   private ExperimentDAO experiment;
   private boolean isAdmin;
   private List<ExperimentListener> listeners;
-
+  private MyConstants myConstants; 
 
   public StatsPanel(ExperimentStatsDAO stats, ExperimentDAO experiment, boolean joinView, ExperimentListener listener) {
+    myConstants = GWT.create(MyConstants.class);
     this.experimentStats = stats;
     this.experiment = experiment;
     this.listeners = Lists.newArrayList();
@@ -161,15 +163,6 @@ public class StatsPanel extends Composite {
 
     Label label = new Label(Integer.toString(createMapofParticipantsAndJoinTimes().values().size()));
     grid.setWidget(0, 1, label);
-  }
-
-  protected void showParticipantsPopup() {
-
-    HashMap<String, String> participants = createMapofParticipantsAndJoinTimes();
-    JoinedParticipantsPanel jp = new JoinedParticipantsPanel(participants.values());
-    jp.show();
-    jp.center();
-    jp.center();
   }
 
   private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
