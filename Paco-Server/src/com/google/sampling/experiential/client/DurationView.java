@@ -20,6 +20,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.Date;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -48,9 +49,11 @@ public class DurationView extends Composite {
   private RadioButton radio2;
   private DateBox endBox;
   private DateBox startBox;
+  private MyConstants myConstants;
 
   public DurationView(Boolean fixedDuration, Long start, Long end) {
     super();
+    myConstants = GWT.create(MyConstants.class);
     mainPanel = new HorizontalPanel();
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     Date today = new Date();
@@ -69,11 +72,11 @@ public class DurationView extends Composite {
     VerticalPanel outer = new VerticalPanel();
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
-    Label keyLabel = new Label("Duration:");
+    Label keyLabel = new Label(myConstants.duration() + ":");
     keyLabel.setStyleName("keyLabel");
     outer.add(keyLabel);  
-    radio1 = new RadioButton("duration", "Ongoing");
-    radio2 = new RadioButton("duration", "Fixed Length");
+    radio1 = new RadioButton("duration", myConstants.ongoingDuration());
+    radio2 = new RadioButton("duration", myConstants.fixedDuration());
     radio1.setChecked(!fixedDuration);
     radio2.setChecked(fixedDuration);
     
@@ -90,7 +93,7 @@ public class DurationView extends Composite {
     startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
     startBox.setValue(startDate);
 
-    Label startLabel = new Label("Start Date:");
+    Label startLabel = new Label(myConstants.startDate()+":");
     keyLabel.setStyleName("keyLabel");
     
     startPanel.add(startLabel);
@@ -102,7 +105,7 @@ public class DurationView extends Composite {
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
     endBox.setValue(endDate);
 
-    Label endLabel = new Label("End Date:");
+    Label endLabel = new Label(myConstants.endDate() + ":");
     keyLabel.setStyleName("keyLabel");
     
     endPanel.add(endLabel);

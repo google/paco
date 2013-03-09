@@ -153,12 +153,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   }
   
   private EventPanel renderEventPanel(EventDAO eventDAO) {
-    InputDAO[] inputs = referredExperiment.getInputs();
-    Map<String, InputDAO> inputsByName = new HashMap<String, InputDAO>();
-    for (InputDAO input : inputs) {
-      inputsByName.put(input.getName(), input);
-    }
-    return new EventPanel(this, eventDAO, inputsByName);
+    return new EventPanel(this, eventDAO, referredExperiment.getInputs());
   }
 
   private void renderInputsPanelForEvent(VerticalPanel itemPanel, ExperimentDAO experiment, EventDAO eventDAO) {

@@ -2,6 +2,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -24,6 +25,7 @@ public class InputExecutorPanel extends Composite {
   private TextBox text;
   private ListBox list;
   private ArrayList<RadioButton> likerts;
+  MyConstants myConstants = GWT.create(MyConstants.class);
 
   public InputExecutorPanel(InputDAO input) {
     super();
@@ -174,7 +176,7 @@ public class InputExecutorPanel extends Composite {
     text.setMaxLength(500);
     holder.add(text);
         
-    Label fivehundredlimit = new Label("(Limit 500 chars)");
+    Label fivehundredlimit = new Label("(" + myConstants.fiveHundredCharLimit() + ")");
     fivehundredlimit.setStyleName("paco-small");
     holder.add(fivehundredlimit);
   }

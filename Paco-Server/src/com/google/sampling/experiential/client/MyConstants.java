@@ -200,4 +200,128 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Fifth")
   String nthWeekOfMonthFifth();
+
+  @DefaultStringValue("Experiment Icon")
+  String experimentIcon();
+
+  @DefaultStringValue("AnonCSV")
+  String anonCsv();
+
+  @DefaultStringValue("AnonMap")
+  String anonMap();
+
+  @DefaultStringValue("Unhide")
+  String unHide();
+  
+  @DefaultStringValue("Hide")
+  String hide();
+
+  @DefaultStringValue("Purge")
+  String purge();
+
+  @DefaultStringValue("QR Code")
+  String qrCode();
+
+  @DefaultStringValue("EOD Ref")
+  String eodRef();
+
+  @DefaultStringValue("Experiment Definition")
+  String experimentDefinition();
+
+  @DefaultStringValue("Version")
+  String experimentVersion();
+
+  @DefaultStringValue("Custom Feedback")
+  String customFeedback();
+
+  @DefaultStringValue("Click to edit custom feedback")
+  String clickToEditCustomFeedback();
+
+  @DefaultStringValue("Click to close editing of custom feedback")
+  String clickToCloseCustomFeedbackEditor();
+
+  @DefaultStringValue("Enter custom feedback page using html and javascript")
+  String customFeedbackInstructions();
+
+  @DefaultStringValue("Title")
+  String experimentTitle();
+
+  @DefaultStringValue("Description (<500 chars)")
+  String experimentDescription();
+
+  @DefaultStringValue("Creator")
+  String experimentCreator();
+
+  @DefaultStringValue("Enter at least one question")
+  String enterAtLeastOneQuestion();
+
+  @DefaultStringValue("Informed Consent Text")
+  String informedConsent();
+
+  @DefaultStringValue("Published")
+  String published();
+
+  @DefaultStringValue("Click to edit administrators")
+  String clickToEditAdministrators();
+
+  @DefaultStringValue("Click to close editing of administrators")
+  String clickToCloseAdministratorEditor();
+
+  @DefaultStringValue("Enter emails separated by commas of who can edit this experiment and see results.")
+  String administratorEditorPrompt();
+
+  @DefaultStringValue("Click to edit published audience")
+  String clickToEditPublished();
+
+  @DefaultStringValue("Click to close editing of published audience")
+  String clickToClosePublishedEditor();
+
+  @DefaultStringValue("Enter emails separated by commas. An empty list is public.")
+  String publishedEditorPrompt();
+
+  @DefaultStringValue("Create Experiment")
+  String createExperiment();
+
+  @DefaultStringValue("Update Experiment")
+  String updateExperiment();
+
+  @DefaultStringValue("Duration")
+  String duration();
+
+  @DefaultStringValue("Ongoing")
+  String ongoingDuration();
+
+  @DefaultStringValue("Fixed Length")
+  String fixedDuration();
+
+  @DefaultStringValue("Start Date")
+  String startDate();
+
+  @DefaultStringValue("End Date")
+  String endDate();
+
+  @DefaultStringValue("Limit 500 chars")
+  String fiveHundredCharLimit();
+
+  @DefaultStringValue("Condition to enable this question")
+  String conditionalPrompt();
+
+  @DefaultStringValue("e.g.")
+  String eg();
+
+  @DefaultStringValue("Conditional")
+  String conditional();
+
+  @DefaultStringValue("Required")
+  String required();
+
+  @DefaultStringValue("Response Type")
+  String responseType();
+
+  @DefaultStringValue("Text Prompt for Input")
+  String inputPromptPrompt();
+
+  @DefaultStringValue("Name")
+  String varName();
+
 }

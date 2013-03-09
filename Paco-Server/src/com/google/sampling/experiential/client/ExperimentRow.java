@@ -18,6 +18,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -43,10 +44,12 @@ public class ExperimentRow extends Composite {
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
   private boolean joined;
+  private MyConstants myConstants;
 
   public ExperimentRow(
       Images resources, ExperimentDAO experiment, ExperimentListener listener, boolean joined) {
     this.images = resources;
+    this.myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
     this.joined = joined;
     this.listeners = new ArrayList<ExperimentListener>();
@@ -61,7 +64,7 @@ public class ExperimentRow extends Composite {
     initWidget(horizontalPanel);
 
     Image experimentIcon = new Image(resources.question());
-    experimentIcon.setAltText("Experiment Icon");
+    experimentIcon.setAltText(myConstants.experimentIcon());
     horizontalPanel.add(experimentIcon);
     horizontalPanel.setCellHeight(experimentIcon, "42");
     horizontalPanel.setCellWidth(experimentIcon, "42");
@@ -103,7 +106,7 @@ public class ExperimentRow extends Composite {
     verticalPanel.add(horizontalPanel_1);
 //
     if (joined) {
-      Button enterButton = new Button("Respond");
+      Button enterButton = new Button(myConstants.respond());
       enterButton.setStyleName("paco-ExperimentRow-Button");
       enterButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -115,7 +118,7 @@ public class ExperimentRow extends Composite {
     }
     
     //
-    Button dataButton = new Button("View Data");
+    Button dataButton = new Button(myConstants.viewData());
     dataButton.setStyleName("paco-ExperimentRow-Button");
     dataButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -125,7 +128,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(dataButton);
     horizontalPanel.setCellVerticalAlignment(dataButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
-    Button chartButton = new Button("Charts");
+    Button chartButton = new Button(myConstants.charts());
     chartButton.setStyleName("paco-ExperimentRow-Button");
     chartButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -135,7 +138,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(chartButton);
     horizontalPanel.setCellVerticalAlignment(chartButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
-    Button statsButton = new Button("Stats");
+    Button statsButton = new Button(myConstants.stats());
     statsButton.setStyleName("paco-ExperimentRow-Button");
     statsButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -145,7 +148,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(statsButton);
     horizontalPanel.setCellVerticalAlignment(statsButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
-    Button csvButton = new Button("CSV");
+    Button csvButton = new Button(myConstants.csv());
     csvButton.setStyleName("paco-ExperimentRow-Button");
     csvButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -156,7 +159,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
     
     if (!joined) {
-      Button csvAnonButton = new Button("AnonCSV");
+      Button csvAnonButton = new Button(myConstants.anonCsv());
       csvAnonButton.setStyleName("paco-ExperimentRow-Button");
       csvAnonButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -166,7 +169,7 @@ public class ExperimentRow extends Composite {
       horizontalPanel_1.add(csvAnonButton);
       horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
   
-      Button anonMappingButton = new Button("AnonMap");
+      Button anonMappingButton = new Button(myConstants.anonMap());
       anonMappingButton.setStyleName("paco-ExperimentRow-Button");
       anonMappingButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -177,7 +180,7 @@ public class ExperimentRow extends Composite {
       horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
     }
     
-    Button copyButton = new Button("Copy");
+    Button copyButton = new Button(myConstants.copy());
     copyButton.setStyleName("paco-ExperimentRow-Button");
     copyButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
@@ -190,7 +193,7 @@ public class ExperimentRow extends Composite {
     
     if (!joined) {
       Button deleteButton = new Button(
-          experiment.getDeleted() != null && experiment.getDeleted() ? "Unhide" : "Hide");
+          experiment.getDeleted() != null && experiment.getDeleted() ? myConstants.unHide() : myConstants.hide());
       deleteButton.setStyleName("paco-ExperimentRow-Button");
       deleteButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -202,7 +205,7 @@ public class ExperimentRow extends Composite {
     }
 
     if (!joined) {
-      Button deleteButton = new Button("Purge");
+      Button deleteButton = new Button(myConstants.purge());
       deleteButton.setStyleName("paco-ExperimentRow-Button");
       deleteButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -214,7 +217,7 @@ public class ExperimentRow extends Composite {
     }
     
     if (!joined) {
-      Button qrCodeButton = new Button("QR Code");
+      Button qrCodeButton = new Button(myConstants.qrCode());
       qrCodeButton.setStyleName("paco-ExperimentRow-Button");
       qrCodeButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {
@@ -226,7 +229,7 @@ public class ExperimentRow extends Composite {
     }
 
     if (!joined) {
-      Button refButton = new Button("EOD Ref");
+      Button refButton = new Button(myConstants.eodRef());
       refButton.setStyleName("paco-ExperimentRow-Button");
       refButton.addClickHandler(new ClickHandler() {
         public void onClick(ClickEvent event) {

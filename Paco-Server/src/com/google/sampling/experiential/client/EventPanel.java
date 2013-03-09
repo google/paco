@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -24,18 +25,18 @@ public class EventPanel extends Composite {
   private AbstractExperimentExecutorPanel parent;
   private EventDAO event;
   private VerticalPanel mainPanel;
-  private Map<String, InputDAO> inputs;
+  private InputDAO[] inputs;
   protected MyConstants myConstants;
   protected MyMessages myMessages;
 
 
-  public EventPanel(AbstractExperimentExecutorPanel parent, EventDAO eventDAO, Map<String, InputDAO> inputsByName) {
+  public EventPanel(AbstractExperimentExecutorPanel parent, EventDAO eventDAO, InputDAO[] inputDAOs) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
     this.parent = parent;
     this.event = eventDAO;
-    this.inputs = inputsByName;
+    this.inputs = inputDAOs;
     
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
@@ -49,15 +50,11 @@ public class EventPanel extends Composite {
   }
 
   private void renderEventData(EventDAO eventDAO) {
-    HorizontalPanel stPanel = new HorizontalPanel();
-    mainPanel.add(stPanel);
-    
-    Label scheduledTimeLabel = new Label(myConstants.scheduledTime() + ": ");
-    scheduledTimeLabel.setStyleName("keyLabel");
-    stPanel.add(scheduledTimeLabel);
-    Label timeLabel = new Label(eventDAO.getScheduledTime() != null ? eventDAO.getScheduledTime().toString() : "");
-    stPanel.add(timeLabel);
-    
+    createScheduleTimePanel(eventDAO);    
+    createResponseTimePanel(eventDAO);
+  }
+
+  private void createResponseTimePanel(EventDAO eventDAO) {
     HorizontalPanel rtPanel = new HorizontalPanel();
     mainPanel.add(rtPanel);
 
@@ -68,6 +65,17 @@ public class EventPanel extends Composite {
     rtPanel.add(responseTimeValueLabel);
   }
 
+  private void createScheduleTimePanel(EventDAO eventDAO) {
+    HorizontalPanel stPanel = new HorizontalPanel();
+    mainPanel.add(stPanel);
+    
+    Label scheduledTimeLabel = new Label(myConstants.scheduledTime() + ": ");
+    scheduledTimeLabel.setStyleName("keyLabel");
+    stPanel.add(scheduledTimeLabel);
+    Label timeLabel = new Label(eventDAO.getScheduledTime() != null ? eventDAO.getScheduledTime().toString() : "");
+    stPanel.add(timeLabel);
+  }
+
   private void renderResponseValues() {
     Label responseLabel = new Label(myConstants.responses() + ": ");
     responseLabel.setStyleName("keyLabel");
@@ -75,63 +83,66 @@ public class EventPanel extends Composite {
     
     Map<String, String> whatMap = event.getWhat();
     Set<String> keys = whatMap.keySet();
-    if (keys != null) {
-      ArrayList<String> keysAsList = Lists.newArrayList(keys);
-      Collections.sort(keysAsList);
-      Collections.reverse(keysAsList);
+    if (keys == null) {
+      return;
+    }
+    
+    Grid grid = new Grid(inputs.length, 2);
+    //grid.setBorderWidth(1);
+    mainPanel.add(grid);
+    
+    for (int i=0;i < inputs.length; i++) {
+      InputDAO input = inputs[i];
+      String value = whatMap.get(input.getName());
       
-      Grid grid = new Grid(keysAsList.size(), 2);
-      //grid.setBorderWidth(1);
-      mainPanel.add(grid);
-      
-      for (int i=0;i < keysAsList.size(); i++) {        
-        String key = keysAsList.get(i);        
-        String value = whatMap.get(key);
-        InputDAO input = inputs.get(key);
-        if (input == null) {
-          addColumnToGrid(grid, i, "", key);
-        } else if (value == null || value.length() == 0) {
-          value = "";
-          addColumnToGrid(grid, i, value, input.getText());
-        } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
-            !value.equals("==") &&
-            !value.isEmpty() && event.getBlobs().length > 0 ) {            
-            String blobData = event.getBlobs()[0];
-            if (blobData.isEmpty()) {
-              value = "";
-            } else {
-              value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
-            }
-            addColumnToGrid(grid, i, value, input.getName());
-        } else if (input.getResponseType().equals(InputDAO.LIST)) {
-          String[] listChoices = input.getListChoices();
-          if (input.getMultiselect() != null && input.getMultiselect()) {
-            StringBuffer buff = new StringBuffer(); 
-            boolean first = true;
-            for (String currentChoice : Splitter.on(',').split(value)) {
-              if (first) {
-                first = false;
-              } else {
-                buff.append(",");
-              }
-              
-              String answerString = getListChoiceForAnswer(currentChoice, listChoices);
-              buff.append(answerString);
-            }
-            value = buff.toString();
-          } else {
-            value = getListChoiceForAnswer(value, listChoices);
-          }
-          addColumnToGrid(grid, i, value, input.getText());
-        } else {
-          if (value.equals("blob") && input.getResponseType().equals("photo")) {
-            value = "";
-          }
-          value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
-          addColumnToGrid(grid, i, value, input.getText());
-        }
-        
+      String displayText = input.getText();
+      if (Strings.isNullOrEmpty(displayText)) {
+        displayText = input.getName();
       }
+
+      if (input == null) {
+        addColumnToGrid(grid, i, "", displayText);
+      } else if (value == null || value.length() == 0) {
+        value = "";
+        addColumnToGrid(grid, i, value, displayText);
+      } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
+          !value.equals("==") &&
+          !value.isEmpty() && event.getBlobs().length > 0 ) {            
+          String blobData = event.getBlobs()[0];
+          if (blobData.isEmpty()) {
+            value = "";
+          } else {
+            value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
+          }
+          addColumnToGrid(grid, i, value, displayText);
+      } else if (input.getResponseType().equals(InputDAO.LIST)) {
+        String[] listChoices = input.getListChoices();
+        if (input.getMultiselect() != null && input.getMultiselect()) {
+          StringBuffer buff = new StringBuffer(); 
+          boolean first = true;
+          for (String currentChoice : Splitter.on(',').split(value)) {
+            if (first) {
+              first = false;
+            } else {
+              buff.append(",");
+            }
+            
+            String answerString = getListChoiceForAnswer(currentChoice, listChoices);
+            buff.append(answerString);
+          }
+          value = buff.toString();
+        } else {
+          value = getListChoiceForAnswer(value, listChoices);
+        }
+        addColumnToGrid(grid, i, value, displayText);
+      } else {
+        if (value.equals("blob") && input.getResponseType().equals("photo")) {
+          value = "";
+        }
+        value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
+        addColumnToGrid(grid, i, value, displayText);
+      }
+      
     }
   }
 
