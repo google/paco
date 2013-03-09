@@ -30,6 +30,7 @@ public class InformedConsentActivity extends Activity {
 
   private Uri uri;
   private Experiment experiment;
+  private boolean showingJoinedExperiments;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,12 @@ public class InformedConsentActivity extends Activity {
     setContentView(R.layout.informed_consent);
     final Intent intent = getIntent();
     uri = intent.getData();
-    experiment = new ExperimentProviderUtil(this).getExperiment(uri);
+    showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    if (showingJoinedExperiments) {
+      experiment = new ExperimentProviderUtil(this).getExperiment(uri);
+    } else {
+      experiment = new ExperimentProviderUtil(this).getExperimentFromDisk(uri);
+    }
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();

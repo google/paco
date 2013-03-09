@@ -96,10 +96,10 @@ public class ExperimentProviderUtil {
   public Uri insertFullJoinedExperiment(Experiment experiment) {
     // fully load the other parts of the experiment prototype
     // before saving a cloned version
-    loadInputsForExperiment(experiment);
-    loadFeedbackForExperiment(experiment);
+//    loadInputsForExperiment(experiment);
+//    loadFeedbackForExperiment(experiment);
 //    loadScheduleForExperiment(experiment);
-    experiment.unsetId();
+//    experiment.unsetId();
 
     ContentResolver contentResolver = context.getContentResolver();
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI, 
@@ -109,18 +109,18 @@ public class ExperimentProviderUtil {
     
     experiment.setId(rowId);
     SignalSchedule schedule = experiment.getSchedule();
-    schedule.setId(null);
+//    schedule.setId(null);
     schedule.setExperimentId(rowId);
     schedule.setBeginDate(experiment.getJoinDate().getMillis());
     insertSchedule(schedule);
     
     for (Input input : experiment.getInputs()) {
-      input.setId(null);
+//      input.setId(null);
       input.setExperimentId(rowId);
       insertInput(input);      
     }
     for (Feedback feedback : experiment.getFeedback()) {
-      feedback.setId(null);
+//      feedback.setId(null);
       feedback.setExperimentId(rowId);
       insertFeedback(feedback);      
     }
@@ -1572,6 +1572,28 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
+  }
+
+  public Experiment getExperimentFromDisk(Uri uri) {
+    Long experimentServerId = new Long(uri.getLastPathSegment());
+    return getExperimentFromDisk(experimentServerId);
+  }
+
+  public Experiment getExperimentFromDisk(Long experimentServerId) {
+    List<Experiment> experiments;
+    try {
+      experiments = loadExperimentsFromDisk();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null;
+    }
+    for (Experiment experiment : experiments) {
+
+      if (experiment.getServerId().equals(experimentServerId)) {
+        return experiment;
+      }
+    }
+    return null;
   }
 
 }

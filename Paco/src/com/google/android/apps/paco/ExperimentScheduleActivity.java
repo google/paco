@@ -86,15 +86,25 @@ public class ExperimentScheduleActivity extends Activity {
 
   private LinearLayout timesScheduleLayout;
 
+
+  private boolean showingJoinedExperiments;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	// branch out into a different view to include based on the type of schedule in the experiment.
 	final Intent intent = getIntent();
 	uri = intent.getData();
-	
+  showingJoinedExperiments = uri.getPathSegments().get(0).equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
+
 	experimentProviderUtil = new ExperimentProviderUtil(this);
+  if (showingJoinedExperiments) {
     experiment = experimentProviderUtil.getExperiment(uri);
+  } else {
+    experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+  }
+
+    
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
