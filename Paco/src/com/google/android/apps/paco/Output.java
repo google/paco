@@ -130,11 +130,12 @@ public class Output implements Parcelable {
    */
   String getDisplayForList(Input input) {
     List<String> listChoices = input.getListChoices();
-    if (!input.isMultiselect()) {
-      String answer = getAnswer();
-      if (answer == null) {
-        return "";
-      }
+    String answer = getAnswer();
+    if (answer == null) {
+      return "";
+    }
+
+    if (!input.isMultiselect()) {      
       int index = Integer.parseInt(answer) - 1;
       if (index < listChoices.size()) {
         return listChoices.get(index);

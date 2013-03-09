@@ -202,6 +202,9 @@ public class InputLayout extends LinearLayout {
 
   private String getListValueAsString() {
     if (!input.isMultiselect()) {
+      if (!listHasBeenSelected) {
+        return null;
+      }
       return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
     }
     return getMultiSelectListValueAsString();
@@ -253,6 +256,8 @@ public class InputLayout extends LinearLayout {
   }
 
   private final int IMAGE_MAX_SIZE = 600;
+  protected boolean listHasBeenSelected = false;
+  protected boolean setupClickHasHappened;
 
   private Bitmap decodeFile(File f) {
     Bitmap b = null;
@@ -347,6 +352,9 @@ public class InputLayout extends LinearLayout {
   }
   
   private String getMultiSelectListValueAsString() {
+    if (checkedChoices.isEmpty()) {
+      return null;
+    }
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Integer choice : checkedChoices) {
@@ -630,6 +638,11 @@ public class InputLayout extends LinearLayout {
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View v, int arg2, long arg3) {
+        if (!setupClickHasHappened) {
+          setupClickHasHappened = true;
+        } else {
+          listHasBeenSelected = true;
+        }
         notifyChangeListeners();
       }
 
