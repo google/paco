@@ -167,46 +167,34 @@ public class ExperimentProviderUtil {
    * then update it, otherwise, add it.
    * @param experiments
    */
-  public void insertOrUpdateExperiments(List<Experiment> experiments) {    
-//    DatabaseHelper dbHelper = new DatabaseHelper(context);
-//    SQLiteDatabase db = dbHelper.getWritableDatabase();
-//    db.beginTransaction();
+  public void updateExistingExperiments(List<Experiment> experiments) {    
     for (Experiment experiment : experiments) {
-      Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
+      //Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
-      if (existingList.size() > 0) { // there should only be one unjoined, and 1 more for each time joined.
-        for (Experiment existingExperiment : existingList) {
-          if (existingExperiment.getJoinDate() == null) { // this is the downloaded original definition of the experiment, not the clone that the user has joined already.
-            long startTime = System.currentTimeMillis();            
-            deleteFullExperiment(existingExperiment);
-            experiment.setId(existingExperiment.getId());
-            insertFullExperiment(experiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing unjoined experiment: " + (System.currentTimeMillis() - startTime));
-          } else {
-            long startTime = System.currentTimeMillis();
-            deleteAllInputsForExperiment(existingExperiment.getId());            
-            existingExperiment.setInputs(experiment.getInputs());
-            deleteAllFeedbackForExperiment(existingExperiment.getId());
-            existingExperiment.setFeedback(experiment.getFeedback());
-            SignalSchedule schedule = experiment.getSchedule();
-            schedule.setExperimentId(existingExperiment.getId());
-            existingExperiment.setSchedule(schedule);
-            insertSchedule(schedule);
-            insertInputsForJoinedExperiment(existingExperiment);
-            insertFeedbackForJoinedExperiment(existingExperiment);
-            copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
-            updateJoinedExperiment(existingExperiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
-          }
-        }
-      } else /*if (existingList.size() == 0)*/ {
-        long startTime = System.currentTimeMillis();
-        insertFullExperiment(experiment);
-        Log.i(PacoConstants.TAG, "Time to update one new experiment: " + (System.currentTimeMillis() - startTime));
+      if (existingList.size() == 0) {
+        continue;
       }
+      for (Experiment existingExperiment : existingList) {
+        if (existingExperiment.getJoinDate() == null) { // It better not be null
+          continue;
+        }
+        long startTime = System.currentTimeMillis();
+        deleteAllInputsForExperiment(existingExperiment.getId());            
+        existingExperiment.setInputs(experiment.getInputs());
+        deleteAllFeedbackForExperiment(existingExperiment.getId());
+        existingExperiment.setFeedback(experiment.getFeedback());
+        SignalSchedule schedule = experiment.getSchedule();
+        schedule.setExperimentId(existingExperiment.getId());
+        existingExperiment.setSchedule(schedule);
+        insertSchedule(schedule);
+        insertInputsForJoinedExperiment(existingExperiment);
+        insertFeedbackForJoinedExperiment(existingExperiment);
+        copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
+        updateJoinedExperiment(existingExperiment);
+        Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));          
+      }
+       
     }  
-//    db.setTransactionSuccessful();
-//    db.endTransaction();
   }
 
 
@@ -1440,7 +1428,11 @@ public class ExperimentProviderUtil {
     }
   }
 
-  public int deleteNotificationsForExperiment(long experimentId) {
+  public int deleteNotificationsForExperiment(Long experimentId) {
+    if (experimentId == null) {
+      return 0;
+    }
+
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     return context.getContentResolver().delete(NotificationHolderColumns.CONTENT_URI, 

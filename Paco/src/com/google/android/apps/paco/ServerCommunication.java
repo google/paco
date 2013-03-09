@@ -118,7 +118,7 @@ public class ServerCommunication {
       }
       if (result != null) {
         experimentProviderUtil.deleteAllUnJoinedExperiments();
-        experimentProviderUtil.insertOrUpdateExperiments(result);
+        experimentProviderUtil.updateExistingExperiments(result);
       }
       userPrefs.setExperimentListRefreshTime(new Date().getTime());
 
