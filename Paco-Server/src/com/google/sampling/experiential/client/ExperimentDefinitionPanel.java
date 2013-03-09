@@ -27,6 +27,8 @@ import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -437,12 +439,23 @@ public class ExperimentDefinitionPanel extends Composite {
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName("keyLabel");
-    TextArea valueBox = new TextArea();
+    final TextArea valueBox = new TextArea();
     valueBox.setCharacterWidth(width);
     valueBox.setHeight(height);
     if (value != null) {
       valueBox.setText(value);
     }
+    valueBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+      
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        if (valueBox.getText().length() >= 500) {
+          // TODO surface a message that their text is being truncated.
+          valueBox.setText(valueBox.getText().substring(0,499));
+        }
+        
+      }
+    });
     valueBox.setEnabled(isAdmin());
     line.add(keyLabel);
     line.add(valueBox);
