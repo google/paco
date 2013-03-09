@@ -44,75 +44,7 @@
       android:text="@string/suggested_signalling_schedule"
       android:layout_width="wrap_content"></TextView>
 
-    <LinearLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_gravity="left"
-      android:gravity="center"
-      android:layout_margin="1dip">
-
-      <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20dip"
-        android:id="@+id/experimentPeriodLabel"
-        android:text="@string/schedule_period"
-        android:gravity="left" />
-      <Spinner
-        android:layout_height="wrap_content"
-        android:textSize="10dip"
-        android:layout_gravity="right"
-        android:id="@+id/experimentEsmPeriod"
-        android:layout_width="100dip" />
-    </LinearLayout>
-
-
-    <LinearLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_gravity="left"
-      android:gravity="center"
-      android:layout_margin="1dip">
-      <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20dip"
-        android:id="@+id/experimentFrequencyLabel"
-        android:text="@string/times_per_period"
-        android:gravity="left|center_vertical" />
-      <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20dip"
-        android:minWidth="40dip"
-        android:id="@+id/experimentEsmFrequency"
-        android:text=""
-        android:layout_gravity="right|center_vertical" />
-    </LinearLayout>
-    <LinearLayout
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="horizontal"
-      android:layout_gravity="left"
-      android:gravity="center"
-      android:layout_margin="1dip"
-      android:padding="1dip">
-      <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20dip"
-        android:id="@+id/experimentFrequencyLabel"
-        android:text="@string/weekends"
-        android:layout_gravity="left|center_vertical" />
-      <CheckBox
-        android:text=""
-        android:id="@+id/weekendsCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical" />
-    </LinearLayout>
+    
     <LinearLayout
       android:layout_width="wrap_content"
       android:gravity="center"

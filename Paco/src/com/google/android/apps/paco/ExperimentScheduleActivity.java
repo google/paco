@@ -64,8 +64,6 @@ public class ExperimentScheduleActivity extends Activity {
   private Experiment experiment;
   ExperimentProviderUtil experimentProviderUtil;
   private TimePicker timePicker;
-  private EditText frequencyField;
-  private Spinner periodField;
   private TextView startHourField;
   private TextView endHourField;
   private Spinner repeatRate;
@@ -81,8 +79,6 @@ public class ExperimentScheduleActivity extends Activity {
   private TextView dayOfMonthText;
   
   private RadioGroup radioGroup;
-
-  private CheckBox weekendsCheckBox;
 
   private ListView timeList;
 
@@ -134,21 +130,21 @@ public class ExperimentScheduleActivity extends Activity {
     TextView title = (TextView)findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
     
-    frequencyField = (EditText)findViewById(R.id.experimentEsmFrequency);
-    frequencyField.setInputType(InputType.TYPE_CLASS_NUMBER);
-    frequencyField.setText(Integer.toString(experiment.getSchedule().getEsmFrequency()));
+//    frequencyField = (EditText)findViewById(R.id.experimentEsmFrequency);
+//    frequencyField.setInputType(InputType.TYPE_CLASS_NUMBER);
+//    frequencyField.setText(Integer.toString(experiment.getSchedule().getEsmFrequency()));
+//    
+    //createPeriod();
     
-    createPeriod();
-    
-    weekendsCheckBox = (CheckBox)findViewById(R.id.weekendsCheckBox);
-    weekendsCheckBox.setChecked(experiment.getSchedule().getEsmWeekends());
-    weekendsCheckBox.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        experiment.getSchedule().setEsmWeekends(weekendsCheckBox.isChecked());
-      }
-      
-    });    
+//    weekendsCheckBox = (CheckBox)findViewById(R.id.weekendsCheckBox);
+//    weekendsCheckBox.setChecked(experiment.getSchedule().getEsmWeekends());
+//    weekendsCheckBox.setOnClickListener(new OnClickListener() {
+//
+//      public void onClick(View v) {
+//        experiment.getSchedule().setEsmWeekends(weekendsCheckBox.isChecked());
+//      }
+//      
+//    });    
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
     startHourField.setText(new DateMidnight().toDateTime().withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue()).toString(TIME_FORMAT_STRING));
 
@@ -217,32 +213,6 @@ public class ExperimentScheduleActivity extends Activity {
     }
   }
 
-  private void createPeriod() {
-    periodField = (Spinner)findViewById(R.id.experimentEsmPeriod);
-    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, 
-        android.R.layout.simple_spinner_item,
-        getStrings(SignalSchedule.ESM_PERIODS_NAMES));
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    periodField.setAdapter(adapter);
-    periodField.setSelection(experiment.getSchedule().getEsmPeriodInDays());
-    periodField.setOnItemSelectedListener(new OnItemSelectedListener() {
-      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-          long arg3) {
-        experiment.getSchedule().setEsmPeriodInDays(arg2);
-      }
-
-      public void onNothingSelected(AdapterView<?> arg0) {
-      }
-    });
-  }
-
-  private CharSequence[] getStrings(int[] ids) {
-    String[] values = new String[ids.length];
-    for (int i = 0; i < ids.length; i++) {
-      values[i] = getString(ids[i]);
-    }
-    return values;
-  }
 
   private void showDailyScheduleConfiguration() {
   	setContentView(R.layout.daily_schedule);
@@ -575,8 +545,6 @@ public class ExperimentScheduleActivity extends Activity {
 //        }
         
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {            
-        Integer frequency = Integer.parseInt(frequencyField.getText().toString());        
-        experiment.getSchedule().setEsmFrequency(frequency);
         new AlarmStore(this).deleteAllSignalsForSurvey(experiment.getId());
         //new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(), experiment.getPeriodStart(new DateTime()).getMillis());
         experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
