@@ -72,7 +72,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
                 new TypeReference<List<Experiment>>() {
                 });
             experimentProviderUtil.deleteAllUnJoinedExperiments();
-            experimentProviderUtil.insertOrUpdateExperiments(experiments);
+            experimentProviderUtil.updateExistingExperiments(experiments);
             experimentProviderUtil.saveExperimentsToDisk(contentAsString);
             userPrefs.setExperimentListRefreshTime(new Date().getTime());
             return null;

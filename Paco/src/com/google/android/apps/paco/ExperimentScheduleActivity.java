@@ -555,7 +555,8 @@ public class ExperimentScheduleActivity extends Activity {
 //        }
         
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {            
-        new AlarmStore(this).deleteAllSignalsForSurvey(experiment.getId());
+        AlarmStore alarmStore = new AlarmStore(this);
+        alarmStore.deleteAllSignalsForSurvey(experiment.getId());
         //new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(), experiment.getPeriodStart(new DateTime()).getMillis());
         experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
       }
