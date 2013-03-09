@@ -35,9 +35,6 @@ import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
-    /**
-     * 
-     */
     private final Activity enclosingActivity;
     private ProgressDialog p;
     private UserPreferences userPrefs;
@@ -60,7 +57,6 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
     }
     
     protected String doInBackground(Void... params) {
-//      times.add(0, System.currentTimeMillis());
       UrlContentManager manager = null;
       try {
         manager = new UrlContentManager(enclosingActivity);
@@ -68,25 +64,17 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
         String path = "/experiments";
         Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path)).execute();
         String contentAsString = response.getContentAsString();
-//        Log.i("FindExperimentsActivity", "data: " + contentAsString);
         if (contentAsString != null) {
           ObjectMapper mapper = new ObjectMapper();
           mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
           try {
-            List<Experiment> readValue = mapper.readValue(contentAsString,
+            List<Experiment> experiments = mapper.readValue(contentAsString,
                 new TypeReference<List<Experiment>>() {
                 });
             experimentProviderUtil.deleteAllUnJoinedExperiments();
-            experimentProviderUtil.insertOrUpdateExperiments(readValue);
-            // Note, this is happening after the json processing and the (currently still used) insertOrUpdateExperiments, as I experiment with
-            // no longer storing the list of downloaded experiments in the database, but rather on disk as json.            
+            experimentProviderUtil.insertOrUpdateExperiments(experiments);
             experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-            Log.i(PacoConstants.TAG, "SPEED: saving new experiments to disk t6.5 = " + System.currentTimeMillis());
-            List<Experiment> experimentsReloaded = experimentProviderUtil.loadExperimentsFromDisk();
             userPrefs.setExperimentListRefreshTime(new Date().getTime());
-            Log.i(PacoConstants.TAG, "SPEED: reloading new experiments to disk t6.75 = " + System.currentTimeMillis());
-            experimentProviderUtil.getExperimentsByServerId(4693018);
-            Log.i(PacoConstants.TAG, "SPEED: retrieving experiment by server id t6.8 = " + System.currentTimeMillis());
             return null;
           } catch (JsonParseException e) {
             Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);

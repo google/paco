@@ -16,16 +16,8 @@
 */
 package com.google.android.apps.paco;
 
-import java.io.IOException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -36,16 +28,11 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class ExperimentDetailActivity extends Activity {
 
@@ -57,6 +44,7 @@ public class ExperimentDetailActivity extends Activity {
   private ExperimentProviderUtil experimentProviderUtil;
   private UserPreferences userPrefs;
   private ProgressDialog p;
+  private boolean showingJoinedExperiments;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +52,12 @@ public class ExperimentDetailActivity extends Activity {
 	setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
     uri = intent.getData();
+    showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     userPrefs = new UserPreferences(this);
     
     experimentProviderUtil = new ExperimentProviderUtil(this);
+    
+    
     if (uri.getLastPathSegment().startsWith("0000")) {
       String realServerId = uri.getLastPathSegment().substring(4);
       List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(realServerId));
@@ -75,16 +66,19 @@ public class ExperimentDetailActivity extends Activity {
         uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getId()));
       }
     } else {
-      experiment = experimentProviderUtil.getExperiment(uri);  
+      if (showingJoinedExperiments) {
+        experiment = experimentProviderUtil.getExperiment(uri);
+      } else {
+        experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+        uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
+      }
     }
     
     if (experiment == null) {
       new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
         
         public void onClick(DialogInterface dialog, int which) {
-//          ExperimentDetailActivity.this.finish();
-          refreshList();
-          
+          refreshList();          
         }
       }).show();
       
@@ -177,70 +171,30 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    p = ProgressDialog.show(this, getString(R.string.experiment_refresh), getString(R.string.checking_server_for_new_and_updated_experiment_definitions), true, true);
-    new DownloadExperimentsTask().execute();
+    p = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
+                            getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+                            true, true);
+    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+
+      @Override
+      public void done() {          
+          Experiment experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
+          if (experiment != null) {
+            uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
+            showExperiment();
+          } else {
+            ExperimentDetailActivity.this.finish();
+          }
+          
+      }
+    };
+    
+    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
+
   }
   
-  private class DownloadExperimentsTask extends AsyncTask<Void, Void, List<Experiment>> {
-    @SuppressWarnings("unchecked")
-    protected List<Experiment> doInBackground(Void... params) {
-//      times.add(0, System.currentTimeMillis());
-      UrlContentManager manager = null;
-      try {
-        manager = new UrlContentManager(ExperimentDetailActivity.this);
-        
-        String serverAddress = userPrefs.getServerAddress();
-        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments")).execute();
-        String contentAsString = response.getContentAsString();
-        Log.i("ExperimentDetailActivity", "data: " + contentAsString);
-        if (contentAsString != null) {
-          ObjectMapper mapper = new ObjectMapper();
-          mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-          try {
-            List<Experiment> readValue = mapper.readValue(contentAsString,
-                new TypeReference<List<Experiment>>() {
-                });
-            return readValue;
-          } catch (JsonParseException e) {
-            Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
-            e.printStackTrace();
-          } catch (JsonMappingException e) {
-            Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString);
-            e.printStackTrace();
-          } catch (UnsupportedCharsetException e) {
-            e.printStackTrace();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-        return new ArrayList<Experiment>();
-      } finally {
-        if (manager != null) {
-          manager.cleanUp();
-        }
-      }
-    }
 
-    protected void onProgressUpdate() {
-           
-    }
-
-    protected void onPostExecute(List<Experiment> result) {
-//      System.out.println("Elapsed Time for download of experiments: " + (System.currentTimeMillis() - times.get(0).longValue()));
-      experimentProviderUtil.deleteAllUnJoinedExperiments();
-      experimentProviderUtil.insertOrUpdateExperiments(result);
-      userPrefs.setExperimentListRefreshTime(new Date().getTime());
-      p.dismiss();
-      List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(uri.getLastPathSegment().substring(4)));
-      if (experiments != null && experiments.size() > 0) {
-        experiment = experiments.get(0);
-        uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getId()));
-        showExperiment();
-      } else {
-        ExperimentDetailActivity.this.finish();
-      }
-    }
-  }
+    
 
   
 }

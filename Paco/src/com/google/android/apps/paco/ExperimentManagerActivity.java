@@ -90,7 +90,7 @@ public class ExperimentManagerActivity extends Activity {
     currentExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         Intent intent = new Intent(ExperimentManagerActivity.this,
-            FindExperimentsActivity.class);
+            RunningExperimentsActivity.class);
         intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
         startActivity(intent);
       }

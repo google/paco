@@ -43,6 +43,16 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
+        <activity android:name='com.google.android.apps.paco.RunningExperimentsActivity'>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        
         <activity android:configChanges='orientation|keyboard|keyboardHidden' android:name='com.google.android.apps.paco.ExploreDataActivity'>
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
