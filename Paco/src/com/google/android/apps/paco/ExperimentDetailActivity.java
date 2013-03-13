@@ -24,6 +24,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +36,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class ExperimentDetailActivity extends Activity {
+  
+  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+
 
   static final String EXPERIMENT_NAME = "com.google.android.apps.paco.Experiment";
   static DateTimeFormatter df = DateTimeFormat.shortDate();
@@ -87,6 +91,17 @@ public class ExperimentDetailActivity extends Activity {
     }
   }
 
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
+      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
+                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+                                                         true, true);
+      return loadingDialog;
+    }
+    return super.onCreateDialog(id);
+  }
+  
 
   private void showExperiment() {
     joinButton = (Button)findViewById(R.id.JoinExperimentButton);
@@ -171,14 +186,12 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    p = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
-                            getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
-                            true, true);
     DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
 
       @Override
       public void done() {          
-          Experiment experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
+          experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
+          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
           if (experiment != null) {
             uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
             showExperiment();
@@ -188,7 +201,7 @@ public class ExperimentDetailActivity extends Activity {
           
       }
     };
-    
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
 
   }
