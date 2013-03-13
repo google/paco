@@ -81,11 +81,20 @@ public class ExperimentServlet extends HttpServlet {
         } else {
           availableExperiments = getSortedExperimentsAvailableToUser(experiments, email);        
         }
+        removeSensitiveFields(availableExperiments);
         experimentsJson = JsonConverter.jsonify(availableExperiments);
         cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
       }    
       resp.getWriter().println(scriptBust(experimentsJson));
     }
+  }
+
+  private void removeSensitiveFields(List<ExperimentDAO> availableExperiments) {
+    for (ExperimentDAO experimentDAO : availableExperiments) {
+      experimentDAO.setPublished(null);
+      experimentDAO.setAdmins(null);
+    }
+    
   }
 
   private String scriptBust(String experimentsJson) {
