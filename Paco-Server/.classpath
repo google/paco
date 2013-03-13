@@ -32,7 +32,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/Apis_Google_Maps-3.8.0-beta2.jar"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/GWT (3)"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine (3)"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
