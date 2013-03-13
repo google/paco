@@ -49,6 +49,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
+import com.google.sampling.experiential.server.Whitelist;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
@@ -59,7 +60,6 @@ import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.MapServiceAsync;
-import com.google.sampling.experiential.shared.Whitelist;
 
 /**
  * Default Entry point into the GWT application.
@@ -84,10 +84,9 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private LoginInfo loginInfo = null;
   private Anchor signInLink = new Anchor("Login");
-  private Anchor signOutLink = new Anchor("Logout");
+  private Anchor signOutLink = new Anchor("Sign in as another user");
 
   private FlowPanel loginPanel = new FlowPanel();
-  private Label loginLabel = new Label("Please sign in to your Google Account " + "to access the application.");
 
   protected MyConstants myConstants;
   protected MyMessages myMessages;
@@ -118,7 +117,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       public void onSuccess(LoginInfo result) {
         loginInfo = result; 
-        if (loginInfo.isLoggedIn() && new Whitelist().allowed(loginInfo.getEmailAddress())) {
+        if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
 //          ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
 //          loadLibraries.add(LoadLibrary.ADSENSE);
 //          loadLibraries.add(LoadLibrary.DRAWING);
@@ -132,7 +131,7 @@ public class Main implements EntryPoint, ExperimentListener {
               loginPanel.setVisible(false);
               createHomePage();
               signOutLink.setHref(loginInfo.getLogoutUrl());
-
+              
         } else {
           loadLogin();
         }
@@ -148,11 +147,18 @@ public class Main implements EntryPoint, ExperimentListener {
     signInLink.setStyleName("paco-HTML-Large");
     signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     
-    //loginPanel.add(loginLabel);
     loginPanel.add(signInLink);
+    
+    loginPanel.setVisible(true);
+    if (loginInfo.isLoggedIn() && !loginInfo.isWhitelisted()) {
+      Window.alert(myConstants.notWhiteListed());
+      //loginPanel.add(signOutLink);
+      signInLink.setHref(loginInfo.getLogoutUrl());
+//      signOutLink.setStyleName("paco-HTML-Large");
+//      signOutLink.setVisible(true);
+    }
     loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
-    //RootPanel.get().add(index2Html);
   }
 
 

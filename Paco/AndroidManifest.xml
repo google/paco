@@ -34,7 +34,8 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:name='com.google.android.apps.paco.FindExperimentsActivity'>
+        <activity android:name='com.google.android.apps.paco.FindExperimentsActivity'
+            android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' >
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
 

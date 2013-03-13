@@ -21,7 +21,6 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.sampling.experiential.shared.LoginInfo;
-import com.google.sampling.experiential.shared.Whitelist;
 
 @SuppressWarnings("serial")
 public class LoginServiceImpl extends RemoteServiceServlet implements
@@ -31,17 +30,29 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     LoginInfo loginInfo = new LoginInfo();
-    Whitelist whitelist = new Whitelist();
+    Whitelist whitelist = new Whitelist();    
     
-    if (user != null && whitelist.allowed(user.getEmail())) {
+    
+    if (user == null) {
+      loginInfo.setLoggedIn(false);
+      loginInfo.setWhitelisted(false);
+      loginInfo.setLoginUrl(userService.createLoginURL(requestUri, "google.com"));
+      return loginInfo;
+    } 
+    
+    boolean whitelisted = whitelist.allowed(user.getEmail());
+    if (whitelisted) {
       loginInfo.setLoggedIn(true);
+      loginInfo.setWhitelisted(true);
       loginInfo.setEmailAddress(user.getEmail());
       loginInfo.setNickname(user.getNickname());
       loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
-    } else {
-      loginInfo.setLoggedIn(false);
+    } else { 
+      loginInfo.setLoggedIn(true);
+      loginInfo.setWhitelisted(false);
       loginInfo.setLoginUrl(userService.createLoginURL(requestUri, "google.com"));
-    }
+      loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
+    } 
     return loginInfo;
   }
 

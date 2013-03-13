@@ -1,7 +1,5 @@
 package com.google.sampling.experiential.client;
 
-import java.util.List;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -17,7 +15,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.Whitelist;
 import com.google.sampling.experiential.shared.WhitelistService;
 import com.google.sampling.experiential.shared.WhitelistServiceAsync;
 
@@ -59,7 +56,7 @@ public class WhitelistModule implements EntryPoint {
 
       public void onSuccess(LoginInfo result) {
         loginInfo = result; 
-        if (loginInfo.isLoggedIn() && new Whitelist().allowed(loginInfo.getEmailAddress())) {
+        if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
             loginPanel.setVisible(false);
             createHomePage();
             signOutLink.setHref(loginInfo.getLogoutUrl());
