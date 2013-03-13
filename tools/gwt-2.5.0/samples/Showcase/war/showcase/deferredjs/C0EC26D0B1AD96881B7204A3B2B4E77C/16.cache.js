@@ -1,0 +1,2 @@
+function nUb(){var a,b,c,d,e;b=new Rlc(4,4);d=b.i;c=b.g;for(e=0;e<d;++e){for(a=0;a<c;++a){jlc(b,e,a,new lac((Izb(),xzb)))}}blc(b,'cwGrid');return b}
+Zub(813,1,WQc);_.mc=function tUb(){Cxb(this.b,nUb())};JRc(wn)(16);
