@@ -174,11 +174,11 @@ public class InputExecutorPanel extends Composite {
     lowerLinePanel.add(list);    
     list.addChangeHandler(new ChangeHandler() {
       public void onChange(ChangeEvent changeEvent) {
-        if (firstTime) {
-          firstTime = false;
-        } else {
+//        if (firstTime) {
+//          firstTime = false;
+//        } else {
           hasBeenSelected = true;
-        }
+//        }
       } 
     });
   }
