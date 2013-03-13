@@ -1,0 +1,2 @@
+function CTb(){var a,b,c;b=new Fmc;Jyc(b.db,STc,'cwFlowPanel');for(c=0;c<30;++c){a=new Bfc(O$c+c);pj(a.db,'cw-FlowPanel-checkBox',true);_dc(b,a,b.db)}return b}
+Uvb(795,1,jSc);_.qc=function ITb(){xyb(this.b,CTb())};YSc(Jn)(8);

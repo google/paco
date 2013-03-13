@@ -1,0 +1,10 @@
+function AF(){AF=tTc;zF=new YQc}
+function HF(a){throw new ZRc(Y_c+a+Ryd)}
+function EF(){this.b=Oyd;CF(this,Pyd);if(!this.a){throw new ZRc(Qyd)}}
+function BF(d,a){var b=d.a;for(var c in b){b.hasOwnProperty(c)&&a.oe(c)}}
+function ioc(a,b,c,d){var e;a.a.dh(b,c);e=koc(a.a.i,b,c);dj(e,d,true)}
+function CF(c,b){try{typeof $wnd[b]!=Nyd&&HF(b);c.a=$wnd[b]}catch(a){HF(b)}}
+function FF(){AF();var a;a=x8(zF.je(Pyd),61);if(!a){a=new EF;zF.le(Pyd,a)}return a}
+function DF(d,a){a=String(a);var b=d.a;var c=b[a];(c==null||!b.hasOwnProperty(a))&&d.Sd(a);return String(c)}
+function VOb(){var a,b,c,d,e,f,g,i,j,k,n;f=new fBc;g=new wlc(Uyd);g.cb.dir=PZc;g.cb.style[Vyd]=J_c;cBc(f,new wlc(Wyd));cBc(f,g);j=new aoc;b=j.j;i=FF();e=(n=new eRc,BF(i,n),n);a=0;for(d=aOc(KL(e.a));d.a.ue();){c=x8(gOc(d),1);k=DF(i,c);Tnc(j,0,a,c);ioc(b,0,a,Xyd);Tnc(j,1,a,k);ioc(b,1,a,Yyd);++a}cBc(f,new wlc(Zyd));cBc(f,j);return f}
+var Tyd="' in ",Ryd="' is not a JavaScript object and cannot be used as a Dictionary",Wyd='<b>\u0647\u0630\u0627 \u0627\u0644\u0645\u062B\u0627\u0644 \u064A\u062A\u0641\u0627\u0639\u0644 \u0645\u0639 \u0645\u062A\u063A\u064A\u0631\u0627\u062A \u062C\u0627\u0641\u0627\u0633\u0643\u0631\u064A\u0628\u062A \u0627\u0644\u062A\u0627\u0644\u064A\u0629 :<\/b>',Zyd='<br><br>',Uyd='<pre>var userInfo = {\n&nbsp;&nbsp;name: "Amelie Crutcher",\n&nbsp;&nbsp;timeZone: "EST",\n&nbsp;&nbsp;userID: "123",\n&nbsp;&nbsp;lastLogOn: "2/2/2006"\n};<\/pre>\n',Syd="Cannot find '",Qyd="Cannot find JavaScript object with the name 'userInfo'",$yd='Dictionary',Oyd='Dictionary userInfo',Yyd='cw-DictionaryExample-data',Xyd='cw-DictionaryExample-header',Nyd='object',Vyd='textAlign',Pyd='userInfo';Hvb(362,1,{61:1},EF);_.Sd=function GF(a){var b;b=Syd+a+Tyd+this;throw new ZRc(b)};_.tS=function IF(){return this.b};_.a=null;_.b=null;var zF;Hvb(715,1,oUc);_.mc=function _Ob(){Oyb(this.a,VOb())};var $db=DIc(Eed,$yd,362);aVc(wn)(32);
