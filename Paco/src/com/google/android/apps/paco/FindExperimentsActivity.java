@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,6 +47,7 @@ import android.widget.TextView;
  */
 public class FindExperimentsActivity extends Activity {
 
+  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
   static final int JOINED_EXPERIMENT = 1;
   
@@ -144,14 +147,28 @@ public class FindExperimentsActivity extends Activity {
     return listHeader;
   }
 
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
+      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
+                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+                                                         true, true);
+      return loadingDialog;
+    }
+    return super.onCreateDialog(id);
+  }
+  
+  
   protected void refreshList() {    
     DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
       
       @Override
       public void done() {
         reloadAdapter();
+        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
       }
     };
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
   }
 

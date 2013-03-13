@@ -122,7 +122,14 @@ public class EventJsonUploadProcessor {
     }
     
     if (eventJson.has("experimentVersion")) {
-      experimentVersion = eventJson.getInt("experimentVersion");
+      String experimentVersionStr= eventJson.getString("experimentVersion");
+      if (!Strings.isNullOrEmpty(experimentVersionStr)) {
+        try {
+          experimentVersion = Integer.parseInt(experimentVersionStr);
+        } catch (Exception e) {
+          
+        }
+      }
     }
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
     Experiment experiment = experimentRetriever.getExperiment(experimentId);

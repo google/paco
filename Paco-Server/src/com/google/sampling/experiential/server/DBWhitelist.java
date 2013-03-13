@@ -7,7 +7,6 @@ import javax.jdo.Query;
 
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.WhitelistedUser;
-import com.google.sampling.experiential.shared.Whitelist;
 
 public class DBWhitelist extends Whitelist {
 

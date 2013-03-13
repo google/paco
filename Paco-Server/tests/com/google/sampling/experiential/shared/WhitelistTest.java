@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.google.sampling.experiential.server.Whitelist;
+
 public class WhitelistTest {
 
   @Test

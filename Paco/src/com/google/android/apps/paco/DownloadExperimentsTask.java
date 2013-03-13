@@ -36,25 +36,25 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 
 class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
     private final Activity enclosingActivity;
-    private ProgressDialog p;
+//    private ProgressDialog p;
     private UserPreferences userPrefs;
     private ExperimentProviderUtil experimentProviderUtil;
     private Runnable runnable;
     private DownloadExperimentsTaskListener listener;
 
     @SuppressWarnings("unchecked")
-    public DownloadExperimentsTask(Activity findExperimentsActivity, 
+    public DownloadExperimentsTask(Activity activity, 
         DownloadExperimentsTaskListener listener, 
         UserPreferences userPrefs, 
         ExperimentProviderUtil experimentProviderUtil, Runnable runnable) {
-      enclosingActivity = findExperimentsActivity;      
+      enclosingActivity = activity;      
       this.listener = listener;
       this.userPrefs = userPrefs;
       this.experimentProviderUtil = experimentProviderUtil;
       this.runnable = runnable;
       
-      p = ProgressDialog.show(enclosingActivity, findExperimentsActivity.getString(R.string.experiment_refresh), findExperimentsActivity.getString(R.string.checking_server_for_new_and_updated_experiment_definitions), true, true);
     }
+    
     
     protected String doInBackground(Void... params) {
       UrlContentManager manager = null;
@@ -101,7 +101,7 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
     }
 
     protected void onPostExecute(String unusedResult) {
-      p.dismiss();
+//      p.dismiss();
       if (listener != null) {
         listener.done();
       }
@@ -110,4 +110,14 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       }
       
     }
+
+
+//    @Override
+//    protected void onPreExecute() {
+//      super.onPreExecute();
+//      p = ProgressDialog.show(enclosingActivity, enclosingActivity.getString(R.string.experiment_refresh), 
+//                              enclosingActivity.getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+//                              true, true);
+//
+//    }
 }

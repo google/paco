@@ -565,6 +565,7 @@ public class ExperimentScheduleActivity extends Activity {
         experiment.setJoinDate(new DateTime());
         experimentProviderUtil.insertFullJoinedExperiment(experiment);
         createJoinEvent();
+        startService(new Intent(this, SyncService.class));
       } else {
         experimentProviderUtil.updateJoinedExperiment(experiment);
       }

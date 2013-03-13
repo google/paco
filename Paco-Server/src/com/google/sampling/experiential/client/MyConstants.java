@@ -324,4 +324,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Name")
   String varName();
 
+  @DefaultStringValue("This account does not have access to the Paco Service")
+  String notWhiteListed();
+
 }

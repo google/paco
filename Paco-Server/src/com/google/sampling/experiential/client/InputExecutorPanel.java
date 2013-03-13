@@ -3,6 +3,8 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -26,6 +28,10 @@ public class InputExecutorPanel extends Composite {
   private ListBox list;
   private ArrayList<RadioButton> likerts;
   MyConstants myConstants = GWT.create(MyConstants.class);
+
+  private boolean hasBeenSelected;
+
+  protected boolean firstTime=true;
 
   public InputExecutorPanel(InputDAO input) {
     super();
@@ -69,6 +75,9 @@ public class InputExecutorPanel extends Composite {
     if (list.isMultipleSelect()) {
       return readMultiselectList();
     } else {
+      if (!hasBeenSelected) {
+        return null;
+      }
       int chosenIndex = list.getSelectedIndex();
       if (chosenIndex == -1) {
         return null;
@@ -163,6 +172,15 @@ public class InputExecutorPanel extends Composite {
       list.addItem(choice);
     }
     lowerLinePanel.add(list);    
+    list.addChangeHandler(new ChangeHandler() {
+      public void onChange(ChangeEvent changeEvent) {
+        if (firstTime) {
+          firstTime = false;
+        } else {
+          hasBeenSelected = true;
+        }
+      } 
+    });
   }
 
   private void renderOpenText() {
