@@ -133,6 +133,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     event.setResponseTime(new Date());
     event.setExperimentName(experiment.getTitle());
     event.setExperimentId(experiment.getId());
+    event.setExperimentVersion(experiment.getVersion());
     return event;
   }
 
