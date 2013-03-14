@@ -108,6 +108,9 @@ public class Event {
   @Persistent
   private List<PhotoBlob> blobs;
 
+  @Persistent
+  private String timeZone;
+
   public boolean isShared() {
     if (shared == null) {
       shared = true;
@@ -121,7 +124,7 @@ public class Event {
 
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
       Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion, 
-      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
     super();
     if (/*what.size() == 0 || */who == null || when == null) {
       throw new IllegalArgumentException("There must be a who and a when");
@@ -143,6 +146,7 @@ public class Event {
     if (blobs != null) {
       this.blobs = blobs;
     }
+    this.timeZone = timezone;
   }
 
   private void setWhatMap(Set<What> whats) {
@@ -312,6 +316,8 @@ public class Event {
     parts[csvIndex++] = experimentVersion != null ? Integer.toString(experimentVersion) : "0";
     parts[csvIndex++] = responseTime != null ? simpleDateFormat.format(responseTime) : null;
     parts[csvIndex++] = scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null;
+    parts[csvIndex++] = timeZone;
+    
     Map<String, String> whatMap = getWhatMap();
     for (String key : columnNames) {
       String value = whatMap.get(key);
@@ -363,6 +369,14 @@ public class Event {
 
   public void setExperimentVersion(Integer experimentVersion) {
     this.experimentVersion = experimentVersion;
+  }
+
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  public void setTimeZone(String timeZone) {
+    this.timeZone = timeZone;
   }
 
 }

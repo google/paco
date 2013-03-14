@@ -86,7 +86,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
           event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion()));
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
     }
     return eventDAOs;
   }
@@ -146,8 +146,9 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     
     
     try {
+      String tz = null;
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-          "1", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null);
+          "1", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -521,8 +522,10 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     
     
     try {
+      String tz = event.getTimezone();
+      String experimentName = experiment.getTitle();
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
-          "1", whats, event.isShared(), Long.toString(experimentId), null, experimentVersion, responseTimeDate, scheduledTimeDate, null);
+          "1", whats, event.isShared(), Long.toString(experimentId), experimentName, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }

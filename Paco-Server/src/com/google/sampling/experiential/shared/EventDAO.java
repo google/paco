@@ -71,6 +71,8 @@ public class EventDAO implements Serializable {
 
   private Integer experimentVersion;
 
+  private String timezone;
+
   public Map<String, String> getWhat() {
     return what;
   }
@@ -85,7 +87,7 @@ public class EventDAO implements Serializable {
 
   public EventDAO(String who, Date when, String experimentName, String lat, String lon, 
       String appId, String pacoVersion, Map<String, String> map, boolean shared, Date responseTime, 
-      Date scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion) {
+      Date scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion, String timezone) {
     super();
     this.who = who;
     this.lat = lat;
@@ -100,6 +102,7 @@ public class EventDAO implements Serializable {
     this.responseTime = responseTime;
     this.scheduledTime = scheduledTime;
     this.blobs = blobs;    
+    this.timezone = timezone;
   }
 
   public Long getId() {
@@ -256,6 +259,14 @@ public class EventDAO implements Serializable {
   
   public void setExperimentVersion(Integer version) {
     this.experimentVersion = version;
+  }
+
+  public String getTimezone() {
+    return timezone;
+  }
+
+  public void setTimezone(String timezone) {
+    this.timezone = timezone;
   }
   
 

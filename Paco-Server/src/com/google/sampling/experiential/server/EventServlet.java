@@ -76,7 +76,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class EventServlet extends HttpServlet {
 
   private static final Logger log = Logger.getLogger(EventServlet.class.getName());
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
@@ -183,7 +183,7 @@ public class EventServlet extends HttpServlet {
         eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
                                    event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
                                    event.getResponseTime(), event.getScheduledTime(), null, Long.parseLong(event.getExperimentId()),
-                                   event.getExperimentVersion()));
+                                   event.getExperimentVersion(), event.getTimeZone()));
       }
       return mapper.writeValueAsString(eventDAOs);
     } catch (JsonGenerationException e) {
@@ -229,6 +229,7 @@ public class EventServlet extends HttpServlet {
     columns.add(6, "experimentVersion");
     columns.add(7, "responseTime");
     columns.add(8, "scheduledTime");
+    columns.add(9, "timeZone");
 
     resp.setContentType("text/csv;charset=UTF-8");
     CSVWriter csvWriter = null;
@@ -458,7 +459,6 @@ public class EventServlet extends HttpServlet {
       log.info("IO Exception reading post data stream: " + e.getMessage());
       throw e;
     }
-    // log.info(postBodyString);
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
     } 

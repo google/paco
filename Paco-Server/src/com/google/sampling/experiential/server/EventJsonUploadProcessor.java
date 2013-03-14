@@ -13,6 +13,8 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -111,8 +113,8 @@ public class EventJsonUploadProcessor {
     String experimentId = null;
     String experimentName = null;
     Integer experimentVersion = null;
-    Date responseTime = null;
-    Date scheduledTime = null;
+    DateTime responseTime = null;
+    DateTime scheduledTime = null;
 
     if (eventJson.has("experimentId")) {
       experimentId = eventJson.getString("experimentId");
@@ -188,19 +190,24 @@ public class EventJsonUploadProcessor {
       }
     }
 
-    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+//    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+//    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ssZ").withOffsetParsed();
 
     if (eventJson.has("responseTime")) {
       String responseTimeStr = eventJson.getString("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = parseDate(df, oldDf, responseTimeStr);
+        responseTime = parseDate(df, responseTimeStr);
+        log.info("Response TIME check" + responseTimeStr);
+        log.info(" = " + responseTime != null ? responseTime.toString() : "");
       }
     }
     if (eventJson.has("scheduledTime")) {
       String timeStr = eventJson.getString("scheduledTime");
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {
-        scheduledTime = parseDate(df, oldDf, timeStr);
+        scheduledTime = parseDate(df, timeStr);
+        log.info("Schedule TIME check" + timeStr);
+        log.info(" = " + scheduledTime != null ? scheduledTime.toString() : "");        
       }
     }
 
@@ -213,8 +220,8 @@ public class EventJsonUploadProcessor {
     return outcome;
   }
 
-  private Date parseDate(SimpleDateFormat df, SimpleDateFormat oldDf, String when) throws ParseException {
-    return df.parse(when);
+  private DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
   }
 
 

@@ -35,14 +35,14 @@ public class EventJsonUploadProcessorTest {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
-                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {        
+                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {        
       }
     };
     blowUpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
-                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
         throw new IllegalArgumentException("This event is bad");
       }
     };
@@ -53,7 +53,7 @@ public class EventJsonUploadProcessorTest {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
-                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+                            Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
         if (!second) {
           second = true;
         } else {
@@ -209,7 +209,7 @@ public class EventJsonUploadProcessorTest {
   public void testDateParseErrorJsonArray() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentRetriever, noOpEventRetriever);
     String result = ejup.processJsonEvents("[{\"responseTime\":\"12baddate\"}]", who);
-    String expectedOutcomeJson = toJson(new Outcome(0,"Exception posting event: 0. Unparseable date: \"12baddate\""));
+    String expectedOutcomeJson = toJson(new Outcome(0,"Exception posting event: 0. Invalid format: \"12baddate\" is malformed at \"baddate\""));
     assertEquals(expectedOutcomeJson, result);
   }
 
@@ -217,7 +217,7 @@ public class EventJsonUploadProcessorTest {
   public void testOneOfTwoExperimentsParseErrorsNotExist() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentRetriever, noOpEventRetriever);
     String result = ejup.processJsonEvents("[{\"responseTime\":\"12baddate\"},{}]", who);
-    String expectedOutcomeJson = toJson(new Outcome(0, "Exception posting event: 0. Unparseable date: \"12baddate\""), new Outcome(1));
+    String expectedOutcomeJson = toJson(new Outcome(0, "Exception posting event: 0. Invalid format: \"12baddate\" is malformed at \"baddate\""), new Outcome(1));
     assertEquals(expectedOutcomeJson, result);
   }
 
