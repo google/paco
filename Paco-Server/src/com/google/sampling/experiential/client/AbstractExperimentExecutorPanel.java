@@ -3,13 +3,13 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -19,7 +19,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.MapServiceAsync;
 import com.google.sampling.experiential.shared.Output;
 
@@ -115,6 +114,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
       }
       
     };
+    
     mapService.saveEvent(event, asyncCallback);    
   }
 
@@ -134,6 +134,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     event.setExperimentName(experiment.getTitle());
     event.setExperimentId(experiment.getId());
     event.setExperimentVersion(experiment.getVersion());
+    event.setTimezone(DateTimeFormat.getFormat("Z").format(new Date()));//TimeZone.getDefault().getID());
     return event;
   }
 

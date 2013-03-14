@@ -28,6 +28,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -64,17 +65,18 @@ public class EventRetriever {
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId, 
-      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
+      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String tz) {
 //    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs);
+        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz);
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();
       tx.begin();
       pm.makePersistent(event);
       tx.commit();
+      log.info("Event saved");
     } finally {
       if (tx.isActive()) {
         tx.rollback();
@@ -298,6 +300,18 @@ public class EventRetriever {
     JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);    
     queryBuilder.addFilters(queryFilters, clientTimeZone);
     return queryBuilder.getQuery();
+  }
+
+  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime, List<PhotoBlob> blobs) {
+    
+    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion, 
+              responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs, 
+              responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString() 
+                                                                     : scheduledTime!= null && scheduledTime.getZone() != null ? 
+                                                                                                                                 scheduledTime.getZone().toString() : null);
   }
   
 }

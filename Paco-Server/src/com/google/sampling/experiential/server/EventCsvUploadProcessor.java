@@ -220,7 +220,7 @@ public class EventCsvUploadProcessor {
              + ", what length = " + whats.size());
 
     EventRetriever.getInstance().postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs, null);
 
   }
   
