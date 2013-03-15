@@ -143,7 +143,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         }
       } else if (!isToday(eventDAO) && showingToday) {
         showingToday = false;
-          mainPanel.add(new HTML("<h2>" + myConstants.previousDaysResponses() + "</h2><p>" + myConstants.previousResponsesWarning() + "</p>"));
+          mainPanel.add(new HTML("<h2>" + myConstants.previousDaysResponses() + "</h2>"));
       }
       
       
