@@ -19,7 +19,9 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -489,7 +491,7 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.CSV_CODE:
         String joinedStr = "";
         if (joined) {
-          joinedStr = ":who=" + loginInfo.getEmailAddress();
+          joinedStr = ":who=" + loginInfo.getEmailAddress().toLowerCase();
         }
         Window.open(
             "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'", "_blank","");
@@ -765,7 +767,7 @@ public class Main implements EntryPoint, ExperimentListener {
     };
     String queryText = "experimentId=" + experiment.getId();
     if (joined) {
-      queryText += ":who=" + loginInfo.getEmailAddress();
+      queryText += ":who=" + loginInfo.getEmailAddress().toLowerCase();
     }
     mapService.mapWithTags(queryText, callback);
     // for each question in the experiment
@@ -805,6 +807,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void showReferredExperimentExecutor(final ExperimentDAO experiment, final ExperimentDAO referencedExperiment) {
     statusLabel.setVisible(true);
+    
+    // TODO rewrite this with two futures that join() before calling the EndofDayExecutor.
     AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
 
       @Override
@@ -815,19 +819,41 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<EventDAO> eventList) {
-        if (eventList.size() == 0) {
+      public void onSuccess(final List<EventDAO> referencedEventList) {
+        if (referencedEventList.size() == 0) {
           Window.alert(myConstants.noEventsFoundForReferredExperiment());
           statusLabel.setVisible(false);
           return;
         }
-        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
-                                                                                 experiment, eventList, referencedExperiment);
-        contentPanel.add(ep);
-        statusLabel.setVisible(false);
+        AsyncCallback<Map<Date, EventDAO>> referringCallback = new AsyncCallback<Map<Date, EventDAO>>() {
+
+          @Override
+          public void onFailure(Throwable caught) {
+            Window.alert(myMessages.loadReferencedEventsFailed(caught.getMessage()));
+            statusLabel.setVisible(false);
+
+          }
+
+          @Override
+          public void onSuccess(Map<Date, EventDAO> eventList) {
+            if (eventList.size() == 0) {
+              Window.alert(myConstants.noEventsFoundForReferredExperiment());
+              statusLabel.setVisible(false);
+              return;
+            }
+            
+            AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
+                                                                                     experiment, referencedEventList, eventList, referencedExperiment);
+            contentPanel.add(ep);
+            statusLabel.setVisible(false);
+          }
+        };
+
+        String queryText = "experimentId=" + experiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
+        mapService.getEndOfDayEvents(queryText, referringCallback);
       }
     };
-    String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress();
+    String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
     mapService.mapWithTags(queryText, callback);
     
   }

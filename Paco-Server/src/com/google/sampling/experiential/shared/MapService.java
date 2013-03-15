@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.shared;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,4 +50,6 @@ public interface MapService extends RemoteService {
   ExperimentDAO referencedExperiment(Long referencedExperimentId);
 
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
+
+  Map<Date, EventDAO> getEndOfDayEvents(String queryText);
 }

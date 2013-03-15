@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.shared;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -68,5 +69,7 @@ public interface MapServiceAsync {
   void referencedExperiment(Long referencedExperimentId, AsyncCallback<ExperimentDAO> referencedCheckCallback);
 
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId, AsyncCallback<Void> callback);
+
+  void getEndOfDayEvents(String queryText, AsyncCallback<Map<Date, EventDAO>> referringCallback);
 
 }
