@@ -63,7 +63,6 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
-  private boolean admin;
 
   private VerticalPanel formPanel;
 
@@ -85,12 +84,11 @@ public class ExperimentDefinitionPanel extends Composite {
 
 
   public ExperimentDefinitionPanel(
-      ExperimentDAO experiment, boolean admin, LoginInfo loginInfo, ExperimentListener listener) {
+      ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
     this.experiment = experiment;
-    this.admin = admin;
     this.loginInfo = loginInfo;
     this.listeners = new ArrayList<ExperimentListener>();
     if (listener != null) {
@@ -100,10 +98,6 @@ public class ExperimentDefinitionPanel extends Composite {
     initWidget(formPanel);
 
     String titleText = myConstants.experimentDefinition();
-    if (!isAdmin()) {
-      titleText = "Joined " + titleText;
-      titleText += " NOT EDITABLE";
-    }
     Label lblExperimentDefinition = new Label(titleText);
     lblExperimentDefinition.setStyleName("paco-HTML-Large");
     formPanel.add(lblExperimentDefinition);
@@ -127,10 +121,6 @@ public class ExperimentDefinitionPanel extends Composite {
 
   }
 
-
-  private boolean isAdmin() {
-    return admin;
-  }
 
   protected void fireCanceled() {
     fireExperimentCode(ExperimentListener.CANCELED);
@@ -159,9 +149,7 @@ public class ExperimentDefinitionPanel extends Composite {
     creatorPanel = (Label) creatorPanelPair.valueHolder;
     formPanel.add(creatorPanelPair.container);
 
-    if (isAdmin()) {
-      formPanel.add(createAdminDisclosurePanel(experiment));
-    }
+    formPanel.add(createAdminDisclosurePanel(experiment));
 
     PanelPair informedConsentPanelPair = createInformedConsentPanel(experiment);
     informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
@@ -176,11 +164,8 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
     createFeedbackEntryPanel(experiment);
-    if (isAdmin()) {
-      createPublishingPanel(experiment);
-      createButtonPanel(experiment);
-    }
-
+    createPublishingPanel(experiment);
+    createButtonPanel(experiment);
   }
 
   /**
@@ -296,9 +281,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void createButtonPanel(ExperimentDAO experiment) {
     HorizontalPanel buttonPanel = new HorizontalPanel();
-    if (isAdmin()) {
-      buttonPanel.add(createSubmitButton(experiment));
-    }
+    buttonPanel.add(createSubmitButton(experiment));
     buttonPanel.add(createCancelButton());
     formPanel.add(buttonPanel);
   }
@@ -418,7 +401,7 @@ public class ExperimentDefinitionPanel extends Composite {
     if (value != null) {
       valueBox.setText(value);
     }
-    valueBox.setEnabled(isAdmin());
+    valueBox.setEnabled(true);
     line.add(keyLabel);
     line.add(valueBox);
     return new PanelPair(line, valueBox);
@@ -456,7 +439,7 @@ public class ExperimentDefinitionPanel extends Composite {
         
       }
     });
-    valueBox.setEnabled(isAdmin());
+    valueBox.setEnabled(true);
     line.add(keyLabel);
     line.add(valueBox);
     return new PanelPair(line, valueBox);

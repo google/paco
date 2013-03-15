@@ -249,6 +249,9 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Description (<500 chars)")
   String experimentDescription();
 
+  @DefaultStringValue("Description")
+  String experimentDescriptionNoPrompt();
+  
   @DefaultStringValue("Creator")
   String experimentCreator();
 
@@ -329,5 +332,15 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("There are no events that need responses at this time")
   String noEventsNeedingResponseAtThisTime();
+
+  @DefaultStringValue("Inputs")
+  String inputs();
+
+  @DefaultStringValue("Signal Schedule")
+  String signalSchedule();
+  
+  @DefaultStringValue("Signaling")
+  String signaling();
+
 
 }
