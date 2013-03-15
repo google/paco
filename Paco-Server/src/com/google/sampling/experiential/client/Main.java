@@ -836,12 +836,6 @@ public class Main implements EntryPoint, ExperimentListener {
 
           @Override
           public void onSuccess(Map<Date, EventDAO> eventList) {
-            if (eventList.size() == 0) {
-              Window.alert(myConstants.noEventsFoundForReferredExperiment());
-              statusLabel.setVisible(false);
-              return;
-            }
-            
             AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
                                                                                      experiment, referencedEventList, eventList, referencedExperiment);
             contentPanel.add(ep);
