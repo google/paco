@@ -512,7 +512,6 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.CANCELED:
         contentPanel.clear();
-        loadAdministeredExperiments(false);
         break;
       case ExperimentListener.SOFT_DELETE_CODE:
         softDeleteExperiment(experiment);
@@ -861,8 +860,14 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {
     statusLabel.setVisible(true);
-    ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
-    contentPanel.add(ep);
+    if (!joined) {
+      ExperimentDescriptionPanel ep = new ExperimentDescriptionPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);
+    } else {
+      ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);
+    }
+    
     statusLabel.setVisible(false);
   }
 

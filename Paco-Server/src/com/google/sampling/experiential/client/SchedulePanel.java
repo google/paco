@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -42,9 +43,11 @@ public class SchedulePanel extends Composite {
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
   private SignalScheduleDAO schedule;
+  private MyConstants myConstants;
 
   public SchedulePanel(SignalScheduleDAO schedule) {
     this.schedule = schedule;
+    myConstants = GWT.create(MyConstants.class);
 
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
@@ -53,7 +56,7 @@ public class SchedulePanel extends Composite {
     horizontalPanel.setSpacing(3);
     verticalPanel.add(horizontalPanel);
 
-    Label lblSignalSchedule = new Label("Signal Schedule:");
+    Label lblSignalSchedule = new Label(myConstants.signalSchedule() + ":");
     lblSignalSchedule.setStyleName("keyLabel");
     horizontalPanel.add(lblSignalSchedule);
     horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
