@@ -184,7 +184,7 @@ public class ExperimentLandingPanel extends Composite {
           
         };
         AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(experimentListener, mapService, 
-                                                                                 experiment, eventList, referencedExperiment);
+                                                                                 experiment, eventList, null, referencedExperiment);
         contentPanel.add(ep);
         statusLabel.setVisible(false);
       }

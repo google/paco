@@ -327,4 +327,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("This account does not have access to the Paco Service")
   String notWhiteListed();
 
+  @DefaultStringValue("There are no events that need responses at this time")
+  String noEventsNeedingResponseAtThisTime();
+
 }

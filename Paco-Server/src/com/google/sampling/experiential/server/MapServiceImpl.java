@@ -74,7 +74,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       throw new IllegalArgumentException("Must be logged in.");
     }
     if (whoFromLogin != null) {
-      return whoFromLogin.getEmail();
+      return whoFromLogin.getEmail().toLowerCase();
     }
     return null;
   }
@@ -129,7 +129,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     Set<What> whats = parseWhats(kvPairs);
     User loggedInWho = getWhoFromLogin();    
     if (loggedInWho == null || (who != null && !who.isEmpty() 
-        && !loggedInWho.getEmail().equals(who))) {
+        && !loggedInWho.getEmail().toLowerCase().equals(who.toLowerCase()))) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
     
@@ -140,14 +140,14 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       throw new IllegalArgumentException("Must post to an existing experiment!");
     }
     
-    if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail())) {
+    if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail().toLowerCase())) {
       throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
     }
     
     
     try {
       String tz = null;
-      EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform", 
           "1", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
@@ -429,7 +429,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   public List<ExperimentDAO> getUsersJoinedExperiments() {
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
-          getWhoFromLogin().getEmail());
+          getWhoFromLogin().getEmail().toLowerCase());
       List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(), 
           EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
       Set<Long> experimentIds = Sets.newHashSet();
@@ -490,7 +490,13 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       throw new IllegalArgumentException("Not logged in");
     }
 
+    if (event == null) {
+      return;
+    }
     String who = event.getWho();
+    if (who != null) {
+      who = who.toLowerCase();
+    }
     if (who != null && !who.isEmpty() && !loggedInWho.getEmail().equals(who)) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
@@ -524,7 +530,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     try {
       String tz = event.getTimezone();
       String experimentName = experiment.getTitle();
-      EventRetriever.getInstance().postEvent(loggedInWho.getEmail(), null, null, whenDate, "webform", 
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform", 
           "1", whats, event.isShared(), Long.toString(experimentId), experimentName, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
@@ -545,5 +551,12 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     ExperimentRetriever.getInstance().setReferredExperiment(referringExperimentId, referencedExperimentId);
     ExperimentCacheHelper.getInstance().clearCache();
     
+  }
+
+  @Override
+  public Map<Date, EventDAO> getEndOfDayEvents(String queryText) {
+    List<EventDAO> events = mapWithTags(queryText);    
+    Map<Date, EventDAO> eventsByDateMap = new EndOfDayEventProcessor().breakEventsIntoDailyPingResponses(events);
+    return eventsByDateMap;
   }
 }
