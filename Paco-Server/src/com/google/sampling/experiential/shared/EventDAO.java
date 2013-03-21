@@ -17,8 +17,10 @@
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 /**
@@ -31,6 +33,8 @@ import java.util.Map;
  *
  */
 public class EventDAO implements Serializable {
+
+  public static final String REFERRED_EXPERIMENT_INPUT_ITEM_KEY = "referred_experiment";
 
   private Long id;
   
@@ -267,6 +271,22 @@ public class EventDAO implements Serializable {
 
   public void setTimezone(String timezone) {
     this.timezone = timezone;
+  }
+
+  public boolean isEmptyResponse() {
+    Map<String, String> values = getWhat();
+    for (Entry<String, String> kvPair : values.entrySet()) {
+      String key = kvPair.getKey();
+      
+      if (key.equals(REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
+        continue;
+      }
+      String value = kvPair.getValue();
+      if (value != null && value.length() > 0) {
+        return false;
+      }
+    }
+    return true;
   }
   
 

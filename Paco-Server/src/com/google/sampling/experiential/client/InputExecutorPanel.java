@@ -33,6 +33,8 @@ public class InputExecutorPanel extends Composite {
 
   protected boolean firstTime=true;
 
+  private MultiselectList multiselectList;
+
   public InputExecutorPanel(InputDAO input) {
     super();
     this.input = input;
@@ -72,7 +74,7 @@ public class InputExecutorPanel extends Composite {
   }
 
   protected String readList() {
-    if (list.isMultipleSelect()) {
+    if (input.getMultiselect() != null && input.getMultiselect()) {
       return readMultiselectList();
     } else {
       if (!hasBeenSelected) {
@@ -87,20 +89,7 @@ public class InputExecutorPanel extends Composite {
   }
 
   private String readMultiselectList() {
-    StringBuilder buf = new StringBuilder();
-    boolean first = true;
-    for (int i=0; i < list.getItemCount() - 1; i++) {
-      if (list.isItemSelected(i)) {
-        if (first) {
-          first = false;
-        } else {
-          buf.append(",");
-        }        
-        buf.append(i + 1);
-      }
-    }
-    return buf.toString();
-
+    return multiselectList.readSelection();
   }
 
   protected String readOpenText() {
@@ -167,20 +156,22 @@ public class InputExecutorPanel extends Composite {
   }
 
   private void renderList() {
-    list = new ListBox(input.getMultiselect() != null ? input.getMultiselect() : false);
-    for (String choice : input.getListChoices()) {
-      list.addItem(choice);
-    }
-    lowerLinePanel.add(list);    
-    list.addChangeHandler(new ChangeHandler() {
-      public void onChange(ChangeEvent changeEvent) {
-//        if (firstTime) {
-//          firstTime = false;
-//        } else {
+    boolean isMultipleSelect = input.getMultiselect() != null ? input.getMultiselect() : false;
+    if (isMultipleSelect) {
+      multiselectList = new MultiselectList(input);
+      lowerLinePanel.add(multiselectList);
+    } else {
+      list = new ListBox(false);
+      for (String choice : input.getListChoices()) {
+        list.addItem(choice);
+      }
+      lowerLinePanel.add(list);    
+      list.addChangeHandler(new ChangeHandler() {
+        public void onChange(ChangeEvent changeEvent) {
           hasBeenSelected = true;
-//        }
-      } 
-    });
+        } 
+      });
+    }
   }
 
   private void renderOpenText() {

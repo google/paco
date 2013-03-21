@@ -454,7 +454,7 @@ public class EventServlet extends HttpServlet {
   private void processJsonUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String postBodyString;
     try {
-      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream());
+      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
     } catch (IOException e) {
       log.info("IO Exception reading post data stream: " + e.getMessage());
       throw e;
@@ -470,7 +470,7 @@ public class EventServlet extends HttpServlet {
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) 
       throws UnsupportedEncodingException {
-    req.setCharacterEncoding(Charsets.UTF_8.name());
-    resp.setCharacterEncoding(Charsets.UTF_8.name());
+    req.setCharacterEncoding("UTF-8");
+    resp.setCharacterEncoding("UTF-8");
   }
 }

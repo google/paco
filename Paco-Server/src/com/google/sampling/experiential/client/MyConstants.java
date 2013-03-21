@@ -342,5 +342,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Signaling")
   String signaling();
 
+  @DefaultStringValue("Already responded")
+  String alreadyResponded();
+
+  @DefaultStringValue("Response has expired")
+  String expired();
+
 
 }
