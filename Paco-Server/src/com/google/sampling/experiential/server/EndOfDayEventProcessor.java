@@ -29,12 +29,15 @@ public class EndOfDayEventProcessor {
     Map<Date, EventDAO> eventByDailyDate = Maps.newHashMap();
     for (EventDAO eodEvent : eodEvents) {
       Map<String, String> outputs = eodEvent.getWhat();
-      for (Entry<String, String> whatKey : outputs.entrySet()) {
+      for (Entry<String, String> whatKey : outputs.entrySet()) {        
         String key = whatKey.getKey();
+        if (key.equals(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
+          continue;
+        }
         String value = whatKey.getValue();
         
         int dateInputNameSeparatorIndex = key.indexOf("_");
-        if (dateInputNameSeparatorIndex == -1 || key.substring(0,dateInputNameSeparatorIndex).equals("referred")) {
+        if (dateInputNameSeparatorIndex == -1) {
           continue;          
         }
         
@@ -42,16 +45,21 @@ public class EndOfDayEventProcessor {
         String inputName = key.substring(dateInputNameSeparatorIndex + 1);
         
         Date date = jodaFormatter.parseDateTime(dateStr).toDate();
-        EventDAO newEvent = eventByDailyDate.get(date);
-        if (newEvent == null) {
+        
+        EventDAO eventForDailyDate = eventByDailyDate.get(date);
+        // if there is no existing event, or our eod response is newer then create a new event to insert or replace the old one. 
+        if (eventForDailyDate == null || eventForDailyDate.getResponseTime().before(eodEvent.getResponseTime())) {
           Map<String, String> newWhat = Maps.newHashMap();
-          newEvent = new EventDAO(eodEvent.getWho(), eodEvent.getWhen(), eodEvent.getExperimentName(), eodEvent.getLat(), eodEvent.getLon(),
+          eventForDailyDate = new EventDAO(eodEvent.getWho(), eodEvent.getWhen(), eodEvent.getExperimentName(), eodEvent.getLat(), eodEvent.getLon(),
                                   eodEvent.getAppId(), eodEvent.getPacoVersion(), newWhat, eodEvent.isShared(), eodEvent.getResponseTime(),
                                   eodEvent.getScheduledTime(), eodEvent.getBlobs(), eodEvent.getExperimentId(), eodEvent.getExperimentVersion(),
                                   eodEvent.getTimezone());
-          eventByDailyDate.put(date, newEvent);
+          eventByDailyDate.put(date, eventForDailyDate);
         }
-        newEvent.getWhat().put(inputName, value);
+        // don't insert into existing daily if we are older than it.
+        if (!eodEvent.getResponseTime().before(eventForDailyDate.getResponseTime())) {
+          eventForDailyDate.getWhat().put(inputName, value);
+        }
       }
     }
     

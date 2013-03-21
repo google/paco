@@ -45,11 +45,11 @@ public class EventPanel extends Composite {
     initWidget(mainPanel);
     //mainPanel.setWidth("258px");
     
-    renderEventData(eventDAO);
+    renderEventTimes(eventDAO);
     renderResponseValues();
   }
 
-  private void renderEventData(EventDAO eventDAO) {
+  private void renderEventTimes(EventDAO eventDAO) {
     createScheduleTimePanel(eventDAO);    
     createResponseTimePanel(eventDAO);
   }
@@ -87,10 +87,12 @@ public class EventPanel extends Composite {
       return;
     }
     
-    Grid grid = new Grid(inputs.length, 2);
+    Grid grid = new Grid(inputs.length * 2, 1);
     //grid.setBorderWidth(1);
+    grid.setWidth("100%");
     mainPanel.add(grid);
     
+    int rowIndex = 0;
     for (int i=0;i < inputs.length; i++) {
       InputDAO input = inputs[i];
       String value = whatMap.get(input.getName());
@@ -100,21 +102,16 @@ public class EventPanel extends Composite {
         displayText = input.getName();
       }
 
-      if (input == null) {
-        addColumnToGrid(grid, i, "", displayText);
-      } else if (value == null || value.length() == 0) {
+      
+      if (input == null || value == null || value.length() == 0) {
         value = "";
-        addColumnToGrid(grid, i, value, displayText);
-      } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && 
-          !value.equals("==") &&
-          !value.isEmpty() && event.getBlobs().length > 0 ) {            
+      } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && !value.equals("==") && !value.isEmpty() && event.getBlobs().length > 0 ) {            
           String blobData = event.getBlobs()[0];
           if (blobData.isEmpty()) {
             value = "";
           } else {
             value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
           }
-          addColumnToGrid(grid, i, value, displayText);
       } else if (input.getResponseType().equals(InputDAO.LIST)) {
         String[] listChoices = input.getListChoices();
         if (input.getMultiselect() != null && input.getMultiselect()) {
@@ -134,15 +131,14 @@ public class EventPanel extends Composite {
         } else {
           value = getListChoiceForAnswer(value, listChoices);
         }
-        addColumnToGrid(grid, i, value, displayText);
       } else {
         if (value.equals("blob") && input.getResponseType().equals("photo")) {
           value = "";
         }
         value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
-        addColumnToGrid(grid, i, value, displayText);
       }
-      
+      addColumnToGrid(grid, rowIndex, value, displayText);
+      rowIndex = rowIndex + 2;
     }
   }
 
@@ -163,10 +159,11 @@ public class EventPanel extends Composite {
 
   private void addColumnToGrid(Grid grid, int i, String value, String text) {
     SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(text).toSafeHtml();
-    Label label = new Label(questionText.asString());
+    //Label label = new Label(questionText.asString());
+    Label label = new Label(text);
     label.setStyleName("keyLabel");
     grid.setWidget(i, 0, label);
-    grid.setHTML(i, 1, value);
+    grid.setHTML(i + 1, 0, value);
   }
 
 }

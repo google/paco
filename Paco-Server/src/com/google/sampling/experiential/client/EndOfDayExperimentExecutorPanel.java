@@ -22,11 +22,11 @@ package com.google.sampling.experiential.client;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -38,6 +38,7 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * A composite container for rendering an end of day experiment referring to an esm experiment.
@@ -47,6 +48,8 @@ import com.google.sampling.experiential.shared.MapServiceAsync;
  *
  */
 public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorPanel {
+  private static final int TIMEOUT_HOURS = 36;
+
   private final class EventComparator implements Comparator<EventDAO> {
     @Override
     public int compare(EventDAO o1, EventDAO o2) {
@@ -58,6 +61,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   ExperimentDAO referredExperiment;
   private Map<Date, EventDAO> eodEventList;
   private boolean anythingNeedingResponse;
+  private List<EndOfDayInputGroupPanel> endOfDayPanelsList;
   
   public EndOfDayExperimentExecutorPanel(ExperimentListener experimentListener, 
                                          MapServiceAsync mapService, 
@@ -65,6 +69,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
                                          List<EventDAO> dailyEventList, 
                                          Map<Date, EventDAO> eventList, ExperimentDAO referredExperiment) {
     super(experimentListener, experiment, mapService);
+    this.endOfDayPanelsList = Lists.newArrayList();
     this.dailyEventList = dailyEventList;    
     this.eodEventList = eventList;
     Collections.sort(this.dailyEventList, new EventComparator());    
@@ -119,15 +124,15 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
     Date lastDateShown = null;
     DisclosurePanel currentDateDisclosurePanel = null;
     VerticalPanel itemPanel = null;
-
-    for (EventDAO eventDAO : this.dailyEventList) {
-      if (eventDAO.isJoinEvent() || eventDAO.isMissedSignal() || alreadyHasResponse(eventDAO)) {
+    int eventCount = 1;
+    for (EventDAO dailyEvent : this.dailyEventList) {
+      if (dailyEvent.isJoinEvent() || dailyEvent.isMissedSignal()) {
         continue;
       }
       anythingNeedingResponse = true;
       if (first) {
         first = false;
-        lastDateShown = eventDAO.getIdFromTimes();
+        lastDateShown = dailyEvent.getIdFromTimes();
       } else {
         if (itemPanel != null) {
           itemPanel.add(new HTML("<hr/>"));
@@ -136,22 +141,23 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         }
       }
       
-      if (isToday(eventDAO)) { 
+      if (isToday(dailyEvent)) { 
         if (!showingToday) {
           showingToday = true;
           mainPanel.add(new HTML("<h1>" + myConstants.todaysResponses() + "</h1>"));
         }
-      } else if (!isToday(eventDAO) && showingToday) {
+      } else if (!isToday(dailyEvent) && showingToday) {
         showingToday = false;
           mainPanel.add(new HTML("<h2>" + myConstants.previousDaysResponses() + "</h2>"));
       }
       
       
-      if (eventDAO.getIdFromTimes().getDate() != lastDateShown.getDate()) {
-        Button button = new Button("<h3>" + myMessages.datedResponses(eventDAO.getIdFromTimes()) + " </h3>");
+      if (dailyEvent.getIdFromTimes().getDate() != lastDateShown.getDate()) {
+        Button button = new Button("<h3>" + myMessages.datedResponses(dailyEvent.getIdFromTimes()) + " </h3>");
         currentDateDisclosurePanel = new DisclosurePanel(button);
         itemPanel = new VerticalPanel();
         currentDateDisclosurePanel.add(itemPanel);
+        currentDateDisclosurePanel.setOpen(true);
         mainPanel.add(currentDateDisclosurePanel);
       }
       
@@ -160,9 +166,12 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         itemPanel = new VerticalPanel();
         mainPanel.add(itemPanel);
       }
-      itemPanel.add(renderEventPanel(eventDAO));
-      renderInputsPanelForEvent(itemPanel, this.experiment, eventDAO);
-      lastDateShown = eventDAO.getIdFromTimes();
+      Label eventCounter = new Label(Integer.toString(eventCount++));
+      eventCounter.setStyleName("paco-HTML-Large");
+      itemPanel.add(eventCounter);
+      itemPanel.add(renderEventPanel(dailyEvent));
+      renderInputsPanelForEvent(itemPanel, this.experiment, dailyEvent);
+      lastDateShown = dailyEvent.getIdFromTimes();
     }
 
   }
@@ -170,45 +179,87 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   
 
   public boolean alreadyHasResponse(EventDAO eventDAO) {
-//    return false;
     Date responseTime = eventDAO.getIdFromTimes();
-    return eodEventList.get(responseTime) != null;
+    DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
+    String stringResponseTime = formatter.format(responseTime);
+    responseTime  =formatter.parse(stringResponseTime);
+    
+    EventDAO eodEvent = eodEventList.get(responseTime);
+    return eodEvent != null && !eodEvent.isEmptyResponse();
   }
 
 
   private boolean isToday(EventDAO eventDAO) {
-    Date now = new Date();
+    String tzStr = eventDAO.getTimezone();
+    Date now = createNow(tzStr);
     Date time = null;
     if (eventDAO.getScheduledTime() == null && eventDAO.getResponseTime() == null) {
       return false;
-    } else if (eventDAO.getScheduledTime() != null) {
-      time = eventDAO.getScheduledTime();
     } else {
-      time = eventDAO.getResponseTime();
+      time = eventDAO.getIdFromTimes();
     }
     return time.getYear() == now.getYear() &&
         time.getMonth() == now.getMonth() &&
         time.getDate() == now.getDate();
   }
 
+  private Date createNow(String tzStr) {
+    Date now = new Date();
+//    if (tzStr != null) {
+//      TimeZone tz = TimeZone.getTimeZone(tzStr); // getTimeZone returns gmt if there is translation for the string.
+//      now = Calendar.getInstance(tz).getTime();
+//    } else {
+//      now = Calendar.getInstance().getTime();
+//    }
+    return now;
+  }
+
 
   protected void addOutputsToEvent(EventDAO event) {
-    super.addOutputsToEvent(event);
-    Map<String, String> outputs = event.getWhat();
-    outputs.put("referred_experiment", Long.toString(referredExperiment.getId()));
+    Map<String, String> outputs = Maps.newHashMap();
+    for (EndOfDayInputGroupPanel eventInputsGroup : endOfDayPanelsList) {
+      Map<String, String> eventOutputs = eventInputsGroup.getOutputs();
+      if (eventOutputs.get(EndOfDayInputGroupPanel.UNANSWERED_EVENT_KEY) != null) {
+        continue;
+      } else {
+        outputs.putAll(eventOutputs);
+      }
+    }
+    outputs.put(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY, Long.toString(referredExperiment.getId()));
+    event.setWhat(outputs);
+    
   }
   
   private EventPanel renderEventPanel(EventDAO eventDAO) {
     return new EventPanel(this, eventDAO, referredExperiment.getInputs());
   }
 
-  private void renderInputsPanelForEvent(VerticalPanel itemPanel, ExperimentDAO experiment, EventDAO eventDAO) {
-    InputDAO[] inputs = experiment.getInputs();
-    for (int i = 0; i < inputs.length; i++) {
-      EndOfDayInputExecutorPanel inputsPanel = new EndOfDayInputExecutorPanel(inputs[i], eventDAO);
-      itemPanel.add(inputsPanel);
-      inputsPanelsList.add(inputsPanel);
+  private void renderInputsPanelForEvent(VerticalPanel itemPanel, ExperimentDAO dailyExperiment, EventDAO dailyEvent) {
+    if (alreadyHasResponse(dailyEvent)) {
+      itemPanel.add(new HTML("<b style=\"background-color:#ECF2FF;\">" + myConstants.alreadyResponded() + "</b>"));
+    } else if (isTimedOut(dailyEvent)) {
+      itemPanel.add(new HTML("<b style=\"background-color:#ECF2FF;\">" + myConstants.expired() + "</b>"));
+    } else {      
+      EndOfDayInputGroupPanel endOfDayPanel = new EndOfDayInputGroupPanel(dailyEvent);
+      itemPanel.add(endOfDayPanel);
+      
+      InputDAO[] inputs = dailyExperiment.getInputs();
+      for (int i = 0; i < inputs.length; i++) {        
+        EndOfDayInputExecutorPanel inputsPanel = new EndOfDayInputExecutorPanel(inputs[i], dailyEvent);
+        endOfDayPanel.add(inputsPanel);
+      }
+      endOfDayPanelsList.add(endOfDayPanel);
     }
+  }
+
+  private boolean isTimedOut(EventDAO eventDAO) {
+    boolean timedOut = false;
+    Date now = createNow(eventDAO.getTimezone());
+    Date eventTime = eventDAO.getIdFromTimes();
+    if (now.after(eventTime)) {
+      timedOut = now.getTime() - eventTime.getTime() >= 3600000 * TIMEOUT_HOURS; 
+    }
+    return timedOut;
   }
 
 }

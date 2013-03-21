@@ -2,6 +2,7 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -87,7 +88,7 @@ public class EventUploader {
     try {
       Log.i("" + this, "Preparing to post.");      
       Response response = um.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/events")).
-          setPostData(json).addHeader("http.useragent", "PacoDroid2").
+          setPostData(json, Charset.forName("UTF_8").name()).addHeader("http.useragent", "PacoDroid2").
           execute();
       
       responsePair.overallCode = response.getHttpCode();
