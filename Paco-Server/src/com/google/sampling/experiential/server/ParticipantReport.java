@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Event;
 
@@ -20,9 +23,11 @@ public class ParticipantReport {
   private int todaysScheduled;
   private int todaysSignaledResponses;
   private int signaledResponses;
+  private DateTimeZone timeZoneForClient;
 
-  public ParticipantReport(String who) {
+  public ParticipantReport(String who, DateTimeZone timeZoneForClient) {
     this.who = who;
+    this.timeZoneForClient = timeZoneForClient;
     this.events = Lists.newArrayList();    
   }
 
@@ -144,7 +149,7 @@ public class ParticipantReport {
     if (scheduledTime == null) {
       return false;
     }
-    Date date = Calendar.getInstance().getTime();
+    Date date = new DateTime().withZone(timeZoneForClient).toDate();
     return date.getDate() == scheduledTime.getDate() &&
            date.getMonth() == scheduledTime.getMonth() &&
            date.getYear() == scheduledTime.getYear();
