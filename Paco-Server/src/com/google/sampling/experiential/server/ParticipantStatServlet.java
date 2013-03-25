@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTimeZone;
+
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -46,13 +48,14 @@ public class ParticipantStatServlet extends HttpServlet {
         final boolean alpha = req.getParameter("alpha") != null;
         Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
+        DateTimeZone timeZoneForClient = EventServlet.getTimeZoneForClient(req);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),
-                                                                    EventServlet.getTimeZoneForClient(req), 0, 20000);
+                                                                    timeZoneForClient, 0, 20000);
         Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
         for (Event event : events) {
           ParticipantReport participantReport = participantReports.get(event.getWho());
           if (participantReport == null) {
-            participantReport = new ParticipantReport(event.getWho());
+            participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
             participantReports.put(event.getWho(), participantReport);
           }
           participantReport.addEvent(event);
