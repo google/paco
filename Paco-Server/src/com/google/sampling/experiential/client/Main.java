@@ -92,6 +92,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected MyConstants myConstants;
   protected MyMessages myMessages;
+  private ScrollPanel leftSidePanel;
 
 
   public void onModuleLoad() {
@@ -189,8 +190,8 @@ public class Main implements EntryPoint, ExperimentListener {
     mainPanel.add(horizontalPanel);
 
     experimentPanel = new VerticalPanel();
-    ScrollPanel scrollPanel = new ScrollPanel(experimentPanel);
-    horizontalPanel.add(scrollPanel);
+    leftSidePanel = new ScrollPanel(experimentPanel);
+    horizontalPanel.add(leftSidePanel);
     experimentPanel.setStyleName("paco-experimentPanel");
     experimentPanel.setSpacing(2);
     experimentPanel.setVisible(false);
@@ -205,7 +206,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel = new VerticalPanel();
     contentPanel.setSpacing(2);
     horizontalPanel.add(contentPanel);
-    contentPanel.setSize("550px", "325px");
+    //contentPanel.setSize("550px", "325px");
 
     loadJoinedExperiments();
     createCallbackForGviz();
@@ -546,12 +547,18 @@ public class Main implements EntryPoint, ExperimentListener {
         break;   
       case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
+        leftSidePanel.setVisible(true);
+        listTitle.setVisible(true);
         break;
       case ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE:
         contentPanel.clear();
-        break;     
+        leftSidePanel.setVisible(true);
+        listTitle.setVisible(true);
+        break;    
       case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
+        leftSidePanel.setVisible(false);
+        listTitle.setVisible(false);
         showExperimentExecutorPanel(experiment, joined);
         break;   
       case ExperimentListener.SHOW_QR_CODE:

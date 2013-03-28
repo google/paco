@@ -1,13 +1,10 @@
 package com.google.sampling.experiential.client;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -38,12 +35,10 @@ public class EventPanel extends Composite {
     this.event = eventDAO;
     this.inputs = inputDAOs;
     
-    mainPanel = new VerticalPanel();
-    mainPanel.setSpacing(2);
-    mainPanel.setBorderWidth(1);
+    mainPanel = new VerticalPanel();    
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    mainPanel.setStyleName("paco-offset-background");
     initWidget(mainPanel);
-    //mainPanel.setWidth("258px");
     
     renderEventTimes(eventDAO);
     renderResponseValues();
@@ -77,9 +72,11 @@ public class EventPanel extends Composite {
   }
 
   private void renderResponseValues() {
+    HorizontalPanel panel = new HorizontalPanel();
+    mainPanel.add(panel);
     Label responseLabel = new Label(myConstants.responses() + ": ");
     responseLabel.setStyleName("keyLabel");
-    mainPanel.add(responseLabel);
+    panel.add(responseLabel);
     
     Map<String, String> whatMap = event.getWhat();
     Set<String> keys = whatMap.keySet();

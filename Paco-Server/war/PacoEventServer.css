@@ -88,6 +88,13 @@ table, tbody, tr, td {
   font-weight: bold;
   color: #333333;  
 }
+.paco-HTML-Larger {
+  padding: 2px;
+  font-size: larger;
+  font-weight: bold;
+  color: #333333;  
+}
+
 .paco-Loading-Panel {
   padding: 2px;
   font-size: large;
@@ -137,5 +144,17 @@ table, tbody, tr, td {
 	font-family: Times;
 }
 
+.paco-offset-background {
+  background-color: #EFF2F8;
+  border:1px solid gray;
+}
+.paco-HTML-Large-offset-background {
+  padding: 2px;
+  font-size: large;
+  font-weight: bold;
+  color: #333333;  
+  background-color: #CAD4E6;
+  border:1px solid gray;
+}
 
 

@@ -59,7 +59,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
 
   protected void createExperimentHeader() {
     Label label = new Label(experiment.getTitle());
-    label.setStyleName("paco-HTML-Large");
+    label.setStyleName("paco-HTML-Larger");
     mainPanel.add(label);
   }
 
