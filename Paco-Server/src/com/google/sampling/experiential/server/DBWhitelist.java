@@ -2,47 +2,73 @@ package com.google.sampling.experiential.server;
 
 import java.util.List;
 
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.WhitelistedUser;
 
 public class DBWhitelist extends Whitelist {
+  
+  private static final String EMAIL_PROPERTY = "email";
+  private static final String WHITELISTED_USER_KIND = "whitelist";
 
-  
-  
+
   @Override
   public boolean allowed(String email) {
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Query q = pm.newQuery(WhitelistedUser.class);
-    q.setFilter("email == emailParam");
-    q.declareParameters("String emailParam");
-    
-    @SuppressWarnings("unchecked")
-    List<WhitelistedUser> users = (List<WhitelistedUser>) q.execute(email);
-    pm.close();
-    return users.size() == 1;      
+    return getUserByEmail(email) != null;
+  }
+
+  private String getUserByEmail(String email) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(WHITELISTED_USER_KIND);
+    query.addFilter(EMAIL_PROPERTY, FilterOperator.EQUAL, email);
+    PreparedQuery preparedQuery = ds.prepare(query);    
+    Entity user = preparedQuery.asSingleEntity();
+    return user != null ? (String)user.getProperty(EMAIL_PROPERTY) : null;
   }
   
   public void addUser(String email) {
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    pm.makePersistent(new WhitelistedUser(email));
-    pm.close();
+    email = email.toLowerCase();
+    if (getUserByEmail(email) == null) {
+      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+      Entity entity = new Entity(WHITELISTED_USER_KIND);
+      entity.setProperty(EMAIL_PROPERTY, email);
+      ds.put(entity);
+    }
   }
   
-  public List<String> getUsers() {
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Query q = pm.newQuery(WhitelistedUser.class);
-    
-    @SuppressWarnings("unchecked")
-    List<String> usersStrings = Lists.newArrayList();
-    List<WhitelistedUser> users = (List<WhitelistedUser>) q.execute();
-    for (WhitelistedUser whitelistedUser : users) {
-      usersStrings.add(whitelistedUser.getEmail());
+  public void addAllUsers(List<String> emailAddresses) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    List<String> existingUsers = getUsers();
+    List<Entity> newUsers = Lists.newArrayList();
+    for (String email : emailAddresses) {
+      if (existingUsers.contains(email)) {
+        continue;
+      } else {
+        Entity user = new Entity(WHITELISTED_USER_KIND);
+        user.setProperty(EMAIL_PROPERTY, email);
+        newUsers.add(user);
+      }
     }
-    pm.close();
-    return usersStrings;
+    ds.put(newUsers);
+  }
+
+  
+  public List<String> getUsers() {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();    
+    Query q = new Query(WHITELISTED_USER_KIND);
+    PreparedQuery preparedQuery = ds.prepare(q);
+    
+    List<String> users = Lists.newArrayList();
+    QueryResultIterator<Entity> iterator = preparedQuery.asQueryResultIterator();
+    while (iterator.hasNext()) {
+      users.add((String) iterator.next().getProperty(EMAIL_PROPERTY));
+    }
+    return users;
   }
   
   

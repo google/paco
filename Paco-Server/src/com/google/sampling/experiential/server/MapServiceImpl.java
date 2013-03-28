@@ -202,21 +202,17 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
       if (!(experiment.getCreator().equals(loggedInUser) || 
-        experiment.getAdmins().contains(loggedInUserEmail))) {
+            experiment.getAdmins().contains(loggedInUserEmail))) {
         // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
         // experiment;
         return;
       }
-      Integer existingExperimentVersion = experiment.getVersion();
-      if (existingExperimentVersion != null && existingExperimentVersion > experimentDAO.getVersion()) {
-        throw new IllegalStateException("Experiment has already been edited!");
-      } else {
-        experiment.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
-      }
+      incrementExperimentVersionNumber(experimentDAO, experiment);
 
       JDOHelper.makeDirty(experiment, "inputs");
       JDOHelper.makeDirty(experiment, "feedback");
       JDOHelper.makeDirty(experiment, "schedule");
+      
     }
     DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
     
@@ -225,11 +221,13 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     try {
       tx = pm.currentTransaction();
       tx.begin();    
-      pm.makePersistent(experiment);
-      
+      pm.makePersistent(experiment);      
       tx.commit();
       committed  = true;
       ExperimentCacheHelper.getInstance().clearCache();
+      ArrayList<String> publishedUsers = experiment.getPublishedUsers();
+      publishedUsers.addAll(experiment.getAdmins());
+      new DBWhitelist().addAllUsers(publishedUsers);
     } finally {
       if (tx.isActive()) {
         tx.rollback();
@@ -238,6 +236,15 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     if (committed) {
       ExperimentEntity.saveExperimentAsEntity(experiment);
+    }
+  }
+
+  private void incrementExperimentVersionNumber(ExperimentDAO experimentDAO, Experiment experiment) {
+    Integer existingExperimentVersion = experiment.getVersion();
+    if (existingExperimentVersion != null && existingExperimentVersion > experimentDAO.getVersion()) {
+      throw new IllegalStateException("Experiment has already been edited!");
+    } else {
+      experiment.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
     }
   }
 

@@ -8,4 +8,7 @@ public interface WhitelistServiceAsync {
     public void getWhitelist(AsyncCallback<List<String>> async);
 
     void addUser(String email, AsyncCallback<Void> callback);
+
+    public void convertUsers(AsyncCallback<Void> asyncCallback);
+
 }

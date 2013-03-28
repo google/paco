@@ -36,6 +36,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class WhitelistFilter implements Filter {
 
   private Whitelist whitelist;
+  private DBWhitelist dbWhitelist;
   private static final Logger log = Logger.getLogger(WhitelistFilter.class.getName());
 
   @Override
@@ -46,18 +47,23 @@ public class WhitelistFilter implements Filter {
   public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
       ServletException {
     User user = UserServiceFactory.getUserService().getCurrentUser();
+    String email = user.getEmail().toLowerCase();
     if (!isDevServer((HttpServletRequest) arg0) && (user == null)) {
-      log.info("Error logging in from: " + arg0.getRemoteAddr() +" user: " + (user != null ? user.getEmail() : "not logged in"));
+      log.info("Error logging in from: " + arg0.getRemoteAddr() +" user: " + (user != null ? email : "not logged in"));
       
       HttpServletResponse resp = (HttpServletResponse)arg1;
       String loginUrl = UserServiceFactory.getUserService().createLoginURL(((HttpServletRequest)arg0).getRequestURL().toString(), "google.com");
       resp.sendRedirect(loginUrl);
-    } else if (!whitelist.allowed(user.getEmail())) {
+    } else if (!allowed(email)) {
       ((HttpServletResponse)arg1).sendError(HttpStatus.SC_FORBIDDEN);
     } else {
-      log.info("Allowing user: " + user.getEmail());
+      log.info("Allowing user: " + email);
       arg2.doFilter(arg0, arg1);
     }
+  }
+
+  private boolean allowed(String email) {
+    return dbWhitelist.allowed(email) || whitelist.allowed(email);
   }
 
   private boolean isDevServer(HttpServletRequest arg0) {
@@ -66,7 +72,9 @@ public class WhitelistFilter implements Filter {
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
+    // TODO whitelist is transitional. Remove once converted to dbwhitelist.
     whitelist = new Whitelist();
+    dbWhitelist = new DBWhitelist();
   }
 
 }
