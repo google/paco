@@ -37,8 +37,16 @@ public class WhitelistServiceImpl extends RemoteServiceServlet implements
   @Override
   public void addUser(String email) {
     DBWhitelist wl = new DBWhitelist();
-    wl.addUser(email);
+    wl.addUser(email.toLowerCase());
   }
 
+  @Override
+  public void convertUsers() {
+    Whitelist wl = new Whitelist();
+    DBWhitelist dbWl = new DBWhitelist();
+    dbWl.addAllUsers(wl.getUsers());
+    
+  }
+  
 
 }
