@@ -10,7 +10,7 @@ public interface MyMessages extends Messages {
   @DefaultMessage("Could not save your responses. Please try again.\n{0}")
   String saveFailed(String message);
   
-  @DefaultMessage("{0,date,full} RESPONSES")
+  @DefaultMessage("{0,date,full} Responses (click to open)")
   String datedResponses(Date timestamp);
   
   @DefaultMessage("Hello, {0}")

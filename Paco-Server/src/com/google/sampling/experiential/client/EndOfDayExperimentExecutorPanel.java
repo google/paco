@@ -144,20 +144,20 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
       if (isToday(dailyEvent)) { 
         if (!showingToday) {
           showingToday = true;
-          mainPanel.add(new HTML("<h1>" + myConstants.todaysResponses() + "</h1>"));
+          mainPanel.add(new HTML("<h2>" + myConstants.todaysResponses() + "</h2>"));
         }
       } else if (!isToday(dailyEvent) && showingToday) {
         showingToday = false;
-          mainPanel.add(new HTML("<h2>" + myConstants.previousDaysResponses() + "</h2>"));
+          mainPanel.add(new HTML("<h3>" + myConstants.previousDaysResponses() + "</h3><hr/>"));
       }
       
       
       if (dailyEvent.getIdFromTimes().getDate() != lastDateShown.getDate()) {
-        Button button = new Button("<h3>" + myMessages.datedResponses(dailyEvent.getIdFromTimes()) + " </h3>");
+        Button button = new Button("<b>" + myMessages.datedResponses(dailyEvent.getIdFromTimes()) + " </b>");
         currentDateDisclosurePanel = new DisclosurePanel(button);
         itemPanel = new VerticalPanel();
         currentDateDisclosurePanel.add(itemPanel);
-        currentDateDisclosurePanel.setOpen(true);
+        currentDateDisclosurePanel.setOpen(false);
         mainPanel.add(currentDateDisclosurePanel);
       }
       
@@ -167,7 +167,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
         mainPanel.add(itemPanel);
       }
       Label eventCounter = new Label(Integer.toString(eventCount++));
-      eventCounter.setStyleName("paco-HTML-Large");
+      eventCounter.setStyleName("paco-HTML-Large-offset-background");
       itemPanel.add(eventCounter);
       itemPanel.add(renderEventPanel(dailyEvent));
       renderInputsPanelForEvent(itemPanel, this.experiment, dailyEvent);
