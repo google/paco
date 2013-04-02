@@ -147,7 +147,7 @@ public class Main implements EntryPoint, ExperimentListener {
     HTML index2Html  = new HTML(resources.indexHtml().getText());    
     
     signInLink.setHref(loginInfo.getLoginUrl());
-    signInLink.setStyleName("paco-HTML-Large");
+    signInLink.setStyleName("paco-Login");
     signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     
     loginPanel.add(signInLink);
@@ -547,18 +547,15 @@ public class Main implements EntryPoint, ExperimentListener {
         break;   
       case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
-        leftSidePanel.setVisible(true);
-        listTitle.setVisible(true);
+        toggleExperimentList(true);
         break;
       case ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE:
         contentPanel.clear();
-        leftSidePanel.setVisible(true);
-        listTitle.setVisible(true);
+        toggleExperimentList(true);
         break;    
       case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
-        leftSidePanel.setVisible(false);
-        listTitle.setVisible(false);
+        toggleExperimentList(false);
         showExperimentExecutorPanel(experiment, joined);
         break;   
       case ExperimentListener.SHOW_QR_CODE:
@@ -577,6 +574,11 @@ public class Main implements EntryPoint, ExperimentListener {
         break;   
 
     }
+  }
+
+  private void toggleExperimentList(boolean enable) {
+    leftSidePanel.setVisible(enable);
+    listTitle.setVisible(enable);
   }
 
   class ExperimentReferenceDialog extends DialogBox {

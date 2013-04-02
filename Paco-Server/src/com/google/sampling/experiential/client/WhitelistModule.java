@@ -123,16 +123,6 @@ public class WhitelistModule implements EntryPoint {
     listTitle.setSize("270px", "22");
 
     mainPanel.setCellHorizontalAlignment(listTitle, HasHorizontalAlignment.ALIGN_CENTER);
-    Button button = new Button("Convert existing users to db");
-    mainPanel.add(button);
-    button.addClickHandler(new ClickHandler() {
-
-      @Override
-      public void onClick(ClickEvent event) {
-        convertExistingUsersToDb();        
-      }
-    
-    });
     
     HorizontalPanel addUserPanel = createAddUserPanel();
     mainPanel.add(addUserPanel);
@@ -183,23 +173,6 @@ public class WhitelistModule implements EntryPoint {
     return addUserPanel;
   }
 
-  protected void convertExistingUsersToDb() {
-    WhitelistServiceAsync wls = GWT.create(WhitelistService.class);
-    wls.convertUsers(new AsyncCallback<Void>() {
-
-      @Override
-      public void onFailure(Throwable caught) {
-        Window.alert("Could not convert whitelist: " + caught.getMessage());        
-       }
-
-       @Override
-       public void onSuccess(Void result) {
-         Window.alert(myConstants.success());
-       }
-      
-    });
-  }
-  
   protected void addUsersToDb(String email) {
     WhitelistServiceAsync wls = GWT.create(WhitelistService.class);
     wls.addUser(email, new AsyncCallback<Void>() {

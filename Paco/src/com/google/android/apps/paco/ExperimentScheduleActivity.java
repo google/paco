@@ -227,7 +227,7 @@ public class ExperimentScheduleActivity extends Activity {
   private void showDailyScheduleConfiguration() {
   	setContentView(R.layout.daily_schedule);
   	if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-  	  createRepeatRate("Days");
+  	  createRepeatRate(getString(R.string.days));
     } else {
       hideRepeatRate();
     }
@@ -241,7 +241,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void showWeeklyScheduleConfiguration() {
     setContentView(R.layout.weekly_schedule);
-    createRepeatRate("Weeks");
+    createRepeatRate(getString(R.string.weeks));
     
     createDaysOfWeekPicker();
     createTimesList();    
@@ -249,7 +249,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void showMonthlyScheduleConfiguration() {
     setContentView(R.layout.monthly_schedule);
-    createRepeatRate("Months");
+    createRepeatRate(getString(R.string.months));
     
     createDayOfMonth();
     

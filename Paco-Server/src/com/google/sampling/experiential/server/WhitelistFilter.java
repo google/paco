@@ -35,7 +35,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 public class WhitelistFilter implements Filter {
 
-  private Whitelist whitelist;
   private DBWhitelist dbWhitelist;
   private static final Logger log = Logger.getLogger(WhitelistFilter.class.getName());
 
@@ -63,7 +62,7 @@ public class WhitelistFilter implements Filter {
   }
 
   private boolean allowed(String email) {
-    return dbWhitelist.allowed(email) || whitelist.allowed(email);
+    return dbWhitelist.allowed(email);
   }
 
   private boolean isDevServer(HttpServletRequest arg0) {
@@ -72,8 +71,6 @@ public class WhitelistFilter implements Filter {
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
-    // TODO whitelist is transitional. Remove once converted to dbwhitelist.
-    whitelist = new Whitelist();
     dbWhitelist = new DBWhitelist();
   }
 

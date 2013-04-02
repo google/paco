@@ -4,43 +4,44 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.google.sampling.experiential.server.DBWhitelist;
 import com.google.sampling.experiential.server.Whitelist;
 
 public class WhitelistTest {
 
   @Test
   public void testBlank() {
-    assertFalse(new Whitelist().allowed(null));
+    assertFalse(new DBWhitelist().allowed(null));
   }
   
   @Test
   public void testEmpty() {
-    assertFalse(new Whitelist().allowed(""));
+    assertFalse(new DBWhitelist().allowed(""));
   }
 
   @Test
   public void testNameNoDomain() {
-    assertFalse(new Whitelist().allowed("bob@"));
+    assertFalse(new DBWhitelist().allowed("bob@"));
   }
   
   @Test
   public void testGooglerDomain() {
-    assertFalse(new Whitelist().allowed("google.com"));
+    assertFalse(new DBWhitelist().allowed("google.com"));
   }
 
   @Test
   public void testGoogler() {
-    assert(new Whitelist().allowed("bob@google.com"));
+    assert(new DBWhitelist().allowed("bob@google.com"));
   }
   
   @Test
   public void testGooglerFakeDouble() {
-    assertFalse(new Whitelist().allowed("bob@evil.com@google.com"));
+    assertFalse(new DBWhitelist().allowed("bob@fake.com@google.com"));
   }
 
   @Test
   public void testGooglerFakeBlank() {    
-    assertFalse(new Whitelist().allowed("@google.com"));
+    assertFalse(new DBWhitelist().allowed("@google.com"));
   }
 
 

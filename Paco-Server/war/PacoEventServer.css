@@ -158,3 +158,13 @@ table, tbody, tr, td {
 }
 
 
+.paco-Login {
+  padding: 2px;
+  font-size: 45px;
+  font-weight: bold;
+  color: #333333;    
+}
+
+a.paco-Login a.paco-Login:visited, a.paco-Login:hover {
+	color: #333333;
+}

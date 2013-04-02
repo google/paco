@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.jdo.annotations.Extension;
@@ -36,6 +37,7 @@ import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -147,6 +149,40 @@ public class Event {
       this.blobs = blobs;
     }
     this.timeZone = timezone;
+  }
+
+  /**
+   * Only difference from the other constructor is the newWhat format as a Map instead of a string
+   * 
+   * @param who2
+   * @param lat2
+   * @param lon2
+   * @param when2
+   * @param appId2
+   * @param pacoVersion2
+   * @param newWhat
+   * @param shared2
+   * @param experimentId2
+   * @param experimentName2
+   * @param experimentVersion2
+   * @param responseTime2
+   * @param scheduledTime2
+   * @param blobs2
+   * @param timeZone2
+   */
+  public Event(String who2, String lat2, String lon2, Date when2, String appId2, String pacoVersion2,
+               Map<String, String> newWhat, boolean shared2, String experimentId2, String experimentName2,
+               Integer experimentVersion2, Date responseTime2, Date scheduledTime2, List<PhotoBlob> blobs2,
+               String timeZone2) {
+    this(who2, lat2, lon2, when2, appId2, pacoVersion2, convertWhatMap(newWhat), shared2, experimentId2, experimentName2, experimentVersion2, responseTime2, scheduledTime2, blobs2, timeZone2);
+  }
+
+  private static Set<What> convertWhatMap(Map<String, String> newWhat) {
+    Set<What> whats = Sets.newHashSet();
+    for (Entry<String, String>  what : newWhat.entrySet()) {
+      whats.add(new What(what.getKey(), what.getValue()));
+    }
+    return whats;
   }
 
   private void setWhatMap(Set<What> whats) {

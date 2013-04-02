@@ -32,7 +32,6 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
-import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeConstants;
 
@@ -47,7 +46,6 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.sampling.experiential.datastore.ExperimentEntity;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -65,7 +63,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   public List<EventDAO> map() {
     List<Event> result = EventRetriever.getInstance().getEvents(getWho());
-    return convertEventsToDAOs(result);
+    return EventRetriever.convertEventsToDAOs(result);
   }
 
   private String getWho() {
@@ -79,30 +77,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     return null;
   }
   
-  private List<EventDAO> convertEventsToDAOs(List<Event> result) {
-    List<EventDAO> eventDAOs = Lists.newArrayList();
-
-    for (Event event : result) {
-      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
-          event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
-          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
-    }
-    return eventDAOs;
-  }
-
-  /**
-   * @param blobs
-   * @return
-   */
-  private String[] toBase64StringArray(List<PhotoBlob> blobs) {
-    String[] results = new String[blobs.size()];
-    for (int i =0; i < blobs.size(); i++) {
-      results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
-    }
-    return results;
-  }
-
   public List<EventDAO> mapWithTags(String tags) {
     return getEventsForQuery(tags);
   }
@@ -111,7 +85,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse(tags);
     List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(), 
         EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
-    return convertEventsToDAOs(result);
+    return EventRetriever.convertEventsToDAOs(result);
   }
 
   public void saveEvent(String who, 
@@ -563,7 +537,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   @Override
   public Map<Date, EventDAO> getEndOfDayEvents(String queryText) {
     List<EventDAO> events = mapWithTags(queryText);    
-    Map<Date, EventDAO> eventsByDateMap = new EndOfDayEventProcessor().breakEventsIntoDailyPingResponses(events);
+    Map<Date, EventDAO> eventsByDateMap = new EndOfDayEventProcessor().breakEventDAOsIntoDailyPingResponses(events);
     return eventsByDateMap;
   }
 }
