@@ -257,6 +257,8 @@
    <string name="refresh_experiments">Refresh Experiments</string>
    <string name="repeat_every_">"Repeat Every "</string>
    <string name="days">Days</string>
+   <string name="months">Months</string>
+   <string name="weeks">Weeks</string>
    <string name="days_of_week">Days of Week</string>
    <string name="this_experiment_is_self_reporting_only">This experiment is self-reporting only.</string>
    <string name="there_is_no_schedule_to_configure">There is no schedule to configure</string>

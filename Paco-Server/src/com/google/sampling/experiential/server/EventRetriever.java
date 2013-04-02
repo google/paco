@@ -17,17 +17,21 @@
 package com.google.sampling.experiential.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
+import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -39,6 +43,8 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -96,6 +102,7 @@ public class EventRetriever {
       q.declareParameters("String whoParam");
       long t11 = System.currentTimeMillis();
       List<Event> events = (List<Event>) q.execute(loggedInUser);
+      adjustTimeZone(events);
       long t12 = System.currentTimeMillis();
       log.info("get execute time: " + (t12 - t11));
       return events;
@@ -194,16 +201,42 @@ public class EventRetriever {
     log.info("Query = " + query.toString());
     log.info("Query params = " + Joiner.on(",").join(eventJDOQuery.getParameters()));      
     allEvents.addAll((List<Event>) query.executeWithArray(eventJDOQuery.getParameters().toArray()));
+    adjustTimeZone(allEvents);
   }
+
+  private void adjustTimeZone(Collection<Event> allEvents) {
+    for (Event event : allEvents) {
+      String tz = event.getTimeZone();      
+      event.setResponseTime(adjustTimeToTimezoneIfNecesssary(tz, event.getResponseTime()));
+      event.setScheduledTime(adjustTimeToTimezoneIfNecesssary(tz, event.getScheduledTime()));
+    }    
+  }
+  
+  public static Date adjustTimeToTimezoneIfNecesssary(String tz, Date responseTime) {
+    if (responseTime == null) {
+      return null;
+    }
+    DateTimeZone timezone = null;
+    if (tz != null) {
+      timezone = DateTimeZone.forID(tz);
+    }
+  
+    if (timezone != null && responseTime.getTimezoneOffset() != timezone.getOffset(responseTime.getTime())) {
+      responseTime = new DateTime(responseTime).withZone(timezone).toDate();
+    }
+    return responseTime;
+  }
+
+
 
   private void addAllSharedEvents(List<com.google.sampling.experiential.server.Query> queryFilters,
       DateTimeZone clientTimeZone, Set<Event> allEvents, PersistenceManager pm) {
     EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone, 0, 0);
     sharedQ.addFilters("shared == true");
     Query queryShared = sharedQ.getQuery(); 
-    List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(
-        sharedQ.getParameters().toArray());
+    List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(sharedQ.getParameters().toArray());
     allEvents.addAll(sharedEvents);
+    adjustTimeZone(allEvents);
   }
 
   private boolean isAnAdministrator(List<Experiment> adminExperiments) {
@@ -312,6 +345,30 @@ public class EventRetriever {
               responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString() 
                                                                      : scheduledTime!= null && scheduledTime.getZone() != null ? 
                                                                                                                                  scheduledTime.getZone().toString() : null);
+  }
+
+  public static List<EventDAO> convertEventsToDAOs(List<Event> result) {
+    List<EventDAO> eventDAOs = Lists.newArrayList();
+  
+    for (Event event : result) {
+      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
+          event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
+          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
+    }
+    return eventDAOs;
+  }
+
+  /**
+   * @param blobs
+   * @return
+   */
+  public static String[] toBase64StringArray(List<PhotoBlob> blobs) {
+    String[] results = new String[blobs.size()];
+    for (int i =0; i < blobs.size(); i++) {
+      results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
+    }
+    return results;
   }
   
 }

@@ -12,6 +12,4 @@ public interface WhitelistService extends RemoteService  {
   
   void addUser(String email);
 
-  void convertUsers();
-
 }

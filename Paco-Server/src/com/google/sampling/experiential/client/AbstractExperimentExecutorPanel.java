@@ -134,7 +134,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     event.setExperimentName(experiment.getTitle());
     event.setExperimentId(experiment.getId());
     event.setExperimentVersion(experiment.getVersion());
-    event.setTimezone(DateTimeFormat.getFormat("Z").format(new Date()));//TimeZone.getDefault().getID());
+    event.setTimezone(DateTimeFormat.getFormat("ZZZ").format(new Date()));//TimeZone.getDefault().getID());
     return event;
   }
 

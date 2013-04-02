@@ -293,7 +293,7 @@ public class ExperimentRow extends Composite {
   }
 
   protected void showStats() {
-    fireExperimentCode(ExperimentListener.STATS_CODE);
+    fireExperimentCode(ExperimentListener.INDIVIDUAL_STATS_CODE);
   }
 
   private void fireExperimentCode(int code) {

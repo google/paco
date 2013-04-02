@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -58,12 +60,15 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.model.PhotoBlob;
+import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -203,22 +208,60 @@ public class EventServlet extends HttpServlet {
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin;
     }
+    
+    String experimentId = null;
+    for (Query query2 : query) {
+      if (query2.getKey().equals("experimentId")) {
+        experimentId = query2.getValue();
+      }
+    }
+    TimeLogger.logTimestamp("T1: PreEventRetrieval");
     List<Event> events = EventRetriever.getInstance().getEvents(query, loggedInuser, getTimeZoneForClient(req), 0, 20000);
-    sortEvents(events);
+    
+    TimeLogger.logTimestamp("T2: PostEventRetrieval");
+    if (!Strings.isNullOrEmpty(experimentId)) {
+      Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
+      if (referredExperiment != null) {
+        TimeLogger.logTimestamp("T5: PreEventsBreakup");
+        List<EventDAO> eventDAOs = Lists.newArrayList();
+        Map<Date, EventDAO> eodEventsMap = new EndOfDayEventProcessor().breakEventsIntoDailyPingResponses(events);
+        TimeLogger.logTimestamp("T5: PostEventsBreakup");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+        for (Entry<Date, EventDAO> entry : eodEventsMap.entrySet()) {
+          Date key = entry.getKey();
+          EventDAO value = entry.getValue();
+          Map<String, String> what = value.getWhat();
+          what.put("daily_event", simpleDateFormat.format(key));
+          value.setWhat(what);
+          eventDAOs.add(value);
+        }
+        writeEndOfDayExperimentEventsAsCSV(resp, anon, eventDAOs);
+        return;
+      }
+    }
+    writeNormalExperimentEventsAsCSV(resp, anon, events);    
+  }
+  
+  private void writeEndOfDayExperimentEventsAsCSV(HttpServletResponse resp, boolean anon, 
+                                                  List<EventDAO> events) throws IOException {
+    TimeLogger.logTimestamp("T6:");
+    sortEventDAOs(events);
+    TimeLogger.logTimestamp("T7:");
 
     List<String[]> eventsCSV = Lists.newArrayList();
 
     Set<String> foundColumnNames = Sets.newHashSet();
-    for (Event event : events) {
-      Map<String, String> whatMap = event.getWhatMap();
+    for (EventDAO event : events) {
+      Map<String, String> whatMap = event.getWhat();
       foundColumnNames.addAll(whatMap.keySet());
     }
     List<String> columns = Lists.newArrayList();
     columns.addAll(foundColumnNames);
     Collections.sort(columns);
-    for (Event event : events) {
-      eventsCSV.add(event.toCSV(columns, anon));
+    for (EventDAO event : events) {
+      eventsCSV.add(toCSV(event, columns, anon));
     }
+    TimeLogger.logTimestamp("T8:");
     // add back in the standard pacot event columns
     columns.add(0, "who");
     columns.add(1, "when");
@@ -246,6 +289,87 @@ public class EventServlet extends HttpServlet {
         csvWriter.close();
       }
     }
+    TimeLogger.logTimestamp("T9:");
+  }
+
+  private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon) {
+      java.text.SimpleDateFormat simpleDateFormat =
+        new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+      
+      int csvIndex = 0;
+      String[] parts = new String[10 + columnNames.size()];
+      if (anon) {
+        parts[csvIndex++] = Event.getAnonymousId(event.getWho() + Event.SALT);
+      } else {
+        parts[csvIndex++] = event.getWho();
+      }
+      parts[csvIndex++] = simpleDateFormat.format(event.getWhen());
+      parts[csvIndex++] = event.getAppId();
+      parts[csvIndex++] = event.getPacoVersion();
+      parts[csvIndex++] = event.getExperimentId() != null ? Long.toString(event.getExperimentId()) : null;
+      parts[csvIndex++] = event.getExperimentName();
+      parts[csvIndex++] = event.getExperimentVersion() != null ? Integer.toString(event.getExperimentVersion()) : "0";
+      parts[csvIndex++] = event.getResponseTime() != null ? simpleDateFormat.format(event.getResponseTime()) : null;
+      parts[csvIndex++] = event.getScheduledTime() != null ? simpleDateFormat.format(event.getScheduledTime()) : null;
+      parts[csvIndex++] = event.getTimezone();
+      
+      Map<String, String> whatMap = event.getWhat();
+      for (String key : columnNames) {
+        String value = whatMap.get(key);
+        parts[csvIndex++] = value;
+      }
+      return parts;
+
+  }
+
+  private void writeNormalExperimentEventsAsCSV(HttpServletResponse resp, boolean anon, List<Event> events)
+                                                                                                           throws IOException {
+    TimeLogger.logTimestamp("T6:");
+    sortEvents(events);
+    TimeLogger.logTimestamp("T7:");
+
+    List<String[]> eventsCSV = Lists.newArrayList();
+
+    Set<String> foundColumnNames = Sets.newHashSet();
+    for (Event event : events) {
+      Map<String, String> whatMap = event.getWhatMap();
+      foundColumnNames.addAll(whatMap.keySet());
+    }
+    List<String> columns = Lists.newArrayList();
+    columns.addAll(foundColumnNames);
+    Collections.sort(columns);
+    for (Event event : events) {
+      eventsCSV.add(event.toCSV(columns, anon));
+    }
+    TimeLogger.logTimestamp("T8:");
+    // add back in the standard pacot event columns
+    columns.add(0, "who");
+    columns.add(1, "when");
+    columns.add(2, "appId");
+    columns.add(3, "pacoVersion");
+    columns.add(4, "experimentId");
+    columns.add(5, "experimentName");
+    columns.add(6, "experimentVersion");
+    columns.add(7, "responseTime");
+    columns.add(8, "scheduledTime");
+    columns.add(9, "timeZone");
+
+    resp.setContentType("text/csv;charset=UTF-8");
+    CSVWriter csvWriter = null;
+    try {
+      csvWriter = new CSVWriter(resp.getWriter());
+      String[] columnsArray = columns.toArray(new String[0]);
+      csvWriter.writeNext(columnsArray);
+      for (String[] eventCSV : eventsCSV) {
+        csvWriter.writeNext(eventCSV);
+      }
+      csvWriter.flush();
+    } finally {
+      if (csvWriter != null) {
+        csvWriter.close();
+      }
+    }
+    TimeLogger.logTimestamp("T9:");
   }
 
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {    
@@ -408,6 +532,25 @@ public class EventServlet extends HttpServlet {
     Comparator<Event> dateComparator = new Comparator<Event>() {
       @Override
       public int compare(Event o1, Event o2) {
+        Date when1 = o1.getWhen();
+        Date when2 = o2.getWhen();
+        if (when1 == null || when2 == null) {
+          return 0;
+        } else if (when1.after(when2)) {
+          return -1;
+        } else if (when2.after(when1)) {
+          return 1;
+        }
+        return 0;
+      }
+    };
+    Collections.sort(greetings, dateComparator);
+  }
+  
+  private void sortEventDAOs(List<EventDAO> greetings) {
+    Comparator<EventDAO> dateComparator = new Comparator<EventDAO>() {
+      @Override
+      public int compare(EventDAO o1, EventDAO o2) {
         Date when1 = o1.getWhen();
         Date when2 = o2.getWhen();
         if (when1 == null || when2 == null) {

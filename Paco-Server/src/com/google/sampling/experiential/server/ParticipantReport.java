@@ -1,6 +1,5 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -134,22 +133,30 @@ public class ParticipantReport {
       }
       Date scheduledTime = event.getScheduledTime();
       Date responseTime = event.getResponseTime();
-      if ((scheduledTime != null && isToday(scheduledTime))) {
+      String tz = event.getTimeZone();
+      if ((scheduledTime != null && isToday(scheduledTime, tz))) {
         todaysScheduled++;
         if (responseTime != null) {
           todaysSignaledResponses++;
         }
-      } else if (responseTime != null && isToday(responseTime)) {
+      } else if (responseTime != null && isToday(responseTime, tz)) {
         todaysSelfReportResponses++;
       }          
     }
   }
 
-  private boolean isToday(Date scheduledTime) {
+  boolean isToday(Date scheduledTime, String tz) {
     if (scheduledTime == null) {
       return false;
     }
-    Date date = new DateTime().withZone(timeZoneForClient).toDate();
+    DateTimeZone tzToUse = null;
+    if (tz != null) {
+      tzToUse = DateTimeZone.forID(tz);
+    } 
+    if (tzToUse == null) { // this is a legacy case and also a bad data case if a user creates a fake event with a bad timezone. 
+      tzToUse = timeZoneForClient;
+    }
+    Date date = new DateTime().withZone(tzToUse).toDate();
     return date.getDate() == scheduledTime.getDate() &&
            date.getMonth() == scheduledTime.getMonth() &&
            date.getYear() == scheduledTime.getYear();

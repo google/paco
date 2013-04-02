@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -19,7 +20,8 @@ public class DBWhitelist extends Whitelist {
 
   @Override
   public boolean allowed(String email) {
-    return getUserByEmail(email) != null;
+    email = email.toLowerCase();
+    return isGoogler(email) || getUserByEmail(email) != null;
   }
 
   private String getUserByEmail(String email) {
@@ -27,7 +29,11 @@ public class DBWhitelist extends Whitelist {
     Query query = new Query(WHITELISTED_USER_KIND);
     query.addFilter(EMAIL_PROPERTY, FilterOperator.EQUAL, email);
     PreparedQuery preparedQuery = ds.prepare(query);    
-    Entity user = preparedQuery.asSingleEntity();
+    Iterator<Entity> iterator = preparedQuery.asIterator();
+    Entity user = null;
+    if (iterator.hasNext()) {
+      user = iterator.next();
+    }
     return user != null ? (String)user.getProperty(EMAIL_PROPERTY) : null;
   }
   

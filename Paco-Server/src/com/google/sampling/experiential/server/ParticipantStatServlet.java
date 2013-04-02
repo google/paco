@@ -98,11 +98,11 @@ public class ParticipantStatServlet extends HttpServlet {
         writer.write("<table class=\"gridtable\">");
         writer.write("<tr style=\"font-weight: bold; text-align:left;\">");
         writer.write("<th>Who</th>" +
-        		"<th style=\"background-color: #a9a9a9;\">Today's Signal Response<br/>" +
+        		"<th>Today's Signal Response<br/>" +
         		"% = Responded / Sent</th>" +        		
         		"<th>Today's Self Reports</th>" +
         		
-            "<th>Total Signaled Response<br/>" +
+            "<th style=\"background-color: #a9a9a9;\">Total Signaled Response<br/>" +
             "% = Responded / Sent</th>" +
             "<th>Total Self Reports</th>" +
             "<th>Total Reports<br/>(signaled + self)</th>" +
@@ -115,8 +115,8 @@ public class ParticipantStatServlet extends HttpServlet {
             if (alpha) {
                return participantReport1.getWho().toLowerCase().compareTo(participantReport2.getWho().toLowerCase());
             } else {
-              float report1ResponseRate = participantReport1.getTodaysSignaledResponseRate();
-              float report2ResponseRate = participantReport2.getTodaysSignaledResponseRate();
+              float report1ResponseRate = participantReport1.getSignaledResponseRate();
+              float report2ResponseRate = participantReport2.getSignaledResponseRate();
               if (report1ResponseRate == report2ResponseRate) {
                 return 0;
               } else if (report1ResponseRate > report2ResponseRate) {
@@ -134,7 +134,7 @@ public class ParticipantStatServlet extends HttpServlet {
           String who = report.getWho();
           String anonymousId = Event.getAnonymousId(who);
           writer.write("<td style=\"text-align:left;\">" + who + "</td>");
-          writer.write("<td style=\"background-color: #dedede;\">" + 
+          writer.write("<td>" + 
               percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
           
           writer.write(Integer.toString(report.getTodaysSignaledResponseCount()) + " / " +
@@ -143,7 +143,7 @@ public class ParticipantStatServlet extends HttpServlet {
           
           writer.write("<td>" + Integer.toString(report.getTodaysSelfReportResponseCount()) + "</td>");
           
-          writer.write("<td>" + percentFormat.format(report.getSignaledResponseRate()) + " = ");
+          writer.write("<td style=\"background-color: #dedede;\">" + percentFormat.format(report.getSignaledResponseRate()) + " = ");
           
           writer.write(Integer.toString(report.getSignaledResponseCount()) + " / " +
               Integer.toString(report.getScheduledCount()) +              
