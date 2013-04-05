@@ -24,6 +24,10 @@ public class DBWhitelist extends Whitelist {
     return isAdmin(email) || getUserByEmail(email) != null;
   }
 
+  protected boolean isAdmin(String email) {
+    return false;
+  }
+  
   private String getUserByEmail(String email) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(WHITELISTED_USER_KIND);
