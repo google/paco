@@ -73,9 +73,14 @@
         
   <filter-mapping>
    <filter-name>whitelistFilter</filter-name>
-   <servlet-name>Servlet</servlet-name>
+   <servlet-name>csvJobStatusServlet</servlet-name>
   </filter-mapping> 
-  
+
+<!--   <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>backendReportJobExecutorServlet</servlet-name>
+  </filter-mapping> 
+ -->  
    
   <!-- Servlets -->
   <servlet>
@@ -120,6 +125,27 @@
 	  <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
 	</servlet>
 
+      <servlet>
+    <servlet-name>csvJobStatusServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CSVJobStatusServlet</servlet-class>
+  </servlet>
+  	
+    <servlet>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.BackendReportJobExecutorServlet</servlet-class>
+  </servlet>
+  
+
+    <servlet-mapping>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <url-pattern>/backendReportJobExecutor</url-pattern>
+    </servlet-mapping>
+
+ <servlet-mapping>
+  <servlet-name>csvJobStatusServlet</servlet-name>
+  <url-pattern>/csvJobStatus</url-pattern>
+</servlet-mapping>
+    
 <servlet-mapping>
   <servlet-name>remoteLoggingService</servlet-name>
   <url-pattern>/pacoserver/logging</url-pattern>
@@ -165,8 +191,10 @@
 	      <url-pattern>/pacoserver/logging*</url-pattern>
 	      <url-pattern>/remote_api*</url-pattern>
 	      <url-pattern>/events*</url-pattern>
-	      <url-pattern>/experiments*</url-pattern>
+	      <url-pattern>/experiments*</url-pattern>	      
 	      <url-pattern>/participantStats*</url-pattern>
+	      <!-- <url-pattern>/backendReportJobExecutor*</url-pattern> -->
+	      <url-pattern>/csvJobStatus*</url-pattern>
 	      <url-pattern>/join*</url-pattern>
 	   </web-resource-collection>
 	   <auth-constraint>

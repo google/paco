@@ -46,7 +46,7 @@ public class WhitelistFilter implements Filter {
   public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain arg2) throws IOException,
       ServletException {
     User user = UserServiceFactory.getUserService().getCurrentUser();
-    String email = user.getEmail().toLowerCase();
+    String email = user == null ? null : user.getEmail().toLowerCase();
     if (!isDevServer((HttpServletRequest) arg0) && (user == null)) {
       log.info("Error logging in from: " + arg0.getRemoteAddr() +" user: " + (user != null ? email : "not logged in"));
       

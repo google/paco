@@ -55,11 +55,13 @@ import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.backends.BackendService;
 import com.google.appengine.api.backends.BackendServiceFactory;
+import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
@@ -74,9 +76,9 @@ import com.google.sampling.experiential.shared.TimeUtil;
  * @author Bob Evans
  * 
  */
-public class EventServlet extends HttpServlet {
+public class CSVJobStatusServlet extends HttpServlet {
 
-  private static final Logger log = Logger.getLogger(EventServlet.class.getName());
+  private static final Logger log = Logger.getLogger(CSVJobStatusServlet.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
@@ -90,43 +92,88 @@ public class EventServlet extends HttpServlet {
     if (user == null) {
       resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
-      String anonStr = req.getParameter("anon");
-      boolean anon = false;
-      if (anonStr != null) {
-        anon = Boolean.parseBoolean(anonStr);
-      }
-      if (req.getParameter("mapping") != null) {
-        dumpUserIdMapping(req, resp);
-      } else if (req.getParameter("json") != null) {
-        resp.setContentType("application/json;charset=UTF-8");
-        dumpEventsJson(resp, req, anon);
-      } else if (req.getParameter("csv") != null) {
-        resp.setContentType("text/csv;charset=UTF-8");
-        dumpEventsCSV(resp, req, anon);
+      String location = getParam(req, "location");
+      String jobId = getParam(req, "jobId");
+      String who = getWhoFromLogin().getEmail().toLowerCase();
+      if (!Strings.isNullOrEmpty(jobId) && !Strings.isNullOrEmpty(location)) {
+        ReportJobStatus jobReport = getJobReport(who, jobId);
+        if (jobReport != null && jobReport.getRequestor().equals(who)) {
+          blobstoreService.serve(new BlobKey(location), resp);
+        } else {
+          resp.getWriter().println("Unknown job ID: " + jobId);
+        }
+      } else if (!Strings.isNullOrEmpty(jobId)) {
+        ReportJobStatus jobReport = getJobReport(who, jobId);
+        if (jobReport != null) {
+          writeJobStatus(resp, jobReport, jobId, who);
+        } else {
+          resp.getWriter().println("Unknown job ID: " + jobId);
+        }
       } else {
-        resp.setContentType("text/html;charset=UTF-8");
-        showEvents(req, resp, anon);
+        resp.getWriter().println("Unknown job ID: " + jobId);
       }
     }
   }
 
-  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
-    EventRetriever.sortEvents(events);
-    Set<String> whos = new HashSet<String>();
-    for (Event event : events) {
-      whos.add(event.getWho());
+  private void writeJobStatus(HttpServletResponse resp, ReportJobStatus jobReport, String jobId, String who) throws IOException {
+    resp.setContentType("text/html;charset=UTF-8");
+    PrintWriter printWriter = resp.getWriter();
+        
+    StringBuilder out = new StringBuilder();
+    out.append("<html><head><title>Current Status of " + jobReport.getId() + "</title>" +
+        "<style type=\"text/css\">"+
+            "body {font-family: verdana,arial,sans-serif;color:#333333}" +
+          "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: #666666;border-collapse: collapse;}" +
+          "table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}" +
+          "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
+          "</style>" +
+               "</head><body>");
+    out.append("<h1>Current Status for Job: ");
+    out.append(jobReport.getId());
+    out.append("</h1><div><table>");
+    out.append("<th>Requestor</th>");
+    out.append("<th>Status</th>");
+    out.append("<th>Started</th>");
+    out.append("<th>Ended</th>");
+    out.append("<th>Output File Location</th>");
+    out.append("<th>Error</th>");
+    out.append("<tr>");
+    
+    out.append("<td>").append(jobReport.getRequestor()).append("</td>");
+    out.append("<td>").append(getNameForStatus(jobReport)).append("</td>");
+    out.append("<td>").append(jobReport.getStartTime()).append("</td>");
+    out.append("<td>").append(jobReport.getEndTime()).append("</td>");
+    out.append("<td>").append(createLinkForLocation(jobReport, jobId, who)).append("</td>");
+    out.append("<td>").append(jobReport.getErrorMessage()).append("</td>");
+    out.append("</tr></table></div></body></html>");
+    
+    printWriter.println(out.toString());
+  }
+
+  private String createLinkForLocation(ReportJobStatus jobReport, String jobId, String who) {
+    String location = jobReport.getLocation();
+    if (Strings.isNullOrEmpty(location)) {
+      return "";
     }
-    StringBuilder mappingOutput = new StringBuilder();
-    for (String who : whos) {
-      mappingOutput.append(who);
-      mappingOutput.append(",");
-      mappingOutput.append(Event.getAnonymousId(who));
-      mappingOutput.append("\n");
+    return "<a href=\"/csvJobStatus?who=" + who + "&jobId=" + jobId + "&location=" + location + "\">" + location + "</a>";
+  }
+
+  private String getNameForStatus(ReportJobStatus jobReport) {
+    switch(jobReport.getStatus()) {
+    case ReportJobStatusManager.PENDING:
+       return "Pending";
+    case ReportJobStatusManager.COMPLETE:
+      return "Complete";
+    case ReportJobStatusManager.FAILED:
+      return "Failed";
+      default:
+        return "Unknown";
     }
-    resp.setContentType("text/csv;charset=UTF-8");
-    resp.getWriter().println(mappingOutput.toString());
+  }
+
+  private ReportJobStatus getJobReport(String requestorEmail, String jobId) {
+    ReportJobStatusManager mgr = new ReportJobStatusManager();
+    return mgr.isItDone(requestorEmail, jobId);
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
@@ -162,126 +209,6 @@ public class EventServlet extends HttpServlet {
     } catch (UnsupportedEncodingException e1) {
       throw new IllegalArgumentException("Unspported encoding");
     }
-  }
-
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
-    EventRetriever.sortEvents(events);
-    String jsonOutput = jsonifyEvents(events, anon);
-    resp.getWriter().println(jsonOutput);
-  }
-
-  private String jsonifyEvents(List<Event> events, boolean anon) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-    try {
-      List<EventDAO> eventDAOs = Lists.newArrayList();
-      for (Event event : events) {
-        String userId = event.getWho();
-        if (anon) {
-          userId = Event.getAnonymousId(userId);
-        }
-        eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
-                                   event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
-                                   event.getResponseTime(), event.getScheduledTime(), null, Long.parseLong(event.getExperimentId()),
-                                   event.getExperimentVersion(), event.getTimeZone()));
-      }
-      return mapper.writeValueAsString(eventDAOs);
-    } catch (JsonGenerationException e) {
-      e.printStackTrace();
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return "Error could not retrieve events as json";
-  }
-
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
-    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
-      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
-    }
-    
-    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = runCSVReportJob(anon, loggedInuser, timeZoneForClient, req);
-    resp.sendRedirect("/csvJobStatus?jobId=" + jobId);
-    
-  }
-
-  private String runCSVReportJob(boolean anon, 
-                                 String loggedInuser, DateTimeZone timeZoneForClient, HttpServletRequest req) throws IOException {
-    // get a backend instance and send it a request. get back the job id
-    BackendService backendsApi = BackendServiceFactory.getBackendService();
-    String backendAddress = backendsApi.getBackendAddress("reportworker");
-    URL url;
-    try {
-      url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" + 
-              req.getParameter("q") + 
-              "&who="+getWhoFromLogin().getEmail().toLowerCase() +
-              "&anon=" + req.getParameter("anon") + 
-              "&tz="+timeZoneForClient);
-      BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-      log.info("URL to backend = " + url.toString());
-      StringBuilder buf = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        buf.append(line);
-      }
-      reader.close();
-      return buf.toString();
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
-
-  private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {    
-    String q = stripQuotes(getParam(req, "q"));
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(q);
-    String offsetStr = getParam(req, "offset");
-    int offset = 0;
-    int limit = 100;
-    if (offsetStr != null && !offsetStr.isEmpty()) {
-      offset = Integer.parseInt(offsetStr);
-    }
-    String limitStr = getParam(req, "limit");
-    if (limitStr != null && !limitStr.isEmpty()) {
-      limit = Integer.parseInt(limitStr);
-    }
-    List<Event> events = getEventsWithQuery(req, query, offset, limit);
-    if (events.size() > 0) {   
-      Experiment experiment = ExperimentRetriever.getInstance().getExperiment(events.get(0).getExperimentId());
-      EventRetriever.sortEvents(events);
-      printEvents(resp, events, experiment, anon, offset, limit, q);
-    }
-  }
-
-  private String stripQuotes(String parameter) {
-    if (parameter == null) {
-      return null;
-    }
-    if (parameter.startsWith("'") || parameter.startsWith("\"")) {
-      parameter = parameter.substring(1);
-    }
-    if (parameter.endsWith("'") || parameter.endsWith("\"")) {
-      parameter = parameter.substring(0, parameter.length() - 1);
-    }
-    return parameter;
-  }
-
-  private List<Event> getEventsWithQuery(HttpServletRequest req,
-                                         List<com.google.sampling.experiential.server.Query> queries, int offset, int limit) {
-    User whoFromLogin = getWhoFromLogin();
-    if (!isDevInstance(req) && whoFromLogin == null) {
-      throw new IllegalArgumentException("Must be logged in to retrieve data.");
-    }
-    String who = null;
-    if (whoFromLogin != null) {
-      who = whoFromLogin.getEmail().toLowerCase();
-    }
-    return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req), offset, limit);
   }
 
   private void printEvents(HttpServletResponse resp, List<Event> events, Experiment experiment, boolean anon, int offset, int limit, String q) throws IOException {
@@ -393,50 +320,6 @@ public class EventServlet extends HttpServlet {
     return scheduledTimeString;
   }
 
-  @Override
-  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    setCharacterEncoding(req, resp);
-    User who = getWhoFromLogin();
-    if (who == null) {
-      throw new IllegalArgumentException("Must be logged in!");
-    }
-
-    // TODO(bobevans): Add security check, and length check for DoS
-    if (ServletFileUpload.isMultipartContent(req)) {
-      processCsvUpload(req, resp);
-    } else {
-      processJsonUpload(req, resp);
-    }
-  }
-
-  private void processCsvUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    ServletFileUpload fileUploadTool = new ServletFileUpload();
-    fileUploadTool.setSizeMax(50000);
-    resp.setContentType("text/html;charset=UTF-8");
-    PrintWriter out = resp.getWriter(); // TODO move all req/resp writing to here.
-    try {
-      new EventCsvUploadProcessor().processCsvUpload(getWhoFromLogin(), fileUploadTool.getItemIterator(req), out);
-    } catch (FileUploadException e) {
-        log.severe("FileUploadException: " + e.getMessage());
-        out.println("Error in receiving file.");
-    }
-  }
-  private void processJsonUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    String postBodyString;
-    try {
-      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
-    } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
-    }
-    if (postBodyString.equals("")) {
-      throw new IllegalArgumentException("Empty Post body");
-    } 
-
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase());
-    resp.setContentType("application/json;charset=UTF-8");
-    resp.getWriter().write(results);
-  }
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) 
       throws UnsupportedEncodingException {

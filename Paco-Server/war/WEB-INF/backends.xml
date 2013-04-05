@@ -1,0 +1,8 @@
+<backends>
+ <backend name="reportworker">
+   <options>
+     <dynamic>true</dynamic>
+     <public>false</public>
+   </options>
+ </backend>
+</backends>

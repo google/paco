@@ -42,6 +42,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gwt.libideas.logging.shared.Log;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.sampling.experiential.datastore.ExperimentEntity;
 import com.google.sampling.experiential.model.Event;
@@ -187,6 +188,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       JDOHelper.makeDirty(experiment, "feedback");
       JDOHelper.makeDirty(experiment, "schedule");
       
+      
     }
     DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
     
@@ -198,10 +200,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       pm.makePersistent(experiment);      
       tx.commit();
       committed  = true;
-      ExperimentCacheHelper.getInstance().clearCache();
-      ArrayList<String> publishedUsers = experiment.getPublishedUsers();
-      publishedUsers.addAll(experiment.getAdmins());
-      new DBWhitelist().addAllUsers(publishedUsers);
     } finally {
       if (tx.isActive()) {
         tx.rollback();
@@ -210,6 +208,10 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     if (committed) {
       ExperimentEntity.saveExperimentAsEntity(experiment);
+      ExperimentCacheHelper.getInstance().clearCache();
+      ArrayList<String> publishedUsers = experiment.getPublishedUsers();
+      publishedUsers.addAll(experiment.getAdmins());
+      new DBWhitelist().addAllUsers(publishedUsers);
     }
   }
 
@@ -472,6 +474,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
 
     if (event == null) {
+      Log.info("Null event object sent");
       return;
     }
     String who = event.getWho();
@@ -482,13 +485,9 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
 
-    if (event == null) {
-      throw new IllegalArgumentException("No event data to save.");
-    }
-
     Long experimentId = event.getExperimentId();
     if (experimentId == null) {
-      throw new IllegalArgumentException("Invalid event. No id.");
+      throw new IllegalArgumentException("Invalid event. No experiment id.");
     }
     Integer experimentVersion = event.getExperimentVersion();
     Date scheduledTimeDate = event.getScheduledTime();
