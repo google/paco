@@ -33,6 +33,27 @@ public class HelpActivity extends Activity {
 
   private WebView webView;
 
+  class HelpActivityLocaleHelper extends AndroidLocaleHelper<String> {
+
+    @Override
+    protected String getEnVersion() {
+      return "file:///android_asset/help.html";
+    }
+    
+    @Override
+    protected String getJaVersion() {
+      return "file:///android_asset/help_ja.html";
+    }
+    
+    @Override
+    protected String getFiVersion() {
+      return "file:///android_asset/help_fi.html";
+    }
+
+
+    
+  }
+  
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -43,7 +64,7 @@ public class HelpActivity extends Activity {
 
     webView = (WebView) findViewById(R.id.help_main);
     webView.setWebViewClient(new HelpWebViewClient());
-    webView.loadUrl("file:///android_asset/help.html");
+    webView.loadUrl(new HelpActivityLocaleHelper().getLocalizedResource());
   }
   
   @Override

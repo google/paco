@@ -37,6 +37,25 @@ public class WelcomeActivity extends Activity {
 
   static final String WELCOME_PAGE = "welcome_page";
 
+  static class WelcomePageLocaleHelper extends AndroidLocaleHelper<String> {
+    
+    @Override
+    protected String getEnVersion() {
+      return "file:///android_asset/welcome_paco.html";
+    }
+
+    @Override
+    protected String getJaVersion() {
+      return "file:///android_asset/welcome_paco_ja.html";
+    }
+
+    @Override
+    protected String getFiVersion() {
+      return "file:///android_asset/welcome_paco_fi.html";
+    }
+
+  }
+  
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -46,14 +65,7 @@ public class WelcomeActivity extends Activity {
     setContentView(R.layout.welcome);
 
     WebView web = (WebView) findViewById(R.id.welcome_web);
-    Locale defaultLocale = Locale.getDefault();    
-    String language = defaultLocale.getLanguage();
-    System.out.println("locale = " + defaultLocale.toString() + ", language=" + language);
-    if (language.equals("ja")) {
-      web.loadUrl("file:///android_asset/welcome_paco_ja.html");
-    } else {
-      web.loadUrl("file:///android_asset/welcome_paco.html");
-    }
+    web.loadUrl(new WelcomePageLocaleHelper().getLocalizedResource());
 
     findViewById(R.id.welcome_read_later).setOnClickListener(
         new OnClickListener() {

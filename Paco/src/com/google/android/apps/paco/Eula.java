@@ -38,6 +38,26 @@ class Eula {
   private static final String PREFERENCE_EULA_ACCEPTED = "eula.accepted";
   private static final String PREFERENCES_EULA = "eula";
 
+  
+  static class EulaLocaleHelper extends AndroidLocaleHelper<Integer> {
+
+    @Override
+    protected Integer getEnVersion() {
+      return R.raw.eula;
+    }
+
+    @Override
+    protected Integer getJaVersion() {
+      return R.raw.eula_ja;
+    }
+    
+    @Override
+    protected Integer getFiVersion() {
+      return R.raw.eula_fi;
+    }    
+
+  };
+
   /**
    * Displays the EULA if necessary. This method should be called from the
    * onCreate() method of your main Activity.
@@ -73,21 +93,13 @@ class Eula {
         refuse(activity);
       }
     });
-    
-    int eula_id = R.raw.eula;
-    Locale defaultLocale = Locale.getDefault();    
-    String language = defaultLocale.getLanguage();
-    System.out.println("locale = " + defaultLocale.toString() + ", language=" + language);
-    if (language.equals("ja")) {
-      eula_id = R.raw.eula_ja;
-    } else {
-      eula_id = R.raw.eula;
-    }
-
-    builder.setMessage(ResourceUtils.readFile(activity, eula_id));
+      
+    Integer eulaId = new EulaLocaleHelper().getLocalizedResource();
+    builder.setMessage(ResourceUtils.readFile(activity, eulaId));
     builder.show();
   }
-
+  
+  
   private static void accept(Activity activity, SharedPreferences preferences) {
     preferences.edit().putBoolean(PREFERENCE_EULA_ACCEPTED, true).commit();
     Intent startIntent = new Intent(activity, WelcomeActivity.class);
