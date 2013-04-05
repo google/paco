@@ -37,7 +37,9 @@
 <inherits name="com.google.gwt.http.HTTP" />
 <inherits name="com.google.gwt.json.JSON" />
 <inherits name="com.google.gwt.i18n.I18N"/>
+<inherits name="com.google.paco.shared.Shared" />
  
+<extend-property name="locale" values="fi"/>
  <extend-property name="locale" values="ja"/>
   <extend-property name="locale" values="en"/>
 <set-property-fallback name="locale" value="en"/>
@@ -49,6 +51,8 @@
 <!-- <inherits name='com.google.gwt.maps.Apis_Google_Maps' /> -->
 
 <inherits name="com.google.common.collect.Collect" />
+
+
  <!--
     If you want to deploy this application outside of localhost,
     you must obtain a Google Maps API key at:

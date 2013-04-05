@@ -149,11 +149,8 @@ public class Main implements EntryPoint, ExperimentListener {
   private void loadLogin() {
     loginPanel.setStyleName("front_page");
     HTML index2Html = null;
-    if (LocaleInfo.getCurrentLocale().getLocaleName().indexOf("ja") != -1) {
-      index2Html = new HTML(resources.indexHtml_ja().getText());
-    } else {
-      index2Html = new HTML(resources.indexHtml().getText());
-    }
+    
+    index2Html = new HomePageLocaleHelper().getLocalizedResource();
     
     signInLink.setHref(loginInfo.getLoginUrl());
     signInLink.setStyleName("paco-Login");
@@ -172,6 +169,22 @@ public class Main implements EntryPoint, ExperimentListener {
     loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
   }
+
+  class HomePageLocaleHelper extends GWTLocaleHelper<HTML> {
+
+    protected HTML getEnVersion() {
+      return new HTML(resources.indexHtml().getText());
+    }
+  
+    protected HTML getJaVersion() {
+      return new HTML(resources.indexHtml_ja().getText());
+    }
+    
+    protected HTML getFiVersion() {
+      return new HTML(resources.helpHtml_ja().getText());
+    }
+
+  };
 
 
 
