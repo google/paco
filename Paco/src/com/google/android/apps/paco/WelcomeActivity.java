@@ -17,6 +17,8 @@
 package com.google.android.apps.paco;
 
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -44,7 +46,14 @@ public class WelcomeActivity extends Activity {
     setContentView(R.layout.welcome);
 
     WebView web = (WebView) findViewById(R.id.welcome_web);
-    web.loadUrl("file:///android_asset/welcome_paco.html");
+    Locale defaultLocale = Locale.getDefault();    
+    String language = defaultLocale.getLanguage();
+    System.out.println("locale = " + defaultLocale.toString() + ", language=" + language);
+    if (language.equals("ja")) {
+      web.loadUrl("file:///android_asset/welcome_paco_ja.html");
+    } else {
+      web.loadUrl("file:///android_asset/welcome_paco.html");
+    }
 
     findViewById(R.id.welcome_read_later).setOnClickListener(
         new OnClickListener() {

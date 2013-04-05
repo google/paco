@@ -28,6 +28,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -104,7 +105,10 @@ public class Main implements EntryPoint, ExperimentListener {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
+    signInLink = new Anchor(myConstants.login());
+    signOutLink = new Anchor(myConstants.signInAsOtherUser());
 
+    
     if (Document.get() != null) {
       Document.get().setTitle(myConstants.pacoPageTitle());
     }
@@ -144,7 +148,12 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void loadLogin() {
     loginPanel.setStyleName("front_page");
-    HTML index2Html  = new HTML(resources.indexHtml().getText());    
+    HTML index2Html = null;
+    if (LocaleInfo.getCurrentLocale().getLocaleName().indexOf("ja") != -1) {
+      index2Html = new HTML(resources.indexHtml_ja().getText());
+    } else {
+      index2Html = new HTML(resources.indexHtml().getText());
+    }
     
     signInLink.setHref(loginInfo.getLoginUrl());
     signInLink.setStyleName("paco-Login");

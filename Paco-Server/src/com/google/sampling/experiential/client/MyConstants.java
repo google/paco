@@ -348,5 +348,8 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Response has expired")
   String expired();
 
+  @DefaultStringValue("Sign in as another user")
+  String signInAsOtherUser();
+
 
 }
