@@ -21,7 +21,7 @@ public class DBWhitelist extends Whitelist {
   @Override
   public boolean allowed(String email) {
     email = email.toLowerCase();
-    return isGoogler(email) || getUserByEmail(email) != null;
+    return isAdmin(email) || getUserByEmail(email) != null;
   }
 
   private String getUserByEmail(String email) {

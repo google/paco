@@ -96,6 +96,22 @@
     <appcfg action="update" war="war" />
   </target>
 
+  <target name="update_backends" depends="build"
+      description="updates the backends the application to App Engine.">
+    <appcfg action="backends" war="war">
+        <options>
+        <arg value="update"/>
+      </options>
+      </appcfg>
+  </target>
+  
+  <target name="update_only_backends"
+      description="updates the backends the application to App Engine -- NO BUILD.">
+    <appcfg action="backends update" war="war">
+      </appcfg>
+  </target>
+  
+  
   <target name="update_only" 
       description="Uploads the application to App Engine - NO BUILD.">
     <appcfg action="update" war="war" />

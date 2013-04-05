@@ -85,6 +85,7 @@ public class EventRetriever {
       log.info("Event saved");
     } finally {
       if (tx.isActive()) {
+        log.info("Event rolled back");
         tx.rollback();
       }
       pm.close();
@@ -345,6 +346,25 @@ public class EventRetriever {
               responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString() 
                                                                      : scheduledTime!= null && scheduledTime.getZone() != null ? 
                                                                                                                                  scheduledTime.getZone().toString() : null);
+  }
+
+  public static void sortEvents(List<Event> greetings) {
+    Comparator<Event> dateComparator = new Comparator<Event>() {
+      @Override
+      public int compare(Event o1, Event o2) {
+        Date when1 = o1.getWhen();
+        Date when2 = o2.getWhen();
+        if (when1 == null || when2 == null) {
+          return 0;
+        } else if (when1.after(when2)) {
+          return -1;
+        } else if (when2.after(when1)) {
+          return 1;
+        }
+        return 0;
+      }
+    };
+    Collections.sort(greetings, dateComparator);
   }
 
   public static List<EventDAO> convertEventsToDAOs(List<Event> result) {

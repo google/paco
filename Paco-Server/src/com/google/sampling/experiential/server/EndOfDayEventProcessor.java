@@ -1,16 +1,20 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gwt.libideas.logging.shared.Log;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -18,6 +22,8 @@ import com.google.sampling.experiential.shared.TimeUtil;
 
 public class EndOfDayEventProcessor {
 
+  private static final Logger log = Logger.getLogger(EndOfDayEventProcessor.class.getName());
+  
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   
   /**
@@ -29,51 +35,71 @@ public class EndOfDayEventProcessor {
    * @return Map by idForTimes of daily events and a new eventdao with the responses for the end of day response corresponding to the timestamp of the daily event to which it refers.
    */
   public Map<Date, EventDAO> breakEventDAOsIntoDailyPingResponses(List<EventDAO> eodEvents) {
-    Map<Date, EventDAO> eventByDailyDate = Maps.newHashMap();
+    // TODO The assumption here is that this is for one person's data.
+    // if it is not, the events are likely to clash with each other.
+    List<EventDAO> rawListOfSingleEodEvents = breakEodResponsesIntoIndividualDailyEventResponses(eodEvents);
+    Map<Date, EventDAO> eventsByPingDate = Maps.newHashMap();
+    for (EventDAO eventDAO : rawListOfSingleEodEvents) {
+      String dailyTime = eventDAO.getWhat().get("daily_event");
+      if (eventsByPingDate.get(dailyTime) != null) {
+        log.info("There is already an event for this date! " + dailyTime);
+      }
+      Date dailyDateTime = jodaFormatter.parseDateTime(dailyTime).toDate();
+      eventsByPingDate.put(dailyDateTime, eventDAO);
+    }
+    
+    return eventsByPingDate;
+  }
+
+  public List<EventDAO> breakEodResponsesIntoIndividualDailyEventResponses(List<EventDAO> eodEvents) {
+    List<EventDAO> rawListOfSingleEodEvents = Lists.newArrayList();
     TimeLogger.logTimestamp("breakEventsIntoDaily start");
     int eodEventCounter = 0;
     for (EventDAO eodEvent : eodEvents) {
+      EventDAO currentEodEvent = null;
+      
       Map<String, String> outputs = eodEvent.getWhat();
-      for (Entry<String, String> whatKey : outputs.entrySet()) {        
-        String key = whatKey.getKey();
-        if (key.equals(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
+      List<String> itemNames = Lists.newArrayList(outputs.keySet());
+      Collections.sort(itemNames);
+      
+      for (String itemName : itemNames) {
+        if (itemName.equals(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
           continue;
         }
-        String value = whatKey.getValue();
+        String itemValue = outputs.get(itemName);
         
-        int dateInputNameSeparatorIndex = key.indexOf("_");
-        if (dateInputNameSeparatorIndex == -1) {
+        int date_itemNameSeparatorIndex = itemName.indexOf("_");
+        if (date_itemNameSeparatorIndex == -1) {
           continue;          
         }
         
-        String dateStr = key.substring(0, dateInputNameSeparatorIndex);
-        String inputName = key.substring(dateInputNameSeparatorIndex + 1);
-        
-        Date date = jodaFormatter.parseDateTime(dateStr).toDate();
-        
-        EventDAO eventForDailyDate = eventByDailyDate.get(date);
-        // if there is no existing event, or our eod response is newer then create a new event to insert or replace the old one. 
-        if (eventForDailyDate == null || eventForDailyDate.getResponseTime().before(eodEvent.getResponseTime())) {
+        String dateStr = itemName.substring(0, date_itemNameSeparatorIndex);
+        String inputName = itemName.substring(date_itemNameSeparatorIndex + 1);
+                
+        if (currentEodEvent == null || !currentEodEvent.getWhat().get("daily_event").equals(dateStr) ) {
+//          if (currentEodEvent != null) {
+//            log.info("currentDailyEventTime: " + currentEodEvent.getWhat().get("daily_event") + ", date = " + dateStr);
+//          } else {
+//            log.info("new currentEODEvent because last was null. dateStr = " + dateStr);
+//          }
           Map<String, String> newWhat = Maps.newHashMap();
-          eventForDailyDate = new EventDAO(eodEvent.getWho(), eodEvent.getWhen(), eodEvent.getExperimentName(), eodEvent.getLat(), eodEvent.getLon(),
+          newWhat.put("daily_event", dateStr);
+          currentEodEvent = new EventDAO(eodEvent.getWho(), eodEvent.getWhen(), eodEvent.getExperimentName(), eodEvent.getLat(), eodEvent.getLon(),
                                   eodEvent.getAppId(), eodEvent.getPacoVersion(), newWhat, eodEvent.isShared(), eodEvent.getResponseTime(),
                                   eodEvent.getScheduledTime(), eodEvent.getBlobs(), eodEvent.getExperimentId(), eodEvent.getExperimentVersion(),
-                                  eodEvent.getTimezone());
-          eventByDailyDate.put(date, eventForDailyDate);
+                                  eodEvent.getTimezone());          
+          rawListOfSingleEodEvents.add(currentEodEvent);
         }
-        // don't insert into existing daily if we are older than it.
-        if (!eodEvent.getResponseTime().before(eventForDailyDate.getResponseTime())) {
-          eventForDailyDate.getWhat().put(inputName, value);
-        }
-        
+        currentEodEvent.getWhat().put(inputName, itemValue);
       }
       if (eodEventCounter % 1000 == 0) {
         TimeLogger.logTimestamp("EodEvents: " + eodEventCounter + ": ");
       }
       eodEventCounter++;
     }
-    
-    return eventByDailyDate;
+    log.info("# of new Events for EOD: " + rawListOfSingleEodEvents.size());
+    log.info("# of eodEvents traversed: " + eodEventCounter);
+    return rawListOfSingleEodEvents;
   }
 
   /**
@@ -82,55 +108,25 @@ public class EndOfDayEventProcessor {
    * @param eodEvents
    * @return
    */
-  public Map<Date, EventDAO> breakEventsIntoDailyPingResponses(List<Event> eodEvents2) {
+  public Map<String, Map<String, EventDAO>> breakEventsIntoDailyPingResponsesGroupedByWho(List<Event> eodEvents2) {
     List<EventDAO> eodEvents = EventRetriever.convertEventsToDAOs(eodEvents2);
-    return breakEventDAOsIntoDailyPingResponses(eodEvents);
-//    Map<Date, Event> eventByDailyDate = Maps.newHashMap();
-//    TimeLogger.logTimestamp("breakEventsIntoDaily");
-//    int eodEventCounter = 0;
-//    for (Event eodEvent : eodEvents) {
-//      Set<What> outputs = eodEvent.getWhat();
-//      for (What what : outputs) {        
-//        String key = what.getName();
-//        if (key.equals(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
-//          continue;
-//        }
-//        String value = what.getValue();
-//        
-//        int dateInputNameSeparatorIndex = key.indexOf("_");
-//        if (dateInputNameSeparatorIndex == -1) {
-//          continue;          
-//        }
-//        
-//        String dateStr = key.substring(0, dateInputNameSeparatorIndex);
-//        String inputName = key.substring(dateInputNameSeparatorIndex + 1);
-//        
-//        Date date = jodaFormatter.parseDateTime(dateStr).toDate();
-//        
-//        Event eventForDailyDate = eventByDailyDate.get(date);
-//        // if there is no existing event, or our eod response is newer then create a new event to insert or replace the old one. 
-//        if (eventForDailyDate == null || eventForDailyDate.getResponseTime().before(eodEvent.getResponseTime())) {
-//          Map<String, String> newWhat = Maps.newHashMap();
-//          eventForDailyDate = new EventDAO(eodEvent.getWho(), eodEvent.getLat(), eodEvent.getLon(), eodEvent.getWhen(), eodEvent.getAppId(),
-//                                  eodEvent.getPacoVersion(), newWhat, eodEvent.isShared(), eodEvent.getExperimentId(), eodEvent.getExperimentName(),
-//                                  eodEvent.getExperimentVersion(), eodEvent.getResponseTime(), eodEvent.getScheduledTime(), eodEvent.getBlobs(),
-//                                  eodEvent.getTimeZone());
-//          eventByDailyDate.put(date, eventForDailyDate);
-//        }
-//        // don't insert into existing daily if we are older than it.
-//        if (!eodEvent.getResponseTime().before(eventForDailyDate.getResponseTime())) {
-//          Set<What> what2 = eventForDailyDate.getWhat();
-//          what2.add(new What(inputName, value));
-//          eventForDailyDate.setWhat(what2);
-//        }
-//      }
-//      if (eodEventCounter % 1000 == 0) {
-//        TimeLogger.logTimestamp("EodEvents: " + eodEventCounter + ": ");       
-//      }
-//      eodEventCounter++;
-//    }
-//    
-//    return eventByDailyDate;
+    List<EventDAO> individualEODEvents = breakEodResponsesIntoIndividualDailyEventResponses(eodEvents);
+    Map<String, Map<String, EventDAO>> eventsByWhoByDate = Maps.newHashMap();
+    for (EventDAO eventDAO : individualEODEvents) {
+      String who = eventDAO.getWho();
+      Map<String, EventDAO> whoseEventsByDate = eventsByWhoByDate.get(who);
+      if (whoseEventsByDate == null) {
+        whoseEventsByDate = Maps.newHashMap();
+        eventsByWhoByDate.put(who, whoseEventsByDate);
+      }
+      
+      String dailyTime = eventDAO.getWhat().get("daily_event");
+      if (whoseEventsByDate.get(dailyTime) != null) {
+        log.info("There is already an event for this date! " + who + ", " + dailyTime);
+      }
+      whoseEventsByDate.put(dailyTime, eventDAO);
+    }
+    return eventsByWhoByDate;
   }
   
 }
