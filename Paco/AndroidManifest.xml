@@ -15,7 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest android:versionCode='75' xmlns:android='http://schemas.android.com/apk/res/android' package='com.google.android.apps.paco' android:versionName='2.0.75'>
+<manifest android:versionCode='76' xmlns:android='http://schemas.android.com/apk/res/android' package='com.google.android.apps.paco' android:versionName='2.0.76'>
 
     <application android:debuggable='true' android:label='@string/app_name' android:theme='@style/PacoTheme' android:icon='@drawable/paco64'>
         <activity android:name='com.google.android.apps.paco.ExperimentManagerActivity'>

@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -71,7 +73,18 @@ class Eula {
         refuse(activity);
       }
     });
-    builder.setMessage(ResourceUtils.readFile(activity, R.raw.eula));
+    
+    int eula_id = R.raw.eula;
+    Locale defaultLocale = Locale.getDefault();    
+    String language = defaultLocale.getLanguage();
+    System.out.println("locale = " + defaultLocale.toString() + ", language=" + language);
+    if (language.equals("ja")) {
+      eula_id = R.raw.eula_ja;
+    } else {
+      eula_id = R.raw.eula;
+    }
+
+    builder.setMessage(ResourceUtils.readFile(activity, eula_id));
     builder.show();
   }
 
