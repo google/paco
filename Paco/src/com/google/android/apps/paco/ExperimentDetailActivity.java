@@ -176,8 +176,8 @@ public class ExperimentDetailActivity extends Activity {
           };
 
           AlertDialog.Builder builder = new AlertDialog.Builder(ExperimentDetailActivity.this);
-          builder.setMessage(R.string.join_again).setPositiveButton("Yes", dialogClickListener)
-                 .setNegativeButton("No", dialogClickListener).show();
+          builder.setMessage(R.string.join_again).setPositiveButton(R.string.yes, dialogClickListener)
+                 .setNegativeButton(R.string.no, dialogClickListener).show();
 
         }
 
