@@ -267,5 +267,6 @@
    <string name="install">インストール</string>
    <string name="explore_data_variable_title">どの変数を表示しますか？</string>
    <string name="no_accounts_found">スマートフォンにはGoogleアカウントは登録されていません。「設定 > アカウント」より追加してください。</string>
+   <string name="join_again">You have already joined this experiment. Do you really want to join it again?</string>
    
 </resources>
