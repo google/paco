@@ -4,8 +4,23 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
+    
+      <property name="gwt.args" value="-style PRETTY" />
+
+  
+  <property name="gwt.sdk" location="../tools/gwt-2.1.0" />
+
+  <path id="gwt.project.class.path">
+    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+  </path>
+    
+    
+  
+  
     <path id="Shared.classpath">
         <pathelement location="bin"/>
+        <path refid="gwt.project.class.path"/>
     </path>
     <target name="clean">
         <delete dir="bin"/>
@@ -35,14 +50,23 @@
       <jar destfile="dist/shared.jar"
            basedir="bin" />
     </target>
+
+	<target name="build-project" depends="init">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<copy todir="bin">
+			<fileset dir="src">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
+
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+			source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="Shared.classpath" />
+
+		</javac>
+	</target>
     
-    <target name="build-project" depends="init" >
-        <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
-            <src path="src"/>
-            <classpath refid="Shared.classpath"/>
-        </javac>
-    </target>
     
     <target name="test" depends="build-test">
       <mkdir dir="reports/test" />
@@ -105,9 +129,9 @@
       <arg line="${gwt.args}"/>
        <arg value="com.google.paco.shared.client.SharedModuleEntryPoint"/>
     </java>
- -->  
+ 
  </target>
-
+-->
     
     
 </project>
