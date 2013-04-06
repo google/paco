@@ -104,6 +104,11 @@ public class ServerCommunication {
           result = mapper.readValue(contentAsString,
               new TypeReference<List<Experiment>>() {
               });
+          if (result != null) {
+            experimentProviderUtil.deleteAllUnJoinedExperiments();
+            experimentProviderUtil.updateExistingExperiments(result);
+            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+          }
         } catch (JsonParseException e) {
           Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
           e.printStackTrace();
@@ -116,10 +121,7 @@ public class ServerCommunication {
           e.printStackTrace();
         }
       }
-      if (result != null) {
-        experimentProviderUtil.deleteAllUnJoinedExperiments();
-        experimentProviderUtil.updateExistingExperiments(result);
-      }
+      
       userPrefs.setExperimentListRefreshTime(new Date().getTime());
 
     } finally {
