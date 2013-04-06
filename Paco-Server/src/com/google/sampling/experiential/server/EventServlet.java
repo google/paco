@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -206,6 +207,11 @@ public class EventServlet extends HttpServlet {
     
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
     String jobId = runCSVReportJob(anon, loggedInuser, timeZoneForClient, req);
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
     resp.sendRedirect("/csvJobStatus?jobId=" + jobId);
     
   }
@@ -215,26 +221,45 @@ public class EventServlet extends HttpServlet {
     // get a backend instance and send it a request. get back the job id
     BackendService backendsApi = BackendServiceFactory.getBackendService();
     String backendAddress = backendsApi.getBackendAddress("reportworker");
-    URL url;
+    
     try {
-      url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" + 
-              req.getParameter("q") + 
-              "&who="+getWhoFromLogin().getEmail().toLowerCase() +
-              "&anon=" + req.getParameter("anon") + 
-              "&tz="+timeZoneForClient);
-      BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-      log.info("URL to backend = " + url.toString());
-      StringBuilder buf = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        buf.append(line);
+      BufferedReader reader = null;
+      try {
+        reader = sendToBackend(timeZoneForClient, req, backendAddress);
+      } catch (SocketTimeoutException se) {
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        reader = sendToBackend(timeZoneForClient, req, backendAddress);
       }
-      reader.close();
-      return buf.toString();
+      if (reader != null) {
+        StringBuilder buf = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          buf.append(line);
+        }
+        reader.close();
+        return buf.toString();
+      }
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+      log.severe("MalformedURLException: " + e.getMessage());
     }
     return null;
+  }
+
+  private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req, String backendAddress)
+                                                                                                                     throws MalformedURLException,
+                                                                                                                     IOException {
+    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" + 
+            req.getParameter("q") + 
+            "&who="+getWhoFromLogin().getEmail().toLowerCase() +
+            "&anon=" + req.getParameter("anon") + 
+            "&tz="+timeZoneForClient);
+    log.info("URL to backend = " + url.toString());
+    InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
+    BufferedReader reader = new BufferedReader(inputStreamReader);
+    return reader;
   }
 
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {    
