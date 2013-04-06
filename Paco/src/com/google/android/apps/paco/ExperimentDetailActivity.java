@@ -143,6 +143,45 @@ public class ExperimentDetailActivity extends Activity {
     if (!isJoinedExperiment()) {
       joinButton.setOnClickListener(new OnClickListener() {    	 
         public void onClick(View v) {
+          List<Experiment> potentialJoinedExperiment = experimentProviderUtil.getExperimentsByServerId(experiment.getServerId());
+          boolean alreadyJoined = false;
+          if (!potentialJoinedExperiment.isEmpty()) {
+            for (Experiment experiment : potentialJoinedExperiment) {
+              if (experiment.getJoinDate() != null) {
+                alreadyJoined = true;
+                break;
+              }
+            }
+          }
+          if (alreadyJoined) {
+            showJoinAgainDialog();
+          } else {
+            showInformedConsentActivity();
+          }
+        }
+
+        private void showJoinAgainDialog() {
+          DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              switch (which) {
+              case DialogInterface.BUTTON_POSITIVE:
+                showInformedConsentActivity();
+                break;
+
+              case DialogInterface.BUTTON_NEGATIVE:
+                break;
+              }
+            }
+          };
+
+          AlertDialog.Builder builder = new AlertDialog.Builder(ExperimentDetailActivity.this);
+          builder.setMessage(R.string.join_again).setPositiveButton("Yes", dialogClickListener)
+                 .setNegativeButton("No", dialogClickListener).show();
+
+        }
+
+        private void showInformedConsentActivity() {
           Intent intent = new Intent(ExperimentDetailActivity.this, InformedConsentActivity.class);
           intent.setAction(Intent.ACTION_EDIT);
           intent.setData(uri);
