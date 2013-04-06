@@ -53,7 +53,7 @@ public class UserPreferences {
 
   private static final String APP_PREFERENCES = "app_prefs";
 
-  private static final int LIST_REFRESH_TIMEOUT = 86400000; //24 hrs in millis
+  private static final int LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
 
   private static final String LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
 

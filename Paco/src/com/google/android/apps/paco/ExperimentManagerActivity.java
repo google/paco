@@ -77,6 +77,7 @@ public class ExperimentManagerActivity extends Activity {
     experimentProviderUtil = new ExperimentProviderUtil(this);
     Experiment experiment = getExperimentFromIntent();
     if (experiment != null) {
+      //startService(new Intent(this, ServerCommunicationService.class)); // check for updated experiments. Commented for now as it may lead to a db race condition.
       Intent executorIntent = new Intent(this, ExperimentExecutor.class);
       executorIntent.putExtras(getIntent());
       executorIntent.setData(getIntent().getData());
