@@ -71,6 +71,7 @@ public class ExperimentManagerActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    installPacoBarkRingtone();
     
  // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
@@ -248,9 +249,6 @@ public class ExperimentManagerActivity extends Activity {
 
   private void launchRingtoneChooser() {
     UserPreferences userPreferences = new UserPreferences(this);
-    if (!userPreferences.hasInstalledPacoBarkRingtone()) {
-      installPacoBarkRingtone(userPreferences);
-    }
     String uri = userPreferences.getRingtone();    
     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
@@ -267,7 +265,12 @@ public class ExperimentManagerActivity extends Activity {
     startActivityForResult(intent, RINGTONE_REQUESTCODE);
   }
 
-  private void installPacoBarkRingtone(UserPreferences userPreferences) {
+  private void installPacoBarkRingtone() {
+    UserPreferences userPreferences = new UserPreferences(this);
+    if (userPreferences.hasInstalledPacoBarkRingtone()) {
+      return;
+    }
+
     File f = copyRingtoneFromAssetsToSdCard();
     if (f == null) {
       return;
@@ -287,8 +290,9 @@ public class ExperimentManagerActivity extends Activity {
 
     if (!alreadyInstalled) {
       Uri newUri = mediaStoreContentProvider.insert(uri, values);
+      userPreferences.setRingtone(newUri.toString());
     }
-
+    
     userPreferences.setPacoBarkRingtoneInstalled();      
   }
 
