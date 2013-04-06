@@ -586,6 +586,7 @@ public class ExperimentScheduleActivity extends Activity {
       event.setExperimentId(experiment.getId());
       event.setServerExperimentId(experiment.getServerId());
       event.setExperimentName(experiment.getTitle());
+      event.setExperimentVersion(experiment.getVersion());
       event.setResponseTime(new DateTime());
 
       Output responseForInput = new Output();
