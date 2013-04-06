@@ -128,9 +128,9 @@ public class CSVJobStatusServlet extends HttpServlet {
           "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
           "</style>" +
                "</head><body>");
-    out.append("<h1>Current Status for Job: ");
+    out.append("<h2>Current Status for Job: ");
     out.append(jobReport.getId());
-    out.append("</h1><div><table>");
+    out.append("</h2><div><p>Refresh to update status</p></div><div><table class=gridtable>");
     out.append("<th>Requestor</th>");
     out.append("<th>Status</th>");
     out.append("<th>Started</th>");
