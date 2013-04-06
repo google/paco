@@ -17,6 +17,8 @@
 */
 package com.google.android.apps.paco;
 
+import org.joda.time.DateTime;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -130,12 +132,40 @@ public class RunningExperimentsActivity extends Activity {
   private void deleteExperiment(long id) {
     NotificationCreator nc = NotificationCreator.create(this);
     nc.timeoutNotificationsForExperiment(id);
-    experimentProviderUtil.deleteFullExperiment(Uri.withAppendedPath(getIntent().getData(), Long.toString(id)));
+    Uri experimentUri = Uri.withAppendedPath(getIntent().getData(), Long.toString(id));
+    Experiment experiment = experimentProviderUtil.getExperiment(id);
+    createStopEvent(experiment);
+    
+    experimentProviderUtil.deleteFullExperiment(experimentUri);
     new AlarmStore(this).deleteAllSignalsForSurvey(id);
+    
     cursor.requery();
     startService(new Intent(RunningExperimentsActivity.this, BeeperService.class));  
   }
  
+  
+  /**
+   * Creates a pacot for stopping an experiment
+   * @param experiment 
+   */
+  private void createStopEvent(Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+    responseForInput.setAnswer("false");
+    responseForInput.setName("joined");
+    event.addResponse(responseForInput);
+        
+    experimentProviderUtil.insertEvent(event);
+    startService(new Intent(this, SyncService.class));
+  }
+
+
   private void editExperiment(long id) {
     Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleActivity.class);
     experimentIntent.setData(Uri.withAppendedPath(getIntent().getData(), Long.toString(id)));
