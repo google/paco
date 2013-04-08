@@ -268,5 +268,8 @@
    <string name="explore_data_variable_title">どの変数を表示しますか？</string>
    <string name="no_accounts_found">スマートフォンにはGoogleアカウントは登録されていません。「設定 > アカウント」より追加してください。</string>
    <string name="join_again">すでに参加済みの実験です。本当にもう一度参加しますか？</string>
+   <string name="updated_paco_notification_ticker_text">Paco: アプリを更新できます。</string>
+   <string name="updated_paco_notification_content_title">Pacoを更新</string>
+   <string name="updated_paco_notification_content_text">Pacoの更新版をダウンロードできます。</string>
    
 </resources>
