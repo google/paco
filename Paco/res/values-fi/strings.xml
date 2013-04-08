@@ -270,5 +270,9 @@
    <string name="explore_data_variable_title">Which variable(s) would you like to explore?</string>
    <string name="no_accounts_found">No Google accounts on your phone. Go to Settings/Account to add one.</string>
    <string name="join_again">You have already joined this experiment. Do you really want to join it again?</string>
+   <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
+   <string name="updated_paco_notification_content_title">Paco Update</string>
+   <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
+   
    
 </resources>
