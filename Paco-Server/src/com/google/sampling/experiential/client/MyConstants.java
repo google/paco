@@ -351,5 +351,8 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Sign in as another user")
   String signInAsOtherUser();
 
+  @DefaultStringValue("Join Experiment")
+  String joinExperiment();
+
 
 }

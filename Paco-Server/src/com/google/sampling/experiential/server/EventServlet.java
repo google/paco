@@ -458,7 +458,8 @@ public class EventServlet extends HttpServlet {
       throw new IllegalArgumentException("Empty Post body");
     } 
 
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase());
+    String appIdHeader = req.getHeader("http.useragent");
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader);    
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

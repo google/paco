@@ -182,7 +182,7 @@ public class StatsPanel extends Composite {
 
   private void fireExperimentCode(int code) {
     for (ExperimentListener listener : listeners) {
-      listener.eventFired(code, experiment, false);
+      listener.eventFired(code, experiment, false, false);
     }
   }
 

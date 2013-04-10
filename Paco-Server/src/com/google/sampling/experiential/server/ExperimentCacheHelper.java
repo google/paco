@@ -13,6 +13,7 @@ import net.sf.jsr107cache.CacheManager;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
@@ -70,16 +71,33 @@ public class ExperimentCacheHelper {
     }
   }
 
-  public List<ExperimentDAO> getJoinableExperiments() {
+  public List<ExperimentDAO> getJoinableExperiments(String tz) {
     List<ExperimentDAO> experiments = getExperiments();
     List<ExperimentDAO> joinable = Lists.newArrayList(experiments);
-    DateTime now = new DateTime();
+    
+    DateTime now = getDateForEndOfExperiments(tz);
+    
     for (ExperimentDAO experiment : experiments) {
       if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, now)) {
         joinable.remove(experiment);
       }
     }
     return joinable;
+  }
+
+  private DateTime getDateForEndOfExperiments(String tz) {
+    DateTime now = new DateTime();
+    if (tz != null) {
+      DateTimeZone timeZone = DateTimeZone.forID(tz);
+      if (timeZone != null) { 
+        now = new DateTime().withZone(timeZone);
+      } else {
+        now = new DateTime();
+      }
+    } else {
+      now = new DateTime();
+    }
+    return now;
   }
 
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.

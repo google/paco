@@ -49,7 +49,7 @@ public interface MapServiceAsync {
    */
   void saveExperiment(ExperimentDAO experiment, AsyncCallback<Void> asyncCallback);
 
-  void getExperimentsForUser(AsyncCallback<List<ExperimentDAO>> callback);
+  void getExperimentsAvailableToUser(AsyncCallback<List<ExperimentDAO>> callback);
 
   /**
    * @param experiment
@@ -71,5 +71,9 @@ public interface MapServiceAsync {
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId, AsyncCallback<Void> callback);
 
   void getEndOfDayEvents(String queryText, AsyncCallback<Map<Date, EventDAO>> referringCallback);
+
+  void getUsersAdministeredExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+
+  void joinExperiment(Long id, AsyncCallback<Boolean> asyncCallback);
 
 }
