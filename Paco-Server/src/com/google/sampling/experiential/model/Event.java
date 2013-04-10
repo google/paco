@@ -35,6 +35,7 @@ import javax.jdo.annotations.PrimaryKey;
 import org.apache.commons.codec.binary.Hex;
 import org.mortbay.log.Log;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -138,7 +139,7 @@ public class Event {
     this.what = what;
     setWhatMap(what);
     this.appId = appId;
-    this.pacoVersion = (pacoVersion == null || pacoVersion.isEmpty()) ? "1" : pacoVersion;
+    this.pacoVersion = Strings.isNullOrEmpty(pacoVersion) ? "1" : pacoVersion;
     this.shared = shared;
     this.experimentId = experimentId;
     this.experimentName = experimentName;
