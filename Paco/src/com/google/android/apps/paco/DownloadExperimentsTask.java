@@ -62,7 +62,10 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
         manager = new UrlContentManager(enclosingActivity);
         String serverAddress = userPrefs.getServerAddress();
         String path = "/experiments";
-        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path)).execute();
+        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
+                .addHeader("http.useragent", "Android")
+                .addHeader("paco.version", AndroidUtils.getAppVersion(enclosingActivity))
+                .execute();
         String contentAsString = response.getContentAsString();
         if (contentAsString != null) {
           ObjectMapper mapper = new ObjectMapper();

@@ -45,12 +45,12 @@ public class EventJsonUploadProcessor {
     return new EventJsonUploadProcessor(ExperimentRetriever.getInstance(), EventRetriever.getInstance());
   }
 
-  public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader) {
+  public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     try {
       if (postBodyString.startsWith("[")) {
-        return toJson(processJsonArray(new JSONArray(postBodyString), whoFromLogin, appIdHeader));
+        return toJson(processJsonArray(new JSONArray(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
       } else {
-        return toJson(processSingleJsonEvent(new JSONObject(postBodyString), whoFromLogin, appIdHeader));
+        return toJson(processSingleJsonEvent(new JSONObject(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
       }
     } catch (JSONException e) {
       throw new IllegalArgumentException("JSON Exception reading post data: " + e.getMessage());
@@ -75,23 +75,23 @@ public class EventJsonUploadProcessor {
     }
   }
 
-  private List<Outcome> processSingleJsonEvent(JSONObject currentEvent, String whoFromLogin, String appIdHeader) {
+  private List<Outcome> processSingleJsonEvent(JSONObject currentEvent, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
     List<Outcome> results = Lists.newArrayList();
     try {
-      results.add(postEvent(currentEvent, 0, whoFromLogin, appIdHeader));
+      results.add(postEvent(currentEvent, 0, whoFromLogin, appIdHeader, pacoVersionHeader));
     } catch (Throwable e) {
       results.add(new Outcome(0, "Exception posting event: 0. "+ e.getMessage()));
     }
     return results;
   }
 
-  private List<Outcome> processJsonArray(JSONArray events, String whoFromLogin, String appIdHeader) {
+  private List<Outcome> processJsonArray(JSONArray events, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
     List<Outcome> results = Lists.newArrayList();
     JSONObject currentEvent = null;
     for (int i = 0; i < events.length(); i++) {
       try {
         currentEvent = events.getJSONObject(i);
-        results.add(postEvent(currentEvent, i, whoFromLogin, appIdHeader));
+        results.add(postEvent(currentEvent, i, whoFromLogin, appIdHeader, pacoVersionHeader));
       } catch (JSONException e) {
         results.add(new Outcome(i, "JSONException posting event: " + i + ". " + e.getMessage()));
       } catch (Throwable e) {
@@ -101,12 +101,14 @@ public class EventJsonUploadProcessor {
     return results;
   }
 
-  private Outcome postEvent(JSONObject eventJson, int eventId, String who, String appIdHeader) throws Throwable {
+  private Outcome postEvent(JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
     Outcome outcome = new Outcome(eventId);
     
     String pacoVersion = null;
     if (eventJson.has("pacoVersion")) {
       pacoVersion = eventJson.getString("pacoVersion");
+    } else if (!Strings.isNullOrEmpty(pacoVersionHeader)) {
+      pacoVersion = pacoVersionHeader;
     }
     
     String appId = null;

@@ -90,7 +90,7 @@ public class SyncService extends Service {
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
       EventUploader eventUploader = new EventUploader(new UrlContentManager(this), 
                         userPrefs.getServerAddress(), 
-                        experimentProviderUtil);
+                        experimentProviderUtil, this);
       eventUploader.uploadEvents(allEvents); 
     }
   }

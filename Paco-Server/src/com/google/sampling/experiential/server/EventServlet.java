@@ -459,7 +459,8 @@ public class EventServlet extends HttpServlet {
     } 
 
     String appIdHeader = req.getHeader("http.useragent");
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader);    
+    String pacoVersion = req.getHeader("paco.version");
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);    
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

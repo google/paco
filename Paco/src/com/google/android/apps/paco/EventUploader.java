@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
@@ -25,11 +26,14 @@ public class EventUploader {
   private ExperimentProviderUtil experimentProviderUtil;
   private String serverAddress;
 
+  private Context context;
+
   public EventUploader(UrlContentManager um, String serverAddress, 
-                       ExperimentProviderUtil experimentProviderUtil) {
+                       ExperimentProviderUtil experimentProviderUtil, SyncService syncService) {
     this.um = um;
     this.experimentProviderUtil = experimentProviderUtil;
     this.serverAddress = serverAddress;
+    this.context = syncService;
   }
   
   public void uploadEvents(List<Event> allEvents) {
@@ -88,8 +92,10 @@ public class EventUploader {
     try {
       Log.i("" + this, "Preparing to post.");      
       Response response = um.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/events")).
-          setPostData(json, Charset.forName("UTF_8").name()).addHeader("http.useragent", "PacoDroid2").
-          execute();
+          setPostData(json, Charset.forName("UTF_8").name())
+          .addHeader("http.useragent", "Android")
+          .addHeader("paco.version", AndroidUtils.getAppVersion(context))
+          .execute();
       
       responsePair.overallCode = response.getHttpCode();
       readOutcomesFromJson(responsePair, response.getContentAsString());

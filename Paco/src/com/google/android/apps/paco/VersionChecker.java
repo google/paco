@@ -37,9 +37,11 @@ public class VersionChecker {
       um = new UrlContentManager(context);
 
       Log.i(PacoConstants.TAG, "Checking version of client");
+      
       Response response = um.createRequest()
       .setUrl(ServerAddressBuilder.createServerUrl(new UserPreferences(context.getApplicationContext()).getServerAddress(),"/version"))
-      .addHeader("http.useragent", "PacoDroid2")
+      .addHeader("http.useragent", "Android")      
+      .addHeader("paco.version", AndroidUtils.getAppVersion(context))
       .execute();
       
       

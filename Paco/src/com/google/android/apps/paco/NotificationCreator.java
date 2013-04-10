@@ -129,6 +129,7 @@ public class NotificationCreator {
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
     event.setScheduledTime(new DateTime(notificationHolder.getAlarmTime()));
     experimentProviderUtil.insertEvent(event);
   }
