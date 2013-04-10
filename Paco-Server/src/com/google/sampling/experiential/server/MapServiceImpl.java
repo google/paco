@@ -125,7 +125,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     try {
       String tz = null;
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform", 
-          "1", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
+          "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }

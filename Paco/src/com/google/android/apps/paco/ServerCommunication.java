@@ -93,7 +93,10 @@ public class ServerCommunication {
       manager = new UrlContentManager(context);
       
       String serverAddress = userPrefs.getServerAddress();
-      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments")).execute();
+      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments"))
+              .addHeader("http.useragent", "Android")
+              .addHeader("paco.version", AndroidUtils.getAppVersion(context))
+              .execute();
       String contentAsString = response.getContentAsString();
       Log.i("FindExperimentsActivity", "data: " + contentAsString);
       ArrayList<Experiment> result = null;
