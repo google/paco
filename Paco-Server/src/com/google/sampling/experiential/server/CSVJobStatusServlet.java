@@ -100,17 +100,17 @@ public class CSVJobStatusServlet extends HttpServlet {
         if (jobReport != null && jobReport.getRequestor().equals(who)) {
           blobstoreService.serve(new BlobKey(location), resp);
         } else {
-          resp.getWriter().println("Unknown job ID: " + jobId);
+          resp.getWriter().println("Unknown job ID: " + jobId +".");
         }
       } else if (!Strings.isNullOrEmpty(jobId)) {
         ReportJobStatus jobReport = getJobReport(who, jobId);
-        if (jobReport != null) {
+        if (jobReport != null && jobReport.getRequestor().equals(who)) {
           writeJobStatus(resp, jobReport, jobId, who);
         } else {
-          resp.getWriter().println("Unknown job ID: " + jobId);
+          resp.getWriter().println("Unknown job ID: " + jobId + ". The report generator may not have started the job yet. Try Refreshing the page once.");
         }
       } else {
-        resp.getWriter().println("Unknown job ID: " + jobId);
+        resp.getWriter().println("Must supply a job ID: " + jobId + "");
       }
     }
   }
