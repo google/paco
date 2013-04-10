@@ -157,7 +157,7 @@ public class ExperimentLandingPanel extends Composite {
         ExperimentDAO referredExperiment = null;
         ExperimentListener experimentListener = new ExperimentListener() {
           @Override
-          public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined) {
+          public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView) {
             String scheduledTime = formatTime(new Date());
             Map<String, String> kvPairs = Maps.newHashMap();
             container.getMapService().saveEvent(container.loginInfo.getEmailAddress(), 
@@ -195,27 +195,27 @@ public class ExperimentLandingPanel extends Composite {
   }
 
   private void loadExperiment() {
-    mapService.getExperimentsForUser(new AsyncCallback<List<ExperimentDAO>>() {
-
-      
-      @Override
-      public void onFailure(Throwable caught) {
-        Window.alert("Could not load Experiment");        
-      }
-
-      @Override
-      public void onSuccess(List<ExperimentDAO> result) {
-        for (ExperimentDAO experimentDAO : result) {
-          if (experimentDAO.getTitle().equals("Study")) {
-            ExperimentLandingPanel.this.experiment = experimentDAO;
-            break;
-          } else {
-            Window.alert("Could not load experiment");
-          }
-        }
-        
-      }
-    });
+//    mapService.getExperimentsForUser(new AsyncCallback<List<ExperimentDAO>>() {
+//
+//      
+//      @Override
+//      public void onFailure(Throwable caught) {
+//        Window.alert("Could not load Experiment");        
+//      }
+//
+//      @Override
+//      public void onSuccess(List<ExperimentDAO> result) {
+//        for (ExperimentDAO experimentDAO : result) {
+//          if (experimentDAO.getTitle().equals("Study")) {
+//            ExperimentLandingPanel.this.experiment = experimentDAO;
+//            break;
+//          } else {
+//            Window.alert("Could not load experiment");
+//          }
+//        }
+//        
+//      }
+//    });
     
   }
 

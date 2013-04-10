@@ -19,8 +19,6 @@ package com.google.sampling.experiential.server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -58,6 +56,7 @@ public class ExperimentServlet extends HttpServlet {
       IOException {
     resp.setContentType("application/json;charset=UTF-8");
     String lastModParam = req.getParameter("lastModification");
+    String tz = req.getParameter("tz");
     User user = getWhoFromLogin();
     
     if (user == null) {
@@ -71,7 +70,7 @@ public class ExperimentServlet extends HttpServlet {
       List<ExperimentDAO> experiments;
       if (experimentsJson == null) {
         log.info("No cached experiments for " + user.getEmail());
-        experiments = cacheHelper.getJoinableExperiments();
+        experiments = cacheHelper.getJoinableExperiments(tz);
         log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
         String email = getEmailOfUser(req, user);
         List<ExperimentDAO> availableExperiments = null;
@@ -79,9 +78,9 @@ public class ExperimentServlet extends HttpServlet {
           experiments = Lists.newArrayList();
           availableExperiments = experiments;        
         } else {
-          availableExperiments = getSortedExperimentsAvailableToUser(experiments, email);        
+          availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(experiments, email);        
         }
-        removeSensitiveFields(availableExperiments);
+        ExperimentRetriever.removeSensitiveFields(availableExperiments);
         experimentsJson = JsonConverter.jsonify(availableExperiments);
         cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
       }    
@@ -89,47 +88,9 @@ public class ExperimentServlet extends HttpServlet {
     }
   }
 
-  private void removeSensitiveFields(List<ExperimentDAO> availableExperiments) {
-    for (ExperimentDAO experimentDAO : availableExperiments) {
-      experimentDAO.setPublished(null);
-      experimentDAO.setAdmins(null);
-    }
-    
-  }
-
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
-  }
-
-
-  private List<ExperimentDAO> getSortedExperimentsAvailableToUser(List<ExperimentDAO> experiments, String email) {
-    List<ExperimentDAO> availableExperiments = Lists.newArrayList();
-    for (ExperimentDAO experiment : experiments) {
-      String creatorEmail = experiment.getCreator().toLowerCase();
-      if (creatorEmail.equals(email) || arrayContains(experiment.getAdmins(), email) || 
-          (experiment.getPublished() == true && 
-                  (experiment.getPublishedUsers().length == 0 || arrayContains(experiment.getPublishedUsers(), email)))) {
-        availableExperiments.add(experiment);
-      }
-    }
-    Collections.sort(availableExperiments, new Comparator<ExperimentDAO>() {
-      @Override
-      public int compare(ExperimentDAO o1, ExperimentDAO o2) {
-        return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
-      }      
-    });
-    return availableExperiments;
-  }
-
-
-  private boolean arrayContains(String[] strings, String targetString) {
-    for (int i = 0; i < strings.length; i++) {
-      if (strings[i].toLowerCase().equals(targetString.toLowerCase())) {
-        return true;
-      }
-    }
-    return false;
   }
 
 

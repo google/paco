@@ -44,7 +44,8 @@ public interface ExperimentListener {
   public static final int SHOW_QR_CODE = 16;
   public static final int SHOW_REF_CODE = 17;
   public static final int INDIVIDUAL_STATS_CODE = 18;
+  public static final int JOINED_CODE = 19;
   
 
-  void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
+  void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView);
 }

@@ -80,8 +80,8 @@ public class Main implements EntryPoint, ExperimentListener {
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
-  private List<ExperimentDAO> joinedExperiments;
-  private List<ExperimentDAO> adminedExperiments;
+  private List<ExperimentDAO> experiments;
+  
 
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
@@ -277,7 +277,7 @@ public class Main implements EntryPoint, ExperimentListener {
         findExperiments();
       }
     });
-    mntmFindExperiments.setEnabled(false);
+    mntmFindExperiments.setEnabled(true);
     joinedSubMenuBar.addItem(mntmFindExperiments);
     rootMenuBar.addItem(joinedMenuItem);
 
@@ -391,7 +391,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     experimentPanel.setVisible(true);
     statusLabel.setVisible(false);
-    getExperiments(false, false);
+    getExperiments(false, false, true);
   }
 
   private void setContentTitle(String text) {
@@ -403,7 +403,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     experimentPanel.setVisible(false);
     ExperimentDAO experiment = new ExperimentDAO();
-    showExperimentDetailPanel(experiment, true);
+    showExperimentDetailPanel(experiment, true, false);
   }
 
   protected void launchAbout() {
@@ -426,7 +426,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
-    getExperiments(true, false);
+    getExperiments(true, false, false);
   }
 
   protected void loadAdministeredExperiments(boolean experimentsDirty) {
@@ -435,7 +435,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
-    getExperiments(false, experimentsDirty);
+    getExperiments(false, experimentsDirty, false);
   }
 
   private void addRowsToTable(List<ExperimentRow> exRows) {
@@ -445,16 +445,15 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private List<ExperimentRow> createExperimentRows(
-      boolean joined, List<ExperimentDAO> experiments) {
+  private List<ExperimentRow> createExperimentRows(boolean joinedExperimentsView, List<ExperimentDAO> experiments, boolean findExperimentsView) {
     List<ExperimentRow> exRows = new ArrayList<ExperimentRow>();
     for (ExperimentDAO experiment : experiments) {
-      exRows.add(new ExperimentRow(resources, experiment, this, joined));
+      exRows.add(new ExperimentRow(resources, experiment, this, joinedExperimentsView, findExperimentsView));
     }
     return exRows;
   }
 
-  private void getExperiments(final boolean joined, final boolean experimentsDirty) {
+  private void getExperiments(final boolean joinedExperimentsView, final boolean experimentsDirty, final boolean findExperimentsView) {
     AsyncCallback<List<ExperimentDAO>> callback = new AsyncCallback<List<ExperimentDAO>>() {
       @Override
       public void onFailure(Throwable caught) {
@@ -472,36 +471,22 @@ public class Main implements EntryPoint, ExperimentListener {
           }
           
         });
-        if (joined) {
-          if (joinedExperiments == null) {
-            joinedExperiments = result;
-          }
-        } else {
-          if (experimentsDirty || adminedExperiments == null) {
-            adminedExperiments = result;
-          }
-        }
-        addRowsToTable(createExperimentRows(joined, result));
+        experiments = result;
+        addRowsToTable(createExperimentRows(joinedExperimentsView, experiments, findExperimentsView));
         statusLabel.setVisible(false);
 
       }
     };
-    if (joined) {
+    if (findExperimentsView) {
+      mapService.getExperimentsAvailableToUser(callback);
+    } else if (joinedExperimentsView) {
       mapService.getUsersJoinedExperiments(callback);
     } else {
-      mapService.getExperimentsForUser(callback);
+      mapService.getUsersAdministeredExperiments(callback);
     }
   }
 
-  private List<ExperimentDAO> retrieveAdminedExperiments() {
-    List<ExperimentDAO> experiments = new ArrayList<ExperimentDAO>();
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
-    return experiments;
-  }
-
-  public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined) {
+  public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView) {
     switch (experimentCode) {
       case ExperimentListener.STATS_CODE:
         contentPanel.clear();
@@ -527,7 +512,7 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.EDIT_CODE:
         contentPanel.clear();
-        showExperimentDetailPanel(experiment, !joined);
+        showExperimentDetailPanel(experiment, !joined, findView);
         break;
       case ExperimentListener.SAVED:
         contentPanel.clear();
@@ -550,7 +535,7 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
         copyExperiment(experiment);
-        showExperimentDetailPanel(experiment, true);
+        showExperimentDetailPanel(experiment, true, false);
         break;
       case ExperimentListener.ANON_MAPPING_CODE:
         String who2Str = "";
@@ -593,9 +578,41 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.INDIVIDUAL_STATS_CODE:        
         Window.open("/participantStats?experimentId=" + experiment.getId(),
                     "_blank","");
+        break;
+      case ExperimentListener.JOINED_CODE:
+        contentPanel.clear();
+        joinExperiment(experiment);
         break;   
+  
 
     }
+  }
+
+  private void joinExperiment(ExperimentDAO experiment) {
+    statusLabel.setVisible(true);
+
+    mapService.joinExperiment(experiment.getId(), new AsyncCallback<Boolean>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        Window.alert("Failure");
+        statusLabel.setVisible(false);
+
+      }
+
+      @Override
+      public void onSuccess(Boolean result) {
+        if (result) {
+          Window.alert("Success");
+        } else {
+          Window.alert("Failure to Join Experiment");
+        }
+        statusLabel.setVisible(false);
+
+      }
+    });
+
+    
   }
 
   private void toggleExperimentList(boolean enable) {
@@ -889,9 +906,12 @@ public class Main implements EntryPoint, ExperimentListener {
     statusLabel.setVisible(false);
   }
 
-  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {
+  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined, boolean findView) {
     statusLabel.setVisible(true);
-    if (!joined) {
+    if (findView) {
+      ExperimentJoinPanel ep = new ExperimentJoinPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);      
+    } else if (!joined) {
       ExperimentDescriptionPanel ep = new ExperimentDescriptionPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
     } else {

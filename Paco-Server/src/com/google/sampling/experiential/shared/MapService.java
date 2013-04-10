@@ -39,7 +39,7 @@ public interface MapService extends RemoteService {
   
   Boolean deleteExperiment(ExperimentDAO experiment);
   
-  List<ExperimentDAO> getExperimentsForUser();
+  List<ExperimentDAO> getExperimentsAvailableToUser();
   
   ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
   
@@ -52,4 +52,8 @@ public interface MapService extends RemoteService {
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
 
   Map<Date, EventDAO> getEndOfDayEvents(String queryText);
+
+  List<ExperimentDAO> getUsersAdministeredExperiments();
+
+  boolean joinExperiment(Long id);
 }

@@ -45,13 +45,15 @@ public class ExperimentRow extends Composite {
   private ArrayList<ExperimentListener> listeners;
   private boolean joined;
   private MyConstants myConstants;
+  private boolean findView;
 
   public ExperimentRow(
-      Images resources, ExperimentDAO experiment, ExperimentListener listener, boolean joined) {
+      Images resources, ExperimentDAO experiment, ExperimentListener listener, boolean joined, boolean findView) {
     this.images = resources;
     this.myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
     this.joined = joined;
+    this.findView = findView;
     this.listeners = new ArrayList<ExperimentListener>();
     if (listener != null) {
       listeners.add(listener);
@@ -104,82 +106,114 @@ public class ExperimentRow extends Composite {
     HorizontalPanel horizontalPanel_1 = new HorizontalPanel();
     horizontalPanel_1.setSpacing(1);
     verticalPanel.add(horizontalPanel_1);
-//
-    if (joined) {
-      Button enterButton = new Button(myConstants.respond());
-      enterButton.setStyleName("paco-ExperimentRow-Button");
-      enterButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showExecutorPanel();
-        }
-      });
-      horizontalPanel_1.add(enterButton);
-      horizontalPanel.setCellVerticalAlignment(enterButton, HasVerticalAlignment.ALIGN_MIDDLE);
+
+    createButtonPanel(experiment, joined, horizontalPanel, horizontalPanel_1, findView);
+
+  }
+
+  private void createButtonPanel(ExperimentDAO experiment, boolean joined, HorizontalPanel horizontalPanel,
+                                 HorizontalPanel horizontalPanel_1, boolean findView) {
+    if (findView) {
+      createFindViewPanel(horizontalPanel, horizontalPanel_1);
+    } else if (joined) {
+      createJoinedButtonPanel(horizontalPanel, horizontalPanel_1);
+    } else {
+      createAdminButtonPanel(horizontalPanel, horizontalPanel_1);
     }
-    
-    //
-    Button dataButton = new Button(myConstants.viewData());
-    dataButton.setStyleName("paco-ExperimentRow-Button");
-    dataButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showData();
-      }
-    });
-    horizontalPanel_1.add(dataButton);
-    horizontalPanel.setCellVerticalAlignment(dataButton, HasVerticalAlignment.ALIGN_MIDDLE);
 
-    Button chartButton = new Button(myConstants.charts());
-    chartButton.setStyleName("paco-ExperimentRow-Button");
-    chartButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showCharts();
-      }
-    });
-    horizontalPanel_1.add(chartButton);
-    horizontalPanel.setCellVerticalAlignment(chartButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
 
-    Button statsButton = new Button(myConstants.stats());
-    statsButton.setStyleName("paco-ExperimentRow-Button");
-    statsButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showStats();
-      }
-    });
-    horizontalPanel_1.add(statsButton);
-    horizontalPanel.setCellVerticalAlignment(statsButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  private void createAdminButtonPanel(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    createViewDataButton(horizontalPanel, horizontalPanel_1);
+    createChartButton(horizontalPanel, horizontalPanel_1);
+    createStatsButton(horizontalPanel, horizontalPanel_1);
+    createCSVButton(horizontalPanel, horizontalPanel_1);
+    createAnonCSVButton(horizontalPanel, horizontalPanel_1);
+    createCopyButton(horizontalPanel, horizontalPanel_1);
+    createDeleteButton(experiment, horizontalPanel, horizontalPanel_1);
+    createPurgeButton(horizontalPanel, horizontalPanel_1);
+    createQRCodeButton(horizontalPanel, horizontalPanel_1);
+    createEodRefButton(horizontalPanel, horizontalPanel_1);
+  }
 
-    Button csvButton = new Button(myConstants.csv());
-    csvButton.setStyleName("paco-ExperimentRow-Button");
-    csvButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        showCSV();
-      }
-    });
-    horizontalPanel_1.add(csvButton);
-    horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    
-    if (!joined) {
-      Button csvAnonButton = new Button(myConstants.anonCsv());
-      csvAnonButton.setStyleName("paco-ExperimentRow-Button");
-      csvAnonButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showCSVAnon();
-        }
-      });
-      horizontalPanel_1.add(csvAnonButton);
-      horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  private void createJoinedButtonPanel(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    createRespondButton(horizontalPanel, horizontalPanel_1);
+    createViewDataButton(horizontalPanel, horizontalPanel_1);
+    createChartButton(horizontalPanel, horizontalPanel_1);
+    createStatsButton(horizontalPanel, horizontalPanel_1);
+    createCSVButton(horizontalPanel, horizontalPanel_1);
+    createCopyButton(horizontalPanel, horizontalPanel_1);
+  }
+
+  private void createFindViewPanel(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    createDetailsButton(horizontalPanel, horizontalPanel_1);
+    createQRCodeButton(horizontalPanel, horizontalPanel_1);
+    createCopyButton(horizontalPanel, horizontalPanel_1);
+  }
   
-      Button anonMappingButton = new Button(myConstants.anonMap());
-      anonMappingButton.setStyleName("paco-ExperimentRow-Button");
-      anonMappingButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showAnonMapping();
-        }
-      });
-      horizontalPanel_1.add(anonMappingButton);
-      horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    }
-    
+  private void createDetailsButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button copyButton = new Button(myConstants.copy());
+    copyButton.setStyleName("paco-ExperimentRow-Button");
+    copyButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showExperimentDetails();
+      }
+    });
+    horizontalPanel_1.add(copyButton);
+    horizontalPanel.setCellVerticalAlignment(copyButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+  
+  private void createEodRefButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button refButton = new Button(myConstants.eodRef());
+    refButton.setStyleName("paco-ExperimentRow-Button");
+    refButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showRefDialog();
+      }
+    });
+    horizontalPanel_1.add(refButton);
+    horizontalPanel.setCellVerticalAlignment(refButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createQRCodeButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button qrCodeButton = new Button(myConstants.qrCode());
+    qrCodeButton.setStyleName("paco-ExperimentRow-Button");
+    qrCodeButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showQRCode();
+      }
+    });
+    horizontalPanel_1.add(qrCodeButton);
+    horizontalPanel.setCellVerticalAlignment(qrCodeButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createPurgeButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button deleteButton = new Button(myConstants.purge());
+    deleteButton.setStyleName("paco-ExperimentRow-Button");
+    deleteButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        deleteExperiment();
+      }
+    });
+    horizontalPanel_1.add(deleteButton);
+    horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createDeleteButton(ExperimentDAO experiment, HorizontalPanel horizontalPanel,
+                                  HorizontalPanel horizontalPanel_1) {
+    Button deleteButton = new Button(
+        experiment.getDeleted() != null && experiment.getDeleted() ? myConstants.unHide() : myConstants.hide());
+    deleteButton.setStyleName("paco-ExperimentRow-Button");
+    deleteButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        softDeleteExperiment();
+      }
+    });
+    horizontalPanel_1.add(deleteButton);
+    horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createCopyButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
     Button copyButton = new Button(myConstants.copy());
     copyButton.setStyleName("paco-ExperimentRow-Button");
     copyButton.addClickHandler(new ClickHandler() {
@@ -189,57 +223,88 @@ public class ExperimentRow extends Composite {
     });
     horizontalPanel_1.add(copyButton);
     horizontalPanel.setCellVerticalAlignment(copyButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    
-    
-    if (!joined) {
-      Button deleteButton = new Button(
-          experiment.getDeleted() != null && experiment.getDeleted() ? myConstants.unHide() : myConstants.hide());
-      deleteButton.setStyleName("paco-ExperimentRow-Button");
-      deleteButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          softDeleteExperiment();
-        }
-      });
-      horizontalPanel_1.add(deleteButton);
-      horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    }
+  }
 
-    if (!joined) {
-      Button deleteButton = new Button(myConstants.purge());
-      deleteButton.setStyleName("paco-ExperimentRow-Button");
-      deleteButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          deleteExperiment();
-        }
-      });
-      horizontalPanel_1.add(deleteButton);
-      horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    }
-    
-    if (!joined) {
-      Button qrCodeButton = new Button(myConstants.qrCode());
-      qrCodeButton.setStyleName("paco-ExperimentRow-Button");
-      qrCodeButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showQRCode();
-        }
-      });
-      horizontalPanel_1.add(qrCodeButton);
-      horizontalPanel.setCellVerticalAlignment(qrCodeButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    }
+  private void createAnonCSVButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button csvAnonButton = new Button(myConstants.anonCsv());
+    csvAnonButton.setStyleName("paco-ExperimentRow-Button");
+    csvAnonButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showCSVAnon();
+      }
+    });
+    horizontalPanel_1.add(csvAnonButton);
+    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+ 
+    Button anonMappingButton = new Button(myConstants.anonMap());
+    anonMappingButton.setStyleName("paco-ExperimentRow-Button");
+    anonMappingButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showAnonMapping();
+      }
+    });
+    horizontalPanel_1.add(anonMappingButton);
+    horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
 
-    if (!joined) {
-      Button refButton = new Button(myConstants.eodRef());
-      refButton.setStyleName("paco-ExperimentRow-Button");
-      refButton.addClickHandler(new ClickHandler() {
-        public void onClick(ClickEvent event) {
-          showRefDialog();
-        }
-      });
-      horizontalPanel_1.add(refButton);
-      horizontalPanel.setCellVerticalAlignment(refButton, HasVerticalAlignment.ALIGN_MIDDLE);
-    }
+  private void createCSVButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button csvButton = new Button(myConstants.csv());
+    csvButton.setStyleName("paco-ExperimentRow-Button");
+    csvButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showCSV();
+      }
+    });
+    horizontalPanel_1.add(csvButton);
+    horizontalPanel.setCellVerticalAlignment(csvButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
 
+  private void createStatsButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button statsButton = new Button(myConstants.stats());
+    statsButton.setStyleName("paco-ExperimentRow-Button");
+    statsButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showStats();
+      }
+    });
+    horizontalPanel_1.add(statsButton);
+    horizontalPanel.setCellVerticalAlignment(statsButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createChartButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button chartButton = new Button(myConstants.charts());
+    chartButton.setStyleName("paco-ExperimentRow-Button");
+    chartButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showCharts();
+      }
+    });
+    horizontalPanel_1.add(chartButton);
+    horizontalPanel.setCellVerticalAlignment(chartButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createViewDataButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button dataButton = new Button(myConstants.viewData());
+    dataButton.setStyleName("paco-ExperimentRow-Button");
+    dataButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showData();
+      }
+    });
+    horizontalPanel_1.add(dataButton);
+    horizontalPanel.setCellVerticalAlignment(dataButton, HasVerticalAlignment.ALIGN_MIDDLE);
+  }
+
+  private void createRespondButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
+    Button enterButton = new Button(myConstants.respond());
+    enterButton.setStyleName("paco-ExperimentRow-Button");
+    enterButton.addClickHandler(new ClickHandler() {
+      public void onClick(ClickEvent event) {
+        showExecutorPanel();
+      }
+    });
+    horizontalPanel_1.add(enterButton);
+    horizontalPanel.setCellVerticalAlignment(enterButton, HasVerticalAlignment.ALIGN_MIDDLE);
   }
 
   protected void showRefDialog() {
@@ -298,7 +363,7 @@ public class ExperimentRow extends Composite {
 
   private void fireExperimentCode(int code) {
     for (ExperimentListener listener : listeners) {
-      listener.eventFired(code, experiment, joined);
+      listener.eventFired(code, experiment, joined, findView);
     }
   }
 

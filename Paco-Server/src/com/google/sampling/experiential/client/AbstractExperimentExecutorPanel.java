@@ -88,7 +88,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
       
       @Override
       public void onClick(ClickEvent event) {
-        experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE, experiment, true);
+        experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE, experiment, true, false);
       }
     });    
   }
@@ -110,7 +110,7 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
       @Override
       public void onSuccess(Void result) {
         Window.alert(myConstants.success());        
-        experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CODE, experiment, true);
+        experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CODE, experiment, true, false);
       }
       
     };

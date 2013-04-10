@@ -1,5 +1,7 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -7,11 +9,13 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
+import com.google.sampling.experiential.shared.ExperimentDAO;
 
 public class ExperimentRetriever {
 
@@ -115,6 +119,42 @@ public class ExperimentRetriever {
         pm.close();
       }
     }
+  }
+
+  public static void removeSensitiveFields(List<ExperimentDAO> availableExperiments) {
+    for (ExperimentDAO experimentDAO : availableExperiments) {
+      experimentDAO.setPublished(null);
+      experimentDAO.setAdmins(null);
+    }
+    
+  }
+
+  public static boolean arrayContains(String[] strings, String targetString) {
+    for (int i = 0; i < strings.length; i++) {
+      if (strings[i].toLowerCase().equals(targetString.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static List<ExperimentDAO> getSortedExperimentsAvailableToUser(List<ExperimentDAO> experiments, String email) {
+    List<ExperimentDAO> availableExperiments = Lists.newArrayList();
+    for (ExperimentDAO experiment : experiments) {
+      String creatorEmail = experiment.getCreator().toLowerCase();
+      if (creatorEmail.equals(email) || ExperimentRetriever.arrayContains(experiment.getAdmins(), email) || 
+          (experiment.getPublished() == true && 
+                  (experiment.getPublishedUsers().length == 0 || ExperimentRetriever.arrayContains(experiment.getPublishedUsers(), email)))) {
+        availableExperiments.add(experiment);
+      }
+    }
+    Collections.sort(availableExperiments, new Comparator<ExperimentDAO>() {
+      @Override
+      public int compare(ExperimentDAO o1, ExperimentDAO o2) {
+        return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
+      }      
+    });
+    return availableExperiments;
   }
 
 }

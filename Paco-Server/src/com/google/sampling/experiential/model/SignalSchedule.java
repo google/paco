@@ -26,8 +26,12 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
 
 /**
@@ -244,6 +248,91 @@ public class SignalSchedule {
     this.timeout = timeout;
   }
 
+  @Override
+  public String toString() {
+
+    StringBuilder buf = new StringBuilder();
+    appendKeyValue(buf, "type", SignalScheduleDAO.SCHEDULE_TYPES_NAMES[scheduleType]);
+    comma(buf);
+    if (scheduleType == SignalScheduleDAO.ESM) {
+      appendKeyValue(buf, "frequency", esmFrequency.toString());
+      comma(buf);
+      appendKeyValue(buf,"esmPeriod", SignalScheduleDAO.ESM_PERIODS_NAMES[esmPeriodInDays]);
+      comma(buf);
+      appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
+      comma(buf);
+      appendKeyValue(buf,"endHour", getHourOffsetAsTimeString(esmEndHour));
+      comma(buf);
+      appendKeyValue(buf,"weekends", esmWeekends.toString());
+      comma(buf);
+    }
+    buf.append("times = [");
+    boolean firstTime = true;
+    for (Long time : times) {
+      if (firstTime) {
+        firstTime = false;
+      } else {
+        buf.append(",");
+      }    
+      buf.append(getHourOffsetAsTimeString(time));      
+    }
+    buf.append("]");
+    comma(buf);
+    appendKeyValue(buf, "repeatRate", repeatRate != null ? repeatRate.toString() : "");
+    comma(buf);
+    appendKeyValue(buf, "daysOfWeek", weekDaysScheduled != null ? stringNamesOf(weekDaysScheduled) : "");
+    comma(buf);
+    appendKeyValue(buf, "nthOfMonth", nthOfMonth != null ? nthOfMonth.toString() : "");
+    comma(buf);
+    appendKeyValue(buf,"byDayOfMonth", byDayOfMonth != null ? byDayOfMonth.toString() : "");
+    comma(buf);
+    appendKeyValue(buf,"dayOfMonth", dayOfMonth != null ? dayOfMonth.toString() : "");
+    
+    return buf.toString();
+  }
   
+  private String stringNamesOf(Integer weekDaysScheduled2) {
+    StringBuilder buf = new StringBuilder();
+    boolean first = true;
+    for (int i= 0; i < SignalScheduleDAO.DAYS_OF_WEEK.length;i++) {
+      if ((weekDaysScheduled & SignalScheduleDAO.DAYS_OF_WEEK[i]) == SignalScheduleDAO.DAYS_OF_WEEK[i]) {
+        if (first) {
+          first = false;
+        } else {
+          comma(buf);
+        }
+        buf.append(SignalScheduleDAO.DAYS_OF_WEEK[i]);
+      }
+    }
+    return buf.toString();
+  }
+
   
+  public String getHourOffsetAsTimeString(Long esmEndHour2) {
+    DateTime endHour = new DateMidnight().toDateTime().plus(esmEndHour2);
+    String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
+    return endHourString;
+  }
+
+  private String pad(int minuteOfHour) {
+    if (minuteOfHour < 10) {
+      return "0" + minuteOfHour;
+    } else {
+      return Integer.toString(minuteOfHour);
+    }
+  }
+
+
+ 
+  private void appendKeyValue(StringBuilder buf, String key, String value) {
+    buf.append(key);
+    buf.append(" = ");
+    buf.append(value);
+  }
+
+  private void comma(StringBuilder buf) {
+    buf.append(",");
+  }
+
+
 }
