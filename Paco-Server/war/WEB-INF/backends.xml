@@ -1,8 +1,9 @@
 <backends>
  <backend name="reportworker">
+     <class>B8</class>
    <options>
      <dynamic>true</dynamic>
-     <public>false</public>
+     <public>false</public>     
    </options>
  </backend>
 </backends>

@@ -107,8 +107,8 @@ public class ParticipantReport {
       if (event.isJoined()) {
         continue;
       }
-      Date scheduledTime = event.getScheduledTime();
-      Date responseTime = event.getResponseTime();
+      DateTime scheduledTime = event.getScheduledTimeWithTimeZone(getDefaultTimezone());
+      DateTime responseTime = event.getResponseTimeWithTimeZone(getDefaultTimezone());
 
       if (scheduledTime != null) {
         scheduled++;
@@ -122,6 +122,10 @@ public class ParticipantReport {
     }
     computeTodaysResponses();
   }
+
+  private String getDefaultTimezone() {
+    return timeZoneForClient != null ? timeZoneForClient.getID() : null;
+  }
   
   private void computeTodaysResponses() {
     todaysSelfReportResponses = 0;
@@ -131,8 +135,8 @@ public class ParticipantReport {
       if (event.isJoined()) {
         continue;
       }
-      Date scheduledTime = event.getScheduledTime();
-      Date responseTime = event.getResponseTime();
+      DateTime scheduledTime = event.getScheduledTimeWithTimeZone(getDefaultTimezone());
+      DateTime responseTime = event.getResponseTimeWithTimeZone(getDefaultTimezone());
       String tz = event.getTimeZone();
       if ((scheduledTime != null && isToday(scheduledTime, tz))) {
         todaysScheduled++;
@@ -145,7 +149,7 @@ public class ParticipantReport {
     }
   }
 
-  boolean isToday(Date scheduledTime, String tz) {
+  boolean isToday(DateTime scheduledTime, String tz) {
     if (scheduledTime == null) {
       return false;
     }
@@ -156,9 +160,9 @@ public class ParticipantReport {
     if (tzToUse == null) { // this is a legacy case and also a bad data case if a user creates a fake event with a bad timezone. 
       tzToUse = timeZoneForClient;
     }
-    Date date = new DateTime().withZone(tzToUse).toDate();
-    return date.getDate() == scheduledTime.getDate() &&
-           date.getMonth() == scheduledTime.getMonth() &&
+    DateTime date = new DateTime().withZone(tzToUse);
+    return date.getDayOfMonth() == scheduledTime.getDayOfMonth() &&
+           date.getMonthOfYear() == scheduledTime.getMonthOfYear() &&
            date.getYear() == scheduledTime.getYear();
 
   }

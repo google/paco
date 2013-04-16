@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -30,14 +29,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Servlet that receives request from frontend to start csv report job.
@@ -47,10 +41,10 @@ import com.google.sampling.experiential.shared.TimeUtil;
  * @author Bob Evans
  * 
  */
+@SuppressWarnings("serial")
 public class BackendReportJobExecutorServlet extends HttpServlet {
 
   private static final Logger log = Logger.getLogger(BackendReportJobExecutorServlet.class.getName());
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
 
@@ -63,9 +57,37 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     if (anonStr != null) {
       anon = Boolean.parseBoolean(anonStr);
     }
-    dumpEventsCSV(resp, req, anon);    
+    String reportFormat = req.getParameter("reportFormat");
+    if (reportFormat != null && reportFormat.equals("csv")) {
+      log.info("Backend generating csv report");
+      dumpEventsCSV(resp, req, anon);
+    } else if (reportFormat != null && reportFormat.equals("json")) {
+      log.info("Backend generating json report");
+      dumpEventsJson(resp, req, anon);
+    } else {
+      log.info("Backend generating html report");
+      showEvents(req, resp, anon);
+    }    
   }
   
+  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    String requestorEmail = getRequestorEmail(req);    
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv");
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);   
+  }
+  
+  private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "html");
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+
+  }
+
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
     String tzStr = getParam(req, "tz");
     if (tzStr != null && !tzStr.isEmpty()) {
@@ -92,9 +114,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     }
   }
 
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-
+  private String getRequestorEmail(HttpServletRequest req) {
     String whoParam = getParam(req, "who");
     if (whoParam == null) {
       throw new IllegalArgumentException("Must pass the who param");
@@ -103,12 +123,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     if (requestorEmail != null && adminUsers.contains(requestorEmail)) {
       requestorEmail = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
-    
-    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon);
-    resp.setContentType("text/plain;charset=UTF-8");
-    resp.getWriter().println(jobId);
-    
+    return requestorEmail;
   }
 
   private String stripQuotes(String parameter) {
@@ -124,17 +139,11 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     return parameter;
   }
 
-  private String getTimeString(Event event, Date time) {
-    String scheduledTimeString = "";
-    if (time != null) {
-      scheduledTimeString = jodaFormatter.print(new DateTime(time));
-    }
-    return scheduledTimeString;
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) {
+    throw new RuntimeException("This does not exist on the backend yet!");
+    
   }
 
-  private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) 
-      throws UnsupportedEncodingException {
-    req.setCharacterEncoding("UTF-8");
-    resp.setCharacterEncoding("UTF-8");
-  }
+
+  
 }

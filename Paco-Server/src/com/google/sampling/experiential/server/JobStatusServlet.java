@@ -76,12 +76,10 @@ import com.google.sampling.experiential.shared.TimeUtil;
  * @author Bob Evans
  * 
  */
-public class CSVJobStatusServlet extends HttpServlet {
+public class JobStatusServlet extends HttpServlet {
 
-  private static final Logger log = Logger.getLogger(CSVJobStatusServlet.class.getName());
+  private static final Logger log = Logger.getLogger(JobStatusServlet.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
-  private String defaultAdmin = "bobevans@google.com";
-  private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
   @Override
@@ -155,7 +153,7 @@ public class CSVJobStatusServlet extends HttpServlet {
     if (Strings.isNullOrEmpty(location)) {
       return "";
     }
-    return "<a href=\"/csvJobStatus?who=" + who + "&jobId=" + jobId + "&location=" + location + "\">" + location + "</a>";
+    return "<a href=\"/jobStatus?who=" + who + "&jobId=" + jobId + "&location=" + location + "\">" + location + "</a>";
   }
 
   private String getNameForStatus(ReportJobStatus jobReport) {
@@ -210,116 +208,6 @@ public class CSVJobStatusServlet extends HttpServlet {
       throw new IllegalArgumentException("Unspported encoding");
     }
   }
-
-  private void printEvents(HttpServletResponse resp, List<Event> events, Experiment experiment, boolean anon, int offset, int limit, String q) throws IOException {
-    long t1 = System.currentTimeMillis();
-    long eventTime = 0;
-    long whatTime = 0;
-    if (events.isEmpty()) {
-      resp.getWriter().println("Nothing to see here.");
-    } else {
-      StringBuilder out = new StringBuilder();
-      out.append("<html><head><title>Current Results for " + experiment.getTitle() + "</title>" +
-          "<style type=\"text/css\">"+
-              "body {font-family: verdana,arial,sans-serif;color:#333333}" +
-            "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: #666666;border-collapse: collapse;}" +
-            "table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}" +
-            "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
-            "</style>" +
-                 "</head><body>");
-      out.append("<h1>" + experiment.getTitle() + " Results</h1>");
-      out.append("<div><span style\"font-weight: bold;\">");
-      //out.append("<a href=\"/events?q='" + q + "'&offset=" + ((offset == 0) ? offset : offset - limit) + "&limit=" + limit +"\"> < </a>");  
-      out.append("Showing results: </span> <span>" + (offset + 1) +" - " + (offset + events.size()));
-      //out.append("<a href=\"/events?q='" + q + "'&offset=" + (offset + limit) + "&limit=" + limit +"\"> > </a>");
-      out.append("</span></div>" );
-      out.append("<div><span style\"font-weight: bold;\">Number of results:</span> <span>" + events.size() +"</span></div>" );
-      out.append("<table class=\"gridtable\">");
-      out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th><th>Responses</th></tr>");
-      for (Event event : events) {
-        long e1 = System.currentTimeMillis();
-        out.append("<tr>");
-        
-        out.append("<td>").append(event.getExperimentName()).append("</td>");
-        
-        out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-        
-        out.append("<td>").append(getTimeString(event, event.getScheduledTime())).append("</td>");
-        
-        out.append("<td>").append(getTimeString(event, event.getResponseTime())).append("</td>");
-        
-        String who = event.getWho();
-        if (anon) {
-          who = Event.getAnonymousId(who);
-        }
-        out.append("<td>").append(who).append("</td>");
-        eventTime += System.currentTimeMillis() - e1;
-        long what1 = System.currentTimeMillis();
-        // we want to render photos as photos not as strings.
-        // It would be better to do this by getting the experiment for
-        // the event and going through the inputs.
-        // That was not done because there may be multiple experiments
-        // in the data returned for this interface and
-        // that is work that is otherwise necessary for now. Go
-        // pretotyping!
-        // TODO clean all the accesses of what could be tainted data.
-        List<PhotoBlob> photos = event.getBlobs();
-        Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
-        for (PhotoBlob photoBlob : photos) {
-          photoByNames.put(photoBlob.getName(), photoBlob);
-        }
-        Map<String, String> whatMap = event.getWhatMap();
-        Set<String> keys = whatMap.keySet();
-        if (keys != null) {
-          ArrayList<String> keysAsList = Lists.newArrayList(keys);
-          Collections.sort(keysAsList);
-          Collections.reverse(keysAsList);
-          for (String key : keysAsList) {
-            String value = whatMap.get(key);
-            if (value == null) {
-              value = "";
-            } else if (photoByNames.containsKey(key)) {
-              byte[] photoData = photoByNames.get(key).getValue();
-              if (photoData != null && photoData.length > 0) {
-                String photoString = new String(Base64.encodeBase64(photoData));
-                if (!photoString.equals("==")) {
-                  value = "<img height=\"375\" src=\"data:image/jpg;base64," + photoString + "\">";
-                } else {
-                  value = "";
-                }
-              } else {
-                value = "";
-              }
-            } else if (value.indexOf(" ") != -1) {
-              value = "\"" + StringEscapeUtils.escapeHtml4(value) + "\"";
-            } else {
-              value = StringEscapeUtils.escapeHtml4(value);
-            }
-            out.append("<td>");
-            out.append(key).append(" = ").append(value);
-            out.append("</td>");
-          }
-        }
-        whatTime += System.currentTimeMillis() - what1;
-        out.append("<tr>");
-      }
-      long t2 = System.currentTimeMillis();
-      log.info("EventServlet printEvents total: " + (t2 - t1));
-      log.info("Event time: " + eventTime);
-      log.info("what time: " + whatTime);
-      out.append("</table></body></html>");
-      resp.getWriter().println(out.toString());
-    }
-  }
-
-  private String getTimeString(Event event, Date time) {
-    String scheduledTimeString = "";
-    if (time != null) {
-      scheduledTimeString = jodaFormatter.print(new DateTime(time));
-    }
-    return scheduledTimeString;
-  }
-
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) 
       throws UnsupportedEncodingException {

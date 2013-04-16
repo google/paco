@@ -9,6 +9,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -25,11 +30,15 @@ import com.google.sampling.experiential.shared.TimeUtil;
 
 public class CSVBlobWriter {
   
+  private static final Logger log = Logger.getLogger(CSVBlobWriter.class.getName());
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+
+  
   public CSVBlobWriter() {
   }
 
-  public String writeEndOfDayExperimentEventsAsCSV(boolean anon, 
-                                                 List<EventDAO> events, String jobId) throws IOException {
+  public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events, 
+                                                   String jobId, String clientTimezone) throws IOException {
 
    TimeLogger.logTimestamp("T6:");
    sortEventDAOs(events);
@@ -46,7 +55,7 @@ public class CSVBlobWriter {
    columns.addAll(foundColumnNames);
    Collections.sort(columns);
    for (EventDAO event : events) {
-     eventsCSV.add(toCSV(event, columns, anon));
+     eventsCSV.add(toCSV(event, columns, anon, clientTimezone));
    }
    TimeLogger.logTimestamp("T8:");
    // add back in the standard pacot event columns
@@ -94,10 +103,8 @@ public class CSVBlobWriter {
    return blobKey.getKeyString();
  }
 
- private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon) {
-     java.text.SimpleDateFormat simpleDateFormat =
-       new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-     
+ private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon, 
+                        String clientTimezone) {
      int csvIndex = 0;
      String[] parts = new String[10 + columnNames.size()];
      if (anon) {
@@ -105,14 +112,14 @@ public class CSVBlobWriter {
      } else {
        parts[csvIndex++] = event.getWho();
      }
-     parts[csvIndex++] = simpleDateFormat.format(event.getWhen());
+     parts[csvIndex++] = jodaFormatter.print(new DateTime(event.getWhen()));
      parts[csvIndex++] = event.getAppId();
      parts[csvIndex++] = event.getPacoVersion();
      parts[csvIndex++] = event.getExperimentId() != null ? Long.toString(event.getExperimentId()) : null;
      parts[csvIndex++] = event.getExperimentName();
      parts[csvIndex++] = event.getExperimentVersion() != null ? Integer.toString(event.getExperimentVersion()) : "0";
-     parts[csvIndex++] = event.getResponseTime() != null ? simpleDateFormat.format(event.getResponseTime()) : null;
-     parts[csvIndex++] = event.getScheduledTime() != null ? simpleDateFormat.format(event.getScheduledTime()) : null;
+     parts[csvIndex++] = getTimeString(event, event.getResponseTime(), clientTimezone);
+     parts[csvIndex++] = getTimeString(event, event.getScheduledTime(), clientTimezone);
      parts[csvIndex++] = event.getTimezone();
      
      Map<String, String> whatMap = event.getWhat();
@@ -193,6 +200,7 @@ public class CSVBlobWriter {
    Comparator<EventDAO> dateComparator = new Comparator<EventDAO>() {
      @Override
      public int compare(EventDAO o1, EventDAO o2) {
+       // TODO really it would be better to sort by responseTime when it exists, or scheduledTime if that does not exist.
        Date when1 = o1.getWhen();
        Date when2 = o2.getWhen();
        if (when1 == null || when2 == null) {
@@ -207,6 +215,14 @@ public class CSVBlobWriter {
    };
    Collections.sort(greetings, dateComparator);
  }
+
+ private String getTimeString(EventDAO event, Date time, String clientTimezone) {
+   String scheduledTimeString = "";
+   if (time != null) {
+     scheduledTimeString = jodaFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
+   }
+   return scheduledTimeString;
+ } 
 
 
 }
