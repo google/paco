@@ -84,11 +84,15 @@ public class ReportJobStatusManager {
       entity.setProperty(ID_PROPERTY, id);
       entity.setProperty(REQUESTOR_PROPERTY, requestorEmail);
       entity.setProperty(STATUS_PROPERTY, PENDING);
-      entity.setProperty(START_TIME_PROPERTY, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
+      entity.setProperty(START_TIME_PROPERTY, getCurrentTimeAsString());
       ds.put(entity);
     } else {
       log.info("Report with id " + id + " already exists");
     }
+  }
+
+  private String getCurrentTimeAsString() {
+    return DateTime.now().toString(TimeUtil.DATETIME_FORMAT);
   }
 
   public void completeReport(String requestorEmail, String id, String location) {
@@ -107,7 +111,7 @@ public class ReportJobStatusManager {
     }
 
     report.setProperty(STATUS_PROPERTY, COMPLETE);
-    report.setProperty(END_TIME_PROPERTY, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
+    report.setProperty(END_TIME_PROPERTY, getCurrentTimeAsString());
     if (!Strings.isNullOrEmpty(location)) {
       report.setProperty(LOCATION_PROPERTY, location);
     }
@@ -117,7 +121,7 @@ public class ReportJobStatusManager {
   }
 
   public void failReport(String requestorEmail, String id, String errorMessage) {
-    if (requestorEmail == null || id == null || errorMessage == null) {
+    if (requestorEmail == null || id == null) {
       log.info("Invalid failReport request");
       throw new IllegalArgumentException("Invalid report parameters for failReport");
     }
@@ -132,7 +136,7 @@ public class ReportJobStatusManager {
     }
 
     report.setProperty(STATUS_PROPERTY, FAILED);
-    report.setProperty(END_TIME_PROPERTY, DateTime.now());
+    report.setProperty(END_TIME_PROPERTY, getCurrentTimeAsString());
     if (!Strings.isNullOrEmpty(errorMessage)) {
       report.setProperty(ERROR_MESSAGE_PROPERTY, errorMessage);
     }

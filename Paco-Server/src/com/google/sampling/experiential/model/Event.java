@@ -33,12 +33,17 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.apache.commons.codec.binary.Hex;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mortbay.log.Log;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.server.EventServlet;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -335,9 +340,7 @@ public class Event {
   }
 
   public String[] toCSV(List<String> columnNames, boolean anon) {
-    java.text.SimpleDateFormat simpleDateFormat =
-      new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    
+    DateTimeFormatter jodaTimeFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
     int csvIndex = 0;
     String[] parts = new String[10 + columnNames.size()];
     if (anon) {
@@ -345,14 +348,15 @@ public class Event {
     } else {
       parts[csvIndex++] = who;
     }
-    parts[csvIndex++] = simpleDateFormat.format(when);
+    parts[csvIndex++] = jodaTimeFormatter.print(new DateTime(when.getTime()));
     parts[csvIndex++] = appId;
     parts[csvIndex++] = pacoVersion;
     parts[csvIndex++] = experimentId;
     parts[csvIndex++] = experimentName;
     parts[csvIndex++] = experimentVersion != null ? Integer.toString(experimentVersion) : "0";
-    parts[csvIndex++] = responseTime != null ? simpleDateFormat.format(responseTime) : null;
-    parts[csvIndex++] = scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null;
+    
+    parts[csvIndex++] = responseTime != null ? jodaTimeFormatter.print(getResponseTimeWithTimeZone(null)) : null;
+    parts[csvIndex++] = scheduledTime != null ? jodaTimeFormatter.print(getScheduledTimeWithTimeZone(null)) : null;
     parts[csvIndex++] = timeZone;
     
     Map<String, String> whatMap = getWhatMap();
@@ -372,8 +376,8 @@ public class Event {
     buf.append(simpleDateFormat.format(when)).append("\n");    
     buf.append(experimentId).append("\n");
     buf.append(experimentName).append("\n");
-    buf.append(responseTime != null ? simpleDateFormat.format(responseTime) : null).append("\n");
-    buf.append(scheduledTime != null ? simpleDateFormat.format(scheduledTime) : null).append("\n");
+    buf.append(responseTime != null ? simpleDateFormat.format(getResponseTimeWithTimeZone(null)) : null).append("\n");
+    buf.append(scheduledTime != null ? simpleDateFormat.format(getScheduledTimeWithTimeZone(null)) : null).append("\n");
     Map<String, String> whatMap = getWhatMap();
     for (String key : whatMap.keySet()) {
       String value = whatMap.get(key);
@@ -414,6 +418,57 @@ public class Event {
 
   public void setTimeZone(String timeZone) {
     this.timeZone = timeZone;
+  }
+
+  public DateTime getScheduledTimeWithTimeZone(String defaultTimeZone) {
+    DateTime timeZoneAdjustedDate = getTimeZoneAdjustedDate(getScheduledTime(), defaultTimeZone);
+    return timeZoneAdjustedDate == null ? null : timeZoneAdjustedDate;
+  }
+  
+  public DateTime getResponseTimeWithTimeZone(String defaultTimeZone) {
+    DateTime timeZoneAdjustedDate = getTimeZoneAdjustedDate(getResponseTime(), defaultTimeZone);
+    return timeZoneAdjustedDate == null ? null : timeZoneAdjustedDate;
+  }
+  
+  
+  public DateTime getTimeZoneAdjustedDate(Date time, String defaultTimeZone) {
+    return getTimeZoneAdjustedDate(time, defaultTimeZone, getTimeZone());
+  }
+
+  public static DateTime getTimeZoneAdjustedDate(Date time, String defaultTimeZone, String timeZone) {
+    if (time == null) {
+      return null;
+    }
+
+    if (Strings.isNullOrEmpty(timeZone)) {
+      if (Strings.isNullOrEmpty(defaultTimeZone)) {
+        return new DateTime(time);
+      } else {
+        DateTimeZone timezoneForOffsetHours = DateTimeZone.forID(defaultTimeZone);
+        if (timezoneForOffsetHours == null) {
+          return new DateTime(time);
+        }
+        return new DateTime(time).withZone(timezoneForOffsetHours);
+      }
+    } else {
+      String hours = timeZone.substring(0,3);
+      if (hours.startsWith("+")) {
+        hours = hours.substring(1);
+      }
+      
+      int parseInt;
+      try {
+        parseInt = Integer.parseInt(hours);
+      } catch (NumberFormatException e) {
+        EventServlet.log.info("Timezone hours are not an integer this event.");
+        return new DateTime(time);
+      }
+      DateTimeZone timezoneForOffsetHours = DateTimeZone.forOffsetHours(parseInt);
+      if (timezoneForOffsetHours == null) {
+        return new DateTime(time);
+      }
+      return new DateTime(time).withZone(timezoneForOffsetHours);
+    }
   }
 
 }

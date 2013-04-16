@@ -73,7 +73,7 @@
         
   <filter-mapping>
    <filter-name>whitelistFilter</filter-name>
-   <servlet-name>csvJobStatusServlet</servlet-name>
+   <servlet-name>jobStatusServlet</servlet-name>
   </filter-mapping> 
 
 <!--   <filter-mapping>
@@ -126,8 +126,8 @@
 	</servlet>
 
       <servlet>
-    <servlet-name>csvJobStatusServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CSVJobStatusServlet</servlet-class>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.JobStatusServlet</servlet-class>
   </servlet>
   	
     <servlet>
@@ -142,8 +142,8 @@
     </servlet-mapping>
 
  <servlet-mapping>
-  <servlet-name>csvJobStatusServlet</servlet-name>
-  <url-pattern>/csvJobStatus</url-pattern>
+  <servlet-name>jobStatusServlet</servlet-name>
+  <url-pattern>/jobStatus</url-pattern>
 </servlet-mapping>
     
 <servlet-mapping>
@@ -194,7 +194,7 @@
 	      <url-pattern>/experiments*</url-pattern>	      
 	      <url-pattern>/participantStats*</url-pattern>
 	      <!-- <url-pattern>/backendReportJobExecutor*</url-pattern> -->
-	      <url-pattern>/csvJobStatus*</url-pattern>
+	      <url-pattern>/jobStatus*</url-pattern>
 	      <url-pattern>/join*</url-pattern>
 	   </web-resource-collection>
 	   <auth-constraint>
