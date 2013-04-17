@@ -692,6 +692,10 @@ public class Main implements EntryPoint, ExperimentListener {
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
     experiment.getSchedule().setId(null);
+    experiment.setPublished(false);
+    experiment.setPublishedUsers(new String[]{});
+    experiment.setAdmins(new String[]{});
+    
     for(InputDAO input : experiment.getInputs()) {
       input.setId(null);
     }
