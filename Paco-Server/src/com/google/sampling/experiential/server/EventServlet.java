@@ -26,6 +26,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +44,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.backends.BackendService;
@@ -167,10 +169,21 @@ public class EventServlet extends HttpServlet {
         if (anon) {
           userId = Event.getAnonymousId(userId);
         }
+        DateTime responseDateTime = event.getResponseTimeWithTimeZone(timezoneId);
+        Date responseTime = null;
+        if (responseDateTime != null) {
+          responseTime = responseDateTime.toGregorianCalendar().getTime();
+        }
+        DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(timezoneId);
+        Date scheduledTime = null;
+        if (scheduledDateTime != null) {
+          scheduledTime = scheduledDateTime.toDate();
+        }
+        
         eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
                                    event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
-                                   event.getResponseTimeWithTimeZone(timezoneId).toGregorianCalendar().getTime(), 
-                                   event.getResponseTimeWithTimeZone(timezoneId).toDate(), 
+                                   responseTime, 
+                                   scheduledTime, 
                                    null, Long.parseLong(event.getExperimentId()),
                                    event.getExperimentVersion(), event.getTimeZone()));
       }
