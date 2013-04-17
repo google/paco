@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+-->
+<manifest android:versionCode='77' xmlns:android='http://schemas.android.com/apk/res/android' package='com.google.android.apps.paco' android:versionName='2.0.77'>
+
+    <application android:debuggable='true' android:label='@string/app_name' android:theme='@style/PacoTheme' android:icon='@drawable/paco64'>
+        <activity android:name='com.google.android.apps.paco.ExperimentManagerActivity'>
+            <intent-filter>
+                <action android:name='android.intent.action.MAIN'/>
+
+                <category android:name='android.intent.category.LAUNCHER'/>
+            </intent-filter>
+        </activity>
+        <activity android:name='com.google.android.apps.paco.ExperimentList'>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        <activity android:name='com.google.android.apps.paco.FindExperimentsActivity'
+            android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' >
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        <activity android:name='com.google.android.apps.paco.RunningExperimentsActivity'>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        
+        <activity android:configChanges='orientation|keyboard|keyboardHidden' android:name='com.google.android.apps.paco.ExploreDataActivity'>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        <activity android:label='Join Experiment' android:name='com.google.android.apps.paco.ExperimentDetailActivity'>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+                <action android:name='android.intent.action.EDIT'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.item/vnd.google.paco.experiment'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='android.intent.action.INSERT'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        <activity android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.ExperimentScheduleActivity' android:windowSoftInputMode='stateHidden'/>
+        <activity android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.InformedConsentActivity'/>
+        <activity android:configChanges='orientation|keyboardHidden' android:label='Record Data in Experiment' android:name='com.google.android.apps.paco.ExperimentExecutor' android:windowSoftInputMode='stateHidden'>
+            <intent-filter>
+                <category android:name='android.intent.category.LAUNCHER'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.item/vnd.google.paco.experiment'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.LINKED'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+                <category android:name='android.intent.category.BROWSABLE'/>
+            </intent-filter>
+        </activity>
+        <activity android:noHistory='true' android:label='Visualize Experiment Data' android:name='com.google.android.apps.paco.FeedbackActivity'>
+            <intent-filter>
+                <category android:name='android.intent.category.LAUNCHER'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='android.intent.action.VIEW'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+
+                <data android:mimeType='vnd.android.cursor.item/vnd.google.paco.experiment'/>
+            </intent-filter>
+        </activity>
+        <activity android:label='Update Activity' android:name='VersionUpdateActivity'>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.UPDATE'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </activity>
+        <activity android:name='com.google.android.apps.paco.WelcomeActivity'/>
+        <activity android:name='com.google.android.apps.paco.AccountChooser'/>
+        
+        <activity android:screenOrientation='portrait' android:label='ESM Signal Viewer' android:name='.ESMSignalViewer'>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.ESM_SIGNALS'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </activity>
+        <activity android:label='Paco Server Configuration' android:name='com.google.android.apps.paco.ServerConfiguration'>
+            <intent-filter>
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </activity>
+        <activity android:label='Paco Raw Data Viewer' android:name='com.google.android.apps.paco.RawDataActivity'>
+            <intent-filter>
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </activity>
+        <activity android:name='com.google.android.apps.paco.ContactOptionsActivity'/>
+        <activity android:name='com.google.android.apps.paco.HelpActivity'/>
+        
+        <!--  services -->
+        <service android:name='com.google.android.apps.paco.NotificationCreatorService'>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.NotificationCreatorService'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </service>
+        <service android:name='com.google.android.apps.paco.BeeperService'>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.BeeperService'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </service>
+        <service android:name='.SyncService'/>
+        <service android:name='.ServerCommunicationService'/>
+        <service android:name='.VersionCheckerService'/>
+
+        <receiver android:name='com.google.android.apps.paco.AlarmReceiver'>
+            <intent-filter>
+                <action android:name='com.google.android.apps.paco.AlarmReceiver'/>
+
+                <category android:name='android.intent.category.DEFAULT'/>
+            </intent-filter>
+        </receiver>
+        <receiver android:process=':remote' android:name='com.google.android.apps.paco.NetworkChangeReceiver'>
+            <intent-filter>
+                <action android:name='android.net.conn.CONNECTIVITY_CHANGE'/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name='com.google.android.apps.paco.SystemChangeEventReceiver'>
+            <intent-filter>
+                <action android:name='android.intent.action.BOOT_COMPLETED'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='android.intent.action.TIMEZONE_CHANGED'/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name='android.intent.action.PACKAGE_REPLACED'/>
+
+                <data android:path='com.google.android.apps.paco' android:scheme='package'/>
+            </intent-filter>
+        </receiver>
+
+        <provider android:authorities='com.google.android.apps.paco.signal' android:exported='false' android:name='SignalProvider'/>
+        <provider android:authorities='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:name='ExperimentProvider'/>
+    </application>
+
+    <uses-permission android:name='android.permission.GET_ACCOUNTS'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.MANAGE_ACCOUNTS'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.USE_CREDENTIALS'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.ACCESS_NETWORK_STATE'/>
+    <uses-permission android:name='android.permission.INTERNET'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.VIBRATE'>
+    </uses-permission>
+
+    <uses-sdk android:minSdkVersion='8'>
+    </uses-sdk>
+
+    <uses-permission android:name='android.permission.ACCESS_FINE_LOCATION'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.ACCESS_COARSE_LOCATION'>
+    </uses-permission>
+    <uses-permission android:name='android.permission.CAMERA'/>
+
+    <uses-feature android:name='android.hardware.camera'/>
+    <uses-feature android:name='android.hardware.camera.autofocus'/>
+
+    <uses-permission android:name='android.permission.WRITE_EXTERNAL_STORAGE'/>
+    <uses-permission android:name='android.permission.WAKE_LOCK'/>
+    <uses-permission android:name='android.permission.RECEIVE_BOOT_COMPLETED'/>
+    <uses-permission android:name='android.permission.READ_LOGS'/>
+
+</manifest>
