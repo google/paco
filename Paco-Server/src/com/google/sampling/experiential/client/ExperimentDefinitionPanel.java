@@ -102,6 +102,29 @@ public class ExperimentDefinitionPanel extends Composite {
     lblExperimentDefinition.setStyleName("paco-HTML-Large");
     formPanel.add(lblExperimentDefinition);
 
+    createExperimentForm();
+
+  }
+
+
+  private void createIdLabel(ExperimentDAO experiment) {
+    Long experimentVersionStr = 0l;
+    if (experiment.getId() != null) {
+      experimentVersionStr = experiment.getId();
+    }
+    HorizontalPanel versionPanel = new HorizontalPanel();
+    formPanel.add(versionPanel);
+    
+    Label lblExperimentVersion = new Label(myConstants.experimentId() +":");
+    lblExperimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(lblExperimentVersion);
+    
+    Label experimentVersion = new Label(Long.toString(experimentVersionStr));
+    experimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(experimentVersion);
+  }
+
+  private void createVersionLabel(ExperimentDAO experiment) {
     String experimentVersionStr = "1";
     if (experiment.getVersion() != null) {
       experimentVersionStr = experiment.getVersion().toString();
@@ -116,9 +139,6 @@ public class ExperimentDefinitionPanel extends Composite {
     Label experimentVersion = new Label(experimentVersionStr);
     experimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(experimentVersion);
-    
-    createExperimentForm();
-
   }
 
 
@@ -141,6 +161,9 @@ public class ExperimentDefinitionPanel extends Composite {
     titlePanel = (TextBox) titlePanelPair.valueHolder;
     formPanel.add(titlePanelPair.container);
 
+    formPanel.add(createIdPanel(experiment).container);
+    formPanel.add(createVersionPanel(experiment).container);
+    
     PanelPair descriptionPanelPair = createDescriptionPanel(experiment);
     descriptionPanel = (TextArea) descriptionPanelPair.valueHolder;
     formPanel.add(descriptionPanelPair.container);
@@ -244,9 +267,20 @@ public class ExperimentDefinitionPanel extends Composite {
 
 
   private PanelPair createTitlePanel(ExperimentDAO experiment) {
-    return createFormLine(myConstants.experimentTitle(), experiment.getTitle());
+    return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
   }
 
+  private PanelPair createIdPanel(ExperimentDAO experiment) {
+    return createDisplayLine(myConstants.experimentId(), 
+                          Long.toString(experiment.getId() != null ? experiment.getId() : 0));
+  }
+
+  private PanelPair createVersionPanel(ExperimentDAO experiment) {
+    return createDisplayLine(myConstants.experimentVersion(), 
+                          Integer.toString(experiment.getVersion() == null ? 0 : experiment.getVersion()));
+  }
+
+  
   private PanelPair createDescriptionPanel(ExperimentDAO experiment) {
     return createFormArea(myConstants.experimentDescription(), experiment.getDescription(), 75, "100");
   }
@@ -393,10 +427,15 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private PanelPair createFormLine(String key, String value) {
+    return createFormLine(key, value, null);
+  }
+
+
+  private PanelPair createFormLine(String key, String value, String styleName) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
-    keyLabel.setStyleName("keyLabel");
+    keyLabel.setStyleName(styleName == null ? "keyLabel" : styleName);
     TextBox valueBox = new TextBox();
     if (value != null) {
       valueBox.setText(value);
@@ -446,10 +485,11 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private PanelPair createDisplayLine(String key, String value) {
-    VerticalPanel line = new VerticalPanel();
+    HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName("keyLabel");
+    
     Label valueBox = new Label();
     if (value != null) {
       valueBox.setText(value);

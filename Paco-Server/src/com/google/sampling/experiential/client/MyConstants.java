@@ -353,6 +353,9 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Join Experiment")
   String joinExperiment();
+  
+  @DefaultStringValue("ID")
+  String experimentId();
 
 
 }
