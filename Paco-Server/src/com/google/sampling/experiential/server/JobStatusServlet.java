@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -64,6 +66,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gwt.core.client.GWT;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
@@ -82,6 +85,8 @@ public class JobStatusServlet extends HttpServlet {
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
+  
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
@@ -126,15 +131,15 @@ public class JobStatusServlet extends HttpServlet {
           "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
           "</style>" +
                "</head><body>");
-    out.append("<h2>Current Status for Job: ");
+    out.append("<h2>Current Status for Report Job: ");
     out.append(jobReport.getId());
-    out.append("</h2><div><p>Refresh to update status</p></div><div><table class=gridtable>");
-    out.append("<th>Requestor</th>");
-    out.append("<th>Status</th>");
-    out.append("<th>Started</th>");
-    out.append("<th>Ended</th>");
-    out.append("<th>Output File Location</th>");
-    out.append("<th>Error</th>");
+    out.append("</h2><div><p>" + "Refresh page to update status of job" + "</p></div><div><table class=gridtable>");
+    out.append("<th>" + "Requestor" + "</th>");
+    out.append("<th>" + "Status" + "</th>");
+    out.append("<th>" + "Started" + "</th>");
+    out.append("<th>" + "Ended" + "</th>");
+    out.append("<th>" + "Output File Location" + "</th>");
+    out.append("<th>" + "Error" + "</th>");
     out.append("<tr>");
     
     out.append("<td>").append(jobReport.getRequestor()).append("</td>");
@@ -214,4 +219,5 @@ public class JobStatusServlet extends HttpServlet {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
   }
+
 }
