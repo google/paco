@@ -168,6 +168,7 @@ public class Main implements EntryPoint, ExperimentListener {
     }
     loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
+    RootPanel.get().add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
   }
 
   class HomePageLocaleHelper extends GWTLocaleHelper<HTML> {
@@ -229,8 +230,9 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.setSpacing(2);
     horizontalPanel.add(contentPanel);
     //contentPanel.setSize("550px", "325px");
-
+    rootPanel.add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
     loadJoinedExperiments();
+    
     createCallbackForGviz();
   }
 
@@ -886,9 +888,9 @@ public class Main implements EntryPoint, ExperimentListener {
           }
 
           @Override
-          public void onSuccess(Map<Date, EventDAO> eventList) {
+          public void onSuccess(Map<Date, EventDAO> eodEventList) {
             AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
-                                                                                     experiment, referencedEventList, eventList, referencedExperiment);
+                                                                                     experiment, referencedEventList, eodEventList, referencedExperiment);
             contentPanel.add(ep);
             statusLabel.setVisible(false);
           }
