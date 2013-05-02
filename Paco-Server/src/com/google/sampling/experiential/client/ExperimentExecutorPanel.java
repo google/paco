@@ -1,7 +1,7 @@
 package com.google.sampling.experiential.client;
 
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.MapServiceAsync;
 
 public class ExperimentExecutorPanel extends AbstractExperimentExecutorPanel {

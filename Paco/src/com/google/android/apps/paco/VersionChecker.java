@@ -14,6 +14,7 @@ import android.util.Log;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.Response.Status;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
+import com.pacoapp.paco.R;
 
 public class VersionChecker {
 

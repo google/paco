@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco;
 
+import com.pacoapp.paco.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;

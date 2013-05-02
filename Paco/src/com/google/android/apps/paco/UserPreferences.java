@@ -21,6 +21,8 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
 import android.accounts.Account;
 import android.app.Activity;
 import android.content.Context;

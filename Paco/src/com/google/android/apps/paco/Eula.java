@@ -18,6 +18,8 @@ package com.google.android.apps.paco;
 
 import java.util.Locale;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

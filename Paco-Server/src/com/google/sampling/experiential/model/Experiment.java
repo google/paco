@@ -39,7 +39,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 
 /**
@@ -117,7 +117,11 @@ public class Experiment {
   @Persistent(defaultFetchGroup="true")
   @Element(dependent = "true")
   private SignalSchedule schedule;
-  
+
+  @Persistent(defaultFetchGroup="true")
+  @Element(dependent = "true")
+  private Trigger trigger;
+
   @Persistent
   private Boolean fixedDuration;
   
@@ -215,6 +219,14 @@ public class Experiment {
 
   public void setSchedule(SignalSchedule schedule) {
     this.schedule = schedule;
+  }
+  
+  public Trigger getTrigger() {
+    return trigger;
+  }
+  
+  public void setTrigger(Trigger trigger) {
+    this.trigger = trigger;
   }
 
   public Boolean getFixedDuration() {
@@ -381,6 +393,7 @@ public class Experiment {
     return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
   }
   
+  @JsonIgnore
   private DateTime getEndDateTime() {
     if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();

@@ -34,10 +34,11 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
 /**
  * The main panel for viewing the details of an experiment
@@ -202,13 +203,18 @@ public class ExperimentJoinPanel extends Composite {
 
   private Widget createSchedulePanel(ExperimentDAO experiment) {
     HTML spacer = new HTML("&nbsp;");
-    int scheduleType = SignalScheduleDAO.SCHEDULE_TYPES[experiment.getSchedule().getScheduleType()];
+    SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
+    if (!(signalingMechanismDAO instanceof SignalScheduleDAO)) {
+      return new Label(myConstants.triggeredExperimentNotScheduled());
+    }
+    SignalScheduleDAO signalScheduleDAO = (SignalScheduleDAO) signalingMechanismDAO;
+    int scheduleType = SignalScheduleDAO.SCHEDULE_TYPES[signalScheduleDAO.getScheduleType()];
     Panel panel = (Panel) createFormLine(myConstants.signalSchedule(), SignalScheduleDAO.SCHEDULE_TYPES_NAMES[scheduleType]);
     if (scheduleType == SignalScheduleDAO.ESM) {
       panel.add(spacer);
       panel.add(new Label(", "));
-      panel.add(new Label(experiment.getSchedule().getEsmFrequency().toString() + " / " + 
-          SignalScheduleDAO.ESM_PERIODS_NAMES[experiment.getSchedule().getEsmPeriodInDays()]));      
+      panel.add(new Label(signalScheduleDAO.getEsmFrequency().toString() + " / " + 
+          SignalScheduleDAO.ESM_PERIODS_NAMES[signalScheduleDAO.getEsmPeriodInDays()]));      
       //panel.add(spacer);
       //panel.add(new Label(experiment.getSchedule().getEsmStartHour() + " - " + experiment.getSchedule().getEsmEndHour()));
     } else {

@@ -7,16 +7,17 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 
 public class TimeoutPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private SignalingMechanismDAO signalingMechanism;
   private HorizontalPanel mainPanel;
 
-  public TimeoutPanel(final SignalScheduleDAO schedule) {
+  public TimeoutPanel(final SignalingMechanismDAO schedule) {
     MyConstants myConstants = GWT.create(MyConstants.class);
-    this.schedule = schedule;
+    this.signalingMechanism = schedule;
     mainPanel = new HorizontalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -54,10 +55,10 @@ public class TimeoutPanel extends Composite {
   }
 
   private String getTimeout() {
-    if (schedule.getTimeout() != null) {
-      return schedule.getTimeout().toString();
+    if (signalingMechanism.getTimeout() != null) {
+      return signalingMechanism.getTimeout().toString();
     } else {
-      if (schedule.getScheduleType().equals(SignalScheduleDAO.ESM)) {
+      if (signalingMechanism instanceof SignalScheduleDAO && ((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {
         return "59";
       } else {
         return "479";

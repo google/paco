@@ -24,6 +24,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.pacoapp.paco.R;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;

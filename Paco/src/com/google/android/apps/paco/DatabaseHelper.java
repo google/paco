@@ -1,5 +1,7 @@
 package com.google.android.apps.paco;
 
+import java.util.List;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,9 +14,12 @@ import android.util.Log;
 
 //	private InputStream sqlInput;
 
-	DatabaseHelper(Context context/*, InputStream in*/) {
+	private Context context;
+
+  DatabaseHelper(Context context/*, InputStream in*/) {
 	  super(context, ExperimentProvider.DATABASE_NAME, null, ExperimentProvider.DATABASE_VERSION);
 //	  this.sqlInput = in;
+	  this.context = context;
 	}
 
 	@Override
@@ -34,7 +39,8 @@ import android.util.Log;
         + ExperimentColumns.JOIN_DATE + " INTEGER, "
         + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
         + ExperimentColumns.ICON + " BLOB, "
-        + ExperimentColumns.WEB_RECOMMENDED + " INTEGER "
+        + ExperimentColumns.WEB_RECOMMENDED + " INTEGER, "
+        + ExperimentColumns.JSON + " TEXT "
         + ");");
 	  db.execSQL("CREATE TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ("
           + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -142,6 +148,17 @@ import android.util.Log;
           + SignalScheduleColumns.TIME_OUT + " INTEGER"
           + ";");
 	  }
+	  if (oldVersion <= 12) {
+	    db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
+	      + ExperimentColumns.JSON + " TEXT "
+	      + ";");
+	    ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
+	    List<Experiment> joined = eu.getJoinedExperiments();
+	    
+      for (Experiment experiment : joined) {
+        eu.updateJoinedExperiment(experiment);
+      }
+    }
 	 }
 	
 //	public void insertValues(SQLiteDatabase db) {

@@ -25,8 +25,11 @@ import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 
@@ -110,9 +113,11 @@ public class ExperimentProviderUtil {
     experiment.setId(rowId);
     SignalSchedule schedule = experiment.getSchedule();
 //    schedule.setId(null);
-    schedule.setExperimentId(rowId);
-    schedule.setBeginDate(experiment.getJoinDate().getMillis());
-    insertSchedule(schedule);
+    if (schedule != null) {
+      schedule.setExperimentId(rowId);
+      schedule.setBeginDate(experiment.getJoinDate().getMillis());
+      insertSchedule(schedule);
+    } 
     
     for (Input input : experiment.getInputs()) {
 //      input.setId(null);
@@ -130,7 +135,13 @@ public class ExperimentProviderUtil {
 
   private void loadScheduleForExperiment(Experiment experiment) {
       String select = SignalScheduleColumns.EXPERIMENT_ID + " = " + experiment.getId();
-      experiment.setSchedule(findScheduleBy(select));
+      SignalSchedule schedule = findScheduleBy(select);
+      if (schedule != null) {
+        List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+        signalingMechanisms.add(schedule);
+        experiment.setSchedule(schedule);
+        experiment.setSignalingMechanisms(signalingMechanisms);
+      }
   }
 
   private SignalSchedule findScheduleBy(String select) {
@@ -184,9 +195,18 @@ public class ExperimentProviderUtil {
         deleteAllFeedbackForExperiment(existingExperiment.getId());
         existingExperiment.setFeedback(experiment.getFeedback());
         SignalSchedule schedule = experiment.getSchedule();
-        schedule.setExperimentId(existingExperiment.getId());
-        existingExperiment.setSchedule(schedule);
-        insertSchedule(schedule);
+        if (schedule != null) {
+          schedule.setExperimentId(existingExperiment.getId());
+          existingExperiment.setSchedule(schedule);      
+          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+          signalingMechanisms.add(schedule);
+          existingExperiment.setSignalingMechanisms(signalingMechanisms);
+          insertSchedule(schedule);
+        } else {
+          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+          signalingMechanisms.add(experiment.getTrigger());
+          existingExperiment.setSignalingMechanisms(signalingMechanisms);
+        }
         insertInputsForJoinedExperiment(existingExperiment);
         insertFeedbackForJoinedExperiment(existingExperiment);
         copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
@@ -224,22 +244,6 @@ public class ExperimentProviderUtil {
         SignalScheduleColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
-  private void insertFullExperiment(Experiment experiment) {
-    Uri uri = insertExperiment(experiment);
-    Long rowId = Long.valueOf(uri.getLastPathSegment());
-    SignalSchedule schedule = experiment.getSchedule();
-    schedule.setExperimentId(rowId);
-    insertSchedule(schedule);
-    for (Input input : experiment.getInputs()) {
-      input.setExperimentId(rowId);
-      insertInput(input);      
-    }
-    for (Feedback feedback : experiment.getFeedback()) {
-      feedback.setExperimentId(rowId);
-      insertFeedback(feedback);      
-    }
-  }
-  
   private int deleteAllFeedbackForExperiment(Long id) {
     return context.getContentResolver().delete(FeedbackColumns.CONTENT_URI, 
         FeedbackColumns.EXPERIMENT_ID + " = " + id, null);
@@ -250,20 +254,15 @@ public class ExperimentProviderUtil {
           InputColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
-  public void updateExperiment(Experiment experiment) {
-    int count = context.getContentResolver().update(ExperimentColumns.CONTENT_URI,
-        createContentValues(experiment), 
-        ExperimentColumns.SERVER_ID + "=" + experiment.getServerId() + 
-        " AND " + ExperimentColumns.JOIN_DATE +" IS NULL ", null);
-    Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
-  }
-
   public void updateJoinedExperiment(Experiment experiment) {
     int count = context.getContentResolver().update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
         createContentValues(experiment), 
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
-    updateSchedule(experiment.getSchedule());
+    SignalSchedule schedule = experiment.getSchedule();
+    if (schedule != null) {
+      updateSchedule(schedule);
+    }
   }
 
   public void deleteAllExperiments() {
@@ -316,8 +315,10 @@ public class ExperimentProviderUtil {
       cursor = context.getContentResolver().query(contentUri,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
-        Experiment experiment = createExperiment(cursor);    
-        loadScheduleForExperiment(experiment);
+        Experiment experiment = createExperiment(cursor);
+        if (experiment.getTrigger() == null) {
+          loadScheduleForExperiment(experiment);
+        }
         return experiment;
       }
     } catch (RuntimeException e) {
@@ -370,6 +371,7 @@ public class ExperimentProviderUtil {
     int questionsChangeIndex = cursor.getColumnIndex(ExperimentColumns.QUESTIONS_CHANGE);
     int iconIndex = cursor.getColumnIndex(ExperimentColumns.ICON);
     int webRecommendedIndex = cursor.getColumnIndex(ExperimentColumns.WEB_RECOMMENDED);
+    int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
     
     Experiment experiment = new Experiment();
     
@@ -433,6 +435,31 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(webRecommendedIndex)) {
       experiment.setWebRecommended(cursor.getLong(webRecommendedIndex) == 1);
     }
+    
+    if (!cursor.isNull(jsonIndex)) {
+      String jsonOfExperiment = cursor.getString(jsonIndex);
+      experiment.setJson(jsonOfExperiment);
+      try {
+        Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
+        Trigger trigger = experimentFromJson.getTrigger();
+        if (trigger != null) {
+          List<SignalingMechanism> signalingMechanisms = new ArrayList();
+          signalingMechanisms.add(trigger);
+          experiment.setTrigger(trigger);
+          experiment.setSignalingMechanisms(signalingMechanisms);
+        }
+        
+      } catch (JsonParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (JsonMappingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
 
     return experiment;
   }
@@ -484,10 +511,33 @@ public class ExperimentProviderUtil {
     }
 
     values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
+    
+    String json = experiment.getJson();
+    if (json == null || json.length() == 0) {
+      json = getJson(experiment);
+    }
+    values.put(ExperimentColumns.JSON, json);
     return values;
   }
 
   
+  private String getJson(Experiment experiment) {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
+    try {
+      return mapper.writeValueAsString(experiment);
+    } catch (JsonGenerationException e) {
+      Log.e(PacoConstants.TAG, "Json generation error " + e);
+    } catch (JsonMappingException e) {
+      Log.e(PacoConstants.TAG, "JsonMapping error getting experiment json: " + e.getMessage());
+    } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "IO error getting experiment: " + e.getMessage());
+    }
+
+    return null;
+  }
+
   public void loadInputsForExperiment(Experiment experiment) {
     String select = InputColumns.EXPERIMENT_ID + " = " + experiment.getId();
     experiment.setInputs(findInputsBy(select));
@@ -1587,6 +1637,19 @@ public class ExperimentProviderUtil {
     }
     return null;
   }
+
+  public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return mapper.readValue(contentAsString, new TypeReference<List<Experiment>>() {});
+  }
+  
+  public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return mapper.readValue(contentAsString, Experiment.class);
+  }
+
 
 }
 

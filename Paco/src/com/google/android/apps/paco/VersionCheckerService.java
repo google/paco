@@ -3,6 +3,8 @@ package com.google.android.apps.paco;
 
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;

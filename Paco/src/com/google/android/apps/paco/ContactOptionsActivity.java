@@ -1,5 +1,7 @@
 package com.google.android.apps.paco;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;

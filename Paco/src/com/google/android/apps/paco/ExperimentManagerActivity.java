@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

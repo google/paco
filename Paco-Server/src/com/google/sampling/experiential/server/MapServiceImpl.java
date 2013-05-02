@@ -46,13 +46,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.libideas.logging.shared.Log;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.google.sampling.experiential.datastore.ExperimentEntity;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.sampling.experiential.datastore.ExperimentVersionEntity;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.MapService;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -208,13 +208,18 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       }
       pm.close();
     }
+    
     if (committed) {
-      ExperimentEntity.saveExperimentAsEntity(experiment);
-      ExperimentCacheHelper.getInstance().clearCache();
-      ArrayList<String> publishedUsers = experiment.getPublishedUsers();
-      publishedUsers.addAll(experiment.getAdmins());
-      new DBWhitelist().addAllUsers(publishedUsers);
+      ExperimentVersionEntity.saveExperimentAsEntity(experiment);
+      ExperimentCacheHelper.getInstance().clearCache();      
+      addAnyNewPeopleToTheWhitelist(experiment);
     }
+  }
+
+  private void addAnyNewPeopleToTheWhitelist(Experiment experiment) {
+    ArrayList<String> publishedUsers = experiment.getPublishedUsers();
+    publishedUsers.addAll(experiment.getAdmins());
+    new DBWhitelist().addAllUsers(publishedUsers);
   }
 
   private void incrementExperimentVersionNumber(ExperimentDAO experimentDAO, Experiment experiment) {

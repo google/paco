@@ -24,6 +24,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import com.pacoapp.paco.R;
+
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;

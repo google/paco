@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
