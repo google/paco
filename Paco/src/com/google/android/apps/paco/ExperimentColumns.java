@@ -57,5 +57,7 @@ public class ExperimentColumns implements BaseColumns {
   
   public static final String WEB_RECOMMENDED = "web_recommended";
   public static final String VERSION = "version";
+  
+  public static final String JSON = "json";
     
 }

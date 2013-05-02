@@ -20,8 +20,8 @@ package com.google.sampling.experiential.client;
 
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.TimeUtil;
 

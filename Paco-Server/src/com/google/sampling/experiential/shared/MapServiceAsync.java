@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.paco.shared.model.ExperimentDAO;
 
 /*
  * * The async counterpart of <code>MeetingService</code>.

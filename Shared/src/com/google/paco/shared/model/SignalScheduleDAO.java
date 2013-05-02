@@ -16,9 +16,10 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.shared;
+package com.google.paco.shared.model;
 
 import java.io.Serializable;
+
 
 /**
  * 
@@ -27,7 +28,7 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class SignalScheduleDAO implements Serializable {
+public class SignalScheduleDAO  extends SignalingMechanismDAO implements Serializable {
     
     public static final int DAILY = 0;
     public static final int WEEKDAY = 1;
@@ -69,7 +70,6 @@ public class SignalScheduleDAO implements Serializable {
     private Integer dayOfMonth = 1;
     private Boolean esmWeekends = false;
     private Boolean userEditable;
-    private Integer timeout;
 
     /**
      * 
@@ -106,6 +106,7 @@ public class SignalScheduleDAO implements Serializable {
       this.weekDaysScheduled = weekDaysScheduled;
       this.userEditable = userEditable;
       this.timeout = timeout;
+      this.type = "signalSchedule";
     }
 
     /**

@@ -11,7 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentDAO;
 
 public class JsonConverter {
 

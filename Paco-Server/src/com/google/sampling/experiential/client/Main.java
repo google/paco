@@ -52,12 +52,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.server.Whitelist;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -120,6 +120,7 @@ public class Main implements EntryPoint, ExperimentListener {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
     loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
+        Window.alert("Failed to login");
       }
 
       public void onSuccess(LoginInfo result) {
@@ -691,7 +692,8 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
-    experiment.getSchedule().setId(null);
+    
+    experiment.getSignalingMechanisms()[0].setId(null);
     experiment.setPublished(false);
     experiment.setPublishedUsers(new String[]{});
     experiment.setAdmins(new String[]{});

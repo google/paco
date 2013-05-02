@@ -260,7 +260,7 @@
    <string name="months">Months</string>
    <string name="weeks">Weeks</string>
    <string name="days_of_week">Days of Week</string>
-   <string name="this_experiment_is_self_reporting_only">This experiment is self-reporting only.</string>
+   <string name="this_experiment_is_self_reporting_only">This experiment is not scheduled. It is self report or triggered.</string>
    <string name="there_is_no_schedule_to_configure">There is no schedule to configure</string>
    <string name="finish">Finish</string>
    <string name="server_address_warning">WARNING: Only change this if you know what you are doing.</string>

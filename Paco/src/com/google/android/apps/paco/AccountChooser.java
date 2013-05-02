@@ -13,8 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.apps.paco.R;
 import com.google.corp.productivity.specialprojects.android.comm.LoginRedirectHandler;
+import com.pacoapp.paco.R;
 
 public class AccountChooser extends ListActivity {
 

@@ -16,7 +16,7 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.shared;
+package com.google.paco.shared.model;
 
 import java.io.Serializable;
 
