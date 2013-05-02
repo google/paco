@@ -17,10 +17,12 @@ import org.joda.time.DateTimeZone;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
 
 public class ExperimentCacheHelper {
 
@@ -107,11 +109,10 @@ public class ExperimentCacheHelper {
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
-    if (experiment.getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      Long[] times = experiment.getSchedule().getTimes();
-      // get the latest time
+    SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
+    if (signalingMechanismDAO instanceof SignalScheduleDAO && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
+      Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
-
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
       return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{

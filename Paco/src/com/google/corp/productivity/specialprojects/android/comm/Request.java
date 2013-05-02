@@ -16,7 +16,7 @@
 */
 package com.google.corp.productivity.specialprojects.android.comm;
 
-import com.google.android.apps.paco.R;
+import com.pacoapp.paco.R;
 import java.nio.charset.UnsupportedCharsetException;
 
 /**

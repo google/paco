@@ -23,8 +23,8 @@ import java.util.LinkedList;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.InputDAO;
 
 /**
  * A composite container for a bunch of InputPanel views.

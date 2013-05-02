@@ -53,6 +53,7 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.Environment;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.pacoapp.paco.R;
 
 public class ExperimentExecutor extends Activity implements ChangeListener, LocationListener  {
 

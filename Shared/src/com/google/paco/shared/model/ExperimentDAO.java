@@ -16,9 +16,10 @@
 */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.sampling.experiential.shared;
+package com.google.paco.shared.model;
 
 import java.io.Serializable;
+
 
 /**
  * 
@@ -32,11 +33,12 @@ import java.io.Serializable;
  */
 public class ExperimentDAO implements Serializable {
 
+  public static final int SCHEDULED_SIGNALING = 1;
+  public static final int TRIGGERED_SIGNALING = 1;
   private String title;
   private String description;
   private String informedConsentForm;
   private String creator;
-  private SignalScheduleDAO schedule;
   private Boolean fixedDuration = false;
   private Boolean questionsChange = false;
   private Long startDate;
@@ -53,6 +55,8 @@ public class ExperimentDAO implements Serializable {
   private Boolean deleted = false;
   private Boolean webRecommended = false;
   private Integer version;
+  private SignalingMechanismDAO[] signalingMechanisms;
+  private SignalScheduleDAO schedule;
 
 
   /**
@@ -68,7 +72,7 @@ public class ExperimentDAO implements Serializable {
    * @param admins TODO
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
-      String email, SignalScheduleDAO schedule, Boolean fixedDuration, Boolean questionsChange, 
+      String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange, 
       Long startDate, Long endDate, String hash, Long joinDate,
       Long modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
       Boolean deleted, Boolean webRecommended, Integer version) {
@@ -78,7 +82,8 @@ public class ExperimentDAO implements Serializable {
     this.description = description;
     this.informedConsentForm = informedConsentForm;
     this.creator = email;
-    this.schedule = schedule;
+    this.signalingMechanisms = signalingMechanisms;
+    setScheduleForBackwardCompatibility();
     this.fixedDuration = fixedDuration;
     this.questionsChange = questionsChange;
     this.startDate = startDate;
@@ -103,7 +108,8 @@ public class ExperimentDAO implements Serializable {
     super();
     this.inputs = new InputDAO[0];
     this.feedback = new FeedbackDAO[0];
-    this.schedule = new SignalScheduleDAO();
+    this.signalingMechanisms = new SignalingMechanismDAO[] { new SignalScheduleDAO()};
+    setScheduleForBackwardCompatibility();
     this.admins = new String[0];
     this.publishedUsers = new String[0];
   }
@@ -138,14 +144,6 @@ public class ExperimentDAO implements Serializable {
 
   public void setCreator(String creator) {
     this.creator = creator;
-  }
-
-  public SignalScheduleDAO getSchedule() {
-    return schedule;
-  }
-
-  public void setSchedule(SignalScheduleDAO schedule) {
-    this.schedule = schedule;
   }
 
   public Boolean getFixedDuration() {
@@ -285,5 +283,32 @@ public class ExperimentDAO implements Serializable {
     this.version = version;
   }
 
+  public SignalingMechanismDAO[] getSignalingMechanisms() {
+    return signalingMechanisms;
+  }
+
+  public void setSignalingMechanisms(SignalingMechanismDAO[] signalingMechanisms) {
+    this.signalingMechanisms = signalingMechanisms;
+  }
+
+  
+  public void setScheduleForBackwardCompatibility() {
+    if (getSignalingMechanisms().length > 0 && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
+      schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
+    } else {
+      schedule = new SignalScheduleDAO();
+      schedule.setScheduleType(SignalScheduleDAO.SELF_REPORT);
+    }
+  }
+
+  public SignalScheduleDAO getSchedule() {
+    return schedule;
+  }
+
+  public void setSchedule(SignalScheduleDAO schedule) {
+    this.schedule = schedule;
+  }
+  
+  
   
 }

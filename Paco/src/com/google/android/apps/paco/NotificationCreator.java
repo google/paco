@@ -31,6 +31,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
+import com.pacoapp.paco.R;
 
 public class NotificationCreator {
 
@@ -48,7 +49,7 @@ public class NotificationCreator {
     return new NotificationCreator(context.getApplicationContext());
   }
 
-  public void createNotifications(long notificationId, long alarmTime) {
+  public void createNotificationsForAlarmTime(long notificationId, long alarmTime) {
     try {
       createAllNotificationsForLastMinute(alarmTime);            
     } finally {
@@ -140,17 +141,10 @@ public class NotificationCreator {
   }
   
   private void createNewNotificationForExperiment(Context context, TimeExperiment timeExperiment) {
-//    if (experiment.isQuestionsChange()) {
-//      experimentProviderUtil.loadInputsForExperiment(experiment);
-//    }      
-//      if (experiment.isQuestionsChange() && !experiment.hasFreshInputs()) {
-//        return;
-//      }
     DateTime time = timeExperiment.time;
     Experiment experiment = timeExperiment.experiment;
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0, experiment.getExpirationTimeInMillis());
     experimentProviderUtil.insertNotification(notificationHolder);
-
     fireNotification(context, notificationHolder, experiment);
   }
 
@@ -200,7 +194,7 @@ public class NotificationCreator {
     notification.defaults |= Notification.DEFAULT_VIBRATE;
     notification.defaults |= Notification.DEFAULT_LIGHTS;
     notification.flags |= Notification.FLAG_AUTO_CANCEL;
-    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       notification.flags |= Notification.FLAG_NO_CLEAR;
     }
     return notification;
@@ -229,6 +223,17 @@ public class NotificationCreator {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+  }
+
+  public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent) {
+    Trigger trigger = experiment.getTrigger();
+    // wait a few seconds before creating the notification
+    try {
+      Thread.sleep(trigger.getDelay());
+    } catch (InterruptedException e) {      
+    }
+    timeoutNotifications(experimentProviderUtil.getNotificationsFor(experiment.getId()));
+    createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment));
   }
   
 

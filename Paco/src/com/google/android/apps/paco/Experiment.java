@@ -83,6 +83,12 @@ public class Experiment implements Parcelable {
       }
       
       experiment.webRecommended = source.readInt() == 1;
+      
+      experiment.json = source.readString();
+      
+      Trigger trigger = source.readParcelable(classLoader);
+      experiment.trigger = trigger;
+      
       return experiment;
     }
 
@@ -105,16 +111,15 @@ public class Experiment implements Parcelable {
   private  byte[] icon;
   private Boolean questionsChange = false;
   
+  @JsonIgnore
   private SignalSchedule schedule;
-//  private Integer minute;
-//  private Integer hour;
-//  private String scheduleType;
   private Boolean fixedDuration;
   private DateTime startDate;
   private DateTime endDate;
-//  private Integer esmFrequency;
-//  private Integer esmPeriodInDays;
   public Boolean webRecommended;
+  
+  private Trigger trigger;
+  private List<SignalingMechanism> signalingMechanisms;
 
 
 
@@ -126,10 +131,15 @@ public class Experiment implements Parcelable {
   private DateTime joinDate;
   private DateTime modifyDate;
   private Integer version;
+  
+  @JsonIgnore
+  private String json;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
   public static final String URI_AS_EXTRA = "uriAsExtra";
+  public static final String TRIGGERED_TIME = "triggeredTime";
+  public static final String TRIGGER_EVENT = "trigger_event";
 
 
   public DateTime getModifyDate() {
@@ -342,15 +352,30 @@ public class Experiment implements Parcelable {
     }
     
     dest.writeInt(webRecommended ? 1 : 0);
+    dest.writeString(json);
+    
+    dest.writeParcelable(trigger, 0);
+    
   }
-
   
+  @JsonIgnore
   public SignalSchedule getSchedule() {
     return schedule;
   }
 
+  @JsonIgnore
   public void setSchedule(SignalSchedule schedule) {
     this.schedule = schedule;
+  }
+  
+  
+
+  public Trigger getTrigger() {
+    return trigger;
+  }
+
+  public void setTrigger(Trigger trigger) {
+    this.trigger = trigger;
   }
 
   public void unsetId() {
@@ -401,7 +426,9 @@ public class Experiment implements Parcelable {
     if (isExperimentNotStartedYet(now)) {
       now = getStartDate().toDateMidnight().toDateTime();
     }
-
+    if (getTrigger() != null) {
+      return null;
+    }
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
     } else {
@@ -529,8 +556,13 @@ public class Experiment implements Parcelable {
 
   @JsonIgnore
   public Integer getExpirationTimeInMinutes() {
-    Integer timeout = getSchedule().getTimeout();
-    return timeout != null ? timeout : getOldDefaultValuesForTimeout();
+    SignalingMechanism signalingMechanism = getSignalingMechanisms().get(0);
+    if (signalingMechanism instanceof Trigger) {
+      return  signalingMechanism.getTimeout();
+    } else {
+      Integer timeout = ((SignalSchedule) signalingMechanism).getTimeout();
+      return timeout != null ? timeout : getOldDefaultValuesForTimeout();
+    }
   }
 
   private Integer getOldDefaultValuesForTimeout() {
@@ -581,6 +613,47 @@ public class Experiment implements Parcelable {
   public void setVersion(Integer version) {
     this.version = version;
   }
+
+  @JsonIgnore
+  public boolean shouldTriggerBy(int event) {
+    return trigger != null && trigger.match(event);
+//    Trigger matchingTrigger = getMatchingTrigger(event);
+//    return matchingTrigger != null;
+  }
+
+//  public Trigger getMatchingTrigger(int event) {
+//    Trigger matchingTrigger = null; 
+//    for (Trigger trigger : triggers) {
+//      if (trigger.match(event)) {
+//        matchingTrigger = trigger;
+//        break;
+//      }
+//    }
+//    return matchingTrigger;
+//  }
+
+  @JsonIgnore
+  public void setJson(String json) {
+    this.json = json;    
+  }
   
+  @JsonIgnore
+  public String getJson() {
+    return this.json;
+  }
   
+  public List<SignalingMechanism> getSignalingMechanisms() {
+    return signalingMechanisms;
+  }
+
+  public void setSignalingMechanisms(List<SignalingMechanism> signalingMechanisms) {
+    this.signalingMechanisms = signalingMechanisms;
+    SignalingMechanism signalingMechanism = signalingMechanisms.get(0);
+    if (signalingMechanism instanceof SignalSchedule) {
+      this.schedule = (SignalSchedule) signalingMechanism;
+    } else if (signalingMechanism instanceof Trigger) {
+      this.trigger = (Trigger)signalingMechanism;
+    }
+  }
+
 }

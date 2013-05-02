@@ -31,6 +31,8 @@ package com.google.android.apps.paco;
  * limitations under the License.
  */
 
+import com.pacoapp.paco.R;
+
 import android.content.Context;
 import android.os.Handler;
 import android.text.InputFilter;

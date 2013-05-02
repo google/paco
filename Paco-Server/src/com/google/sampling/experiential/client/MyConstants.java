@@ -357,5 +357,17 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("ID")
   String experimentId();
 
+  @DefaultStringValue("Choose Signaling Mechanism")
+  String signalMechanism();
+
+  @DefaultStringValue("Choose Trigger")
+  String chooseTrigger();
+
+  @DefaultStringValue("Delay after trigger until notification (in seconds)")
+  String chooseTriggerDelay();
+
+  @DefaultStringValue("This is a triggered experiment. No schedule to configure.")
+  String triggeredExperimentNotScheduled();
+
 
 }

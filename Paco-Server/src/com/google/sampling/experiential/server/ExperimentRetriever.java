@@ -10,12 +10,13 @@ import javax.jdo.Query;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.sampling.experiential.model.Trigger;
 
 public class ExperimentRetriever {
 
@@ -53,7 +54,13 @@ public class ExperimentRetriever {
           List<Input> inputs = experiment.getInputs();
           inputs.get(0);
           SignalSchedule schedule = experiment.getSchedule();
-          schedule.getId();
+          Trigger trigger = experiment.getTrigger();
+          if (schedule != null) {
+            schedule.getId();
+          }
+          if (trigger != null) {
+            trigger.getId();
+          }
           return experiment;
         } else if (experiments.size() > 1) {
           String message = "There are multiple experiments for this id: " + experimentId;

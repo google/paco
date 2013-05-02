@@ -19,6 +19,8 @@ package com.google.android.apps.paco;
 
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

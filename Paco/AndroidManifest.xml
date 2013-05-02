@@ -15,7 +15,9 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest android:versionCode='77' xmlns:android='http://schemas.android.com/apk/res/android' package='com.google.android.apps.paco' android:versionName='2.0.77'>
+<manifest android:versionCode='77' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.77'>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    
 
     <application android:debuggable='true' android:label='@string/app_name' android:theme='@style/PacoTheme' android:icon='@drawable/paco64'>
         <activity android:name='com.google.android.apps.paco.ExperimentManagerActivity'>
@@ -112,7 +114,7 @@
                 <data android:mimeType='vnd.android.cursor.item/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:label='Update Activity' android:name='VersionUpdateActivity'>
+        <activity android:label='Update Activity' android:name='com.google.android.apps.paco.VersionUpdateActivity'>
             <intent-filter>
                 <action android:name='com.google.android.apps.paco.UPDATE'/>
 
@@ -122,7 +124,7 @@
         <activity android:name='com.google.android.apps.paco.WelcomeActivity'/>
         <activity android:name='com.google.android.apps.paco.AccountChooser'/>
         
-        <activity android:screenOrientation='portrait' android:label='ESM Signal Viewer' android:name='.ESMSignalViewer'>
+        <activity android:screenOrientation='portrait' android:label='ESM Signal Viewer' android:name='com.google.android.apps.paco.ESMSignalViewer'>
             <intent-filter>
                 <action android:name='com.google.android.apps.paco.ESM_SIGNALS'/>
 
@@ -157,9 +159,9 @@
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
         </service>
-        <service android:name='.SyncService'/>
-        <service android:name='.ServerCommunicationService'/>
-        <service android:name='.VersionCheckerService'/>
+        <service android:name='com.google.android.apps.paco.SyncService'/>
+        <service android:name='com.google.android.apps.paco.ServerCommunicationService'/>
+        <service android:name='com.google.android.apps.paco.VersionCheckerService'/>
 
         <receiver android:name='com.google.android.apps.paco.AlarmReceiver'>
             <intent-filter>
@@ -187,8 +189,17 @@
             </intent-filter>
         </receiver>
 
-        <provider android:authorities='com.google.android.apps.paco.signal' android:exported='false' android:name='SignalProvider'/>
-        <provider android:authorities='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:name='ExperimentProvider'/>
+        <provider android:authorities='com.google.android.apps.paco.signal' android:exported='false' android:name='com.google.android.apps.paco.SignalProvider'/>
+        <provider android:authorities='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:name='com.google.android.apps.paco.ExperimentProvider'/>
+        <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE_CHANGED"/>
+            </intent-filter>
+            <intent-filter>
+                     <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.google.android.apps.paco.BroadcastTriggerService"></service>
     </application>
 
     <uses-permission android:name='android.permission.GET_ACCOUNTS'>
@@ -218,6 +229,6 @@
     <uses-permission android:name='android.permission.WRITE_EXTERNAL_STORAGE'/>
     <uses-permission android:name='android.permission.WAKE_LOCK'/>
     <uses-permission android:name='android.permission.RECEIVE_BOOT_COMPLETED'/>
-    <uses-permission android:name='android.permission.READ_LOGS'/>
+    
 
 </manifest>

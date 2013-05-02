@@ -21,6 +21,7 @@
     <path id="Shared.classpath">
         <pathelement location="bin"/>
         <path refid="gwt.project.class.path"/>
+        <fileset dir="lib" includes="*.jar"/>
     </path>
     <target name="clean">
         <delete dir="bin"/>
