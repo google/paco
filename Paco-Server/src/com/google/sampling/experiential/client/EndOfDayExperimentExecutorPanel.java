@@ -178,11 +178,11 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   
   
 
-  public boolean alreadyHasResponse(EventDAO eventDAO) {
-    Date responseTime = eventDAO.getIdFromTimes();
+  public boolean alreadyHasResponse(EventDAO dailyEventDAO) {
+    Date responseTime = dailyEventDAO.getIdFromTimes();
     DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
     String stringResponseTime = formatter.format(responseTime);
-    responseTime  =formatter.parse(stringResponseTime);
+    responseTime = formatter.parse(stringResponseTime);
     
     EventDAO eodEvent = eodEventList.get(responseTime);
     return eodEvent != null && !eodEvent.isEmptyResponse();

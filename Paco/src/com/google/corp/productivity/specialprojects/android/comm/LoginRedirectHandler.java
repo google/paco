@@ -290,7 +290,7 @@ public class LoginRedirectHandler extends DefaultRedirectHandler {
     Account[] accounts = am.getAccountsByType(accountType);
     final List<Account> matchingAccounts = new ArrayList<Account>();
     for (Account account : accounts) {
-      if (accountName.equals(account.name)) {
+      if (account.name.equals(accountName)) {
        return account;
       }
     }
