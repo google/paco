@@ -14,11 +14,11 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.DAOConverter;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 
-public class ExperimentEntity {
+public class ExperimentVersionEntity {
   private static final String DEFINITION_COLUMN = "definition";
 
   private static final String VERSION_COLUMN = "version";
@@ -27,9 +27,9 @@ public class ExperimentEntity {
 
   private static final String TITLE_COLUMN = "title";
 
-  public static final Logger log = Logger.getLogger(ExperimentEntity.class.getName());
+  public static final Logger log = Logger.getLogger(ExperimentVersionEntity.class.getName());
 
-  public static String EXPERIMENT_KIND = "experiment_version";
+  public static String EXPERIMENT_VERSION_KIND = "experiment_version";
   
   public static Key saveExperimentAsEntity(Experiment experiment) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -38,7 +38,7 @@ public class ExperimentEntity {
     if (experiment.getId() == null) {
       log.severe("Experiment must have an id to be versioned in history table.");
     } 
-    Entity entity = new Entity(EXPERIMENT_KIND);
+    Entity entity = new Entity(EXPERIMENT_VERSION_KIND);
     entity.setProperty(TITLE_COLUMN, experiment.getTitle());
     entity.setProperty(JDO_EXPERIMENT_ID_COLUMN, experiment.getId());
     entity.setProperty(VERSION_COLUMN, experiment.getVersion());
@@ -50,7 +50,7 @@ public class ExperimentEntity {
   
   public static List<Experiment> getExperiments(User loggedInUser) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query(EXPERIMENT_KIND);
+    Query query = new Query(EXPERIMENT_VERSION_KIND);
     QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
     List<Experiment> experiments = Lists.newArrayList();
     for (Entity entity : result) {
@@ -65,7 +65,7 @@ public class ExperimentEntity {
   
   public static Experiment getExperimentVersion(User loggedInUser, Long jdoExperimentId, Integer version) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    Query query = new Query(EXPERIMENT_KIND);
+    Query query = new Query(EXPERIMENT_VERSION_KIND);
     query.addFilter(JDO_EXPERIMENT_ID_COLUMN, FilterOperator.EQUAL, jdoExperimentId);
     query.addFilter(VERSION_COLUMN, FilterOperator.EQUAL, version);
     Entity result = ds.prepare(query).asSingleEntity();

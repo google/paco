@@ -23,6 +23,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.pacoapp.paco.R;
+
 import android.app.ListActivity;
 import android.net.Uri;
 import android.os.Bundle;

@@ -18,13 +18,12 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -56,48 +55,45 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
     }
     
     
-    protected String doInBackground(Void... params) {
-      UrlContentManager manager = null;
-      try {
-        manager = new UrlContentManager(enclosingActivity);
-        String serverAddress = userPrefs.getServerAddress();
-        String path = "/experiments";
-        Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
-                .addHeader("http.useragent", "Android")
-                .addHeader("paco.version", AndroidUtils.getAppVersion(enclosingActivity))
-                .execute();
-        String contentAsString = response.getContentAsString();
-        if (contentAsString != null) {
-          ObjectMapper mapper = new ObjectMapper();
-          mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-          try {
-            List<Experiment> experiments = mapper.readValue(contentAsString,
-                new TypeReference<List<Experiment>>() {
-                });
-            experimentProviderUtil.deleteAllUnJoinedExperiments();
-            experimentProviderUtil.updateExistingExperiments(experiments);
-            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-            userPrefs.setExperimentListRefreshTime(new Date().getTime());
-            return null;
-          } catch (JsonParseException e) {
-            Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
-            e.printStackTrace();
-          } catch (JsonMappingException e) {
-            Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString);
-            e.printStackTrace();
-          } catch (UnsupportedCharsetException e) {
-            e.printStackTrace();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
+  protected String doInBackground(Void... params) {
+    UrlContentManager manager = null;
+    try {
+      manager = new UrlContentManager(enclosingActivity);
+      String serverAddress = userPrefs.getServerAddress();
+      String path = "/experiments";
+      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
+                                 .addHeader("http.useragent", "Android")
+                                 .addHeader("paco.version", AndroidUtils.getAppVersion(enclosingActivity)).execute();
+      String contentAsString = response.getContentAsString();
+      if (contentAsString != null) {
+        try {
+          List<Experiment> experiments = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
+          experimentProviderUtil.deleteAllUnJoinedExperiments();
+          experimentProviderUtil.updateExistingExperiments(experiments);
+          experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+          userPrefs.setExperimentListRefreshTime(new Date().getTime());
+        } catch (JsonParseException e) {
+          Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
+          return null;
+        } catch (JsonMappingException e) {
+          Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString + ", " + e.getMessage());
+          return null;
+        } catch (UnsupportedCharsetException e) {
+          Log.e(PacoConstants.TAG, "UnsupportedCharset. json: " + contentAsString + ", " + e.getMessage());
+          return null;
+        } catch (IOException e) {
+          Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
+          return null;
         }
-        return null;
-      } finally {
-        if (manager != null) {
-          manager.cleanUp();
-        }
+
+      }
+      return null;
+    } finally {
+      if (manager != null) {
+        manager.cleanUp();
       }
     }
+  }
 
     protected void onProgressUpdate() {
            

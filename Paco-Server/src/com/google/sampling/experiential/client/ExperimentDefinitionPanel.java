@@ -18,12 +18,10 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -41,13 +39,12 @@ import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 /**
@@ -182,7 +179,7 @@ public class ExperimentDefinitionPanel extends Composite {
     durationPanel = createDurationPanel(experiment);
     formPanel.add(durationPanel);
 
-    createSchedulePanel(experiment);
+    formPanel.add(createSignalMechanismPanel(experiment));
 
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
@@ -190,6 +187,11 @@ public class ExperimentDefinitionPanel extends Composite {
     createPublishingPanel(experiment);
     createButtonPanel(experiment);
   }
+
+  private SignalMechanismChooserPanel createSignalMechanismPanel(ExperimentDAO experiment2) {
+    return new SignalMechanismChooserPanel(experiment);    
+  }
+
 
   /**
    * @param experiment2
@@ -333,11 +335,6 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(publishedUsersPanel);
   }
 
-  private void createSchedulePanel(ExperimentDAO experiment) {
-    SchedulePanel sp = new SchedulePanel(experiment.getSchedule());
-    formPanel.add(sp);
-  }
-
   private DisclosurePanel createAdminDisclosurePanel(ExperimentDAO experiment) {
     final DisclosurePanel adminPanel = new DisclosurePanel();
     final DisclosurePanelHeader closedHeaderWidget =
@@ -446,16 +443,6 @@ public class ExperimentDefinitionPanel extends Composite {
     return new PanelPair(line, valueBox);
   }
 
-  class PanelPair {
-    public PanelPair(Panel container, Widget widget) {
-      this.container = container;
-      this.valueHolder = widget;
-          
-    }
-      Panel container;
-      Widget valueHolder;
-  }
-  
   private PanelPair createFormArea(String key, String value, int width, String height) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
@@ -484,7 +471,7 @@ public class ExperimentDefinitionPanel extends Composite {
     return new PanelPair(line, valueBox);
   }
 
-  private PanelPair createDisplayLine(String key, String value) {
+  public static PanelPair createDisplayLine(String key, String value) {
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");

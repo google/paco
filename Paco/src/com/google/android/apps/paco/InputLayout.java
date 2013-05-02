@@ -61,6 +61,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.pacoapp.paco.R;
 
 public class InputLayout extends LinearLayout {
 

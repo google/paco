@@ -25,13 +25,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
  * 
  */
-public class SignalSchedule implements Parcelable {
+public class SignalSchedule extends SignalingMechanism implements Parcelable {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;

@@ -32,8 +32,8 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 
 /**
  * Servlet that answers requests for experiments.
@@ -62,6 +62,10 @@ public class ExperimentServlet extends HttpServlet {
     if (user == null) {
       resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
+      String pacoVersion = req.getHeader("paco.version");
+      if (pacoVersion != null) {
+        log.info("Paco version of request = " + pacoVersion);
+      }
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
       String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
       if (experimentsJson != null) {

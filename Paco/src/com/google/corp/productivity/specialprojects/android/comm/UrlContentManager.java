@@ -25,7 +25,7 @@ import static com.google.corp.productivity.specialprojects.android.comm.Constant
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_REQUIRED_ACTION_INTENT;
 import static com.google.corp.productivity.specialprojects.android.comm.Constants.KEY_SECOND_ATTEMPT;
 
-import com.google.android.apps.paco.R;
+import com.pacoapp.paco.R;
 import com.google.android.apps.paco.UserPreferences;
 import com.google.corp.productivity.specialprojects.android.comm.Response.Status;
 
