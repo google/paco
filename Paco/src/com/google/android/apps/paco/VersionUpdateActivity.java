@@ -11,6 +11,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+/**
+ * No longer used because we are now on the Play Store
+ * 
+ * Delete once all participants are upgraded.
+ * 
+ * 
+ * @author bobevans
+ *
+ */
 public class VersionUpdateActivity extends Activity {
 
     /** Called when the activity is first created. */

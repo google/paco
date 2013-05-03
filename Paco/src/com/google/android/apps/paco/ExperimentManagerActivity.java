@@ -184,7 +184,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, ABOUT_PACO_ITEM, 1, R.string.about_paco_menu_item);
     menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
     menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
-    menu.add(0, UPDATE_ITEM, 4, R.string.check_updates_menu_item);
+//    menu.add(0, UPDATE_ITEM, 4, R.string.check_updates_menu_item);
     menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
     menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
     menu.add(0, SEND_LOG_ITEM, 4, R.string.send_log_menu_item);
