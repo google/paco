@@ -293,7 +293,9 @@ public class ExperimentDAO implements Serializable {
 
   
   public void setScheduleForBackwardCompatibility() {
-    if (getSignalingMechanisms().length > 0 && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
+    if (getSignalingMechanisms() != null 
+            && getSignalingMechanisms().length > 0 
+            && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
       schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
     } else {
       schedule = new SignalScheduleDAO();
