@@ -15,7 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest android:versionCode='77' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.77'>
+<manifest android:versionCode='78' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.78'>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     
 
