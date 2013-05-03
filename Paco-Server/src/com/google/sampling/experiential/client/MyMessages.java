@@ -22,7 +22,7 @@ public interface MyMessages extends Messages {
   @DefaultMessage("Could not retrieve events referenced by your experiment.<br/>{0}")
   String loadReferencedEventsFailed(String message);
   
-  @DefaultMessage("2b) If you are browsing this page from your phone, just <a href=\"{0}\">click here to download Paco</a>.")
+  @DefaultMessage("2b) Or, if you are browsing this page from your phone, just <a href=\"{0}\">click here to find Paco on the Play store</a>.")
   String downloadAppStep2b(String url);
 
   @DefaultMessage("Could not retrieve results for experiment: {0}")

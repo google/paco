@@ -99,13 +99,10 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Download the PACO Android Client")
   String downloadAppTitle();
 
-  @DefaultStringValue("1) Ensure that you can install applications from Unknown Sources.")
+  @DefaultStringValue("1) Paco is now available on the Play Store.")
   String downloadAppStep1a();
 
-  @DefaultStringValue("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'.")
-  String downloadAppStep1b();
-
-  @DefaultStringValue("2a) Scan this code with your phone which will launch the browser and download Paco.")
+  @DefaultStringValue("2a) Scan this code with your phone which will launch the Play store and take you to the Paco listing.")
   String downloadAppStep2a();
 
   @DefaultStringValue("No events found for referenced experiment.")
