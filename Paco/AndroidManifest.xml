@@ -15,7 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest android:versionCode='78' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.78'>
+<manifest android:versionCode='79' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.79'>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     
 
@@ -114,13 +114,6 @@
                 <data android:mimeType='vnd.android.cursor.item/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:label='Update Activity' android:name='com.google.android.apps.paco.VersionUpdateActivity'>
-            <intent-filter>
-                <action android:name='com.google.android.apps.paco.UPDATE'/>
-
-                <category android:name='android.intent.category.DEFAULT'/>
-            </intent-filter>
-        </activity>
         <activity android:name='com.google.android.apps.paco.WelcomeActivity'/>
         <activity android:name='com.google.android.apps.paco.AccountChooser'/>
         
@@ -161,7 +154,6 @@
         </service>
         <service android:name='com.google.android.apps.paco.SyncService'/>
         <service android:name='com.google.android.apps.paco.ServerCommunicationService'/>
-        <service android:name='com.google.android.apps.paco.VersionCheckerService'/>
 
         <receiver android:name='com.google.android.apps.paco.AlarmReceiver'>
             <intent-filter>
