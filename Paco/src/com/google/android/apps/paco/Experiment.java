@@ -420,14 +420,11 @@ public class Experiment implements Parcelable {
 
   @JsonIgnore
   public DateTime getNextTime(DateTime now, Context context) {
-    if (now == null || isExperimentOver(now)) {
+    if (now == null || getTrigger() != null || isExperimentOver(now)) {
       return null;
     }
     if (isExperimentNotStartedYet(now)) {
       now = getStartDate().toDateMidnight().toDateTime();
-    }
-    if (getTrigger() != null) {
-      return null;
     }
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);

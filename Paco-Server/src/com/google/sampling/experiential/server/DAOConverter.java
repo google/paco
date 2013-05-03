@@ -61,6 +61,7 @@ public class DAOConverter {
     if (schedule == null && trigger == null) {
       signalScheduleDAO = new SignalScheduleDAO();
       signalScheduleDAO.setScheduleType(SignalScheduleDAO.SELF_REPORT);
+      signalingMechanisms[0] = triggerDAO;
       published = Boolean.FALSE;
     } else if (trigger != null) {
       triggerDAO = createTriggerDAO(trigger);
