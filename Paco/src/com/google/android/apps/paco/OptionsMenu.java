@@ -87,9 +87,9 @@ public class OptionsMenu {
 //      case RESULTS_ITEM:
 //        launchResultsScreen();
 //        return true;
-      case UPDATE_ITEM:
-        launchUpdateCheck();
-        return true;
+//      case UPDATE_ITEM:
+//        launchUpdateCheck();
+//        return true;
       default:
         return false;
     } 

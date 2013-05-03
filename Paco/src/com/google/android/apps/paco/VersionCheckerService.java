@@ -36,16 +36,18 @@ public class VersionCheckerService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
-    Runnable runnable = new Runnable() {
-      public void run() {
-        if (VersionChecker.checkForUpdate(VersionCheckerService.this)) {
-          createUpdateNotification();
-        }
-        createAlarmForNextUpdate();
-        stopSelf();
-      }
-    };
-    (new Thread(runnable)).start();
+    // make this do nothing since we are now on the play store.
+    stopSelf();
+//    Runnable runnable = new Runnable() {
+//      public void run() {
+//        if (VersionChecker.checkForUpdate(VersionCheckerService.this)) {
+//          createUpdateNotification();
+//        }
+//        createAlarmForNextUpdate();
+//        stopSelf();
+//      }
+//    };
+//    (new Thread(runnable)).start();
   }
 
   //@VisibleForTesting
