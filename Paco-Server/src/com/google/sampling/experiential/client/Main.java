@@ -365,7 +365,7 @@ public class Main implements EntryPoint, ExperimentListener {
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
     
-    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("market:details?id=com.pacoapp.paco"));
+    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("http://play.google.com/store/apps/details?id=com.pacoapp.paco"));
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
 
