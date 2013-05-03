@@ -359,14 +359,13 @@ public class Main implements EntryPoint, ExperimentListener {
     HTML barCodeLabel = new HTML(myConstants.downloadAppStep1a());
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
-    dl.add(new HTML(myConstants.downloadAppStep1b()));
  
     HTML barCodeLabel2 = new HTML(myConstants.downloadAppStep2a());
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
     
-    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("/paco.apk"));
+    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("market:details?id=com.pacoapp.paco"));
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
 
