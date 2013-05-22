@@ -179,6 +179,8 @@ public class FindExperimentsActivity extends Activity {
       experiments = experimentProviderUtil.loadExperimentsFromDisk();
     } catch (IOException e) {
       e.printStackTrace();
+    }
+    if (experiments == null) {
       experiments = new ArrayList();
     }
     adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this, 
