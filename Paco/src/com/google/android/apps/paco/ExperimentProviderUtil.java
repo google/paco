@@ -17,6 +17,7 @@
 package com.google.android.apps.paco;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1567,15 +1568,31 @@ public class ExperimentProviderUtil {
     
   }
 
-  public List<Experiment> loadExperimentsFromDisk() throws IOException {
-    FileInputStream fis = context.openFileInput(FILENAME);    
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    List<Experiment> experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+  public List<Experiment> loadExperimentsFromDisk() {
+    List<Experiment> experiments = null;
+    try {
+      experiments = createObjectsFromJsonStream(context.openFileInput(FILENAME));
+    } catch (IOException e) {
+      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist");
+      e.printStackTrace();
+    }
+    return ensureExperiments(experiments);
+  }
+
+  private List<Experiment> ensureExperiments(List<Experiment> experiments) {
     if (experiments != null) {
       return experiments;
     }
     return new ArrayList<Experiment>();
+  }
+
+  private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
+                                                                           JsonMappingException {
+    List<Experiment> experiments;
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    return experiments;
   }
 
   public boolean hasJoinedExperiments() {
@@ -1622,15 +1639,8 @@ public class ExperimentProviderUtil {
   }
 
   public Experiment getExperimentFromDisk(Long experimentServerId) {
-    List<Experiment> experiments;
-    try {
-      experiments = loadExperimentsFromDisk();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
+    List<Experiment> experiments= loadExperimentsFromDisk();
     for (Experiment experiment : experiments) {
-
       if (experiment.getServerId().equals(experimentServerId)) {
         return experiment;
       }
