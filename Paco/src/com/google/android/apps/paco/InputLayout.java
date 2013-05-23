@@ -182,7 +182,10 @@ public class InputLayout extends LinearLayout {
     } else if (input.getResponseType().equals(Input.LIKERT)) {
       return intToString(getLikertValue());
     } else if (input.getResponseType().equals(Input.LIST)) {
-      return getListValueAsString();
+      String listValueAsString = getListValueAsString(); // PRIYA
+      System.out.println("getValueAsString has listValueAsString as " + listValueAsString);
+      return listValueAsString;
+      //return getListValueAsString();
     } else if (input.getResponseType().equals(Input.LOCATION)) {
       return getLocationValue();
     } else if (input.getResponseType().equals(Input.NUMBER)) {
@@ -204,6 +207,7 @@ public class InputLayout extends LinearLayout {
   private String getListValueAsString() {
     if (!input.isMultiselect()) {
       if (!listHasBeenSelected) {
+        System.out.println("I think the list hasn't been selected in getListValueAsString"); // PRIYA
         return null;
       }
       return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
@@ -641,8 +645,10 @@ public class InputLayout extends LinearLayout {
       public void onItemSelected(AdapterView<?> arg0, View v, int arg2, long arg3) {
         if (!setupClickHasHappened) {
           setupClickHasHappened = true;
+          System.out.println("setupClickHasHappened set to true in renderSingleSelectList"); // PRIYA
         } else {
           listHasBeenSelected = true;
+          System.out.println("set listHasBeenSelected to true in renderSingleSelectList"); // PRIYA
         }
         notifyChangeListeners();
       }

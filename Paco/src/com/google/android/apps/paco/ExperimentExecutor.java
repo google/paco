@@ -420,6 +420,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     ExpressionEvaluator main = new ExpressionEvaluator(interpreter);
     for (InputLayout inputView : inputs) {
       Input input = inputView.getInput();
+      System.out.println("Input for input view in gatherResponses is " + input); // PRIYA
       try {
         if (input.getConditional() != null && input.getConditional() == true && !main.parse(input.getConditionExpression())) {
           continue;
@@ -430,6 +431,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
       Output responseForInput = new Output();
       String answer = inputView.getValueAsString();
+      System.out.println("Answer in gatherResponses is " + answer); // PRIYA
       if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*|| 
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
         throw new IllegalStateException(getString(R.string.must_answer) + input.getText());
