@@ -1311,6 +1311,7 @@ public class ExperimentProviderUtil {
     }
     if (!cursor.isNull(answerIndex)) {
       input.setAnswer(cursor.getString(answerIndex));
+      System.out.println("I am in createResponse with answer index " + answerIndex); // PRIYA
     }
     return input;
   }
