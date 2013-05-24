@@ -636,14 +636,14 @@ public class InputLayout extends LinearLayout {
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
         input.getListChoices());
-    choices.insert(DEFAULT_LIST_ITEM, 0);
+    choices.insert(DEFAULT_LIST_ITEM, 0);     // "No selection" list item.
     findViewById.setAdapter(choices);
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View v, int index, long id) {
         if (!setupClickHasHappened) {
           setupClickHasHappened = true;
-        } else if (index != 0) {       // List item selected is not the first.
+        } else if (index != 0) {              // Option has been selected. 
           listHasBeenSelected = true;
         } else {
           listHasBeenSelected = false;
