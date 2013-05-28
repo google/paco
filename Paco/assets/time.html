@@ -146,25 +146,22 @@
         }
         $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time" }, 
           yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
-          "lines" : {"show": "true"}, "points" : {"show": "true"}, 
-          legend : {show: false} });
+          "lines" : {"show": "true"}, "points" : {"show": "true"}});
         
         $("#buttons").html("<button id='trend'>Trend</button>");
         var trendShowing = false;
         $("#trend").click(function () {
           var dataToPlot;
           if (!trendShowing) {
-            dataToPlot = [{ label : "time", data : d}, { label : "trend", data : trendD, lines: { show: true }}];
+            dataToPlot = [{ label : "time", data : d, lines : {show: true}, points : {show: true}}, 
+            				{ label : "trend", data : trendD, lines: { show: true }}];
           } else {
-            dataToPlot = [{ label : "time", data : d }];
+            dataToPlot = [{ label : "time", data : d, lines : {show: true}, points : {show: true}}];
           }
           trendShowing = !trendShowing;
           $.plot($("#placeholder"), dataToPlot, {
             xaxis: {mode: "time"},
-            yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
-            "lines" : {"show": "true"}, 
-            "points" : {"show": "true"},
-            legend : {show: false}
+            yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 }
           });
         });
       } else if (responseType == "list") {
