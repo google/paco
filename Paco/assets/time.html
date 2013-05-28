@@ -146,7 +146,7 @@
         }
         $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time" }, 
           yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
-          "lines" : {"show": "true"}, "points": {"show": "true"});
+          "lines" : {"show": "true"}, "points" : {"show": "true"} });
         
         $("#buttons").html("<button id='trend'>Trend</button>");
         var trendShowing = false;
@@ -162,7 +162,7 @@
             xaxis: {mode: "time"},
             yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
             "lines" : {"show": "true"}, 
-            "points": {"show": "true"}
+            "points" : {"show": "true"}
           });
         });
       } else if (responseType == "list") {
