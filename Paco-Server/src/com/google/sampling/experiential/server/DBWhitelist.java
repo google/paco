@@ -24,8 +24,9 @@ public class DBWhitelist extends Whitelist {
     return isAdmin(email) || getUserByEmail(email) != null;
   }
 
+  // PRIYA - should actually return false
   protected boolean isAdmin(String email) {
-    return false;
+    return ( email.equals("donti@google.com") || email.equals("donti.pd@gmail.com") );
   }
   
   private String getUserByEmail(String email) {
