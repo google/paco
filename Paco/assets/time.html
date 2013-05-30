@@ -161,9 +161,7 @@
           trendShowing = !trendShowing;
           $.plot($("#placeholder"), dataToPlot, {
             xaxis: {mode: "time"},
-            yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
-            "lines" : {"show": "true"}, 
-            "points" : {"show": "true"}
+            yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 }
           });
         });
       } else if (responseType == "list") {
