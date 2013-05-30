@@ -41,6 +41,7 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -736,6 +737,9 @@ public class InputLayout extends LinearLayout {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
     final EditText openTextView = (EditText) findViewById(R.id.open_text_answer);
+    // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
+    // emulator, so we need to test it on the device.
+    openTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
