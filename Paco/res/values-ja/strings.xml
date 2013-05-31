@@ -271,5 +271,6 @@
    <string name="updated_paco_notification_ticker_text">Paco: アプリを更新できます。</string>
    <string name="updated_paco_notification_content_title">Pacoを更新</string>
    <string name="updated_paco_notification_content_text">Pacoの更新版をダウンロードできます。</string>
+   <string name="default_list_item"/>
    
 </resources>
