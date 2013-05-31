@@ -21,6 +21,8 @@
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
 #import "PacoTitleView.h"
+#import "PacoClient.h"
+#import "PacoLoginScreenViewController.h"
 
 @implementation PacoMainViewController
 
@@ -100,8 +102,20 @@
 #pragma mark - Button Callbacks
 
 - (void)onRunningExperiments {
-  PacoRunningExperimentsViewController *controller = [[PacoRunningExperimentsViewController alloc] init];
-  [self.navigationController pushViewController:controller animated:YES];
+  void(^finishBlock)() = ^{
+    PacoRunningExperimentsViewController *controller = [[PacoRunningExperimentsViewController alloc] init];
+    [self.navigationController pushViewController:controller animated:YES];
+  };
+  
+  if ([[PacoClient sharedInstance] isLoggedIn]) {
+    finishBlock();
+  }else{
+    [self loginWithCompletionBlock:^(NSError *error) {
+      if (!error) {
+        finishBlock();
+      }
+    }];
+  }
 }
 
 - (void)onExploreData {
@@ -111,11 +125,54 @@
 }
 
 - (void)onFindAllExperiments {
-  PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
-  [self.navigationController pushViewController:controller animated:YES];
+  void(^finishBlock)() = ^{
+    PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
+    [self.navigationController pushViewController:controller animated:YES];
+  };
+  
+  if ([[PacoClient sharedInstance] isLoggedIn]) {
+    finishBlock();
+  }else{
+    [self loginWithCompletionBlock:^(NSError *error) {
+      if (!error) {
+        finishBlock();
+      }
+    }];
+  }
 }
 
 - (void)onSendFeedback {
 }
+
+#pragma mark bring up login flow if necessary
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block
+{
+  if ([[PacoClient sharedInstance] isLoggedIn]) {
+    if (block) {
+      block(nil);
+    }
+    return;
+  }
+  
+  PacoLoginScreenViewController *loginViewController = [PacoLoginScreenViewController controllerWithCompletionBlock:block];
+  [self.navigationController presentViewController:loginViewController animated:YES completion:nil];
+  
+  // Attempt a PACO login.
+  /*
+   [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
+   if (!error) {
+   NSLog(@"PACO LOGIN SUCCESS!");
+   
+   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+   if (notification) {
+   [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+   }
+   } else {
+   NSLog(@"PACO LOGIN FAILURE! %@", error);
+   }
+   }];
+   */
+}
+
 
 @end

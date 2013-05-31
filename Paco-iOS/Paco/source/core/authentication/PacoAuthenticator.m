@@ -29,15 +29,11 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 @property(readwrite, retain) GTMOAuth2Authentication *auth;
 @property(readwrite, copy) PacoAuthenticationBlock completionHandler;
 @property(readwrite, copy) NSString *cookie;
+@property(readwrite, assign) BOOL userLoggedIn;
 @end
 
 @implementation PacoAuthenticator
 
-@synthesize appEngineAuth = appEngineAuth_;
-@synthesize auth = auth_;
-@synthesize authUI = authUI_;
-@synthesize completionHandler = completionHandler_;
-@synthesize cookie = cookie_;
 
 #pragma mark - ClientLogin
 
@@ -45,9 +41,9 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
                            password:(NSString *)password
                   completionHandler:(void (^)(NSError *))completionHandler {
   self.completionHandler = completionHandler;
-  appEngineAuth_ = [[GoogleAppEngineAuth alloc] initWithDelegate:self
+  _appEngineAuth = [[GoogleAppEngineAuth alloc] initWithDelegate:self
                                                        andAppURL:[NSURL URLWithString:@"https://quantifiedself.appspot.com"]];
-  [appEngineAuth_ authWithUsername:email
+  [_appEngineAuth authWithUsername:email
                        andPassword:password
                         withSource:@"Paco-Paco-testIOS"];
 }
@@ -92,7 +88,7 @@ Deep Linking:	Enabled
   }
 
 
-  authUI_ = [[GTMOAuth2ViewControllerTouch alloc]
+  _authUI = [[GTMOAuth2ViewControllerTouch alloc]
       initWithScope:scopes
       clientID:clientId
       clientSecret:clientSecret
@@ -106,8 +102,10 @@ Deep Linking:	Enabled
           self.auth = auth;
           if (auth && !error) {
             NSLog(@"PACO OAUTH2 LOGIN AUTH SUCCEEDED [%@]", auth.tokenURL.absoluteString);
+            self.userLoggedIn = YES;
           } else {
             NSLog(@"PACO OAUTH2 LOGIN AUTH FAILED [%@]", error);
+            self.userLoggedIn = NO;
           }
           if (completionHandler) {
             completionHandler(nil);
@@ -117,15 +115,25 @@ Deep Linking:	Enabled
               dismissViewControllerAnimated:NO completion:^{}];
       }];
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      presentViewController:authUI_ animated:NO completion:^{
+      presentViewController:_authUI animated:NO completion:^{
         self.authUI = nil;
       }];
 }
+
+
+- (BOOL)isLoggedIn
+{
+  //YMZ:TODO:
+  return self.userLoggedIn;
+}
+
 
 #pragma mark - GoogleClientLoginDelegate
 
 -(void)authSucceeded:(NSString *)authKey {
   NSLog(@"PACO CLIENT LOGIN AUTH SUCCEEDED [%@]", authKey);
+  self.userLoggedIn = YES;
+  
   self.cookie = [NSString stringWithFormat:@"SACSID=%@", authKey];
   if (self.completionHandler) {
     self.completionHandler(nil);
@@ -134,6 +142,8 @@ Deep Linking:	Enabled
 
 -(void)authFailed:(NSString *)error {
   NSLog(@"PACO CLIENT LOGIN AUTH FAILED [%@]", error);
+  self.userLoggedIn = NO;
+  
   if (self.completionHandler) {
     self.completionHandler([NSError errorWithDomain:error code:-1 userInfo:nil]);
   }

@@ -52,45 +52,22 @@
     self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
   }
 
-  self.window.rootViewController =
-      [[UINavigationController alloc] initWithRootViewController:self.viewController];
+  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
   [self.window makeKeyAndVisible];
-
-  PacoLoginScreenViewController *loginViewController = [[PacoLoginScreenViewController alloc] initWithNibName:nil bundle:nil];
-  [self.viewController presentViewController:loginViewController animated:NO completion:^{
+  
 //    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
 //    questions.experiment = experiment;
 //    [self.navigationController pushViewController:questions animated:YES];
-      UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-      if (notification) {
-        [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-        NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-        PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-        assert(experiment);
-        PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-        questions.experiment = experiment;
-        [self.viewController presentViewController:questions animated:YES completion:^{
-          
-        }];
-        
-      }
-  }];
-
-  // Attempt a PACO login.
-/*
-  [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
-    if (!error) {
-      NSLog(@"PACO LOGIN SUCCESS!");
-      
-      UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-      if (notification) {
-        [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-      }
-    } else {
-      NSLog(@"PACO LOGIN FAILURE! %@", error);
-    }
-  }];
-  */
+  UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+  if (notification) {
+    [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+    NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+    assert(experiment);
+    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+    questions.experiment = experiment;
+    [self.viewController presentViewController:questions animated:YES completion:nil];
+  }
   return YES;
 }
 

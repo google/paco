@@ -31,6 +31,8 @@
 
 + (PacoClient *)sharedInstance;
 
+- (BOOL)isLoggedIn;
+
 - (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler;
 
 - (void)loginWithClientLogin:(NSString *)email
