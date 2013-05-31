@@ -258,7 +258,6 @@ public class InputLayout extends LinearLayout {
   }
 
   private final int IMAGE_MAX_SIZE = 600;
-  private final String DEFAULT_LIST_ITEM = "";
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
 
@@ -637,7 +636,8 @@ public class InputLayout extends LinearLayout {
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
         input.getListChoices());
-    choices.insert(DEFAULT_LIST_ITEM, 0);     // "No selection" list item.
+    String defaultListItem = getResources().getString(R.string.default_list_item);
+    choices.insert(defaultListItem, 0);       // "No selection" list item.
     findViewById.setAdapter(choices);
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
