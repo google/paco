@@ -57,7 +57,7 @@
   [self.window makeKeyAndVisible];
 
   PacoLoginScreenViewController *loginViewController = [[PacoLoginScreenViewController alloc] initWithNibName:nil bundle:nil];
-  [self.viewController presentViewController:loginViewController animated:YES completion:^{
+  [self.viewController presentViewController:loginViewController animated:NO completion:^{
 //    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
 //    questions.experiment = experiment;
 //    [self.navigationController pushViewController:questions animated:YES];
