@@ -162,7 +162,7 @@ public class InputExecutorPanel extends Composite {
       lowerLinePanel.add(multiselectList);
     } else {
       list = new ListBox(false);
-      list.addItem("");      // "No selection" list item.
+      list.addItem(myConstants.defaultListItem());      // "No selection" list item.
       for (String choice : input.getListChoices()) {
         list.addItem(choice);
       }
