@@ -147,6 +147,8 @@
 //- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {              // called when 'return' key pressed. return NO to ignore.
   [textField resignFirstResponder];
+  
+  [self onLogin];
   return TRUE;
 }
 
