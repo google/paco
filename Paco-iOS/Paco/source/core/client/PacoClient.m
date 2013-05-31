@@ -58,26 +58,42 @@
   return self;
 }
 
+- (BOOL)isLoggedIn
+{
+  return [self.authenticator isLoggedIn];
+}
+
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  [self.authenticator authenticateWithClientLogin:email//@"paco.test.gv@gmail.com"
-                                         password:password//@"qwertylkjhgf"
-                                completionHandler:^(NSError *error) {
-      if (!error) {
-        // Authorize the service.
-        self.service.authenticator = self.authenticator;
-        // Fetch the experiment definitions and the events of joined experiments.
-        [self prefetch];
-        completionHandler(nil);
-      } else {
-        completionHandler(error);
-      }
-  }];
+  if ([self.authenticator isLoggedIn]) {
+    if (completionHandler != nil) {
+      completionHandler(nil);
+    }
+  }else{
+    [self.authenticator authenticateWithClientLogin:email//@"paco.test.gv@gmail.com"
+                                           password:password//@"qwertylkjhgf"
+                                  completionHandler:^(NSError *error) {
+                                    if (!error) {
+                                      // Authorize the service.
+                                      self.service.authenticator = self.authenticator;
+                                      // Fetch the experiment definitions and the events of joined experiments.
+                                      [self prefetch];
+                                      completionHandler(nil);
+                                    } else {
+                                      completionHandler(error);
+                                    }
+                                  }];    
+  }
 }
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
-  [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
+  if ([self.authenticator isLoggedIn]) {
+    if (completionHandler != nil) {
+      completionHandler(nil);
+    }
+  }else{
+    [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
       if (!error) {
         // Authorize the service.
         self.service.authenticator = self.authenticator;
@@ -87,7 +103,8 @@
       } else {
         completionHandler(error);
       }
-  }];
+    }];
+  }
 }
 
 - (void)prefetch {

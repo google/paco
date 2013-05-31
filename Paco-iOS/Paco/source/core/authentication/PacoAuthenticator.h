@@ -28,5 +28,8 @@
 
 - (void)authenticateWithOAuth2WithCompletionHandler:(void (^)(NSError *))completionHandler;
 
+- (BOOL)isLoggedIn;
+
+
 @end
 

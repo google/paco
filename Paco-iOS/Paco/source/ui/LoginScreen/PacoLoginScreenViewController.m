@@ -22,20 +22,30 @@
 #import "PacoMainViewController.h"
 #import "PacoTitleView.h"
 
+
+
 @interface PacoLoginScreenViewController () <UITextFieldDelegate>
 
 @property(strong, nonatomic) UITextField* emailField;
 @property(strong, nonatomic) UITextField* pwdField;
+@property(copy, nonatomic) LoginCompletionBlock completionBlock;
 
 @end
 
 @implementation PacoLoginScreenViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
++ (id)controllerWithCompletionBlock:(LoginCompletionBlock)block
+{
+  return [[PacoLoginScreenViewController alloc] initWithNibName:nil bundle:nil completionBlock:block];
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil completionBlock:(LoginCompletionBlock)block
+{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     PacoTitleView *title = [[PacoTitleView alloc] initIconAndText:@"Login"];
     self.navigationItem.titleView = title;
+    self.completionBlock = block;
   }
   return self;
 }
@@ -123,7 +133,9 @@
     if (!error) {
       NSLog(@"PACO LOGIN SUCCESS!");
       [((PacoAppDelegate *)[UIApplication sharedApplication].delegate).viewController dismissViewControllerAnimated:YES completion:^{
-      
+        if (self.completionBlock) {
+          self.completionBlock(nil);
+        }
     }];
     } else {
       NSLog(@"PACO LOGIN FAILURE! %@", error);

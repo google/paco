@@ -15,6 +15,10 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^LoginCompletionBlock)(NSError* error);
+
 @interface PacoLoginScreenViewController : UIViewController
+
++ (id)controllerWithCompletionBlock:(LoginCompletionBlock)block;
 
 @end
