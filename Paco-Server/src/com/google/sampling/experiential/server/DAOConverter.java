@@ -75,8 +75,8 @@ public class DAOConverter {
     Boolean fixedDuration = experiment.getFixedDuration();
     Boolean questionsChange = experiment.getQuestionsChange();
     Boolean deleted = experiment.getDeleted();
-    Long startDate = experiment.getStartDate() != null ? experiment.getStartDate().getTime() : null;
-    Long endDate = experiment.getEndDate() != null ? experiment.getEndDate().getTime() : null;
+    String startDate = experiment.getStartDate(); //!= null ? experiment.getStartDate() : null; // PRIYA
+    String endDate = experiment.getEndDate(); //!= null ? experiment.getEndDate().getTime() : null;
     String hash = experiment.getHash();
     Long joinDate = experiment.getJoinDate() != null ? experiment.getJoinDate().getTime() : null;
     Long modifyDate = experiment.getModifyDate() != null ? experiment.getModifyDate().getTime() : null;
@@ -176,18 +176,18 @@ public class DAOConverter {
     experiment.setInformedConsentFormText(experimentDAO.getInformedConsentForm());
     experiment.setQuestionsChange(experimentDAO.getQuestionsChange());
     experiment.setFixedDuration(experimentDAO.getFixedDuration());
-    Long startDateDAO = experimentDAO.getStartDate();
-    Date startDate = null;
-    if (startDateDAO != null) {
-      startDate = new DateTime(startDateDAO).toDate();
-    }
+    String startDate = experimentDAO.getStartDate();   // formerly variable was called startDateDAO
+//    Date startDate = null;                                // PRIYA
+//    if (startDateDAO != null) {
+//      startDate = new DateTime(startDateDAO).toDate();
+//    }
     experiment.setStartDate(startDate);
     
-    Long endDateDAO = experimentDAO.getEndDate();
-    Date endDate = null;
-    if (endDateDAO != null) {
-      endDate = new DateTime(endDateDAO).toDate();
-    }
+    String endDate = experimentDAO.getEndDate();   // formerly endDateDAO
+//    Date endDate = null;
+//    if (endDateDAO != null) {
+//      endDate = new DateTime(endDateDAO).toDate();
+//    }
     experiment.setEndDate(endDate);
     
     experiment.setModifyDate(experimentDAO.getModifyDate() != null ? new Date(experimentDAO

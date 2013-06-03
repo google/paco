@@ -603,13 +603,15 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void setDurationOn(ExperimentDAO experiment) {
     experiment.setFixedDuration(durationPanel.isFixedDuration());
-    if (experiment.getFixedDuration()) {
-      experiment
-          .setStartDate(durationPanel.getStartDate() != null ? Long.valueOf(
-              durationPanel.getStartDate().getTime()) : null);
-      experiment
-          .setEndDate(durationPanel.getEndDate() != null
-              ? Long.valueOf(durationPanel.getEndDate().getTime()) : null);
+    if (experiment.getFixedDuration()) {      // PRIYA
+//      experiment
+//          .setStartDate(durationPanel.getStartDate() != null ? Long.valueOf(
+//              durationPanel.getStartDate().getTime()) : null);
+//      experiment
+//          .setEndDate(durationPanel.getEndDate() != null
+//              ? Long.valueOf(durationPanel.getEndDate().getTime()) : null);
+      experiment.setStartDate(durationPanel.getStartDate());
+      experiment.setEndDate(durationPanel.getEndDate());
     } else {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
