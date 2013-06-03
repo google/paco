@@ -21,6 +21,11 @@
 @class PacoScheduler;
 @class PacoService;
 
+//production server: 0
+//local server: 1
+#define SERVER_DOMAIN_FLAG 0
+
+
 @interface PacoClient : NSObject
 
 @property (retain, readonly) PacoAuthenticator *authenticator;
@@ -28,6 +33,7 @@
 @property (retain, readonly) PacoModel *model;
 @property (retain, readonly) PacoScheduler *scheduler;
 @property (retain, readonly) PacoService *service;
+@property (retain, readonly) NSString *serverDomain;
 
 + (PacoClient *)sharedInstance;
 

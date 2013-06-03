@@ -22,6 +22,7 @@
 #import "PacoAuthenticator.h"
 #import "PacoDate.h"
 #import "PacoModel.h"
+#import "PacoClient.h"
 
 @implementation PacoService
 
@@ -83,7 +84,7 @@
 
 - (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
   // Setup our request.
-  NSURL *url = [NSURL URLWithString:@"https://quantifiedself.appspot.com/experiments"];
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/experiments", [PacoClient sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
       [NSMutableURLRequest requestWithURL:url
                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -101,7 +102,7 @@
 
 - (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler {
   // Setup our request.
-  NSURL *url = [NSURL URLWithString:@"https://quantifiedself.appspot.com/events"];
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoClient sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
       [NSMutableURLRequest requestWithURL:url
                               cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -240,7 +241,8 @@
     withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
   // Setup our request.
   NSString *urlString =
-      [NSString stringWithFormat:@"https://quantifiedself.appspot.com/events?json&q='experimentId=%@:who=%@'",
+      [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
+           [PacoClient sharedInstance].serverDomain,
            experiment.experimentId,
            @"paco.test.gv@gmail.com"];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
