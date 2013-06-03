@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="/PacoAndroidLib"/>
-	<classpathentry kind="lib" path="libs/antlr-runtime-3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="lib" path="libs/joda-time-2.2.jar"/>
-	<classpathentry kind="lib" path="libs/jackson-all-1.9.11.jar"/>
-	<classpathentry kind="lib" path="libs/joda-convert-1.3.1.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/Shared"/>
+	<classpathentry exported="true" kind="lib" path="libs/joda-time-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jackson-all-1.9.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/joda-convert-1.3.1.jar"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

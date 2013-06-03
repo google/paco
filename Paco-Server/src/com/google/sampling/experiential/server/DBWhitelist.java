@@ -25,6 +25,9 @@ public class DBWhitelist extends Whitelist {
   }
 
   protected boolean isAdmin(String email) {
+	  if(email.equals("ymggtest@gmail.com") || email.equals("yimingzhang@google.com")){
+		  return true;
+	  }
     return false;
   }
   
