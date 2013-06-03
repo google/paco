@@ -20,6 +20,7 @@
 #import "GTMOAuth2Authentication.h"
 #import "GTMOAuth2SignIn.h"
 #import "GTMOAuth2ViewControllerTouch.h"
+#import "PacoClient.h"
 
 typedef void (^PacoAuthenticationBlock)(NSError *);
 
@@ -42,7 +43,7 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
                   completionHandler:(void (^)(NSError *))completionHandler {
   self.completionHandler = completionHandler;
   _appEngineAuth = [[GoogleAppEngineAuth alloc] initWithDelegate:self
-                                                       andAppURL:[NSURL URLWithString:@"https://quantifiedself.appspot.com"]];
+                                                       andAppURL:[NSURL URLWithString:[PacoClient sharedInstance].serverDomain]];
   [_appEngineAuth authWithUsername:email
                        andPassword:password
                         withSource:@"Paco-Paco-testIOS"];

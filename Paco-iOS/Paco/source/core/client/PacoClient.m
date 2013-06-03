@@ -27,6 +27,8 @@
 @property (retain, readwrite) PacoModel *model;
 @property (retain, readwrite) PacoScheduler *scheduler;
 @property (retain, readwrite) PacoService *service;
+@property (retain, readwrite) NSString *serverDomain;
+
 - (void)prefetch;
 @end
 
@@ -54,6 +56,11 @@
     self.scheduler = [[PacoScheduler alloc] init];
     self.service = [[PacoService alloc] init];
     
+    if (SERVER_DOMAIN_FLAG == 0) {//production
+      self.serverDomain = @"https://quantifiedself.appspot.com";
+    }else{//localserver
+      self.serverDomain = @"http://127.0.0.1";
+    }
   }
   return self;
 }
