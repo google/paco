@@ -14,6 +14,8 @@ import net.sf.jsr107cache.CacheManager;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
@@ -109,14 +111,17 @@ public class ExperimentCacheHelper {
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
     SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
     if (signalingMechanismDAO instanceof SignalScheduleDAO && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
       Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return new DateMidnight( formatter.parseDateTime(experiment.getEndDate()) )
+          .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
+      return new DateMidnight( formatter.parseDateTime(experiment.getEndDate()) )
+          .plusDays(1).toDateTime();
     }
   }
 

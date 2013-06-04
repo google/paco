@@ -82,7 +82,7 @@ public class ExperimentServlet extends HttpServlet {
           experiments = Lists.newArrayList();
           availableExperiments = experiments;        
         } else {
-          availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(experiments, email);        
+          availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(experiments, email);
         }
         ExperimentRetriever.removeSensitiveFields(availableExperiments);
         experimentsJson = JsonConverter.jsonify(availableExperiments);
