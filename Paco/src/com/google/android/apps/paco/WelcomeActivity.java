@@ -96,7 +96,7 @@ public class WelcomeActivity extends Activity {
   public void about() {
     LayoutInflater li = LayoutInflater.from(this);
     View view = li.inflate(R.layout.about, null);
-    TextView versionField = (TextView)findViewById(R.id.versionField);
+    TextView versionField = (TextView)view.findViewById(R.id.versionField);
     versionField.setText(getVersion());
     
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
