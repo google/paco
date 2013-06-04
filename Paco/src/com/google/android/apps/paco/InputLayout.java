@@ -41,6 +41,7 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -206,7 +207,7 @@ public class InputLayout extends LinearLayout {
       if (!listHasBeenSelected) {
         return null;
       }
-      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition());
     }
     return getMultiSelectListValueAsString();
   }
@@ -635,14 +636,18 @@ public class InputLayout extends LinearLayout {
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
         input.getListChoices());
+    String defaultListItem = getResources().getString(R.string.default_list_item);
+    choices.insert(defaultListItem, 0);       // "No selection" list item.
     findViewById.setAdapter(choices);
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-      public void onItemSelected(AdapterView<?> arg0, View v, int arg2, long arg3) {
+      public void onItemSelected(AdapterView<?> arg0, View v, int index, long id) {
         if (!setupClickHasHappened) {
           setupClickHasHappened = true;
-        } else {
+        } else if (index != 0) {              // Option has been selected. 
           listHasBeenSelected = true;
+        } else {
+          listHasBeenSelected = false;
         }
         notifyChangeListeners();
       }
@@ -732,6 +737,9 @@ public class InputLayout extends LinearLayout {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
     final EditText openTextView = (EditText) findViewById(R.id.open_text_answer);
+    // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
+    // emulator, so we need to test it on the device.
+    openTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {

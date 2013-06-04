@@ -84,7 +84,7 @@ public class InputExecutorPanel extends Composite {
       if (chosenIndex == -1) {
         return null;
       }
-      return Integer.toString(chosenIndex + 1);
+      return Integer.toString(chosenIndex);
     }
   }
 
@@ -162,6 +162,7 @@ public class InputExecutorPanel extends Composite {
       lowerLinePanel.add(multiselectList);
     } else {
       list = new ListBox(false);
+      list.addItem(myConstants.defaultListItem());      // "No selection" list item.
       for (String choice : input.getListChoices()) {
         list.addItem(choice);
       }

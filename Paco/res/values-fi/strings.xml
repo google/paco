@@ -272,6 +272,7 @@
    <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
    <string name="updated_paco_notification_content_title">Paco Update</string>
    <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
+   <string name="default_list_item"/>
    
    
 </resources>
