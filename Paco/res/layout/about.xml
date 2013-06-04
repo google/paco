@@ -117,9 +117,10 @@
       android:text="@string/about_version"
       android:textSize="20sp" />
     <TextView
+        android:id="@+id/versionField"
       android:layout_height="wrap_content"
       android:layout_width="wrap_content"
-      android:text="@string/version"
+      android:text=""
       android:textSize="20sp" />
   </TableRow>
 
