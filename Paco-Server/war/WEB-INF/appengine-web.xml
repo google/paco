@@ -18,7 +18,7 @@
  -->
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 	<application>quantifiedself</application>
-	<version>71</version>
+	<version>73</version>
 	<static-files>
     <exclude path='**/*.gwt.rpc'/>
   </static-files>
