@@ -39,6 +39,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+//import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.paco.shared.model.SignalScheduleDAO;
 
 
@@ -128,18 +129,15 @@ public class Experiment {
   @Persistent
   private Boolean questionsChange;
   
-  // PRIYA
 //  @Persistent
 //  private Date startDate;
 //
 //  @Persistent
 //  private Date endDate;
   
-  @Persistent
-  private String startDate;
+  private String startDateStr;
   
-  @Persistent
-  private String endDate;
+  private String endDateStr;
   
   @Persistent
   private String hash;
@@ -253,19 +251,21 @@ public class Experiment {
   }
 
   public String getStartDate() {
-    return startDate;
+    return startDateStr;
   }
 
-  public void setStartDate(String startDate) {
-    this.startDate = startDate;
+  public void setStartDate(String startDateStr) {
+    this.startDateStr = startDateStr;
+    //startDate = DateTimeFormat.getFormat("yyyy/MM/dd").parse(startDateStr);
   }
 
   public String getEndDate() {
-    return endDate;
+    return endDateStr;
   }
 
-  public void setEndDate(String endDate) {
-    this.endDate = endDate;
+  public void setEndDate(String endDateStr) {
+    this.endDateStr = endDateStr;
+    //endDate = DateTimeFormat.getFormat("yyyy/MM/dd").parse(endDateStr);
   }
 
   public String getHash() {

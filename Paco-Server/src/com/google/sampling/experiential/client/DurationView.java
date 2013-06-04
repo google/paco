@@ -18,11 +18,6 @@
 
 package com.google.sampling.experiential.client;
 
-// PRIYA - this file needs to be cleaned up further
-
-
-//import java.text.ParseException;
-//import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
@@ -45,15 +40,13 @@ import com.google.gwt.user.datepicker.client.DateBox;
  *
  */
 public class DurationView extends Composite {
+  
+  private static DateTimeFormat FORMATTER = DateTimeFormat.getFormat("yyyy/MM/dd");
+  
   HorizontalPanel mainPanel;
   private boolean fixedDuration;
-  
-//  private Date startDate;     // PRIYA
-//  private Date endDate;
   private String startDate;
   private String endDate;
-  private DateTimeFormat formatter;
-  
   private RadioButton radio1;
   private RadioButton radio2;
   private DateBox endBox;
@@ -66,11 +59,10 @@ public class DurationView extends Composite {
     mainPanel = new HorizontalPanel();
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     
-    formatter = DateTimeFormat.getFormat("yyyy/MM/dd");         // PRIYA
     Date today = new Date();
     Date tomorrow = new Date(today.getTime() + 8645000);
-    String todayString = formatter.format(today);
-    String tomorrowString = formatter.format(tomorrow);
+    String todayString = FORMATTER.format(today);
+    String tomorrowString = FORMATTER.format(tomorrow);
     
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
     this.startDate = start != null ? start : todayString;
@@ -105,8 +97,7 @@ public class DurationView extends Composite {
     datePanel.add(startPanel);
     startBox = new DateBox();
     startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-    
-    startBox.setValue(formatter.parse(startDate));    // PRIYA
+    startBox.setValue(FORMATTER.parse(startDate));
 
     Label startLabel = new Label(myConstants.startDate()+":");
     keyLabel.setStyleName("keyLabel");
@@ -118,8 +109,7 @@ public class DurationView extends Composite {
     datePanel.add(endPanel);
     endBox = new DateBox();
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-
-    endBox.setValue(formatter.parse(endDate));      // PRIYA
+    endBox.setValue(FORMATTER.parse(endDate));
    
     Label endLabel = new Label(myConstants.endDate() + ":");
     keyLabel.setStyleName("keyLabel");
@@ -151,12 +141,12 @@ public class DurationView extends Composite {
     return radio2.isChecked();
   }
   
-  public String getStartDate() {      // PRIYA
-    return formatter.format(startBox.getValue());
+  public String getStartDate() {
+    return FORMATTER.format(startBox.getValue());
   }
   
-  public String getEndDate() {        // PRIYA
-    return formatter.format(endBox.getValue());
+  public String getEndDate() {
+    return FORMATTER.format(endBox.getValue());
   }
   
 }
