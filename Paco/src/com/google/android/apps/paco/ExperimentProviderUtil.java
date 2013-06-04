@@ -499,13 +499,10 @@ public class ExperimentProviderUtil {
     
     values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
 
-    // PRIYA
     if (experiment.getStartDate() != null) {
-      // values.put(ExperimentColumns.START_DATE, experiment.getStartDate().getMillis());
       values.put(ExperimentColumns.START_DATE, experiment.getStartDate());
     }
     if (experiment.getEndDate() != null) {
-      // values.put(ExperimentColumns.END_DATE, experiment.getEndDate().getMillis() );
       values.put(ExperimentColumns.END_DATE, experiment.getEndDate());
     }
 
