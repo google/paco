@@ -33,6 +33,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 
 import android.content.ContentResolver;
@@ -413,11 +415,13 @@ public class ExperimentProviderUtil {
     }
     
     if (!cursor.isNull(startDateIndex)) {
-      experiment.setStartDate(new DateTime(cursor.getLong(startDateIndex)));
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+      experiment.setStartDate(new DateTime(cursor.getLong(startDateIndex)).toString(formatter));
     }
     
     if (!cursor.isNull(endDateIndex)) {
-      experiment.setEndDate(new DateTime(cursor.getLong(endDateIndex)));
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+      experiment.setEndDate(new DateTime(cursor.getLong(endDateIndex)).toString(formatter));
     }
     
     if (!cursor.isNull(joinDateIndex)) {
@@ -495,11 +499,14 @@ public class ExperimentProviderUtil {
     
     values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
 
+    // PRIYA
     if (experiment.getStartDate() != null) {
-      values.put(ExperimentColumns.START_DATE, experiment.getStartDate().getMillis());
+      // values.put(ExperimentColumns.START_DATE, experiment.getStartDate().getMillis());
+      values.put(ExperimentColumns.START_DATE, experiment.getStartDate());
     }
     if (experiment.getEndDate() != null) {
-      values.put(ExperimentColumns.END_DATE, experiment.getEndDate().getMillis() );
+      // values.put(ExperimentColumns.END_DATE, experiment.getEndDate().getMillis() );
+      values.put(ExperimentColumns.END_DATE, experiment.getEndDate());
     }
 
     if (experiment.getJoinDate() != null) {

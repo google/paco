@@ -44,7 +44,7 @@ public class ExperimentDAO implements Serializable {
   private String startDate;
   private String endDate;
   private String hash;
-  private Long joinDate;      // change this - PRIYA
+  private Long joinDate;      // TODO: change to string
   private Long modifyDate;
   private InputDAO[] inputs;
   private Long id;
