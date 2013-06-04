@@ -21,6 +21,7 @@ package com.google.sampling.experiential.model;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -36,12 +37,16 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 
 
 /**
@@ -256,6 +261,15 @@ public class Experiment {
   }
 
   public void setStartDate(String startDateStr) {
+    if (startDateStr == null) {
+      this.startDateStr = null;
+      startDate = null;
+    } else {
+      setFormattedStartDate(startDateStr);
+    }
+  }
+  
+  private void setFormattedStartDate(String startDateStr) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     try {
       startDate = formatter.parse(startDateStr);
@@ -268,8 +282,17 @@ public class Experiment {
   public String getEndDate() {
     return endDateStr;
   }
-
+  
   public void setEndDate(String endDateStr) {
+    if (endDateStr == null) {
+      this.endDateStr = null;
+      endDate = null;
+    } else {
+      setFormattedEndDate(endDateStr);
+    }
+  }
+
+  private void setFormattedEndDate(String endDateStr) {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     try {
       endDate = formatter.parse(endDateStr);
@@ -413,15 +436,17 @@ public class Experiment {
   
   @JsonIgnore
   private DateTime getEndDateTime() {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
     if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();
       // get the latest time
       Collections.sort(times);
-      
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+          .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
-      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
+      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+          .plusDays(1).toDateTime();
     }
   }
   

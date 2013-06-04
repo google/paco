@@ -107,6 +107,7 @@ public class ExperimentCacheHelper {
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
   // This is the reason we are doing this here instead of on the dao class where it belongs.
   public boolean isOver(ExperimentDAO experiment, DateTime now) {
+    System.out.println("in isOver");
     return experiment.getFixedDuration() != null && experiment.getFixedDuration() && now.isAfter(getEndDateTime(experiment));
   }
 

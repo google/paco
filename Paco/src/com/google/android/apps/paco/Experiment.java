@@ -17,6 +17,7 @@
 package com.google.android.apps.paco;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,12 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -62,12 +69,9 @@ public class Experiment implements Parcelable {
       experiment.schedule = source.readParcelable(classLoader);
       experiment.fixedDuration = source.readInt() == 1;
       
-      if (experiment.fixedDuration) {
-        long startMillis = source.readLong();
-        experiment.startDate = new DateTime(startMillis, DateTimeZone.forID(source.readString()));
-        
-        long endMillis = source.readLong();      
-        experiment.endDate = new DateTime(endMillis, DateTimeZone.forID(source.readString()));
+      if (experiment.fixedDuration) {      
+        experiment.startDate = source.readString();
+        experiment.endDate = source.readString();
       }
       
       int numberOfInputs = source.readInt();      
@@ -114,8 +118,8 @@ public class Experiment implements Parcelable {
   @JsonIgnore
   private SignalSchedule schedule;
   private Boolean fixedDuration;
-  private DateTime startDate;
-  private DateTime endDate;
+  private String startDate;
+  private String endDate;
   public Boolean webRecommended;
   
   private Trigger trigger;
@@ -157,7 +161,7 @@ public class Experiment implements Parcelable {
   public Experiment(String title, String description, String creator,
 	  SignalSchedule schedule, Integer time, Integer frequency, 
 	  Boolean fixedSchedule,
-	  DateTime startDate, DateTime endDate, String informedConsentForm, String hash) {
+	  String startDate, String endDate, String informedConsentForm, String hash) {
 	this.title = title;
 	this.description = description;
 	this.creator = creator;
@@ -275,19 +279,19 @@ public class Experiment implements Parcelable {
     this.fixedDuration = fixedSchedule;
   }
 
-  public DateTime getStartDate() {
+  public String getStartDate() {
     return startDate;
   }
 
-  public void setStartDate(DateTime startDate) {
+  public void setStartDate(String startDate) {
     this.startDate = startDate;
   }
 
-  public DateTime getEndDate() {
+  public String getEndDate() {
     return endDate;
   }
 
-  public void setEndDate(DateTime endDate) {
+  public void setEndDate(String endDate) {
     this.endDate = endDate;
   }
 
@@ -334,11 +338,8 @@ public class Experiment implements Parcelable {
     dest.writeInt(fixedDuration ? 1: 0);
     
     if (fixedDuration) {
-      dest.writeLong(startDate.getMillis());
-      dest.writeString(startDate.getZone().getID());
-      
-      dest.writeLong(endDate.getMillis());
-      dest.writeString(endDate.getZone().getID());
+      dest.writeString(startDate);
+      dest.writeString(endDate);
     }
     
     dest.writeInt(inputs.size());      
@@ -424,7 +425,8 @@ public class Experiment implements Parcelable {
       return null;
     }
     if (isExperimentNotStartedYet(now)) {
-      now = getStartDate().toDateMidnight().toDateTime();
+      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+      now = formatter.parseDateTime(getStartDate()).toDateMidnight().toDateTime();
     }
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
@@ -434,7 +436,9 @@ public class Experiment implements Parcelable {
   }
 
   private boolean isExperimentNotStartedYet(DateTime now) {
-    return isFixedDuration() && now.isBefore(getStartDate().toDateMidnight());
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+    DateMidnight startDate = formatter.parseDateTime(getStartDate()).toDateMidnight();
+    return isFixedDuration() && now.isBefore(startDate);
   }
 
   //@VisibleForTesting
@@ -458,14 +462,16 @@ public class Experiment implements Parcelable {
   }
 
   private DateTime getEndDateTime() {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
     if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();
       Collections.sort(times);
-      
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+          .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
-      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
+      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+          .plusDays(1).toDateTime();
     }
   }
 
