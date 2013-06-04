@@ -175,12 +175,7 @@ public class FindExperimentsActivity extends Activity {
   }
 
   private void reloadAdapter() {
-    try {
-      experiments = experimentProviderUtil.loadExperimentsFromDisk();
-    } catch (IOException e) {
-      e.printStackTrace();
-      experiments = new ArrayList();
-    }
+    experiments = experimentProviderUtil.loadExperimentsFromDisk();
     adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this, 
                                                   R.id.find_experiments_list, 
                                                   experiments);
