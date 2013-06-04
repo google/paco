@@ -18,6 +18,8 @@
 
 package com.google.sampling.experiential.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -39,7 +41,6 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-//import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.paco.shared.model.SignalScheduleDAO;
 
 
@@ -129,11 +130,11 @@ public class Experiment {
   @Persistent
   private Boolean questionsChange;
   
-//  @Persistent
-//  private Date startDate;
-//
-//  @Persistent
-//  private Date endDate;
+  @Persistent
+  private Date startDate;
+
+  @Persistent
+  private Date endDate;
   
   private String startDateStr;
   
@@ -255,8 +256,13 @@ public class Experiment {
   }
 
   public void setStartDate(String startDateStr) {
-    this.startDateStr = startDateStr;
-    //startDate = DateTimeFormat.getFormat("yyyy/MM/dd").parse(startDateStr);
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+    try {
+      startDate = formatter.parse(startDateStr);
+      this.startDateStr = startDateStr;
+    } catch (ParseException e) {
+      System.err.println("Experiment start date was given in an invalid format.");
+    }
   }
 
   public String getEndDate() {
@@ -264,8 +270,13 @@ public class Experiment {
   }
 
   public void setEndDate(String endDateStr) {
-    this.endDateStr = endDateStr;
-    //endDate = DateTimeFormat.getFormat("yyyy/MM/dd").parse(endDateStr);
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+    try {
+      endDate = formatter.parse(endDateStr);
+      this.endDateStr = endDateStr;
+    } catch (ParseException e) {
+      System.err.println("Experiment end date was given in an invalid format.");
+    }
   }
 
   public String getHash() {
