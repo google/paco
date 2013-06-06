@@ -1,11 +1,15 @@
 package com.google.android.apps.paco;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +19,7 @@ import android.util.Log;
 /**
    * This class helps open, create, and upgrade the database file.
    */
+  @SuppressLint("UseSparseArrays")
   public class DatabaseHelper extends SQLiteOpenHelper {
 
 //	private InputStream sqlInput;
@@ -170,24 +175,43 @@ import android.util.Log;
 	    migrateDateLongToString(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
                               ExperimentColumns.END_DATE);
 	  }
+	  
+	  // NOTE: Future migration scripts -- if changing the data type of column
+	  // _ID in table EXPERIMENTS_TABLE_NAME, please adjust data types in
+	  // the migrateDateLongToString method accordingly.
+	  
 	 }
 	
-  private static void migrateDateLongToString(SQLiteDatabase db, String tableName, String colName) {
-    String tempCol = "TEMP_COL";
-    db.execSQL("ALTER TABLE " + tableName + " ADD " + tempCol + " TEXT " + ";");
-    
-    String[] columns = {colName};
+  private static void migrateDateLongToString(SQLiteDatabase db, String tableName, String dateCol) {
+    String refCol = ExperimentColumns._ID;      // PRECONDITION: column data type is integral + unique
+    String[] columns = {dateCol};
+    HashMap<Integer, String> data = new HashMap<Integer, String>();   // sparse array
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-    cursor.moveToFirst();
-    while (cursor.isAfterLast() == false) {
-      Long longVal = cursor.getLong(cursor.getColumnIndex(colName));
-      String strVal = TimeUtil.formatDate(longVal);
-      db.execSQL("INSERT INTO " + tableName +  " (" + tempCol + ") " + 
-                 "VALUES (" + strVal + ")" + ";");
-    }
     
-    db.execSQL("ALTER TABLE " + tableName + " DROP COLUMN " + colName + ";");
-    db.execSQL("ALTER TABLE " + tableName + " RENAME COLUMN " + tempCol + " TO " + colName + ";");
+    cursor.moveToFirst();
+    do {
+      if (canGetValidData(dateCol, cursor)) {   // not null
+        Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+        Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+        String dateStr = TimeUtil.formatDate(longVal);
+        data.put(id, dateStr);
+      }
+    } while (cursor.moveToNext());
+    
+    db.execSQL("ALTER TABLE " + tableName + " MODIFY " + dateCol + " TEXT " + ";");
+    for (Map.Entry<Integer, String> entry : data.entrySet()) {
+      db.execSQL("UPDATE " + tableName + 
+                 " SET " + dateCol + " = " + entry.getValue() + 
+                 " WHERE " + refCol + " = " + entry.getKey() + ";");
+    }
+  }
+  
+  // Note to Bob: I'm doing it this way so I can migrate joinDate without too much trouble.
+  private static boolean canGetValidData(String dateCol, Cursor cursor) {
+    if (dateCol == ExperimentColumns.START_DATE || dateCol == ExperimentColumns.END_DATE) {
+      return (cursor.getInt(cursor.getColumnIndex(ExperimentColumns.FIXED_DURATION)) == 1);
+    }
+    return true;
   }
 	
 //	public void insertValues(SQLiteDatabase db) {
