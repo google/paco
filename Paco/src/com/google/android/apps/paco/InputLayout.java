@@ -634,7 +634,8 @@ public class InputLayout extends LinearLayout {
     View listView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.list_choices, this, true);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
+    // Formerly android.R.layout.simple_spinner_item
+    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), R.layout.multiline_spinner_item,
         input.getListChoices());
     String defaultListItem = getResources().getString(R.string.default_list_item);
     choices.insert(defaultListItem, 0);       // "No selection" list item.

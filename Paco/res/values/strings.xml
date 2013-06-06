@@ -19,9 +19,8 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.78</string>
   <string name='server'>quantifiedself.appspot.com</string>
-  <string name='app_package'>com.google.android.apps.paco</string>
+  <string name='app_package'>com.pacoapp.paco</string>
   <string name='contact_email'>paco-users@googlegroups.com</string>
   <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
 <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
