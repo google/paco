@@ -182,36 +182,30 @@ import android.util.Log;
 	  
 	 }
 	
+	// Note to Bob: not finished!  There's a SQL syntax error near MODIFY apparently.  Please
+	// let me know if you know what it is!
   private static void migrateDateLongToString(SQLiteDatabase db, String tableName, String dateCol) {
     String refCol = ExperimentColumns._ID;      // PRECONDITION: column data type is integral + unique
     String[] columns = {dateCol};
-    HashMap<Integer, String> data = new HashMap<Integer, String>();   // sparse array
+    HashMap<Integer, String> data = new HashMap<Integer, String>();
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
     
     cursor.moveToFirst();
-    do {
-      if (canGetValidData(dateCol, cursor)) {   // not null
-        Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-        Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+    while (cursor.moveToNext()) {
+      Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+      if (longVal != null) {
         String dateStr = TimeUtil.formatDate(longVal);
+        Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
         data.put(id, dateStr);
       }
-    } while (cursor.moveToNext());
+    }
     
-    db.execSQL("ALTER TABLE " + tableName + " MODIFY " + dateCol + " TEXT " + ";");
+    db.execSQL("ALTER TABLE " + tableName + " MODIFY " + dateCol + " TEXT" + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
       db.execSQL("UPDATE " + tableName + 
                  " SET " + dateCol + " = " + entry.getValue() + 
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }
-  }
-  
-  // Note to Bob: I'm doing it this way so I can migrate joinDate without too much trouble.
-  private static boolean canGetValidData(String dateCol, Cursor cursor) {
-    if (dateCol == ExperimentColumns.START_DATE || dateCol == ExperimentColumns.END_DATE) {
-      return (cursor.getInt(cursor.getColumnIndex(ExperimentColumns.FIXED_DURATION)) == 1);
-    }
-    return true;
   }
 	
 //	public void insertValues(SQLiteDatabase db) {
