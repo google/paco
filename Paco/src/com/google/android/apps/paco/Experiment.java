@@ -425,8 +425,7 @@ public class Experiment implements Parcelable {
       return null;
     }
     if (isExperimentNotStartedYet(now)) {
-      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
-      now = formatter.parseDateTime(getStartDate()).toDateMidnight().toDateTime();
+      now = TimeUtil.unformatDate(getStartDate()).toDateMidnight().toDateTime();
     }
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
@@ -436,8 +435,7 @@ public class Experiment implements Parcelable {
   }
 
   private boolean isExperimentNotStartedYet(DateTime now) {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
-    DateMidnight startDate = formatter.parseDateTime(getStartDate()).toDateMidnight();
+    DateMidnight startDate = TimeUtil.unformatDate(getStartDate()).toDateMidnight();
     return isFixedDuration() && now.isBefore(startDate);
   }
 
@@ -462,15 +460,14 @@ public class Experiment implements Parcelable {
   }
 
   private DateTime getEndDateTime() {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
     if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();
       Collections.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+      return new DateMidnight(TimeUtil.unformatDate(getEndDate()))
           .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
-      return new DateMidnight( formatter.parseDateTime(getEndDate()) )
+      return new DateMidnight(TimeUtil.unformatDate(getEndDate()))
           .plusDays(1).toDateTime();
     }
   }

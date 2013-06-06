@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * View for configuring the run length of an experiment.
@@ -41,7 +42,7 @@ import com.google.gwt.user.datepicker.client.DateBox;
  */
 public class DurationView extends Composite {
   
-  private static DateTimeFormat FORMATTER = DateTimeFormat.getFormat("yyyy/MM/dd");
+  private static DateTimeFormat FORMATTER = DateTimeFormat.getFormat(TimeUtil.DATE_FORMAT);
   
   HorizontalPanel mainPanel;
   private boolean fixedDuration;

@@ -2,7 +2,12 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -34,8 +39,8 @@ import android.util.Log;
         + ExperimentColumns.INFORMED_CONSENT + " TEXT, "
         + ExperimentColumns.HASH + " TEXT, "
         + ExperimentColumns.FIXED_DURATION + " INTEGER, "		  
-        + ExperimentColumns.START_DATE + " INTEGER, "
-        + ExperimentColumns.END_DATE + " INTEGER, "
+        + ExperimentColumns.START_DATE + " TEXT, "
+        + ExperimentColumns.END_DATE + " TEXT, "
         + ExperimentColumns.JOIN_DATE + " INTEGER, "
         + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
         + ExperimentColumns.ICON + " BLOB, "
@@ -159,7 +164,31 @@ import android.util.Log;
         eu.updateJoinedExperiment(experiment);
       }
     }
+	  if (oldVersion <= 13) {
+	    migrateDateLongToString(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+	                            ExperimentColumns.START_DATE);
+	    migrateDateLongToString(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+                              ExperimentColumns.END_DATE);
+	  }
 	 }
+	
+  private static void migrateDateLongToString(SQLiteDatabase db, String tableName, String colName) {
+    String tempCol = "TEMP_COL";
+    db.execSQL("ALTER TABLE " + tableName + " ADD " + tempCol + " TEXT " + ";");
+    
+    String[] columns = {colName};
+    Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
+    cursor.moveToFirst();
+    while (cursor.isAfterLast() == false) {
+      Long longVal = cursor.getLong(cursor.getColumnIndex(colName));
+      String strVal = TimeUtil.formatDate(longVal);
+      db.execSQL("INSERT INTO " + tableName +  " (" + tempCol + ") " + 
+                 "VALUES (" + strVal + ")" + ";");
+    }
+    
+    db.execSQL("ALTER TABLE " + tableName + " DROP COLUMN " + colName + ";");
+    db.execSQL("ALTER TABLE " + tableName + " RENAME COLUMN " + tempCol + " TO " + colName + ";");
+  }
 	
 //	public void insertValues(SQLiteDatabase db) {
 //	  String CurLine = "";
@@ -174,3 +203,4 @@ import android.util.Log;
 //	  }
 //	}
   }
+  
