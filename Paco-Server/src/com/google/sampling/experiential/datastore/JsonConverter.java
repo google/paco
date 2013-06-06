@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.datastore;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -11,7 +12,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentDAOCore;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 
 public class JsonConverter {
 
@@ -35,6 +39,39 @@ public class JsonConverter {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
     return null; 
+  }
+  
+  // PRIYA  -- TODO: add single version below
+  public static String shortJsonify(List<ExperimentDAO> experiments) {
+    ObjectMapper mapper = new ObjectMapper();
+    List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
+    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    try {
+      return mapper.writeValueAsString(shortExperiments);
+    } catch (JsonGenerationException e) {
+      log.severe("Json generation error " + e);
+    } catch (JsonMappingException e) {
+      log.severe("JsonMapping error getting experiments: " + e.getMessage());
+    } catch (IOException e) {
+      log.severe("IO error getting experiments: " + e.getMessage());
+    }
+    return null; 
+  }
+  
+  private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
+    List<ExperimentDAOCore> shortExperiments = new ArrayList<ExperimentDAOCore>();
+    for (ExperimentDAO experiment : experiments) {
+      shortExperiments.add(experimentDAOCoreFromExperimentDAO(experiment));
+    }
+    return shortExperiments;
+    
+  }
+  
+  private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
+    return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
+                                 experiment.getInformedConsentForm(), experiment.getCreator(), 
+                                 experiment.getSignalingMechanisms(), experiment.getFixedDuration(),
+                                 experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate());   // PRIYA
   }
 
   public static String jsonify(ExperimentDAO experiment) {
@@ -84,3 +121,5 @@ public class JsonConverter {
     return null;
   }
 }
+
+

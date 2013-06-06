@@ -54,13 +54,13 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       
     }
     
-    
+   // PRIYA - short - also Current Experiments view should have refresh button
   protected String doInBackground(Void... params) {
     UrlContentManager manager = null;
     try {
       manager = new UrlContentManager(enclosingActivity);
       String serverAddress = userPrefs.getServerAddress();
-      String path = "/experiments";
+      String path = "/experiments?short";
       Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
                                  .addHeader("http.useragent", "Android")
                                  .addHeader("paco.version", AndroidUtils.getAppVersion(enclosingActivity)).execute();
@@ -68,10 +68,10 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
       if (contentAsString != null) {
         try {
           List<Experiment> experiments = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
-          experimentProviderUtil.deleteAllUnJoinedExperiments();
-          experimentProviderUtil.updateExistingExperiments(experiments);
+          //experimentProviderUtil.deleteAllUnJoinedExperiments();
+          //experimentProviderUtil.updateExistingExperiments(experiments);
           experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-          userPrefs.setExperimentListRefreshTime(new Date().getTime());
+          userPrefs.setExperimentListRefreshTime(new Date().getTime());       // PRIYA - make new prefs for this side
         } catch (JsonParseException e) {
           Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
           return null;

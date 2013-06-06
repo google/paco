@@ -130,6 +130,8 @@ public class UserPreferences {
   public void setExperimentListRefreshTime(Long updateTime) {
     getAppPrefs().edit().putLong(LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
   }
+  
+  // PRIYA - new key
 
   public void setPhotoAddress(String absolutePath) {
     SharedPreferences pref = getPhotoAddressPref();
