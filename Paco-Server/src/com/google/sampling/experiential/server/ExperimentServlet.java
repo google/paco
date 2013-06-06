@@ -57,6 +57,13 @@ public class ExperimentServlet extends HttpServlet {
     resp.setContentType("application/json;charset=UTF-8");
     String lastModParam = req.getParameter("lastModification");
     String tz = req.getParameter("tz");
+    
+    String shortStr = req.getParameter("short");    // PRIYA
+    boolean isShortLoad = false;    // PRIYA - s/b nicer
+    if (shortStr != null) {
+      isShortLoad = true;
+    }
+    
     User user = getWhoFromLogin();
     
     if (user == null) {
@@ -67,7 +74,7 @@ public class ExperimentServlet extends HttpServlet {
         log.info("Paco version of request = " + pacoVersion);
       }
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-      String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
+      String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());    // PRIYA
       if (experimentsJson != null) {
         log.info("Got cached experiments for " + user.getEmail());
       }
@@ -84,8 +91,14 @@ public class ExperimentServlet extends HttpServlet {
         } else {
           availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(experiments, email);        
         }
+        
         ExperimentRetriever.removeSensitiveFields(availableExperiments);
-        experimentsJson = JsonConverter.jsonify(availableExperiments);
+        
+        if (!isShortLoad) {                                                              // PRIYA
+          experimentsJson = JsonConverter.jsonify(availableExperiments);
+        } else {
+          experimentsJson = JsonConverter.shortJsonify(availableExperiments);
+        }
         cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
       }    
       resp.getWriter().println(scriptBust(experimentsJson));

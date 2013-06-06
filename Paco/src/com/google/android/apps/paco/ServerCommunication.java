@@ -85,6 +85,7 @@ public class ServerCommunication {
     return time.isAfter(new DateTime().plusSeconds(10));
   }
 
+  // PRIYA - full (joined) - also look in downloadExperimentsTask for refresh button
   public void updateExperiments() {
     // Unify server communication code with duplicate in DownloadTask in FindExperimentActivity.
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
