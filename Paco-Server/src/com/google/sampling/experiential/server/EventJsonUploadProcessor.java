@@ -204,7 +204,7 @@ public class EventJsonUploadProcessor {
 
 //    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
 //    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
-    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ssZ").withOffsetParsed();
+    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
     if (eventJson.has("responseTime")) {
       String responseTimeStr = eventJson.getString("responseTime");

@@ -415,13 +415,11 @@ public class ExperimentProviderUtil {
     }
     
     if (!cursor.isNull(startDateIndex)) {
-      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
-      experiment.setStartDate(new DateTime(cursor.getLong(startDateIndex)).toString(formatter));
+      experiment.setStartDate(TimeUtil.formatDate(cursor.getLong(startDateIndex)));
     }
     
     if (!cursor.isNull(endDateIndex)) {
-      DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
-      experiment.setEndDate(new DateTime(cursor.getLong(endDateIndex)).toString(formatter));
+      experiment.setStartDate(TimeUtil.formatDate(cursor.getLong(endDateIndex)));
     }
     
     if (!cursor.isNull(joinDateIndex)) {

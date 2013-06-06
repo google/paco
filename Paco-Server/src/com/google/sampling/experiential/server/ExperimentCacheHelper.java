@@ -25,6 +25,7 @@ import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCacheHelper {
 
@@ -107,23 +108,24 @@ public class ExperimentCacheHelper {
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
   // This is the reason we are doing this here instead of on the dao class where it belongs.
   public boolean isOver(ExperimentDAO experiment, DateTime now) {
-    System.out.println("in isOver");
     return experiment.getFixedDuration() != null && experiment.getFixedDuration() && now.isAfter(getEndDateTime(experiment));
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
     SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
     if (signalingMechanismDAO instanceof SignalScheduleDAO && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
       Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight( formatter.parseDateTime(experiment.getEndDate()) )
-          .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return getDateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight( formatter.parseDateTime(experiment.getEndDate()) )
-          .plusDays(1).toDateTime();
+      return getDateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
     }
+  }
+ 
+  private DateMidnight getDateMidnight(String dateStr) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateMidnight (formatter.parseDateTime(dateStr));
   }
 
   private synchronized List<ExperimentDAO> getExperiments() {

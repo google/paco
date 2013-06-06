@@ -29,6 +29,9 @@ public class TimeUtil {
   static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   private static DateTimeFormatter dateTimeFormatter =
       DateTimeFormat.forPattern(DATETIME_FORMAT);
+  static final String DATE_FORMAT = "yyyy/MM/dd";
+  private static DateTimeFormatter dateFormatter = 
+      DateTimeFormat.forPattern(DATE_FORMAT);
 
   private TimeUtil() {
     super();
@@ -41,6 +44,14 @@ public class TimeUtil {
 
   public static String formatDateTime(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateTimeFormatter);
+  }
+  
+  public static String formatDate(long dateTimeMillis) {
+    return new DateTime(dateTimeMillis).toString(dateFormatter);
+  }
+  
+  public static DateTime unformatDate(String dateStr) {
+    return dateFormatter.parseDateTime(dateStr);
   }
 
   public static DateMidnight getMondayOfWeek(DateTime now) {
