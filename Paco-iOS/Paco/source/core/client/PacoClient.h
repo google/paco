@@ -35,6 +35,9 @@
 @property (retain, readonly) PacoService *service;
 @property (retain, readonly) NSString *serverDomain;
 
+//YMZ: the following needs to be removed after we migrate to OAuth2
+@property (nonatomic, retain, readonly) NSString* userEmail;
+
 + (PacoClient *)sharedInstance;
 
 - (BOOL)isLoggedIn;

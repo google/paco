@@ -28,6 +28,7 @@
 @property (retain, readwrite) PacoScheduler *scheduler;
 @property (retain, readwrite) PacoService *service;
 @property (retain, readwrite) NSString *serverDomain;
+@property (nonatomic, retain, readwrite) NSString* userEmail;
 
 - (void)prefetch;
 @end
@@ -39,6 +40,7 @@
 @synthesize model;
 @synthesize scheduler;
 @synthesize service;
+@synthesize userEmail;
 
 + (PacoClient *)sharedInstance {
   static PacoClient *client = nil;
@@ -70,10 +72,11 @@
   return [self.authenticator isLoggedIn];
 }
 
+
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn]) {
+  if ([self.authenticator isLoggedIn] && [self.userEmail isEqualToString:email]) {
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -84,6 +87,8 @@
                                     if (!error) {
                                       // Authorize the service.
                                       self.service.authenticator = self.authenticator;
+                                      self.userEmail = email;
+                                      
                                       // Fetch the experiment definitions and the events of joined experiments.
                                       [self prefetch];
                                       completionHandler(nil);
@@ -131,75 +136,88 @@
 
   // Load the experiment definitions.
   self.model = [PacoModel pacoModelFromFile];
-  if (!self.model) {
-    [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
-        if (!error) {
-          NSLog(@"Loaded %d experiments", [experiments count]);
-          // Convert the JSON response into an object model.
-          self.model = [PacoModel pacoModelFromDefinitionJSON:experiments
-                                                 instanceJSON:nil];
+  
+  if (self.model) {
+    completionHandler(nil);
+    return;
+  }
+  
+  [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
+    if (error) {
+      completionHandler(error);
+      return;
+    }
+    
+    NSLog(@"Loaded %d experiments", [experiments count]);
+    // Convert the JSON response into an object model.
+    self.model = [PacoModel pacoModelFromDefinitionJSON:experiments
+                                           instanceJSON:nil];
 
-          // Load events for each known experiment, if events exist then this
-          // will indicate that the user has joined this experiment.
-          
-          //for (PacoExperiment *experiment in self.model.experimentInstances) {
-          for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
-          
-              [self.service loadEventsForExperiment:experimentDefinition
-                              withCompletionHandler:^(NSArray *events, NSError *error) {
-                  if ([events count]) {
-                    NSLog(@"\tFound %d events in experiment \"%@\"", [events count], experimentDefinition.title);
+    // Load events for each known experiment, if events exist then this
+    // will indicate that the user has joined this experiment.
+    
+    //for (PacoExperiment *experiment in self.model.experimentInstances) {
+    for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
+      [self processExperimentDefinition:experimentDefinition];
+    }
+    completionHandler(nil);
+  }];
+}
+
+- (void)processExperimentDefinition:(PacoExperimentDefinition*)definition
+{
+  [self.service loadEventsForExperiment:definition
+                  withCompletionHandler:^(NSArray *events, NSError *error) {
+                    if ([events count] == 0) {
+                      return;
+                    }
+                    
+                    NSLog(@"\tFound %d events in experiment \"%@\"", [events count], definition.title);
                     // Convert the JSON events into event objects.
                     NSMutableArray *pacoEvents = [NSMutableArray array];
                     for (id jsonEvent in events) {
                       PacoEvent *pacoEvent = [PacoEvent pacoEventFromJSON:jsonEvent];
                       [pacoEvents addObject:pacoEvent];
                     }
-                    if ([pacoEvents count]) {
-                      NSArray *instances = [[PacoClient sharedInstance].model instancesForExperimentId:experimentDefinition.experimentId];
-                      // Expecting no existing instances in model
-                      assert([instances count] == 0);
-                      //need to split events out into each instance via the experiment name == experiment instance id
-
-                      NSMutableDictionary *map = [NSMutableDictionary dictionary];
-                      for (PacoEvent *event in pacoEvents) {
-                        NSString *instanceId = event.experimentName;
-                        NSMutableArray *instanceEvents = [map objectForKey:instanceId];
-                        if (!instanceEvents) {
-                          instanceEvents = [NSMutableArray array];
-                          [map setObject:instanceEvents forKey:instanceId];
-                        }
-                        [instanceEvents addObject:event];
-                      }
-
-                      // Make experiment instances for each instance id.
-                      NSArray *instanceIds = [map allKeys];
-                      NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, experimentDefinition.experimentId, experimentDefinition.title);
-
-                      for (NSString *instanceId in instanceIds) {
-                        NSArray *instanceEvents = [map objectForKey:instanceId];
-                        NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
-                        PacoExperiment *experiment =
-                            [[PacoClient sharedInstance].model
-                                addExperimentInstance:experimentDefinition
-                                             schedule:experimentDefinition.schedule
-                                               events:instanceEvents];
-
-                        // Use the instance id from the sorted event map.
-                        experiment.instanceId = instanceId;
-                      }
+                    
+                    if ([pacoEvents count] == 0) {
+                      return;
                     }
-                  }
-              }];
-          }
-          completionHandler(nil);
-        } else {
-          completionHandler(error);
-        }
-    }];
-  } else {
-    completionHandler(nil);
-  }
+                  
+                    NSArray *instances = [[PacoClient sharedInstance].model instancesForExperimentId:definition.experimentId];
+                    // Expecting no existing instances in model
+                    assert([instances count] == 0);
+                    //need to split events out into each instance via the experiment name == experiment instance id
+                    
+                    NSMutableDictionary *map = [NSMutableDictionary dictionary];
+                    for (PacoEvent *event in pacoEvents) {
+                      NSString *instanceId = event.experimentName;
+                      NSMutableArray *instanceEvents = [map objectForKey:instanceId];
+                      if (!instanceEvents) {
+                        instanceEvents = [NSMutableArray array];
+                        [map setObject:instanceEvents forKey:instanceId];
+                      }
+                      [instanceEvents addObject:event];
+                    }
+                    
+                    // Make experiment instances for each instance id.
+                    NSArray *instanceIds = [map allKeys];
+                    NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, definition.experimentId, definition.title);
+                    
+                    for (NSString *instanceId in instanceIds) {
+                      NSArray *instanceEvents = [map objectForKey:instanceId];
+                      NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
+                      PacoExperiment *experiment =
+                      [[PacoClient sharedInstance].model
+                       addExperimentInstance:definition
+                       schedule:definition.schedule
+                       events:instanceEvents];
+                      
+                      // Use the instance id from the sorted event map.
+                      experiment.instanceId = instanceId;
+                    }
+                  }];
+
 }
 
 
