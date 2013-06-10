@@ -145,6 +145,13 @@
 }
 
 #pragma mark bring up login flow if necessary
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
+{
+  PacoLoginScreenViewController *loginViewController = [PacoLoginScreenViewController controllerWithCompletionBlock:block];
+  [self.navigationController presentViewController:loginViewController animated:YES completion:nil];
+}
+
+
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block
 {
   if ([[PacoClient sharedInstance] isLoggedIn]) {
@@ -154,8 +161,21 @@
     return;
   }
   
-  PacoLoginScreenViewController *loginViewController = [PacoLoginScreenViewController controllerWithCompletionBlock:block];
-  [self.navigationController presentViewController:loginViewController animated:YES completion:nil];
+  if ([[PacoClient sharedInstance] isUserAccountStored]) {
+    [[PacoClient sharedInstance] loginWithCompletionHandler:^(NSError* error) {
+      if (error) {
+        [self showLoginScreenWithCompletionBlock:block];
+      }else{
+        if (block != nil) {
+          block(nil);
+        }
+      }
+    }];
+  }else{
+    [self showLoginScreenWithCompletionBlock:block];
+  }
+  
+  
   
   // Attempt a PACO login.
   /*
