@@ -752,7 +752,6 @@
 }
 
 - (void)makeJSONObjectFromExperiments {
-  NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
   
@@ -764,8 +763,7 @@
     assert(definition.jsonObject);
     [experiments addObject:definition.jsonObject];
   }
-  [json setObject:experiments forKey:@"definitions"];
-  self.jsonObjectDefinitions = json;
+  self.jsonObjectDefinitions = experiments;
 }
 
 - (void)makeJSONObjectFromInstances {
