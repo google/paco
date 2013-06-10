@@ -769,7 +769,6 @@
 }
 
 - (void)makeJSONObjectFromInstances {
-  NSMutableDictionary *json = [[NSMutableDictionary alloc] init];
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
     if (!experiment.jsonObject) {
@@ -779,8 +778,7 @@
     assert(experiment.jsonObject);
     [experiments addObject:experiment.jsonObject];
   }
-  [json setObject:experiments forKey:@"instances"];
-  self.jsonObjectInstances = json;
+  self.jsonObjectInstances = experiments;
 }
 
 - (BOOL)saveExperimentDefinitionsToFile {
@@ -816,18 +814,18 @@
   if (!self.jsonObjectInstances) {
     [self makeJSONObjectFromInstances];
   }
-  NSDictionary *json = self.jsonObjectInstances;
+  NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]], @"jsonObjectInstances should be an array!");
 
   NSError *jsonError = nil;
   NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:json
+      [NSJSONSerialization dataWithJSONObject:self.jsonObjectInstances
                                       options:NSJSONWritingPrettyPrinted
                                         error:&jsonError];
   if (jsonError) {
     NSLog(@"ERROR serializing to JSON %@", jsonError);
   }
 
-  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", json);
+  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
   //return [json writeToFile:fileName atomically:NO];
   return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
 }
@@ -897,11 +895,9 @@
   if (!jsonObj) {
     return NO;
   }
-  assert([jsonObj isKindOfClass:[NSDictionary class]]);
+  assert([jsonObj isKindOfClass:[NSArray class]]);
 
-  NSDictionary *json = jsonObj;//[NSDictionary dictionaryWithContentsOfFile:fileName];
-
-  NSArray *experiments = [json objectForKey:@"instances"];
+  NSArray *experiments = jsonObj;
   [self applyInstanceJSON:experiments];
   NSLog(@"LOADED INSTANCE JSON FROM FILE \n%@", self.jsonObjectInstances);
   return experiments.count > 0;
