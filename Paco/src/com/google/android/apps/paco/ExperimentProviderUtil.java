@@ -415,11 +415,11 @@ public class ExperimentProviderUtil {
     }
     
     if (!cursor.isNull(startDateIndex)) {
-      experiment.setStartDate(TimeUtil.formatDate(cursor.getLong(startDateIndex)));
+      experiment.setStartDate(cursor.getString(startDateIndex));
     }
     
     if (!cursor.isNull(endDateIndex)) {
-      experiment.setStartDate(TimeUtil.formatDate(cursor.getLong(endDateIndex)));
+      experiment.setEndDate(cursor.getString(endDateIndex));
     }
     
     if (!cursor.isNull(joinDateIndex)) {

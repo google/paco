@@ -170,22 +170,23 @@ import android.util.Log;
       }
     }
 	  if (oldVersion <= 13) {
-	    migrateDateLongToString(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
-	                            ExperimentColumns.START_DATE);
-	    migrateDateLongToString(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
-                              ExperimentColumns.END_DATE);
+	    HashMap<Integer, String> startDatePairs = convertDateLongsToStrings(db, 
+	                            ExperimentProvider.EXPERIMENTS_TABLE_NAME,
+	                            ExperimentColumns.START_DATE, ExperimentColumns._ID);
+	    HashMap<Integer, String> endDatePairs = convertDateLongsToStrings(db, 
+	                            ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+                              ExperimentColumns.END_DATE, ExperimentColumns._ID);
+	    createTruncatedExperimentsTable(db);
+	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, startDatePairs, 
+	                                ExperimentColumns.START_DATE, ExperimentColumns._ID);
+	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
+	                                ExperimentColumns.END_DATE, ExperimentColumns._ID);
 	  }
-	  
-	  // NOTE: Future migration scripts -- if changing the data type of column
-	  // _ID in table EXPERIMENTS_TABLE_NAME, please adjust data types in
-	  // the migrateDateLongToString method accordingly.
-	  
 	 }
 	
-	// Note to Bob: not finished!  There's a SQL syntax error near MODIFY apparently.  Please
-	// let me know if you know what it is!
-  private static void migrateDateLongToString(SQLiteDatabase db, String tableName, String dateCol) {
-    String refCol = ExperimentColumns._ID;      // PRECONDITION: column data type is integral + unique
+  private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db, 
+                                                                    String tableName, 
+                                                                    String dateCol, String refCol) {
     String[] columns = {dateCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
@@ -199,8 +200,35 @@ import android.util.Log;
         data.put(id, dateStr);
       }
     }
-    
-    db.execSQL("ALTER TABLE " + tableName + " MODIFY " + dateCol + " TEXT" + ";");
+    return data;
+  }
+  
+  private static void createTruncatedExperimentsTable(SQLiteDatabase db) {
+    String tempTable = "tempTable";
+    db.execSQL("CREATE TABLE " + tempTable + " AS SELECT " +
+        ExperimentColumns._ID + ", " +
+        ExperimentColumns.SERVER_ID + ", " +
+        ExperimentColumns.TITLE + ", " +
+        ExperimentColumns.VERSION + ", " +
+        ExperimentColumns.DESCRIPTION + ", " +
+        ExperimentColumns.CREATOR + ", " +
+        ExperimentColumns.INFORMED_CONSENT + ", " +
+        ExperimentColumns.HASH + ", " +
+        ExperimentColumns.FIXED_DURATION + ", " +     
+        ExperimentColumns.JOIN_DATE + ", " +
+        ExperimentColumns.QUESTIONS_CHANGE + ", " +
+        ExperimentColumns.ICON + ", " +
+        ExperimentColumns.WEB_RECOMMENDED + ", " +
+        ExperimentColumns.JSON +
+        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
+    db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
+    db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
+  }
+  
+  private static void insertNewDateColumnWithData(SQLiteDatabase db, String tableName, 
+                                                  HashMap<Integer,String> data, 
+                                                  String dateCol, String refCol) {
+    db.execSQL("ALTER TABLE " + tableName + " ADD " + dateCol + " TEXT " + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
       db.execSQL("UPDATE " + tableName + 
                  " SET " + dateCol + " = " + entry.getValue() + 

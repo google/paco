@@ -125,7 +125,7 @@ public class ExperimentCacheHelper {
  
   private DateMidnight getDateMidnight(String dateStr) {
     DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-    return new DateMidnight (formatter.parseDateTime(dateStr));
+    return new DateMidnight(formatter.parseDateTime(dateStr));
   }
 
   private synchronized List<ExperimentDAO> getExperiments() {
