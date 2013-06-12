@@ -203,8 +203,15 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)processExperimentDefinition:(PacoExperimentDefinition*)definition
 {
+  NSAssert(definition != nil, @"definition should NOT be nil!");
   [self.service loadEventsForExperiment:definition
                   withCompletionHandler:^(NSArray *events, NSError *error) {
+                    //YMZ: TODO error handling interface
+                    if (error != nil) {
+                      NSLog(@"Error fetching events: %@", [error description]);
+                      return;
+                    }
+                    
                     if ([events count] == 0) {
                       return;
                     }
@@ -220,39 +227,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                     if ([pacoEvents count] == 0) {
                       return;
                     }
-                  
-                    NSArray *instances = [[PacoClient sharedInstance].model instancesForExperimentId:definition.experimentId];
-                    // Expecting no existing instances in model
-                    assert([instances count] == 0);
-                    //need to split events out into each instance via the experiment name == experiment instance id
                     
-                    NSMutableDictionary *map = [NSMutableDictionary dictionary];
-                    for (PacoEvent *event in pacoEvents) {
-                      NSString *instanceId = event.experimentName;
-                      NSMutableArray *instanceEvents = [map objectForKey:instanceId];
-                      if (!instanceEvents) {
-                        instanceEvents = [NSMutableArray array];
-                        [map setObject:instanceEvents forKey:instanceId];
-                      }
-                      [instanceEvents addObject:event];
-                    }
-                    
-                    // Make experiment instances for each instance id.
-                    NSArray *instanceIds = [map allKeys];
-                    NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, definition.experimentId, definition.title);
-                    
-                    for (NSString *instanceId in instanceIds) {
-                      NSArray *instanceEvents = [map objectForKey:instanceId];
-                      NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
-                      PacoExperiment *experiment =
-                      [[PacoClient sharedInstance].model
-                       addExperimentInstance:definition
-                       schedule:definition.schedule
-                       events:instanceEvents];
-                      
-                      // Use the instance id from the sorted event map.
-                      experiment.instanceId = instanceId;
-                    }
+                    [[PacoClient sharedInstance].model addExperimentsWithDefinition:definition events:pacoEvents];
                   }];
 
 }
