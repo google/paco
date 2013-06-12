@@ -18,6 +18,11 @@
 #import "PacoClient.h"
 #import "PacoDate.h"
 
+
+NSString* const PacoExperimentDefinitionUpdateNotification = @"PacoExperimentDefinitionUpdateNotification";
+NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInstancesUpdateNotification";
+
+
 @implementation PacoExperimentFeedback
 
 @synthesize feedbackId;
@@ -653,7 +658,13 @@
     //[experiments addObject:experiment];
   }
   //self.experimentInstances = experiments;
+  [self updateExperimentDefinitions:definitions];
+}
+
+- (void)updateExperimentDefinitions:(NSArray*)definitions
+{
   self.experimentDefinitions = definitions;
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentDefinitionUpdateNotification object:nil];
 }
 
 - (void)applyInstanceJSON:(id)jsonObject {
@@ -750,6 +761,48 @@
   [self.experimentInstances addObject:instance];
   return instance;
 }
+
+//YMZ: this piece of code needs to be refactored to be more efficient!
+- (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events
+{
+  NSAssert(definition != nil && [events count] > 0, @"definition should NOT be nil, or events should have more than one element!");
+  
+  NSArray *instances = [[PacoClient sharedInstance].model instancesForExperimentId:definition.experimentId];
+  // Expecting no existing instances in model
+  assert([instances count] == 0);
+  //need to split events out into each instance via the experiment name == experiment instance id
+  
+  NSMutableDictionary *map = [NSMutableDictionary dictionary];
+  for (PacoEvent *event in events) {
+    NSString *instanceId = event.experimentName;
+    NSMutableArray *instanceEvents = [map objectForKey:instanceId];
+    if (!instanceEvents) {
+      instanceEvents = [NSMutableArray array];
+      [map setObject:instanceEvents forKey:instanceId];
+    }
+    [instanceEvents addObject:event];
+  }
+  
+  // Make experiment instances for each instance id.
+  NSArray *instanceIds = [map allKeys];
+  NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, definition.experimentId, definition.title);
+  
+  
+  for (NSString *instanceId in instanceIds) {
+    NSArray *instanceEvents = [map objectForKey:instanceId];
+    NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
+    PacoExperiment *experiment =
+    [[PacoClient sharedInstance].model
+     addExperimentInstance:definition
+     schedule:definition.schedule
+     events:instanceEvents];
+    
+    //YMZ: confusing, why we are using two different instanceId?
+    // Use the instance id from the sorted event map.
+    experiment.instanceId = instanceId;
+  }
+}
+
 
 - (void)makeJSONObjectFromExperiments {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];

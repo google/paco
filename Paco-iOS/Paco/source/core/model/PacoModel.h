@@ -15,6 +15,11 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString* const PacoExperimentDefinitionUpdateNotification;
+extern NSString* const PacoExperimentInstancesUpdateNotification;
+
+
+
 @class PacoModel;
 
 @interface PacoExperimentFeedback : NSObject
@@ -170,6 +175,8 @@ typedef enum {
 - (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
                                  schedule:(PacoExperimentSchedule *)schedule
                                    events:(NSArray *)events;
+- (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events;
+
 + (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
                      instanceJSON:(id)jsonInstances;
 
