@@ -272,7 +272,8 @@ public class Experiment {
     }
   }
   private void setFormattedStartDate(String startDateStr) {
-    setFormattedDate(startDateStr, this.startDateStr, this.startDate);
+    this.startDate = getFormattedDate(startDateStr);
+    this.startDateStr = startDateStr;
   }
 
   public String getEndDate() {
@@ -289,14 +290,14 @@ public class Experiment {
   }
 
   private void setFormattedEndDate(String endDateStr) {
-    setFormattedDate(endDateStr, this.endDateStr, this.endDate);
+    this.endDate = getFormattedDate(endDateStr);
+    this.endDateStr = endDateStr;
   }
   
-  private void setFormattedDate(String inputDateStr, String dateStrData, Date dateData) {
+  private Date getFormattedDate(String inputDateStr) {
     SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
     try {
-      dateData = formatter.parse(inputDateStr);
-      dateStrData = inputDateStr;
+      return formatter.parse(inputDateStr);
     } catch (ParseException e) {
       throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
                                          ". Format is " + TimeUtil.DATE_FORMAT);
