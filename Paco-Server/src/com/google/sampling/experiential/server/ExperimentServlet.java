@@ -64,6 +64,19 @@ public class ExperimentServlet extends HttpServlet {
       isShortLoad = true;
     }
     
+    String expStr = req.getParameter("id");   // PRIYA
+    boolean isFullLoad = false;
+    long experimentId = -1;
+    if (expStr != null && !expStr.isEmpty()) {
+      try {
+        experimentId = Long.parseLong(expStr, 10);
+        System.out.println("PRIYA experiment id is: " + experimentId);
+        isFullLoad = true;
+      } catch (NumberFormatException e) {
+        log.info("Invalid experiment id " + expStr + " sent to server.");   // PRIYA - should actually throw exception
+      }
+    }
+    
     User user = getWhoFromLogin();
     
     if (user == null) {
@@ -94,10 +107,19 @@ public class ExperimentServlet extends HttpServlet {
         
         ExperimentRetriever.removeSensitiveFields(availableExperiments);
         
-        if (!isShortLoad) {                                                              // PRIYA
-          experimentsJson = JsonConverter.jsonify(availableExperiments);
-        } else {
+        if (isFullLoad) {                                         // PRIYA
+          for (ExperimentDAO e : availableExperiments) {
+            if (experimentId == e.getId()) {
+              List<ExperimentDAO> experimentList = Lists.newArrayList();
+              experimentList.add(e);
+              JsonConverter.jsonify(experimentList);
+              break;
+            }
+          }
+        } else if (isShortLoad) {
           experimentsJson = JsonConverter.shortJsonify(availableExperiments);
+        } else {
+          experimentsJson = JsonConverter.jsonify(availableExperiments);
         }
         cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
       }    

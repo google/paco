@@ -88,7 +88,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private boolean showingJoinedExperiments;
 
-  @Override
+  @Override   // PRIYA -- make uri request here?
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // branch out into a different view to include based on the type of schedule
@@ -100,8 +100,10 @@ public class ExperimentScheduleActivity extends Activity {
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     if (showingJoinedExperiments) {
+      System.out.println("Showing joined experiments to PRIYA");
       experiment = experimentProviderUtil.getExperiment(uri);
     } else {
+      System.out.println("Showing unjoined experiments to PRIYA");
       experiment = experimentProviderUtil.getExperimentFromDisk(uri);
     }
 
@@ -132,10 +134,19 @@ public class ExperimentScheduleActivity extends Activity {
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
         showEsmScheduleConfiguration();
       }
-      setupSaveButton();
-      if (experiment.getSchedule() == null
-          || (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE)) {
-        save();
+      // PRIYA
+      if (showingJoinedExperiments) {
+        setupSaveButton();
+        if (experiment.getSchedule() == null
+            || (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE)) {
+          save();
+        }
+      } else {
+        setupSaveButton2();
+        if (experiment.getSchedule() == null
+            || (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE)) {
+          save2();
+        }
       }
     }
   }
@@ -542,6 +553,17 @@ public class ExperimentScheduleActivity extends Activity {
       }
     });
   }
+  
+  // PRIYA
+  private void setupSaveButton2() {
+    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
+    saveScheduleButton.setOnClickListener(new OnClickListener() {
+
+      public void onClick(View v) {
+        save2();
+      }
+    });
+  }
 
   private void saveExperimentRegistration() {
     if (experiment.getSchedule() != null) {
@@ -623,6 +645,29 @@ public class ExperimentScheduleActivity extends Activity {
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     finish();
+  }
+  
+  // PRIYA
+  private void save2() {
+    Validation valid = isValid();
+    if (!valid.ok()) {
+      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
+      return;
+    }
+    requestFullExperiment();
+    saveExperimentRegistration();
+    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+    startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+    finish();
+  }
+  
+  // PRIYA
+  private void requestFullExperiment() {
+    DownloadExperimentsTask2 expTask = new DownloadExperimentsTask2(this, null, new UserPreferences(this), new ExperimentProviderUtil(this), null, experiment);
+    expTask.execute();
+    System.out.println("PRIYA before experiment web rec " + experiment.isWebRecommended());
+    experiment = expTask.getExperiment();    
+    System.out.println("PRIYA experiment web rec is " + experiment.isWebRecommended());    // PRIYA
   }
 
   private Validation isValid() {
