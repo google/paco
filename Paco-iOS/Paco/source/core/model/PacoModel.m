@@ -664,15 +664,27 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 - (void)updateExperimentDefinitions:(NSArray*)definitions
 {
   self.experimentDefinitions = definitions;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentDefinitionUpdateNotification object:nil];
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentDefinitionUpdateNotification object:definitions];
 }
 
+- (void)updateExperimentInstances:(NSMutableArray*)experiments
+{
+  self.experimentInstances = experiments;
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentInstancesUpdateNotification object:experiments];
+}
+
+
 - (void)applyInstanceJSON:(id)jsonObject {
+  NSMutableArray *instances = [NSMutableArray array];
+  if (jsonObject == nil) {
+    self.experimentInstances = instances;
+    return;
+  }
+  
   NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectInstances = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];
-  NSMutableArray *instances = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
@@ -686,7 +698,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
     //[experiments addObject:experiment];
   }
   //self.experimentInstances = experiments;
-  self.experimentInstances = instances;
+  [self updateExperimentInstances:instances];
 }
 
 - (id)initWithDefinitionJSON:(id)jsonDefintions
@@ -801,6 +813,8 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
     // Use the instance id from the sorted event map.
     experiment.instanceId = instanceId;
   }
+  
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentInstancesUpdateNotification object:nil];
 }
 
 

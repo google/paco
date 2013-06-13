@@ -40,6 +40,11 @@
   return self;
 }
 
+- (void)dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidLoad {
   [super viewDidLoad];
 
@@ -51,9 +56,16 @@
   int numExperiments = [[PacoClient sharedInstance].model.experimentInstances count];
   if (numExperiments == 0) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoExperimentInstancesUpdateNotification object:nil];
   } else {
     table.data = [PacoClient sharedInstance].model.experimentInstances;
   }
+}
+
+- (void)experimentsUpdate:(NSNotification*)notification
+{
+  PacoTableView* tableView = (PacoTableView*)self.view;
+  tableView.data = [PacoClient sharedInstance].model.experimentInstances;
 }
 
 - (void)didReceiveMemoryWarning {
