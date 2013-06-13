@@ -45,6 +45,11 @@
   return self;
 }
 
+- (void)dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidLoad {
   [super viewDidLoad];
 
@@ -56,14 +61,24 @@
   int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
   if (numExperiments == 0) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoExperimentDefinitionUpdateNotification object:nil];
   } else {
     table.data = [PacoClient sharedInstance].model.experimentDefinitions;
   }
 }
 
+
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
   // Dispose of any resources that can be recreated.
+}
+
+- (void)definitionsUpdate:(NSNotification*)notification
+{
+  NSArray* definitions = (NSArray*)notification.object;
+  NSAssert([definitions isKindOfClass:[NSArray class]], @"definitions should be an array!");
+  PacoTableView* tableView = (PacoTableView*)self.view;
+  tableView.data = definitions;
 }
 
 #pragma mark - PacoTableViewDelegate

@@ -59,6 +59,7 @@
   [[PacoClient sharedInstance].service joinExperiment:self.experiment
                                              schedule:nil
                                     completionHandler:^(PacoEvent *event, NSError *error) {
+    //YMZ:TODO: not sure if we need to send out experiment model update notification here
     PacoExperiment *experiment =
         [[PacoClient sharedInstance].model
             addExperimentInstance:self.experiment
