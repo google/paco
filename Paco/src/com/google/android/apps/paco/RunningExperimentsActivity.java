@@ -53,6 +53,7 @@ import android.widget.TextView;
  */
 public class RunningExperimentsActivity extends Activity {
 
+  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;   // PRIYA
   private static final int DATA_EXPERIMENT_OPTION = 3;
   private static final int STOP_EXPERIMENT_OPTION = 2;
   private static final int EDIT_EXPERIMENT_OPTION = 1;
@@ -83,8 +84,15 @@ public class RunningExperimentsActivity extends Activity {
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    Button listFooter = (Button) findViewById(R.id.RefreshExperimentsButton2);
-    listFooter.setVisibility(View.GONE);
+    Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
+    //listFooter.setVisibility(View.GONE);
+    refreshButton.setVisibility(View.VISIBLE); // PRIYA
+    
+    refreshButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        refreshList();
+      }
+    }); // PRIYA
 
     cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE, 
                                                                 ExperimentColumns.CREATOR, ExperimentColumns.ICON },
@@ -206,6 +214,39 @@ public class RunningExperimentsActivity extends Activity {
     return listHeader;
   }
 
+  // PRIYA
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
+      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
+                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+                                                         true, true);
+      return loadingDialog;
+    }
+    return super.onCreateDialog(id);
+  }
+  
+  
+  // PRIYA
+  protected void refreshList() {    
+    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+      
+      @Override
+      public void done() {
+        reloadAdapter();
+        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+      }
+    };
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    // PRIYA: once multi-requests are handled, pass in id's of current experiments.
+    //    See FindExperimentsTask for more information.
+    // new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
+  }
+  
+  private void reloadAdapter() {
+    System.out.println("PRIYA do stuff here!");
+  }
+  
   private class RunningExperimentListAdapter extends CursorAdapter {
 
     private LayoutInflater mInflater;

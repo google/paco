@@ -36,7 +36,7 @@ import android.util.Log;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
-class DownloadExperimentsTask2 extends AsyncTask<Void, Void, String> {
+class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
     private final Activity enclosingActivity;
 //    private ProgressDialog p;
     private UserPreferences userPrefs;
@@ -46,7 +46,7 @@ class DownloadExperimentsTask2 extends AsyncTask<Void, Void, String> {
     private Experiment experiment;
 
     @SuppressWarnings("unchecked")
-    public DownloadExperimentsTask2(Activity activity, 
+    public DownloadFullExperimentsTask(Activity activity, 
         DownloadExperimentsTaskListener listener, 
         UserPreferences userPrefs, 
         ExperimentProviderUtil experimentProviderUtil, Runnable runnable,
@@ -60,9 +60,7 @@ class DownloadExperimentsTask2 extends AsyncTask<Void, Void, String> {
       
     }
     
-   // PRIYA - short - also Current Experiments view should have refresh button
   protected String doInBackground(Void... params) {
-    System.out.println("PRIYA - doInBackground is running");
     UrlContentManager manager = null;
     try {
       manager = new UrlContentManager(enclosingActivity);
@@ -75,9 +73,7 @@ class DownloadExperimentsTask2 extends AsyncTask<Void, Void, String> {
       System.out.println("content as string is: " + contentAsString);
       if (contentAsString != null) {
         try {
-          List<Experiment> experiments = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
-          experiment = experiments.get(0);      // PRIYA
-          System.out.println("PRIYA experiments web recommended in DownloadExperimentsTask2 " + experiment.isWebRecommended());
+          experiment = ExperimentProviderUtil.getSingleExperimentFromJson(contentAsString);   // PRIYA
           //experimentProviderUtil.deleteAllUnJoinedExperiments();
           //experimentProviderUtil.updateExistingExperiments(experiments);
           //experimentProviderUtil.saveExperimentsToDisk(contentAsString);
@@ -124,14 +120,4 @@ class DownloadExperimentsTask2 extends AsyncTask<Void, Void, String> {
     public Experiment getExperiment() {
       return experiment; 
     }
-
-
-//    @Override
-//    protected void onPreExecute() {
-//      super.onPreExecute();
-//      p = ProgressDialog.show(enclosingActivity, enclosingActivity.getString(R.string.experiment_refresh), 
-//                              enclosingActivity.getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
-//                              true, true);
-//
-//    }
 }

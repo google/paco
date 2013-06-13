@@ -52,28 +52,29 @@ public class ExperimentServlet extends HttpServlet {
 
   
   @Override
+  // Bob: I didn't spend a whole lot of time cleaning this up because the isShortLoad part is temporary.  
+  // What's your opinion?  Should I clean it up anyway so it's easier to follow for whoever changes the
+  // iOS code?
+  // Bob: Right now caching is messed up in this method because the full list of short experiments and
+  // the full list of long experiments shares the same cache.  Shouldn't be a problem in general since
+  // no app should be making both short and old-type experiment requests, but something to be aware of
+  // while this code is in a transition state.
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
       IOException {
     resp.setContentType("application/json;charset=UTF-8");
-    String lastModParam = req.getParameter("lastModification");
+    String lastModParam = req.getParameter("lastModification");     // Bob: this is unused.  Should we remove it? -Priya
     String tz = req.getParameter("tz");
-    
-    String shortStr = req.getParameter("short");    // PRIYA
-    boolean isShortLoad = false;    // PRIYA - s/b nicer
-    if (shortStr != null) {
-      isShortLoad = true;
-    }
-    
-    String expStr = req.getParameter("id");   // PRIYA
-    boolean isFullLoad = false;
+
+    boolean isShortLoad = false;
+    boolean isFullExpLoad = false;
     long experimentId = -1;
-    if (expStr != null && !expStr.isEmpty()) {
-      try {
-        experimentId = Long.parseLong(expStr, 10);
-        System.out.println("PRIYA experiment id is: " + experimentId);
-        isFullLoad = true;
-      } catch (NumberFormatException e) {
-        log.info("Invalid experiment id " + expStr + " sent to server.");   // PRIYA - should actually throw exception
+    if (req.getParameter("short") != null) {
+      isShortLoad = true;
+    } else {
+      String expStr = req.getParameter("id");
+      if (expStr != null && !expStr.isEmpty()) {
+        experimentId = extractExperimentId(expStr);
+        isFullExpLoad = true;
       }
     }
     
@@ -82,17 +83,21 @@ public class ExperimentServlet extends HttpServlet {
     if (user == null) {
       resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
+      
       String pacoVersion = req.getHeader("paco.version");
       if (pacoVersion != null) {
         log.info("Paco version of request = " + pacoVersion);
       }
+      
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
       String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());    // PRIYA
-      if (experimentsJson != null) {
+      if (experimentsJson != null && !isFullExpLoad) {   // PRIYA
         log.info("Got cached experiments for " + user.getEmail());
       }
-      List<ExperimentDAO> experiments;
-      if (experimentsJson == null) {
+      
+      List<ExperimentDAO> experiments;      // PRIYA
+      if (experimentsJson == null || isFullExpLoad) { // PRIYA
+        
         log.info("No cached experiments for " + user.getEmail());
         experiments = cacheHelper.getJoinableExperiments(tz);
         log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
@@ -104,29 +109,43 @@ public class ExperimentServlet extends HttpServlet {
         } else {
           availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(experiments, email);        
         }
-        
         ExperimentRetriever.removeSensitiveFields(availableExperiments);
         
-        if (isFullLoad) {                                         // PRIYA
-          for (ExperimentDAO e : availableExperiments) {
-            if (experimentId == e.getId()) {
-              List<ExperimentDAO> experimentList = Lists.newArrayList();
-              experimentList.add(e);
-              JsonConverter.jsonify(experimentList);
-              break;
-            }
-          }
-        } else if (isShortLoad) {
+        if (isShortLoad) {
           experimentsJson = JsonConverter.shortJsonify(availableExperiments);
+          cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson); 
+        } else if (isFullExpLoad) {     // PRIYA
+          experimentsJson = loadExperiment(experimentId, availableExperiments);
+          // Do not put in the cache.
         } else {
           experimentsJson = JsonConverter.jsonify(availableExperiments);
-        }
-        cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson);        
+          cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson); 
+        }       
       }    
       resp.getWriter().println(scriptBust(experimentsJson));
     }
   }
+  
+  private Long extractExperimentId(String expStr) {
+    try {
+      Long experimentId = Long.parseLong(expStr, 10);
+      return experimentId;      // PRIYA
+    } catch (NumberFormatException e) {
+      throw new NumberFormatException("Invalid experiment id " + expStr + " sent to server.");
+    }
+  }
+  
+  private String loadExperiment(Long experimentId, List<ExperimentDAO> availableExperiments) {
+    for (ExperimentDAO experiment : availableExperiments) {
+      if (experimentId.equals(experiment.getId())) {
+        return JsonConverter.jsonify(experiment);
+      }
+    }
+    log.severe("No experiment with id " + experimentId + " exists on server.");
+    return null;
+  }
 
+  
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
