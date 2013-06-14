@@ -192,14 +192,14 @@ import android.util.Log;
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
     
     cursor.moveToFirst();
-    while (cursor.moveToNext()) {
+    do {
       Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
       if (longVal != null) {
         String dateStr = TimeUtil.formatDate(longVal);
         Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
         data.put(id, dateStr);
-      }
-    }
+      } 
+    } while (cursor.moveToNext());
     return data;
   }
   
@@ -223,6 +223,7 @@ import android.util.Log;
         " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
     db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
+    System.out.println("finished creating truncated version PRIYA");
   }
   
   private static void insertNewDateColumnWithData(SQLiteDatabase db, String tableName, 
