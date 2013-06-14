@@ -31,6 +31,12 @@ import android.util.Log;
 //	  this.sqlInput = in;
 	  this.context = context;
 	}
+  
+  // For testing
+  DatabaseHelper(Context context, String dbName, int dbVersion) {
+    super(context, dbName, null, dbVersion);
+    this.context = context;
+  }
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
@@ -181,25 +187,38 @@ import android.util.Log;
 	                                ExperimentColumns.START_DATE, ExperimentColumns._ID);
 	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
 	                                ExperimentColumns.END_DATE, ExperimentColumns._ID);
+	    
+	    String[] columns = {ExperimentColumns.START_DATE, ExperimentColumns.END_DATE, ExperimentColumns._ID};
+	    HashMap<Integer, String> data = new HashMap<Integer, String>();
+	    Cursor cursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
+	    if (cursor != null) {
+	      while (cursor.moveToNext()) {
+	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
+	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
+	        Integer id = cursor.getInt(cursor.getColumnIndex(ExperimentColumns._ID));
+	      }
+	    }
+	    cursor.close();
 	  }
 	 }
 	
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db, 
                                                                     String tableName, 
                                                                     String dateCol, String refCol) {
-    String[] columns = {dateCol};
+    String[] columns = {dateCol, refCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-    
-    cursor.moveToFirst();
-    while (cursor.moveToNext()) {
-      Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
-      if (longVal != null) {
-        String dateStr = TimeUtil.formatDate(longVal);
-        Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-        data.put(id, dateStr);
+    if (cursor != null) {
+      while (cursor.moveToNext()) {
+        Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+        if (longVal != null) {
+          String dateStr = TimeUtil.formatDate(longVal);
+          Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+          data.put(id, dateStr);
+        } 
       }
     }
+    cursor.close();
     return data;
   }
   
@@ -220,7 +239,7 @@ import android.util.Log;
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
         ExperimentColumns.JSON +
-        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
+        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");    // might need parens around select?
     db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
   }
@@ -230,8 +249,9 @@ import android.util.Log;
                                                   String dateCol, String refCol) {
     db.execSQL("ALTER TABLE " + tableName + " ADD " + dateCol + " TEXT " + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
+      System.out.println("experiment id is: " + entry.getKey() + " and " + dateCol + " is :" + entry.getValue());
       db.execSQL("UPDATE " + tableName + 
-                 " SET " + dateCol + " = " + entry.getValue() + 
+                 " SET " + dateCol + " = " + "\'" + entry.getValue() + "\'" +
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }
   }

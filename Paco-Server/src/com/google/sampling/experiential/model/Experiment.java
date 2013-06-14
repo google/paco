@@ -144,10 +144,6 @@ public class Experiment {
   @Persistent
   private Date endDate;
   
-  private String startDateStr;
-  
-  private String endDateStr;
-  
   @Persistent
   private String hash;
   
@@ -260,41 +256,41 @@ public class Experiment {
   }
 
   public String getStartDate() {
-    return startDateStr;
+    return getDateAsString(startDate);
   }
 
   public void setStartDate(String startDateStr) {
-    if (startDateStr == null) {
-      this.startDateStr = null;
-      startDate = null;
-    } else {
       setFormattedStartDate(startDateStr);
-    }
   }
+  
   private void setFormattedStartDate(String startDateStr) {
     this.startDate = getFormattedDate(startDateStr);
-    this.startDateStr = startDateStr;
   }
 
   public String getEndDate() {
-    return endDateStr;
+    return getDateAsString(endDate);
   }
   
   public void setEndDate(String endDateStr) {
-    if (endDateStr == null) {
-      this.endDateStr = null;
-      endDate = null;
-    } else {
       setFormattedEndDate(endDateStr);
-    }
   }
 
   private void setFormattedEndDate(String endDateStr) {
     this.endDate = getFormattedDate(endDateStr);
-    this.endDateStr = endDateStr;
+  }
+  
+  private String getDateAsString(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
+    return formatter.format(date);
   }
   
   private Date getFormattedDate(String inputDateStr) {
+    if (inputDateStr == null) {
+      return null;
+    }
     SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
     try {
       return formatter.parse(inputDateStr);
