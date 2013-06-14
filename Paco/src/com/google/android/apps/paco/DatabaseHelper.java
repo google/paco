@@ -187,20 +187,20 @@ import android.util.Log;
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db, 
                                                                     String tableName, 
                                                                     String dateCol, String refCol) {
-    String[] columns = {dateCol};
+    String[] columns = {dateCol, refCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-    
-    cursor.moveToFirst();
-    do {
-      Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
-      if (longVal != null) {
-        String dateStr = TimeUtil.formatDate(longVal);
-        Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-        data.put(id, dateStr);
-      } 
-    } while (cursor.moveToNext());
-    return data;
+    if (cursor != null) {
+      while (cursor.moveToNext()) {
+        Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+        if (longVal != null) {
+          String dateStr = TimeUtil.formatDate(longVal);
+          Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+          data.put(id, dateStr);
+        } 
+      }
+    }
+    return data;    // CHECK, unit test
   }
   
   private static void createTruncatedExperimentsTable(SQLiteDatabase db) {
