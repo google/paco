@@ -189,7 +189,8 @@ import android.util.Log;
 	      while (cursor.moveToNext()) {
 	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
 	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
-	        System.out.println("PRIYA start date is " + startDate + " and end date is " + endDate);
+	        Integer id = cursor.getInt(cursor.getColumnIndex(ExperimentColumns._ID));
+	        System.out.println("PRIYA start date is " + startDate + " and end date is " + endDate + " for id " + id);
 	      }
 	    }
 	    cursor.close();
@@ -248,7 +249,7 @@ import android.util.Log;
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
       System.out.println("experiment id is: " + entry.getKey() + " and " + dateCol + " is :" + entry.getValue());
       db.execSQL("UPDATE " + tableName + 
-                 " SET " + dateCol + " = " + entry.getValue() + 
+                 " SET " + dateCol + " = " + "\'" + entry.getValue() + "\'" +
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }
   }
