@@ -42,21 +42,22 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
     private UserPreferences userPrefs;
     private ExperimentProviderUtil experimentProviderUtil;
     private Runnable runnable;
-    private DownloadExperimentsTaskListener listener;
-    private Experiment experiment;
+    private DownloadFullExperimentsTaskListener listener;
+    // private Experiment experiment;   // Priya
+    private List<Experiment> experiments;
 
     @SuppressWarnings("unchecked")
     public DownloadFullExperimentsTask(Activity activity, 
-        DownloadExperimentsTaskListener listener, 
+        DownloadFullExperimentsTaskListener listener, 
         UserPreferences userPrefs, 
         ExperimentProviderUtil experimentProviderUtil, Runnable runnable,
-        Experiment experiment) {
+        List<Experiment> experiments) {
       enclosingActivity = activity;      
       this.listener = listener;
       this.userPrefs = userPrefs;
       this.experimentProviderUtil = experimentProviderUtil;
       this.runnable = runnable;
-      this.experiment = experiment;
+      this.experiments = experiments;
       
     }
     
@@ -65,15 +66,16 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
     try {
       manager = new UrlContentManager(enclosingActivity);
       String serverAddress = userPrefs.getServerAddress();
-      String path = "/experiments?id=" + experiment.getServerId().toString();
+      String pathSuffix = getExperimentIdList();
+      String path = "/experiments?id=" + pathSuffix;
       Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
                                  .addHeader("http.useragent", "Android")
                                  .addHeader("paco.version", AndroidUtils.getAppVersion(enclosingActivity)).execute();
       String contentAsString = response.getContentAsString();
-      System.out.println("content as string is: " + contentAsString);
+      System.out.println("PRIYA content as string is:\n" + contentAsString);
       if (contentAsString != null) {
         try {
-          experiment = ExperimentProviderUtil.getSingleExperimentFromJson(contentAsString);   // PRIYA
+          experiments = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);   // PRIYA
           //experimentProviderUtil.deleteAllUnJoinedExperiments();
           //experimentProviderUtil.updateExistingExperiments(experiments);
           //experimentProviderUtil.saveExperimentsToDisk(contentAsString);
@@ -100,6 +102,16 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
       }
     }
   }
+  
+  // PRIYA - this is slow.  use a reduce.
+  private String getExperimentIdList() {
+    String suffix = "";
+    for (Experiment experiment : experiments) {
+      suffix += experiment.getServerId().toString();
+      suffix += ",";
+    }
+    return suffix;
+  }
 
     protected void onProgressUpdate() {
            
@@ -117,7 +129,7 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
     }
     
     // PRIYA
-    public Experiment getExperiment() {
-      return experiment; 
+    public List<Experiment> getExperiments() {
+      return experiments; 
     }
 }
