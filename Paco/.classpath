@@ -5,7 +5,7 @@
 	<classpathentry kind="src" path="/PacoAndroidLib"/>
 	<classpathentry kind="lib" path="libs/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="libs/joda-time-2.2.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-all-1.9.11.jar"/>
