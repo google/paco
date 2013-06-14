@@ -67,14 +67,21 @@ public class ExperimentServlet extends HttpServlet {
 
     boolean isShortLoad = false;
     boolean isFullExpLoad = false;
-    long experimentId = -1;
+    List<Long> experimentIds = Lists.newArrayList();
     if (req.getParameter("short") != null) {
       isShortLoad = true;
     } else {
       String expStr = req.getParameter("id");
       if (expStr != null && !expStr.isEmpty()) {
-        experimentId = extractExperimentId(expStr);
-        isFullExpLoad = true;
+        String[] strIds = expStr.split("[, ]+");
+        for (String id : strIds) {
+          Long experimentId = extractExperimentId(id);
+          if (!experimentId.equals(new Long(-1))) {
+            System.out.println("adding experiment id "  + experimentId);
+            experimentIds.add(experimentId);
+          }
+        }
+        isFullExpLoad = !(experimentIds.isEmpty());   // PRIYA
       }
     }
     
@@ -115,7 +122,7 @@ public class ExperimentServlet extends HttpServlet {
           experimentsJson = JsonConverter.shortJsonify(availableExperiments);
           cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson); 
         } else if (isFullExpLoad) {     // PRIYA
-          experimentsJson = loadExperiment(experimentId, availableExperiments);
+          experimentsJson = loadExperiments(experimentIds, availableExperiments);
           // Do not put in the cache.
         } else {
           experimentsJson = JsonConverter.jsonify(availableExperiments);
@@ -131,18 +138,23 @@ public class ExperimentServlet extends HttpServlet {
       Long experimentId = Long.parseLong(expStr, 10);
       return experimentId;      // PRIYA
     } catch (NumberFormatException e) {
-      throw new NumberFormatException("Invalid experiment id " + expStr + " sent to server.");
+      log.severe("Invalid experiment id " + expStr + " sent to server.");
+      return new Long(-1);
     }
   }
   
-  private String loadExperiment(Long experimentId, List<ExperimentDAO> availableExperiments) {
+  private String loadExperiments(List<Long> experimentIds, List<ExperimentDAO> availableExperiments) {
+    List<ExperimentDAO> experiments = Lists.newArrayList();
     for (ExperimentDAO experiment : availableExperiments) {
-      if (experimentId.equals(experiment.getId())) {
-        return JsonConverter.jsonify(experiment);
+      if (experimentIds.contains(experiment.getId())) {           // PRIYA - this could be super slow.  Maybe use hash set.
+        experiments.add(experiment);
       }
     }
-    log.severe("No experiment with id " + experimentId + " exists on server.");
-    return null;
+    if (experiments.isEmpty()) {
+      log.severe("Experiment id's " + experimentIds + " are all invalid.  No experiments were fetched from server.");
+      return null;
+    }
+    return JsonConverter.jsonify(experiments); // PRIYA - change on android side;
   }
 
   

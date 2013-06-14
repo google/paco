@@ -688,9 +688,12 @@ public class ExperimentScheduleActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID, null);
-    DownloadFullExperimentsTask expTask = new DownloadFullExperimentsTask(this, null, new UserPreferences(this), new ExperimentProviderUtil(this), null, experiment);
+    List<Experiment> experimentList = new ArrayList<Experiment>();    // PRIYA
+    experimentList.add(experiment);
+    DownloadFullExperimentsTask expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), new ExperimentProviderUtil(this), null, experimentList);
     downloadExperiment(expTask);
-    experiment = expTask.getExperiment();    
+    System.out.println("PRIYA Just before getExperiments");
+    experiment = expTask.getExperiments().get(0);    // PRIYA - start here.
   }
   
   // PRIYA - fill out block
