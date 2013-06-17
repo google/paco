@@ -200,6 +200,7 @@ import android.util.Log;
         } 
       }
     }
+    cursor.close();
     return data;    // CHECK, unit test
   }
   
