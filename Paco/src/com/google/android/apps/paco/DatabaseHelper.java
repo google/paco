@@ -181,6 +181,19 @@ import android.util.Log;
 	                                ExperimentColumns.START_DATE, ExperimentColumns._ID);
 	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
 	                                ExperimentColumns.END_DATE, ExperimentColumns._ID);
+	    
+	    // For now
+	    String[] columns = {ExperimentColumns.START_DATE, ExperimentColumns.END_DATE, ExperimentColumns._ID};
+	    HashMap<Integer, String> data = new HashMap<Integer, String>();
+	    Cursor cursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
+	    if (cursor != null) {
+	      while (cursor.moveToNext()) {
+	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
+	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
+	        System.out.println("start date is " + startDate + " and end date is " + endDate);
+	      }
+	    }
+	    cursor.close();
 	  }
 	 }
 	
@@ -224,7 +237,6 @@ import android.util.Log;
         " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
     db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
-    System.out.println("finished creating truncated version PRIYA");
   }
   
   private static void insertNewDateColumnWithData(SQLiteDatabase db, String tableName, 
