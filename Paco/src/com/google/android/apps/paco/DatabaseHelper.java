@@ -182,7 +182,6 @@ import android.util.Log;
 	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
 	                                ExperimentColumns.END_DATE, ExperimentColumns._ID);
 	    
-	    // For now
 	    String[] columns = {ExperimentColumns.START_DATE, ExperimentColumns.END_DATE, ExperimentColumns._ID};
 	    HashMap<Integer, String> data = new HashMap<Integer, String>();
 	    Cursor cursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
@@ -190,7 +189,7 @@ import android.util.Log;
 	      while (cursor.moveToNext()) {
 	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
 	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
-	        System.out.println("start date is " + startDate + " and end date is " + endDate);
+	        System.out.println("PRIYA start date is " + startDate + " and end date is " + endDate);
 	      }
 	    }
 	    cursor.close();
@@ -206,15 +205,17 @@ import android.util.Log;
     if (cursor != null) {
       while (cursor.moveToNext()) {
         Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+        System.out.println("PRIYA longVal of " + dateCol + " is: " + longVal);
         if (longVal != null) {
           String dateStr = TimeUtil.formatDate(longVal);
+          System.out.println("PRIYA strVal of " + dateCol + " is: " + dateStr);
           Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
           data.put(id, dateStr);
         } 
       }
     }
     cursor.close();
-    return data;    // CHECK, unit test
+    return data;    // CHECK, unit test PRIYA
   }
   
   private static void createTruncatedExperimentsTable(SQLiteDatabase db) {
@@ -244,6 +245,7 @@ import android.util.Log;
                                                   String dateCol, String refCol) {
     db.execSQL("ALTER TABLE " + tableName + " ADD " + dateCol + " TEXT " + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
+      System.out.println("experiment id is: " + entry.getKey() + " and " + dateCol + " is :" + entry.getValue());
       db.execSQL("UPDATE " + tableName + 
                  " SET " + dateCol + " = " + entry.getValue() + 
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
