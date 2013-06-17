@@ -131,7 +131,7 @@
   
   PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
   questions.experiment = self.selectedExperiment;
-  [self.navigationController presentViewController:questions animated:YES completion:nil];
+  [self.navigationController pushViewController:questions animated:YES];
 }
 
 
