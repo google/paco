@@ -210,6 +210,7 @@ import android.util.Log;
           String dateStr = TimeUtil.formatDate(longVal);
           System.out.println("PRIYA strVal of " + dateCol + " is: " + dateStr);
           Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+          System.out.println("PRIYA experiment id initially is: " + id);
           data.put(id, dateStr);
         } 
       }
@@ -235,7 +236,7 @@ import android.util.Log;
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
         ExperimentColumns.JSON +
-        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
+        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");    // might need parens around select?
     db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
   }
