@@ -23,12 +23,16 @@
 #import "PacoService.h"
 #import "PacoTableView.h"
 #import "PacoTitleView.h"
+#import "PacoQuestionScreenViewController.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
+
+@property(nonatomic, strong) PacoExperiment* selectedExperiment;
 
 @end
 
 @implementation PacoRunningExperimentsViewController
+@synthesize selectedExperiment;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -97,15 +101,17 @@
 }
 
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
-  if ([rowData isKindOfClass:[PacoExperiment class]]) {
-    PacoExperiment *experiment = rowData;
+  if ([rowData isKindOfClass:[PacoExperiment class]]) { //YMZ: is this necessary?
+    self.selectedExperiment = rowData;
     UIAlertView *alert =
-      [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Modify %@", experiment.definition.title]
+      [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Modify %@", self.selectedExperiment.definition.title]
                                  message:nil
                                 delegate:self
                        cancelButtonTitle:@"Cancel"
-                       otherButtonTitles:@"Edit Schedule", @"Stop Experiment", @"Explore Data", nil];
-  [alert show];
+                       otherButtonTitles:@"Participate", @"Edit Schedule", @"Stop Experiment", @"Explore Data", nil];
+    [alert show];
+  }else{
+    self.selectedExperiment = nil;
   }
 }
 
@@ -117,17 +123,38 @@
 
 }
 
+- (void)showParticipateController
+{
+  if (self.selectedExperiment == nil) {
+    return;
+  }
+  
+  PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+  questions.experiment = self.selectedExperiment;
+  [self.navigationController presentViewController:questions animated:YES completion:nil];
+}
+
 
 #pragma mark - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
   NSLog(@"BUTTON INDEX + %d", buttonIndex);
   switch (buttonIndex) {
-  case 0: // Cancel
-  case 1: // Edit
-  case 2: // Stop
-  case 3: // Explore
-    break;
+    case 0: // Cancel
+      break;
+    case 1: // Participate
+      [self showParticipateController];
+      break;
+      
+    case 2: // Edit
+      break;
+    case 3: // Stop
+      break;
+    case 4: // Explore
+      break;
+    default:
+      NSAssert(NO, @"Error!");
+      break;
   }
 }
 
