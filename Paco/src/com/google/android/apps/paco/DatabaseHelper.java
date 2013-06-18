@@ -31,6 +31,12 @@ import android.util.Log;
 //	  this.sqlInput = in;
 	  this.context = context;
 	}
+  
+  // For testing
+  DatabaseHelper(Context context, String dbName, int dbVersion) {
+    super(context, dbName, null, dbVersion);
+    this.context = context;
+  }
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
