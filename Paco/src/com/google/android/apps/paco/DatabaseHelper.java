@@ -190,7 +190,6 @@ import android.util.Log;
 	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
 	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
 	        Integer id = cursor.getInt(cursor.getColumnIndex(ExperimentColumns._ID));
-	        System.out.println("PRIYA start date is " + startDate + " and end date is " + endDate + " for id " + id);
 	      }
 	    }
 	    cursor.close();
@@ -206,18 +205,15 @@ import android.util.Log;
     if (cursor != null) {
       while (cursor.moveToNext()) {
         Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
-        System.out.println("PRIYA longVal of " + dateCol + " is: " + longVal);
         if (longVal != null) {
           String dateStr = TimeUtil.formatDate(longVal);
-          System.out.println("PRIYA strVal of " + dateCol + " is: " + dateStr);
           Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-          System.out.println("PRIYA experiment id initially is: " + id);
           data.put(id, dateStr);
         } 
       }
     }
     cursor.close();
-    return data;    // CHECK, unit test PRIYA
+    return data;
   }
   
   private static void createTruncatedExperimentsTable(SQLiteDatabase db) {
