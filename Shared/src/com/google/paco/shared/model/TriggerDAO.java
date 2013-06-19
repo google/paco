@@ -6,9 +6,10 @@ import java.io.Serializable;
 public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
 
   public static final int HANGUP = 1;
+  public static final int USER_PRESENT = 2;
   
-  public static final int[] EVENTS = new int[] {HANGUP};
-  public static final String[] EVENT_NAMES = new String[] {"HANGUP"};
+  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT};
+  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT"};
 
   private int eventCode;
   private long delay = 5000;
