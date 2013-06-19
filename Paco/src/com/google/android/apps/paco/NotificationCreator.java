@@ -227,12 +227,21 @@ public class NotificationCreator {
 
   public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent) {
     Trigger trigger = experiment.getTrigger();
+    List<NotificationHolder> notificationsForTrigger = experimentProviderUtil.getNotificationsFor(experiment.getId());
+    DateTime now = new DateTime();
+    for (NotificationHolder notificationHolder : notificationsForTrigger) {     
+      if (notificationHolder.isActive(now)) {
+        Log.d(PacoConstants.TAG, "There is already a live notification for this trigger.");
+        return;
+      }
+    }
     // wait a few seconds before creating the notification
     try {
       Thread.sleep(trigger.getDelay());
     } catch (InterruptedException e) {      
     }
-    timeoutNotifications(experimentProviderUtil.getNotificationsFor(experiment.getId()));
+    
+    timeoutNotifications(notificationsForTrigger);
     createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment));
   }
   

@@ -614,20 +614,7 @@ public class Experiment implements Parcelable {
   @JsonIgnore
   public boolean shouldTriggerBy(int event) {
     return trigger != null && trigger.match(event);
-//    Trigger matchingTrigger = getMatchingTrigger(event);
-//    return matchingTrigger != null;
   }
-
-//  public Trigger getMatchingTrigger(int event) {
-//    Trigger matchingTrigger = null; 
-//    for (Trigger trigger : triggers) {
-//      if (trigger.match(event)) {
-//        matchingTrigger = trigger;
-//        break;
-//      }
-//    }
-//    return matchingTrigger;
-//  }
 
   @JsonIgnore
   public void setJson(String json) {

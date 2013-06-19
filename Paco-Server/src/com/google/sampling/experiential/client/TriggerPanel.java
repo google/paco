@@ -75,16 +75,15 @@ public class TriggerPanel extends Composite {
       valueBox.setText(Long.toString(trigger.getDelay() / 1000));
     }
     valueBox.setEnabled(true);
-    valueBox.addClickHandler(new ClickHandler() {
+    valueBox.addChangeHandler(new ChangeHandler() {
 
       @Override
-      public void onClick(ClickEvent event) {
+      public void onChange(ChangeEvent event) {
         try {
           trigger.setDelay(Long.parseLong(valueBox.getText()) * 1000);
         } catch (NumberFormatException e) {
           Window.alert("Please enter a valid number in seconds for the trigger delay");
         }
-        
       }
       
     });

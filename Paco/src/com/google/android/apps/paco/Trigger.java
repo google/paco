@@ -9,11 +9,13 @@ import android.os.Parcelable;
 public class Trigger extends SignalingMechanism implements Parcelable{
 
   public static final int HANGUP = 1;
+  public static final int USER_PRESENT = 2;
   
   public static final Map<Integer, String> EVENT_NAMES;
   static {
     EVENT_NAMES = new HashMap<Integer, String>();
     EVENT_NAMES.put(HANGUP, "Phone Hangup");
+    EVENT_NAMES.put(USER_PRESENT, "User Present");
   }
   
   
@@ -67,6 +69,7 @@ public class Trigger extends SignalingMechanism implements Parcelable{
   }
   
   public static final Creator CREATOR = new Creator();
+  
 
   public long getDelay() {
     return delay;
