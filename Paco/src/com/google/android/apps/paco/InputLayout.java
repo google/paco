@@ -46,12 +46,12 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -64,7 +64,8 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.pacoapp.paco.R;
 
-public class InputLayout extends LinearLayout {
+public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+  // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
   private Input input;
   private View componentWithValue;
@@ -260,6 +261,7 @@ public class InputLayout extends LinearLayout {
   private final int IMAGE_MAX_SIZE = 600;
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
+  private EditText openTextView;
 
   private Bitmap decodeFile(File f) {
     Bitmap b = null;
@@ -442,7 +444,6 @@ public class InputLayout extends LinearLayout {
   
   public static final int MEDIA_TYPE_IMAGE = 1;
   public static final int MEDIA_TYPE_VIDEO = 2;
-
   /** Create a file Uri for saving an image or video */
   private Uri getOutputMediaFileUri(int type){
         return Uri.fromFile(getOutputMediaFile(type));
@@ -737,7 +738,7 @@ public class InputLayout extends LinearLayout {
   private View renderOpenText() {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
-    final EditText openTextView = (EditText) findViewById(R.id.open_text_answer);
+    openTextView = (EditText) findViewById(R.id.open_text_answer);
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
     openTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
@@ -750,7 +751,19 @@ public class InputLayout extends LinearLayout {
       }
 
     });
+    final ImageButton micButton = (ImageButton) findViewById(R.id.micButton);
+    micButton.setOnClickListener(new OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        launchSpeechRecognizer();        
+      }
+    });
     return openTextView;
+  }
+
+  private void launchSpeechRecognizer() {
+    ((ExperimentExecutor)getContext()).startSpeechRecognition(this);
   }
 
   private TextView getInputTextView() {
@@ -832,6 +845,21 @@ public class InputLayout extends LinearLayout {
       
     });
     return findViewById;
+  }
+
+  @Override
+  public void speechRetrieved(List<String> text) {
+    String message = openTextView.getText().toString();
+    if (text.size() >= 1) {
+      String bestPhrase = text.get(0);
+      message += bestPhrase;
+      openTextView.setText(message);
+    } else {
+      message = "Could not understand";
+      openTextView.setText(message);
+      openTextView.setSelection(0, message.length());
+    }    
+    ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
   }
 
 }

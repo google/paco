@@ -273,4 +273,5 @@
    <string name="updated_paco_notification_content_title">Paco Update</string>
    <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
    <string name="default_list_item"></string>
+   <string name="answer_by_speaking">Answer by speaking</string>
 </resources>
