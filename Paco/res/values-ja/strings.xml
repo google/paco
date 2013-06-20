@@ -271,5 +271,7 @@
    <string name="updated_paco_notification_content_title">Pacoを更新</string>
    <string name="updated_paco_notification_content_text">Pacoの更新版をダウンロードできます。</string>
    <string name="default_list_item"/>
+   <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
+   <string name="experiment_retrieval">Experiment Retrieval</string>
    
 </resources>

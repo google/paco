@@ -60,7 +60,8 @@ import android.widget.Toast;
 
 public class ExperimentScheduleActivity extends Activity {
 
-  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;   // PRIYA
+  private static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;   // PRIYA
+  private static final int UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID = 1003;                // PRIYA
   
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
@@ -91,6 +92,8 @@ public class ExperimentScheduleActivity extends Activity {
   private LinearLayout timesScheduleLayout;
 
   private boolean showingJoinedExperiments;
+  
+  private DownloadFullExperimentsTask expTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -144,17 +147,23 @@ public class ExperimentScheduleActivity extends Activity {
   private void setupScheduleSaving() {
     boolean userCannotSchedule = experiment.getSchedule() == null
             || (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE);
-    if (showingJoinedExperiments) {
-      setupSaveNewScheduleButton();
-      if (userCannotSchedule) {
-        saveNewSchedule();
-      }
-    } else {
-      setupSaveJoinedExperimentButton();
-      if (userCannotSchedule) {
-        saveJoinedExperiment();
-      }
+//    if (showingJoinedExperiments) {
+//      setupSaveNewScheduleButton();
+//      if (userCannotSchedule) {
+//        saveNewSchedule();
+//      }
+//    } else {
+//      setupSaveJoinedExperimentButton();
+//      if (userCannotSchedule) {
+//        saveJoinedExperiment();
+//      }
+//    }
+    
+    setupSaveButton();
+    if (userCannotSchedule) {
+      save();
     }
+    
   }
 
   private void showEsmScheduleConfiguration() {
@@ -506,13 +515,26 @@ public class ExperimentScheduleActivity extends Activity {
   protected Dialog onCreateDialog(int id, Bundle args) {
     
     // PRIYA
-    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
-      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
-                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+    if (id == REFRESHING_JOINED_EXPERIMENT_DIALOG_ID) {
+      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_retrieval),
+                                                         getString(R.string.retrieving_your_joined_experiment_from_the_server), 
                                                          true, true);
       return loadingDialog;
     }
-
+    
+    // PRIYA
+    if (id == UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID) {
+      System.out.println("PRIYA this dialog");
+      AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
+      unableToJoinBldr.setMessage("boo")  // PRIYA
+                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                           public void onClick(DialogInterface dialog, int which) {
+                             //dismissDialog(which);
+                           }
+                         });     // PRIYA
+      return unableToJoinBldr.create();
+    }
+    System.out.println("PRIYA the other dialog?");
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
 
     if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
@@ -558,22 +580,12 @@ public class ExperimentScheduleActivity extends Activity {
     return super.onCreateDialog(id);
   }
 
-  private void setupSaveNewScheduleButton() {
+  private void setupSaveButton() {
     Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
     saveScheduleButton.setOnClickListener(new OnClickListener() {
 
       public void onClick(View v) {
-        saveNewSchedule();
-      }
-    });
-  }
-  
-  private void setupSaveJoinedExperimentButton() {
-    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
-    saveScheduleButton.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        saveJoinedExperiment();
+        save();
       }
     });
   }
@@ -648,66 +660,65 @@ public class ExperimentScheduleActivity extends Activity {
     experimentProviderUtil.insertEvent(event);
   }
 
+  private void save() {
+    Validation valid = isValid();
+    if (!valid.ok()) {
+      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
+      return;
+    }
+    if (showingJoinedExperiments) {
+      saveNewSchedule();
+    } else {
+      requestFullExperiment();
+    }
+  }
+  
   private void saveNewSchedule() {
-    Validation valid = isValid();
-    if (!valid.ok()) {
-      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
-      return;
-    }
     saveExperimentRegistration();
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     finish();
   }
-  
-  private void saveJoinedExperiment() {
-    Validation valid = isValid();
-    if (!valid.ok()) {
-      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
-      return;
-    }
-    
-    // PRIYA -- this can't be the right way to keep the time from not saving? Bob, help!
-    SignalSchedule schedule = experiment.getSchedule();
-    requestFullExperiment();
-    experiment.setSchedule(schedule);
-    
-    saveExperimentRegistration();
-    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
-    finish();
-  }
-  
-  // PRIYA -- change dialog type.
+
+  // PRIYA 
   private void requestFullExperiment() {
     DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
       
       @Override
       public void done() {
-        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
+        saveDownloadedExperiment();
       }
     };
-    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID, null);
+    showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
     List<Experiment> experimentList = new ArrayList<Experiment>();    // PRIYA
     experimentList.add(experiment);
-    DownloadFullExperimentsTask expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), new ExperimentProviderUtil(this), null, experimentList);
-    downloadExperiment(expTask);
-    System.out.println("PRIYA Just before getExperiments");
-    experiment = expTask.getExperiments().get(0);    // PRIYA - start here.
+    expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), new ExperimentProviderUtil(this), null, experimentList);
+    expTask.execute();
   }
   
-  // PRIYA - fill out block
-  private void downloadExperiment(DownloadFullExperimentsTask expTask) {
-      try {
-      expTask.execute().get();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+  // PRIYA dialog fails, come back later and put into proper try/catch
+  private void saveDownloadedExperiment() {        // PRIYA
+    Experiment fullExperiment = expTask.getExperiments().get(0);
+    if (fullExperiment == null) {
+      showDialog(UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID, null);
+      finish();
+    } else {
+      mergeExperiment(fullExperiment);
+      saveNewSchedule();
     }
   }
+  
+  private void mergeExperiment(Experiment fullExperiment) {
+    experiment.setQuestionsChange(fullExperiment.isQuestionsChange());
+    experiment.setHash(fullExperiment.getHash());
+    experiment.setModifyDate(fullExperiment.getModifyDate());
+    experiment.setInputs(fullExperiment.getInputs());
+    experiment.setFeedback(fullExperiment.getFeedback());
+    experiment.setWebRecommended(fullExperiment.isWebRecommended());
+    experiment.setVersion(fullExperiment.getVersion());
+  }
+
 
   private Validation isValid() {
     Validation validation = new Validation();

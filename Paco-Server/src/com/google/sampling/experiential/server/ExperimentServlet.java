@@ -19,6 +19,7 @@ package com.google.sampling.experiential.server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -52,13 +53,11 @@ public class ExperimentServlet extends HttpServlet {
 
   
   @Override
-  // Bob: I didn't spend a whole lot of time cleaning this up because the isShortLoad part is temporary.  
-  // What's your opinion?  Should I clean it up anyway so it's easier to follow for whoever changes the
-  // iOS code?
   // Bob: Right now caching is messed up in this method because the full list of short experiments and
   // the full list of long experiments shares the same cache.  Shouldn't be a problem in general since
   // no app should be making both short and old-type experiment requests, but something to be aware of
   // while this code is in a transition state.
+  // PRIYA
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
       IOException {
     resp.setContentType("application/json;charset=UTF-8");
@@ -67,7 +66,7 @@ public class ExperimentServlet extends HttpServlet {
 
     boolean isShortLoad = false;
     boolean isFullExpLoad = false;
-    List<Long> experimentIds = Lists.newArrayList();
+    HashMap<Long, Long> experimentIds = new HashMap<Long, Long>();
     if (req.getParameter("short") != null) {
       isShortLoad = true;
     } else {
@@ -77,8 +76,7 @@ public class ExperimentServlet extends HttpServlet {
         for (String id : strIds) {
           Long experimentId = extractExperimentId(id);
           if (!experimentId.equals(new Long(-1))) {
-            System.out.println("adding experiment id "  + experimentId);
-            experimentIds.add(experimentId);
+            experimentIds.put(experimentId, null);
           }
         }
         isFullExpLoad = !(experimentIds.isEmpty());   // PRIYA
@@ -143,10 +141,10 @@ public class ExperimentServlet extends HttpServlet {
     }
   }
   
-  private String loadExperiments(List<Long> experimentIds, List<ExperimentDAO> availableExperiments) {
+  private String loadExperiments(HashMap<Long,Long> experimentIds, List<ExperimentDAO> availableExperiments) {
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (ExperimentDAO experiment : availableExperiments) {
-      if (experimentIds.contains(experiment.getId())) {           // PRIYA - this could be super slow.  Maybe use hash set.
+      if (experimentIds.containsKey(experiment.getId())) {
         experiments.add(experiment);
       }
     }
