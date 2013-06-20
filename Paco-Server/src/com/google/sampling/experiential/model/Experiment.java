@@ -80,7 +80,7 @@ public class Experiment {
    */
   public Experiment(Long id, String title, String description, User creator,
       String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      Date modifyDate, Boolean published, List<String> admins) {
+      String modifyDate, Boolean published, List<String> admins) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -88,7 +88,7 @@ public class Experiment {
     this.informedConsentForm = informedConsentForm;
     this.schedule = schedule;
     this.questionsChange = questionsCanChange;
-    this.modifyDate = modifyDate;
+    this.modifyDate = getFormattedDate(modifyDate);
     this.inputs = Lists.newArrayList();
     feedback = Lists.newArrayList();
     this.published = published;
@@ -278,27 +278,6 @@ public class Experiment {
   private void setFormattedEndDate(String endDateStr) {
     this.endDate = getFormattedDate(endDateStr);
   }
-  
-  private String getDateAsString(Date date) {
-    if (date == null) {
-      return null;
-    }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
-    return formatter.format(date);
-  }
-  
-  private Date getFormattedDate(String inputDateStr) {
-    if (inputDateStr == null) {
-      return null;
-    }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
-    try {
-      return formatter.parse(inputDateStr);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
-                                         ". Format is " + TimeUtil.DATE_FORMAT);
-    }
-  }
 
   public String getHash() {
     return hash;
@@ -308,14 +287,18 @@ public class Experiment {
     this.hash = hash;
   }
 
-  public Date getJoinDate() {
-    return joinDate;
+  public String getJoinDate() {
+    return getDateAsString(joinDate);
   }
 
-  public void setJoinDate(Date joinDate) {
-    this.joinDate = joinDate;
+  public void setJoinDate(String joinDateStr) {
+      setFormattedJoinDate(joinDateStr);
   }
-
+  
+  private void setFormattedJoinDate(String joinDateStr) {
+    this.joinDate = getFormattedDate(joinDateStr);
+  }
+  
   public List<Input> getInputs() {
     return inputs;
   }
@@ -332,14 +315,17 @@ public class Experiment {
     this.feedback = feedback;
   }
 
-  public Date getModifyDate() {
-    return modifyDate;
+  public String getModifyDate() {
+    return getDateAsString(modifyDate);
   }
 
-  public void setModifyDate(Date modifyDate) {
-    this.modifyDate = modifyDate;
+  public void setModifyDate(String modifyDateStr) {
+      setFormattedModifyDate(modifyDateStr);
   }
-
+  
+  private void setFormattedModifyDate(String modifyDateStr) {
+    this.modifyDate = getFormattedDate(modifyDateStr);
+  }
   /**
    * @param published
    */
@@ -443,6 +429,27 @@ public class Experiment {
           .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
       return new DateMidnight(endDate).plusDays(1).toDateTime();
+    }
+  }
+  
+  private String getDateAsString(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
+    return formatter.format(date);
+  }
+  
+  private Date getFormattedDate(String inputDateStr) {
+    if (inputDateStr == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
+    try {
+      return formatter.parse(inputDateStr);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
+                                         ". Format is " + TimeUtil.DATE_FORMAT);
     }
   }
   

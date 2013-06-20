@@ -22,7 +22,7 @@ public class DatabaseHelperTest extends AndroidTestCase {
   
   public void testMigration13To14() throws Exception {
    
-    copy13db();   // Exception handling?
+    copy13db();
     
     DatabaseHelper oldDbHelper = new DatabaseHelper(getContext(), v13DB, 13);
     SQLiteDatabase oldDb = oldDbHelper.getReadableDatabase();
@@ -31,16 +31,21 @@ public class DatabaseHelperTest extends AndroidTestCase {
     SQLiteDatabase newDb = newDbHelper.getReadableDatabase();
     
     String[] columns = {ExperimentColumns._ID, ExperimentColumns.FIXED_DURATION, 
-                        ExperimentColumns.START_DATE, ExperimentColumns.END_DATE};
+                        ExperimentColumns.START_DATE, ExperimentColumns.END_DATE,
+                        ExperimentColumns.JOIN_DATE};
+    
     Cursor oldCursor = oldDb.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
     Cursor newCursor = newDb.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
     
     assertNotNull(oldCursor);
     assertNotNull(newCursor);
+    assertEquals(oldCursor.getCount(), newCursor.getCount());
     
-    checkDateEquality(oldCursor, newCursor);
-  
-    closeFiles(oldCursor, newCursor);
+    try {  
+      checkDateEquality(oldCursor, newCursor);
+    } finally {
+      closeFiles(oldCursor, newCursor);
+    }
   }
 
   

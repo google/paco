@@ -60,11 +60,7 @@ public class Experiment implements Parcelable {
       experiment.informedConsentForm = source.readString();
       experiment.questionsChange = source.readInt() == 1;
             
-      Long joinMillis = source.readLong();
-      if (joinMillis != -1) {
-        String tzId = source.readString();      
-        experiment.joinDate = new DateTime(joinMillis, DateTimeZone.forID(tzId));
-      }
+      experiment.joinDate = source.readString();
             
       experiment.schedule = source.readParcelable(classLoader);
       experiment.fixedDuration = source.readInt() == 1;
@@ -132,8 +128,8 @@ public class Experiment implements Parcelable {
   private List<Feedback> feedback = new ArrayList<Feedback>();
   private List<Event> events = new ArrayList<Event>();
 
-  private DateTime joinDate;
-  private DateTime modifyDate;
+  private String joinDate;
+  private String modifyDate;
   private Integer version;
   
   @JsonIgnore
@@ -146,11 +142,11 @@ public class Experiment implements Parcelable {
   public static final String TRIGGER_EVENT = "trigger_event";
 
 
-  public DateTime getModifyDate() {
+  public String getModifyDate() {
     return modifyDate;
   }
 
-  public void setModifyDate(DateTime modifyDate) {
+  public void setModifyDate(String modifyDate) {
     this.modifyDate = modifyDate;
   }
 
@@ -263,11 +259,11 @@ public class Experiment implements Parcelable {
     this.feedback = feedback;
   }
 
-  public DateTime getJoinDate() {
+  public String getJoinDate() {
     return joinDate;
   }
 
-  public void setJoinDate(DateTime joinDate) {
+  public void setJoinDate(String joinDate) {
     this.joinDate = joinDate;
   }
 
@@ -327,12 +323,7 @@ public class Experiment implements Parcelable {
     // dest.writeInt(iconBytes.length);    
     // dest.writeByteArray(iconBytes);
     
-    if (joinDate != null) {
-      dest.writeLong(joinDate.getMillis());
-      dest.writeString(joinDate.getZone().getID());
-    } else {
-      dest.writeLong(-1);
-    }
+    dest.writeString(joinDate);
     
     dest.writeParcelable(schedule, 0);
     dest.writeInt(fixedDuration ? 1: 0);
