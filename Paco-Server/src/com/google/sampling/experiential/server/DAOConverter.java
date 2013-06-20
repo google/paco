@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -78,8 +80,8 @@ public class DAOConverter {
     String startDate = experiment.getStartDate();
     String endDate = experiment.getEndDate();
     String hash = experiment.getHash();
-    Long joinDate = experiment.getJoinDate() != null ? experiment.getJoinDate().getTime() : null;
-    Long modifyDate = experiment.getModifyDate() != null ? experiment.getModifyDate().getTime() : null;
+    String joinDate = experiment.getJoinDate();
+    String modifyDate = experiment.getModifyDate();
 
     List<String> admins = experiment.getAdmins();
     String[] adminStrArray = new String[admins.size()];
@@ -183,8 +185,8 @@ public class DAOConverter {
     String endDate = experimentDAO.getEndDate();
     experiment.setEndDate(endDate);
     
-    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? new Date(experimentDAO
-        .getModifyDate()) : new Date());
+    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? experimentDAO
+        .getModifyDate() : getTodayAsString());
     
     Key key = null;
     if (experiment.getId() != null) {
@@ -208,6 +210,11 @@ public class DAOConverter {
     experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
     experiment.setDeleted(experimentDAO.getDeleted());
     return experiment;
+  }
+  
+  private static String getTodayAsString() {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+    return new DateTime().toString(formatter);
   }
 
   private static Trigger fromTriggerDAO(Key key, TriggerDAO signalingMechanismDAO) {

@@ -118,7 +118,7 @@ public class ExperimentProviderUtil {
 //    schedule.setId(null);
     if (schedule != null) {
       schedule.setExperimentId(rowId);
-      schedule.setBeginDate(experiment.getJoinDate().getMillis());
+      schedule.setBeginDate(getJoinDateMillis(experiment));
       insertSchedule(schedule);
     } 
     
@@ -134,6 +134,10 @@ public class ExperimentProviderUtil {
     }
 
     return uri;
+  }
+  
+  private Long getJoinDateMillis(Experiment experiment) {
+    return TimeUtil.unformatDate(experiment.getJoinDate()).getMillis();
   }
 
   private void loadScheduleForExperiment(Experiment experiment) {
@@ -424,7 +428,7 @@ public class ExperimentProviderUtil {
     
     if (!cursor.isNull(joinDateIndex)) {
       // TODO (bobevans) add the timezone from the user. The default is probably fine for now.
-      experiment.setJoinDate(new DateTime(cursor.getLong(joinDateIndex)));
+      experiment.setJoinDate(cursor.getString(joinDateIndex));
     }
     
     if (!cursor.isNull(questionsChangeIndex)) {
@@ -505,7 +509,7 @@ public class ExperimentProviderUtil {
     }
 
     if (experiment.getJoinDate() != null) {
-      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate().getMillis() );
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
     values.put(ExperimentColumns.QUESTIONS_CHANGE, experiment.isQuestionsChange() ? 1 : 0 );
 

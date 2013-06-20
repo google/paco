@@ -44,8 +44,8 @@ public class ExperimentDAO implements Serializable {
   private String startDate;
   private String endDate;
   private String hash;
-  private Long joinDate;      // TODO: change to string
-  private Long modifyDate;
+  private String joinDate;
+  private String modifyDate;
   private InputDAO[] inputs;
   private Long id;
   private FeedbackDAO[] feedback;
@@ -73,8 +73,8 @@ public class ExperimentDAO implements Serializable {
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
       String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange, 
-      String startDate, String endDate, String hash, Long joinDate,
-      Long modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
+      String startDate, String endDate, String hash, String joinDate,
+      String modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
       Boolean deleted, Boolean webRecommended, Integer version) {
     super();
     this.id = id;
@@ -186,19 +186,19 @@ public class ExperimentDAO implements Serializable {
     this.hash = hash;
   }
 
-  public Long getJoinDate() {
+  public String getJoinDate() {
     return joinDate;
   }
 
-  public void setJoinDate(Long joinDate) {
+  public void setJoinDate(String joinDate) {
     this.joinDate = joinDate;
   }
 
-  public Long getModifyDate() {
+  public String getModifyDate() {
     return modifyDate;
   }
 
-  public void setModifyDate(Long modifyDate) {
+  public void setModifyDate(String modifyDate) {
     this.modifyDate = modifyDate;
   }
 

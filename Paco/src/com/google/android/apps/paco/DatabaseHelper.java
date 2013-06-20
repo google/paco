@@ -52,7 +52,7 @@ import android.util.Log;
         + ExperimentColumns.FIXED_DURATION + " INTEGER, "		  
         + ExperimentColumns.START_DATE + " TEXT, "
         + ExperimentColumns.END_DATE + " TEXT, "
-        + ExperimentColumns.JOIN_DATE + " INTEGER, "
+        + ExperimentColumns.JOIN_DATE + " TEXT, "
         + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
         + ExperimentColumns.ICON + " BLOB, "
         + ExperimentColumns.WEB_RECOMMENDED + " INTEGER, "
@@ -182,25 +182,18 @@ import android.util.Log;
 	    HashMap<Integer, String> endDatePairs = convertDateLongsToStrings(db, 
 	                            ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
                               ExperimentColumns.END_DATE, ExperimentColumns._ID);
+	     HashMap<Integer, String> joinDatePairs = convertDateLongsToStrings(db, 
+	                            ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+	                            ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
 	    createTruncatedExperimentsTable(db);
 	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, startDatePairs, 
 	                                ExperimentColumns.START_DATE, ExperimentColumns._ID);
 	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
 	                                ExperimentColumns.END_DATE, ExperimentColumns._ID);
-	    
-	    String[] columns = {ExperimentColumns.START_DATE, ExperimentColumns.END_DATE, ExperimentColumns._ID};
-	    HashMap<Integer, String> data = new HashMap<Integer, String>();
-	    Cursor cursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, columns, null, null, null, null, null);
-	    if (cursor != null) {
-	      while (cursor.moveToNext()) {
-	        String startDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.START_DATE));
-	        String endDate = cursor.getString(cursor.getColumnIndex(ExperimentColumns.END_DATE));
-	        Integer id = cursor.getInt(cursor.getColumnIndex(ExperimentColumns._ID));
-	      }
-	    }
-	    cursor.close();
-	  }
+	    insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs, 
+	                                  ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
 	 }
+	}
 	
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db, 
                                                                     String tableName, 
@@ -208,17 +201,21 @@ import android.util.Log;
     String[] columns = {dateCol, refCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
     Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-    if (cursor != null) {
-      while (cursor.moveToNext()) {
-        Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
-        if (longVal != null) {
-          String dateStr = TimeUtil.formatDate(longVal);
-          Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-          data.put(id, dateStr);
-        } 
+    
+    try {
+      if (cursor != null) {
+        while (cursor.moveToNext()) {
+          Long longVal = cursor.getLong(cursor.getColumnIndex(dateCol));
+          if (longVal != null) {
+            String dateStr = TimeUtil.formatDate(longVal);
+            Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+            data.put(id, dateStr);
+          } 
+        }
       }
+    } finally {
+      cursor.close();
     }
-    cursor.close();
     return data;
   }
   
@@ -234,7 +231,6 @@ import android.util.Log;
         ExperimentColumns.INFORMED_CONSENT + ", " +
         ExperimentColumns.HASH + ", " +
         ExperimentColumns.FIXED_DURATION + ", " +     
-        ExperimentColumns.JOIN_DATE + ", " +
         ExperimentColumns.QUESTIONS_CHANGE + ", " +
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
@@ -249,7 +245,6 @@ import android.util.Log;
                                                   String dateCol, String refCol) {
     db.execSQL("ALTER TABLE " + tableName + " ADD " + dateCol + " TEXT " + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
-      System.out.println("experiment id is: " + entry.getKey() + " and " + dateCol + " is :" + entry.getValue());
       db.execSQL("UPDATE " + tableName + 
                  " SET " + dateCol + " = " + "\'" + entry.getValue() + "\'" +
                  " WHERE " + refCol + " = " + entry.getKey() + ";");

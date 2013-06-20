@@ -573,13 +573,17 @@ public class ExperimentScheduleActivity extends Activity {
       }
     }
     if (experiment.getJoinDate() == null) {
-      experiment.setJoinDate(new DateTime());
+      experiment.setJoinDate(getTodayAsString());
       experimentProviderUtil.insertFullJoinedExperiment(experiment);
       createJoinEvent();
       startService(new Intent(this, SyncService.class));
     } else {
       experimentProviderUtil.updateJoinedExperiment(experiment);
     }
+  }
+  
+  private String getTodayAsString() {
+    return TimeUtil.formatDate(new DateTime().getMillis());
   }
 
   private void saveRepeatRate() {
