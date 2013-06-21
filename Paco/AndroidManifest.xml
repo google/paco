@@ -186,12 +186,8 @@
         <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE_CHANGED"/>
-            </intent-filter>
-            <intent-filter>
-                     <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-            <intent-filter>
-                     <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
         <service android:name="com.google.android.apps.paco.BroadcastTriggerService"></service>
