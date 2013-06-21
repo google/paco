@@ -855,9 +855,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       message += bestPhrase;
       openTextView.setText(message);
     } else {
-      message = "Could not understand";
-      openTextView.setText(message);
-      openTextView.setSelection(0, message.length());
+      Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
     }    
     ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
   }
