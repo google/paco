@@ -341,7 +341,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private List<Integer> getListValue() {
     if (!input.isMultiselect()) {
       ArrayList<Integer> list = new ArrayList<Integer>();
-      list.add(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      list.add(((Spinner) componentWithValue).getSelectedItemPosition());
       return list;
     }
     return getMultiSelectListValue();
