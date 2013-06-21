@@ -293,10 +293,13 @@ public class ExperimentManagerActivity extends Activity {
 
     if (!alreadyInstalled) {
       Uri newUri = mediaStoreContentProvider.insert(uri, values);
-      userPreferences.setRingtone(newUri.toString());
+      if (newUri != null) {
+        userPreferences.setRingtone(newUri.toString());
+        userPreferences.setPacoBarkRingtoneInstalled();
+      } 
     }
     
-    userPreferences.setPacoBarkRingtoneInstalled();      
+          
   }
 
   private File copyRingtoneFromAssetsToSdCard()  {
