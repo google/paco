@@ -25,6 +25,17 @@ public class DBWhitelist extends Whitelist {
   }
 
   protected boolean isAdmin(String email) {
+    if ("bobevans999@gmail.com".equals(email) || ("rbe5000@gmail.com".equals(email))) {
+      return true;
+    }
+    String[] parts = email.split("@");
+    if (parts == null || parts.length != 2) {
+      return false;
+    }
+    String domain = parts[1];
+    if (domain.equals("google.com") || domain.equals("motorola.com")) {
+      return true;
+    }
     return false;
   }
   
