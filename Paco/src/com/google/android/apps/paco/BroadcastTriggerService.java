@@ -24,6 +24,7 @@ public class BroadcastTriggerService extends Service {
     final Bundle extras = intent.getExtras();
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);       
     final int event = extras.getInt(Experiment.TRIGGER_EVENT);
+    final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
 
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
@@ -37,7 +38,7 @@ public class BroadcastTriggerService extends Service {
           if (timeStr != null) {
             time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);            
           }      
-          notifyExperimentsThatCare(time, event);
+          notifyExperimentsThatCare(time, event, sourceIdentifier);
         } finally {
           wl.release();
           stopSelf();
@@ -47,13 +48,13 @@ public class BroadcastTriggerService extends Service {
     (new Thread(runnable)).start();
   }
 
-  protected void notifyExperimentsThatCare(DateTime time, int triggerEvent) {
+  protected void notifyExperimentsThatCare(DateTime time, int triggerEvent, String sourceIdentifier) {
     NotificationCreator notificationCreator = NotificationCreator.create(this);
     ExperimentProviderUtil eu = new ExperimentProviderUtil(this);
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
-      if (experiment.shouldTriggerBy(triggerEvent)) {
-        notificationCreator.createNotificationsForTrigger(experiment, time, triggerEvent);
+      if (experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)) {
+        notificationCreator.createNotificationsForTrigger(experiment, time, triggerEvent, sourceIdentifier);
       }
     }
   }

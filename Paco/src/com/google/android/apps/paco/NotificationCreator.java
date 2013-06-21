@@ -225,7 +225,7 @@ public class NotificationCreator {
     alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
   }
 
-  public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent) {
+  public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent, String sourceIdentifier) {
     Trigger trigger = experiment.getTrigger();
     List<NotificationHolder> notificationsForTrigger = experimentProviderUtil.getNotificationsFor(experiment.getId());
     

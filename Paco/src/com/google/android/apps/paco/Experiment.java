@@ -140,6 +140,7 @@ public class Experiment implements Parcelable {
   public static final String URI_AS_EXTRA = "uriAsExtra";
   public static final String TRIGGERED_TIME = "triggeredTime";
   public static final String TRIGGER_EVENT = "trigger_event";
+  public static final String TRIGGER_SOURCE_IDENTIFIER = "sourceIdentifier";
 
 
   public DateTime getModifyDate() {
@@ -612,8 +613,8 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
-  public boolean shouldTriggerBy(int event) {
-    return trigger != null && trigger.match(event);
+  public boolean shouldTriggerBy(int event, String sourceIdentifier) {
+    return trigger != null && trigger.match(event, sourceIdentifier);
   }
 
   @JsonIgnore

@@ -185,9 +185,10 @@
         <provider android:authorities='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:name='com.google.android.apps.paco.ExperimentProvider'/>
         <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE_CHANGED"/>
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="android.intent.action.USER_PRESENT" />
+               <action android:name="android.intent.action.PHONE_STATE_CHANGED"/>
+               <action android:name="android.intent.action.PHONE_STATE" />
+               <action android:name="android.intent.action.USER_PRESENT" />
+               <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
             </intent-filter>
         </receiver>
         <service android:name="com.google.android.apps.paco.BroadcastTriggerService"></service>
