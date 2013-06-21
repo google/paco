@@ -15,10 +15,14 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		if (isPhoneHangup(intent)) {
 		  triggerPhoneHangup(context, intent);
-		} else if (intent.getAction().equals(android.content.Intent.ACTION_USER_PRESENT)) {
+		} else if (isUserPresent(intent)) {
 		  triggerUserPresent(context, intent);
 		}
 	}
+
+  private boolean isUserPresent(Intent intent) {
+    return intent.getAction().equals(android.content.Intent.ACTION_USER_PRESENT);
+  }
 
   private boolean isPhoneHangup(Intent intent) {
     String telephonyExtraState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
