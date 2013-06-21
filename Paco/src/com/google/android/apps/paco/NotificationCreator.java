@@ -230,33 +230,32 @@ public class NotificationCreator {
     List<NotificationHolder> notificationsForTrigger = experimentProviderUtil.getNotificationsFor(experiment.getId());
     
     // Approach 1 for triggers, mark old triggers notification as missed, cancel them, and install notification for new trigger. 
-    timeoutNotifications(notificationsForTrigger);
+    // we cannot catch the notification before the user can click it. Thus they will always get triggered twice.
+//    timeoutNotifications(notificationsForTrigger);
 
     //  Alternate approach, ignore new trigger if there is already an active notification for this trigger
-//    if (activeNotificationForTrigger(notificationsForTrigger)) {
-//      return;
-//    }
+    if (activeNotificationForTrigger(notificationsForTrigger)) {
+      return;
+    }
 
     try {
       Thread.sleep(trigger.getDelay());
     } catch (InterruptedException e) {      
     }
     
-    
+    timeoutNotifications(notificationsForTrigger);
     createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment));
   }
 
   private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForTrigger) {
-    boolean activeExistingNotificationForTrigger = false;
     DateTime now = new DateTime();
     for (NotificationHolder notificationHolder : notificationsForTrigger) {     
       if (notificationHolder.isActive(now)) {
         Log.d(PacoConstants.TAG, "There is already a live notification for this trigger.");
-        activeExistingNotificationForTrigger = true;
-        break;
+        return true;
       }
     }
-    return activeExistingNotificationForTrigger;
+    return false;
   }
   
 
