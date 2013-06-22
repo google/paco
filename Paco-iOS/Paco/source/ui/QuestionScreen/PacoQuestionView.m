@@ -32,17 +32,18 @@
                                 UINavigationControllerDelegate,
                                 UIImagePickerControllerDelegate>
 
-@property (retain, readwrite) PacoCheckboxView *checkboxes;
-@property (retain, readwrite) UIButton *choosePhotoButton;
-@property (retain, readwrite) UIImage *image;
-@property (retain, readwrite) UIImageView *imageView;
-@property (retain, readwrite) UIImagePickerController *imagePicker;
-@property (retain, readwrite) MKMapView *map;
-@property (retain, readwrite) NSArray *numberButtons;
-@property (retain, readwrite) PacoSliderView *numberSlider;
-@property (retain, readwrite) UILabel *questionText;
-@property (retain, readwrite) NSArray *smileysButtons;
-@property (retain, readwrite) UITextField *textField;
+@property (nonatomic, retain, readwrite) PacoCheckboxView *checkboxes;
+@property (nonatomic, retain, readwrite) UISegmentedControl* photoSegmentControl;
+@property (nonatomic, retain, readwrite) UIButton *choosePhotoButton;
+@property (nonatomic, retain, readwrite) UIImage *image;
+@property (nonatomic, retain, readwrite) UIImageView *imageView;
+@property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
+@property (nonatomic, retain, readwrite) MKMapView *map;
+@property (nonatomic, retain, readwrite) NSArray *numberButtons;
+@property (nonatomic, retain, readwrite) PacoSliderView *numberSlider;
+@property (nonatomic, retain, readwrite) UILabel *questionText;
+@property (nonatomic, retain, readwrite) NSArray *smileysButtons;
+@property (nonatomic, retain, readwrite) UITextField *textField;
 
 // TODO(gregvance): add location and photo
 
@@ -93,6 +94,7 @@
 }
 
 - (void)clearUI {
+  [self.photoSegmentControl removeFromSuperview];
   [self.choosePhotoButton removeFromSuperview];
   [self.checkboxes removeFromSuperview];
   for (UIButton *button in self.numberButtons) {
@@ -108,6 +110,7 @@
   }
   [self.textField removeFromSuperview];
 
+  self.photoSegmentControl = nil;
   self.choosePhotoButton = nil;
   self.checkboxes = nil;
   self.image = nil;
@@ -177,13 +180,40 @@
   [self updateConditionals];
 }
 
-- (void)choosePhoto {
-  self.imagePicker = [[UIImagePickerController alloc] init];
-  self.imagePicker.delegate = self;
+- (void)updateChoosePhotoButtonTitle
+{
+  NSString* title = @"Take Photo";
+  if (self.photoSegmentControl.selectedSegmentIndex == 1) {
+    title = @"Choose Photo";
+  }
+  [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
+  [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
+}
+
+- (void)takePhoto
+{
+  UIImagePickerController* imagePicker = [[UIImagePickerController alloc] init];
+  imagePicker.delegate = self;
+  
+  switch (self.photoSegmentControl.selectedSegmentIndex) {
+    case 0:
+      imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+      break;
+    case 1:
+      imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+      break;
+      
+    default:
+      NSAssert(NO, @"photoSegmentControl receive a wrong selected status!");
+      break;
+  }
+  self.imagePicker = imagePicker;
+  
   [[UIApplication sharedApplication].keyWindow.rootViewController
      presentViewController:self.imagePicker
      animated:YES
      completion:nil];
+  
   [self updateConditionals];
 }
 
@@ -300,9 +330,13 @@
         self.questionText.text = @"Attach a photo.";
         [self.questionText sizeToFit];
       }
+      self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"Camera", @"Library"]];
+      self.photoSegmentControl.selectedSegmentIndex = 0;
+      [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
+      [self addSubview:self.photoSegmentControl];
+      
       self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      [self.choosePhotoButton setTitle:@"Choose Photo" forState:UIControlStateNormal];
-      [self.choosePhotoButton setTitle:@"Choose Photo" forState:UIControlStateHighlighted];
+      [self updateChoosePhotoButtonTitle];
       [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
       [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
       [self addSubview:self.choosePhotoButton];
@@ -313,7 +347,7 @@
         [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
       }
 //      [self.choosePhotoButton sizeToFit];
-      [self.choosePhotoButton addTarget:self action:@selector(choosePhoto) forControlEvents:UIControlEventTouchUpInside];
+      [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
       if (self.question.responseObject) {
         assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
         self.image = self.question.responseObject;
@@ -433,8 +467,18 @@
 
       self.map.frame = bounds;
     } else if ([self.question.responseType isEqualToString:@"photo"]) {
-      CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-      self.choosePhotoButton.frame = bounds;
+      CGRect segmentControlFrame = CGRectMake(self.questionText.frame.origin.x + textsize.width + 20,
+                                              self.questionText.frame.origin.y + 5,
+                                              self.photoSegmentControl.frame.size.width,
+                                              self.photoSegmentControl.frame.size.height);
+      self.photoSegmentControl.frame = segmentControlFrame;
+      
+      float maxHeight = MAX(textsize.height, self.photoSegmentControl.frame.size.height);
+      CGRect photoButtonFrame = CGRectMake(10,
+                                           maxHeight + 20,
+                                           self.frame.size.width - 20,
+                                           self.frame.size.height - maxHeight - 30);
+      self.choosePhotoButton.frame = photoButtonFrame;
     }
   } else {
     NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
