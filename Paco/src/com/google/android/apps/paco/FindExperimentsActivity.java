@@ -19,7 +19,10 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import org.joda.time.DateTime;
 
 import com.pacoapp.paco.R;
 
@@ -74,6 +77,7 @@ public class FindExperimentsActivity extends Activity {
     userPrefs = new UserPreferences(this);    
     list = (ListView) findViewById(R.id.find_experiments_list);
     createListHeader();
+    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
@@ -125,7 +129,7 @@ public class FindExperimentsActivity extends Activity {
   }
 
   private boolean listIsStale() {
-    return userPrefs.isExperimentListStale();
+    return userPrefs.isExperimentListStale(UserPreferences.FIND_EXPERIMENTS);
   }
   
 
@@ -148,6 +152,27 @@ public class FindExperimentsActivity extends Activity {
     listHeader.setTextSize(25);
     return listHeader;
   }
+  
+  private TextView createRefreshHeader() {
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.FIND_EXPERIMENTS);
+    if (lastRefresh == null) {
+      listHeader.setVisibility(View.GONE);
+    } else {
+      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+      listHeader.setText(header);
+      listHeader.setTextSize(15);
+    }
+    return listHeader;
+  }
+  
+  private void refreshRefreshHeader() {
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.FIND_EXPERIMENTS);
+    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
+    listHeader.setText(header); 
+  }
 
   @Override
   protected Dialog onCreateDialog(int id) {
@@ -166,12 +191,14 @@ public class FindExperimentsActivity extends Activity {
       
       @Override
       public void done() {
+        userPrefs.setExperimentListRefreshTime(new Date().getTime(), UserPreferences.FIND_EXPERIMENTS);
         reloadAdapter();
+        refreshRefreshHeader();
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
+    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
   }
 
   private void reloadAdapter() {
@@ -181,7 +208,7 @@ public class FindExperimentsActivity extends Activity {
                                                   experiments);
     list.setAdapter(adapter);
   }
-
+  
   private class AvailableExperimentsListAdapter extends ArrayAdapter<Experiment> {
 
     private LayoutInflater mInflater;

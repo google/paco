@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.google.sampling.experiential.android.lib.R.string;
 import com.pacoapp.paco.R;
 
 import android.app.Activity;
@@ -34,10 +33,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,8 +46,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -60,8 +58,12 @@ import android.widget.Toast;
 
 public class ExperimentScheduleActivity extends Activity {
 
-  private static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;   // PRIYA
-  private static final int UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID = 1003;                // PRIYA
+  private static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
+  private static final int INVALID_DATA_ERROR = 1003;
+  private static final int SERVER_ERROR = 1004;
+  private static final int NO_NETWORK_CONNECTION = 1005;
+  
+  static final int ENABLED_NETWORK = 1;
   
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
@@ -143,27 +145,17 @@ public class ExperimentScheduleActivity extends Activity {
     }
   }
 
-  // PRIYA - can this be cleaned up?
   private void setupScheduleSaving() {
-    boolean userCannotSchedule = experiment.getSchedule() == null
-            || (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE);
-//    if (showingJoinedExperiments) {
-//      setupSaveNewScheduleButton();
-//      if (userCannotSchedule) {
-//        saveNewSchedule();
-//      }
-//    } else {
-//      setupSaveJoinedExperimentButton();
-//      if (userCannotSchedule) {
-//        saveJoinedExperiment();
-//      }
-//    }
-    
     setupSaveButton();
-    if (userCannotSchedule) {
+    if (userCannotSchedule()) {
       save();
     }
-    
+  }
+  
+  private Boolean userCannotSchedule() {
+    return experiment.getSchedule() == null
+        || (experiment.getSchedule().getUserEditable() != null 
+            && experiment.getSchedule().getUserEditable() == Boolean.FALSE);
   }
 
   private void showEsmScheduleConfiguration() {
@@ -384,10 +376,23 @@ public class ExperimentScheduleActivity extends Activity {
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     repeatRate.setAdapter(adapter);
     repeatRate.setSelection(experiment.getSchedule().getRepeatRate() - 1);
+    
+    repeatRate.setOnItemSelectedListener(new OnItemSelectedListener() {
+      
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        experiment.getSchedule().setRepeatRate(position + 1);
+      }
+      
+      public void onNothingSelected(AdapterView<?> parent) {
+        // Nothing to be done here.
+      }
+    });
+    
     TextView repeatPeriodLabel = (TextView) findViewById(R.id.RepeatPeriodLabel);
     repeatPeriodLabel.setText(" " + period);
   }
-
+  
+  
   private void createTimesList() {
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
@@ -442,7 +447,7 @@ public class ExperimentScheduleActivity extends Activity {
     return new DateTime().withMillisOfDay(time.intValue()).toString("hh:mm a");
   }
 
-  class ButtonArrayAdapter extends ArrayAdapter<String> implements View.OnClickListener {
+  class ButtonArrayAdapter extends ArrayAdapter<String> {
     public ButtonArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
       super(context, textViewResourceId, objects);
     }
@@ -455,15 +460,10 @@ public class ExperimentScheduleActivity extends Activity {
       }
 
       Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);
-      btn.setOnClickListener(this);
       btn.setText(text);
       // set listener for the whole row
       convertView.setOnClickListener(new OnItemClickListener(position));
       return convertView;
-    }
-
-    public void onClick(View v) {
-
     }
   }
 
@@ -512,29 +512,225 @@ public class ExperimentScheduleActivity extends Activity {
     return selections;
   }
 
+  private void setupSaveButton() {
+    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
+    saveScheduleButton.setOnClickListener(new OnClickListener() {
+
+      public void onClick(View v) {
+        save();
+      }
+    });
+  }
+
+  private void saveExperimentRegistration() {
+    
+    if (experiment.getSchedule() != null
+        && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+      AlarmStore alarmStore = new AlarmStore(this);
+      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
+      experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
+    }
+
+    if (isJoiningExperiment()) {
+      experiment.setJoinDate(new DateTime());
+      experimentProviderUtil.insertFullJoinedExperiment(experiment);
+      createJoinEvent();
+      startService(new Intent(this, SyncService.class));
+    } else {
+      experimentProviderUtil.updateJoinedExperiment(experiment);
+    }
+  }
+
+  private boolean isJoiningExperiment() {
+    return experiment.getJoinDate() == null;
+  }
+
+  /**
+   * Creates a pacot for a newly registered experiment
+   */
+  private void createJoinEvent() {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+    responseForInput.setAnswer("true");
+    responseForInput.setName("joined");
+    event.addResponse(responseForInput);
+
+    Output responseForSchedule = new Output();
+    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
+    responseForSchedule.setAnswer(schedule.toString());
+    responseForSchedule.setName("schedule");
+    event.addResponse(responseForSchedule);
+
+    experimentProviderUtil.insertEvent(event);
+  }
+
+  private void save() {
+    Validation valid = isValid();
+    if (!valid.ok()) {
+      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
+      return;
+    }
+    if (showingJoinedExperiments) {
+      scheduleExperiment();
+    } else {
+      requestFullExperiment();
+    }
+  }
+  
+  private void scheduleExperiment() {
+    saveExperimentRegistration();
+    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+    startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+    finish();
+  }
+  
+  private void showNetworkConnectionActivity() {
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), ENABLED_NETWORK);
+  }
+
+  private void requestFullExperiment() {
+     if (!isConnected()) {
+       showDialog(NO_NETWORK_CONNECTION, null);
+    } else {
+      DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
+        
+        @Override
+        public void done() {
+          dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
+          if (checkDownloadSuccess().equals(0)) {
+            saveDownloadedExperiment();
+          }
+        }
+      };
+      showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
+      expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), experimentProviderUtil, experiment);
+      expTask.execute();
+    }
+  }
+  
+  private boolean isConnected() {
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
+  }
+  
+  private Integer checkDownloadSuccess() {
+       
+    String status = getTaskStatus();
+    if (!status.equals(DownloadStatusConstants.SUCCESS)) {
+      if (status.equals(DownloadStatusConstants.CONTENT_ERROR) ||
+          status.equals(DownloadStatusConstants.RETRIEVAL_ERROR)) {
+        showDialog(INVALID_DATA_ERROR, null);
+      } else {
+        showDialog(SERVER_ERROR, null);
+      }      
+      return -1;
+    }
+    return 0;
+  }
+  
+  private String getTaskStatus() {
+    try {
+      return expTask.get();
+    } catch (InterruptedException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    } catch (ExecutionException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    }
+  }
+  
+  private void saveDownloadedExperiment() {
+    SignalSchedule oldSchedule = experiment.getSchedule();
+    experiment = expTask.getExperiments().get(0);
+    experiment.setSchedule(oldSchedule);
+    scheduleExperiment();
+  }
+
+  private Validation isValid() {
+    Validation validation = new Validation();
+    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+      if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
+        validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));
+      }
+    }
+    return validation;
+  }
+
+  private Long getHourOffsetFromPicker() {
+    return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour())
+                                      .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
+  }
+
+  private String getTextFromPicker(int esmOffset) {
+    return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
+  }
+ 
+
   protected Dialog onCreateDialog(int id, Bundle args) {
-    
-    // PRIYA
-    if (id == REFRESHING_JOINED_EXPERIMENT_DIALOG_ID) {
-      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                                                         getString(R.string.retrieving_your_joined_experiment_from_the_server), 
-                                                         true, true);
-      return loadingDialog;
+    switch (id) {
+      case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
+          return getRefreshJoinedDialog();
+      } case INVALID_DATA_ERROR: {
+          return getUnableToJoinDialog(getString(R.string.invalid_data));
+      } case SERVER_ERROR: {
+        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      } case NO_NETWORK_CONNECTION: {
+        return getNoNetworkDialog();
+      } default: {
+        return getDaysOfWeekDialog();
+      }
     }
-    
-    // PRIYA
-    if (id == UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID) {
-      System.out.println("PRIYA this dialog");
-      AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
-      unableToJoinBldr.setMessage("boo")  // PRIYA
-                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                           public void onClick(DialogInterface dialog, int which) {
-                             //dismissDialog(which);
-                           }
-                         });     // PRIYA
-      return unableToJoinBldr.create();
-    }
-    System.out.println("PRIYA the other dialog?");
+  }
+
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    return super.onCreateDialog(id);
+  }
+  
+  private ProgressDialog getRefreshJoinedDialog() {
+    return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
+                               getString(R.string.retrieving_your_joined_experiment_from_the_server), 
+                               true, true);
+  }
+  
+  private AlertDialog getUnableToJoinDialog(String message) {
+    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           finish();
+                         }
+                       });
+    return unableToJoinBldr.create();
+  }
+  
+  private AlertDialog getNoNetworkDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
+    noNetworkBldr.setTitle(R.string.network_required)
+                 .setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           showNetworkConnectionActivity();
+                         }
+                       })
+                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                          public void onClick(DialogInterface dialog, int which) {
+                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                            finish();
+                          }
+                    });
+    return noNetworkBldr.create();
+  }
+  
+  private AlertDialog getDaysOfWeekDialog() {
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
 
     if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
@@ -573,170 +769,7 @@ public class ExperimentScheduleActivity extends Activity {
       }
     });
     return dialogBldr.create();
-  }
-
-  @Override
-  protected Dialog onCreateDialog(int id) {
-    return super.onCreateDialog(id);
-  }
-
-  private void setupSaveButton() {
-    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
-    saveScheduleButton.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        save();
-      }
-    });
-  }
-
-  private void saveExperimentRegistration() {
-    if (experiment.getSchedule() != null) {
-      if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)
-          || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-
-        if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-          saveRepeatRate();
-        }
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
-        saveRepeatRate();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.MONTHLY)) {
-        saveRepeatRate();
-        // if (radioGroup.isSelected()) {
-        // experiment.getSchedule().setByDayOfMonth(Boolean.TRUE);
-        // experiment.getSchedule().setDayOfMonth(Integer.parseInt((String)domSpinner.getSelectedItem())
-        // + 1);
-        // } else {
-        // experiment.getSchedule().setByDayOfMonth(Boolean.FALSE);
-        // experiment.getSchedule().setNthOfMonth(Integer.parseInt((String)nthOfMonthSpinner.getSelectedItem()));
-        // }
-
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-        AlarmStore alarmStore = new AlarmStore(this);
-        alarmStore.deleteAllSignalsForSurvey(experiment.getId());
-        // new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(),
-        // experiment.getPeriodStart(new DateTime()).getMillis());
-        experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
-      }
-    }
-    if (experiment.getJoinDate() == null) {
-      experiment.setJoinDate(new DateTime());
-      experimentProviderUtil.insertFullJoinedExperiment(experiment);
-      createJoinEvent();
-      startService(new Intent(this, SyncService.class));
-    } else {
-      experimentProviderUtil.updateJoinedExperiment(experiment);
-    }
-  }
-
-  private void saveRepeatRate() {
-    experiment.getSchedule()
-              .setRepeatRate((repeatRate.getSelectedItem() != null) ? Integer.parseInt((String) repeatRate.getSelectedItem())
-                                                                   : 1);
-  }
-
-  /**
-   * Creates a pacot for a newly registered experiment
-   */
-  private void createJoinEvent() {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-    responseForInput.setAnswer("true");
-    responseForInput.setName("joined");
-    event.addResponse(responseForInput);
-
-    Output responseForSchedule = new Output();
-    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    responseForSchedule.setAnswer(schedule.toString());
-    responseForSchedule.setName("schedule");
-    event.addResponse(responseForSchedule);
-
-    experimentProviderUtil.insertEvent(event);
-  }
-
-  private void save() {
-    Validation valid = isValid();
-    if (!valid.ok()) {
-      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
-      return;
-    }
-    if (showingJoinedExperiments) {
-      saveNewSchedule();
-    } else {
-      requestFullExperiment();
-    }
-  }
-  
-  private void saveNewSchedule() {
-    saveExperimentRegistration();
-    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
-    finish();
-  }
-
-  // PRIYA 
-  private void requestFullExperiment() {
-    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
-      
-      @Override
-      public void done() {
-        dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
-        saveDownloadedExperiment();
-      }
-    };
-    showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
-    List<Experiment> experimentList = new ArrayList<Experiment>();    // PRIYA
-    experimentList.add(experiment);
-    expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), new ExperimentProviderUtil(this), null, experimentList);
-    expTask.execute();
-  }
-  
-  // PRIYA dialog fails, come back later and put into proper try/catch
-  private void saveDownloadedExperiment() {        // PRIYA
-    Experiment fullExperiment = expTask.getExperiments().get(0);
-    if (fullExperiment == null) {
-      showDialog(UNABLE_TO_JOIN_EXPERIMENT_DIALOG_ID, null);
-      finish();
-    } else {
-      mergeExperiment(fullExperiment);
-      saveNewSchedule();
-    }
-  }
-  
-  private void mergeExperiment(Experiment fullExperiment) {
-    experiment.setQuestionsChange(fullExperiment.isQuestionsChange());
-    experiment.setHash(fullExperiment.getHash());
-    experiment.setModifyDate(fullExperiment.getModifyDate());
-    experiment.setInputs(fullExperiment.getInputs());
-    experiment.setFeedback(fullExperiment.getFeedback());
-    experiment.setWebRecommended(fullExperiment.isWebRecommended());
-    experiment.setVersion(fullExperiment.getVersion());
-  }
-
-
-  private Validation isValid() {
-    Validation validation = new Validation();
-    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
-        validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));
-      }
-    }
-    return validation;
-  }
-
-  private Long getHourOffsetFromPicker() {
-    return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour())
-                                      .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
-  }
-
-  private String getTextFromPicker(int esmOffset) {
-    return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
+    
   }
 
 }

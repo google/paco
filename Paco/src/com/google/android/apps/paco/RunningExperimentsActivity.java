@@ -17,6 +17,11 @@
 */
 package com.google.android.apps.paco;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import org.joda.time.DateTime;
 
 import com.pacoapp.paco.R;
@@ -30,8 +35,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -46,6 +54,7 @@ import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -53,7 +62,13 @@ import android.widget.TextView;
  */
 public class RunningExperimentsActivity extends Activity {
 
-  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;   // PRIYA
+  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+  private static final int INVALID_DATA_ERROR = 1003;
+  private static final int SERVER_ERROR = 1004;
+  private static final int NO_NETWORK_CONNECTION = 1005;
+  
+  static final int ENABLED_NETWORK = 1;
+  
   private static final int DATA_EXPERIMENT_OPTION = 3;
   private static final int STOP_EXPERIMENT_OPTION = 2;
   private static final int EDIT_EXPERIMENT_OPTION = 1;
@@ -67,6 +82,8 @@ public class RunningExperimentsActivity extends Activity {
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private BaseAdapter adapter;
+  
+  private static DownloadFullExperimentsTask expTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -81,18 +98,22 @@ public class RunningExperimentsActivity extends Activity {
     userPrefs = new UserPreferences(this);    
     list = (ListView) findViewById(R.id.find_experiments_list);
     createListHeader();
+    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    Button listFooter = (Button) findViewById(R.id.RefreshExperimentsButton2);
-    listFooter.setVisibility(View.GONE);
-//    refreshButton.setVisibility(View.VISIBLE); // PRIYA
-//    
-//    refreshButton.setOnClickListener(new OnClickListener() {
-//      public void onClick(View v) {
-//        refreshList();
-//      }
-//    }); // PRIYA
+    Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
+    refreshButton.setVisibility(View.VISIBLE);
+    
+    refreshButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        if (!isConnected()) {
+          showDialog(NO_NETWORK_CONNECTION, null);
+        } else {
+          refreshList();
+        }
+      }
+    });
 
     cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE, 
                                                                 ExperimentColumns.CREATOR, ExperimentColumns.ICON },
@@ -103,7 +124,59 @@ public class RunningExperimentsActivity extends Activity {
     registerForContextMenu(list);
   }
   
+  private boolean isConnected() {
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    return networkInfo != null && networkInfo.isConnected();
+  }
   
+  
+  private void refreshList() {
+    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
+      
+      @Override
+      public void done() {
+        refreshRefreshHeader();
+        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        checkDownloadSuccess();
+      }
+    };
+ 
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    List<Experiment> joinedExperiments = experimentProviderUtil.getJoinedExperiments();
+    expTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, joinedExperiments, true);
+    expTask.execute();
+  }
+  
+  private void refreshRefreshHeader() {
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.JOINED_EXPERIMENTS);
+    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
+    listHeader.setText(header); 
+  }
+  
+  private void checkDownloadSuccess() {
+    String status = getTaskStatus();
+    if (!status.equals(DownloadStatusConstants.SUCCESS)) {
+      if (status.equals(DownloadStatusConstants.CONTENT_ERROR) ||
+          status.equals(DownloadStatusConstants.RETRIEVAL_ERROR)) {
+        showDialog(INVALID_DATA_ERROR, null);
+      } else {
+        showDialog(SERVER_ERROR, null);
+      }      
+    }
+  }
+  
+  private String getTaskStatus() {
+    try {
+      return expTask.get();
+    } catch (InterruptedException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    } catch (ExecutionException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    }
+  }
+ 
   
   @Override
   protected void onResume() {
@@ -214,38 +287,83 @@ public class RunningExperimentsActivity extends Activity {
     return listHeader;
   }
 
-  // PRIYA
+  private TextView createRefreshHeader() {
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.JOINED_EXPERIMENTS);
+    if (lastRefresh == null) {
+      listHeader.setVisibility(View.GONE);
+    } else {
+      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+      listHeader.setText(header);
+      listHeader.setTextSize(15);
+    }
+    return listHeader;
+  }
+
+  
+  protected Dialog onCreateDialog(int id, Bundle args) {
+    switch (id) {
+      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
+          return getRefreshJoinedDialog();
+      } case INVALID_DATA_ERROR: {
+          return getUnableToJoinDialog(getString(R.string.invalid_data));
+      } case SERVER_ERROR: {
+        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      } case NO_NETWORK_CONNECTION: {
+        return getNoNetworkDialog();
+      } default: {
+        return null;
+      }
+    }
+  }
+
   @Override
   protected Dialog onCreateDialog(int id) {
-    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
-      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
-                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
-                                                         true, true);
-      return loadingDialog;
-    }
     return super.onCreateDialog(id);
   }
   
+  private ProgressDialog getRefreshJoinedDialog() {
+    return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
+                               getString(R.string.retrieving_your_joined_experiment_from_the_server), 
+                               true, true);
+  }
   
-//  // PRIYA
-//  protected void refreshList() {    
-//    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
-//      
-//      @Override
-//      public void done() {
-//        reloadAdapter();
-//        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-//      }
-//    };
-//    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-//    // PRIYA: once multi-requests are handled, pass in id's of current experiments.
-//    //    See FindExperimentsTask for more information.
-//    // new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
-//  }
-//  
-//  private void reloadAdapter() {
-//    System.out.println("PRIYA do stuff here!");
-//  }
+  private AlertDialog getUnableToJoinDialog(String message) {
+    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           finish();
+                         }
+                       });
+    return unableToJoinBldr.create();
+  }
+  
+  private AlertDialog getNoNetworkDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
+    noNetworkBldr.setTitle(R.string.network_required)
+                 .setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           showNetworkConnectionActivity();
+                         }
+                       })
+                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                          public void onClick(DialogInterface dialog, int which) {
+                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                            finish();
+                          }
+                    });
+    return noNetworkBldr.create();
+  }
+  
+  private void showNetworkConnectionActivity() {
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), ENABLED_NETWORK);
+  }
+  
   
   private class RunningExperimentListAdapter extends CursorAdapter {
 

@@ -40,7 +40,7 @@ public class OptionsMenu {
     menu.add(0, PAGING_ITEM, 0, R.string.edit_schedule_menu_item);
     menu.add(0, STOP_ITEM, 1, R.string.stop_experiment_menu_item);
     menu.add(0, DATA_ITEM, 2, R.string.explore_data_menu_item);
-    menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, R.string.refresh_experiment_menu_item);
+    //menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, R.string.refresh_experiment_menu_item);
     if (context instanceof ExperimentManagerActivity) {
       menu.add(0, UPDATE_ITEM, 2, R.string.check_updates_menu_item);
     }
@@ -69,9 +69,9 @@ public class OptionsMenu {
       case DATA_ITEM:
         launchDataScreen();
         return true;  
-      case REFRESH_EXPERIMENT_ITEM:
-        launchRefreshExperiments();
-        return true;
+//      case REFRESH_EXPERIMENT_ITEM:
+//        launchRefreshExperiments();
+//        return true;
       case MAINPAGE_ITEM:
         launchMainPage();
         return true;
@@ -95,9 +95,9 @@ public class OptionsMenu {
     } 
   }
 
-  private void launchRefreshExperiments() {
-    ((ExperimentExecutor)context).refreshExperiment();
-  }
+//  private void launchRefreshExperiments() {
+//    ((ExperimentExecutor)context).refreshExperiment();
+//  }
 
   private void launchUpdateCheck() {
     Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");

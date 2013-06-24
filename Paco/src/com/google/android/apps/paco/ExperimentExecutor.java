@@ -17,7 +17,9 @@
 package com.google.android.apps.paco;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -79,8 +81,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private Button doOnPhoneButton;
   private Button doOnWebButton;
   private TextView warningText;
-
   
+  private static DownloadFullExperimentsTask expTask;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -152,7 +155,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.GONE);
     refreshButton.setOnClickListener(new OnClickListener() {          
       public void onClick(View v) {
-        refreshExperiment();
+        // refreshExperiment();
       }
     });
   }
@@ -578,36 +581,68 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     return binding;
   }
 
-  public void refreshExperiment() {
-    Runnable runnable = new Runnable() {
+//  public void refreshExperiment() {
+//    Runnable runnable = new Runnable() {
+//
+//      public void run() {
+//        experimentProviderUtil.loadInputsForExperiment(experiment);
+//        experimentProviderUtil.loadFeedbackForExperiment(experiment);      
+//
+//        if (experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
+//          Toast.makeText(ExperimentExecutor.this, R.string.found_updated_questions, Toast.LENGTH_SHORT).show();
+//          refreshButton.setVisibility(View.GONE);
+//          ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.VISIBLE);
+//          // TODO - consolidate this logic into one method, shared with onCreate.
+//          experiment = getExperimentFromIntent();
+//          experimentProviderUtil.loadInputsForExperiment(experiment);
+//          experimentProviderUtil.loadFeedbackForExperiment(experiment);      
+//
+//          showForm();
+//        } else if (!experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
+//          Toast.makeText(ExperimentExecutor.this, R.string.didnt_find_updated_questions, Toast.LENGTH_SHORT).show();
+//        } else {
+//          Toast.makeText(ExperimentExecutor.this, R.string.invalid_experiment_warning, Toast.LENGTH_LONG).show();
+//          finish();
+//        }
+//        
+//      }
+//    };
+//    
+//    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
+//      
+//      @Override
+//      public void done() {
+//        if (checkDownloadSuccess().equals(0)) {
+//          System.out.println("Download success");
+//        } else {
+//          System.out.println("Download failure");
+//        }   
+//      }
+//    };
+//    expTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, experiment);
+//    expTask.execute();
+//  }
 
-      public void run() {
-        experimentProviderUtil.loadInputsForExperiment(experiment);
-        experimentProviderUtil.loadFeedbackForExperiment(experiment);      
-
-        if (experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, R.string.found_updated_questions, Toast.LENGTH_SHORT).show();
-          refreshButton.setVisibility(View.GONE);
-          ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.VISIBLE);
-          // TODO - consolidate this logic into one method, shared with onCreate.
-          experiment = getExperimentFromIntent();
-          experimentProviderUtil.loadInputsForExperiment(experiment);
-          experimentProviderUtil.loadFeedbackForExperiment(experiment);      
-
-          showForm();
-        } else if (!experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, R.string.didnt_find_updated_questions, Toast.LENGTH_SHORT);
-        } else {
-          Toast.makeText(ExperimentExecutor.this, R.string.invalid_experiment_warning, Toast.LENGTH_LONG);
-          finish();
-        }
-        
-      }
-    };
-    new DownloadExperimentsTask(this, null, userPrefs, experimentProviderUtil, runnable).execute();
+  private Integer checkDownloadSuccess() {
+    
+    String status = getTaskStatus();
+    
+    if (!status.equals(DownloadStatusConstants.SUCCESS)) {
+      return -1;
+    }
+    
+    return 0;
   }
 
-
+  private String getTaskStatus() {
+    try {
+      return expTask.get();
+    } catch (InterruptedException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    } catch (ExecutionException e) {
+      return DownloadStatusConstants.EXECUTION_ERROR;
+    }
+  }
 
 
 

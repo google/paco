@@ -16,16 +16,6 @@
 */
 package com.google.android.apps.paco;
 
-import java.io.IOException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 
 import android.app.AlarmManager;
@@ -35,7 +25,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class ServerCommunication {
@@ -59,9 +48,13 @@ public class ServerCommunication {
   }
 
   public synchronized void checkIn() {
-    if (userPrefs.isExperimentListStale()) {
-      updateExperiments();
+    if (userPrefs.isExperimentListStale(UserPreferences.FIND_EXPERIMENTS)) {
+      updateFindExperiments();
     }
+    if (userPrefs.isExperimentListStale(UserPreferences.JOINED_EXPERIMENTS)) {
+      updateJoinedExperiments();
+    }
+    
     setNextWakeupTime();
   }
   
@@ -85,54 +78,34 @@ public class ServerCommunication {
     return time.isAfter(new DateTime().plusSeconds(10));
   }
 
-  // PRIYA - full (joined) - also look in downloadExperimentsTask for refresh button
-  public void updateExperiments() {
-    // Unify server communication code with duplicate in DownloadTask in FindExperimentActivity.
+  public void updateFindExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     UrlContentManager manager = null;
     try {
-      manager = new UrlContentManager(context);
-      
-      String serverAddress = userPrefs.getServerAddress();
-      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments"))
-              .addHeader("http.useragent", "Android")
-              .addHeader("paco.version", AndroidUtils.getAppVersion(context))
-              .execute();
-      String contentAsString = response.getContentAsString();
-      Log.i("FindExperimentsActivity", "data: " + contentAsString);
-      ArrayList<Experiment> result = null;
-      if (contentAsString != null) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        try {
-          result = mapper.readValue(contentAsString,
-              new TypeReference<List<Experiment>>() {
-              });
-          if (result != null) {
-            experimentProviderUtil.deleteAllUnJoinedExperiments();
-            experimentProviderUtil.updateExistingExperiments(result);
-            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-          }
-        } catch (JsonParseException e) {
-          Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
-          e.printStackTrace();
-        } catch (JsonMappingException e) {
-          Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString);
-          e.printStackTrace();
-        } catch (UnsupportedCharsetException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-      
-      userPrefs.setExperimentListRefreshTime(new Date().getTime());
-
+      DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, manager, userPrefs);
+      downloadHelper.updateFindExperiments();
+    } catch (Exception e) {
+      // Nothing to be done here for now.
     } finally {
       if (manager != null) {
         manager.cleanUp();
       }
     }
-
+  }
+  
+  private void updateJoinedExperiments() {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    UrlContentManager manager = null;
+    try {
+      manager = new UrlContentManager(context);
+      DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, manager, userPrefs);
+      downloadHelper.updateRunningExperiments(experimentProviderUtil.getJoinedExperiments(), true);
+    } catch (Exception e) {
+      Log.e(PacoConstants.TAG, "Exception. Error communicating with server" + ", " + e.getMessage());
+    } finally {
+      if (manager != null) {
+        manager.cleanUp();
+      }
+    }
   }
 }

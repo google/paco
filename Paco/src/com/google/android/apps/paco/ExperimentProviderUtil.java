@@ -186,10 +186,7 @@ public class ExperimentProviderUtil {
       if (existingList.size() == 0) {
         continue;
       }
-      for (Experiment existingExperiment : existingList) {
-        if (existingExperiment.getJoinDate() == null) { // It better not be null
-          continue;
-        }
+      for (Experiment existingExperiment : existingList) {    
         long startTime = System.currentTimeMillis();
         deleteAllInputsForExperiment(existingExperiment.getId());            
         existingExperiment.setInputs(experiment.getInputs());
@@ -217,7 +214,6 @@ public class ExperimentProviderUtil {
        
     }  
   }
-
 
   private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
     existingExperiment.setCreator(experiment.getCreator());
