@@ -53,15 +53,14 @@ public class ExperimentServlet extends HttpServlet {
 
   
   @Override
-  // Bob: Right now caching is messed up in this method because the full list of short experiments and
-  // the full list of long experiments shares the same cache.  Shouldn't be a problem in general since
+  // Right now caching is messed up because the full list of short experiments and
+  // the full list of long experiments share the same cache.  This shouldn't be a problem in general since
   // no app should be making both short and old-type experiment requests, but something to be aware of
   // while this code is in a transition state.
-  // PRIYA
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
       IOException {
     resp.setContentType("application/json;charset=UTF-8");
-    String lastModParam = req.getParameter("lastModification");     // Bob: this is unused.  Should we remove it? -Priya
+    String lastModParam = req.getParameter("lastModification");
     String tz = req.getParameter("tz");
 
     boolean isShortLoad = false;
@@ -72,14 +71,8 @@ public class ExperimentServlet extends HttpServlet {
     } else {
       String expStr = req.getParameter("id");
       if (expStr != null && !expStr.isEmpty()) {
-        String[] strIds = expStr.split("[, ]+");
-        for (String id : strIds) {
-          Long experimentId = extractExperimentId(id);
-          if (!experimentId.equals(new Long(-1))) {
-            experimentIds.put(experimentId, null);
-          }
-        }
-        isFullExpLoad = !(experimentIds.isEmpty());   // PRIYA
+        experimentIds = parseExperimentIds(expStr);
+        isFullExpLoad = !(experimentIds.isEmpty());
       }
     }
     
@@ -95,13 +88,13 @@ public class ExperimentServlet extends HttpServlet {
       }
       
       ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-      String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());    // PRIYA
-      if (experimentsJson != null && !isFullExpLoad) {   // PRIYA
+      String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
+      if (experimentsJson != null && !isFullExpLoad) {
         log.info("Got cached experiments for " + user.getEmail());
       }
       
-      List<ExperimentDAO> experiments;      // PRIYA
-      if (experimentsJson == null || isFullExpLoad) { // PRIYA
+      List<ExperimentDAO> experiments;
+      if (experimentsJson == null || isFullExpLoad) {
         
         log.info("No cached experiments for " + user.getEmail());
         experiments = cacheHelper.getJoinableExperiments(tz);
@@ -119,7 +112,7 @@ public class ExperimentServlet extends HttpServlet {
         if (isShortLoad) {
           experimentsJson = JsonConverter.shortJsonify(availableExperiments);
           cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson); 
-        } else if (isFullExpLoad) {     // PRIYA
+        } else if (isFullExpLoad) {
           experimentsJson = loadExperiments(experimentIds, availableExperiments);
           // Do not put in the cache.
         } else {
@@ -130,11 +123,23 @@ public class ExperimentServlet extends HttpServlet {
       resp.getWriter().println(scriptBust(experimentsJson));
     }
   }
+
+  private HashMap<Long,Long> parseExperimentIds(String expStr) {
+    HashMap<Long,Long> experimentIds = new HashMap<Long, Long>();
+    String[] strIds = expStr.split("[, ]+");
+    for (String id : strIds) {
+      Long experimentId = extractExperimentId(id);
+      if (!experimentId.equals(new Long(-1))) {
+        experimentIds.put(experimentId, null);
+      }
+    }
+    return experimentIds;
+  }
   
   private Long extractExperimentId(String expStr) {
     try {
       Long experimentId = Long.parseLong(expStr, 10);
-      return experimentId;      // PRIYA
+      return experimentId;
     } catch (NumberFormatException e) {
       log.severe("Invalid experiment id " + expStr + " sent to server.");
       return new Long(-1);
@@ -152,7 +157,7 @@ public class ExperimentServlet extends HttpServlet {
       log.severe("Experiment id's " + experimentIds + " are all invalid.  No experiments were fetched from server.");
       return null;
     }
-    return JsonConverter.jsonify(experiments); // PRIYA - change on android side;
+    return JsonConverter.jsonify(experiments);
   }
 
   

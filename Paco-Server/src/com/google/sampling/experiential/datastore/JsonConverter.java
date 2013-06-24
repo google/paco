@@ -41,7 +41,6 @@ public class JsonConverter {
     return null; 
   }
   
-  // PRIYA  -- TODO: add single version below
   public static String shortJsonify(List<ExperimentDAO> experiments) {
     ObjectMapper mapper = new ObjectMapper();
     List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
@@ -71,7 +70,7 @@ public class JsonConverter {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
                                  experiment.getInformedConsentForm(), experiment.getCreator(), 
                                  experiment.getSignalingMechanisms(), experiment.getFixedDuration(),
-                                 experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate());   // PRIYA
+                                 experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate());
   }
 
   public static String jsonify(ExperimentDAO experiment) {

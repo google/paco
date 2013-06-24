@@ -18,7 +18,7 @@
 
 package com.google.paco.shared.model;
 
-import java.io.Serializable;      // PRIYA
+import java.io.Serializable;
 
 
 /**
