@@ -275,4 +275,14 @@
    <string name="default_list_item"></string>
    <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
    <string name="experiment_retrieval">Experiment Retrieval</string>
+   <string name="dialog_dismiss">OK</string>
+   <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
+   <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
+   <string name="server_error">Something went wrong with the server.</string>
+   <string name="network_required">Network Required</string>
+   <string name="need_network_connection">You will need a network connection to join the experiment. Enable connection now?</string>
+   <string name="no_thanks">No, Thanks.</string>
+   <string name="go_to_network_settings">Network Settings</string>
+   <string name="last_refreshed">Last Refreshed</string>
+   
 </resources>
