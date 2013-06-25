@@ -26,6 +26,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -79,6 +81,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private Button doOnPhoneButton;
   private Button doOnWebButton;
   private TextView warningText;
+  private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
+  public static final int RESULT_SPEECH = 3;
 
   
   @Override
@@ -607,6 +611,44 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     new DownloadExperimentsTask(this, null, userPrefs, experimentProviderUtil, runnable).execute();
   }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+
+    switch (requestCode) {
+      case RESULT_SPEECH: {
+        if (resultCode == Activity.RESULT_OK && null != data) {
+          ArrayList<String> guesses = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+          notifySpeechRecognitionListeners(guesses);
+        }        
+        break;
+      }
+
+    }
+  }
+
+  private void notifySpeechRecognitionListeners(ArrayList<String> guesses) {
+    for (SpeechRecognitionListener listener : speechRecognitionListeners) {
+      listener.speechRetrieved(guesses);
+    }    
+  }
+  
+  public void removeSpeechRecognitionListener(SpeechRecognitionListener listener) {
+    speechRecognitionListeners.remove(listener);
+  }
+
+  public void startSpeechRecognition(SpeechRecognitionListener listener) {
+    speechRecognitionListeners .add(listener);
+    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US"); //TODO BOB getLocale instead 
+
+    try {
+      startActivityForResult(intent, RESULT_SPEECH);
+    } catch (ActivityNotFoundException a) {
+      Toast t = Toast.makeText(getApplicationContext(), "Opps! Your device doesn't support Speech to Text", Toast.LENGTH_SHORT);
+      t.show();
+    }    
+  }
 
 
 

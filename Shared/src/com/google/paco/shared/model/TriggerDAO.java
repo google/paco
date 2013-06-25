@@ -6,14 +6,17 @@ import java.io.Serializable;
 public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
 
   public static final int HANGUP = 1;
+  public static final int USER_PRESENT = 2;
+  public static final int PACO_ACTION_EVENT = 3;
   
-  public static final int[] EVENTS = new int[] {HANGUP};
-  public static final String[] EVENT_NAMES = new String[] {"HANGUP"};
+  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT, PACO_ACTION_EVENT};
+  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT", "Paco Action"};
 
   private int eventCode;
   private long delay = 5000;
 
   private Long id;
+  private String sourceIdentifier;
   
  
   public TriggerDAO() {
@@ -21,10 +24,11 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
     this.type = "trigger";
   }
   
-  public TriggerDAO(Long id, Integer eventCode, Long delay, Integer timeout) {
+  public TriggerDAO(Long id, Integer eventCode, String sourceIdentifier, Long delay, Integer timeout) {
     super();
     this.id = id;
     this.eventCode = eventCode;
+    this.sourceIdentifier = sourceIdentifier;
     this.delay = delay;
     this.type = "trigger";
     this.timeout = timeout;
@@ -55,7 +59,12 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
   public void setId(Long id) {
     this.id = id;
   }
-  
-  
 
+  public String getSourceIdentifier() {
+    return sourceIdentifier;
+  }
+
+  public void setSourceIdentifier(String sourceIdentifier) {
+    this.sourceIdentifier = sourceIdentifier;
+  }
 }
