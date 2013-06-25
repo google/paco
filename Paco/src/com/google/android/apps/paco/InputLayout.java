@@ -841,16 +841,16 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
           }
         }
       } catch (FileNotFoundException e) {
-        e.printStackTrace();
+        Log.d(PacoConstants.TAG, "No autocomplete database found yet", e);
       } catch (IOException e) {
-        e.printStackTrace();
+        Log.d(PacoConstants.TAG, "Could not talk to autocomplete database", e);
       } finally {
         try {
           if (buf != null) {
             buf.close();
           }
         } catch (IOException e) {
-          e.printStackTrace();
+          // Not worth it, there is no recovery.
         }
       }
       return lines;

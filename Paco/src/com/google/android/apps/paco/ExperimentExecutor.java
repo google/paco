@@ -18,6 +18,7 @@ package com.google.android.apps.paco;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -615,15 +616,15 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    switch (requestCode) {
-      case RESULT_SPEECH: {
-        if (resultCode == Activity.RESULT_OK && null != data) {
-          ArrayList<String> guesses = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-          notifySpeechRecognitionListeners(guesses);
-        }        
-        break;
-      }
+    if (requestCode == RESULT_SPEECH) {
+      handleSpeechRecognitionActivityResult(resultCode, data);
+    }
+  }
 
+  private void handleSpeechRecognitionActivityResult(int resultCode, Intent data) {
+    if (resultCode == Activity.RESULT_OK && null != data) {
+      ArrayList<String> guesses = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+      notifySpeechRecognitionListeners(guesses);
     }
   }
 
@@ -640,12 +641,12 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   public void startSpeechRecognition(SpeechRecognitionListener listener) {
     speechRecognitionListeners .add(listener);
     Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, "en-US"); //TODO BOB getLocale instead 
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());  
 
     try {
       startActivityForResult(intent, RESULT_SPEECH);
     } catch (ActivityNotFoundException a) {
-      Toast t = Toast.makeText(getApplicationContext(), "Opps! Your device doesn't support Speech to Text", Toast.LENGTH_SHORT);
+      Toast t = Toast.makeText(getApplicationContext(), R.string.oops_your_device_doesn_t_support_speech_to_text, Toast.LENGTH_SHORT);
       t.show();
     }    
   }
