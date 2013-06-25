@@ -23,6 +23,8 @@
 #import "PacoDate.h"
 #import "PacoModel.h"
 #import "PacoClient.h"
+#import "PacoExperimentInput.h"
+#import "PacoExperimentSchedule.h"
 
 @implementation PacoService
 

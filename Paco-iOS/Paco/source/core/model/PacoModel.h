@@ -19,93 +19,10 @@ extern NSString* const PacoExperimentDefinitionUpdateNotification;
 extern NSString* const PacoExperimentInstancesUpdateNotification;
 
 
-
 @class PacoModel;
+@class PacoExperimentSchedule;
 
-@interface PacoExperimentFeedback : NSObject
-@property (copy) NSString *feedbackId;
-@property (copy) NSString *text;
-@property (copy) NSString *type;  // currently only 1 type , 'display'
-@property (retain) id jsonObject;
-+ (id)pacoFeedbackFromJSON:(id)jsonObject;
-@end
 
-// ExperimentInput is basically something like a question, or measure of some input like a location or photo.
-@interface PacoExperimentInput : NSObject
-@property (assign) BOOL conditional;
-@property (retain) NSString *conditionalExpression;
-@property (copy) NSString *inputIdentifier;
-@property (assign) BOOL invisibleInput;
-@property (copy) NSString *leftSideLabel;
-@property (assign) NSInteger likertSteps; // only for response type 'likert'
-@property (retain) NSArray *listChoices; // <NSString>
-@property (assign) BOOL mandatory;
-@property (copy) NSString *name;
-@property (copy) NSString *questionType;  // 'question'/ (text question or sensor input)
-@property (copy) NSString *responseType;  // 'likert', 'list', open text, etc.
-@property (copy) NSString *rightSideLabel;
-@property (copy) NSString *text;
-@property (retain) id jsonObject;
-@property (retain) id responseObject;  // The user's answer to this question
-@property (assign) BOOL isADependencyForOthers;
-+ (id)pacoExperimentInputFromJSON:(id)jsonObject;
-+ (NSArray *)parseExpression:(NSString *)expr;
-@end
-
-typedef enum {
-  kPacoScheduleRepeatPeriodDay = 0,
-  kPacoScheduleRepeatPeriodWeek = 1,
-  kPacoScheduleRepeatPeriodMonth = 2,
-} PacoScheduleRepeatPeriod;
-
-typedef enum {
-  kPacoScheduleDaySunday = 1,
-  kPacoScheduleDayMonday = 1 << 1,
-  kPacoScheduleDayTuesday = 1 << 2,
-  kPacoScheduleDayWednesday = 1 << 3,
-  kPacoScheduleDayThursday = 1 << 4,
-  kPacoScheduleDayFriday = 1 << 5,
-  kPacoScheduleDaySaturday = 1 << 6,
-} PacoScheduleDay;
-
-typedef enum {
-  kPacoScheduleTypeDaily = 0,
-  kPacoScheduleTypeWeekday = 1,
-  kPacoScheduleTypeWeekly = 2,
-  kPacoScheduleTypeMonthly = 3,
-  kPacoScheduleTypeESM = 4,
-  kPacoScheduleTypeSelfReport = 5,
-  kPacoScheduleTypeAdvanced = 6,
-} PacoScheduleType;
-
-typedef enum {
-  kPacoSchedulePeriodDay = 0,
-  kPacoSchedulePeriodWeek = 1,
-  kPacoSchedulePeriodMonth = 2,
-} PacoSchedulePeriod;
-
-@interface PacoExperimentSchedule : NSObject
-@property (assign) BOOL byDayOfMonth;
-@property (assign) BOOL byDayOfWeek;
-@property (assign) NSInteger dayOfMonth;
-@property (assign) long long esmEndHour;
-@property (assign) NSInteger esmFrequency;
-@property (assign) long long esmPeriodInDays;
-@property (assign) PacoScheduleRepeatPeriod esmPeriod;
-@property (assign) long long esmStartHour;
-@property (assign) BOOL esmWeekends;
-@property (copy) NSString *scheduleId;
-@property (assign) NSInteger nthAMonth;
-@property (assign) PacoScheduleRepeatPeriod repeatPeriod;
-@property (assign) PacoScheduleType scheduleType;
-@property (retain) NSArray *times;  // NSNumber<long >
-@property (assign) BOOL userEditable;
-@property (assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
-@property (retain) id jsonObject;
-@property (retain) NSArray *esmSchedule;  // NSArray<NSDate>
-+ (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
-- (NSString *)jsonString;
-@end
 
 @interface PacoExperimentDefinition : NSObject
 @property (retain) NSArray *admins;  // <NSString>

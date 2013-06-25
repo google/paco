@@ -16,6 +16,7 @@
 #import "PacoDate.h"
 
 #import "PacoModel.h"
+#import "PacoExperimentSchedule.h"
 
 @implementation PacoDate
 

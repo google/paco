@@ -23,6 +23,7 @@
 #import "PacoService.h"
 #import "PacoTableView.h"
 #import "PacoTitleView.h"
+#import "PacoExperimentInput.h"
 
 NSString *kCellIdQuestion = @"question";
 
