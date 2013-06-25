@@ -21,6 +21,7 @@
 #import "PacoModel.h"
 #import "PacoService.h"
 #import "PacoTitleView.h"
+#import "PacoExperimentDefinition.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
 

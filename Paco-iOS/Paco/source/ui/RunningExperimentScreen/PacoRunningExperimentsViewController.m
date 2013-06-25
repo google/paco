@@ -24,6 +24,8 @@
 #import "PacoTableView.h"
 #import "PacoTitleView.h"
 #import "PacoQuestionScreenViewController.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoExperiment.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 

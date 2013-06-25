@@ -25,6 +25,8 @@
 #import "PacoClient.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoEvent.h"
 
 @implementation PacoService
 

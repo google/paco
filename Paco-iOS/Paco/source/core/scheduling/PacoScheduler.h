@@ -17,6 +17,8 @@
 
 #import "PacoModel.h"
 
+@class PacoExperiment;
+
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
 // experiment schedule is used to decide when to fire local notifications.  The
 // local notification system can have at most 64 scheduled notifications per
