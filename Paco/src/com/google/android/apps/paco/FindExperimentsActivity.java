@@ -121,15 +121,11 @@ public class FindExperimentsActivity extends Activity {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
     } else {
-      if (listIsStale()) {
+      if (userPrefs.isAvailableExperimentsListStale()) {
         refreshList();
       }
     }
 
-  }
-
-  private boolean listIsStale() {
-    return userPrefs.isExperimentListStale(UserPreferences.FIND_EXPERIMENTS);
   }
   
 
@@ -142,7 +138,6 @@ public class FindExperimentsActivity extends Activity {
       }
     }
   } 
- 
 
   private TextView createListHeader() {
 	TextView listHeader = (TextView)findViewById(R.id.ExperimentListTitle);
@@ -187,7 +182,7 @@ public class FindExperimentsActivity extends Activity {
   
   
   protected void refreshList() {    
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
       
       @Override
       public void done() {
@@ -198,7 +193,7 @@ public class FindExperimentsActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
+    new DownloadShortExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
   }
 
   private void reloadAdapter() {
@@ -244,7 +239,7 @@ public class FindExperimentsActivity extends Activity {
         if (creator != null){
             creator.setText(experiment.getCreator());
         } else {
-          creator.setText(getContext().getString(R.string.unknown_author_text));
+            creator.setText(getContext().getString(R.string.unknown_author_text));
         }
 //        ImageView iv = (ImageView) view.findViewById(R.id.experimentIconView);
 //        iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));

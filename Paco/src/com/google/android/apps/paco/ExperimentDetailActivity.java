@@ -240,7 +240,7 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
 
       @Override
       public void done() {          
@@ -256,7 +256,7 @@ public class ExperimentDetailActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
+    new DownloadShortExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
 
   }
   

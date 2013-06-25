@@ -21,15 +21,15 @@ import android.os.AsyncTask;
 
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
-class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
+class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Activity enclosingActivity;
   private UserPreferences userPrefs;
   private ExperimentProviderUtil experimentProviderUtil;
-  private DownloadExperimentsTaskListener listener;
+  private DownloadShortExperimentsTaskListener listener;
 
   @SuppressWarnings("unchecked")
-  public DownloadExperimentsTask(Activity activity, 
-                                 DownloadExperimentsTaskListener listener, 
+  public DownloadShortExperimentsTask(Activity activity, 
+                                 DownloadShortExperimentsTaskListener listener, 
                                  UserPreferences userPrefs, 
                                  ExperimentProviderUtil experimentProviderUtil) {
     enclosingActivity = activity;      
@@ -40,19 +40,9 @@ class DownloadExperimentsTask extends AsyncTask<Void, Void, String> {
   }
 
   protected String doInBackground(Void... params) {
-    UrlContentManager manager = null;
-    try {
-      DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, manager, userPrefs);
-      downloadHelper.updateFindExperiments();
-      return null;
-    } catch (Exception e) {
-      // Nothing to be done here for now.
-      return null;
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
-    }
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
+    downloadHelper.updateAvailableExperiments();
+    return null;
   }
 
   protected void onProgressUpdate() {

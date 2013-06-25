@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Preconditions;
 import com.pacoapp.paco.R;
 
 import android.app.Activity;
@@ -57,13 +58,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class ExperimentScheduleActivity extends Activity {
-
-  private static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
-  private static final int INVALID_DATA_ERROR = 1003;
-  private static final int SERVER_ERROR = 1004;
-  private static final int NO_NETWORK_CONNECTION = 1005;
-  
-  static final int ENABLED_NETWORK = 1;
   
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
@@ -95,7 +89,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private boolean showingJoinedExperiments;
   
-  private DownloadFullExperimentsTask expTask;
+  private DownloadFullExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -147,15 +141,17 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void setupScheduleSaving() {
     setupSaveButton();
-    if (userCannotSchedule()) {
+    if (userCannotConfirmSchedule()) {
       save();
     }
   }
   
-  private Boolean userCannotSchedule() {
-    return experiment.getSchedule() == null
-        || (experiment.getSchedule().getUserEditable() != null 
-            && experiment.getSchedule().getUserEditable() == Boolean.FALSE);
+  private Boolean userCannotConfirmSchedule() {
+    if (experiment.getSchedule() != null) {
+      return experiment.getSchedule().getUserEditable() != null 
+              && experiment.getSchedule().getUserEditable() == Boolean.FALSE;
+    }
+    return false;
   }
 
   private void showEsmScheduleConfiguration() {
@@ -584,72 +580,55 @@ public class ExperimentScheduleActivity extends Activity {
   }
   
   private void scheduleExperiment() {
-    saveExperimentRegistration();
+    saveExperimentRegistration();    
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     finish();
   }
   
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
   }
 
   private void requestFullExperiment() {
-     if (!isConnected()) {
-       showDialog(NO_NETWORK_CONNECTION, null);
+     if (!NetworkUtil.isConnected(this)) {
+       showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
     } else {
       DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
         
         @Override
-        public void done() {
-          dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
-          if (checkDownloadSuccess().equals(0)) {
+        public void done(String resultCode) {
+          dismissDialog(DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
+          if (resultCode.equals(DownloadHelper.SUCCESS)) {
             saveDownloadedExperiment();
+          } else {
+            showFailureDialog(resultCode);
           }
         }
       };
-      showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
-      expTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), experimentProviderUtil, experiment);
-      expTask.execute();
+      showDialog(DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
+      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), experimentProviderUtil, experiment);
+      experimentDownloadTask.execute();
     }
   }
   
-  private boolean isConnected() {
-    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
-  }
-  
-  private Integer checkDownloadSuccess() {
-       
-    String status = getTaskStatus();
-    if (!status.equals(DownloadStatusConstants.SUCCESS)) {
-      if (status.equals(DownloadStatusConstants.CONTENT_ERROR) ||
-          status.equals(DownloadStatusConstants.RETRIEVAL_ERROR)) {
-        showDialog(INVALID_DATA_ERROR, null);
-      } else {
-        showDialog(SERVER_ERROR, null);
-      }      
-      return -1;
-    }
-    return 0;
-  }
-  
-  private String getTaskStatus() {
-    try {
-      return expTask.get();
-    } catch (InterruptedException e) {
-      return DownloadStatusConstants.EXECUTION_ERROR;
-    } catch (ExecutionException e) {
-      return DownloadStatusConstants.EXECUTION_ERROR;
-    }
+  private void showFailureDialog(String status) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    } else {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+    }      
   }
   
   private void saveDownloadedExperiment() {
     SignalSchedule oldSchedule = experiment.getSchedule();
-    experiment = expTask.getExperiments().get(0);
+    List<Experiment> experimentList = experimentDownloadTask.getExperiments();
+    Preconditions.checkArgument(experimentList.size() == 1);
+    experiment = experimentList.get(0);
     experiment.setSchedule(oldSchedule);
     scheduleExperiment();
+    Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
   }
 
   private Validation isValid() {
@@ -674,13 +653,13 @@ public class ExperimentScheduleActivity extends Activity {
 
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
-      case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
+      case DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
           return getRefreshJoinedDialog();
-      } case INVALID_DATA_ERROR: {
+      } case DownloadHelper.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case SERVER_ERROR: {
+      } case DownloadHelper.SERVER_ERROR: {
         return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case NO_NETWORK_CONNECTION: {
+      } case DownloadHelper.NO_NETWORK_CONNECTION: {
         return getNoNetworkDialog();
       } default: {
         return getDaysOfWeekDialog();
