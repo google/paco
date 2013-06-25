@@ -30,6 +30,8 @@
 #import "PacoByWeekOrMonthSelectionView.h"
 #import "PacoTableTextCell.h"
 #import "PacoTableView.h"
+#import "PacoExperimentSchedule.h"
+
 
 NSString *kCellIdRepeat = @"repeat";
 NSString *kCellIdSignalTimes = @"times";

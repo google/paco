@@ -24,6 +24,7 @@
 #import "PacoLayout.h"
 #import "PacoModel.h"
 #import "PacoSliderView.h"
+#import "PacoExperimentInput.h"
 
 @interface PacoQuestionView () <MKMapViewDelegate,
                                 PacoCheckboxViewDelegate,
