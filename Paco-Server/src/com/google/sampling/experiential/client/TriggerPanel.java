@@ -19,21 +19,14 @@ package com.google.sampling.experiential.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.TriggerDAO;
 
 /**
@@ -44,6 +37,7 @@ public class TriggerPanel extends Composite {
 
   private MyConstants myConstants;
   private TriggerDAO trigger;
+  private Widget sourceIdentifierPanel;
 
   public TriggerPanel(TriggerDAO triggerDAO) {
     this.trigger = triggerDAO;
@@ -52,6 +46,8 @@ public class TriggerPanel extends Composite {
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
     verticalPanel.add(createTriggerChooser());
+    sourceIdentifierPanel = createTriggerSourceIdentifierChooser();
+    verticalPanel.add(sourceIdentifierPanel);
     verticalPanel.add(createDelayChooser());
 
     TimeoutPanel timeoutPanel = new TimeoutPanel(trigger);
@@ -61,30 +57,55 @@ public class TriggerPanel extends Composite {
     
   }
 
-  private Widget createDelayChooser() {
+  private Widget createTriggerSourceIdentifierChooser() {
     HorizontalPanel line = createHorizontalContainer();
-    line.add(createLabel(myConstants.chooseTriggerDelay()));
-    line.add(createTextEdit());
+    line.add(createLabel(myConstants.chooseTriggerSourceIdentifier()));
+    line.add(createSourceIdentifierTextEdit());
+    line.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT);
     return line;
   }
 
-  private Widget createTextEdit() {
+  private Widget createSourceIdentifierTextEdit() {
+    //create text editor
+    final TextBox valueBox = new TextBox();
+    if (trigger.getSourceIdentifier() != null) {
+      valueBox.setText(trigger.getSourceIdentifier());
+    }
+    valueBox.setEnabled(true);
+    valueBox.addChangeHandler(new ChangeHandler() {
+
+      @Override
+      public void onChange(ChangeEvent event) {
+        trigger.setSourceIdentifier(valueBox.getText());
+      }
+      
+    });
+    return valueBox;
+  }
+
+  private Widget createDelayChooser() {
+    HorizontalPanel line = createHorizontalContainer();
+    line.add(createLabel(myConstants.chooseTriggerDelay()));
+    line.add(createDelayTextEdit());
+    return line;
+  }
+
+  private Widget createDelayTextEdit() {
     //create text editor
     final TextBox valueBox = new TextBox();
     if (trigger.getDelay() != 0) {
       valueBox.setText(Long.toString(trigger.getDelay() / 1000));
     }
     valueBox.setEnabled(true);
-    valueBox.addClickHandler(new ClickHandler() {
+    valueBox.addChangeHandler(new ChangeHandler() {
 
       @Override
-      public void onClick(ClickEvent event) {
+      public void onChange(ChangeEvent event) {
         try {
           trigger.setDelay(Long.parseLong(valueBox.getText()) * 1000);
         } catch (NumberFormatException e) {
           Window.alert("Please enter a valid number in seconds for the trigger delay");
         }
-        
       }
       
     });
@@ -134,6 +155,7 @@ public class TriggerPanel extends Composite {
 
   private void respondToListSelection(int index) {
     trigger.setEventCode(TriggerDAO.EVENTS[index - 1]);
+    sourceIdentifierPanel.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT);
   }
 
 

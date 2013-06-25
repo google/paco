@@ -371,4 +371,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("")
   String defaultListItem();
 
+  @DefaultStringValue("Source of Paco Action")
+  String chooseTriggerSourceIdentifier();
+
 }
