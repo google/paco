@@ -779,7 +779,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 {
   NSAssert(definition != nil && [events count] > 0, @"definition should NOT be nil, or events should have more than one element!");
   
-  NSArray *instances = [[PacoClient sharedInstance].model instancesForExperimentId:definition.experimentId];
+  NSArray *instances = [self instancesForExperimentId:definition.experimentId];
   // Expecting no existing instances in model
   assert([instances count] == 0);
   //need to split events out into each instance via the experiment name == experiment instance id
@@ -803,11 +803,9 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   for (NSString *instanceId in instanceIds) {
     NSArray *instanceEvents = [map objectForKey:instanceId];
     NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
-    PacoExperiment *experiment =
-    [[PacoClient sharedInstance].model
-     addExperimentInstance:definition
-     schedule:definition.schedule
-     events:instanceEvents];
+    PacoExperiment *experiment = [self addExperimentInstance:definition
+                                                    schedule:definition.schedule
+                                                      events:instanceEvents];
     
     //YMZ: confusing, why we are using two different instanceId?
     // Use the instance id from the sorted event map.
