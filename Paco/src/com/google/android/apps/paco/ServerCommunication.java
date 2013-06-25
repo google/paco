@@ -48,10 +48,7 @@ public class ServerCommunication {
   }
 
   public synchronized void checkIn() {
-    if (userPrefs.isExperimentListStale(UserPreferences.FIND_EXPERIMENTS)) {
-      updateFindExperiments();
-    }
-    if (userPrefs.isExperimentListStale(UserPreferences.JOINED_EXPERIMENTS)) {
+    if (userPrefs.isJoinedExperimentsListStale()) {
       updateJoinedExperiments();
     }
     
@@ -78,34 +75,15 @@ public class ServerCommunication {
     return time.isAfter(new DateTime().plusSeconds(10));
   }
 
-  public void updateFindExperiments() {
+  public void updateRunningExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    UrlContentManager manager = null;
-    try {
-      DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, manager, userPrefs);
-      downloadHelper.updateFindExperiments();
-    } catch (Exception e) {
-      // Nothing to be done here for now.
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
-    }
+    DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, userPrefs);
+    downloadHelper.updateAvailableExperiments();
   }
   
   private void updateJoinedExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    UrlContentManager manager = null;
-    try {
-      manager = new UrlContentManager(context);
-      DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, manager, userPrefs);
-      downloadHelper.updateRunningExperiments(experimentProviderUtil.getJoinedExperiments(), true);
-    } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "Exception. Error communicating with server" + ", " + e.getMessage());
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
-    }
+    DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, userPrefs);
+    downloadHelper.updateRunningExperiments(experimentProviderUtil.getJoinedExperiments(), true);
   }
 }

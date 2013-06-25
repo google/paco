@@ -68,30 +68,19 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   }
 
   protected String doInBackground(Void... params) {
-    UrlContentManager manager = null;
-    try {
-      manager = new UrlContentManager(enclosingActivity);
-      DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, manager, userPrefs);
-      String errorCode = downloadHelper.updateRunningExperiments(experiments, isFullJoinedRefresh);
-      experiments = downloadHelper.getExperiments();
-      return errorCode;
-    } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "Exception. Error communicating with server" + ", " + e.getMessage());
-      return DownloadStatusConstants.SERVER_COMMUNICATION_ERROR;
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
-    }
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
+    String errorCode = downloadHelper.updateRunningExperiments(experiments, isFullJoinedRefresh);
+    experiments = downloadHelper.getExperiments();
+    return errorCode;
   }
-  
+   
   protected void onProgressUpdate() {
 
   }
 
-  protected void onPostExecute(String unusedResult) {
+  protected void onPostExecute(String resultCode) {
     if (listener != null) {
-      listener.done();
+      listener.done(resultCode);
     }
   }
 

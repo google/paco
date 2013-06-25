@@ -61,13 +61,6 @@ import android.widget.Toast;
  *
  */
 public class RunningExperimentsActivity extends Activity {
-
-  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
-  private static final int INVALID_DATA_ERROR = 1003;
-  private static final int SERVER_ERROR = 1004;
-  private static final int NO_NETWORK_CONNECTION = 1005;
-  
-  static final int ENABLED_NETWORK = 1;
   
   private static final int DATA_EXPERIMENT_OPTION = 3;
   private static final int STOP_EXPERIMENT_OPTION = 2;
@@ -83,7 +76,7 @@ public class RunningExperimentsActivity extends Activity {
   public UserPreferences userPrefs;
   private BaseAdapter adapter;
   
-  private static DownloadFullExperimentsTask expTask;
+  private static DownloadFullExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +101,7 @@ public class RunningExperimentsActivity extends Activity {
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (!isConnected()) {
-          showDialog(NO_NETWORK_CONNECTION, null);
+          showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
         } else {
           refreshList();
         }
@@ -125,9 +118,7 @@ public class RunningExperimentsActivity extends Activity {
   }
   
   private boolean isConnected() {
-    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
+    return NetworkUtil.isConnected(this);
   }
   
   
@@ -135,17 +126,19 @@ public class RunningExperimentsActivity extends Activity {
     DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
       
       @Override
-      public void done() {
+      public void done(String resultCode) {
         refreshRefreshHeader();
-        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        checkDownloadSuccess();
+        dismissDialog(DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID);
+        if (resultCode != DownloadHelper.SUCCESS) {
+          showFailureDialog(resultCode);
+        }
       }
     };
  
-    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    showDialog(DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID);
     List<Experiment> joinedExperiments = experimentProviderUtil.getJoinedExperiments();
-    expTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, joinedExperiments, true);
-    expTask.execute();
+    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, joinedExperiments, true);
+    experimentDownloadTask.execute();
   }
   
   private void refreshRefreshHeader() {
@@ -155,26 +148,13 @@ public class RunningExperimentsActivity extends Activity {
     listHeader.setText(header); 
   }
   
-  private void checkDownloadSuccess() {
-    String status = getTaskStatus();
-    if (!status.equals(DownloadStatusConstants.SUCCESS)) {
-      if (status.equals(DownloadStatusConstants.CONTENT_ERROR) ||
-          status.equals(DownloadStatusConstants.RETRIEVAL_ERROR)) {
-        showDialog(INVALID_DATA_ERROR, null);
-      } else {
-        showDialog(SERVER_ERROR, null);
-      }      
-    }
-  }
-  
-  private String getTaskStatus() {
-    try {
-      return expTask.get();
-    } catch (InterruptedException e) {
-      return DownloadStatusConstants.EXECUTION_ERROR;
-    } catch (ExecutionException e) {
-      return DownloadStatusConstants.EXECUTION_ERROR;
-    }
+  private void showFailureDialog(String status) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    } else {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+    }      
   }
  
   
@@ -304,13 +284,13 @@ public class RunningExperimentsActivity extends Activity {
   
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
-      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
+      case DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID: {
           return getRefreshJoinedDialog();
-      } case INVALID_DATA_ERROR: {
+      } case DownloadHelper.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case SERVER_ERROR: {
+      } case DownloadHelper.SERVER_ERROR: {
         return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case NO_NETWORK_CONNECTION: {
+      } case DownloadHelper.NO_NETWORK_CONNECTION: {
         return getNoNetworkDialog();
       } default: {
         return null;
@@ -325,7 +305,7 @@ public class RunningExperimentsActivity extends Activity {
   
   private ProgressDialog getRefreshJoinedDialog() {
     return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                               getString(R.string.retrieving_your_joined_experiment_from_the_server), 
+                               getString(R.string.updating_your_joined_experiments_from_the_server), 
                                true, true);
   }
   
@@ -361,7 +341,7 @@ public class RunningExperimentsActivity extends Activity {
   }
   
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
   }
   
   

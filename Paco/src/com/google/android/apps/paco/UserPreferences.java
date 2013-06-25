@@ -130,7 +130,15 @@ public class UserPreferences {
     return appPrefs;
   }
   
-  public boolean isExperimentListStale(String refreshType) {
+  public boolean isAvailableExperimentsListStale() {
+    return isExperimentListStale(FIND_EXPERIMENTS);
+  }
+  
+  public boolean isJoinedExperimentsListStale() {
+    return isExperimentListStale(JOINED_EXPERIMENTS);
+  }
+  
+  private boolean isExperimentListStale(String refreshType) {
     if (refreshType.equals(FIND_EXPERIMENTS)) {
       return (new Date().getTime() - getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, 
           0l)) >= FIND_LIST_REFRESH_TIMEOUT;
