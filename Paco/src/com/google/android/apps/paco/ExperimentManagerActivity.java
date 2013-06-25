@@ -52,6 +52,7 @@ import android.widget.ImageButton;
  */
 public class ExperimentManagerActivity extends Activity {
 
+  private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
   private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
   private static final int RINGTONE_REQUESTCODE = 945;
@@ -285,7 +286,9 @@ public class ExperimentManagerActivity extends Activity {
     Cursor c = mediaStoreContentProvider.query(uri, null, null, null, null);
     boolean alreadyInstalled = false;
     while (c.moveToNext()) {
-      if (PACO_BARK_RINGTONE_TITLE.equals(c.getString(7))) {
+      int titleColumnIndex = c.getColumnIndex(RINGTONE_TITLE_COLUMN_NAME);
+      String ringtoneTitle = c.getString(titleColumnIndex);
+      if (PACO_BARK_RINGTONE_TITLE.equals(ringtoneTitle)) {
         alreadyInstalled = true;
       }
     }
