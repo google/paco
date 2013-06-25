@@ -284,5 +284,6 @@
    <string name="no_thanks">No, Thanks.</string>
    <string name="go_to_network_settings">Network Settings</string>
    <string name="last_refreshed">Last Refreshed</string>
-   
+   <string name="answer_by_speaking">Answer by speaking</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
 </resources>

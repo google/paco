@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.Locale;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -28,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,6 +40,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -81,6 +84,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private Button doOnPhoneButton;
   private Button doOnWebButton;
   private TextView warningText;
+  
+  private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
+  public static final int RESULT_SPEECH = 3;
   
   private static DownloadFullExperimentsTask expTask;
 
@@ -644,6 +650,43 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     }
   }
 
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
 
+    if (requestCode == RESULT_SPEECH) {
+      handleSpeechRecognitionActivityResult(resultCode, data);
+    }
+  }
+
+  private void handleSpeechRecognitionActivityResult(int resultCode, Intent data) {
+    if (resultCode == Activity.RESULT_OK && null != data) {
+      ArrayList<String> guesses = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+      notifySpeechRecognitionListeners(guesses);
+    }
+  }
+
+  private void notifySpeechRecognitionListeners(ArrayList<String> guesses) {
+    for (SpeechRecognitionListener listener : speechRecognitionListeners) {
+      listener.speechRetrieved(guesses);
+    }    
+  }
+  
+  public void removeSpeechRecognitionListener(SpeechRecognitionListener listener) {
+    speechRecognitionListeners.remove(listener);
+  }
+
+  public void startSpeechRecognition(SpeechRecognitionListener listener) {
+    speechRecognitionListeners .add(listener);
+    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());  
+
+    try {
+      startActivityForResult(intent, RESULT_SPEECH);
+    } catch (ActivityNotFoundException a) {
+      Toast t = Toast.makeText(getApplicationContext(), R.string.oops_your_device_doesn_t_support_speech_to_text, Toast.LENGTH_SHORT);
+      t.show();
+    }    
+  }
 
 }
