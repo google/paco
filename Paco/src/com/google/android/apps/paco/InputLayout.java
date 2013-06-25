@@ -17,11 +17,16 @@
 package com.google.android.apps.paco;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +60,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Spinner;
@@ -62,11 +68,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
+  private static final String AUTOCOMPLETE_DATA_FILE_NAME = "autocompleteData";
   private Input input;
   private View componentWithValue;
   private List<ChangeListener> inputChangeListeners;
@@ -261,7 +270,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private final int IMAGE_MAX_SIZE = 600;
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
-  private EditText openTextView;
+  private MultiAutoCompleteTextView openTextView;
+  private List<String> autocompleteDatabase;
 
   private Bitmap decodeFile(File f) {
     Bitmap b = null;
@@ -373,7 +383,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   private String getOpenTextValue() {
-    return ((EditText) componentWithValue).getText().toString();
+    String text = ((EditText) componentWithValue).getText().toString();
+    updateAutoCompleteDatabase(text);
+    return text;
   }
 
   private Integer getNumberValue() {
@@ -738,14 +750,19 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderOpenText() {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
-    openTextView = (EditText) findViewById(R.id.open_text_answer);
+    openTextView = (MultiAutoCompleteTextView) findViewById(R.id.open_text_answer);
+    openTextView.setThreshold(1);
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
-    openTextView.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+    openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+    ensureAutoCompleteDatabase();
+    openTextView.setAdapter(new ArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
+    openTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
         if (v.equals(openTextView) && !hasFocus) {
+          updateAutoCompleteDatabase(openTextView.getText().toString());
           notifyChangeListeners();
         }
       }
@@ -761,6 +778,84 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     });
     return openTextView;
   }
+
+  private void ensureAutoCompleteDatabase() {
+    if (autocompleteDatabase == null) {
+      autocompleteDatabase = loadAutocomleteDataFromDisk();
+    }    
+  }
+  
+  private void updateAutoCompleteDatabase(String responseText) {
+    ensureAutoCompleteDatabase();
+    addWordToAutocompleteDatabase(responseText);
+    Iterable<String> words = Splitter.on(" ").trimResults().split(responseText);
+    for (String word : words) {
+      addWordToAutocompleteDatabase(word);
+    }
+    
+    saveAutocompleteToDisk();    
+  }
+
+  private void addWordToAutocompleteDatabase(String word) {
+    if (autocompleteDatabase.contains(word)) {
+      return;
+    }      
+    autocompleteDatabase.add(word);
+  }
+
+  private void saveAutocompleteToDisk() {
+    OutputStreamWriter f = null;
+    try {
+      f = new OutputStreamWriter(getContext().openFileOutput(AUTOCOMPLETE_DATA_FILE_NAME, getContext().MODE_PRIVATE));
+      BufferedWriter buf = new BufferedWriter(f);
+      for (String word : autocompleteDatabase) {
+        f.write(word);
+        f.write("\n");
+      }
+      f.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (f != null) {
+        try {
+          f.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private List<String> loadAutocomleteDataFromDisk() {
+    List<String> lines = Lists.newArrayList();
+    BufferedReader buf = null;
+      try {
+        InputStream in = getContext().openFileInput(AUTOCOMPLETE_DATA_FILE_NAME); 
+        if (in != null) {
+          buf = new BufferedReader(new InputStreamReader(in));                   
+          String line = null; 
+          while ((line = buf.readLine()) != null) {
+            lines.add(line);
+          }
+        }
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        try {
+          if (buf != null) {
+            buf.close();
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      return lines;
+    }
+     
 
   private void launchSpeechRecognizer() {
     ((ExperimentExecutor)getContext()).startSpeechRecognition(this);
@@ -851,9 +946,10 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   public void speechRetrieved(List<String> text) {
     String message = openTextView.getText().toString();
     if (text.size() >= 1) {
-      String bestPhrase = text.get(0);
+      String bestPhrase = text.get(0);      
       message += bestPhrase;
       openTextView.setText(message);
+      updateAutoCompleteDatabase(bestPhrase);
     } else {
       Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
     }    

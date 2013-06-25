@@ -24,14 +24,13 @@
         android:layout_height="match_parent"
         android:orientation="horizontal" >
 
-        <EditText
+        <MultiAutoCompleteTextView
             android:id="@+id/open_text_answer"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:inputType="textCapSentences" >
-        </EditText>
+            android:layout_gravity="center"/>
+        
 
         <ImageButton
             android:id="@+id/micButton"
