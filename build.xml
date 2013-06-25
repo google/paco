@@ -20,14 +20,41 @@
         <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="clean"/>
     </target>
     
-    <target description="Build all projects." name="build">
-        <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="build"/>
+  <target name="build-shared">
+    <subant target="build">
+      <fileset dir="${Shared.location}" includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="build-android-lib">
+    <subant target="debug">
+      <fileset dir="${PacoAndroidLib.location}" includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="build-android">
+    <subant target="debug">
+      <fileset dir="${Paco.location}" includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="build-android-test">
+    <subant target="debug">
+      <fileset dir="${PacoTest.location}" includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="build-server">
+    <subant target="build">
+      <fileset dir="${Paco-Server.location}" includes="build.xml"/>
+    </subant>
+  </target>
+
+
+   <target description="copy shared.jar to Paco and Paco-Server" name="copy-shared" depends="build-shared">
 	<copy file="${Shared.location}/dist/shared.jar" todir="${Paco.location}/libs" />
 	<copy file="${Shared.location}/dist/shared.jar" todir="${Paco-Server.location}/war/WEB-INF/lib" />
-        <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="debug"/>	
-        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="debug"/>	
-        <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="build"/>
-    </target>
+   </target>
 
     <target description="Run tests in all projects." name="test">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="test"/>
@@ -35,5 +62,10 @@
 <!--        <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="javatest"/> -->
         <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="test"/>
     </target>
+
+
+    <target description="Build all projects." name="build" depends="copy-shared,build-android-lib,build-android,build-android-test,build-server">
+    </target>
+
 
 </project>

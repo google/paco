@@ -43,7 +43,13 @@
     </copy>
   </target>
 
-  <target name="compile" depends="copyjars"
+  <target name="build-shared">
+    <subant target="copy-shared">
+      <fileset dir=".." includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="compile" depends="build-shared,copyjars"
       description="Compiles Java source and copies other source files to the WAR.">
     <mkdir dir="war/WEB-INF/classes" />
     <copy todir="war/WEB-INF/classes">

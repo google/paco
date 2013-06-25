@@ -115,7 +115,8 @@ public class DAOConverter {
   }
 
   private static TriggerDAO createTriggerDAO(Trigger trigger) {
-    return new TriggerDAO(trigger.getId().getId(), trigger.getEventCode(), trigger.getDelay(), trigger.getTimeout());
+    return new TriggerDAO(trigger.getId().getId(), trigger.getEventCode(), trigger.getSourceIdentifier(), 
+                          trigger.getDelay(), trigger.getTimeout());
   }
 
   /**
@@ -220,8 +221,8 @@ public class DAOConverter {
   private static Trigger fromTriggerDAO(Key key, TriggerDAO signalingMechanismDAO) {
     Trigger trigger = new Trigger(key, signalingMechanismDAO.getId(),
                                                  signalingMechanismDAO.getEventCode(),
-                                                 signalingMechanismDAO.getDelay(),
-                                                 signalingMechanismDAO.getTimeout());
+                                                 signalingMechanismDAO.getSourceIdentifier(),
+                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout());
                                                  return trigger; 
   }
 

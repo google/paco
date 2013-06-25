@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 
@@ -22,7 +23,6 @@ import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -30,6 +30,9 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class ExperimentCacheHelper {
 
   public static final String EXPERIMENT_CACHE_KEY = "EXPERIMENT_CACHE_KEY";
+  
+  public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
+
 
   private static ExperimentCacheHelper instance;
 
@@ -139,7 +142,13 @@ public class ExperimentCacheHelper {
     experimentDAOs = getExperimentsFromDatastore();
     
     if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {      
-      cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      
+      try {
+        cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      } catch (Exception e) {
+        log.severe("Could not put experiment entry in cache:" + e.getMessage());
+      }
+      
       return experimentDAOs;
     } else {
       return Collections.EMPTY_LIST;   

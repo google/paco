@@ -15,11 +15,11 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest android:versionCode='79' xmlns:android='http://schemas.android.com/apk/res/android' package='com.pacoapp.paco' android:versionName='2.0.79'>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+<manifest package='com.pacoapp.paco' android:versionCode='81' android:versionName='2.0.81' xmlns:android='http://schemas.android.com/apk/res/android'>
+    <uses-permission android:name='android.permission.READ_PHONE_STATE'/>
     
 
-    <application android:debuggable='true' android:label='@string/app_name' android:theme='@style/PacoTheme' android:icon='@drawable/paco64'>
+    <application android:label='@string/app_name' android:theme='@style/PacoTheme' android:debuggable='true' android:icon='@drawable/paco64'>
         <activity android:name='com.google.android.apps.paco.ExperimentManagerActivity'>
             <intent-filter>
                 <action android:name='android.intent.action.MAIN'/>
@@ -36,8 +36,7 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:name='com.google.android.apps.paco.FindExperimentsActivity'
-            android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' >
+        <activity android:name='com.google.android.apps.paco.FindExperimentsActivity' android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden'>
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
 
@@ -56,7 +55,7 @@
             </intent-filter>
         </activity>
         
-        <activity android:configChanges='orientation|keyboard|keyboardHidden' android:name='com.google.android.apps.paco.ExploreDataActivity'>
+        <activity android:name='com.google.android.apps.paco.ExploreDataActivity' android:configChanges='orientation|keyboard|keyboardHidden'>
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
 
@@ -65,7 +64,7 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:label='Join Experiment' android:name='com.google.android.apps.paco.ExperimentDetailActivity'>
+        <activity android:name='com.google.android.apps.paco.ExperimentDetailActivity' android:label='Join Experiment'>
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
                 <action android:name='android.intent.action.EDIT'/>
@@ -82,9 +81,9 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.ExperimentScheduleActivity' android:windowSoftInputMode='stateHidden'/>
-        <activity android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden' android:name='com.google.android.apps.paco.InformedConsentActivity'/>
-        <activity android:configChanges='orientation|keyboardHidden' android:label='Record Data in Experiment' android:name='com.google.android.apps.paco.ExperimentExecutor' android:windowSoftInputMode='stateHidden'>
+        <activity android:name='com.google.android.apps.paco.ExperimentScheduleActivity' android:screenOrientation='portrait' android:windowSoftInputMode='stateHidden' android:configChanges='orientation|keyboardHidden'/>
+        <activity android:name='com.google.android.apps.paco.InformedConsentActivity' android:screenOrientation='portrait' android:configChanges='orientation|keyboardHidden'/>
+        <activity android:name='com.google.android.apps.paco.ExperimentExecutor' android:label='Record Data in Experiment' android:windowSoftInputMode='stateHidden' android:configChanges='orientation|keyboardHidden'>
             <intent-filter>
                 <category android:name='android.intent.category.LAUNCHER'/>
             </intent-filter>
@@ -102,7 +101,7 @@
                 <category android:name='android.intent.category.BROWSABLE'/>
             </intent-filter>
         </activity>
-        <activity android:noHistory='true' android:label='Visualize Experiment Data' android:name='com.google.android.apps.paco.FeedbackActivity'>
+        <activity android:name='com.google.android.apps.paco.FeedbackActivity' android:label='Visualize Experiment Data' android:noHistory='true'>
             <intent-filter>
                 <category android:name='android.intent.category.LAUNCHER'/>
             </intent-filter>
@@ -117,19 +116,19 @@
         <activity android:name='com.google.android.apps.paco.WelcomeActivity'/>
         <activity android:name='com.google.android.apps.paco.AccountChooser'/>
         
-        <activity android:screenOrientation='portrait' android:label='ESM Signal Viewer' android:name='com.google.android.apps.paco.ESMSignalViewer'>
+        <activity android:name='com.google.android.apps.paco.ESMSignalViewer' android:screenOrientation='portrait' android:label='ESM Signal Viewer'>
             <intent-filter>
                 <action android:name='com.google.android.apps.paco.ESM_SIGNALS'/>
 
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
         </activity>
-        <activity android:label='Paco Server Configuration' android:name='com.google.android.apps.paco.ServerConfiguration'>
+        <activity android:name='com.google.android.apps.paco.ServerConfiguration' android:label='Paco Server Configuration'>
             <intent-filter>
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
         </activity>
-        <activity android:label='Paco Raw Data Viewer' android:name='com.google.android.apps.paco.RawDataActivity'>
+        <activity android:name='com.google.android.apps.paco.RawDataActivity' android:label='Paco Raw Data Viewer'>
             <intent-filter>
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
@@ -162,7 +161,7 @@
                 <category android:name='android.intent.category.DEFAULT'/>
             </intent-filter>
         </receiver>
-        <receiver android:process=':remote' android:name='com.google.android.apps.paco.NetworkChangeReceiver'>
+        <receiver android:name='com.google.android.apps.paco.NetworkChangeReceiver' android:process=':remote'>
             <intent-filter>
                 <action android:name='android.net.conn.CONNECTIVITY_CHANGE'/>
             </intent-filter>
@@ -177,21 +176,21 @@
             <intent-filter>
                 <action android:name='android.intent.action.PACKAGE_REPLACED'/>
 
-                <data android:path='com.google.android.apps.paco' android:scheme='package'/>
+                <data android:scheme='package' android:path='com.google.android.apps.paco'/>
             </intent-filter>
         </receiver>
 
-        <provider android:authorities='com.google.android.apps.paco.signal' android:exported='false' android:name='com.google.android.apps.paco.SignalProvider'/>
-        <provider android:authorities='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:name='com.google.android.apps.paco.ExperimentProvider'/>
-        <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver">
+        <provider android:name='com.google.android.apps.paco.SignalProvider' android:exported='false' android:authorities='com.google.android.apps.paco.signal'/>
+        <provider android:name='com.google.android.apps.paco.ExperimentProvider' android:exported='false' android:authorities='com.google.android.apps.paco.ExperimentProvider'/>
+        <receiver android:name='com.google.android.apps.paco.BroadcastTriggerReceiver'>
             <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE_CHANGED"/>
-            </intent-filter>
-            <intent-filter>
-                     <action android:name="android.intent.action.PHONE_STATE" />
+               <action android:name='android.intent.action.PHONE_STATE_CHANGED'/>
+               <action android:name='android.intent.action.PHONE_STATE'/>
+               <action android:name='android.intent.action.USER_PRESENT'/>
+               <action android:name='com.pacoapp.paco.action.PACO_TRIGGER'/>
             </intent-filter>
         </receiver>
-        <service android:name="com.google.android.apps.paco.BroadcastTriggerService"></service>
+        <service android:name='com.google.android.apps.paco.BroadcastTriggerService'/>
     </application>
 
     <uses-permission android:name='android.permission.GET_ACCOUNTS'>
@@ -216,7 +215,6 @@
     <uses-permission android:name='android.permission.CAMERA'/>
 
     <uses-feature android:name='android.hardware.camera'/>
-    <uses-feature android:name='android.hardware.camera.autofocus'/>
 
     <uses-permission android:name='android.permission.WRITE_EXTERNAL_STORAGE'/>
     <uses-permission android:name='android.permission.WAKE_LOCK'/>
