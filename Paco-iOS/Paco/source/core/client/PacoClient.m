@@ -20,6 +20,9 @@
 #import "PacoModel.h"
 #import "PacoScheduler.h"
 #import "PacoService.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoEvent.h"
+
 
 static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";

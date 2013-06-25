@@ -31,6 +31,7 @@
 #import "PacoTableTextCell.h"
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoExperimentDefinition.h"
 
 
 NSString *kCellIdRepeat = @"repeat";

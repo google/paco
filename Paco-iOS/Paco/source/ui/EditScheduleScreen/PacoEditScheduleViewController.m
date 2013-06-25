@@ -22,6 +22,7 @@
 #import "PacoService.h"
 #import "PacoTableView.h"
 #import "PacoTitleView.h"
+#import "PacoExperimentDefinition.h"
 
 @interface PacoEditScheduleViewController ()
 

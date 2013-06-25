@@ -20,6 +20,7 @@
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
 #import "PacoTitleView.h"
+#import "PacoExperimentDefinition.h"
 
 @interface PacoExperimentDetailsViewController ()
 

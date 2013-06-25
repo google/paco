@@ -19,6 +19,7 @@
 #import "PacoConfig.h"
 #import "PacoDate.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoExperiment.h"
 
 @interface PacoScheduleUnit : NSObject
 @property (retain) PacoExperiment *experiment;

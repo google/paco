@@ -21,6 +21,7 @@
 #import "PacoFont.h"
 #import "PacoModel.h"
 #import "PacoTitleView.h"
+#import "PacoExperimentDefinition.h"
 
 
 

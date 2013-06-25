@@ -21,64 +21,9 @@ extern NSString* const PacoExperimentInstancesUpdateNotification;
 
 @class PacoModel;
 @class PacoExperimentSchedule;
+@class PacoExperimentDefinition;
+@class PacoExperiment;
 
-
-
-@interface PacoExperimentDefinition : NSObject
-@property (retain) NSArray *admins;  // <NSString>
-@property (copy) NSString *creator;
-@property (assign) BOOL deleted;
-@property (copy) NSString *experimentDescription;
-@property (retain) NSArray *feedback;  // <PacoExperimentFeedback>
-@property (assign) BOOL fixedDuration;
-@property (copy) NSString *experimentId;
-@property (copy) NSString *informedConsentForm;
-@property (retain) NSArray *inputs;  // <PacoExperimentInput>
-@property (assign) long long modifyDate;
-@property (assign) BOOL published;
-@property (retain) NSArray *publishedUsers;  // <NSString>
-@property (assign) BOOL questionsChange;
-@property (retain) PacoExperimentSchedule *schedule;
-@property (copy) NSString *title;
-@property (assign) BOOL webReccommended;
-@property (retain) id jsonObject;
-+ (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
-- (void)tagQuestionsForDependencies;
-@end
-
-@interface PacoEvent : NSObject
-@property (copy) NSString *who;
-@property (retain) NSDate *when;
-@property (assign) long long latitude;
-@property (assign) long long longitude;
-@property (retain) NSDate *responseTime;
-@property (retain) NSDate *scheduledTime;
-@property (readonly, copy) NSString *appId;
-@property (readonly, copy) NSString *pacoVersion;
-@property (copy) NSString *experimentId;
-@property (copy) NSString *experimentName;
-@property (retain) NSArray *responses;  // <NSDictionary>
-@property (retain) id jsonObject;
-+ (id)pacoEventForIOS;
-+ (id)pacoEventFromJSON:(id)jsonObject;
-- (id)jsonObject;
-- (id)generateJsonObject;
-@end
-
-@interface PacoExperiment : NSObject
-@property (retain) PacoExperimentDefinition *definition;
-@property (retain) NSArray *events;
-@property (copy) NSString *instanceId;
-@property (assign) long long lastEventQueryTime;
-@property (retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
-//@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
-@property (retain) id jsonObject;
-
-- (id)serializeToJSON;
-- (void)deserializeFromJSON:(id)json model:(PacoModel *)model;
-
-- (BOOL)haveJoined;
-@end
 
 @interface PacoModel : NSObject
 @property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
