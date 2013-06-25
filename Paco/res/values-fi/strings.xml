@@ -273,6 +273,7 @@
    <string name="updated_paco_notification_content_title">Paco Update</string>
    <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
    <string name="default_list_item"/>
-   
+   <string name="answer_by_speaking">Answer by speaking</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
    
 </resources>
