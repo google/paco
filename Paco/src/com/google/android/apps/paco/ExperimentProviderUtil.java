@@ -137,7 +137,7 @@ public class ExperimentProviderUtil {
   }
   
   private Long getJoinDateMillis(Experiment experiment) {
-    return TimeUtil.unformatDate(experiment.getJoinDate()).getMillis();
+    return TimeUtil.unformatDateWithZone(experiment.getJoinDate()).getMillis();
   }
 
   private void loadScheduleForExperiment(Experiment experiment) {

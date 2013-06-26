@@ -24,6 +24,7 @@ import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
 import com.google.sampling.experiential.model.Trigger;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class DAOConverter {
 
@@ -214,7 +215,7 @@ public class DAOConverter {
   }
   
   private static String getTodayAsString() {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
     return new DateTime().toString(formatter);
   }
 

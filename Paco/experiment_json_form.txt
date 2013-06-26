@@ -12,7 +12,7 @@ experiment : {
   hash : bytes/string,
   icon : bytes/url,
   questionsChange : boolean (1 | 0),
-  joinDate : date as string of form yyyy/MM/dd,
+  joinDate : date as string of form yyyy/MM/ddZ,
   modifyDate : date as string of form yyyy/MM/dd of last time this experiment was changed,
 
   scheduleDetails : {

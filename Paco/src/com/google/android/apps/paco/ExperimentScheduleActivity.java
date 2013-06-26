@@ -573,7 +573,7 @@ public class ExperimentScheduleActivity extends Activity {
       }
     }
     if (experiment.getJoinDate() == null) {
-      experiment.setJoinDate(getTodayAsString());
+      experiment.setJoinDate(getTodayAsStringWithZone());
       experimentProviderUtil.insertFullJoinedExperiment(experiment);
       createJoinEvent();
       startService(new Intent(this, SyncService.class));
@@ -582,8 +582,8 @@ public class ExperimentScheduleActivity extends Activity {
     }
   }
   
-  private String getTodayAsString() {
-    return TimeUtil.formatDate(new DateTime().getMillis());
+  private String getTodayAsStringWithZone() {
+    return TimeUtil.formatDateWithZone(new DateTime().getMillis());
   }
 
   private void saveRepeatRate() {

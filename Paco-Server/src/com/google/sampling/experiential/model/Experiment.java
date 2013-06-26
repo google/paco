@@ -288,15 +288,36 @@ public class Experiment {
   }
 
   public String getJoinDate() {
-    return getDateAsString(joinDate);
+    return getJoinDateAsString();
   }
 
+  private String getJoinDateAsString() {
+    if (joinDate == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_WITH_ZONE_FORMAT);
+    return formatter.format(joinDate);
+  }
+  
   public void setJoinDate(String joinDateStr) {
       setFormattedJoinDate(joinDateStr);
   }
   
   private void setFormattedJoinDate(String joinDateStr) {
-    this.joinDate = getFormattedDate(joinDateStr);
+    this.joinDate = getFormattedJoinDate(joinDateStr);
+  }
+  
+  private Date getFormattedJoinDate(String inputDateStr) {
+    if (inputDateStr == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_WITH_ZONE_FORMAT);
+    try {
+      return formatter.parse(inputDateStr);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
+                                         ". Format is " + TimeUtil.DATE_WITH_ZONE_FORMAT);
+    }
   }
   
   public List<Input> getInputs() {
