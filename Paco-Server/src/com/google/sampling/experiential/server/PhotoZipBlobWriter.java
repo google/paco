@@ -33,19 +33,37 @@ public class PhotoZipBlobWriter {
   public String writePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId) {    
     FileService fileService = FileServiceFactory.getFileService();
     AppEngineFile file = null;
+    FileWriteChannel writeChannel  = null;
+    ZipOutputStream zip = null;
     try {
       file = fileService.createNewBlobFile("application/zip", "photos_" + experimentId + ".zip");
       boolean lock = true;
-      FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+      writeChannel = fileService.openWriteChannel(file, lock);
       OutputStream blobOutputStream = Channels.newOutputStream(writeChannel);
-      ZipOutputStream zip = new ZipOutputStream(blobOutputStream);
+      zip = new ZipOutputStream(blobOutputStream);
       addPhotoEventsToZip(getEventsWithPhotos(events), zip, anon);
-      zip.close();
-      writeChannel.closeFinally();
       
       return fileService.getBlobKey(file).getKeyString();
     } catch (IOException e) {
-      throw new RuntimeException(" Writing photo zip into blobStore", e);
+      throw new RuntimeException("Writing photo zip into blobStore", e);
+    } finally {
+      if (zip != null) {
+        try {
+          zip.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      if (writeChannel != null) {
+        try {
+          writeChannel.closeFinally();
+        } catch (IllegalStateException e) {
+          throw new RuntimeException("Writing photo zip into blobStore", e);
+        } catch (IOException e) {
+          throw new RuntimeException("Writing photo zip into blobStore", e);
+        }
+      }
+      
     }
   }
 
