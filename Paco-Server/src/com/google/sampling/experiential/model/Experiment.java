@@ -88,7 +88,7 @@ public class Experiment {
     this.informedConsentForm = informedConsentForm;
     this.schedule = schedule;
     this.questionsChange = questionsCanChange;
-    this.modifyDate = getFormattedDate(modifyDate);
+    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
     this.inputs = Lists.newArrayList();
     feedback = Lists.newArrayList();
     this.published = published;
@@ -256,7 +256,7 @@ public class Experiment {
   }
 
   public String getStartDate() {
-    return getDateAsString(startDate);
+    return getDateAsString(startDate, TimeUtil.DATE_FORMAT);
   }
 
   public void setStartDate(String startDateStr) {
@@ -264,11 +264,11 @@ public class Experiment {
   }
   
   private void setFormattedStartDate(String startDateStr) {
-    this.startDate = getFormattedDate(startDateStr);
+    this.startDate = getFormattedDate(startDateStr, TimeUtil.DATE_FORMAT);
   }
 
   public String getEndDate() {
-    return getDateAsString(endDate);
+    return getDateAsString(endDate, TimeUtil.DATE_FORMAT);
   }
   
   public void setEndDate(String endDateStr) {
@@ -276,7 +276,7 @@ public class Experiment {
   }
 
   private void setFormattedEndDate(String endDateStr) {
-    this.endDate = getFormattedDate(endDateStr);
+    this.endDate = getFormattedDate(endDateStr, TimeUtil.DATE_FORMAT);
   }
 
   public String getHash() {
@@ -292,11 +292,7 @@ public class Experiment {
   }
 
   private String getJoinDateAsString() {
-    if (joinDate == null) {
-      return null;
-    }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_WITH_ZONE_FORMAT);
-    return formatter.format(joinDate);
+    return getDateAsString(joinDate, TimeUtil.DATE_WITH_ZONE_FORMAT);
   }
   
   public void setJoinDate(String joinDateStr) {
@@ -304,22 +300,9 @@ public class Experiment {
   }
   
   private void setFormattedJoinDate(String joinDateStr) {
-    this.joinDate = getFormattedJoinDate(joinDateStr);
+    this.joinDate = getFormattedDate(joinDateStr, TimeUtil.DATE_WITH_ZONE_FORMAT);
   }
-  
-  private Date getFormattedJoinDate(String inputDateStr) {
-    if (inputDateStr == null) {
-      return null;
-    }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_WITH_ZONE_FORMAT);
-    try {
-      return formatter.parse(inputDateStr);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
-                                         ". Format is " + TimeUtil.DATE_WITH_ZONE_FORMAT);
-    }
-  }
-  
+
   public List<Input> getInputs() {
     return inputs;
   }
@@ -337,7 +320,7 @@ public class Experiment {
   }
 
   public String getModifyDate() {
-    return getDateAsString(modifyDate);
+    return getDateAsString(modifyDate, TimeUtil.DATE_FORMAT);
   }
 
   public void setModifyDate(String modifyDateStr) {
@@ -345,7 +328,7 @@ public class Experiment {
   }
   
   private void setFormattedModifyDate(String modifyDateStr) {
-    this.modifyDate = getFormattedDate(modifyDateStr);
+    this.modifyDate = getFormattedDate(modifyDateStr, TimeUtil.DATE_FORMAT);
   }
   /**
    * @param published
@@ -453,24 +436,24 @@ public class Experiment {
     }
   }
   
-  private String getDateAsString(Date date) {
+  private String getDateAsString(Date date, String dateFormat) {
     if (date == null) {
       return null;
     }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
+    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
     return formatter.format(date);
   }
   
-  private Date getFormattedDate(String inputDateStr) {
+  private Date getFormattedDate(String inputDateStr, String dateFormat) {
     if (inputDateStr == null) {
       return null;
     }
-    SimpleDateFormat formatter = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
+    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
     try {
       return formatter.parse(inputDateStr);
     } catch (ParseException e) {
       throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
-                                         ". Format is " + TimeUtil.DATE_FORMAT);
+                                         ". Format is " + dateFormat);
     }
   }
   
