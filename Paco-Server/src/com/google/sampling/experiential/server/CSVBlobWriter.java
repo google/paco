@@ -39,11 +39,7 @@ public class CSVBlobWriter {
 
   public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events, 
                                                    String jobId, String clientTimezone) throws IOException {
-
-   TimeLogger.logTimestamp("T6:");
    sortEventDAOs(events);
-   TimeLogger.logTimestamp("T7:");
-
    List<String[]> eventsCSV = Lists.newArrayList();
 
    Set<String> foundColumnNames = Sets.newHashSet();
@@ -99,7 +95,6 @@ public class CSVBlobWriter {
    out.close();
    writeChannel.closeFinally();
    BlobKey blobKey = fileService.getBlobKey(file);
-   TimeLogger.logTimestamp("T9:");
    return blobKey.getKeyString();
  }
 
@@ -132,10 +127,6 @@ public class CSVBlobWriter {
  }
 
  String writeNormalExperimentEventsAsCSV(boolean anon, List<Event> events, String jobId) throws IOException {
-   TimeLogger.logTimestamp("T6:");
-   EventRetriever.sortEvents(events);
-   TimeLogger.logTimestamp("T7:");
-
    List<String[]> eventsCSV = Lists.newArrayList();
 
    Set<String> foundColumnNames = Sets.newHashSet();
@@ -149,7 +140,6 @@ public class CSVBlobWriter {
    for (Event event : events) {
      eventsCSV.add(event.toCSV(columns, anon));
    }
-   TimeLogger.logTimestamp("T8:");
    // add back in the standard pacot event columns
    columns.add(0, "who");
    columns.add(1, "when");
@@ -191,7 +181,6 @@ public class CSVBlobWriter {
    out.close();
    writeChannel.closeFinally();
    BlobKey blobKey = fileService.getBlobKey(file);
-   TimeLogger.logTimestamp("T9:");
    return blobKey.getKeyString();
 
  }
