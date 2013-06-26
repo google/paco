@@ -781,7 +781,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private void ensureAutoCompleteDatabase() {
     if (autocompleteDatabase == null) {
-      autocompleteDatabase = loadAutocomleteDataFromDisk();
+      autocompleteDatabase = loadAutocompleteDataFromDisk();
     }    
   }
   
@@ -828,7 +828,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     }
   }
 
-  private List<String> loadAutocomleteDataFromDisk() {
+  private List<String> loadAutocompleteDataFromDisk() {
     List<String> lines = Lists.newArrayList();
     BufferedReader buf = null;
       try {
