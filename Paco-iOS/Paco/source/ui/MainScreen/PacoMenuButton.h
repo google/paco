@@ -16,6 +16,6 @@
 #import <UIKit/UIKit.h>
 
 @interface PacoMenuButton : UIView
-@property (retain, readonly) UIButton *button;
-@property (retain, readonly) UILabel *text;
+@property (nonatomic, retain, readonly) UIButton *button;
+@property (nonatomic, retain, readonly) UILabel *text;
 @end

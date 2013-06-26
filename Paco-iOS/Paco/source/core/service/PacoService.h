@@ -22,7 +22,7 @@
 
 @interface PacoService : NSObject
 
-@property (retain) PacoAuthenticator *authenticator;
+@property (nonatomic, retain) PacoAuthenticator *authenticator;
 
 // Load all experiement definitions from the server.
 - (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;

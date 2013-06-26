@@ -19,11 +19,11 @@
 
 @interface PacoTableView : UIView
 
-@property (retain) NSArray *data;
-@property (assign) id<PacoTableViewDelegate> delegate;
-@property (retain) UITableView *tableView;
-@property (retain) UIView *header;
-@property (retain) UIView *footer;
+@property (nonatomic, retain) NSArray *data;
+@property (nonatomic, assign) id<PacoTableViewDelegate> delegate;
+@property (nonatomic, retain) UITableView *tableView;
+@property (nonatomic, retain) UIView *header;
+@property (nonatomic, retain) UIView *footer;
 
 // Lasts until next call to set .data
 - (void)setLoadingSpinnerEnabledWithLoadingText:(NSString *)loadingText;

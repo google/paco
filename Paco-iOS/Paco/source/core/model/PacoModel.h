@@ -26,6 +26,8 @@ extern NSString* const PacoExperimentInstancesUpdateNotification;
 
 
 @interface PacoModel : NSObject
+//YMZ:TODO: need to think about if it's necessary to use atomic
+//for the following properties
 @property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
 @property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
 @property (retain) id jsonObjectDefinitions;

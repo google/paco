@@ -18,9 +18,9 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface PacoLocation () <CLLocationManagerDelegate>
-@property (copy, readwrite) CLLocation *location;
-@property (retain) CLLocationManager *manager;
-@property (assign) NSInteger numUpdates;
+@property (nonatomic, copy, readwrite) CLLocation *location;
+@property (nonatomic, retain) CLLocationManager *manager;
+@property (nonatomic, assign) NSInteger numUpdates;
 @end
 
 @implementation PacoLocation

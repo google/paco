@@ -22,8 +22,8 @@
 NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 
 @interface PacoCheckboxView ()
-@property (retain) NSArray *buttons;
-@property (retain) NSArray *labels;
+@property (nonatomic, retain) NSArray *buttons;
+@property (nonatomic, retain) NSArray *labels;
 @end
 @implementation PacoCheckboxView
 

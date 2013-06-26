@@ -21,13 +21,13 @@
 
 @interface PacoExperiment : NSObject
 
-@property (retain) PacoExperimentDefinition *definition;
-@property (retain) NSArray *events;
-@property (copy) NSString *instanceId;
-@property (assign) long long lastEventQueryTime;
-@property (retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
+@property (nonatomic, retain) PacoExperimentDefinition *definition;
+@property (nonatomic, retain) NSArray *events;
+@property (nonatomic, copy) NSString *instanceId;
+@property (nonatomic, assign) long long lastEventQueryTime;
+@property (nonatomic, retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
 //@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
-@property (retain) id jsonObject;
+@property (nonatomic, retain) id jsonObject;
 
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json model:(PacoModel *)model;

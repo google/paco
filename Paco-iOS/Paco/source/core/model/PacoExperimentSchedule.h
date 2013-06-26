@@ -51,24 +51,24 @@ typedef enum {
 
 @interface PacoExperimentSchedule : NSObject
 
-@property (assign) BOOL byDayOfMonth;
-@property (assign) BOOL byDayOfWeek;
-@property (assign) NSInteger dayOfMonth;
-@property (assign) long long esmEndHour;
-@property (assign) NSInteger esmFrequency;
-@property (assign) long long esmPeriodInDays;
-@property (assign) PacoScheduleRepeatPeriod esmPeriod;
-@property (assign) long long esmStartHour;
-@property (assign) BOOL esmWeekends;
-@property (copy) NSString *scheduleId;
-@property (assign) NSInteger nthAMonth;
-@property (assign) PacoScheduleRepeatPeriod repeatPeriod;
-@property (assign) PacoScheduleType scheduleType;
-@property (retain) NSArray *times;  // NSNumber<long >
-@property (assign) BOOL userEditable;
-@property (assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
-@property (retain) id jsonObject;
-@property (retain) NSArray *esmSchedule;  // NSArray<NSDate>
+@property (nonatomic, assign) BOOL byDayOfMonth;
+@property (nonatomic, assign) BOOL byDayOfWeek;
+@property (nonatomic, assign) NSInteger dayOfMonth;
+@property (nonatomic, assign) long long esmEndHour;
+@property (nonatomic, assign) NSInteger esmFrequency;
+@property (nonatomic, assign) long long esmPeriodInDays;
+@property (nonatomic, assign) PacoScheduleRepeatPeriod esmPeriod;
+@property (nonatomic, assign) long long esmStartHour;
+@property (nonatomic, assign) BOOL esmWeekends;
+@property (nonatomic, copy) NSString *scheduleId;
+@property (nonatomic, assign) NSInteger nthAMonth;
+@property (nonatomic, assign) PacoScheduleRepeatPeriod repeatPeriod;
+@property (nonatomic, assign) PacoScheduleType scheduleType;
+@property (nonatomic, retain) NSArray *times;  // NSNumber<long >
+@property (nonatomic, assign) BOOL userEditable;
+@property (nonatomic, assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
+@property (nonatomic, retain) id jsonObject;
+@property (nonatomic, retain) NSArray *esmSchedule;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
 - (NSString *)jsonString;
 

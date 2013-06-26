@@ -28,12 +28,12 @@ static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 @interface PacoClient ()
-@property (retain, readwrite) PacoAuthenticator *authenticator;
-@property (retain, readwrite) PacoLocation *location;
-@property (retain, readwrite) PacoModel *model;
-@property (retain, readwrite) PacoScheduler *scheduler;
-@property (retain, readwrite) PacoService *service;
-@property (retain, readwrite) NSString *serverDomain;
+@property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
+@property (nonatomic, retain, readwrite) PacoLocation *location;
+@property (nonatomic, retain, readwrite) PacoModel *model;
+@property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
+@property (nonatomic, retain, readwrite) PacoService *service;
+@property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) NSString* userEmail;
 
 - (void)prefetch;

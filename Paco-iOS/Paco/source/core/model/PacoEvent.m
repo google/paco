@@ -17,8 +17,8 @@
 #import "PacoDate.h"
 
 @interface PacoEvent ()
-@property (readwrite, copy) NSString *appId;
-@property (readwrite, copy) NSString *pacoVersion;
+@property (nonatomic, readwrite, copy) NSString *appId;
+@property (nonatomic, readwrite, copy) NSString *pacoVersion;
 @end
 
 @implementation PacoEvent

@@ -20,8 +20,8 @@
 #import "PacoLayout.h"
 
 @interface PacoLoadingTableCell ()
-@property (retain) UIActivityIndicatorView *spinner;
-@property (retain) UILabel *loadingTextLabel;
+@property (nonatomic, retain) UIActivityIndicatorView *spinner;
+@property (nonatomic, retain) UILabel *loadingTextLabel;
 @end
 
 @implementation PacoLoadingTableCell

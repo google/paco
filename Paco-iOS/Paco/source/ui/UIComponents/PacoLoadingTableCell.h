@@ -16,5 +16,5 @@
 #import "PacoTableCell.h"
 
 @interface PacoLoadingTableCell : PacoTableCell
-@property (copy) NSString *loadingText;
+@property (nonatomic, copy) NSString *loadingText;
 @end

@@ -22,9 +22,9 @@
 #import "PacoExperiment.h"
 
 @interface PacoScheduleUnit : NSObject
-@property (retain) PacoExperiment *experiment;
-@property (retain) NSArray *notifications;  // UILocalNotification
-@property (retain) NSDictionary *lastPayload;
+@property (nonatomic, retain) PacoExperiment *experiment;
+@property (nonatomic, retain) NSArray *notifications;  // UILocalNotification
+@property (nonatomic, retain) NSDictionary *lastPayload;
 @end
 
 @implementation PacoScheduleUnit
@@ -34,7 +34,7 @@
 @end
 
 @interface PacoScheduler ()
-@property (retain) NSMutableDictionary *scheduledExperiments;  // <experimentId, PacoScheduleUnit>
+@property (nonatomic, retain) NSMutableDictionary *scheduledExperiments;  // <experimentId, PacoScheduleUnit>
 @end
 
 @implementation PacoScheduler

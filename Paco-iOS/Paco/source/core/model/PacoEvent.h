@@ -17,18 +17,18 @@
 
 @interface PacoEvent : NSObject
 
-@property (copy) NSString *who;
-@property (retain) NSDate *when;
-@property (assign) long long latitude;
-@property (assign) long long longitude;
-@property (retain) NSDate *responseTime;
-@property (retain) NSDate *scheduledTime;
-@property (readonly, copy) NSString *appId;
-@property (readonly, copy) NSString *pacoVersion;
-@property (copy) NSString *experimentId;
-@property (copy) NSString *experimentName;
-@property (retain) NSArray *responses;  // <NSDictionary>
-@property (retain) id jsonObject;
+@property (nonatomic, copy) NSString *who;
+@property (nonatomic, retain) NSDate *when;
+@property (nonatomic, assign) long long latitude;
+@property (nonatomic, assign) long long longitude;
+@property (nonatomic, retain) NSDate *responseTime;
+@property (nonatomic, retain) NSDate *scheduledTime;
+@property (nonatomic, readonly, copy) NSString *appId;
+@property (nonatomic, readonly, copy) NSString *pacoVersion;
+@property (nonatomic, copy) NSString *experimentId;
+@property (nonatomic, copy) NSString *experimentName;
+@property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
+@property (nonatomic, retain) id jsonObject;
 + (id)pacoEventForIOS;
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)jsonObject;

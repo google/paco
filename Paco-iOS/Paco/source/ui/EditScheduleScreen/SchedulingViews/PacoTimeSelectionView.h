@@ -18,6 +18,6 @@
 #import "PacoTableCell.h"
 
 @interface PacoTimeSelectionView : PacoTableCell
-@property (retain) NSArray *times;
+@property (nonatomic, retain) NSArray *times;
 - (void)finishTimeSelection;
 @end
