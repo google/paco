@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.gwt.thirdparty.guava.common.base.Splitter;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
 
@@ -56,14 +56,14 @@ public class ExperimentServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
     resp.setContentType("application/json;charset=UTF-8");
-    String tz = req.getParameter("tz");
 
     User user = getWhoFromLogin();
 
     if (user == null) {
-      redirectUser(req, resp);
+      redirectUserToLogin(req, resp);
     } else {
-      displayPacoVersion(req);
+      String tz = req.getParameter("tz");
+      logPacoClientVersion(req);
 
       String shortParam = req.getParameter("short");
       String selectedExperimentsParam = req.getParameter("id");
@@ -80,11 +80,11 @@ public class ExperimentServlet extends HttpServlet {
     }
   }
 
-  private void redirectUser(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  private void redirectUserToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
   }
 
-  private void displayPacoVersion(HttpServletRequest req) {
+  private void logPacoClientVersion(HttpServletRequest req) {
     String pacoVersion = req.getHeader("paco.version");
     if (pacoVersion != null) {
       log.info("Paco version of request = " + pacoVersion);
@@ -170,9 +170,7 @@ public class ExperimentServlet extends HttpServlet {
   
   private HashMap<Long,Long> parseExperimentIds(String expStr) {
     HashMap<Long,Long> experimentIds = new HashMap<Long, Long>();
-    // TODO: Use splitter after AppEngine 500 errors are fixed. Can a splitter take RegEx? E.g. "[,]+"?
-    // Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
-    String[] strIds = expStr.split("[, ]+");
+    Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
     for (String id : strIds) {
       Long experimentId = extractExperimentId(id);
       if (!experimentId.equals(new Long(-1))) {
