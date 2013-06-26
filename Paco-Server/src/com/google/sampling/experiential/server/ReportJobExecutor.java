@@ -38,17 +38,12 @@ public class ReportJobExecutor {
     return instance;
   }
 
-
-
   private ReportJobStatusManager statusMgr;
-  
-  
-  
+
   public ReportJobExecutor() {
     super();
     statusMgr = new ReportJobStatusManager();
   }
-
 
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient, 
                              final List<Query> query, final boolean anon, final String reportFormat) {
@@ -72,14 +67,11 @@ public class ReportJobExecutor {
           log.severe("Could not run job: " + e.getMessage());
         }
       }
-      
     });
     thread2.start();
     log.info("Leaving runReportJob");
     return jobId;
   }
-
-
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId, 
                          String reportFormat) throws IOException {
@@ -98,11 +90,16 @@ public class ReportJobExecutor {
     
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
       return generateCSVReport(anon, jobId, experimentId, events, timeZoneForClient);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
+      return generatePhotoZip(jobId, experimentId, events, anon);
     } else {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, events);
     }
   }
 
+  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon) {    
+      return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, events, jobId);
+  }
 
   private String generateHtmlReport(DateTimeZone timeZoneForClient, boolean anon, String jobId, String experimentId,
                                     List<Event> events) throws IOException {
@@ -115,7 +112,6 @@ public class ReportJobExecutor {
     return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, events, jobId, experimentId, timeZoneForClient.getID());
   }
 
-
   private String generateEODHtml(boolean anon, String jobId, String experimentId, List<Event> events, String timeZoneForClient) throws IOException {
     log.info("Checking referred experiment for job: " + jobId);
     Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
@@ -125,9 +121,7 @@ public class ReportJobExecutor {
       return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient);
     }
     return null;    
-
   }
-
 
   private String generateCSVReport(boolean anon, String jobId, String experimentId, List<Event> events, DateTimeZone clientTimezone)
                                                                                                        throws IOException {
@@ -140,7 +134,6 @@ public class ReportJobExecutor {
     return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, events, jobId);
   }
 
-
   private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {
     Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
     if (referredExperiment != null) {
@@ -150,7 +143,4 @@ public class ReportJobExecutor {
     }
     return null;    
   }
-  
-
-
 }
