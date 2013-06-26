@@ -28,12 +28,12 @@
 
 @interface PacoClient : NSObject
 
-@property (retain, readonly) PacoAuthenticator *authenticator;
-@property (retain, readonly) PacoLocation *location;
-@property (retain, readonly) PacoModel *model;
-@property (retain, readonly) PacoScheduler *scheduler;
-@property (retain, readonly) PacoService *service;
-@property (retain, readonly) NSString *serverDomain;
+@property (nonatomic, retain, readonly) PacoAuthenticator *authenticator;
+@property (nonatomic, retain, readonly) PacoLocation *location;
+@property (nonatomic, retain, readonly) PacoModel *model;
+@property (nonatomic, retain, readonly) PacoScheduler *scheduler;
+@property (nonatomic, retain, readonly) PacoService *service;
+@property (nonatomic, retain, readonly) NSString *serverDomain;
 
 //YMZ: the following needs to be removed after we migrate to OAuth2
 @property (nonatomic, retain, readonly) NSString* userEmail;

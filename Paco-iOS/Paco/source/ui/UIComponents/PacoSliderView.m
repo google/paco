@@ -24,8 +24,8 @@ NSInteger kSliderViewHeight = 60;
 NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 
 @interface PacoSliderView ()
-@property (retain) UILabel *valueLabel;
-@property (retain) UISlider *slider;
+@property (nonatomic, retain) UILabel *valueLabel;
+@property (nonatomic, retain) UISlider *slider;
 @end
 
 @implementation PacoSliderView

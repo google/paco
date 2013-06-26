@@ -21,5 +21,5 @@
 @interface PacoScheduleEditView : UIView
 @property (nonatomic, retain) UIButton *joinButton;
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
-@property (retain) PacoTableView *tableView;
+@property (nonatomic, retain) PacoTableView *tableView;
 @end

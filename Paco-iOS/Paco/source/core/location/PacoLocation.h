@@ -25,8 +25,8 @@
 @interface PacoLocation : NSObject {
 
 }
-@property (assign) id <PacoLocationDelegate> delegate;
-@property (copy, readonly) CLLocation *location;
+@property (nonatomic, assign) id <PacoLocationDelegate> delegate;
+@property (nonatomic, copy, readonly) CLLocation *location;
 
 - (void)updateLocation;
 

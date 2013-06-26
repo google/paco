@@ -16,8 +16,8 @@
 #import <UIKit/UIKit.h>
 
 @interface PacoTitleView : UIView
-@property (readonly, retain) UIImageView *icon;
-@property (readonly, retain) UILabel *title;
+@property (nonatomic, readonly, retain) UIImageView *icon;
+@property (nonatomic, readonly, retain) UILabel *title;
 
 - (id)initIconAndText:(NSString *)text;
 - (id)initText:(NSString *)text;

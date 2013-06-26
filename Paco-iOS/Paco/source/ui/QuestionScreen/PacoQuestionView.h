@@ -19,7 +19,7 @@
 
 @interface PacoQuestionView : PacoTableCell
 
-@property (retain, readwrite) PacoExperimentInput *question;
+@property (nonatomic, retain, readwrite) PacoExperimentInput *question;
 
 + (NSNumber *)heightForData:(id)data;
 

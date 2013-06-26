@@ -19,8 +19,8 @@
 
 @interface PacoAuthenticator : NSObject
 
-@property(readonly, retain) GTMOAuth2Authentication *auth;
-@property(readonly, copy) NSString *cookie;
+@property(nonatomic, readonly, retain) GTMOAuth2Authentication *auth;
+@property(nonatomic, readonly, copy) NSString *cookie;
 
 - (void)authenticateWithClientLogin:(NSString *)email
                            password:(NSString *)password

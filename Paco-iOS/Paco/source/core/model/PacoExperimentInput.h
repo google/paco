@@ -18,22 +18,22 @@
 // ExperimentInput is basically something like a question, or measure of some input like a location or photo.
 @interface PacoExperimentInput : NSObject
 
-@property (assign) BOOL conditional;
-@property (retain) NSString *conditionalExpression;
-@property (copy) NSString *inputIdentifier;
-@property (assign) BOOL invisibleInput;
-@property (copy) NSString *leftSideLabel;
-@property (assign) NSInteger likertSteps; // only for response type 'likert'
-@property (retain) NSArray *listChoices; // <NSString>
-@property (assign) BOOL mandatory;
-@property (copy) NSString *name;
-@property (copy) NSString *questionType;  // 'question'/ (text question or sensor input)
-@property (copy) NSString *responseType;  // 'likert', 'list', open text, etc.
-@property (copy) NSString *rightSideLabel;
-@property (copy) NSString *text;
-@property (retain) id jsonObject;
-@property (retain) id responseObject;  // The user's answer to this question
-@property (assign) BOOL isADependencyForOthers;
+@property (nonatomic, assign) BOOL conditional;
+@property (nonatomic, retain) NSString *conditionalExpression;
+@property (nonatomic, copy) NSString *inputIdentifier;
+@property (nonatomic, assign) BOOL invisibleInput;
+@property (nonatomic, copy) NSString *leftSideLabel;
+@property (nonatomic, assign) NSInteger likertSteps; // only for response type 'likert'
+@property (nonatomic, retain) NSArray *listChoices; // <NSString>
+@property (nonatomic, assign) BOOL mandatory;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *questionType;  // 'question'/ (text question or sensor input)
+@property (nonatomic, copy) NSString *responseType;  // 'likert', 'list', open text, etc.
+@property (nonatomic, copy) NSString *rightSideLabel;
+@property (nonatomic, copy) NSString *text;
+@property (nonatomic, retain) id jsonObject;
+@property (nonatomic, retain) id responseObject;  // The user's answer to this question
+@property (nonatomic, assign) BOOL isADependencyForOthers;
 
 + (id)pacoExperimentInputFromJSON:(id)jsonObject;
 + (NSArray *)parseExpression:(NSString *)expr;

@@ -24,9 +24,9 @@
 #import "PacoTableViewDelegate.h"
 
 @interface PacoTableMapping : NSObject
-@property (retain) NSString *stringKey;
-@property (retain) Class dataClass;
-@property (retain) Class cellClass;
+@property (nonatomic, retain) NSString *stringKey;
+@property (nonatomic, retain) Class dataClass;
+@property (nonatomic, retain) Class cellClass;
 @end
 
 @implementation PacoTableMapping
