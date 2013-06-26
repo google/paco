@@ -44,7 +44,10 @@ public class DatabaseHelperTest extends AndroidTestCase {
     try {  
       checkDateEquality(oldCursor, newCursor);
     } finally {
-      closeFiles(oldCursor, newCursor);
+      newCursor.close();
+      oldCursor.close();
+      File newDbFile = new File(v13DB_TEST);
+      newDbFile.delete();
     }
   }
 
@@ -62,11 +65,11 @@ public class DatabaseHelperTest extends AndroidTestCase {
   }
   
   private void checkDateEquality(Cursor oldCursor, Cursor newCursor) {
-    while (oldCursor.moveToNext()) {
-      newCursor.moveToNext();
+    while (oldCursor.moveToNext() && newCursor.moveToNext()) {
       if (isFixedDuration(oldCursor)) {
         checkStartDate(oldCursor, newCursor);
         checkEndDate(oldCursor, newCursor);
+        checkJoinDate(oldCursor, newCursor);
       } 
     }
   }
@@ -89,16 +92,17 @@ public class DatabaseHelperTest extends AndroidTestCase {
     assertEquals(oldDate, newDate);
   }
   
+  private void checkJoinDate(Cursor oldCursor, Cursor newCursor) {
+    String oldDate = formatDateAsStrWithZone(oldCursor.getLong(oldCursor.getColumnIndex(ExperimentColumns.JOIN_DATE)));
+    String newDate = newCursor.getString(newCursor.getColumnIndex(ExperimentColumns.JOIN_DATE));
+    assertEquals(oldDate, newDate);
+  }
+  
   private String formatDateAsStr(Long dateLong) {
     return TimeUtil.formatDate(dateLong);
   }
   
-  private void closeFiles(Cursor oldCursor, Cursor newCursor) {
-    newCursor.close();
-    oldCursor.close();
-    
-    File newDbFile = new File(v13DB_TEST);
-    newDbFile.delete();
+  private String formatDateAsStrWithZone(Long dateLong) {
+    return TimeUtil.formatDateWithZone(dateLong);
   }
-
 }

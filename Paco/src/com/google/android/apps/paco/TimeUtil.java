@@ -32,6 +32,9 @@ public class TimeUtil {
   static final String DATE_FORMAT = "yyyy/MM/dd";
   private static DateTimeFormatter dateFormatter = 
       DateTimeFormat.forPattern(DATE_FORMAT);
+  static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
+  private static DateTimeFormatter dateZoneFormatter = 
+      DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
   private TimeUtil() {
     super();
@@ -52,6 +55,14 @@ public class TimeUtil {
   
   public static DateTime unformatDate(String dateStr) {
     return dateFormatter.parseDateTime(dateStr);
+  }
+  
+  public static String formatDateWithZone(long dateTimeMillis) {
+    return new DateTime(dateTimeMillis).toString(dateZoneFormatter);
+  }
+  
+  public static DateTime unformatDateWithZone(String dateStr) {
+    return dateZoneFormatter.parseDateTime(dateStr);
   }
 
   public static DateMidnight getMondayOfWeek(DateTime now) {
