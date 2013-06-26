@@ -27,8 +27,8 @@
 @end
 
 @implementation PacoExperimentDetailsViewController
+@synthesize experiment = _experiment;
 
-@synthesize experiment = experiment_;
 
 + (NSString *)stringFromData:(NSData *)data {
   const char *bytes = [data bytes];
@@ -49,7 +49,7 @@
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  experiment_ = experiment;
+  _experiment = experiment;
   PacoTitleView *titleView = (PacoTitleView *)self.navigationItem.titleView;
   titleView.title.text = experiment.title;
 }

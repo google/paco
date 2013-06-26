@@ -25,9 +25,6 @@
 
 @implementation PacoLocation
 
-@synthesize delegate;
-@synthesize manager;
-@synthesize numUpdates;
 
 - (id)init {
   self = [super init];
@@ -68,7 +65,7 @@
   if (self.numUpdates > 3) {
     [self.manager stopUpdatingLocation];
     if ([self.delegate respondsToSelector:@selector(locationUpdated:)]) {
-      [delegate locationUpdated:self.location];
+      [_delegate locationUpdated:self.location];
     }
   }
 

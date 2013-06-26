@@ -27,14 +27,6 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 @end
 @implementation PacoCheckboxView
 
-@synthesize radioStyle;
-@synthesize bitFlags = bitFlags_;
-
-@synthesize buttons;
-@synthesize labels;
-@synthesize optionLabels = optionLabels_;
-
-@synthesize vertical = vertical_;
 
 - (void)reloadDays {
   unsigned int days = [self.bitFlags unsignedIntValue];
@@ -83,7 +75,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 }
 
 - (void)setBitFlags:(NSNumber *)flags {
-  bitFlags_ = flags;
+  _bitFlags = flags;
   [self reloadDays];
 }
 
@@ -116,7 +108,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 
 
 - (void)setOptionLabels:(NSArray *)optionLabels {
-  optionLabels_ = optionLabels;
+  _optionLabels = optionLabels;
   [self rebuildCheckboxes];
 }
 

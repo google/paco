@@ -19,7 +19,7 @@
 
 @implementation PacoFirstDayOfMonthSelectionView
 
-@synthesize firstDayOfMonth = firstDayOfMonth_;
+@synthesize firstDayOfMonth = _firstDayOfMonth;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -31,7 +31,7 @@
 }
 
 - (void)setFirstDayOfMonth:(NSNumber *)firstDay {
-  firstDayOfMonth_ = firstDay;
+  _firstDayOfMonth = firstDay;
   self.bitFlags = [NSNumber numberWithUnsignedInt:(1<<(firstDay.intValue - 1))];
 }
 

@@ -30,12 +30,6 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 
 @implementation PacoSliderView
 
-@synthesize format = format_;
-@synthesize maxValue = maxValue_;
-@synthesize minValue = minValue_;
-@synthesize slider;
-@synthesize value = value_;
-@synthesize valueLabel;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -67,17 +61,17 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 }
 
 - (void)setFormat:(NSString *)format {
-  format_ = format;
+  _format = format;
   self.valueLabel.text = [NSString stringWithFormat:format, (int)self.slider.value];
   [self.valueLabel sizeToFit];
   [self setNeedsLayout];
 }
 
 - (void)setValue:(NSNumber *)value {
-  value_ = value;
-  self.slider.value = [value_ intValue];
-  if (value && format_) {
-    self.valueLabel.text = [NSString stringWithFormat:format_, [value intValue]];
+  _value = value;
+  self.slider.value = [_value intValue];
+  if (value && _format) {
+    self.valueLabel.text = [NSString stringWithFormat:_format, [value intValue]];
   }
   
   [self.valueLabel sizeToFit];
@@ -85,12 +79,12 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 }
 
 - (void)setMaxValue:(double)maxValue {
-  maxValue_ = maxValue;
+  _maxValue = maxValue;
   self.slider.maximumValue = maxValue;
 }
 
 - (void)setMinValue:(double)minValue {
-  minValue_ = minValue;
+  _minValue = minValue;
   self.slider.minimumValue = minValue;
 }
 
@@ -106,7 +100,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
   float fvalue = sliderUI.value;
   int ivalue = (int)fvalue;
   self.value = [NSNumber numberWithInt:ivalue];
-  self.valueLabel.text = [NSString stringWithFormat:format_, (int)sliderUI.value];
+  self.valueLabel.text = [NSString stringWithFormat:_format, (int)sliderUI.value];
   [self.valueLabel sizeToFit];
   [self setNeedsLayout];
   [self.tableDelegate dataUpdated:self rowData:[NSNumber numberWithInt:sliderUI.value] reuseId:self.reuseId];
