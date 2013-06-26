@@ -260,7 +260,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
         ExperimentColumns.JSON +
-        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");    // might need parens around select?
+        " FROM " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + ";");
     db.execSQL("DROP TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
   }
