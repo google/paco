@@ -227,6 +227,7 @@ public class RunningExperimentsActivity extends Activity {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+      
       String id = cursor.getString(idColumn);
       
       TextView tv = (TextView) view.findViewById(R.id.experimentListRowTitle);

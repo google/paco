@@ -246,7 +246,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   private static void createTruncatedExperimentsTable(SQLiteDatabase db) {
     String tempTable = "tempTable";
-    db.execSQL("CREATE TABLE " + tempTable + " AS SELECT " +
+    db.execSQL("CREATE TABLE " + tempTable + " ("
+        + ExperimentColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+        + ExperimentColumns.SERVER_ID + " INTEGER,"
+        + ExperimentColumns.TITLE + " TEXT, "
+        + ExperimentColumns.VERSION + " INTEGER,"
+        + ExperimentColumns.DESCRIPTION + " TEXT, "
+        + ExperimentColumns.CREATOR + " TEXT, "
+        + ExperimentColumns.INFORMED_CONSENT + " TEXT, "
+        + ExperimentColumns.HASH + " TEXT, "
+        + ExperimentColumns.FIXED_DURATION + " INTEGER, "
+        + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
+        + ExperimentColumns.ICON + " BLOB, "
+        + ExperimentColumns.WEB_RECOMMENDED + " INTEGER, "
+        + ExperimentColumns.JSON + " TEXT "
+        + ");");
+    db.execSQL("INSERT INTO " + tempTable + " (" +
+        ExperimentColumns._ID + ", " +
+        ExperimentColumns.SERVER_ID + ", " +
+        ExperimentColumns.TITLE + ", " +
+        ExperimentColumns.VERSION + ", " +
+        ExperimentColumns.DESCRIPTION + ", " +
+        ExperimentColumns.CREATOR + ", " +
+        ExperimentColumns.INFORMED_CONSENT + ", " +
+        ExperimentColumns.HASH + ", " +
+        ExperimentColumns.FIXED_DURATION + ", " +     
+        ExperimentColumns.QUESTIONS_CHANGE + ", " +
+        ExperimentColumns.ICON + ", " +
+        ExperimentColumns.WEB_RECOMMENDED + ", " +
+        ExperimentColumns.JSON +
+        ") " + "SELECT " +
         ExperimentColumns._ID + ", " +
         ExperimentColumns.SERVER_ID + ", " +
         ExperimentColumns.TITLE + ", " +

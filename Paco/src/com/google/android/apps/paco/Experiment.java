@@ -427,8 +427,12 @@ public class Experiment implements Parcelable {
   }
 
   private boolean isExperimentNotStartedYet(DateTime now) {
-    DateMidnight startDate = TimeUtil.unformatDate(getStartDate()).toDateMidnight();
-    return isFixedDuration() && now.isBefore(startDate);
+    return isFixedDuration() 
+            && now.isBefore(getStartDateAsDateMidnight());
+  }
+  
+  private DateMidnight getStartDateAsDateMidnight() {
+    return TimeUtil.unformatDate(getStartDate()).toDateMidnight();
   }
 
   //@VisibleForTesting
