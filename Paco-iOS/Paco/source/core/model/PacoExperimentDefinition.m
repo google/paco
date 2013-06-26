@@ -20,24 +20,6 @@
 
 @implementation PacoExperimentDefinition
 
-@synthesize admins;  // <NSString>
-@synthesize creator;
-@synthesize deleted;
-@synthesize experimentDescription;
-@synthesize feedback;  // <PacoExperimentFeedback>
-@synthesize fixedDuration;
-@synthesize experimentId;
-@synthesize informedConsentForm;
-@synthesize inputs;  // <PacoExperimentInput>
-@synthesize modifyDate;
-@synthesize published;
-@synthesize publishedUsers;  // <NSString>
-@synthesize questionsChange;
-@synthesize schedule;
-@synthesize title;
-@synthesize webReccommended;
-@synthesize jsonObject;
-
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject {
   PacoExperimentDefinition *definition = [[PacoExperimentDefinition alloc] init];
   NSDictionary *definitionMembers = jsonObject;

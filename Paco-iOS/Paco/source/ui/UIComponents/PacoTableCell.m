@@ -17,9 +17,6 @@
 
 @implementation PacoTableCell
 
-@synthesize reuseId = reuseId_;
-@synthesize rowData = rowData_;
-@synthesize tableDelegate = tableDelegate_;
 
 - (id)initWithFrame:(CGRect)frame {
   assert(0);

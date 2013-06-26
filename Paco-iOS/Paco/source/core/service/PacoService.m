@@ -30,7 +30,6 @@
 
 @implementation PacoService
 
-@synthesize authenticator = authenticator_;
 
 + (NSString *)stringFromData:(NSData *)data {
   const char *bytes = [data bytes];

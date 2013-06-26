@@ -17,22 +17,6 @@
 
 @implementation PacoExperimentInput
 
-@synthesize conditional;
-@synthesize conditionalExpression;
-@synthesize inputIdentifier;
-@synthesize invisibleInput;
-@synthesize leftSideLabel;
-@synthesize likertSteps;
-@synthesize listChoices; // <NSString>
-@synthesize mandatory;
-@synthesize name;
-@synthesize questionType;  // 'question'/
-@synthesize responseType;  // 'likert', 'list'
-@synthesize rightSideLabel;
-@synthesize text;
-@synthesize jsonObject;
-@synthesize responseObject;
-
 + (id)pacoExperimentInputFromJSON:(id)jsonObject {
   PacoExperimentInput *input = [[PacoExperimentInput alloc] init];
   NSDictionary *inputMembers = jsonObject;

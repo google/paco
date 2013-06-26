@@ -31,9 +31,6 @@
 
 @implementation PacoTableMapping
 
-@synthesize stringKey;
-@synthesize dataClass;
-@synthesize cellClass;
 @end
 
 @interface PacoTableView () <UITableViewDataSource, UITableViewDelegate>
@@ -47,26 +44,22 @@
 
 @implementation PacoTableView
 
-@synthesize data = data_;
-@synthesize delegate = delegate_;
-@synthesize mappings = mappings_;
-@synthesize tableView = tableView_;
-@synthesize stringKeyToDataClass = stringKeyToDataClass_;
-@synthesize header = header_;
-@synthesize footer = footer_;
+@synthesize data = _data;
+@synthesize header = _header;
+@synthesize footer = _footer;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    mappings_ = [[NSMutableDictionary alloc] init];
-    stringKeyToDataClass_ = [[NSMutableDictionary alloc] init];
+    _mappings = [[NSMutableDictionary alloc] init];
+    _stringKeyToDataClass = [[NSMutableDictionary alloc] init];
 
-    tableView_ = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-    tableView_.dataSource = self;
-    tableView_.delegate = self;
-    tableView_.backgroundColor = [PacoColor pacoLightBlue];
-    tableView_.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self addSubview:tableView_];
+    _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    _tableView.dataSource = self;
+    _tableView.delegate = self;
+    _tableView.backgroundColor = [PacoColor pacoLightBlue];
+    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self addSubview:_tableView];
     
     [self registerClass:[PacoLoadingTableCell class] forStringKey:@"LOADING" dataClass:[NSString class]];
   }
@@ -74,27 +67,27 @@
 }
 
 - (UIView *)header {
-  return header_;
+  return _header;
 }
 
 - (void)setHeader:(UIView *)header {
-  [header_ removeFromSuperview];
-  header_ = header;
+  [_header removeFromSuperview];
+  _header = header;
   if (header) {
-    [self addSubview:header_];
+    [self addSubview:_header];
   }
   [self setNeedsLayout];
 }
 
 - (UIView *)footer {
-  return footer_;
+  return _footer;
 }
 
 - (void)setFooter:(UIView *)footer {
-  [footer_ removeFromSuperview];
-  footer_ = footer;
+  [_footer removeFromSuperview];
+  _footer = footer;
   if (footer) {
-    [self addSubview:footer_];
+    [self addSubview:_footer];
   }
   [self setNeedsLayout];
   [self.tableView setNeedsDisplay];
@@ -102,7 +95,7 @@
 
 - (NSArray *)data {
   @synchronized(self) {
-    return data_;
+    return _data;
   }
 }
 
@@ -151,7 +144,7 @@
   if (![key isKindOfClass:[NSString class]]) {
     return NO;
   }
-  Class dataClass = [stringKeyToDataClass_ objectForKey:key];
+  Class dataClass = [_stringKeyToDataClass objectForKey:key];
   if (!dataClass) {
     return NO;
   }
@@ -188,20 +181,20 @@
 
     // Keep the structure consistent whether 1 section or N sections.
     if (!allArrays) {
-      data_ = [[NSArray alloc] initWithObjects:data, nil];
+      _data = [[NSArray alloc] initWithObjects:data, nil];
     } else {
-      data_ = data;
+      _data = data;
     }
-    [tableView_ reloadData];
+    [_tableView reloadData];
     [self setNeedsLayout];
   }
 }
 
 - (void)registerClass:(Class)cellClass forStringKey:(NSString *)stringKey dataClass:(Class)dataClass {
   NSString *reuseId = [self keyForDataClass:dataClass stringKey:stringKey];
-  [tableView_ registerClass:cellClass forCellReuseIdentifier:reuseId];
+  [_tableView registerClass:cellClass forCellReuseIdentifier:reuseId];
   if (stringKey) {
-    [stringKeyToDataClass_ setObject:dataClass forKey:stringKey];
+    [_stringKeyToDataClass setObject:dataClass forKey:stringKey];
   }
   [self setMappingForDataClass:dataClass toCellClass:cellClass withStringKey:stringKey];
 }
@@ -254,7 +247,7 @@
 
 - (PacoTableMapping *)mappingForDataClass:(Class)dataClass stringKey:(NSString *)stringKey {
   NSString *key = [self keyForDataClass:dataClass stringKey:stringKey];
-  PacoTableMapping *mapping =  [mappings_ objectForKey:key];
+  PacoTableMapping *mapping =  [_mappings objectForKey:key];
   if (mapping == nil) {
     NSLog(@"error");
   }
@@ -269,7 +262,7 @@
   mapping.dataClass = dataClass;
   mapping.cellClass = cellClass;
   mapping.stringKey = stringKey;
-  [mappings_ setObject:mapping forKey:key];
+  [_mappings setObject:mapping forKey:key];
 }
 
 
@@ -277,12 +270,12 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
   assert(section < self.data.count);
-  NSArray *sectionArray = [data_ objectAtIndex:section];
+  NSArray *sectionArray = [_data objectAtIndex:section];
   return sectionArray.count;
 }
 
 - (id)rowDataForIndexPath:(NSIndexPath *)indexPath {
-  NSArray *sectionData = [data_ objectAtIndex:indexPath.section];
+  NSArray *sectionData = [_data objectAtIndex:indexPath.section];
   id rowData = [sectionData objectAtIndex:indexPath.row];
   return rowData;
 }
@@ -327,7 +320,7 @@
     pacoCell.textLabel.font = [PacoFont pacoTableCellFont];
     pacoCell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
   }
-  [delegate_ initializeCell:cell withData:rowData forReuseId:reuseId];
+  [_delegate initializeCell:cell withData:rowData forReuseId:reuseId];
   return cell;
 }
 
@@ -404,7 +397,7 @@
   Class viewClass = [self classForRowData:rowData reuseIdOut:&reuseId];
   ((void)viewClass);
   UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-  [delegate_ cellSelected:cell rowData:rowData reuseId:reuseId];
+  [_delegate cellSelected:cell rowData:rowData reuseId:reuseId];
 }
 
 //- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section;

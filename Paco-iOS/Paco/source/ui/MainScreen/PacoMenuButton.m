@@ -21,43 +21,41 @@
 
 @implementation PacoMenuButton
 
-@synthesize button = button_;
-@synthesize text = text_;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    button_ = [UIButton buttonWithType:UIButtonTypeCustom];
-    text_ = [[UILabel alloc] initWithFrame:CGRectZero];
-    [self addSubview:button_];
-    [self addSubview:text_];
-    text_.font = [PacoFont pacoMenuButtonFont];
-    text_.textColor = [PacoColor pacoBlue];
-    text_.backgroundColor = [UIColor clearColor];
-    text_.clipsToBounds = NO;
+    _button = [UIButton buttonWithType:UIButtonTypeCustom];
+    _text = [[UILabel alloc] initWithFrame:CGRectZero];
+    [self addSubview:_button];
+    [self addSubview:_text];
+    _text.font = [PacoFont pacoMenuButtonFont];
+    _text.textColor = [PacoColor pacoBlue];
+    _text.backgroundColor = [UIColor clearColor];
+    _text.clipsToBounds = NO;
     self.clipsToBounds = NO;
   }
   return self;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-  [button_ sizeToFit];
-  [text_ sizeToFit];
-  float totalHeight = button_.frame.size.height + text_.frame.size.height + 10;
-  return CGSizeMake((size.width == 0 ? button_.frame.size.width : MIN(size.width, button_.frame.size.width)),
+  [_button sizeToFit];
+  [_text sizeToFit];
+  float totalHeight = _button.frame.size.height + _text.frame.size.height + 10;
+  return CGSizeMake((size.width == 0 ? _button.frame.size.width : MIN(size.width, _button.frame.size.width)),
                     (size.height == 0 ? totalHeight : MIN(size.height, totalHeight)));
 }
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  CGSize buttonSize = button_.frame.size;
+  CGSize buttonSize = _button.frame.size;
   CGRect top, bottom;
   [PacoLayout splitVerticalRect:self.bounds
                         yOffset:(buttonSize.height + 10)
                          topOut:&top
                       bottomOut:&bottom];
-  button_.frame = [PacoLayout centerRect:button_.frame.size inRect:top];
-  text_.frame = [PacoLayout centerRect:text_.frame.size inRect:bottom];
+  _button.frame = [PacoLayout centerRect:_button.frame.size inRect:top];
+  _text.frame = [PacoLayout centerRect:_text.frame.size inRect:bottom];
 }
 
 @end
