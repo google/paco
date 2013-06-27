@@ -27,14 +27,17 @@ import org.joda.time.DateTime;
 import com.pacoapp.paco.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -86,7 +89,11 @@ public class FindExperimentsActivity extends Activity {
 
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        refreshList();
+        if (!isConnected()) {
+          showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+        } else {
+          refreshList();
+        }
       }
     });
     
@@ -112,6 +119,10 @@ public class FindExperimentsActivity extends Activity {
       }
     });
     registerForContextMenu(list);
+  }
+  
+  private boolean isConnected() {
+    return NetworkUtil.isConnected(this);
   }
   
   @Override
@@ -169,27 +180,86 @@ public class FindExperimentsActivity extends Activity {
     listHeader.setText(header); 
   }
 
+  protected Dialog onCreateDialog(int id, Bundle args) {
+    switch (id) {
+      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
+          return getRefreshJoinedDialog();
+      } case DownloadHelper.INVALID_DATA_ERROR: {
+          return getUnableToJoinDialog(getString(R.string.invalid_data));
+      } case DownloadHelper.SERVER_ERROR: {
+        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      } case DownloadHelper.NO_NETWORK_CONNECTION: {
+        return getNoNetworkDialog();
+      } default: {
+        return null;
+      }
+    }
+  }
+
   @Override
   protected Dialog onCreateDialog(int id) {
-    if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
-      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
-                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
-                                                         true, true);
-      return loadingDialog;
-    }
     return super.onCreateDialog(id);
   }
+  
+  private ProgressDialog getRefreshJoinedDialog() {
+    return ProgressDialog.show(this, getString(R.string.experiment_refresh),
+                               getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+                               true, true);
+  }
+  
+  private AlertDialog getUnableToJoinDialog(String message) {
+    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           finish();
+                         }
+                       });
+    return unableToJoinBldr.create();
+  }
+  
+  private AlertDialog getNoNetworkDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
+    noNetworkBldr.setTitle(R.string.network_required)
+                 .setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           showNetworkConnectionActivity();
+                         }
+                       })
+                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                          public void onClick(DialogInterface dialog, int which) {
+                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                            finish();
+                          }
+                    });
+    return noNetworkBldr.create();
+  }
+  
+  private void showNetworkConnectionActivity() {
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+  }
+  
+
+//  @Override
+//  protected Dialog onCreateDialog(int id) {
+//    return super.onCreateDialog(id);
+//  }
   
   
   protected void refreshList() {    
     DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
       
       @Override
-      public void done() {
-        userPrefs.setExperimentListRefreshTime(new Date().getTime(), UserPreferences.FIND_EXPERIMENTS);
+      public void done(String resultCode) {
         reloadAdapter();
         refreshRefreshHeader();
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        if (resultCode != DownloadHelper.SUCCESS) {
+          showFailureDialog(resultCode);
+        }
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
@@ -202,6 +272,15 @@ public class FindExperimentsActivity extends Activity {
                                                   R.id.find_experiments_list, 
                                                   experiments);
     list.setAdapter(adapter);
+  }
+  
+  private void showFailureDialog(String status) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    } else {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+    }      
   }
   
   private class AvailableExperimentsListAdapter extends ArrayAdapter<Experiment> {

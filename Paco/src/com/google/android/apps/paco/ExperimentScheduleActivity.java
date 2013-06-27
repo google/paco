@@ -59,6 +59,8 @@ import android.widget.Toast;
 
 public class ExperimentScheduleActivity extends Activity {
   
+  public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
+  
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
   private Uri uri;
@@ -598,7 +600,7 @@ public class ExperimentScheduleActivity extends Activity {
         
         @Override
         public void done(String resultCode) {
-          dismissDialog(DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
+          dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
           if (resultCode.equals(DownloadHelper.SUCCESS)) {
             saveDownloadedExperiment();
           } else {
@@ -606,7 +608,7 @@ public class ExperimentScheduleActivity extends Activity {
           }
         }
       };
-      showDialog(DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
+      showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
       experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), experimentProviderUtil, experiment);
       experimentDownloadTask.execute();
     }
@@ -653,7 +655,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
-      case DownloadHelper.REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
+      case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
           return getRefreshJoinedDialog();
       } case DownloadHelper.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));

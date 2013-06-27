@@ -243,7 +243,7 @@ public class ExperimentDetailActivity extends Activity {
     DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
 
       @Override
-      public void done() {          
+      public void done(String unusedResult) {          
           experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
           dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
           if (experiment != null) {

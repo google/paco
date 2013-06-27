@@ -41,17 +41,17 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
 
   protected String doInBackground(Void... params) {
     DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
-    downloadHelper.updateAvailableExperiments();
-    return null;
+    String errorCode = downloadHelper.updateAvailableExperiments();
+    return errorCode;
   }
-
+  
   protected void onProgressUpdate() {
 
   }
 
-  protected void onPostExecute(String unusedResult) {
+  protected void onPostExecute(String errorCode) {
     if (listener != null) {
-      listener.done();
+      listener.done(errorCode);
     }
   }
 }
