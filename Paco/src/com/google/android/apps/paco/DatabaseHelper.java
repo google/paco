@@ -31,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //	  this.sqlInput = in;
     this.context = context;
   }
-
+  
   // For testing
   DatabaseHelper(Context context, String dbName, int dbVersion) {
     super(context, dbName, null, dbVersion);
@@ -176,6 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       }
     }
     if (oldVersion <= 13) {
+      
       HashMap<Integer, String> startDatePairs = convertDateLongsToStrings(db, 
                                                                           ExperimentProvider.EXPERIMENTS_TABLE_NAME,
                                                                           ExperimentColumns.START_DATE, ExperimentColumns._ID);
