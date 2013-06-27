@@ -32,7 +32,7 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   private ExperimentProviderUtil experimentProviderUtil;
   private DownloadFullExperimentsTaskListener listener;
   private List<Experiment> experiments;
-  private Boolean isFullJoinedRefresh;
+  private Boolean isAllRunningUpdate;
 
   @SuppressWarnings("unchecked")
   public DownloadFullExperimentsTask(Activity activity, 
@@ -40,13 +40,13 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
                                      UserPreferences userPrefs, 
                                      ExperimentProviderUtil experimentProviderUtil, 
                                      List<Experiment> experiments,
-                                     Boolean isFullJoinedRefresh) {
+                                     Boolean isAllRunningUpdate) {
     enclosingActivity = activity;      
     this.listener = listener;
     this.userPrefs = userPrefs;
     this.experimentProviderUtil = experimentProviderUtil;
     this.experiments = experiments;
-    this.isFullJoinedRefresh = isFullJoinedRefresh;
+    this.isAllRunningUpdate = isAllRunningUpdate;
 
   }
   
@@ -63,13 +63,13 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
     this.experiments = new ArrayList<Experiment>();
     experiments.add(experiment);
     
-    this.isFullJoinedRefresh = false;
+    this.isAllRunningUpdate = false;
 
   }
 
   protected String doInBackground(Void... params) {
     DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
-    String errorCode = downloadHelper.updateRunningExperiments(experiments, isFullJoinedRefresh);
+    String errorCode = downloadHelper.updateRunningExperiments(experiments, isAllRunningUpdate);
     experiments = downloadHelper.getExperiments();
     return errorCode;
   }

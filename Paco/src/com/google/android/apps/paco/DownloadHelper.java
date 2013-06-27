@@ -19,8 +19,6 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 
 public class DownloadHelper {
 
-  public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
-  public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
   public static final int INVALID_DATA_ERROR = 1003;
   public static final int SERVER_ERROR = 1004;
   public static final int NO_NETWORK_CONNECTION = 1005;
@@ -46,25 +44,34 @@ public class DownloadHelper {
     this.userPrefs = userPrefs;
   }
 
-  public void updateAvailableExperiments() {
+  public String updateAvailableExperiments() {
     try {
       String contentAsString = makeExperimentRequest("short");
-      if (contentAsString != null) {
-        try {
-          experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-        } catch (JsonParseException e) {
-          Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
-        } catch (JsonMappingException e) {
-          Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString + ", " + e.getMessage());
-        } catch (UnsupportedCharsetException e) {
-          Log.e(PacoConstants.TAG, "UnsupportedCharset. json: " + contentAsString + ", " + e.getMessage());
-        } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
-        }
+
+      if (contentAsString == null) {
+        return DownloadHelper.RETRIEVAL_ERROR;
+      }
+
+      try {
+        experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+      } catch (JsonParseException e) {
+        Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
+        return DownloadHelper.CONTENT_ERROR;
+      } catch (JsonMappingException e) {
+        Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString + ", " + e.getMessage());
+        return DownloadHelper.CONTENT_ERROR;
+      } catch (UnsupportedCharsetException e) {
+        Log.e(PacoConstants.TAG, "UnsupportedCharset. json: " + contentAsString + ", " + e.getMessage());
+        return DownloadHelper.CONTENT_ERROR;
+      } catch (IOException e) {
+        Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
+        return DownloadHelper.CONTENT_ERROR;
       }
       userPrefs.setExperimentListRefreshTime(new Date().getTime(), UserPreferences.FIND_EXPERIMENTS);
+      return DownloadHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
+      return DownloadHelper.SERVER_COMMUNICATION_ERROR;
     } finally {
       if (manager != null) {
         manager.cleanUp();

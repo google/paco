@@ -17,10 +17,7 @@
 */
 package com.google.android.apps.paco;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.joda.time.DateTime;
 
@@ -35,8 +32,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -54,13 +49,14 @@ import android.widget.CursorAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
  *
  */
 public class RunningExperimentsActivity extends Activity {
+  
+  public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   
   private static final int DATA_EXPERIMENT_OPTION = 3;
   private static final int STOP_EXPERIMENT_OPTION = 2;
@@ -71,7 +67,6 @@ public class RunningExperimentsActivity extends Activity {
   private Cursor cursor;
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
-  private ProgressDialog  p;
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private BaseAdapter adapter;
@@ -128,14 +123,14 @@ public class RunningExperimentsActivity extends Activity {
       @Override
       public void done(String resultCode) {
         refreshRefreshHeader();
-        dismissDialog(DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID);
+        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
         if (resultCode != DownloadHelper.SUCCESS) {
           showFailureDialog(resultCode);
         }
       }
     };
  
-    showDialog(DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID);
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     List<Experiment> joinedExperiments = experimentProviderUtil.getJoinedExperiments();
     experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, joinedExperiments, true);
     experimentDownloadTask.execute();
@@ -284,7 +279,7 @@ public class RunningExperimentsActivity extends Activity {
   
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
-      case DownloadHelper.REFRESHING_EXPERIMENTS_DIALOG_ID: {
+      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
           return getRefreshJoinedDialog();
       } case DownloadHelper.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));
@@ -304,7 +299,7 @@ public class RunningExperimentsActivity extends Activity {
   }
   
   private ProgressDialog getRefreshJoinedDialog() {
-    return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
+    return ProgressDialog.show(this, getString(R.string.experiment_refresh),
                                getString(R.string.updating_your_joined_experiments_from_the_server), 
                                true, true);
   }

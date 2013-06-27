@@ -88,8 +88,6 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
   public static final int RESULT_SPEECH = 3;
 
-  private static DownloadFullExperimentsTask expTask;
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
