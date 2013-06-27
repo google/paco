@@ -161,7 +161,7 @@ public class FindExperimentsActivity extends Activity {
   
   private TextView createRefreshHeader() {
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.FIND_EXPERIMENTS);
+    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
     if (lastRefresh == null) {
       listHeader.setVisibility(View.GONE);
     } else {
@@ -175,7 +175,7 @@ public class FindExperimentsActivity extends Activity {
   
   private void refreshRefreshHeader() {
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getExperimentListRefreshTime(UserPreferences.FIND_EXPERIMENTS);
+    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
     String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
     listHeader.setText(header); 
   }
