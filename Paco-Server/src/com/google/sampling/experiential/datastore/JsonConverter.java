@@ -12,10 +12,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
-import com.google.gwt.thirdparty.guava.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentDAOCore;
-import com.google.paco.shared.model.SignalingMechanismDAO;
 
 public class JsonConverter {
 

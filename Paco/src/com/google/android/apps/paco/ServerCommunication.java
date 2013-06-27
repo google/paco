@@ -16,6 +16,11 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
+
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import android.app.AlarmManager;
@@ -74,16 +79,26 @@ public class ServerCommunication {
   private boolean isInFuture(DateTime time) {
     return time.isAfter(new DateTime().plusSeconds(10));
   }
-
-  public void updateRunningExperiments() {
-    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, userPrefs);
-    downloadHelper.updateAvailableExperiments();
-  }
   
   private void updateJoinedExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    DownloadHelper downloadHelper = new DownloadHelper(context, experimentProviderUtil, userPrefs);
-    downloadHelper.updateRunningExperiments(experimentProviderUtil.getJoinedExperiments(), true);
+    DownloadHelper downloadHelper = new DownloadHelper(context, userPrefs);
+    downloadHelper.downloadRunningExperiments(experimentProviderUtil.getJoinedExperimentServerIds());
+    saveDownloadedExperiments(experimentProviderUtil, downloadHelper.getContentAsString());
+  }
+
+  private void saveDownloadedExperiments(ExperimentProviderUtil experimentProviderUtil, 
+                                         String contentAsString) {
+    try {
+      experimentProviderUtil.updateExistingExperiments(contentAsString);
+    } catch (JsonParseException e) {
+      // Nothing to be done here.
+    } catch (JsonMappingException e) {
+      // Nothing to be done here.
+    } catch (UnsupportedCharsetException e) {
+      // Nothing to be done here.
+    } catch (IOException e) {
+      // Nothing to be done here.
+    }
   }
 }

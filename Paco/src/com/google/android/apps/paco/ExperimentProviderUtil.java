@@ -34,6 +34,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -63,6 +67,15 @@ public class ExperimentProviderUtil {
 
   public List<Experiment> getJoinedExperiments() {
     return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);    
+  }
+  
+  public List<Long> getJoinedExperimentServerIds() {
+    List<Long> experimentIds = Lists.transform(getJoinedExperiments(), new Function<Experiment, Long>() {
+      public Long apply(Experiment experiment) {
+        return experiment.getServerId();
+      }
+    });
+    return experimentIds;
   }
 
   public Experiment getExperiment(Uri uri) {
@@ -171,6 +184,11 @@ public class ExperimentProviderUtil {
           "_id = ?", 
           selectionArgs);
     }
+  }
+  
+  public void updateExistingExperiments(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    List<Experiment> experimentList = getExperimentsFromJson(contentAsString);
+    updateExistingExperiments(experimentList);
   }
   
   /**
