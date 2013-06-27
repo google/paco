@@ -168,12 +168,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 - (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler {
-  if (!self.service) {
-    self.service = [[PacoService alloc] init];
-  }
-  // Authorize the service.
-  self.service.authenticator = self.authenticator;
-
   // Load the experiment definitions.
   self.model = [PacoModel pacoModelFromFile];
   
