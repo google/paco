@@ -43,6 +43,37 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 @synthesize jsonObjectDefinitions;
 @synthesize jsonObjectInstances;
 
+#pragma mark Object Lifecycle
+- (id)initWithDefinitionJSON:(id)jsonDefintions
+                instanceJSON:(id)jsonInstances {
+  self = [super init];
+  if (self) {
+    [self applyDefinitionJSON:jsonDefintions];
+    [self applyInstanceJSON:jsonInstances];
+  }
+  return self;
+}
+
++ (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
+                     instanceJSON:(id)jsonInstances {
+  return [[PacoModel alloc] initWithDefinitionJSON:jsonDefintions
+                                      instanceJSON:jsonInstances];
+}
+
++ (PacoModel *)pacoModelFromFile {
+  PacoModel *model = [[PacoModel alloc] init];
+  BOOL loaded = [model loadFromFile];
+  if (!loaded) {
+    return nil;
+  }
+  return model;
+}
+
+- (NSString *)description {
+  return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
+}
+
+
 - (void)applyDefinitionJSON:(id)jsonObject {
   NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
@@ -106,25 +137,6 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   [self updateExperimentInstances:instances];
 }
 
-- (id)initWithDefinitionJSON:(id)jsonDefintions
-                instanceJSON:(id)jsonInstances {
-  self = [super init];
-  if (self) {
-    [self applyDefinitionJSON:jsonDefintions];
-    [self applyInstanceJSON:jsonInstances];
-  }
-  return self;
-}
-
-+ (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
-                     instanceJSON:(id)jsonInstances {
-  return [[PacoModel alloc] initWithDefinitionJSON:jsonDefintions
-                                      instanceJSON:jsonInstances];
-}
-
-- (NSString *)description {
-  return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
-}
 
 - (NSArray *)joinedExperiments {
   NSMutableArray *array = [NSMutableArray array];
@@ -249,6 +261,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   self.jsonObjectInstances = experiments;
 }
 
+#pragma mark file writing operations
 - (BOOL)saveExperimentDefinitionsToFile {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -307,6 +320,19 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   return success;
 }
 
+- (BOOL)deleteFile {
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString *documentsDirectory = [paths objectAtIndex:0];
+  NSString *fileName = [NSString stringWithFormat:@"%@/definitions.plist", documentsDirectory];
+  NSError *error = nil;
+  if ([[NSFileManager defaultManager] removeItemAtPath:fileName error:&error] != YES) {
+    return NO;
+  }
+  return YES;
+}
+
+
+#pragma mark file reading operations
 - (BOOL)loadExperimentDefinitionsFromFile {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -380,24 +406,5 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   return success;
 }
 
-- (BOOL)deleteFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/definitions.plist", documentsDirectory];
-  NSError *error = nil;
-  if ([[NSFileManager defaultManager] removeItemAtPath:fileName error:&error] != YES) {
-    return NO;
-  }
-  return YES;
-}
-
-+ (PacoModel *)pacoModelFromFile {
-  PacoModel *model = [[PacoModel alloc] init];
-  BOOL loaded = [model loadFromFile];
-  if (!loaded) {
-    return nil;
-  }
-  return model;
-}
 
 @end
