@@ -18,10 +18,13 @@
 package com.google.android.apps.paco;
 
 import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import com.pacoapp.paco.R;
@@ -38,6 +41,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -66,6 +70,8 @@ public class FindExperimentsActivity extends Activity {
   public UserPreferences userPrefs;
   protected AvailableExperimentsListAdapter adapter;
   private List<Experiment> experiments;
+  
+  private static DownloadShortExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +179,8 @@ public class FindExperimentsActivity extends Activity {
     return listHeader;
   }
   
-  private void refreshRefreshHeader() {
+  private void saveRefreshTime() {
+    userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
     DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
     String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
@@ -254,16 +261,34 @@ public class FindExperimentsActivity extends Activity {
       
       @Override
       public void done(String resultCode) {
-        reloadAdapter();
-        refreshRefreshHeader();
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        if (resultCode != DownloadHelper.SUCCESS) {
+        if (resultCode == DownloadHelper.SUCCESS) {
+          saveDownloadedExperiments();
+          saveRefreshTime();
+          reloadAdapter();
+        } else {
           showFailureDialog(resultCode);
         }
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadShortExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
+    experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
+    experimentDownloadTask.execute();
+  }
+  
+  private void saveDownloadedExperiments() {
+    try {
+      String contentAsString = experimentDownloadTask.getContentAsString();
+      experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+    } catch (JsonParseException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (JsonMappingException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (UnsupportedCharsetException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (IOException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    }
   }
 
   private void reloadAdapter() {

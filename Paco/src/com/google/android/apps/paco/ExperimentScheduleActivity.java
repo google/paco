@@ -16,14 +16,19 @@
  */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 
 import android.app.Activity;
@@ -609,7 +614,9 @@ public class ExperimentScheduleActivity extends Activity {
         }
       };
       showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
-      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), experimentProviderUtil, experiment);
+      List<Long> experimentServerIds = Arrays.asList(experiment.getServerId());
+      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), 
+                                                               experimentServerIds);
       experimentDownloadTask.execute();
     }
   }
@@ -625,12 +632,30 @@ public class ExperimentScheduleActivity extends Activity {
   
   private void saveDownloadedExperiment() {
     SignalSchedule oldSchedule = experiment.getSchedule();
-    List<Experiment> experimentList = experimentDownloadTask.getExperiments();
+    List<Experiment> experimentList = getDownloadedExperimentsList();
     Preconditions.checkArgument(experimentList.size() == 1);
     experiment = experimentList.get(0);
     experiment.setSchedule(oldSchedule);
     scheduleExperiment();
     Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
+  }
+
+  private List<Experiment> getDownloadedExperimentsList() {
+    String contentAsString = experimentDownloadTask.getContentAsString();
+    List<Experiment> experimentList;
+    try {
+      experimentList = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
+    } catch (JsonParseException e) {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+      return null;
+    } catch (JsonMappingException e) {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+      return null;
+    } catch (IOException e) {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+      return null;
+    }
+    return experimentList;
   }
 
   private Validation isValid() {

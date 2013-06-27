@@ -29,48 +29,26 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Activity enclosingActivity;
   private UserPreferences userPrefs;
-  private ExperimentProviderUtil experimentProviderUtil;
   private DownloadFullExperimentsTaskListener listener;
-  private List<Experiment> experiments;
-  private Boolean isAllRunningUpdate;
+  // private List<Experiment> experiments;
+  private List<Long> experimentIds;
+  private String contentAsString;
 
   @SuppressWarnings("unchecked")
   public DownloadFullExperimentsTask(Activity activity, 
                                      DownloadFullExperimentsTaskListener listener, 
                                      UserPreferences userPrefs, 
-                                     ExperimentProviderUtil experimentProviderUtil, 
-                                     List<Experiment> experiments,
-                                     Boolean isAllRunningUpdate) {
+                                     List<Long> experimentIds) {
     enclosingActivity = activity;      
     this.listener = listener;
     this.userPrefs = userPrefs;
-    this.experimentProviderUtil = experimentProviderUtil;
-    this.experiments = experiments;
-    this.isAllRunningUpdate = isAllRunningUpdate;
-
-  }
-  
-  public DownloadFullExperimentsTask(Activity activity, 
-                                     DownloadFullExperimentsTaskListener listener, 
-                                     UserPreferences userPrefs, 
-                                     ExperimentProviderUtil experimentProviderUtil, 
-                                     Experiment experiment) {
-    enclosingActivity = activity;      
-    this.listener = listener;
-    this.userPrefs = userPrefs;
-    this.experimentProviderUtil = experimentProviderUtil;
-    
-    this.experiments = new ArrayList<Experiment>();
-    experiments.add(experiment);
-    
-    this.isAllRunningUpdate = false;
-
+    this.experimentIds = experimentIds;
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
-    String errorCode = downloadHelper.updateRunningExperiments(experiments, isAllRunningUpdate);
-    experiments = downloadHelper.getExperiments();
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, userPrefs);
+    String errorCode = downloadHelper.downloadRunningExperiments(experimentIds);
+    contentAsString = downloadHelper.getContentAsString();
     return errorCode;
   }
    
@@ -83,8 +61,8 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
       listener.done(resultCode);
     }
   }
-
-  public List<Experiment> getExperiments() {
-    return experiments; 
+  
+  public String getContentAsString() {
+    return contentAsString;
   }
 }

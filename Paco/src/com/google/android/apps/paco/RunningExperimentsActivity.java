@@ -17,8 +17,13 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import com.pacoapp.paco.R;
@@ -35,6 +40,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -122,21 +128,39 @@ public class RunningExperimentsActivity extends Activity {
       
       @Override
       public void done(String resultCode) {
-        refreshRefreshHeader();
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        if (resultCode != DownloadHelper.SUCCESS) {
+        if (resultCode == DownloadHelper.SUCCESS) {
+          saveDownloadedExperiments();
+          saveRefreshTime();
+        } else {
           showFailureDialog(resultCode);
         }
       }
     };
  
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    List<Experiment> joinedExperiments = experimentProviderUtil.getJoinedExperiments();
-    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentProviderUtil, joinedExperiments, true);
+    List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
+    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, joinedExperimentServerIds);
     experimentDownloadTask.execute();
   }
   
-  private void refreshRefreshHeader() {
+  private void saveDownloadedExperiments() {
+    try {
+      String contentAsString = experimentDownloadTask.getContentAsString();
+      experimentProviderUtil.updateExistingExperiments(contentAsString);
+    } catch (JsonParseException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (JsonMappingException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (UnsupportedCharsetException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (IOException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    }
+  }
+  
+  private void saveRefreshTime() {
+    userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
     DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
     String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);

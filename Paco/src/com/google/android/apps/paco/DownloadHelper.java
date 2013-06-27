@@ -26,48 +26,29 @@ public class DownloadHelper {
   public static final int ENABLED_NETWORK = 1;
   
   private Context context;
-  private ExperimentProviderUtil experimentProviderUtil;
   private UrlContentManager manager;
   private UserPreferences userPrefs;
-  private List<Experiment> experimentsList;
+  private String contentAsString;
   public static final String EXECUTION_ERROR = "execution_error";
   public static final String SERVER_COMMUNICATION_ERROR = "server_communication_error";
   public static final String CONTENT_ERROR = "content_error";
   public static final String RETRIEVAL_ERROR = "retrieval_error";
   public static final String SUCCESS = "success";
 
-  public DownloadHelper(Context context, ExperimentProviderUtil experimentProviderUtil, 
-                        UserPreferences userPrefs) {
+  public DownloadHelper(Context context, UserPreferences userPrefs) {
     this.context = context;
-    this.experimentProviderUtil = experimentProviderUtil;
     this.manager = new UrlContentManager(context);
     this.userPrefs = userPrefs;
   }
 
-  public String updateAvailableExperiments() {
+  public String downloadAvailableExperiments() {
     try {
-      String contentAsString = makeExperimentRequest("short");
+      contentAsString = makeExperimentRequest("short");
 
       if (contentAsString == null) {
         return DownloadHelper.RETRIEVAL_ERROR;
       }
-
-      try {
-        experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-      } catch (JsonParseException e) {
-        Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (JsonMappingException e) {
-        Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (UnsupportedCharsetException e) {
-        Log.e(PacoConstants.TAG, "UnsupportedCharset. json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (IOException e) {
-        Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      }
-      userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
+      
       return DownloadHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
@@ -79,35 +60,12 @@ public class DownloadHelper {
     }
   }
 
-  public String updateRunningExperiments(List<Experiment> experiments, Boolean isAllRunningUpdate) {
+  public String downloadRunningExperiments(List<Long> experimentIds) {
     try {
-      String pathSuffix = getExperimentIdList(experiments);
-      String contentAsString = makeExperimentRequest("id=" + pathSuffix);
-
+      String experimentIdSuffix = formatExperimentIdList(experimentIds);
+      contentAsString = makeExperimentRequest("id=" + experimentIdSuffix);
       if (contentAsString == null) {
         return DownloadHelper.RETRIEVAL_ERROR;
-      }
-
-      try {
-        experimentsList = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
-        if (isAllRunningUpdate) {
-          experimentProviderUtil.updateExistingExperiments(experimentsList);
-        }
-      } catch (JsonParseException e) {
-        Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (JsonMappingException e) {
-        Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (UnsupportedCharsetException e) {
-        Log.e(PacoConstants.TAG, "UnsupportedCharset. json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      } catch (IOException e) {
-        Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
-        return DownloadHelper.CONTENT_ERROR;
-      }
-      if (isAllRunningUpdate) {
-        userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
       }
       return DownloadHelper.SUCCESS; 
     } catch (Exception e) {
@@ -119,6 +77,10 @@ public class DownloadHelper {
       }
     }
   }
+  
+  public String getContentAsString() {
+    return contentAsString;
+  }
 
   private String makeExperimentRequest(String flag) throws Exception {
     String serverAddress = userPrefs.getServerAddress();
@@ -128,17 +90,8 @@ public class DownloadHelper {
         .addHeader("paco.version", AndroidUtils.getAppVersion(context)).execute();
     return response.getContentAsString();
   }
-  
-  public List<Experiment> getExperiments() {
-    return experimentsList;
-  }
 
-  private String getExperimentIdList(List<Experiment> experiments) {
-    List<Long> experimentIds = Lists.transform(experiments, new Function<Experiment, Long>() {
-      public Long apply(Experiment experiment) {
-        return experiment.getServerId();
-      }
-    });
+  private String formatExperimentIdList(List<Long> experimentIds) {
     String list = Joiner.on(",").join(experimentIds);
     return list;
   }

@@ -24,24 +24,22 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Activity enclosingActivity;
   private UserPreferences userPrefs;
-  private ExperimentProviderUtil experimentProviderUtil;
   private DownloadShortExperimentsTaskListener listener;
+  private String contentAsString;
 
   @SuppressWarnings("unchecked")
   public DownloadShortExperimentsTask(Activity activity, 
                                  DownloadShortExperimentsTaskListener listener, 
-                                 UserPreferences userPrefs, 
-                                 ExperimentProviderUtil experimentProviderUtil) {
+                                 UserPreferences userPrefs) {
     enclosingActivity = activity;      
     this.listener = listener;
     this.userPrefs = userPrefs;
-    this.experimentProviderUtil = experimentProviderUtil;
-
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, experimentProviderUtil, userPrefs);
-    String errorCode = downloadHelper.updateAvailableExperiments();
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, userPrefs);
+    String errorCode = downloadHelper.downloadAvailableExperiments();
+    contentAsString = downloadHelper.getContentAsString();
     return errorCode;
   }
   
@@ -53,5 +51,9 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
     if (listener != null) {
       listener.done(errorCode);
     }
+  }
+  
+  public String getContentAsString() {
+    return contentAsString;
   }
 }

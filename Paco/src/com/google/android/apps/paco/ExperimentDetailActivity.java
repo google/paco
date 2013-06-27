@@ -256,7 +256,7 @@ public class ExperimentDetailActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadShortExperimentsTask(this, listener, userPrefs, experimentProviderUtil).execute();
+    new DownloadShortExperimentsTask(this, listener, userPrefs).execute();
 
   }
   
