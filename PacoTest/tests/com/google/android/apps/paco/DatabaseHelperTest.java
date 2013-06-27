@@ -1,34 +1,33 @@
 package com.google.android.apps.paco;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashMap;
+import com.google.android.apps.paco.DatabaseHelper;
+import com.google.android.apps.paco.ExperimentColumns;
+import com.google.android.apps.paco.ExperimentProvider;
+import com.google.android.apps.paco.TimeUtil;
+import com.google.common.base.Splitter;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.test.AndroidTestCase;
-
-import junit.framework.TestCase;
-
 
 public class DatabaseHelperTest extends AndroidTestCase {
   
-  private static String v13DB = "v13db.db";
-  private static String v13DB_TEST = "v13db-test.db";
+  private static String v13DB_OLD = "v13db-old.db";
+  private static String v13DB_TO_MIGRATE = "v13db-to-migrate.db";
   
   public void testMigration13To14() throws Exception {
-   
-    copy13db();
     
-    DatabaseHelper oldDbHelper = new DatabaseHelper(getContext(), v13DB, 13);
-    SQLiteDatabase oldDb = oldDbHelper.getReadableDatabase();
+    DatabaseHelper13Mock oldDbHelper = new DatabaseHelper13Mock(getContext(), v13DB_OLD, 13);
+    SQLiteDatabase oldDb = oldDbHelper.getWritableDatabase();
     
-    DatabaseHelper newDbHelper = new DatabaseHelper(getContext(), v13DB_TEST, 14);
-    SQLiteDatabase newDb = newDbHelper.getReadableDatabase();
+    DatabaseHelper13Mock tempDbHelper = new DatabaseHelper13Mock(getContext(), v13DB_TO_MIGRATE, 13);
+    SQLiteDatabase tempDb = tempDbHelper.getWritableDatabase();
+    tempDb.setVersion(13);
+    
+    DatabaseHelper newDbHelper = new DatabaseHelper(getContext(), v13DB_TO_MIGRATE, 14);
+    SQLiteDatabase newDb = newDbHelper.getWritableDatabase();
     
     String[] columns = {ExperimentColumns._ID, ExperimentColumns.FIXED_DURATION, 
                         ExperimentColumns.START_DATE, ExperimentColumns.END_DATE,
@@ -44,25 +43,15 @@ public class DatabaseHelperTest extends AndroidTestCase {
     try {  
       checkDateEquality(oldCursor, newCursor);
     } finally {
-      newCursor.close();
       oldCursor.close();
-      File newDbFile = new File(v13DB_TEST);
-      newDbFile.delete();
+      newCursor.close();
+      oldDb.close();
+      newDb.close();
+      getContext().deleteDatabase(v13DB_OLD);
+      getContext().deleteDatabase(v13DB_TO_MIGRATE);
     }
   }
-
   
-  private void copy13db() throws IOException {
-    InputStream in = new FileInputStream(v13DB);
-    OutputStream out = new FileOutputStream(v13DB_TEST);
-    byte[] buf = new byte[1024];
-    int len;
-    while ((len = in.read(buf)) > 0) {
-      out.write(buf, 0, len);
-    }
-    in.close();
-    out.close();
-  }
   
   private void checkDateEquality(Cursor oldCursor, Cursor newCursor) {
     while (oldCursor.moveToNext() && newCursor.moveToNext()) {
@@ -106,3 +95,31 @@ public class DatabaseHelperTest extends AndroidTestCase {
     return TimeUtil.formatDateWithZone(dateLong);
   }
 }
+
+class DatabaseHelper13Mock extends SQLiteOpenHelper {
+  
+  DatabaseHelper13Mock(Context context, String dbName, int dbVersion) {
+    super(context, dbName, null, dbVersion);
+  }
+  
+  @Override
+  public void onCreate(SQLiteDatabase db) {
+    executeBatchSql(db);
+  }
+  
+  @Override
+  public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    // Nothing to be done here.
+  }
+  
+  private void executeBatchSql(SQLiteDatabase db) {
+    Iterable<String> sqlCommands = Splitter.on("\n").split(DatabaseHelperTestSchemata.v13_MOCK_SCHEMA);
+    for (String command : sqlCommands) {
+      System.out.println(command);
+      db.execSQL(command);
+    }
+  }
+ 
+}
+
+
