@@ -67,7 +67,7 @@ public class DownloadHelper {
         Log.e(PacoConstants.TAG, "IOException. json: " + contentAsString + ", " + e.getMessage());
         return DownloadHelper.CONTENT_ERROR;
       }
-      userPrefs.setExperimentListRefreshTime(new Date().getTime(), UserPreferences.FIND_EXPERIMENTS);
+      userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
       return DownloadHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
@@ -107,7 +107,7 @@ public class DownloadHelper {
         return DownloadHelper.CONTENT_ERROR;
       }
       if (isAllRunningUpdate) {
-        userPrefs.setExperimentListRefreshTime(new Date().getTime(), UserPreferences.JOINED_EXPERIMENTS);
+        userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
       }
       return DownloadHelper.SUCCESS; 
     } catch (Exception e) {
