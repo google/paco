@@ -17,36 +17,31 @@
 
 package com.google.android.apps.paco;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
-  private final Activity enclosingActivity;
+  private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadFullExperimentsTaskListener listener;
-  // private List<Experiment> experiments;
   private List<Long> experimentIds;
   private String contentAsString;
 
   @SuppressWarnings("unchecked")
-  public DownloadFullExperimentsTask(Activity activity, 
+  public DownloadFullExperimentsTask(Context context,
                                      DownloadFullExperimentsTaskListener listener, 
                                      UserPreferences userPrefs, 
                                      List<Long> experimentIds) {
-    enclosingActivity = activity;      
+    this.enclosingContext = context;
     this.listener = listener;
     this.userPrefs = userPrefs;
     this.experimentIds = experimentIds;
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, userPrefs);
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs);
     String errorCode = downloadHelper.downloadRunningExperiments(experimentIds);
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;

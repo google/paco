@@ -29,7 +29,7 @@ public class AllTests extends TestCase {
     Class[] tests = new Class[] {
       com.google.sampling.experiential.server.EventMatcherTest.class,
       com.google.sampling.experiential.server.QueryParserTest.class,
-      com.google.sampling.experiential.server.ExperimentServletTest.class
+      com.google.sampling.experiential.server.ExperimentServletHandlerTest.class
     };
     return new TestSuite(tests);
   }

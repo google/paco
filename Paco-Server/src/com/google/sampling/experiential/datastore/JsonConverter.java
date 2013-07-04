@@ -106,7 +106,8 @@ public class JsonConverter {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     try {
-      ExperimentDAO experiment = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
+      // ExperimentDAO experiment = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
+      ExperimentDAO experiment = mapper.readValue(experimentJson, new TypeReference<ExperimentDAO>() {});
       return experiment;
     } catch (JsonParseException e) {
       log.severe("Could not parse json. " + e.getMessage());

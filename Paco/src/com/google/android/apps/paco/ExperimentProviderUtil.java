@@ -52,12 +52,14 @@ import android.util.Log;
 public class ExperimentProviderUtil {
 
   private Context context;
+  private ContentResolver contentResolver;
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String FILENAME = "experiments";
   
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
+    this.contentResolver = context.getContentResolver();
   }
 
   public List<Experiment> getExperiments() {
@@ -94,7 +96,7 @@ public class ExperimentProviderUtil {
   }
 
   public Uri insertExperiment(Experiment experiment) {
-    return context.getContentResolver().insert(ExperimentColumns.CONTENT_URI, 
+    return contentResolver.insert(ExperimentColumns.CONTENT_URI, 
         createContentValues(experiment));
   }
 
@@ -118,7 +120,7 @@ public class ExperimentProviderUtil {
 //    loadScheduleForExperiment(experiment);
 //    experiment.unsetId();
 
-    ContentResolver contentResolver = context.getContentResolver();
+    // ContentResolver contentResolver = context.getContentResolver();      // PRIYA
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI, 
         createContentValues(experiment));
     
@@ -126,7 +128,6 @@ public class ExperimentProviderUtil {
     
     experiment.setId(rowId);
     SignalSchedule schedule = experiment.getSchedule();
-//    schedule.setId(null);
     if (schedule != null) {
       schedule.setExperimentId(rowId);
       schedule.setBeginDate(experiment.getJoinDate().getMillis());
@@ -146,6 +147,13 @@ public class ExperimentProviderUtil {
 
     return uri;
   }
+  
+  // For testing
+  public Uri insertFullJoinedExperiment(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    Experiment experiment = getSingleExperimentFromJson(contentAsString);
+    experiment.setJoinDate(new DateTime());
+    return insertFullJoinedExperiment(experiment);
+  }
 
   private void loadScheduleForExperiment(Experiment experiment) {
       String select = SignalScheduleColumns.EXPERIMENT_ID + " = " + experiment.getId();
@@ -161,7 +169,7 @@ public class ExperimentProviderUtil {
   private SignalSchedule findScheduleBy(String select) {
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(SignalScheduleColumns.CONTENT_URI,
+      cursor = contentResolver.query(SignalScheduleColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
         return createSchedule(cursor);    
@@ -180,7 +188,7 @@ public class ExperimentProviderUtil {
     Experiment experiment = getExperiment(experimentId);
     if (experiment != null) {
       String[] selectionArgs = new String[] {Long.toString(experimentId)};
-      context.getContentResolver().delete(ExperimentColumns.CONTENT_URI, 
+      contentResolver.delete(ExperimentColumns.CONTENT_URI, 
           "_id = ?", 
           selectionArgs);
     }
@@ -255,22 +263,22 @@ public class ExperimentProviderUtil {
   }
 
   private int deleteScheduleForExperiment(Long id) {
-    return context.getContentResolver().delete(SignalScheduleColumns.CONTENT_URI, 
+    return contentResolver.delete(SignalScheduleColumns.CONTENT_URI, 
         SignalScheduleColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   private int deleteAllFeedbackForExperiment(Long id) {
-    return context.getContentResolver().delete(FeedbackColumns.CONTENT_URI, 
+    return contentResolver.delete(FeedbackColumns.CONTENT_URI, 
         FeedbackColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   private int deleteAllInputsForExperiment(Long id) {
-    return context.getContentResolver().delete(InputColumns.CONTENT_URI, 
+    return contentResolver.delete(InputColumns.CONTENT_URI, 
           InputColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   public void updateJoinedExperiment(Experiment experiment) {
-    int count = context.getContentResolver().update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
+    int count = contentResolver.update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
         createContentValues(experiment), 
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
@@ -281,17 +289,17 @@ public class ExperimentProviderUtil {
   }
 
   public void deleteAllExperiments() {
-    context.getContentResolver().delete(ExperimentColumns.CONTENT_URI, null, null);
-    context.getContentResolver().delete(SignalScheduleColumns.CONTENT_URI, null, null);
-    context.getContentResolver().delete(InputColumns.CONTENT_URI, null, null);
-    context.getContentResolver().delete(FeedbackColumns.CONTENT_URI, null, null);
+    contentResolver.delete(ExperimentColumns.CONTENT_URI, null, null);
+    contentResolver.delete(SignalScheduleColumns.CONTENT_URI, null, null);
+    contentResolver.delete(InputColumns.CONTENT_URI, null, null);
+    contentResolver.delete(FeedbackColumns.CONTENT_URI, null, null);
   }
 
   public void deleteAllJoinedExperiments() {
     // TODO first select all joined_experiments ids. 
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
+      cursor = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
           new String[] { ExperimentColumns._ID },
           ExperimentColumns.JOIN_DATE + " IS NOT NULL ", 
           null, null);
@@ -306,14 +314,14 @@ public class ExperimentProviderUtil {
           lineCount++;
         }
         String idsString = idsStringBuilder.toString();
-        context.getContentResolver().delete(
+        contentResolver.delete(
             ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, null, null);
         // TODO delete all from child tables where experiment_ids match 
-        context.getContentResolver().delete(SignalScheduleColumns.CONTENT_URI,
+        contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
             InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        context.getContentResolver().delete(InputColumns.CONTENT_URI,
+        contentResolver.delete(InputColumns.CONTENT_URI,
             InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        context.getContentResolver().delete(FeedbackColumns.CONTENT_URI,
+        contentResolver.delete(FeedbackColumns.CONTENT_URI,
             FeedbackColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
       }
     } finally {
@@ -327,7 +335,7 @@ public class ExperimentProviderUtil {
   private Experiment findExperimentBy(String select, Uri contentUri) {
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(contentUri,
+      cursor = contentResolver.query(contentUri,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
         Experiment experiment = createExperiment(cursor);
@@ -350,7 +358,7 @@ public class ExperimentProviderUtil {
     List<Experiment> experiments = new ArrayList<Experiment>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(contentUri,
+      cursor = contentResolver.query(contentUri,
           null, select, null, null);
       if (cursor != null) {
         while (cursor.moveToNext()) {
@@ -535,8 +543,16 @@ public class ExperimentProviderUtil {
     return values;
   }
 
+  // Visible for testing
+  public List<String> getJsonList(List<Experiment> experiments) {
+    List<String> experimentJsons = Lists.newArrayList();
+    for (Experiment experiment : experiments) {
+      experimentJsons.add(getJson(experiment));
+    }
+    return experimentJsons;
+  }
   
-  private String getJson(Experiment experiment) {
+  public String getJson(Experiment experiment) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 
@@ -580,7 +596,7 @@ public class ExperimentProviderUtil {
   }
   
   public Uri insertInput(Input input) {
-    return context.getContentResolver().insert(InputColumns.CONTENT_URI, 
+    return contentResolver.insert(InputColumns.CONTENT_URI, 
         createContentValues(input));
   }
 
@@ -588,21 +604,21 @@ public class ExperimentProviderUtil {
     Input input = getInput(inputId);
     if (input != null) {
       String[] selectionArgs = new String[] {Long.toString(inputId)};
-      context.getContentResolver().delete(InputColumns.CONTENT_URI, 
+      contentResolver.delete(InputColumns.CONTENT_URI, 
           "_id = ?", 
           selectionArgs);
     }
   }
   
   public void updateInput(Input input) {
-    context.getContentResolver().update(InputColumns.CONTENT_URI,
+    contentResolver.update(InputColumns.CONTENT_URI,
         createContentValues(input), "_id=" + input.getId(), null);
   }
   
   private Input findInputBy(String select) {
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(InputColumns.CONTENT_URI,
+      cursor = contentResolver.query(InputColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
         return createInput(cursor);    
@@ -621,7 +637,7 @@ public class ExperimentProviderUtil {
     List<Input> inputs = new ArrayList<Input>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(InputColumns.CONTENT_URI,
+      cursor = contentResolver.query(InputColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null) {
         while (cursor.moveToNext()) {
@@ -829,7 +845,7 @@ public class ExperimentProviderUtil {
   }
   
   public Uri insertFeedback(Feedback feedback) {
-    return context.getContentResolver().insert(FeedbackColumns.CONTENT_URI, 
+    return contentResolver.insert(FeedbackColumns.CONTENT_URI, 
         createContentValues(feedback));
   }
 
@@ -837,21 +853,21 @@ public class ExperimentProviderUtil {
     Feedback feedback = getFeedbackItem(feedbackId);
     if (feedback != null) {
       String[] selectionArgs = new String[] {Long.toString(feedbackId)};
-      context.getContentResolver().delete(FeedbackColumns.CONTENT_URI, 
+      contentResolver.delete(FeedbackColumns.CONTENT_URI, 
           "_id = ?", 
           selectionArgs);
     }
   }
   
   public void updateFeedback(Feedback feedback) {
-    context.getContentResolver().update(FeedbackColumns.CONTENT_URI,
+    contentResolver.update(FeedbackColumns.CONTENT_URI,
         createContentValues(feedback), "_id=" + feedback.getId(), null);
   }
   
   private Feedback findFeedbackItemBy(String select) {
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(FeedbackColumns.CONTENT_URI,
+      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
         return createFeedback(cursor);    
@@ -870,7 +886,7 @@ public class ExperimentProviderUtil {
     List<Feedback> feedback = new ArrayList<Feedback>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(FeedbackColumns.CONTENT_URI,
+      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null) {
         while (cursor.moveToNext()) {
@@ -939,7 +955,7 @@ public class ExperimentProviderUtil {
   }
 
   public Uri insertEvent(Event event) {
-    Uri uri = context.getContentResolver().insert(EventColumns.CONTENT_URI, 
+    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, 
         createContentValues(event));
     long rowId = Long.parseLong(uri.getLastPathSegment());
     event.setId(rowId);
@@ -1116,19 +1132,19 @@ public class ExperimentProviderUtil {
     Input input = getInput(scheduleId);
     if (input != null) {
       String[] selectionArgs = new String[] {Long.toString(scheduleId)};
-      context.getContentResolver().delete(SignalScheduleColumns.CONTENT_URI, 
+      contentResolver.delete(SignalScheduleColumns.CONTENT_URI, 
           "_id = ?", 
           selectionArgs);
     }
   }
   
   public void updateSchedule(SignalSchedule schedule) {
-    context.getContentResolver().update(SignalScheduleColumns.CONTENT_URI,
+    contentResolver.update(SignalScheduleColumns.CONTENT_URI,
         createContentValues(schedule), "_id=" + schedule.getId(), null);
   }
   
   public Uri insertSchedule(SignalSchedule schedule) {
-    return context.getContentResolver().insert(SignalScheduleColumns.CONTENT_URI, 
+    return contentResolver.insert(SignalScheduleColumns.CONTENT_URI, 
         createContentValues(schedule));
   }
 
@@ -1165,7 +1181,7 @@ public class ExperimentProviderUtil {
   }
 
   private Uri insertResponse(Output response) {
-    return context.getContentResolver().insert(OutputColumns.CONTENT_URI, 
+    return contentResolver.insert(OutputColumns.CONTENT_URI, 
         createContentValues(response));
   }
 
@@ -1193,7 +1209,7 @@ public class ExperimentProviderUtil {
   private Event findEventBy(String select, String sortOrder) {
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(EventColumns.CONTENT_URI,
+      cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, null, sortOrder);
       if (cursor != null && cursor.moveToNext()) {
         Event event = createEvent(cursor);
@@ -1214,7 +1230,7 @@ public class ExperimentProviderUtil {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(EventColumns.CONTENT_URI,
+      cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, null, sortOrder);
       if (cursor != null) {
         while (cursor.moveToNext()) {
@@ -1238,7 +1254,7 @@ public class ExperimentProviderUtil {
     List<Output> responses = new ArrayList<Output>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(OutputColumns.CONTENT_URI,
+      cursor = contentResolver.query(OutputColumns.CONTENT_URI,
           null, 
           OutputColumns.EVENT_ID + "=" + event.getId(), 
           null, 
@@ -1330,7 +1346,7 @@ public class ExperimentProviderUtil {
   }
 
   public void updateEvent(Event event) {
-    context.getContentResolver().update(EventColumns.CONTENT_URI,
+    contentResolver.update(EventColumns.CONTENT_URI,
         createContentValues(event), "_id=" + event.getId(), null);
   }
 
@@ -1354,7 +1370,7 @@ public class ExperimentProviderUtil {
     
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(ExperimentColumns.CONTENT_URI,
+      cursor = contentResolver.query(ExperimentColumns.CONTENT_URI,
           new String[] { ExperimentColumns._ID },
           ExperimentColumns.JOIN_DATE + " IS NULL ", 
           null, null);
@@ -1369,12 +1385,12 @@ public class ExperimentProviderUtil {
           lineCount++;
         }
         String idsString = idsStringBuilder.toString();
-        context.getContentResolver().delete(
+        contentResolver.delete(
             ExperimentColumns.CONTENT_URI, ExperimentColumns._ID + " in (" + idsString + ")", null);
         // TODO delete all from child tables where experiment_ids match 
-        context.getContentResolver().delete(InputColumns.CONTENT_URI,
+        contentResolver.delete(InputColumns.CONTENT_URI,
             InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        context.getContentResolver().delete(FeedbackColumns.CONTENT_URI,
+        contentResolver.delete(FeedbackColumns.CONTENT_URI,
             FeedbackColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
       }
     } finally {
@@ -1390,7 +1406,7 @@ public class ExperimentProviderUtil {
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
         null, selectionClause, selectionArgs, null);
       if (cursor.moveToFirst()) {
         return createNotification(cursor);
@@ -1409,7 +1425,7 @@ public class ExperimentProviderUtil {
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
         null, selectionClause, selectionArgs, null);
       while (cursor.moveToNext()) {
         holders.add(createNotification(cursor));
@@ -1454,7 +1470,7 @@ public class ExperimentProviderUtil {
   }
 
   public Uri insertNotification(NotificationHolder notification) {
-    Uri uri = context.getContentResolver().insert(NotificationHolderColumns.CONTENT_URI, 
+    Uri uri = contentResolver.insert(NotificationHolderColumns.CONTENT_URI, 
         createContentValues(notification));
     long rowId = Long.parseLong(uri.getLastPathSegment());
     notification.setId(rowId);
@@ -1466,7 +1482,7 @@ public class ExperimentProviderUtil {
     String selectionClause = NotificationHolderColumns._ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
         null, selectionClause, selectionArgs, null);
       if (cursor.moveToFirst()) {
         return createNotification(cursor);
@@ -1488,7 +1504,7 @@ public class ExperimentProviderUtil {
     if (holder != null) {
       String[] selectionArgs = new String[] {Long.toString(holder.getId())};    
       String selectionClause = NotificationHolderColumns._ID + " = ?";
-      context.getContentResolver().delete(NotificationHolderColumns.CONTENT_URI, 
+      contentResolver.delete(NotificationHolderColumns.CONTENT_URI, 
           selectionClause, selectionArgs);
     }
   }
@@ -1500,7 +1516,7 @@ public class ExperimentProviderUtil {
 
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
-    return context.getContentResolver().delete(NotificationHolderColumns.CONTENT_URI, 
+    return contentResolver.delete(NotificationHolderColumns.CONTENT_URI, 
         selectionClause, 
         selectionArgs);
   }
@@ -1509,7 +1525,7 @@ public class ExperimentProviderUtil {
     String[] selectionArgs = new String[] {Long.toString(notification.getId())};
     String selectionClause = NotificationHolderColumns._ID +" = ?";
     
-    return context.getContentResolver().update(NotificationHolderColumns.CONTENT_URI,
+    return contentResolver.update(NotificationHolderColumns.CONTENT_URI,
         createContentValues(notification), 
         selectionClause, selectionArgs);
   }
@@ -1541,7 +1557,7 @@ public class ExperimentProviderUtil {
     
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
         null, null, null, null);
       while (cursor.moveToNext()) {
         
@@ -1562,7 +1578,7 @@ public class ExperimentProviderUtil {
     List<NotificationHolder> notifs = new ArrayList<NotificationHolder>();    
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
         null, null, null, null);
       while (cursor.moveToNext()) {        
         notifs.add(createNotification(cursor));
@@ -1579,7 +1595,6 @@ public class ExperimentProviderUtil {
     FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
     fos.write(contentAsString.getBytes());
     fos.close();
-    
   }
 
   public List<Experiment> loadExperimentsFromDisk() {
@@ -1612,7 +1627,7 @@ public class ExperimentProviderUtil {
   public boolean hasJoinedExperiments() {
     Cursor query = null;
     try {
-      query = context.getContentResolver().query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+      query = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
             new String[] {ExperimentColumns._ID}, null, null, null);
       return query.moveToFirst();
     } finally {
@@ -1629,7 +1644,7 @@ public class ExperimentProviderUtil {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
-      cursor = context.getContentResolver().query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
+      cursor = contentResolver.query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
       if (cursor != null) {
         if (cursor.moveToFirst()) {
           Event event = createEvent(cursor);
