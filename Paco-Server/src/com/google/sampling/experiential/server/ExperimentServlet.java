@@ -56,7 +56,7 @@ public class ExperimentServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
     resp.setContentType("application/json;charset=UTF-8");
-
+    
     User user = getWhoFromLogin();
 
     if (user == null) {
@@ -64,18 +64,22 @@ public class ExperimentServlet extends HttpServlet {
     } else {
       String tz = req.getParameter("tz");
       logPacoClientVersion(req);
+      
+      String email = getEmailOfUser(req, user);
 
       String shortParam = req.getParameter("short");
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsJson = null;
+      ExperimentServletHandler handler;
       if (shortParam != null) {
-        experimentsJson = performShortLoad(req, resp, user, tz);
+        handler = new ExperimentServletShortLoadHandler(email, tz);
       } else if (selectedExperimentsParam != null && !selectedExperimentsParam.isEmpty()) {
-        experimentsJson = performSelectedExperimentsFullLoad(req, resp, user, tz, selectedExperimentsParam);
+        handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, tz, selectedExperimentsParam);
       } else {
-        experimentsJson = performAllExperimentsFullLoad(req, resp, user, tz);
+        handler = new ExperimentServletAllExperimentsFullLoadHandler(user.getUserId(), email, tz);
       }
 
+      experimentsJson = handler.performLoad();
       resp.getWriter().println(scriptBust(experimentsJson));
     }
   }
@@ -91,53 +95,6 @@ public class ExperimentServlet extends HttpServlet {
     }
   }
 
-  private String performShortLoad(HttpServletRequest req, HttpServletResponse resp, User user, String tz) {
-    List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(req, user, tz);
-    return JsonConverter.shortJsonify(availableExperiments);
-  }
-
-  private String performSelectedExperimentsFullLoad(HttpServletRequest req, HttpServletResponse resp, User user, String tz,
-                                                    String selectedExperimentsParam) {
-    List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(req, user, tz);
-    HashMap<Long, Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
-    return loadSelectedExperiments(experimentIds, availableExperiments);
-  }
-  
-  private String performAllExperimentsFullLoad(HttpServletRequest req, HttpServletResponse resp, User user, String tz) {
-    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-    String experimentsJson = cacheHelper.getExperimentsJsonForUser(user.getUserId());
-    if (experimentsJson != null) {
-      log.info("Got cached experiments for " + user.getEmail());
-    } else {
-      log.info("No cached experiments for " + user.getEmail());
-      List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(req, user, tz);
-      experimentsJson = JsonConverter.jsonify(availableExperiments);
-      cacheHelper.putExperimentJsonForUser(user.getUserId(), experimentsJson); 
-    } 
-    return experimentsJson;
-  }
-
-  private List<ExperimentDAO> getExperimentsAvailableToUser(HttpServletRequest req, User user, String tz) {
-    List<ExperimentDAO> joinableExperiments = getJoinableExperiments(tz);
-    String email = getEmailOfUser(req, user);
-    List<ExperimentDAO> availableExperiments = null;
-    if (joinableExperiments == null) {
-      joinableExperiments = Lists.newArrayList();
-      availableExperiments = joinableExperiments;        
-    } else {
-      availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(joinableExperiments, email);        
-    }
-    ExperimentRetriever.removeSensitiveFields(availableExperiments);
-    return availableExperiments;
-  }
-  
-  private List<ExperimentDAO> getJoinableExperiments(String tz) {
-    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-    List<ExperimentDAO> experiments = cacheHelper.getJoinableExperiments(tz);
-    log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
-    return experiments;
-  }
-
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
@@ -146,7 +103,7 @@ public class ExperimentServlet extends HttpServlet {
   private String getEmailOfUser(HttpServletRequest req, User user) {
     String email = user != null ? user.getEmail() : null;
     if (email == null && isDevInstance(req)) {
-      email = "<put your email here to test in developor mode>";
+      email = "<put your email here to test in developer mode>";
     }
     if (email == null) {
       throw new IllegalArgumentException("You must login!");
@@ -166,42 +123,6 @@ public class ExperimentServlet extends HttpServlet {
       e.printStackTrace();
     }
     return false;
-  }
-  
-  private HashMap<Long,Long> parseExperimentIds(String expStr) {
-    HashMap<Long,Long> experimentIds = new HashMap<Long, Long>();
-    Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
-    for (String id : strIds) {
-      Long experimentId = extractExperimentId(id);
-      if (!experimentId.equals(new Long(-1))) {
-        experimentIds.put(experimentId, null);
-      }
-    }
-    return experimentIds;
-  }
-
-  private Long extractExperimentId(String expStr) {
-    try {
-      Long experimentId = Long.parseLong(expStr, 10);
-      return experimentId;
-    } catch (NumberFormatException e) {
-      log.severe("Invalid experiment id " + expStr + " sent to server.");
-      return new Long(-1);
-    }
-  }
-
-  private String loadSelectedExperiments(HashMap<Long,Long> experimentIds, List<ExperimentDAO> availableExperiments) {
-    List<ExperimentDAO> experiments = Lists.newArrayList();
-    for (ExperimentDAO experiment : availableExperiments) {
-      if (experimentIds.containsKey(experiment.getId())) {
-        experiments.add(experiment);
-      }
-    }
-    if (experiments.isEmpty()) {
-      log.severe("Experiment id's " + experimentIds + " are all invalid.  No experiments were fetched from server.");
-      return "";
-    }
-    return JsonConverter.jsonify(experiments);
   }
 
 }

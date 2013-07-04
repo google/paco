@@ -104,7 +104,7 @@ public class FindExperimentsActivity extends Activity {
     });
     
 
-    reloadAdapter();
+    reloadAdapter();      // PRIYA - happens twice, needed?
     list.setItemsCanFocus(true);
     list.setOnItemClickListener(new OnItemClickListener() {
 
@@ -263,9 +263,8 @@ public class FindExperimentsActivity extends Activity {
       public void done(String resultCode) {
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
         if (resultCode == DownloadHelper.SUCCESS) {
-          saveDownloadedExperiments();
+          updateDownloadedExperiments();
           saveRefreshTime();
-          reloadAdapter();
         } else {
           showFailureDialog(resultCode);
         }
@@ -276,9 +275,19 @@ public class FindExperimentsActivity extends Activity {
     experimentDownloadTask.execute();
   }
   
-  private void saveDownloadedExperiments() {
+  private void updateDownloadedExperiments() {
+    String contentAsString = experimentDownloadTask.getContentAsString();
+    updateDownloadedExperiments(contentAsString);
+  }
+  
+  // Visible for testing
+  public void updateDownloadedExperiments(String contentAsString) {
+    saveDownloadedExperiments(contentAsString);
+    reloadAdapter();
+  }
+  
+  private void saveDownloadedExperiments(String contentAsString) {
     try {
-      String contentAsString = experimentDownloadTask.getContentAsString();
       experimentProviderUtil.saveExperimentsToDisk(contentAsString);
     } catch (JsonParseException e) {
       showFailureDialog(DownloadHelper.CONTENT_ERROR);
@@ -291,7 +300,8 @@ public class FindExperimentsActivity extends Activity {
     }
   }
 
-  private void reloadAdapter() {
+  // Visible for testing
+  public void reloadAdapter() {
     experiments = experimentProviderUtil.loadExperimentsFromDisk();
     adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this, 
                                                   R.id.find_experiments_list, 

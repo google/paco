@@ -38,7 +38,9 @@ public class ServerCommunication {
   
   public static synchronized ServerCommunication getInstance(Context context) {
     if (instance == null) {
-      instance = new ServerCommunication(context); 
+      UserPreferences userPrefs = new UserPreferences(context);    
+      AlarmManager alarmManager = (AlarmManager)(context.getSystemService(Context.ALARM_SERVICE));
+      instance = new ServerCommunication(context, userPrefs, alarmManager);
     }
     return instance;    
   }
@@ -46,14 +48,27 @@ public class ServerCommunication {
   private static final Uri CONTENT_URI = Uri.parse("content://com.google.android.apps.paco.ServerCommunication/");
   private Context context;
   private UserPreferences userPrefs;
-
-  private ServerCommunication(Context context) {
+  private AlarmManager alarmManager;
+  
+  // Visible for testing
+  public ServerCommunication(Context context, UserPreferences userPrefs, AlarmManager alarmManager) {
     this.context = context;
-    userPrefs = new UserPreferences(this.context);    
+    this.userPrefs = userPrefs;    
+    this.alarmManager = alarmManager;
   }
 
   public synchronized void checkIn() {
-    if (userPrefs.isJoinedExperimentsListStale()) {
+//    if (userPrefs.isJoinedExperimentsListStale()) {
+//      updateJoinedExperiments();
+//    }
+//    
+//    setNextWakeupTime();    // PRIYA
+    checkIn(false);
+  }
+  
+  // Visible for testing
+  public synchronized void checkIn(Boolean forTesting) {
+    if (userPrefs.isJoinedExperimentsListStale() && !forTesting) {
       updateJoinedExperiments();
     }
     
@@ -65,15 +80,18 @@ public class ServerCommunication {
     if (isInFuture(nextServerCommunicationTime)) { 
       return;
     }
-    AlarmManager alarmManager = (AlarmManager)(context.getSystemService(Context.ALARM_SERVICE));
-    DateTime tomorrowsCommTime = nextServerCommunicationTime.plusHours(24);
+    
+    DateTime nextCommTime = nextServerCommunicationTime.plusHours(24);
+    if (nextCommTime.isBeforeNow() || nextCommTime.isEqualNow()) {
+      nextCommTime = new DateTime().plusHours(24);
+    }
     Intent ultimateIntent = new Intent(context, ServerCommunicationService.class); 
     ultimateIntent.setData(CONTENT_URI);
     PendingIntent intent = PendingIntent.getService(context.getApplicationContext(), 0, ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, tomorrowsCommTime.getMillis(), intent);
-    userPrefs.setNextServerCommunicationServiceAlarmTime(tomorrowsCommTime.getMillis());
-    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + tomorrowsCommTime.toString());
+    alarmManager.set(AlarmManager.RTC_WAKEUP, nextCommTime.getMillis(), intent);
+    userPrefs.setNextServerCommunicationServiceAlarmTime(nextCommTime.getMillis());
+    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + nextCommTime.toString());
   }
 
   private boolean isInFuture(DateTime time) {

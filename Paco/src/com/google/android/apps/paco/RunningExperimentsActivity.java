@@ -91,6 +91,7 @@ public class RunningExperimentsActivity extends Activity {
 
     userPrefs = new UserPreferences(this);    
     list = (ListView) findViewById(R.id.find_experiments_list);
+    list.setBackgroundColor(333);
     createListHeader();
     createRefreshHeader();
 
@@ -122,7 +123,6 @@ public class RunningExperimentsActivity extends Activity {
     return NetworkUtil.isConnected(this);
   }
   
-  
   private void refreshList() {
     DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
       
@@ -145,8 +145,13 @@ public class RunningExperimentsActivity extends Activity {
   }
   
   private void saveDownloadedExperiments() {
+    String contentAsString = experimentDownloadTask.getContentAsString();
+    saveDownloadedExperiments(contentAsString);
+  }
+  
+  // Visible for testing
+  public void saveDownloadedExperiments(String contentAsString) {
     try {
-      String contentAsString = experimentDownloadTask.getContentAsString();
       experimentProviderUtil.updateExistingExperiments(contentAsString);
     } catch (JsonParseException e) {
       showFailureDialog(DownloadHelper.CONTENT_ERROR);
@@ -211,7 +216,8 @@ public class RunningExperimentsActivity extends Activity {
     startActivity(experimentIntent);
   }
 
-  private void deleteExperiment(long id) {
+  // Visible for testing
+  public void deleteExperiment(long id) {
     NotificationCreator nc = NotificationCreator.create(this);
     nc.timeoutNotificationsForExperiment(id);
     Uri experimentUri = Uri.withAppendedPath(getIntent().getData(), Long.toString(id));

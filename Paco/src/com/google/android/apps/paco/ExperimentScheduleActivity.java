@@ -63,9 +63,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class ExperimentScheduleActivity extends Activity {
-  
+
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
-  
+
+  public static final String IS_TESTING_KEY = "is_testing_key";
+
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
   private Uri uri;
@@ -95,26 +97,43 @@ public class ExperimentScheduleActivity extends Activity {
   private LinearLayout timesScheduleLayout;
 
   private boolean showingJoinedExperiments;
-  
+
   private DownloadFullExperimentsTask experimentDownloadTask;
+  
+  private boolean isTestInstance;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    // branch out into a different view to include based on the type of schedule
-    // in the experiment.
-    final Intent intent = getIntent();
-    uri = intent.getData();
-    showingJoinedExperiments = uri.getPathSegments().get(0)
-                                  .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
 
-    experimentProviderUtil = new ExperimentProviderUtil(this);
-    if (showingJoinedExperiments) {
-      experiment = experimentProviderUtil.getExperiment(uri);
-    } else {
-      experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+    final Intent intent = getIntent();
+    Bundle bundle = intent.getExtras();
+
+    isTestInstance = false;
+    if (bundle != null) {
+      isTestInstance = bundle.getBoolean(IS_TESTING_KEY);
     }
 
+    if (!isTestInstance) {
+      uri = intent.getData();
+      showingJoinedExperiments = uri.getPathSegments().get(0)
+          .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
+
+
+      // branch out into a different view to include based on the type of schedule
+      // in the experiment.
+      experimentProviderUtil = new ExperimentProviderUtil(this);
+      if (showingJoinedExperiments) {
+        experiment = experimentProviderUtil.getExperiment(uri);
+      } else {
+        experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+      }
+
+      setUpSchedulingLayout();
+    }
+  }
+
+  private void setUpSchedulingLayout() {
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
@@ -133,7 +152,7 @@ public class ExperimentScheduleActivity extends Activity {
           || experiment.getSchedule().getScheduleType().equals(SignalSchedule.SELF_REPORT)) {
         setContentView(R.layout.self_report_schedule);
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)
-                 || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
+          || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
         showDailyScheduleConfiguration();
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
         showWeeklyScheduleConfiguration();
@@ -145,6 +164,17 @@ public class ExperimentScheduleActivity extends Activity {
       setupScheduleSaving();
     }
   }
+  
+  // Visible for testing
+  public void setActivityProperties(Experiment experiment, ExperimentProviderUtil experimentProviderUtil, 
+                                    boolean showingJoinedExperiments) {
+    this.experiment = experiment;
+    this.experimentProviderUtil = experimentProviderUtil;
+    this.showingJoinedExperiments = showingJoinedExperiments;
+    
+    // TODO: Uncomment this to do true instrumentation testing.
+    // setUpSchedulingLayout();
+  }
 
   private void setupScheduleSaving() {
     setupSaveButton();
@@ -152,11 +182,11 @@ public class ExperimentScheduleActivity extends Activity {
       save();
     }
   }
-  
+
   private Boolean userCannotConfirmSchedule() {
     if (experiment.getSchedule() != null) {
       return experiment.getSchedule().getUserEditable() != null 
-              && experiment.getSchedule().getUserEditable() == Boolean.FALSE;
+          && experiment.getSchedule().getUserEditable() == Boolean.FALSE;
     }
     return false;
   }
@@ -166,30 +196,15 @@ public class ExperimentScheduleActivity extends Activity {
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
 
-    // frequencyField = (EditText)findViewById(R.id.experimentEsmFrequency);
-    // frequencyField.setInputType(InputType.TYPE_CLASS_NUMBER);
-    // frequencyField.setText(Integer.toString(experiment.getSchedule().getEsmFrequency()));
-    //
-    // createPeriod();
-
-    // weekendsCheckBox = (CheckBox)findViewById(R.id.weekendsCheckBox);
-    // weekendsCheckBox.setChecked(experiment.getSchedule().getEsmWeekends());
-    // weekendsCheckBox.setOnClickListener(new OnClickListener() {
-    //
-    // public void onClick(View v) {
-    // experiment.getSchedule().setEsmWeekends(weekendsCheckBox.isChecked());
-    // }
-    //
-    // });
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
     startHourField.setText(new DateMidnight().toDateTime()
-                                             .withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue())
-                                             .toString(TIME_FORMAT_STRING));
+                           .withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue())
+                           .toString(TIME_FORMAT_STRING));
 
     endHourField = (Button) findViewById(R.id.endHourTimePickerLabel);
     endHourField.setText(new DateMidnight().toDateTime()
-                                           .withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue())
-                                           .toString(TIME_FORMAT_STRING));
+                         .withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue())
+                         .toString(TIME_FORMAT_STRING));
 
     // TODO (bobevans): get rid of this duplication
 
@@ -209,13 +224,13 @@ public class ExperimentScheduleActivity extends Activity {
         dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
                          new DialogInterface.OnClickListener() {
 
-                           public void onClick(DialogInterface dialog, int which) {
-                             experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
-                             startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour()
-                                                                                .intValue()));
-                           }
+          public void onClick(DialogInterface dialog, int which) {
+            experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
+            startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour()
+                                                     .intValue()));
+          }
 
-                         });
+        });
         dialog.show();
       }
     });
@@ -238,13 +253,13 @@ public class ExperimentScheduleActivity extends Activity {
         endHourDialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
                                 new DialogInterface.OnClickListener() {
 
-                                  public void onClick(DialogInterface dialog, int which) {
-                                    experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
-                                    endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour()
-                                                                                     .intValue()));
-                                  }
+          public void onClick(DialogInterface dialog, int which) {
+            experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
+            endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour()
+                                                   .intValue()));
+          }
 
-                                });
+        });
         endHourDialog.show();
       }
     });
@@ -379,23 +394,23 @@ public class ExperimentScheduleActivity extends Activity {
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     repeatRate.setAdapter(adapter);
     repeatRate.setSelection(experiment.getSchedule().getRepeatRate() - 1);
-    
+
     repeatRate.setOnItemSelectedListener(new OnItemSelectedListener() {
-      
+
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         experiment.getSchedule().setRepeatRate(position + 1);
       }
-      
+
       public void onNothingSelected(AdapterView<?> parent) {
         // Nothing to be done here.
       }
     });
-    
+
     TextView repeatPeriodLabel = (TextView) findViewById(R.id.RepeatPeriodLabel);
     repeatPeriodLabel.setText(" " + period);
   }
-  
-  
+
+
   private void createTimesList() {
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
@@ -492,7 +507,7 @@ public class ExperimentScheduleActivity extends Activity {
 
         public void onClick(DialogInterface dialog, int which) {
           timePicker.clearFocus(); // Maybe this will save whatever value is
-                                   // there,
+          // there,
           // so that the current hour will work when the user is editing it
           // directly.
           long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
@@ -526,7 +541,7 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void saveExperimentRegistration() {
-    
+
     if (experiment.getSchedule() != null
         && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       AlarmStore alarmStore = new AlarmStore(this);
@@ -573,7 +588,8 @@ public class ExperimentScheduleActivity extends Activity {
     experimentProviderUtil.insertEvent(event);
   }
 
-  private void save() {
+  // Visible for testing
+  public void save() {
     Validation valid = isValid();
     if (!valid.ok()) {
       Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
@@ -585,24 +601,26 @@ public class ExperimentScheduleActivity extends Activity {
       requestFullExperiment();
     }
   }
-  
+
   private void scheduleExperiment() {
     saveExperimentRegistration();    
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+    if (!isTestInstance) {
+      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+    }
     finish();
   }
-  
+
   private void showNetworkConnectionActivity() {
     startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
   }
 
   private void requestFullExperiment() {
-     if (!NetworkUtil.isConnected(this)) {
-       showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+    if (!NetworkUtil.isConnected(this)) {
+      showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
     } else {
       DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
-        
+
         @Override
         public void done(String resultCode) {
           dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
@@ -620,7 +638,7 @@ public class ExperimentScheduleActivity extends Activity {
       experimentDownloadTask.execute();
     }
   }
-  
+
   private void showFailureDialog(String status) {
     if (status.equals(DownloadHelper.CONTENT_ERROR) ||
         status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
@@ -629,7 +647,7 @@ public class ExperimentScheduleActivity extends Activity {
       showDialog(DownloadHelper.SERVER_ERROR, null);
     }      
   }
-  
+
   private void saveDownloadedExperiment() {
     SignalSchedule oldSchedule = experiment.getSchedule();
     List<Experiment> experimentList = getDownloadedExperimentsList();
@@ -670,27 +688,27 @@ public class ExperimentScheduleActivity extends Activity {
 
   private Long getHourOffsetFromPicker() {
     return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour())
-                                      .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
+                    .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
   }
 
   private String getTextFromPicker(int esmOffset) {
     return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
   }
- 
+
 
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
-      case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
-          return getRefreshJoinedDialog();
-      } case DownloadHelper.INVALID_DATA_ERROR: {
-          return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case DownloadHelper.SERVER_ERROR: {
-        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case DownloadHelper.NO_NETWORK_CONNECTION: {
-        return getNoNetworkDialog();
-      } default: {
-        return getDaysOfWeekDialog();
-      }
+    case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
+      return getRefreshJoinedDialog();
+    } case DownloadHelper.INVALID_DATA_ERROR: {
+      return getUnableToJoinDialog(getString(R.string.invalid_data));
+    } case DownloadHelper.SERVER_ERROR: {
+      return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+    } case DownloadHelper.NO_NETWORK_CONNECTION: {
+      return getNoNetworkDialog();
+    } default: {
+      return getDaysOfWeekDialog();
+    }
     }
   }
 
@@ -698,44 +716,44 @@ public class ExperimentScheduleActivity extends Activity {
   protected Dialog onCreateDialog(int id) {
     return super.onCreateDialog(id);
   }
-  
+
   private ProgressDialog getRefreshJoinedDialog() {
     return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
                                getString(R.string.retrieving_your_joined_experiment_from_the_server), 
                                true, true);
   }
-  
+
   private AlertDialog getUnableToJoinDialog(String message) {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
     unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-                           finish();
-                         }
-                       });
+    .setMessage(message)
+    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int which) {
+        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+        finish();
+      }
+    });
     return unableToJoinBldr.create();
   }
-  
+
   private AlertDialog getNoNetworkDialog() {
     AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
     noNetworkBldr.setTitle(R.string.network_required)
-                 .setMessage(getString(R.string.need_network_connection))
-                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                           showNetworkConnectionActivity();
-                         }
-                       })
-                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
-                          public void onClick(DialogInterface dialog, int which) {
-                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-                            finish();
-                          }
-                    });
+    .setMessage(getString(R.string.need_network_connection))
+    .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int which) {
+        showNetworkConnectionActivity();
+      }
+    })
+    .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int which) {
+        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+        finish();
+      }
+    });
     return noNetworkBldr.create();
   }
-  
+
   private AlertDialog getDaysOfWeekDialog() {
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
 
@@ -775,7 +793,12 @@ public class ExperimentScheduleActivity extends Activity {
       }
     });
     return dialogBldr.create();
-    
+
+  }
+
+  // Visible for testing
+  public Experiment getExperiment() {
+    return experiment;
   }
 
 }

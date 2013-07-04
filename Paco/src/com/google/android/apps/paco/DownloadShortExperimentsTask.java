@@ -17,27 +17,28 @@
 package com.google.android.apps.paco;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
-  private final Activity enclosingActivity;
+  private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadShortExperimentsTaskListener listener;
   private String contentAsString;
 
   @SuppressWarnings("unchecked")
-  public DownloadShortExperimentsTask(Activity activity, 
+  public DownloadShortExperimentsTask(Context activity, 
                                  DownloadShortExperimentsTaskListener listener, 
                                  UserPreferences userPrefs) {
-    enclosingActivity = activity;      
+    enclosingContext = activity;      
     this.listener = listener;
     this.userPrefs = userPrefs;
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingActivity, userPrefs);
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs);
     String errorCode = downloadHelper.downloadAvailableExperiments();
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;
