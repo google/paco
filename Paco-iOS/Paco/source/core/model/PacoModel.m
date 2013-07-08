@@ -40,20 +40,15 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 
 
 #pragma mark Object Lifecycle
-- (id)initWithDefinitionJSON:(id)jsonDefintions
-                instanceJSON:(id)jsonInstances {
+//designated initializer
+- (id)init
+{
   self = [super init];
   if (self) {
-    [self applyDefinitionJSON:jsonDefintions];
-    [self applyInstanceJSON:jsonInstances];
+    _experimentDefinitions = [NSArray array];
+    _experimentInstances = [NSMutableArray array];
   }
   return self;
-}
-
-+ (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
-                     instanceJSON:(id)jsonInstances {
-  return [[PacoModel alloc] initWithDefinitionJSON:jsonDefintions
-                                      instanceJSON:jsonInstances];
 }
 
 + (PacoModel *)pacoModelFromFile {
