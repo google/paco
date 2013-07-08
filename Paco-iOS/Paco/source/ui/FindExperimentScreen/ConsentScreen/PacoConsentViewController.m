@@ -28,8 +28,8 @@
 @end
 
 @implementation PacoConsentViewController
+@synthesize experiment = _experiment;
 
-@synthesize experiment = experiment_;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil
                bundle:(NSBundle *)nibBundleOrNil {
@@ -42,7 +42,7 @@
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  experiment_ = experiment;
+  _experiment = experiment;
   self.title = experiment.title;
 }
 

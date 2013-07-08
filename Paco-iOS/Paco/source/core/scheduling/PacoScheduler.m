@@ -28,9 +28,6 @@
 @end
 
 @implementation PacoScheduleUnit
-@synthesize experiment;
-@synthesize notifications;
-@synthesize lastPayload;
 @end
 
 @interface PacoScheduler ()

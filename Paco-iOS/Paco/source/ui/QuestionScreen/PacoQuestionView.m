@@ -61,8 +61,7 @@
 
 @implementation PacoQuestionView
 
-@synthesize imageView;
-@synthesize question = question_;
+@synthesize question = _question;
 
 - (void)dealloc {
   [self clearUI];
@@ -78,7 +77,7 @@
 }
 
 - (PacoExperimentInput *)question {
-  return question_;
+  return _question;
 }
 
 - (void)updateConditionals {
@@ -88,7 +87,7 @@
 }
 
 - (void)setQuestion:(PacoExperimentInput *)question {
-  question_ = question;
+  _question = question;
   [self clearUI];
   [self setupUIForQuestion];
   [self setNeedsLayout];

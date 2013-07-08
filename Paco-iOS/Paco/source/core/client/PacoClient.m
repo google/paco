@@ -41,13 +41,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 @implementation PacoClient
 
-@synthesize authenticator;
-@synthesize location;
-@synthesize model;
-@synthesize scheduler;
-@synthesize service;
-@synthesize userEmail;
-
 + (PacoClient *)sharedInstance {
   static PacoClient *client = nil;
   if (!client) {

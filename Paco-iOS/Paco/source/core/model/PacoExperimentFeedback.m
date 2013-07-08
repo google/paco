@@ -18,10 +18,6 @@
 
 @implementation PacoExperimentFeedback
 
-@synthesize feedbackId;
-@synthesize text;
-@synthesize type;
-@synthesize jsonObject;
 
 + (id)pacoFeedbackFromJSON:(id)jsonObject {
   NSDictionary *feedbackMembers = jsonObject;

@@ -23,24 +23,11 @@
 
 @implementation PacoEvent
 
-@synthesize who;
-@synthesize when;
-@synthesize latitude;
-@synthesize longitude;
-@synthesize responseTime;
-@synthesize scheduledTime;
-@synthesize appId = appId_;
-@synthesize pacoVersion = pacoVersion_;
-@synthesize experimentId;
-@synthesize experimentName;
-@synthesize responses;
-@synthesize jsonObject;
-
 - (id)init {
   self = [super init];
   if (self) {
-    appId_ = @"ios_paco";
-    pacoVersion_ = @"1";
+    _appId = @"ios_paco";
+    _pacoVersion = @"1";
   }
   return self;
 }

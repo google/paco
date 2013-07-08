@@ -38,10 +38,6 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 
 @implementation PacoModel
 
-@synthesize experimentInstances;
-@synthesize experimentDefinitions;
-@synthesize jsonObjectDefinitions;
-@synthesize jsonObjectInstances;
 
 #pragma mark Object Lifecycle
 - (id)initWithDefinitionJSON:(id)jsonDefintions
