@@ -32,11 +32,7 @@
 @end
 
 @implementation PacoTimeSelectionView
-
-@synthesize times = times_;
-@synthesize timePickers;
-@synthesize timeEditButtons = timeEditButtons_;
-@synthesize editIndex;
+@synthesize times = _times;
 
 - (void)dealloc {
   [self.addButton removeTarget:self action:@selector(onAddTime) forControlEvents:UIControlEventTouchUpInside];
@@ -76,7 +72,7 @@
 }
 
 - (void)onDateChange {
-  if (editIndex != NSNotFound) {
+  if (_editIndex != NSNotFound) {
     NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
     [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
@@ -86,7 +82,7 @@
 
 - (void)finishTimeSelection {
   NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
-  if (editIndex != NSNotFound) {
+  if (_editIndex != NSNotFound) {
     [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
     PacoTableView *pacoTable = (PacoTableView *)self.superview.superview;
@@ -197,7 +193,7 @@
     [button setTitle:@"Edit" forState:UIControlStateHighlighted];
     [button addTarget:self action:@selector(onEdit:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:button];
-    [timeEditButtons_ addObject:button];
+    [_timeEditButtons addObject:button];
     [button sizeToFit];
     [timeViews addObject:button];
   }
@@ -206,12 +202,12 @@
 }
 
 - (NSArray *)times {
-  return times_;
+  return _times;
 }
 
 - (void)setTimes:(NSArray *)times {
   @synchronized(self) {
-    times_ = times;
+    _times = times;
     [self rebuildTimes];
   }
 }

@@ -50,42 +50,40 @@ NSString *kCellIdText = @"text";
 
 @implementation PacoScheduleEditView
 
-@synthesize experiment = experiment_;
-@synthesize joinButton = joinButton_;
-@synthesize tableView = tableView_;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
     [self setBackgroundColor:[PacoColor pacoLightBlue]];
 
-    tableView_ = [[PacoTableView alloc] initWithFrame:CGRectZero];
-    tableView_.delegate = self;
-    tableView_.backgroundColor = [PacoColor pacoLightBlue];
-    [self addSubview:tableView_];
+    _tableView = [[PacoTableView alloc] initWithFrame:CGRectZero];
+    _tableView.delegate = self;
+    _tableView.backgroundColor = [PacoColor pacoLightBlue];
+    [self addSubview:_tableView];
 
-    joinButton_ = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [joinButton_ setTitle:@"Join" forState:UIControlStateNormal];
-    tableView_.footer = joinButton_;
-    [joinButton_ sizeToFit];
+    _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [_joinButton setTitle:@"Join" forState:UIControlStateNormal];
+    _tableView.footer = _joinButton;
+    [_joinButton sizeToFit];
     
-    [tableView_ registerClass:[PacoTimeSelectionView class] forStringKey:kCellIdSignalTimes dataClass:[NSArray class]];
-    [tableView_ registerClass:[PacoRepeatRateSelectionView class] forStringKey:kCellIdRepeat dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoDayOfWeekSelectionView class] forStringKey:kCellIdDaysOfWeek dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoByWeekOrMonthSelectionView class] forStringKey:kCellIdByDaysOfWeekMonth dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoFirstDayOfMonthSelectionView class] forStringKey:kCellIdWhichFirstDayOfMonth dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoDayOfMonthSelectionView class] forStringKey:kCellIdWhichDayOfMonth dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoESMFrequencySelectionView class] forStringKey:kCellIdESMFrequency dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoESMPeriodSelectionView class] forStringKey:kCellIdESMPeriod dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoESMIncludeWeekendsSelectionView class] forStringKey:kCellIdIncludeWeekends dataClass:[NSNumber class]];
-    [tableView_ registerClass:[PacoTableTextCell class] forStringKey:kCellIdText dataClass:[NSString class]];
+    [_tableView registerClass:[PacoTimeSelectionView class] forStringKey:kCellIdSignalTimes dataClass:[NSArray class]];
+    [_tableView registerClass:[PacoRepeatRateSelectionView class] forStringKey:kCellIdRepeat dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoDayOfWeekSelectionView class] forStringKey:kCellIdDaysOfWeek dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoByWeekOrMonthSelectionView class] forStringKey:kCellIdByDaysOfWeekMonth dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoFirstDayOfMonthSelectionView class] forStringKey:kCellIdWhichFirstDayOfMonth dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoDayOfMonthSelectionView class] forStringKey:kCellIdWhichDayOfMonth dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoESMFrequencySelectionView class] forStringKey:kCellIdESMFrequency dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoESMPeriodSelectionView class] forStringKey:kCellIdESMPeriod dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoESMIncludeWeekendsSelectionView class] forStringKey:kCellIdIncludeWeekends dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdText dataClass:[NSString class]];
   }
   return self;
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  experiment_ = experiment;
-  tableView_.data = [[self class] dataFromExperimentSchedule:experiment_.schedule];
+  //YMZ:TODO: need to check why auto synthesizer works in this case.
+  _experiment = experiment;
+  _tableView.data = [[self class] dataFromExperimentSchedule:_experiment.schedule];
   [self setNeedsLayout];
 }
 
@@ -93,8 +91,8 @@ NSString *kCellIdText = @"text";
   [super layoutSubviews];
   
   CGRect frame = self.frame;
-  tableView_.frame = frame;
-  tableView_.backgroundColor = [PacoColor pacoLightBlue];
+  _tableView.frame = frame;
+  _tableView.backgroundColor = [PacoColor pacoLightBlue];
   self.backgroundColor = [PacoColor pacoLightBlue];
 }
 

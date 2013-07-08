@@ -23,7 +23,7 @@
 
 @implementation PacoRepeatRateSelectionView
 
-@synthesize repeatStyle = repeatStyle_;
+@synthesize repeatStyle = _repeatStyle;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -37,8 +37,8 @@
 }
 
 - (void)setRepeatStyle:(PacoScheduleRepeatStyle)repeatStyle {
-  repeatStyle_ = repeatStyle;
-  switch (repeatStyle_) {
+  _repeatStyle = repeatStyle;
+  switch (_repeatStyle) {
   case kPacoScheduleRepeatDays:
     self.format = @"Repeat every %d days";
     self.minValue = 1;

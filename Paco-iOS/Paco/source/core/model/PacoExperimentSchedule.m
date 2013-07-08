@@ -19,24 +19,6 @@
 
 @implementation PacoExperimentSchedule
 
-@synthesize byDayOfMonth;
-@synthesize byDayOfWeek;
-@synthesize dayOfMonth;
-@synthesize esmEndHour;
-@synthesize esmFrequency;
-@synthesize esmPeriodInDays;
-@synthesize esmPeriod;
-@synthesize esmStartHour;
-@synthesize esmWeekends;
-@synthesize scheduleId;
-@synthesize nthAMonth;
-@synthesize repeatPeriod;
-@synthesize scheduleType;
-@synthesize times;  // NSNumber<long long>
-@synthesize userEditable;
-@synthesize weekDaysScheduled;
-@synthesize jsonObject;
-@synthesize esmSchedule;
 
 - (id)serializeToJSON
 {

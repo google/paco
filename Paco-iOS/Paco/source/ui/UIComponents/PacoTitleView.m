@@ -21,24 +21,22 @@
 
 @implementation PacoTitleView
 
-@synthesize icon = icon_;
-@synthesize title = title_;
 
 - (id)initIconAndText:(NSString *)text {
   self = [super initWithFrame:CGRectZero];
   if (self) {
-    icon_ = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"paco32.png"]];
-    title_ = [[UILabel alloc] initWithFrame:CGRectZero];
-    title_.text = text;
-    title_.font = [PacoFont pacoNavbarTitleFont];
-    title_.textColor = [PacoColor pacoDarkBlue];
-    title_.backgroundColor = [UIColor clearColor];
-    title_.adjustsFontSizeToFitWidth = YES;
-    title_.minimumScaleFactor = 0.8;
-    [self addSubview:icon_];
-    [self addSubview:title_];
-    [icon_ sizeToFit];
-    [title_ sizeToFit];
+    _icon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"paco32.png"]];
+    _title = [[UILabel alloc] initWithFrame:CGRectZero];
+    _title.text = text;
+    _title.font = [PacoFont pacoNavbarTitleFont];
+    _title.textColor = [PacoColor pacoDarkBlue];
+    _title.backgroundColor = [UIColor clearColor];
+    _title.adjustsFontSizeToFitWidth = YES;
+    _title.minimumScaleFactor = 0.8;
+    [self addSubview:_icon];
+    [self addSubview:_title];
+    [_icon sizeToFit];
+    [_title sizeToFit];
   }
   return self;
 }
@@ -46,27 +44,27 @@
 - (id)initText:(NSString *)text {
   self = [super initWithFrame:CGRectZero];
   if (self) {
-    title_ = [[UILabel alloc] initWithFrame:CGRectZero];
-    title_.text = text;
-    title_.font = [PacoFont pacoNavbarTitleFont];
-    title_.textColor = [PacoColor pacoDarkBlue];
-    title_.backgroundColor = [UIColor clearColor];
-    title_.adjustsFontSizeToFitWidth = YES;
-    title_.minimumScaleFactor = 0.8;
-    [self addSubview:title_];
-    [title_ sizeToFit];
+    _title = [[UILabel alloc] initWithFrame:CGRectZero];
+    _title.text = text;
+    _title.font = [PacoFont pacoNavbarTitleFont];
+    _title.textColor = [PacoColor pacoDarkBlue];
+    _title.backgroundColor = [UIColor clearColor];
+    _title.adjustsFontSizeToFitWidth = YES;
+    _title.minimumScaleFactor = 0.8;
+    [self addSubview:_title];
+    [_title sizeToFit];
   }
   return self;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-  CGFloat width = title_.frame.size.width + (icon_ ? icon_.frame.size.width : 0) + 10;
-  return CGSizeMake(width > size.width ? size.width : (icon_ ? width : 200), 30);
+  CGFloat width = _title.frame.size.width + (_icon ? _icon.frame.size.width : 0) + 10;
+  return CGSizeMake(width > size.width ? size.width : (_icon ? width : 200), 30);
 }
 
 - (void)layoutSubviews {
-  if (!icon_) {
-    title_.frame = [PacoLayout centerRect:title_.frame.size inRect:self.bounds];
+  if (!_icon) {
+    _title.frame = [PacoLayout centerRect:_title.frame.size inRect:self.bounds];
     return;
   }
   
@@ -78,11 +76,11 @@
   frame.origin.y = 8;
   frame.size = bounds2.size;
   self.frame = frame;
-  [PacoLayout splitHorizontalRect:bounds2 xOffset:(icon_.frame.size.width + 20) leftOut:&left rightOut:&right];
-  CGRect iconFrame = [PacoLayout centerRect:icon_.frame.size inRect:left];
-  CGRect titleFrame = [PacoLayout centerRect:title_.frame.size inRect:right];
-  icon_.frame = iconFrame;
-  title_.frame = titleFrame;
+  [PacoLayout splitHorizontalRect:bounds2 xOffset:(_icon.frame.size.width + 20) leftOut:&left rightOut:&right];
+  CGRect iconFrame = [PacoLayout centerRect:_icon.frame.size inRect:left];
+  CGRect titleFrame = [PacoLayout centerRect:_title.frame.size inRect:right];
+  _icon.frame = iconFrame;
+  _title.frame = titleFrame;
 }
 
 @end

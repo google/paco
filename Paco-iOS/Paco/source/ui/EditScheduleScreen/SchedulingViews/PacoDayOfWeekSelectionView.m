@@ -23,8 +23,6 @@
 
 @implementation PacoDayOfWeekSelectionView
 
-@synthesize onlyAllowOneDay;
-@synthesize daysOfWeek = daysOfWeek_;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];

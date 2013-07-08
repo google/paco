@@ -24,13 +24,6 @@
 
 
 @implementation PacoExperiment
-@synthesize definition;
-@synthesize events;
-@synthesize instanceId;
-@synthesize lastEventQueryTime;
-@synthesize schedule;
-@synthesize jsonObject;
-//@synthesize overrideSchedule;
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperiment:%p - "

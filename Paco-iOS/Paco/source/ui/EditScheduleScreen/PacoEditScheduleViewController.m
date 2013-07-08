@@ -29,8 +29,8 @@
 @end
 
 @implementation PacoEditScheduleViewController
+@synthesize experiment = _experiment;
 
-@synthesize experiment = experiment_;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -51,7 +51,7 @@
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  experiment_ = experiment;
+  _experiment = experiment;
   self.title = experiment.title;
   [(PacoScheduleEditView *)self.view setExperiment:experiment];
 }
