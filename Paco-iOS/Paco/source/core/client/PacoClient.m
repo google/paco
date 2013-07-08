@@ -27,6 +27,12 @@
 static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";
 
+@interface PacoModel ()
+- (BOOL)loadExperimentDefinitionsFromFile;
+- (BOOL)loadExperimentInstancesFromFile;
+- (void)applyDefinitionJSON:(id)jsonObject;
+@end
+
 @interface PacoClient ()
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
@@ -56,6 +62,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     self.location = nil;//[[PacoLocation alloc] init];
     self.scheduler = [[PacoScheduler alloc] init];
     self.service = [[PacoService alloc] init];
+    self.model = [[PacoModel alloc] init];
     
     if (SERVER_DOMAIN_FLAG == 0) {//production
       self.serverDomain = @"https://quantifiedself.appspot.com";
@@ -152,48 +159,47 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   }
 }
 
+//TODO: ymz: need to send this to background
 - (void)prefetch {
-  [self refreshModelWithCompletionHandler:^(NSError *error) {
-    if (error) {
-      NSLog(@"Error on prefetch %@", error);
-    }
-  }];
-}
-
-- (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler {
   // Load the experiment definitions.
-  self.model = [PacoModel pacoModelFromFile];
-  
-  if (self.model) {
-    completionHandler(nil);
+  BOOL success = [self.model loadExperimentDefinitionsFromFile];
+  if (success) {
+    [self prefetchExperiments];
     return;
   }
   
   [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
     if (error) {
-      completionHandler(error);
+      NSLog(@"Failed to prefetch definitions: %@", [error description]);      
       return;
     }
     
     NSLog(@"Loaded %d experiments", [experiments count]);
     // Convert the JSON response into an object model.
-    self.model = [PacoModel pacoModelFromDefinitionJSON:experiments
-                                           instanceJSON:nil];
-
-    // Load events for each known experiment, if events exist then this
-    // will indicate that the user has joined this experiment.
-    
-    //for (PacoExperiment *experiment in self.model.experimentInstances) {
-    for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
-      [self processExperimentDefinition:experimentDefinition];
-    }
-    completionHandler(nil);
+    [self.model applyDefinitionJSON:experiments];
+    [self prefetchExperiments];
   }];
 }
 
-- (void)processExperimentDefinition:(PacoExperimentDefinition*)definition
+- (void)prefetchExperiments
+{
+  BOOL success = [self.model loadExperimentInstancesFromFile];
+  if (success) {
+    return;
+  }
+  
+  // Load events for each known experiment, if events exist then this
+  // will indicate that the user has joined this experiment.
+  for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
+    [self fetchExperimentsForDefinition:experimentDefinition];
+  }
+}
+
+
+- (void)fetchExperimentsForDefinition:(PacoExperimentDefinition*)definition
 {
   NSAssert(definition != nil, @"definition should NOT be nil!");
+  
   [self.service loadEventsForExperiment:definition
                   withCompletionHandler:^(NSArray *events, NSError *error) {
                     //YMZ: TODO error handling interface

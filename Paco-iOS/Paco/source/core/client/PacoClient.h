@@ -42,8 +42,6 @@
 
 - (BOOL)isLoggedIn;
 
-- (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler;
-
 - (BOOL)isUserAccountStored;
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password

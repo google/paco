@@ -41,8 +41,6 @@ extern NSString* const PacoExperimentInstancesUpdateNotification;
                                    events:(NSArray *)events;
 - (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events;
 
-+ (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
-                     instanceJSON:(id)jsonInstances;
 
 - (NSArray *)joinedExperiments;
 
