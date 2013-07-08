@@ -58,11 +58,6 @@ public class ServerCommunication {
   }
 
   public synchronized void checkIn() {
-//    if (userPrefs.isJoinedExperimentsListStale()) {
-//      updateJoinedExperiments();
-//    }
-//    
-//    setNextWakeupTime();    // PRIYA
     checkIn(false);
   }
   
