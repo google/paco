@@ -104,7 +104,7 @@ public class FindExperimentsActivity extends Activity {
     });
     
 
-    reloadAdapter();      // PRIYA - happens twice, needed?
+    reloadAdapter();
     list.setItemsCanFocus(true);
     list.setOnItemClickListener(new OnItemClickListener() {
 

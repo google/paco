@@ -119,8 +119,7 @@ public class ExperimentProviderUtil {
 //    loadFeedbackForExperiment(experiment);
 //    loadScheduleForExperiment(experiment);
 //    experiment.unsetId();
-
-    // ContentResolver contentResolver = context.getContentResolver();      // PRIYA
+    
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI, 
         createContentValues(experiment));
     

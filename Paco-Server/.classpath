@@ -125,7 +125,15 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.1.0"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-all-1.9.11.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.7.5"/>
-	<classpathentry kind="lib" path="/usr/local/google/home/donti/Documents/paco/tools/appengine-java-sdk-1.7.5/lib/testing/appengine-testing.jar"/>
-	<classpathentry kind="lib" path="/usr/local/google/home/donti/Documents/paco/tools/appengine-java-sdk-1.7.5/lib/impl/appengine-api-stubs.jar"/>
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/testing/appengine-testing.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/impl/appengine-api-stubs.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

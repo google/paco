@@ -14,6 +14,13 @@ import org.codehaus.jackson.type.TypeReference;
 
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentDAOCore;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model.TriggerDAO;
+
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 
 public class JsonConverter {
 
@@ -87,8 +94,7 @@ public class JsonConverter {
   }
 
   public static List<ExperimentDAO> fromEntitiesJson(String experimentJson) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = getObjectMapper();
     try {
       List<ExperimentDAO> experiments = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
       return experiments;
@@ -103,10 +109,8 @@ public class JsonConverter {
   }
   
   public static ExperimentDAO fromSingleEntityJson(String experimentJson) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = getObjectMapper();
     try {
-      // ExperimentDAO experiment = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
       ExperimentDAO experiment = mapper.readValue(experimentJson, new TypeReference<ExperimentDAO>() {});
       return experiment;
     } catch (JsonParseException e) {
@@ -118,6 +122,27 @@ public class JsonConverter {
     }
     return null;
   }
+
+  private static ObjectMapper getObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper.getDeserializationConfig().addMixInAnnotations(SignalingMechanismDAO.class, SignalingMechanismDAOMixIn.class);
+    return mapper;
+  }
+  
+  
+  @JsonTypeInfo(  
+                use = JsonTypeInfo.Id.NAME,  
+                include = JsonTypeInfo.As.PROPERTY,  
+                property = "type")  
+            @JsonSubTypes({  
+                @Type(value = SignalScheduleDAO.class, name = "signalSchedule"),  
+                @Type(value = TriggerDAO.class, name = "trigger") })  
+  private class SignalingMechanismDAOMixIn
+  {
+    // Nothing to be done here. This class exists for the sake of its annotations.
+  }
+  
 }
 
 

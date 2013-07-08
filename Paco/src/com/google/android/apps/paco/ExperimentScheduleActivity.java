@@ -632,6 +632,7 @@ public class ExperimentScheduleActivity extends Activity {
         }
       };
       showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
+      
       List<Long> experimentServerIds = Arrays.asList(experiment.getServerId());
       experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), 
                                                                experimentServerIds);
@@ -649,10 +650,15 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void saveDownloadedExperiment() {
-    SignalSchedule oldSchedule = experiment.getSchedule();
     List<Experiment> experimentList = getDownloadedExperimentsList();
     Preconditions.checkArgument(experimentList.size() == 1);
-    experiment = experimentList.get(0);
+    saveDownloadedExperiment(experimentList.get(0));
+  }
+  
+  // Visible for testing
+  public void saveDownloadedExperiment(Experiment fullExperiment) {
+    SignalSchedule oldSchedule = experiment.getSchedule();
+    experiment = fullExperiment;
     experiment.setSchedule(oldSchedule);
     scheduleExperiment();
     Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();

@@ -45,8 +45,7 @@ public class DAOConverter {
     String title = experiment.getTitle();
     String description = experiment.getDescription();
     String informedConsentForm = experiment.getInformedConsentFormText();
-    // String email = experiment.getCreator().getEmail();     // PRIYA
-    String email = "rbe5000@gmail.com";
+    String email = experiment.getCreator().getEmail();
 
     Boolean published = experiment.getPublished();
 
