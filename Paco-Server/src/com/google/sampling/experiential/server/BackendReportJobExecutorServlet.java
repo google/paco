@@ -64,11 +64,23 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     } else if (reportFormat != null && reportFormat.equals("json")) {
       log.info("Backend generating json report");
       dumpEventsJson(resp, req, anon);
+    } else if (reportFormat != null && reportFormat.equals("photozip")) {
+        log.info("Backend generating photo zip file");
+        dumpPhotoZip(req, resp, anon);
     } else {
       log.info("Backend generating html report");
       showEvents(req, resp, anon);
     }    
   }
+
+  private void dumpPhotoZip(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "photozip");
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+  }
+
   
   private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
