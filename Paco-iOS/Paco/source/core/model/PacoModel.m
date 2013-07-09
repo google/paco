@@ -99,7 +99,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 - (void)updateExperimentInstances:(NSMutableArray*)experiments
 {
   self.experimentInstances = experiments;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:experiments];
 }
 
 
@@ -220,9 +219,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     //YMZ: confusing, why we are using two different instanceId?
     // Use the instance id from the sorted event map.
     experiment.instanceId = instanceId;
-  }
-  
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:nil];
+  }  
 }
 
 
