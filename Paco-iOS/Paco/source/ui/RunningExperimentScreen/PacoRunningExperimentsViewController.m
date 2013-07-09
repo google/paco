@@ -58,19 +58,37 @@
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperiment class]];
   table.backgroundColor = [PacoColor pacoLightBlue];
   self.view = table;
-  int numExperiments = [[PacoClient sharedInstance].model.experimentInstances count];
-  if (numExperiments == 0) {
+  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
+  if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoExperimentInstancesUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
-    table.data = [PacoClient sharedInstance].model.experimentInstances;
+    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
+    [self updateUIWithError:prefetchError];
   }
 }
 
-- (void)experimentsUpdate:(NSNotification*)notification
+- (void)updateUIWithError:(NSError*)error
 {
   PacoTableView* tableView = (PacoTableView*)self.view;
-  tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+  if (error) {
+    tableView.data = [NSArray array];
+    [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                                message:@"Something went wrong, please try again later."
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+  }
+}
+
+
+- (void)experimentsUpdate:(NSNotification*)notification
+{
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  [self updateUIWithError:error];  
 }
 
 - (void)didReceiveMemoryWarning {

@@ -15,8 +15,8 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const PacoExperimentDefinitionUpdateNotification;
-extern NSString* const PacoExperimentInstancesUpdateNotification;
+extern NSString* const PacoFinishLoadingDefinitionNotification;
+extern NSString* const PacoFinishLoadingExperimentNotification;
 
 
 @class PacoModel;
@@ -28,8 +28,8 @@ extern NSString* const PacoExperimentInstancesUpdateNotification;
 @interface PacoModel : NSObject
 //YMZ:TODO: need to think about if it's necessary to use atomic
 //for the following properties
-@property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain, readonly) NSMutableArray *experimentInstances;  // <PacoExperiment>
 @property (retain) id jsonObjectDefinitions;
 @property (retain) id jsonObjectInstances;
 
@@ -41,8 +41,6 @@ extern NSString* const PacoExperimentInstancesUpdateNotification;
                                    events:(NSArray *)events;
 - (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events;
 
-+ (id)pacoModelFromDefinitionJSON:(id)jsonDefintions
-                     instanceJSON:(id)jsonInstances;
 
 - (NSArray *)joinedExperiments;
 

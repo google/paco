@@ -42,8 +42,6 @@
 
 - (BOOL)isLoggedIn;
 
-- (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler;
-
 - (BOOL)isUserAccountStored;
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -52,4 +50,10 @@
 
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
+
+- (BOOL)prefetchedDefinitions;
+- (NSError*)errorOfPrefetchingDefinitions;
+- (BOOL)prefetchedExperiments;
+- (NSError*)errorOfPrefetchingexperiments;
+
 @end
