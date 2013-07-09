@@ -63,22 +63,32 @@
     [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
-    table.data = [PacoClient sharedInstance].model.experimentInstances;
+    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
+    [self updateUIWithError:prefetchError];
   }
 }
+
+- (void)updateUIWithError:(NSError*)error
+{
+  PacoTableView* tableView = (PacoTableView*)self.view;
+  if (error) {
+    tableView.data = [NSArray array];
+    [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                                message:@"Something went wrong, please try again later."
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+  }
+}
+
 
 - (void)experimentsUpdate:(NSNotification*)notification
 {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  if (error) {
-    //TODO: ymz
-    tableView.data = [NSArray array];
-  }else{
-    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
-  }
+  [self updateUIWithError:error];  
 }
 
 - (void)didReceiveMemoryWarning {
