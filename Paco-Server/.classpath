@@ -99,22 +99,22 @@
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/user/appengine-api-1.0-sdk-1.7.5.jar" sourcepath="../tools/appengine-java-sdk-1.7.5/src/user/appengine-api-1.0-sdk-1.7.5-src.zip">
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/user/appengine-api-1.0-sdk-1.7.5.jar" sourcepath="/tools/appengine-java-sdk-1.7.5/src/user/appengine-api-1.0-sdk-1.7.5-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-appengine-1.0.10.final.jar" sourcepath="../tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-appengine-1.0.10.final-src.zip">
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-appengine-1.0.10.final.jar" sourcepath="/tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-appengine-1.0.10.final-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-core-1.1.5.jar" sourcepath="../tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-core-1.1.5-src.zip">
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-core-1.1.5.jar" sourcepath="/tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-core-1.1.5-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-jpa-1.1.5.jar" sourcepath="../tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-jpa-1.1.5-src.zip">
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.7.5/lib/opt/user/datanucleus/v1/datanucleus-jpa-1.1.5.jar" sourcepath="/tools/appengine-java-sdk-1.7.5/src/orm/datanucleus-jpa-1.1.5-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
@@ -134,8 +134,8 @@
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.1.0"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-all-1.9.11.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.7.5"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.5.0"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
