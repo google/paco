@@ -251,7 +251,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 {
   self.prefetchState.finishLoadingExperiments = YES;
   self.prefetchState.errorLoadingExperiments = error;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentInstancesUpdateNotification object:error];
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
 }
 
 

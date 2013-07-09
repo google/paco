@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 
 extern NSString* const PacoFinishLoadingDefinitionNotification;
-extern NSString* const PacoExperimentInstancesUpdateNotification;
+extern NSString* const PacoFinishLoadingExperimentNotification;
 
 
 @class PacoModel;

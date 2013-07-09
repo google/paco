@@ -26,7 +26,7 @@
 
 
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
-NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInstancesUpdateNotification";
+NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
 
 @interface PacoExperimentSchedule ()
 - (id)serializeToJSON;
@@ -99,7 +99,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 - (void)updateExperimentInstances:(NSMutableArray*)experiments
 {
   self.experimentInstances = experiments;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentInstancesUpdateNotification object:experiments];
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:experiments];
 }
 
 
@@ -222,7 +222,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
     experiment.instanceId = instanceId;
   }
   
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentInstancesUpdateNotification object:nil];
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:nil];
 }
 
 
