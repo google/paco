@@ -24,7 +24,9 @@
 #import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 
-@interface PacoEditScheduleViewController ()
+@interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
+
+@property(nonatomic, assign) BOOL isJoinSuccessful;
 
 @end
 
@@ -57,20 +59,44 @@
 }
 
 - (void)onJoin {
+  void(^finishBlock)(PacoEvent *, NSError *) = ^(PacoEvent *event, NSError *error){
+    NSString* title = @"Congratulations!";
+    NSString* message = @"You've successfully joined this experiment!";
+    
+    if (error == nil) {
+      self.isJoinSuccessful = YES;
+      
+      PacoExperiment *experiment =
+      [[PacoClient sharedInstance].model
+       addExperimentInstance:self.experiment
+       schedule:self.experiment.schedule
+       events:[NSArray arrayWithObject:event]];
+      [[PacoClient sharedInstance].scheduler registerScheduleWithOS:experiment];
+      
+    }else{
+      title = @"Sorry";
+      message = @"Something went wrong, please try again later.";
+    }
+    
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:message
+                               delegate:self
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  };
+  
   [[PacoClient sharedInstance].service joinExperiment:self.experiment
                                              schedule:nil
-                                    completionHandler:^(PacoEvent *event, NSError *error) {
-    //YMZ:TODO: not sure if we need to send out experiment model update notification here
-    PacoExperiment *experiment =
-        [[PacoClient sharedInstance].model
-            addExperimentInstance:self.experiment
-                         schedule:self.experiment.schedule
-                           events:[NSArray arrayWithObject:event]];
-    [[PacoClient sharedInstance].scheduler registerScheduleWithOS:experiment];
-
-    [self.navigationController popToRootViewControllerAnimated:YES];
-  }];
+                                    completionHandler:finishBlock];
 }
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
+{
+  if (self.isJoinSuccessful) {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+  }  
+}
+
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
