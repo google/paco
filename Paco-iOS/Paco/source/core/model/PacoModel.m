@@ -25,7 +25,7 @@
 #import "PacoExperiment.h"
 
 
-NSString* const PacoExperimentDefinitionUpdateNotification = @"PacoExperimentDefinitionUpdateNotification";
+NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInstancesUpdateNotification";
 
 @interface PacoExperimentSchedule ()
@@ -33,7 +33,10 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 @end
 
 
-
+@interface PacoModel ()
+@property (retain, readwrite) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain, readwrite) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@end
 
 
 @implementation PacoModel
@@ -91,7 +94,6 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
 - (void)updateExperimentDefinitions:(NSArray*)definitions
 {
   self.experimentDefinitions = definitions;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoExperimentDefinitionUpdateNotification object:definitions];
 }
 
 - (void)updateExperimentInstances:(NSMutableArray*)experiments
@@ -283,7 +285,7 @@ NSString* const PacoExperimentInstancesUpdateNotification = @"PacoExperimentInst
   NSString *documentsDirectory = [paths objectAtIndex:0];
   NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
   NSLog(@"Saving to %@", fileName);
-  if (!self.jsonObjectInstances) {
+  if ([self.jsonObjectInstances count] == 0) {
     [self makeJSONObjectFromInstances];
   }
   NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]], @"jsonObjectInstances should be an array!");
