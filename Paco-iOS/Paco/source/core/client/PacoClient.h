@@ -50,4 +50,10 @@
 
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
+
+- (BOOL)prefetchedDefinitions;
+- (NSError*)errorOfPrefetchingDefinitions;
+- (BOOL)prefetchedExperiments;
+- (NSError*)errorOfPrefetchingexperiments;
+
 @end

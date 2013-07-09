@@ -59,10 +59,10 @@
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
   table.backgroundColor = [PacoColor pacoLightBlue];
   self.view = table;
-  int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
-  if (numExperiments == 0) {
+  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
+  if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoExperimentDefinitionUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
     table.data = [PacoClient sharedInstance].model.experimentDefinitions;
   }
@@ -76,10 +76,16 @@
 
 - (void)definitionsUpdate:(NSNotification*)notification
 {
-  NSArray* definitions = (NSArray*)notification.object;
-  NSAssert([definitions isKindOfClass:[NSArray class]], @"definitions should be an array!");
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  
   PacoTableView* tableView = (PacoTableView*)self.view;
-  tableView.data = definitions;
+  if (error) {
+    //TODO: ymz
+    tableView.data = [NSArray array];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+  }
 }
 
 #pragma mark - PacoTableViewDelegate

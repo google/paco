@@ -58,8 +58,8 @@
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperiment class]];
   table.backgroundColor = [PacoColor pacoLightBlue];
   self.view = table;
-  int numExperiments = [[PacoClient sharedInstance].model.experimentInstances count];
-  if (numExperiments == 0) {
+  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
+  if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoExperimentInstancesUpdateNotification object:nil];
   } else {
@@ -69,8 +69,16 @@
 
 - (void)experimentsUpdate:(NSNotification*)notification
 {
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  
   PacoTableView* tableView = (PacoTableView*)self.view;
-  tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+  if (error) {
+    //TODO: ymz
+    tableView.data = [NSArray array];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+  }
 }
 
 - (void)didReceiveMemoryWarning {
