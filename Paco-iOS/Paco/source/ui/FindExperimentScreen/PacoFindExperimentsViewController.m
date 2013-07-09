@@ -64,7 +64,8 @@
     [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
-    table.data = [PacoClient sharedInstance].model.experimentDefinitions;
+    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
+    [self updateUIWithError:prefetchError];
   }
 }
 
@@ -74,18 +75,26 @@
   // Dispose of any resources that can be recreated.
 }
 
+- (void)updateUIWithError:(NSError*)error
+{
+  PacoTableView* tableView = (PacoTableView*)self.view;
+  if (error) {
+    tableView.data = [NSArray array];
+    [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                                message:@"Something went wrong, please try again later."
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+  }
+}
+
 - (void)definitionsUpdate:(NSNotification*)notification
 {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  if (error) {
-    //TODO: ymz
-    tableView.data = [NSArray array];
-  }else{
-    tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
-  }
+  [self updateUIWithError:error];
 }
 
 #pragma mark - PacoTableViewDelegate
