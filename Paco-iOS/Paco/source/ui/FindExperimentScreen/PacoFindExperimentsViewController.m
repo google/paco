@@ -59,12 +59,13 @@
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
   table.backgroundColor = [PacoColor pacoLightBlue];
   self.view = table;
-  int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
-  if (numExperiments == 0) {
+  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
+  if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoExperimentDefinitionUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
-    table.data = [PacoClient sharedInstance].model.experimentDefinitions;
+    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
+    [self updateUIWithError:prefetchError];
   }
 }
 
@@ -74,12 +75,26 @@
   // Dispose of any resources that can be recreated.
 }
 
+- (void)updateUIWithError:(NSError*)error
+{
+  PacoTableView* tableView = (PacoTableView*)self.view;
+  if (error) {
+    tableView.data = [NSArray array];
+    [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                                message:@"Something went wrong, please try again later."
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }else{
+    tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+  }
+}
+
 - (void)definitionsUpdate:(NSNotification*)notification
 {
-  NSArray* definitions = (NSArray*)notification.object;
-  NSAssert([definitions isKindOfClass:[NSArray class]], @"definitions should be an array!");
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  tableView.data = definitions;
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  [self updateUIWithError:error];
 }
 
 #pragma mark - PacoTableViewDelegate

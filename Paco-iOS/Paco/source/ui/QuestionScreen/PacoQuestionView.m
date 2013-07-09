@@ -37,7 +37,6 @@
 @property (nonatomic, retain, readwrite) UISegmentedControl* photoSegmentControl;
 @property (nonatomic, retain, readwrite) UIButton *choosePhotoButton;
 @property (nonatomic, retain, readwrite) UIImage *image;
-@property (nonatomic, retain, readwrite) UIImageView *imageView;
 @property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
 @property (nonatomic, retain, readwrite) MKMapView *map;
 @property (nonatomic, retain, readwrite) NSArray *numberButtons;
@@ -100,7 +99,6 @@
   for (UIButton *button in self.numberButtons) {
     [button removeFromSuperview];
   }
-  [self.imageView removeFromSuperview];
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
   [self.numberSlider removeFromSuperview];
@@ -114,7 +112,6 @@
   self.choosePhotoButton = nil;
   self.checkboxes = nil;
   self.image = nil;
-  self.imageView = nil;
   self.imagePicker = nil;
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
   self.numberButtons = nil;

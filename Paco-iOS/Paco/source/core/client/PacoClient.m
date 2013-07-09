@@ -27,6 +27,36 @@
 static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";
 
+@interface PacoPrefetchState : NSObject
+@property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
+@property(atomic, readwrite, strong) NSError* errorLoadingDefinitions;
+
+@property(atomic, readwrite, assign) BOOL finishLoadingExperiments;
+@property(atomic, readwrite, strong) NSError* errorLoadingExperiments;
+@end
+
+@implementation PacoPrefetchState
+
+- (void)reset
+{
+  self.finishLoadingDefinitions = NO;
+  self.errorLoadingDefinitions = NO;
+  
+  self.finishLoadingExperiments = NO;
+  self.errorLoadingExperiments = nil;
+}
+
+@end
+
+
+
+
+@interface PacoModel ()
+- (BOOL)loadExperimentDefinitionsFromFile;
+- (BOOL)loadExperimentInstancesFromFile;
+- (void)applyDefinitionJSON:(id)jsonObject;
+@end
+
 @interface PacoClient ()
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
@@ -35,12 +65,14 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) PacoService *service;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) NSString* userEmail;
+@property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
 
 - (void)prefetch;
 @end
 
 @implementation PacoClient
 
+#pragma mark Object Life Cycle
 + (PacoClient *)sharedInstance {
   static PacoClient *client = nil;
   if (!client) {
@@ -56,6 +88,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     self.location = nil;//[[PacoLocation alloc] init];
     self.scheduler = [[PacoScheduler alloc] init];
     self.service = [[PacoService alloc] init];
+    self.model = [[PacoModel alloc] init];
+    self.prefetchState = [[PacoPrefetchState alloc] init];
+    
     
     if (SERVER_DOMAIN_FLAG == 0) {//production
       self.serverDomain = @"https://quantifiedself.appspot.com";
@@ -66,6 +101,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   return self;
 }
 
+#pragma mark Public methods
 - (BOOL)isLoggedIn
 {
   return [self.authenticator isLoggedIn];
@@ -152,63 +188,122 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   }
 }
 
-- (void)prefetch {
-  [self refreshModelWithCompletionHandler:^(NSError *error) {
-    if (error) {
-      NSLog(@"Error on prefetch %@", error);
-    }
-  }];
+- (BOOL)prefetchedDefinitions
+{
+  return self.prefetchState.finishLoadingDefinitions;
 }
 
-- (void)refreshModelWithCompletionHandler:(void (^)(NSError *))completionHandler {
-  if (!self.service) {
-    self.service = [[PacoService alloc] init];
-  }
-  // Authorize the service.
-  self.service.authenticator = self.authenticator;
+- (NSError*)errorOfPrefetchingDefinitions
+{
+  return self.prefetchState.errorLoadingDefinitions;
+}
 
-  // Load the experiment definitions.
-  self.model = [PacoModel pacoModelFromFile];
+- (BOOL)prefetchedExperiments
+{
+  return self.prefetchState.finishLoadingExperiments;
+}
+
+- (NSError*)errorOfPrefetchingexperiments
+{
+  return self.prefetchState.errorLoadingExperiments;
+}
+
+
+#pragma mark Private methods
+- (void)definitionsLoadedWithError:(NSError*)error
+{
+  self.prefetchState.finishLoadingDefinitions = YES;
+  self.prefetchState.errorLoadingDefinitions = error;
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
+}
+
+
+//TODO: ymz: need to send this to background
+- (void)prefetch {
+  [self.prefetchState reset];
   
-  if (self.model) {
-    completionHandler(nil);
+  // Load the experiment definitions.  
+  BOOL success = [self.model loadExperimentDefinitionsFromFile];
+  if (success) {
+    [self definitionsLoadedWithError:nil];
+    [self prefetchExperiments];
     return;
   }
   
   [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
     if (error) {
-      completionHandler(error);
+      NSLog(@"Failed to prefetch definitions: %@", [error description]);
+      [self definitionsLoadedWithError:error];
       return;
     }
     
     NSLog(@"Loaded %d experiments", [experiments count]);
     // Convert the JSON response into an object model.
-    self.model = [PacoModel pacoModelFromDefinitionJSON:experiments
-                                           instanceJSON:nil];
-
-    // Load events for each known experiment, if events exist then this
-    // will indicate that the user has joined this experiment.
+    [self.model applyDefinitionJSON:experiments];
+    [self definitionsLoadedWithError:nil];
     
-    //for (PacoExperiment *experiment in self.model.experimentInstances) {
-    for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
-      [self processExperimentDefinition:experimentDefinition];
-    }
-    completionHandler(nil);
+    [self prefetchExperiments];
   }];
 }
 
-- (void)processExperimentDefinition:(PacoExperimentDefinition*)definition
+
+- (void)experimentsLoadedWithError:(NSError*)error
+{
+  self.prefetchState.finishLoadingExperiments = YES;
+  self.prefetchState.errorLoadingExperiments = error;
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
+}
+
+
+- (void)prefetchExperiments
+{
+  BOOL success = [self.model loadExperimentInstancesFromFile];
+  if (success) {
+    [self experimentsLoadedWithError:nil];
+    return;
+  }
+  
+  // Load events for each known experiment, if events exist then this
+  // will indicate that the user has joined this experiment.
+  int numOfDefinitions = [self.model.experimentDefinitions count];
+  __block int numOfResponses = 0;
+  __block NSError* resultError = nil;
+  void(^finishBlock)(NSError*) = ^(NSError* error){
+    numOfResponses++;
+    //record the first error for now
+    if (resultError == nil && error != nil) {
+      resultError = error;
+    }
+    
+    if(numOfDefinitions == numOfResponses){
+      [self experimentsLoadedWithError:resultError];
+    }
+  };
+  
+  
+  for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
+    [self fetchExperimentsForDefinition:experimentDefinition completionBlock:^(NSError *error) {
+      finishBlock(error);
+    }];
+  }
+}
+
+
+- (void)fetchExperimentsForDefinition:(PacoExperimentDefinition*)definition completionBlock:(void(^)(NSError*))completionBlock
 {
   NSAssert(definition != nil, @"definition should NOT be nil!");
+  
   [self.service loadEventsForExperiment:definition
                   withCompletionHandler:^(NSArray *events, NSError *error) {
                     //YMZ: TODO error handling interface
                     if (error != nil) {
                       NSLog(@"Error fetching events: %@", [error description]);
+                      completionBlock(error);
                       return;
                     }
                     
                     if ([events count] == 0) {
+                      completionBlock(nil);
                       return;
                     }
                     
@@ -221,10 +316,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                     }
                     
                     if ([pacoEvents count] == 0) {
+                      completionBlock(nil);
                       return;
                     }
                     
                     [[PacoClient sharedInstance].model addExperimentsWithDefinition:definition events:pacoEvents];
+                    completionBlock(nil);
                   }];
 
 }
