@@ -61,7 +61,7 @@
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoExperimentInstancesUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
     table.data = [PacoClient sharedInstance].model.experimentInstances;
   }
