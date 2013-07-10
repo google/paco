@@ -138,7 +138,6 @@
 		36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2C17568E33004CF035 /* GoogleClientLogin.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC3717568E40004CF035 /* PacoTests.m */; };
 		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
-		36B8EC3E17568E40004CF035 /* PacoTests-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -870,8 +869,8 @@
 		36B8EC3817568E40004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				36B8EC3917568E40004CF035 /* InfoPlist.strings */,
 				36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */,
+				36B8EC3917568E40004CF035 /* InfoPlist.strings */,
 			);
 			path = resources;
 			sourceTree = "<group>";
@@ -1020,7 +1019,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */,
-				36B8EC3E17568E40004CF035 /* PacoTests-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1249,8 +1247,8 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Paco/Paco-Prefix.pch";
-				INFOPLIST_FILE = "PacoTests/PacoTests-Info.plist";
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;
@@ -1266,8 +1264,8 @@
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Paco/Paco-Prefix.pch";
-				INFOPLIST_FILE = "PacoTests/PacoTests-Info.plist";
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
 				WRAPPER_EXTENSION = octest;
