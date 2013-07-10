@@ -2,19 +2,6 @@ package com.google.paco.shared.model;
 
 import java.io.Serializable;
 
-/* 
- * NOTE: these annotations cannot be added in client-side code.
- * Please edit annotations for this class in JsonConverter.java
- * (in the Paco-Server project) as part of the SignalingMechanismDAOMixer class.
- */
-//@JsonTypeInfo(  
-//              use = JsonTypeInfo.Id.NAME,  
-//              include = JsonTypeInfo.As.PROPERTY,  
-//              property = "type")  
-//          @JsonSubTypes({  
-//              @Type(value = SignalScheduleDAO.class, name = "signalSchedule"),  
-//              @Type(value = TriggerDAO.class, name = "trigger") })  
-//@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
 public abstract class SignalingMechanismDAO implements Serializable {
 
   protected String type;
