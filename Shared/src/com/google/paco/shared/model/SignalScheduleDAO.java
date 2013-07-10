@@ -114,6 +114,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      */
     public SignalScheduleDAO() {
       this.times = new Long[0];
+      this.type = "signalSchedule";
     }
 
     public Integer getScheduleType() {

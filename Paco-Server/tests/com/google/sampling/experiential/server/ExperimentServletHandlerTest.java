@@ -32,21 +32,27 @@ public class ExperimentServletHandlerTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     helper.setUp();
-    helper.setEnvIsLoggedIn(true);
-    helper.setEnvEmail(email);
-    helper.setEnvAuthDomain(authDomain);
+    logInEnvironment();
     mapService = new MapServiceImpl();
     
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_2);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_3);
   }
 
 
+  private void logInEnvironment() {
+    helper.setEnvIsLoggedIn(true);
+    helper.setEnvEmail(email);
+    helper.setEnvAuthDomain(authDomain);
+  }
+
+
   private void createAndSaveExperiment(String experimentTitle) {
-    ExperimentDAO testExperiment1 = JsonConverter.fromSingleEntityJson(experimentTitle);
-    testExperiment1.setId(null);
-    saveToServer(testExperiment1);
+    ExperimentDAO testExperiment = JsonConverter.fromSingleEntityJson(experimentTitle);
+    testExperiment.setId(null);
+    saveToServer(testExperiment);
   }
   
   
@@ -60,8 +66,8 @@ public class ExperimentServletHandlerTest extends TestCase {
     
     List<ExperimentDAO> shortLoadExperiments = getExperimentList(shortContent);
     List<ExperimentDAO> longLoadExperiments = getExperimentList(longContent);
-    assertEquals(shortLoadExperiments.size(), 3);
-    assertEquals(longLoadExperiments.size(), 3);
+    assertEquals(shortLoadExperiments.size(), 4);
+    assertEquals(longLoadExperiments.size(), 4);
   }
   
   public void testSelectedLoadReturningNoExperiments() {

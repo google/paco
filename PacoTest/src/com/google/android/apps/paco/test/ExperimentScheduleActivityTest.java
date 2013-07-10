@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.ExperimentScheduleActivity;
+import com.google.android.apps.paco.SignalSchedule;
 import com.google.common.collect.Lists;
 
 import android.content.Context;
@@ -118,17 +119,38 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
 
     activity.getExperiment().getSchedule().setRepeatRate(REPEAT_RATE);
     int timesLength = setExperimentTimes();
-    // Bob: I didn't quite understand how setting the days of week worked.
-    // How do we do that (i.e. how do we set multiple days of the week to
-    // be scheduled)?
-    // activity.getExperiment().getSchedule().setWeekDaysScheduled(1);
+    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.WEDNESDAY);
+    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.FRIDAY);
     activity.save();
 
     Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
     assertNotNull(savedExperiment);
     assertEquals(savedExperiment.getSchedule().getRepeatRate(), REPEAT_RATE);
     checkExperimentTimesList(timesLength, savedExperiment);
-    // Priya - TODO: check week days scheduled.
+    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.WEDNESDAY));
+    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.FRIDAY));
+    activity.finish();
+  }
+  
+  public void testWeeklySchedulingSetsOnlyCorrectDays() {
+    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_WEEKLY);
+    joinExperiment(experiment);
+    activity.setActivityProperties(experiment, experimentProviderUtil, true);
+
+    activity.getExperiment().getSchedule().setRepeatRate(REPEAT_RATE);
+    int timesLength = setExperimentTimes();
+    activity.getExperiment().getSchedule().removeAllWeekDaysScheduled();
+    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.SUNDAY);
+    activity.save();
+
+    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
+    assertNotNull(savedExperiment);
+    assertEquals(savedExperiment.getSchedule().getRepeatRate(), REPEAT_RATE);
+    checkExperimentTimesList(timesLength, savedExperiment);
+    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.SUNDAY));
+    for (int i=1; i<7; ++i) {
+      assertFalse(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.DAYS_OF_WEEK[i]));
+    }
     activity.finish();
   }
 

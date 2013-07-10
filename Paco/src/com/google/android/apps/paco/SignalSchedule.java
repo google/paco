@@ -271,6 +271,23 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public Integer getWeekDaysScheduled() {
     return weekDaysScheduled;
   }
+  
+  public void addWeekDayToSchedule(Integer day) {
+    weekDaysScheduled |= day;
+  }
+  
+  public void removeWeekDayFromSchedule(Integer day) {
+    weekDaysScheduled &= (~day);
+  }
+  
+  // Visible for testing
+  public void removeAllWeekDaysScheduled() {
+    this.weekDaysScheduled = 0;
+  }
+  
+  public boolean isWeekDayScheduled(Integer day) {
+    return (weekDaysScheduled & day) != 0;
+  }
 
   public Integer getNthOfMonth() {
     return nthOfMonth;
