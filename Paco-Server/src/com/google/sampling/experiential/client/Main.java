@@ -74,6 +74,8 @@ import com.google.sampling.experiential.shared.MapServiceAsync;
  */
 public class Main implements EntryPoint, ExperimentListener {
 
+  public static String ERROR_HIGHLIGHT = "error-highlight";
+  
   private Label statusLabel;
   private FlexTable flexTable;
   Images resources;

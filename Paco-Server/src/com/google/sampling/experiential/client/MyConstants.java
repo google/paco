@@ -403,4 +403,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
   
+  @DefaultStringValue("Please complete the required fields.")
+  String needToCompleteRequiredFields();
+  
 }
