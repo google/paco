@@ -10,9 +10,34 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Cancel")
   String cancel();
+  
+  @DefaultStringValue("OK")
+  String ok();
 
   @DefaultStringValue("Success!")
   String success();
+    
+  @DefaultStringValue("Failure")
+  String failure();
+  
+  @DefaultStringValue("Failed to login.")
+  String failedToLogin();
+  
+  @DefaultStringValue("Failure to join experiment.")
+  String failureToJoinExperiment();
+  
+  @DefaultStringValue("Something went wrong in saving to the server.")
+  String saveToServerFailure();
+  
+  @DefaultStringValue("Error deleting experiment.")
+  String errorDeletingExperiment();
+  
+  @DefaultStringValue("Could not retrieve charts.")
+  String couldNotRetrieveCharts();
+  
+  @DefaultStringValue("No results for your query.")
+  String noResultsForQuery();
+
 
   @DefaultStringValue("TODAY'S RESPONSES")
   String todaysResponses();
@@ -215,6 +240,10 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Purge")
   String purge();
+  
+  @DefaultStringValue("Are you sure you want to delete this experiment definition? " 
+            + "Perhaps you want to unpublish it to hide it from new users?")
+  String areYouSureYouWantToDelete();
 
   @DefaultStringValue("QR Code")
   String qrCode();
@@ -373,5 +402,5 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
-
+  
 }
