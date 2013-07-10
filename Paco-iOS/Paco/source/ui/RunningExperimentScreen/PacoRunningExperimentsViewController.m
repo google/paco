@@ -26,6 +26,7 @@
 #import "PacoQuestionScreenViewController.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
+#import "PacoAlertView.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -153,6 +154,30 @@
   [self.navigationController pushViewController:questions animated:YES];
 }
 
+- (void)showStopConfirmAlert
+{
+  PacoAlertViewDidDismissBlock dismissBlock = ^(NSInteger buttonIndex){
+    switch (buttonIndex) {
+      case 0://cancel
+        break;
+        
+      case 1://confirm
+        
+        break;
+        
+      default:
+        NSAssert(NO, @"buttonIndex has to be 0 or 1");
+        break;
+    }
+  };
+  
+  [PacoAlertView showAlertWithTitle:@"Are you sure?"
+                            message:@"All your data will be deleted permanently with this experiment."
+                       dismissBlock:dismissBlock
+                  cancelButtonTitle:@"Cancel"
+                  otherButtonTitles:@"Absolutely Sure!", nil];
+}
+
 
 #pragma mark - UIAlertViewDelegate
 
@@ -168,6 +193,7 @@
     case 2: // Edit
       break;
     case 3: // Stop
+      [self showStopConfirmAlert];
       break;
     case 4: // Explore
       break;
