@@ -40,4 +40,11 @@
   
 }
 
+- (void)testAddition {
+    int valueA = 5;
+    int valueB = 10;
+    
+    STAssertTrue(valueA + valueB == 15, @"The expected value of the addition should be 15");
+}
+
 @end
