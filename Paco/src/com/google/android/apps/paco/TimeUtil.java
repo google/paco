@@ -42,6 +42,10 @@ public class TimeUtil {
   public static String formatDateTime(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateTimeFormatter);
   }
+  
+  public static String formatDateTime(DateTime dateTime) {
+    return dateTime.toString(dateTimeFormatter);
+  }
 
   public static DateMidnight getMondayOfWeek(DateTime now) {
     DateMidnight mondayOfWeek = now.toDateMidnight();
