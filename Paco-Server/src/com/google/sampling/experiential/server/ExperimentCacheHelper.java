@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
 
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;

@@ -18,14 +18,9 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 
 import android.app.AlarmManager;
@@ -35,7 +30,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class ServerCommunication {
@@ -44,7 +38,9 @@ public class ServerCommunication {
   
   public static synchronized ServerCommunication getInstance(Context context) {
     if (instance == null) {
-      instance = new ServerCommunication(context); 
+      UserPreferences userPrefs = new UserPreferences(context);    
+      AlarmManager alarmManager = (AlarmManager)(context.getSystemService(Context.ALARM_SERVICE));
+      instance = new ServerCommunication(context, userPrefs, alarmManager);
     }
     return instance;    
   }
@@ -52,16 +48,25 @@ public class ServerCommunication {
   private static final Uri CONTENT_URI = Uri.parse("content://com.google.android.apps.paco.ServerCommunication/");
   private Context context;
   private UserPreferences userPrefs;
-
-  private ServerCommunication(Context context) {
+  private AlarmManager alarmManager;
+  
+  // Visible for testing
+  public ServerCommunication(Context context, UserPreferences userPrefs, AlarmManager alarmManager) {
     this.context = context;
-    userPrefs = new UserPreferences(this.context);    
+    this.userPrefs = userPrefs;    
+    this.alarmManager = alarmManager;
   }
 
   public synchronized void checkIn() {
-    if (userPrefs.isExperimentListStale()) {
-      updateExperiments();
+    checkIn(false);
+  }
+  
+  // Visible for testing
+  public synchronized void checkIn(Boolean forTesting) {
+    if (userPrefs.isJoinedExperimentsListStale() && !forTesting) {
+      updateJoinedExperiments();
     }
+    
     setNextWakeupTime();
   }
   
@@ -70,68 +75,43 @@ public class ServerCommunication {
     if (isInFuture(nextServerCommunicationTime)) { 
       return;
     }
-    AlarmManager alarmManager = (AlarmManager)(context.getSystemService(Context.ALARM_SERVICE));
-    DateTime tomorrowsCommTime = nextServerCommunicationTime.plusHours(24);
+    
+    DateTime nextCommTime = nextServerCommunicationTime.plusHours(24);
+    if (nextCommTime.isBeforeNow() || nextCommTime.isEqualNow()) {
+      nextCommTime = new DateTime().plusHours(24);
+    }
     Intent ultimateIntent = new Intent(context, ServerCommunicationService.class); 
     ultimateIntent.setData(CONTENT_URI);
     PendingIntent intent = PendingIntent.getService(context.getApplicationContext(), 0, ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, tomorrowsCommTime.getMillis(), intent);
-    userPrefs.setNextServerCommunicationServiceAlarmTime(tomorrowsCommTime.getMillis());
-    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + tomorrowsCommTime.toString());
+    alarmManager.set(AlarmManager.RTC_WAKEUP, nextCommTime.getMillis(), intent);
+    userPrefs.setNextServerCommunicationServiceAlarmTime(nextCommTime.getMillis());
+    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + nextCommTime.toString());
   }
 
   private boolean isInFuture(DateTime time) {
     return time.isAfter(new DateTime().plusSeconds(10));
   }
-
-  public void updateExperiments() {
-    // Unify server communication code with duplicate in DownloadTask in FindExperimentActivity.
+  
+  private void updateJoinedExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    UrlContentManager manager = null;
+    DownloadHelper downloadHelper = new DownloadHelper(context, userPrefs);
+    downloadHelper.downloadRunningExperiments(experimentProviderUtil.getJoinedExperimentServerIds());
+    saveDownloadedExperiments(experimentProviderUtil, downloadHelper.getContentAsString());
+  }
+
+  private void saveDownloadedExperiments(ExperimentProviderUtil experimentProviderUtil, 
+                                         String contentAsString) {
     try {
-      manager = new UrlContentManager(context);
-      
-      String serverAddress = userPrefs.getServerAddress();
-      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments"))
-              .addHeader("http.useragent", "Android")
-              .addHeader("paco.version", AndroidUtils.getAppVersion(context))
-              .execute();
-      String contentAsString = response.getContentAsString();
-      Log.i("FindExperimentsActivity", "data: " + contentAsString);
-      ArrayList<Experiment> result = null;
-      if (contentAsString != null) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        try {
-          result = mapper.readValue(contentAsString,
-              new TypeReference<List<Experiment>>() {
-              });
-          if (result != null) {
-            experimentProviderUtil.deleteAllUnJoinedExperiments();
-            experimentProviderUtil.updateExistingExperiments(result);
-            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
-          }
-        } catch (JsonParseException e) {
-          Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
-          e.printStackTrace();
-        } catch (JsonMappingException e) {
-          Log.e(PacoConstants.TAG, "Could not map json: " + contentAsString);
-          e.printStackTrace();
-        } catch (UnsupportedCharsetException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-      
-      userPrefs.setExperimentListRefreshTime(new Date().getTime());
-
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
+      experimentProviderUtil.updateExistingExperiments(contentAsString);
+    } catch (JsonParseException e) {
+      // Nothing to be done here.
+    } catch (JsonMappingException e) {
+      // Nothing to be done here.
+    } catch (UnsupportedCharsetException e) {
+      // Nothing to be done here.
+    } catch (IOException e) {
+      // Nothing to be done here.
     }
-
   }
 }

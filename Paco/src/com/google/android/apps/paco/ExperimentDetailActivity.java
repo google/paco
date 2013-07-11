@@ -240,10 +240,10 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
 
       @Override
-      public void done() {          
+      public void done(String unusedResult) {          
           experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
           dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
           if (experiment != null) {
@@ -256,7 +256,7 @@ public class ExperimentDetailActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
+    new DownloadShortExperimentsTask(this, listener, userPrefs).execute();
 
   }
   
