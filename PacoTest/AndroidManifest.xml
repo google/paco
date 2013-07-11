@@ -33,4 +33,7 @@
     <instrumentation android:name="android.test.InstrumentationTestRunner"
                      android:targetPackage="com.pacoapp.paco"
                      android:label="Tests for com.pacoapp.paco"/>
+    
+    <uses-sdk android:minSdkVersion='8'>
+    </uses-sdk>
 </manifest>

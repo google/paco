@@ -54,10 +54,18 @@ public class UserPreferences {
 
 
   private static final String APP_PREFERENCES = "app_prefs";
+  
+  public static final String FIND_EXPERIMENTS = "FIND_EXPERIMENTS";
+  
+  public static final String JOINED_EXPERIMENTS = "JOINED_EXPERIMENTS";
 
-  private static final int LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
+  private static final int FIND_LIST_REFRESH_TIMEOUT = 299990; //10 millis less than 5 min
 
-  private static final String LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
+  private static final String FIND_LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
+  
+  private static final int JOIN_LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
+
+  private static final String JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY = "join_list_refresh";
 
   private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
   
@@ -122,13 +130,60 @@ public class UserPreferences {
     return appPrefs;
   }
   
-  public boolean isExperimentListStale() {
-    return (new Date().getTime() - getAppPrefs().getLong(LAST_LIST_REFRESH_PREFERENCE_KEY, 
-        0l)) >= LIST_REFRESH_TIMEOUT;
+  public boolean isAvailableExperimentsListStale() {
+    return isExperimentListStale(FIND_EXPERIMENTS);
   }
   
-  public void setExperimentListRefreshTime(Long updateTime) {
-    getAppPrefs().edit().putLong(LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
+  public boolean isJoinedExperimentsListStale() {
+    return isExperimentListStale(JOINED_EXPERIMENTS);
+  }
+  
+  private boolean isExperimentListStale(String refreshType) {
+    if (refreshType.equals(FIND_EXPERIMENTS)) {
+      return (new Date().getTime() - getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, 
+          0l)) >= FIND_LIST_REFRESH_TIMEOUT;
+    } else {
+      return (new Date().getTime() - getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, 
+          0l)) >= JOIN_LIST_REFRESH_TIMEOUT;
+    }
+  }
+  
+  public void setAvailableExperimentListRefreshTime(Long updateTime) {
+    setExperimentListRefreshTime(updateTime, FIND_EXPERIMENTS);
+  }
+  
+  public void setJoinedExperimentListRefreshTime(Long updateTime) {
+    setExperimentListRefreshTime(updateTime, JOINED_EXPERIMENTS);
+  }
+  
+  private void setExperimentListRefreshTime(Long updateTime, String refreshType) {
+    if (refreshType.equals(FIND_EXPERIMENTS)) {
+      getAppPrefs().edit().putLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
+    } else {
+      getAppPrefs().edit().putLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
+    }
+  }
+  
+  public DateTime getAvailableExperimentListRefreshTime() {
+    return getExperimentListRefreshTime(FIND_EXPERIMENTS);
+  }
+  
+  public DateTime getJoinedExperimentListRefreshTime() {
+    return getExperimentListRefreshTime(JOINED_EXPERIMENTS);
+  }
+  
+  private DateTime getExperimentListRefreshTime(String refreshType) {
+    Long lastRefresh;
+    if (refreshType.equals(FIND_EXPERIMENTS)) {
+      lastRefresh = getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, -1);
+    } else {
+      lastRefresh = getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, -1);
+    }
+
+    if (lastRefresh.equals(Long.valueOf(-1))) {
+      return null;
+    }
+    return new DateTime(lastRefresh);
   }
 
   public void setPhotoAddress(String absolutePath) {
