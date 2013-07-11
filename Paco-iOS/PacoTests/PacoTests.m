@@ -33,18 +33,31 @@
     [super tearDown];
 }
 
-- (void)testExample {
-
-  
-        STFail(@"Unit tests are not implemented yet in PacoTests");
-  
-}
-
 - (void)testAddition {
     int valueA = 5;
     int valueB = 10;
     
     STAssertTrue(valueA + valueB == 15, @"The expected value of the addition should be 15");
+}
+
+// This method should be running different test suites on the PacoDate object
+- (void)testPacoDate {
+    // create a NSDate date for use in our tests
+    NSDateComponents *comps = [[NSDateComponents alloc] init];
+    [comps setDay:2];
+    [comps setMonth:7];
+    [comps setYear:1989];
+    
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDate *testDate = [gregorian dateFromComponents:comps];
+
+    // this is what the Paco string should look like
+    NSString *testDateString = @"1989/07/02 07:00:00+0000";
+    
+    // *** TESTS ***
+    // PacoDate pacoStringForDate:<#(NSDate *)#>
+    STAssertEqualObjects([PacoDate pacoStringForDate:testDate], testDateString, @"pacoStringForDate failed");
 }
 
 @end
