@@ -66,7 +66,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 
-  public static final String IS_TESTING_KEY = "is_testing_key";
+  public static final String AUTO_CONFIGURE = "auto_configure";
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
@@ -99,22 +99,13 @@ public class ExperimentScheduleActivity extends Activity {
   private boolean showingJoinedExperiments;
 
   private DownloadFullExperimentsTask experimentDownloadTask;
-  
-  private boolean isTestInstance;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     final Intent intent = getIntent();
-    Bundle bundle = intent.getExtras();
-
-    isTestInstance = false;
-    if (bundle != null) {
-      isTestInstance = bundle.getBoolean(IS_TESTING_KEY);
-    }
-
-    if (!isTestInstance) {
+    if (intent.getBooleanExtra(AUTO_CONFIGURE, true)) {
       uri = intent.getData();
       showingJoinedExperiments = uri.getPathSegments().get(0)
           .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
@@ -587,9 +578,8 @@ public class ExperimentScheduleActivity extends Activity {
 
     experimentProviderUtil.insertEvent(event);
   }
-
-  // Visible for testing
-  public void save() {
+ 
+  private void save() {
     Validation valid = isValid();
     if (!valid.ok()) {
       Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
@@ -603,9 +593,14 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void scheduleExperiment() {
+    scheduleExperiment(true);
+  }
+  
+  // Visible for testing
+  public void scheduleExperiment(boolean shouldScheduleAlarms) {
     saveExperimentRegistration();    
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    if (!isTestInstance) {
+    if (shouldScheduleAlarms) {
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     }
     finish();
@@ -652,15 +647,15 @@ public class ExperimentScheduleActivity extends Activity {
   private void saveDownloadedExperiment() {
     List<Experiment> experimentList = getDownloadedExperimentsList();
     Preconditions.checkArgument(experimentList.size() == 1);
-    saveDownloadedExperiment(experimentList.get(0));
+    saveDownloadedExperiment(experimentList.get(0), true);
   }
   
   // Visible for testing
-  public void saveDownloadedExperiment(Experiment fullExperiment) {
+  public void saveDownloadedExperiment(Experiment fullExperiment, boolean shouldScheduleAlarms) {
     SignalSchedule oldSchedule = experiment.getSchedule();
     experiment = fullExperiment;
     experiment.setSchedule(oldSchedule);
-    scheduleExperiment();
+    scheduleExperiment(shouldScheduleAlarms);
     Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
   }
 
