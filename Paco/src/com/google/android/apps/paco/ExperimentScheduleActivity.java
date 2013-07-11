@@ -65,9 +65,7 @@ import android.widget.Toast;
 public class ExperimentScheduleActivity extends Activity {
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
-
-  public static final String AUTO_CONFIGURE = "auto_configure";
-
+  
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
   private Uri uri;
@@ -105,8 +103,8 @@ public class ExperimentScheduleActivity extends Activity {
     super.onCreate(savedInstanceState);
 
     final Intent intent = getIntent();
-    if (intent.getBooleanExtra(AUTO_CONFIGURE, true)) {
-      uri = intent.getData();
+    uri = intent.getData();
+    if (uri != null) {
       showingJoinedExperiments = uri.getPathSegments().get(0)
           .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
 
@@ -591,16 +589,12 @@ public class ExperimentScheduleActivity extends Activity {
       requestFullExperiment();
     }
   }
-
-  private void scheduleExperiment() {
-    scheduleExperiment(true);
-  }
   
   // Visible for testing
-  public void scheduleExperiment(boolean shouldScheduleAlarms) {
+  public void scheduleExperiment() {
     saveExperimentRegistration();    
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    if (shouldScheduleAlarms) {
+    if (uri != null) {
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     }
     finish();
@@ -647,15 +641,15 @@ public class ExperimentScheduleActivity extends Activity {
   private void saveDownloadedExperiment() {
     List<Experiment> experimentList = getDownloadedExperimentsList();
     Preconditions.checkArgument(experimentList.size() == 1);
-    saveDownloadedExperiment(experimentList.get(0), true);
+    saveDownloadedExperiment(experimentList.get(0));
   }
   
   // Visible for testing
-  public void saveDownloadedExperiment(Experiment fullExperiment, boolean shouldScheduleAlarms) {
+  public void saveDownloadedExperiment(Experiment fullExperiment) {
     SignalSchedule oldSchedule = experiment.getSchedule();
     experiment = fullExperiment;
     experiment.setSchedule(oldSchedule);
-    scheduleExperiment(shouldScheduleAlarms);
+    scheduleExperiment();
     Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
   }
 
