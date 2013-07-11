@@ -56,9 +56,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
     context = getInstrumentation().getContext();
     experimentProviderUtil = new MockExperimentProviderUtil(context);
     intent = new Intent();
-    bundle = new Bundle();
-    bundle.putBoolean(ExperimentScheduleActivity.IS_TESTING_KEY, true);
-    intent.putExtras(bundle);
+    intent.putExtra(ExperimentScheduleActivity.AUTO_CONFIGURE, false);
     startActivity(intent, null, null);
     activity = getActivity();
   }
@@ -289,11 +287,11 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
   
   private void saveExperimentSchedule() {
-    activity.save();
+    activity.scheduleExperiment(false);
   }
 
   private void simulateDownloadingAndSchedulingExperiment(Experiment experiment) {
-    activity.saveDownloadedExperiment(experiment);
+    activity.saveDownloadedExperiment(experiment, false);
   }
 
   private void checkExperimentProperlyJoined(Experiment savedExperiment) {
