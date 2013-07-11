@@ -23,7 +23,8 @@
 
 + (NSString *)pacoStringForDate:(NSDate *)date {
   NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  // tpe: temporary disabled changing the timezone to GMT as we're not sure if this is correct behavior
+  // [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
   return [dateFormatter stringFromDate:date];
 }
