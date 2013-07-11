@@ -42,22 +42,33 @@
 
 // This method should be running different test suites on the PacoDate object
 - (void)testPacoDate {
+    // This is the NSDate we'll be working with
+    int testDay = 2;
+    int testMonth = 7;
+    int testYear = 1989;
+    int testHour = 20;
+    int testMinute = 45;
+    NSTimeZone *testTimeZone = [NSTimeZone timeZoneWithName:@"Europe/Brussels"];
+    
     // create a NSDate date for use in our tests
     NSDateComponents *comps = [[NSDateComponents alloc] init];
-    [comps setDay:2];
-    [comps setMonth:7];
-    [comps setYear:1989];
+    [comps setDay:testDay];
+    [comps setMonth:testMonth];
+    [comps setYear:testYear];
+    [comps setHour:testHour];
+    [comps setMinute:testMinute];
+    [comps setTimeZone:testTimeZone];
     
     NSCalendar *gregorian = [[NSCalendar alloc]
                              initWithCalendarIdentifier:NSGregorianCalendar];
     NSDate *testDate = [gregorian dateFromComponents:comps];
-
-    // this is what the Paco string should look like
-    NSString *testDateString = @"1989/07/02 07:00:00+0000";
-    
+ 
     // *** TESTS ***
     // PacoDate pacoStringForDate:<#(NSDate *)#>
-    STAssertEqualObjects([PacoDate pacoStringForDate:testDate], testDateString, @"pacoStringForDate failed");
+    // Keep in mind that pacoStringForDate will convert the datetime to the local timezone of the iOS device
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+    STAssertEqualObjects([PacoDate pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
 }
 
 @end
