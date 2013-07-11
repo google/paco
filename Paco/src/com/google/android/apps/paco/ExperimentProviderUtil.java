@@ -1573,8 +1573,7 @@ public class ExperimentProviderUtil {
     try {
       experiments = createObjectsFromJsonStream(context.openFileInput(FILENAME));
     } catch (IOException e) {
-      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist");
-      e.printStackTrace();
+      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");      
     }
     return ensureExperiments(experiments);
   }

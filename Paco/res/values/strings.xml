@@ -19,9 +19,8 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.78</string>
   <string name='server'>quantifiedself.appspot.com</string>
-  <string name='app_package'>com.google.android.apps.paco</string>
+  <string name='app_package'>com.pacoapp.paco</string>
   <string name='contact_email'>paco-users@googlegroups.com</string>
   <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
 <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
@@ -273,4 +272,7 @@
    <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
    <string name="updated_paco_notification_content_title">Paco Update</string>
    <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
+   <string name="default_list_item"></string>
+   <string name="answer_by_speaking">Answer by speaking</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
 </resources>
