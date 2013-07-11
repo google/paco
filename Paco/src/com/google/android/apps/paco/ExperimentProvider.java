@@ -52,7 +52,6 @@ public class ExperimentProvider extends ContentProvider {
   static final String OUTPUTS_TABLE_NAME = "outputs";
   static final String FEEDBACK_TABLE_NAME = "feedback";
   static final String NOTIFICATION_TABLE_NAME = "notifications";
-
   
   private static HashMap<String, String> liveFolderProjectionMap;
 
