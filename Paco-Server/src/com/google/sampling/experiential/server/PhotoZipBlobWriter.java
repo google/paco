@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
@@ -32,7 +33,10 @@ public class PhotoZipBlobWriter {
   public PhotoZipBlobWriter() {
   }
 
-  public String writePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId) {
+  public String writePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId) {    
+    log.info("Inside writePhotoZipFile");
+    log.info("Event count: " + events.size());
+    List<Event> eventsWithPhotos = getEventsWithPhotos(events);
     log.info("Inside writePhotoZipFile");
     FileService fileService = FileServiceFactory.getFileService();
     AppEngineFile file = null;
@@ -40,16 +44,40 @@ public class PhotoZipBlobWriter {
     ZipOutputStream zip = null;
     try {
       file = fileService.createNewBlobFile("application/zip", "photos_" + experimentId + ".zip");
-      log.info("Inside writePhotoZipFile");
-      boolean lock = true;
+      boolean lock = false;
       writeChannel = fileService.openWriteChannel(file, lock);
-      log.info("Inside writePhotoZipFile");
-      OutputStream blobOutputStream = Channels.newOutputStream(writeChannel);
-      log.info("Inside writePhotoZipFile");
+      OutputStream blobOutputStream = Channels.newOutputStream(writeChannel);      
       zip = new ZipOutputStream(blobOutputStream);
-      addPhotoEventsToZip(getEventsWithPhotos(events), zip, anon);
-      log.info("Inside writePhotoZipFile");
+      
+      int eventPhotoCount = eventsWithPhotos.size();
+      log.info("Events with photos: " + eventPhotoCount);
+      for (int eventIndex = 0; eventIndex < eventPhotoCount; eventIndex++) {
+        Event event = eventsWithPhotos.get(eventIndex);
+        String filenamePrefix = anonymize(event.getWho(), anon) + "_" + new DateTime(event.getResponseTime()).toString(jodaFormatter) + "_";
+        
+        List<PhotoBlob> blobs = event.getBlobs();    
+        for (int i=0; i < blobs.size(); i++) {
+          log.info("Writing event blob file: " + i);
+          PhotoBlob photoBlob = blobs.get(i);
+          createFileForBytes(zip, filenamePrefix + Integer.toString(i), photoBlob.getValue());
+        }
+        if (eventIndex % 10 == 0 && eventIndex < eventPhotoCount - 1) {
+          zip.close();
+          String path = file.getFullPath();            
+          log.info("RE-opening blobfile on event: " + eventIndex);
+          file = new AppEngineFile(path);
+          writeChannel = fileService.openWriteChannel(file, lock);
+          blobOutputStream = Channels.newOutputStream(writeChannel);
+          zip = new ZipOutputStream(blobOutputStream);
+        }
+
+      }
       zip.close();
+      String path = file.getFullPath();
+      log.info("RE-opening file to finalize");
+      file = new AppEngineFile(path);
+      writeChannel = fileService.openWriteChannel(file, true);
+      
       writeChannel.closeFinally();
       BlobKey blobKey = fileService.getBlobKey(file);
       if (blobKey != null) {
@@ -62,6 +90,29 @@ public class PhotoZipBlobWriter {
     }
   }
 
+  
+//  private void ensureOpen() throws IOException {
+//    if (channel != null) {
+//      // This only works if slices are <30 seconds.  TODO(ohler): close and
+//      // reopen every 29 seconds.  Better yet, change fileproxy to not require
+//      // the file to be open.
+//      return;
+//    }
+//    if (file == null) {
+//      file = FILE_SERVICE.createNewBlobFile(mimeType, fileName);
+//    }
+//    channel = FILE_SERVICE.openWriteChannel(file, false);
+//  }
+//
+//  @Override public void write(ByteBuffer bytes) throws IOException {
+//    Preconditions.checkState(!closed, "%s: already closed", this);
+//    if (bytes.hasRemaining()) {
+//      ensureOpen();
+//      channel.write(bytes);
+//    }
+//  }
+  
+  
   private void addPhotoEventsToZip(List<Event> eventsWithPhotos, ZipOutputStream zip, boolean anon) throws IOException {
     for (Event event : eventsWithPhotos) {
       createFilesForEventPhotos(zip, event, anon);
