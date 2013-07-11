@@ -16,7 +16,8 @@ import android.util.Log;
 
 	private Context context;
 
-  DatabaseHelper(Context context/*, InputStream in*/) {
+	// Visible for testing
+  public DatabaseHelper(Context context/*, InputStream in*/) {
 	  super(context, ExperimentProvider.DATABASE_NAME, null, ExperimentProvider.DATABASE_VERSION);
 //	  this.sqlInput = in;
 	  this.context = context;

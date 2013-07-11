@@ -292,6 +292,16 @@ public class UrlContentManager {
       headers.add(new Pair<String, String>(headerKey, headerValue));
       return this;
     }
+    
+    @Override
+    public String getHeaderValue(String headerKey) {
+      for (Pair<String, String> keyVal : headers) {
+        if (keyVal.first.equals(headerKey)) {
+          return keyVal.second;
+        }
+      }
+      return null;
+    }
 
     @Override
     public Response execute() {
