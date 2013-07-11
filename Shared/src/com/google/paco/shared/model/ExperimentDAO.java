@@ -31,23 +31,15 @@ import java.io.Serializable;
  * @author Bob Evans
  *
  */
-public class ExperimentDAO implements Serializable {
+public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
-  public static final int SCHEDULED_SIGNALING = 1;
-  public static final int TRIGGERED_SIGNALING = 1;
-  private String title;
-  private String description;
-  private String informedConsentForm;
-  private String creator;
-  private Boolean fixedDuration = false;
+  /**
+   * 
+   */
   private Boolean questionsChange = false;
-  private Long startDate;
-  private Long endDate;
   private String hash;
-  private Long joinDate;
   private Long modifyDate;
   private InputDAO[] inputs;
-  private Long id;
   private FeedbackDAO[] feedback;
   private Boolean published;
   private String[] admins;
@@ -55,10 +47,6 @@ public class ExperimentDAO implements Serializable {
   private Boolean deleted = false;
   private Boolean webRecommended = false;
   private Integer version;
-  private SignalingMechanismDAO[] signalingMechanisms;
-  private SignalScheduleDAO schedule;
-
-
   /**
    * @param id
    * @param title
@@ -76,20 +64,18 @@ public class ExperimentDAO implements Serializable {
       Long startDate, Long endDate, String hash, Long joinDate,
       Long modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
       Boolean deleted, Boolean webRecommended, Integer version) {
-    super();
+    super(id, title, description, informedConsentForm, email, signalingMechanisms, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
     this.description = description;
     this.informedConsentForm = informedConsentForm;
     this.creator = email;
     this.signalingMechanisms = signalingMechanisms;
-    setScheduleForBackwardCompatibility();
     this.fixedDuration = fixedDuration;
     this.questionsChange = questionsChange;
     this.startDate = startDate;
     this.endDate = endDate;
     this.hash = hash;
-    this.joinDate = joinDate;
     this.modifyDate = modifyDate;
     this.inputs = new InputDAO[0];
     this.feedback = new FeedbackDAO[0];
@@ -108,50 +94,8 @@ public class ExperimentDAO implements Serializable {
     super();
     this.inputs = new InputDAO[0];
     this.feedback = new FeedbackDAO[0];
-    this.signalingMechanisms = new SignalingMechanismDAO[] { new SignalScheduleDAO()};
-    setScheduleForBackwardCompatibility();
     this.admins = new String[0];
     this.publishedUsers = new String[0];
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public String getInformedConsentForm() {
-    return informedConsentForm;
-  }
-
-  public void setInformedConsentForm(String informedConsentForm) {
-    this.informedConsentForm = informedConsentForm;
-  }
-
-  public String getCreator() {
-    return creator;
-  }
-
-  public void setCreator(String creator) {
-    this.creator = creator;
-  }
-
-  public Boolean getFixedDuration() {
-    return fixedDuration;
-  }
-
-  public void setFixedDuration(Boolean fixedDuration) {
-    this.fixedDuration = fixedDuration;
   }
 
   public Boolean getQuestionsChange() {
@@ -162,22 +106,6 @@ public class ExperimentDAO implements Serializable {
     this.questionsChange = questionsChange;
   }
 
-  public Long getStartDate() {
-    return startDate;
-  }
-
-  public void setStartDate(Long startDate) {
-    this.startDate = startDate;
-  }
-
-  public Long getEndDate() {
-    return endDate;
-  }
-
-  public void setEndDate(Long endDate) {
-    this.endDate = endDate;
-  }
-
   public String getHash() {
     return hash;
   }
@@ -186,28 +114,12 @@ public class ExperimentDAO implements Serializable {
     this.hash = hash;
   }
 
-  public Long getJoinDate() {
-    return joinDate;
-  }
-
-  public void setJoinDate(Long joinDate) {
-    this.joinDate = joinDate;
-  }
-
   public Long getModifyDate() {
     return modifyDate;
   }
 
   public void setModifyDate(Long modifyDate) {
     this.modifyDate = modifyDate;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public void setInputs(InputDAO[] inputDAO) {
@@ -281,34 +193,6 @@ public class ExperimentDAO implements Serializable {
   
   public void setVersion(Integer version) {
     this.version = version;
-  }
-
-  public SignalingMechanismDAO[] getSignalingMechanisms() {
-    return signalingMechanisms;
-  }
-
-  public void setSignalingMechanisms(SignalingMechanismDAO[] signalingMechanisms) {
-    this.signalingMechanisms = signalingMechanisms;
-  }
-
-  
-  public void setScheduleForBackwardCompatibility() {
-    if (getSignalingMechanisms() != null 
-            && getSignalingMechanisms().length > 0 
-            && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
-      schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
-    } else {
-      schedule = new SignalScheduleDAO();
-      schedule.setScheduleType(SignalScheduleDAO.SELF_REPORT);
-    }
-  }
-
-  public SignalScheduleDAO getSchedule() {
-    return schedule;
-  }
-
-  public void setSchedule(SignalScheduleDAO schedule) {
-    this.schedule = schedule;
   }
   
   
