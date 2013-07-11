@@ -7,6 +7,7 @@ import java.nio.channels.Channels;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.binary.Base64;
@@ -196,47 +197,52 @@ public class HtmlBlobWriter {
       out.append("</tr>");
       
       for (Event event : events) {
-        out.append("<tr>");
-        out.append("<td>").append(event.getExperimentName()).append("</td>");
-        out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
-
-        String who = event.getWho();
-        if (anon) {
-          who = Event.getAnonymousId(who);
-        }
-        out.append("<td>").append(who).append("</td>");
-
-        // we want to render photos as photos not as strings.
-        // It would be better to do this by getting the experiment for
-        // the event and going through the inputs.
-        // That was not done because there may be multiple experiments
-        // in the data returned for this interface and
-        // that is work that is otherwise necessary for now. Go
-        // pretotyping!
-        // TODO clean all the accesses of what could be tainted data.
-        List<PhotoBlob> photos = event.getBlobs();
-        Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
-        for (PhotoBlob photoBlob : photos) {
-          photoByNames.put(photoBlob.getName(), photoBlob);
-        }
-        for (String key : inputKeys) {
-          out.append("<td>");
-          out.append(getValueAsDisplayString(event, photoByNames, key));
-          out.append("</td>");
-        }
         
-        List<String> keysCopy = Lists.newArrayList(event.getWhatKeys());  
-        keysCopy.removeAll(inputKeys);
-        for (String extraKey : keysCopy) {
-          out.append("<td>");
-          out.append(extraKey);
-          out.append(" = ");
-          out.append(getValueAsDisplayString(event, photoByNames, extraKey));
-          out.append("</td>");          
+        try {
+          out.append("<tr>");
+          out.append("<td>").append(event.getExperimentName()).append("</td>");
+          out.append("<td>").append(event.getExperimentVersion()).append("</td>");
+          out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
+          out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
+
+          String who = event.getWho();
+          if (anon) {
+            who = Event.getAnonymousId(who);
+          }
+          out.append("<td>").append(who).append("</td>");
+
+          // we want to render photos as photos not as strings.
+          // It would be better to do this by getting the experiment for
+          // the event and going through the inputs.
+          // That was not done because there may be multiple experiments
+          // in the data returned for this interface and
+          // that is work that is otherwise necessary for now. Go
+          // pretotyping!
+          // TODO clean all the accesses of what could be tainted data.
+          List<PhotoBlob> photos = event.getBlobs();
+          Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+          for (PhotoBlob photoBlob : photos) {
+            photoByNames.put(photoBlob.getName(), photoBlob);
+          }
+          for (String key : inputKeys) {
+            out.append("<td>");
+            out.append(getValueAsDisplayString(event, photoByNames, key));
+            out.append("</td>");
+          }
+          
+          List<String> keysCopy = Lists.newArrayList(event.getWhatKeys());  
+          keysCopy.removeAll(inputKeys);
+          for (String extraKey : keysCopy) {
+            out.append("<td>");
+            out.append(extraKey);
+            out.append(" = ");
+            out.append(getValueAsDisplayString(event, photoByNames, extraKey));
+            out.append("</td>");          
+          }
+          out.append("<tr>");
+        } catch (Throwable e) {
+          log.log(Level.INFO, "Exception in event processing " + e.getMessage(), e);
         }
-        out.append("<tr>");
       }
       out.append("</table></body></html>");
       return out.toString();

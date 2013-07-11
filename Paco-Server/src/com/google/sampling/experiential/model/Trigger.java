@@ -21,6 +21,9 @@ public class Trigger {
   private Integer eventCode;
   
   @Persistent
+  private String sourceIdentifier;
+
+  @Persistent
   private Long delay;
 
   @Persistent
@@ -34,12 +37,13 @@ public class Trigger {
     this.timeout = timeout;
   }
 
-  public Trigger(Key ownerKey, Long id, Integer event, Long millisecondDelay, Integer timeout) {
+  public Trigger(Key ownerKey, Long id, Integer event, String sourceIdentifier, Long millisecondDelay, Integer timeout) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, Trigger.class.getSimpleName(), id);
     }
     this.eventCode = event;
+    this.sourceIdentifier = sourceIdentifier;
     this.delay = millisecondDelay;
     this.timeout = timeout;
   }
@@ -66,6 +70,14 @@ public class Trigger {
 
   public void setDelay(Long delay) {
     this.delay = delay;
+  }
+
+  public String getSourceIdentifier() {
+    return sourceIdentifier;
+  }
+
+  public void setSourceIdentifier(String sourceIdentifier) {
+    this.sourceIdentifier = sourceIdentifier;
   }
   
   
