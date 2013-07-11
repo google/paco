@@ -140,16 +140,6 @@
 		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		319771F3163F0733000AC06B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 319771BB163F0733000AC06B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 319771C3163F0733000AC06B;
-			remoteInfo = Paco;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		3129003F16DAA4C6008FF617 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		3129004116DAAC9D008FF617 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -907,7 +897,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				319771F4163F0733000AC06B /* PBXTargetDependency */,
 			);
 			name = PacoTests;
 			productName = PacoTests;
@@ -1110,14 +1099,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		319771F4163F0733000AC06B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 319771C3163F0733000AC06B /* Paco */;
-			targetProxy = 319771F3163F0733000AC06B /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		36B8EB9B17568E29004CF035 /* InfoPlist.strings */ = {
