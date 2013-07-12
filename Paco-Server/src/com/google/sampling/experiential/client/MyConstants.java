@@ -29,6 +29,9 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Something went wrong in saving to the server.")
   String saveToServerFailure();
   
+  @DefaultStringValue("Error message")
+  String errorMessage();
+  
   @DefaultStringValue("Error deleting experiment.")
   String errorDeletingExperiment();
   
@@ -403,7 +406,16 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
   
-  @DefaultStringValue("Please complete the required fields.")
+  @DefaultStringValue("Please fix the following before submitting your experiment:")
+  String experimentCreationError();
+  
+  @DefaultStringValue("Some required fields need to be completed.")
   String needToCompleteRequiredFields();
+  
+  @DefaultStringValue("End date cannot be before start date.")
+  String startEndDateError();
+  
+  @DefaultStringValue("Email address list may be invalid.")
+  String emailAddressesError();
   
 }

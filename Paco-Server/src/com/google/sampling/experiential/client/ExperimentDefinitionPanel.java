@@ -21,6 +21,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.validation.constraints.AssertTrue;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
@@ -42,6 +46,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
@@ -58,6 +63,8 @@ import com.google.sampling.experiential.shared.LoginInfo;
  * 
  */
 public class ExperimentDefinitionPanel extends Composite {
+  
+  private static String EMAIL_REGEX = "[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
@@ -81,6 +88,8 @@ public class ExperimentDefinitionPanel extends Composite {
   private TextArea descriptionPanel;
   private InputsListPanel inputsListPanel;
 
+  private List<String> errorMessagesToDisplay;
+
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
@@ -100,6 +109,10 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(lblExperimentDefinition);
 
     createExperimentForm();
+
+    errorMessagesToDisplay = new ArrayList<String>();
+    errorMessagesToDisplay.add(myConstants.experimentCreationError());
+    // errorMessagesToDisplay = Arrays.asList(myConstants.experimentCreationError());
   }
 
   private void createIdLabel(ExperimentDAO experiment) {
@@ -110,7 +123,7 @@ public class ExperimentDefinitionPanel extends Composite {
     HorizontalPanel versionPanel = new HorizontalPanel();
     formPanel.add(versionPanel);
 
-    Label lblExperimentVersion = new Label(myConstants.experimentId() +":");
+    Label lblExperimentVersion = new Label(myConstants.experimentId() + ":");
     lblExperimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(lblExperimentVersion);
 
@@ -127,7 +140,7 @@ public class ExperimentDefinitionPanel extends Composite {
     HorizontalPanel versionPanel = new HorizontalPanel();
     formPanel.add(versionPanel);
 
-    Label lblExperimentVersion = new Label(myConstants.experimentVersion() +":");
+    Label lblExperimentVersion = new Label(myConstants.experimentVersion() + ":");
     lblExperimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(lblExperimentVersion);
 
@@ -298,7 +311,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private DurationView createDurationPanel(ExperimentDAO experiment) {
-    DurationView durationPanel = new DurationView(experiment.getFixedDuration(), experiment.getStartDate(),
+    durationPanel = new DurationView(experiment.getFixedDuration(), experiment.getStartDate(),
                                                   experiment.getEndDate());
 
     return durationPanel;
@@ -526,10 +539,10 @@ public class ExperimentDefinitionPanel extends Composite {
 
       @Override
       public void onClick(Widget sender) {
-        if (requiredFieldsAreFilled()) {
+        if (canSubmit()) {
           submitEvent(experiment);
         } else {
-          Window.alert(myConstants.needToCompleteRequiredFields());
+          Window.alert(getErrorMessages());
         }
       }
 
@@ -537,15 +550,89 @@ public class ExperimentDefinitionPanel extends Composite {
     return whatButton;
   }
 
-  // Required fields are: title, informed consent, and at least one valid question.
+  protected boolean canSubmit() {
+    List<Boolean> allRequirementsAreMet = Arrays.asList(requiredFieldsAreFilled(), 
+                                                        startDateIsBeforeEndDate(),
+                                                        emailFieldsAreValid());
+    List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(), 
+                                                     myConstants.startEndDateError(),
+                                                     myConstants.emailAddressesError());
+    removeExistingErrorMessages();
+    for (int i = 0; i < allRequirementsAreMet.size(); ++i) {
+      if (!allRequirementsAreMet.get(i)) {
+        addErrorMessage(requirementMessages.get(i));
+      }
+    }
+    return !allRequirementsAreMet.contains(false);
+  }
+  
+  protected InputsListPanel getInputsListPanel() {
+    return inputsListPanel;
+  }
+  
+  protected DurationView getDurationPanel() {
+    return durationPanel;
+  }
+
+  private void removeExistingErrorMessages() {
+    if (errorMessagesListHasMessages()) {
+      errorMessagesToDisplay.subList(1, errorMessagesToDisplay.size()).clear();
+    }
+  }
+  
+  private boolean errorMessagesListHasMessages() {
+    Preconditions.checkArgument(!errorMessagesToDisplay.isEmpty());
+    return !(errorMessagesToDisplay.size() == 1);
+  }
+
+  private void addErrorMessage(String errorMessage) {
+    errorMessagesToDisplay.add(errorMessage);
+  }
+  
+  private String getErrorMessages() {
+    return Joiner.on("\n").join(errorMessagesToDisplay);
+  }
+
+  // Required fields are: title, informed consent, and at least one valid
+  // question.
   private boolean requiredFieldsAreFilled() {
-    List<Boolean> requiredWidgetsFilled = Arrays.asList(!titlePanel.getText().isEmpty(),
-                                                        !informedConsentPanel.getText().isEmpty(),
-                                                        inputsListPanel.allInputsAreValid());
-    setPanelHighlight(titlePanel, requiredWidgetsFilled.get(0));
-    setPanelHighlight(informedConsentPanel, requiredWidgetsFilled.get(1));
-    // Inputs highlight set in inputsListPanel.
-    return !requiredWidgetsFilled.contains(false);
+    List<Boolean> areRequiredWidgetsFilled = Arrays.asList(textFieldIsFilled(titlePanel),
+                                                           textFieldIsFilled(informedConsentPanel),
+                                                           inputsListPanel.allInputsAreFilled());
+    return !areRequiredWidgetsFilled.contains(false);
+  }
+
+  private boolean textFieldIsFilled(TextBoxBase widget) {
+    boolean isFilled = !widget.getText().isEmpty();
+    setPanelHighlight(widget, isFilled);
+    return isFilled;
+  }
+  
+  private boolean startDateIsBeforeEndDate() {
+    if (durationPanel.isFixedDuration()) {
+      boolean startDateBeforeEnd = !(durationPanel.getEndDate().before(durationPanel.getStartDate()));
+      setPanelHighlight(durationPanel, startDateBeforeEnd);
+      return startDateBeforeEnd;
+    } else {
+      setPanelHighlight(durationPanel, true);
+      return true;
+    }
+  }
+  
+  private boolean emailFieldsAreValid() {
+    return emailFieldIsValid(adminList) & emailFieldIsValid(userList);
+  }
+  
+  protected boolean emailFieldIsValid(TextBoxBase widget) {
+    boolean emailAddressesAreValid = true;
+    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
+    for (String email : sp.split(widget.getText())) {
+      if (!email.matches(EMAIL_REGEX)) {
+        emailAddressesAreValid = false;
+      }
+    }
+    setPanelHighlight(widget, emailAddressesAreValid);
+    return emailAddressesAreValid;
   }
 
   private void setPanelHighlight(Widget widget, boolean isFilled) {
@@ -555,11 +642,11 @@ public class ExperimentDefinitionPanel extends Composite {
       addErrorHighlight(widget);
     }
   }
-  
+
   private void addErrorHighlight(Widget widget) {
     widget.addStyleName(Main.ERROR_HIGHLIGHT);
   }
-  
+
   private void removeErrorHighlight(Widget widget) {
     widget.removeStyleName(Main.ERROR_HIGHLIGHT);
   }
@@ -596,6 +683,10 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setTitleOn(ExperimentDAO experiment) {
     experiment.setTitle(titlePanel.getText());
   }
+  
+  protected void setTitleInPanel(String title) {
+    titlePanel.setText(title);
+  }
 
   // private void setQuestionsChangeOn(ExperimentDAO experiment) {
   // experiment.setQuestionsChange(
@@ -605,6 +696,11 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setInformedConsentOn(ExperimentDAO experiment) {
     experiment.setInformedConsentForm(informedConsentPanel.getText());
   }
+  
+  protected void setInformedConsentInPanel(String title) {
+    informedConsentPanel.setText(title);
+  }
+
 
   private void setModifyDateOn(ExperimentDAO experiment) {
     if (experiment.getModifyDate() == null) {
