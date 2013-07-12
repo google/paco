@@ -715,9 +715,11 @@ public class Main implements EntryPoint, ExperimentListener {
 
     mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
 
+      // PRIYA - see how this is
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure());
+        Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure()
+                     + "\n" + myConstants.errorMessage() + ": " + caught.getMessage());
         statusLabel.setVisible(false);
 
       }
