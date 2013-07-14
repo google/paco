@@ -66,6 +66,27 @@
   [alertView show];
 }
 
++ (void)showAlertWithTitle:(NSString *)title
+                   message:(NSString *)message
+         cancelButtonTitle:(NSString *)cancelButtonTitle
+{
+  [[[UIAlertView alloc] initWithTitle:title
+                             message:message
+                            delegate:nil
+                   cancelButtonTitle:cancelButtonTitle
+                   otherButtonTitles:nil] show];
+  
+}
+
++ (void)showGeneralErrorAlert
+{
+  [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                              message:@"Something went wrong, please try again later."
+                             delegate:nil
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil] show];  
+}
+
 #pragma mark UIAlertViewDelegate implementation
 - (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
 {
