@@ -27,15 +27,15 @@ public class JsonConverterTest extends TestCase {
     String[] publishedAdmins = new String[1];
     publishedAdmins[0] = "example@example.com";
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email", 
-                                         signalingMechanisms, true, false, new Long(-1) , new Long(-1), null, 
-                                         new Long(-1), new Long(-1), false, publishedAdmins, publishedAdmins, 
+                                         signalingMechanisms, true, false, null , null, null, 
+                                         null, null, false, publishedAdmins, publishedAdmins, 
                                          false, false, 1));
   }
 
   public void testShortJsonifyShortening() throws Exception {
     String longJson = JsonConverter.jsonify(experimentList);
     String shortJson = JsonConverter.shortJsonify(experimentList);
-    assertTrue(shortJson.length() <= longJson.length());
+    assertTrue(shortJson.length() <= longJson.length());    
   }
-  
+
 }

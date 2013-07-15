@@ -129,8 +129,9 @@ public class ExperimentDetailActivity extends Activity {
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
     if (experiment.isFixedDuration()) {
-      startDate = df.print(experiment.getStartDate());
-      endDate = df.print(experiment.getEndDate());
+      // TODO: change format to short if necessary.
+      startDate = experiment.getStartDate();
+      endDate = experiment.getEndDate();
       ((TextView)findViewById(R.id.startDate)).setText(startDate);
       ((TextView)findViewById(R.id.endDate)).setText(endDate);
     } else {

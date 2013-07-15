@@ -78,7 +78,6 @@ public class ExperimentServlet extends HttpServlet {
       } else {
         handler = new ExperimentServletAllExperimentsFullLoadHandler(user.getUserId(), email, tz);
       }
-
       experimentsJson = handler.performLoad();
       resp.getWriter().println(scriptBust(experimentsJson));
     }

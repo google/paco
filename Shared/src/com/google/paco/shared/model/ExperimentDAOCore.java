@@ -11,16 +11,16 @@ public class ExperimentDAOCore implements Serializable {
   protected String informedConsentForm;
   protected String creator;
   protected Boolean fixedDuration = false;
-  protected Long startDate;
-  protected Long endDate;
-  protected Long joinDate;
+  protected String startDate;
+  protected String endDate;
+  protected String joinDate;
   protected Long id;
   protected SignalingMechanismDAO[] signalingMechanisms;
   protected SignalScheduleDAO schedule;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
                            String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, 
-                           Long startDate, Long endDate, Long joinDate) {
+                           String startDate, String endDate, String joinDate) {
     super();
     this.id = id;
     this.title = title;
@@ -84,27 +84,27 @@ public class ExperimentDAOCore implements Serializable {
     this.fixedDuration = fixedDuration;
   }
 
-  public Long getStartDate() {
+  public String getStartDate() {
     return startDate;
   }
 
-  public void setStartDate(Long startDate) {
+  public void setStartDate(String startDate) {
     this.startDate = startDate;
   }
 
-  public Long getEndDate() {
+  public String getEndDate() {
     return endDate;
   }
 
-  public void setEndDate(Long endDate) {
+  public void setEndDate(String endDate) {
     this.endDate = endDate;
   }
   
-  public Long getJoinDate() {
+  public String getJoinDate() {
     return joinDate;
   }
 
-  public void setJoinDate(Long joinDate) {
+  public void setJoinDate(String joinDate) {
     this.joinDate = joinDate;
   }
 

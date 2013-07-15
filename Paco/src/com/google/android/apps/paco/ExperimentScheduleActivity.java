@@ -539,7 +539,7 @@ public class ExperimentScheduleActivity extends Activity {
     }
 
     if (isJoiningExperiment()) {
-      experiment.setJoinDate(new DateTime());
+      experiment.setJoinDate(getTodayAsStringWithZone());
       experimentProviderUtil.insertFullJoinedExperiment(experiment);
       createJoinEvent();
       startService(new Intent(this, SyncService.class));
@@ -794,6 +794,10 @@ public class ExperimentScheduleActivity extends Activity {
   // Visible for testing
   public Experiment getExperiment() {
     return experiment;
+  }
+
+  private String getTodayAsStringWithZone() {
+    return TimeUtil.formatDateWithZone(new DateTime());
   }
 
 }

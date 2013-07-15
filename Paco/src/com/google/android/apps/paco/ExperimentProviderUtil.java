@@ -33,6 +33,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -129,7 +131,7 @@ public class ExperimentProviderUtil {
     SignalSchedule schedule = experiment.getSchedule();
     if (schedule != null) {
       schedule.setExperimentId(rowId);
-      schedule.setBeginDate(experiment.getJoinDate().getMillis());
+      schedule.setBeginDate(getJoinDateMillis(experiment));
       insertSchedule(schedule);
     } 
     
@@ -147,10 +149,14 @@ public class ExperimentProviderUtil {
     return uri;
   }
   
+  private Long getJoinDateMillis(Experiment experiment) {
+    return TimeUtil.unformatDateWithZone(experiment.getJoinDate()).getMillis();
+  }
+  
   // For testing
   public Uri insertFullJoinedExperiment(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
     Experiment experiment = getSingleExperimentFromJson(contentAsString);
-    experiment.setJoinDate(new DateTime());
+    experiment.setJoinDate(TimeUtil.formatDateWithZone(new DateTime()));
     return insertFullJoinedExperiment(experiment);
   }
 
@@ -434,16 +440,16 @@ public class ExperimentProviderUtil {
     }
     
     if (!cursor.isNull(startDateIndex)) {
-      experiment.setStartDate(new DateTime(cursor.getLong(startDateIndex)));
+      experiment.setStartDate(cursor.getString(startDateIndex));
     }
     
     if (!cursor.isNull(endDateIndex)) {
-      experiment.setEndDate(new DateTime(cursor.getLong(endDateIndex)));
+      experiment.setEndDate(cursor.getString(endDateIndex));
     }
     
     if (!cursor.isNull(joinDateIndex)) {
       // TODO (bobevans) add the timezone from the user. The default is probably fine for now.
-      experiment.setJoinDate(new DateTime(cursor.getLong(joinDateIndex)));
+      experiment.setJoinDate(cursor.getString(joinDateIndex));
     }
     
     if (!cursor.isNull(questionsChangeIndex)) {
@@ -517,14 +523,14 @@ public class ExperimentProviderUtil {
     values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
 
     if (experiment.getStartDate() != null) {
-      values.put(ExperimentColumns.START_DATE, experiment.getStartDate().getMillis());
+      values.put(ExperimentColumns.START_DATE, experiment.getStartDate());
     }
     if (experiment.getEndDate() != null) {
-      values.put(ExperimentColumns.END_DATE, experiment.getEndDate().getMillis() );
+      values.put(ExperimentColumns.END_DATE, experiment.getEndDate());
     }
 
     if (experiment.getJoinDate() != null) {
-      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate().getMillis() );
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
     values.put(ExperimentColumns.QUESTIONS_CHANGE, experiment.isQuestionsChange() ? 1 : 0 );
 

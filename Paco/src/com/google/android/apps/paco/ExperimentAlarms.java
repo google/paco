@@ -63,9 +63,11 @@ public class ExperimentAlarms {
   private static List<TimeExperiment> arrangeExperimentsByNextTimeFrom(List<Experiment> experiments, DateTime now, Context context) {
     List<TimeExperiment> times = new ArrayList<TimeExperiment>();
     for (Experiment experiment : experiments) {
-      DateTime nextTime = experiment.getNextTime(now, context);
-      if (nextTime != null) {
-        times.add(new TimeExperiment(nextTime, experiment));
+      if (experiment.getSchedule() != null) {       // triggered experiments
+        DateTime nextTime = experiment.getNextTime(now, context);
+        if (nextTime != null) {
+          times.add(new TimeExperiment(nextTime, experiment));
+        }
       }
     }
     Collections.sort(times);
