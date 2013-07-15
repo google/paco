@@ -184,7 +184,7 @@ public class EventJsonUploadProcessor {
 
         String answer = response.getString("answer");
 
-        if (input != null && input.getResponseType() != null && input.getResponseType().equals(InputDAO.PHOTO)) {
+        if (input != null && input.getResponseType() != null && input.getResponseType().equals(InputDAO.PHOTO) && !Strings.isNullOrEmpty(answer)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
