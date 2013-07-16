@@ -1,0 +1,330 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C521C352166F4BBC00A7B393 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C521C351166F4BBC00A7B393 /* CoreLocation.framework */; };
+		C555C703166D9E29007E9290 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C555C702166D9E29007E9290 /* UIKit.framework */; };
+		C555C705166D9E29007E9290 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C555C704166D9E29007E9290 /* Foundation.framework */; };
+		C555C707166D9E29007E9290 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C555C706166D9E29007E9290 /* CoreGraphics.framework */; };
+		C555C70D166D9E29007E9290 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C555C70B166D9E29007E9290 /* InfoPlist.strings */; };
+		C555C70F166D9E29007E9290 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C70E166D9E29007E9290 /* main.m */; };
+		C555C713166D9E29007E9290 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C712166D9E29007E9290 /* AppDelegate.m */; };
+		C555C715166D9E29007E9290 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = C555C714166D9E29007E9290 /* Default.png */; };
+		C555C717166D9E29007E9290 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C555C716166D9E29007E9290 /* Default@2x.png */; };
+		C555C719166D9E29007E9290 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C555C718166D9E29007E9290 /* Default-568h@2x.png */; };
+		C555C71C166D9E29007E9290 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C555C71A166D9E29007E9290 /* MainStoryboard.storyboard */; };
+		C555C727166DA108007E9290 /* LocalNotificationsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C726166DA108007E9290 /* LocalNotificationsViewController.m */; };
+		C555C733166EAE5B007E9290 /* LocalNotificationDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C732166EAE5B007E9290 /* LocalNotificationDetailsViewController.m */; };
+		C555C735166EBDEB007E9290 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C555C734166EBDEB007E9290 /* deepbark_trial.mp3 */; };
+		C555C738166F2312007E9290 /* RepeatPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C737166F2311007E9290 /* RepeatPickerViewController.m */; };
+		C555C73B166F31F9007E9290 /* StartPickerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C555C73A166F31F9007E9290 /* StartPickerViewController.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C521C351166F4BBC00A7B393 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		C555C6FE166D9E29007E9290 /* LocalNotification.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LocalNotification.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C555C702166D9E29007E9290 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		C555C704166D9E29007E9290 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C555C706166D9E29007E9290 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		C555C70A166D9E29007E9290 /* LocalNotification-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LocalNotification-Info.plist"; sourceTree = "<group>"; };
+		C555C70C166D9E29007E9290 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C555C70E166D9E29007E9290 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C555C710166D9E29007E9290 /* LocalNotification-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LocalNotification-Prefix.pch"; sourceTree = "<group>"; };
+		C555C711166D9E29007E9290 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C555C712166D9E29007E9290 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C555C714166D9E29007E9290 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		C555C716166D9E29007E9290 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		C555C718166D9E29007E9290 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		C555C71B166D9E29007E9290 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
+		C555C725166DA108007E9290 /* LocalNotificationsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalNotificationsViewController.h; sourceTree = "<group>"; };
+		C555C726166DA108007E9290 /* LocalNotificationsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalNotificationsViewController.m; sourceTree = "<group>"; };
+		C555C731166EAE5B007E9290 /* LocalNotificationDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalNotificationDetailsViewController.h; sourceTree = "<group>"; };
+		C555C732166EAE5B007E9290 /* LocalNotificationDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalNotificationDetailsViewController.m; sourceTree = "<group>"; };
+		C555C734166EBDEB007E9290 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
+		C555C736166F2311007E9290 /* RepeatPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepeatPickerViewController.h; sourceTree = "<group>"; };
+		C555C737166F2311007E9290 /* RepeatPickerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepeatPickerViewController.m; sourceTree = "<group>"; };
+		C555C739166F31F9007E9290 /* StartPickerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartPickerViewController.h; sourceTree = "<group>"; };
+		C555C73A166F31F9007E9290 /* StartPickerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartPickerViewController.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C555C6FB166D9E29007E9290 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C521C352166F4BBC00A7B393 /* CoreLocation.framework in Frameworks */,
+				C555C703166D9E29007E9290 /* UIKit.framework in Frameworks */,
+				C555C705166D9E29007E9290 /* Foundation.framework in Frameworks */,
+				C555C707166D9E29007E9290 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C555C6F3166D9E29007E9290 = {
+			isa = PBXGroup;
+			children = (
+				C521C351166F4BBC00A7B393 /* CoreLocation.framework */,
+				C555C708166D9E29007E9290 /* LocalNotification */,
+				C555C701166D9E29007E9290 /* Frameworks */,
+				C555C6FF166D9E29007E9290 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C555C6FF166D9E29007E9290 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C555C6FE166D9E29007E9290 /* LocalNotification.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C555C701166D9E29007E9290 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C555C702166D9E29007E9290 /* UIKit.framework */,
+				C555C704166D9E29007E9290 /* Foundation.framework */,
+				C555C706166D9E29007E9290 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C555C708166D9E29007E9290 /* LocalNotification */ = {
+			isa = PBXGroup;
+			children = (
+				C555C734166EBDEB007E9290 /* deepbark_trial.mp3 */,
+				C555C711166D9E29007E9290 /* AppDelegate.h */,
+				C555C712166D9E29007E9290 /* AppDelegate.m */,
+				C555C71A166D9E29007E9290 /* MainStoryboard.storyboard */,
+				C555C709166D9E29007E9290 /* Supporting Files */,
+				C555C725166DA108007E9290 /* LocalNotificationsViewController.h */,
+				C555C726166DA108007E9290 /* LocalNotificationsViewController.m */,
+				C555C731166EAE5B007E9290 /* LocalNotificationDetailsViewController.h */,
+				C555C732166EAE5B007E9290 /* LocalNotificationDetailsViewController.m */,
+				C555C736166F2311007E9290 /* RepeatPickerViewController.h */,
+				C555C737166F2311007E9290 /* RepeatPickerViewController.m */,
+				C555C739166F31F9007E9290 /* StartPickerViewController.h */,
+				C555C73A166F31F9007E9290 /* StartPickerViewController.m */,
+			);
+			path = LocalNotification;
+			sourceTree = "<group>";
+		};
+		C555C709166D9E29007E9290 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C555C70A166D9E29007E9290 /* LocalNotification-Info.plist */,
+				C555C70B166D9E29007E9290 /* InfoPlist.strings */,
+				C555C70E166D9E29007E9290 /* main.m */,
+				C555C710166D9E29007E9290 /* LocalNotification-Prefix.pch */,
+				C555C714166D9E29007E9290 /* Default.png */,
+				C555C716166D9E29007E9290 /* Default@2x.png */,
+				C555C718166D9E29007E9290 /* Default-568h@2x.png */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C555C6FD166D9E29007E9290 /* LocalNotification */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C555C722166D9E29007E9290 /* Build configuration list for PBXNativeTarget "LocalNotification" */;
+			buildPhases = (
+				C555C6FA166D9E29007E9290 /* Sources */,
+				C555C6FB166D9E29007E9290 /* Frameworks */,
+				C555C6FC166D9E29007E9290 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LocalNotification;
+			productName = LocalNotification;
+			productReference = C555C6FE166D9E29007E9290 /* LocalNotification.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C555C6F5166D9E29007E9290 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = Lautumar;
+			};
+			buildConfigurationList = C555C6F8166D9E29007E9290 /* Build configuration list for PBXProject "LocalNotification" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C555C6F3166D9E29007E9290;
+			productRefGroup = C555C6FF166D9E29007E9290 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C555C6FD166D9E29007E9290 /* LocalNotification */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C555C6FC166D9E29007E9290 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C555C70D166D9E29007E9290 /* InfoPlist.strings in Resources */,
+				C555C715166D9E29007E9290 /* Default.png in Resources */,
+				C555C717166D9E29007E9290 /* Default@2x.png in Resources */,
+				C555C719166D9E29007E9290 /* Default-568h@2x.png in Resources */,
+				C555C71C166D9E29007E9290 /* MainStoryboard.storyboard in Resources */,
+				C555C735166EBDEB007E9290 /* deepbark_trial.mp3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C555C6FA166D9E29007E9290 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C555C70F166D9E29007E9290 /* main.m in Sources */,
+				C555C713166D9E29007E9290 /* AppDelegate.m in Sources */,
+				C555C727166DA108007E9290 /* LocalNotificationsViewController.m in Sources */,
+				C555C733166EAE5B007E9290 /* LocalNotificationDetailsViewController.m in Sources */,
+				C555C738166F2312007E9290 /* RepeatPickerViewController.m in Sources */,
+				C555C73B166F31F9007E9290 /* StartPickerViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C555C70B166D9E29007E9290 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C555C70C166D9E29007E9290 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		C555C71A166D9E29007E9290 /* MainStoryboard.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C555C71B166D9E29007E9290 /* en */,
+			);
+			name = MainStoryboard.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C555C720166D9E29007E9290 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		C555C721166D9E29007E9290 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C555C723166D9E29007E9290 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Tom Pennings (3962CV8FL3)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LocalNotification/LocalNotification-Prefix.pch";
+				INFOPLIST_FILE = "LocalNotification/LocalNotification-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		C555C724166D9E29007E9290 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Tom Pennings (3962CV8FL3)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "LocalNotification/LocalNotification-Prefix.pch";
+				INFOPLIST_FILE = "LocalNotification/LocalNotification-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C555C6F8166D9E29007E9290 /* Build configuration list for PBXProject "LocalNotification" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C555C720166D9E29007E9290 /* Debug */,
+				C555C721166D9E29007E9290 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C555C722166D9E29007E9290 /* Build configuration list for PBXNativeTarget "LocalNotification" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C555C723166D9E29007E9290 /* Debug */,
+				C555C724166D9E29007E9290 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C555C6F5166D9E29007E9290 /* Project object */;
+}
