@@ -57,7 +57,7 @@ public class DurationView extends Composite {
     mainPanel = new HorizontalPanel();
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     Date today = new Date();
-    Date tomorrow = new Date(today.getTime() + 8645000);
+    Date tomorrow = new Date(today.getTime() + 86450000);
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
     this.startDate = start != null ? new Date(start) : today;
     this.endDate = end != null ? new Date(end) : tomorrow;
@@ -135,12 +135,28 @@ public class DurationView extends Composite {
     return radio2.isChecked();
   }
   
+  // Visible for testing
+  protected void setFixedDuration(boolean isFixedDuration) {
+    radio1.setChecked(!isFixedDuration);
+    radio2.setChecked(isFixedDuration);
+  }
+  
   public Date getStartDate() {
     return startBox.getValue();
   }
   
+  // Visible for testing
+  protected void setStartDate(Date startDate) {
+    startBox.setValue(startDate);
+  }
+  
   public Date getEndDate() {
     return endBox.getValue();
+  }
+  
+  // Visible for testing
+  protected void setEndDate(Date endDate) {
+    endBox.setValue(endDate);
   }
   
 }

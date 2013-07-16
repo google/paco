@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.constraints.AssertTrue;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
@@ -64,7 +62,9 @@ import com.google.sampling.experiential.shared.LoginInfo;
  */
 public class ExperimentDefinitionPanel extends Composite {
   
-  private static String EMAIL_REGEX = "[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
+  private static String EMAIL_REGEX = 
+      //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
+      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
@@ -122,7 +122,6 @@ public class ExperimentDefinitionPanel extends Composite {
     }
     HorizontalPanel versionPanel = new HorizontalPanel();
     formPanel.add(versionPanel);
-
     Label lblExperimentVersion = new Label(myConstants.experimentId() + ":");
     lblExperimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(lblExperimentVersion);
@@ -143,7 +142,7 @@ public class ExperimentDefinitionPanel extends Composite {
     Label lblExperimentVersion = new Label(myConstants.experimentVersion() + ":");
     lblExperimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(lblExperimentVersion);
-
+    
     Label experimentVersion = new Label(experimentVersionStr);
     experimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(experimentVersion);
@@ -187,7 +186,6 @@ public class ExperimentDefinitionPanel extends Composite {
 
     durationPanel = createDurationPanel(experiment);
     formPanel.add(durationPanel);
-
     formPanel.add(createSignalMechanismPanel(experiment));
 
     formPanel.add(createInputsHeader());
@@ -550,9 +548,10 @@ public class ExperimentDefinitionPanel extends Composite {
     return whatButton;
   }
 
+  // Visible for testing
   protected boolean canSubmit() {
     List<Boolean> allRequirementsAreMet = Arrays.asList(requiredFieldsAreFilled(), 
-                                                        startDateIsBeforeEndDate(),
+                                                        startDateIsNotAfterEndDate(),
                                                         emailFieldsAreValid());
     List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(), 
                                                      myConstants.startEndDateError(),
@@ -566,10 +565,12 @@ public class ExperimentDefinitionPanel extends Composite {
     return !allRequirementsAreMet.contains(false);
   }
   
+  // Visible for testing
   protected InputsListPanel getInputsListPanel() {
     return inputsListPanel;
   }
   
+  // Visible for testing
   protected DurationView getDurationPanel() {
     return durationPanel;
   }
@@ -608,11 +609,12 @@ public class ExperimentDefinitionPanel extends Composite {
     return isFilled;
   }
   
-  private boolean startDateIsBeforeEndDate() {
+  // Visible for testing
+  protected boolean startDateIsNotAfterEndDate() {
     if (durationPanel.isFixedDuration()) {
-      boolean startDateBeforeEnd = !(durationPanel.getEndDate().before(durationPanel.getStartDate()));
-      setPanelHighlight(durationPanel, startDateBeforeEnd);
-      return startDateBeforeEnd;
+      boolean startDateNotAfterEndDate = !(durationPanel.getEndDate().before(durationPanel.getStartDate()));
+      setPanelHighlight(durationPanel, startDateNotAfterEndDate);
+      return startDateNotAfterEndDate;
     } else {
       setPanelHighlight(durationPanel, true);
       return true;
@@ -623,16 +625,21 @@ public class ExperimentDefinitionPanel extends Composite {
     return emailFieldIsValid(adminList) & emailFieldIsValid(userList);
   }
   
-  protected boolean emailFieldIsValid(TextBoxBase widget) {
-    boolean emailAddressesAreValid = true;
-    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
-    for (String email : sp.split(widget.getText())) {
-      if (!email.matches(EMAIL_REGEX)) {
-        emailAddressesAreValid = false;
-      }
-    }
+  private boolean emailFieldIsValid(TextBoxBase widget) {
+    boolean emailAddressesAreValid = emailStringIsValid(widget.getText());
     setPanelHighlight(widget, emailAddressesAreValid);
     return emailAddressesAreValid;
+  }
+  
+  // Visible for testing
+  protected boolean emailStringIsValid(String emailString) {
+    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
+    for (String email : sp.split(emailString)) {
+      if (!email.matches(EMAIL_REGEX)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private void setPanelHighlight(Widget widget, boolean isFilled) {
@@ -734,7 +741,9 @@ public class ExperimentDefinitionPanel extends Composite {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
     }
+    
   }
+  
 
   private void setAdminsOn(ExperimentDAO experiment) {
     List<String> admins = new ArrayList<String>();
@@ -751,6 +760,11 @@ public class ExperimentDefinitionPanel extends Composite {
     adminStrArray = admins.toArray(adminStrArray);
     experiment.setAdmins(adminStrArray);
   }
+  
+  // Visible for testing
+  protected void setAdminsInPanel(String commaSepEmailList) {
+    adminList.setText(commaSepEmailList);
+  }
 
   private void setPublishedUsersOn(ExperimentDAO experiment) {
     List<String> userEmails = new ArrayList<String>();
@@ -764,5 +778,10 @@ public class ExperimentDefinitionPanel extends Composite {
     String[] userEmailsStrArray = new String[userEmails.size()];
     userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
     experiment.setPublishedUsers(userEmailsStrArray);
+  }
+
+  // Visible for testing
+  protected void setPublishedUsersInPanel(String commaSepEmailList) {
+    userList.setText(commaSepEmailList);
   }
 }

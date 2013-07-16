@@ -116,6 +116,12 @@ public class InputsPanel extends Composite {
   
   public boolean requiredFieldsAreFilled() {
     if (input.isInvisibleInput()) {
+      // First remove any field highlight that might exist from when the
+      // input was of a different type.  This horrible fix is a
+      // side-effect of how highlighting and required field verification
+      // is done in parallel, and will be fixed when experiment creation
+      // is refactored.  (TODO: refactor input verification)
+      setFieldHighlight(inputPromptTextPanel.getWidget(1), true); 
       return varNameFieldIsFilled();
     } else if (input.getResponseType().equals(InputDAO.LIST)) {
       return textPromptFieldIsFilled()
@@ -286,7 +292,7 @@ public class InputsPanel extends Composite {
       public void onChange(ChangeEvent event) {
         input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
-        inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
       }
     });
   }
