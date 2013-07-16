@@ -25,15 +25,15 @@
 
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="25dip"
-		android:id="@+id/experimentSchedule" android:text="This experiment is self-reporting only."></TextView>
+		android:id="@+id/experimentSchedule" android:text="@string/this_experiment_is_self_reporting_only"></TextView>
 
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="25dip"
-		android:id="@+id/experimentSchedule" android:text="There is no schedule to configure"></TextView>
+		android:id="@+id/experimentSchedule" android:text="@string/there_is_no_schedule_to_configure"></TextView>
 
 	<Button android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:id="@+id/SetDailyScheduleButton"
-		android:text="Finish" android:layout_gravity="center"  android:minWidth="50dip"></Button>
+		android:text="@string/finish" android:layout_gravity="center"  android:minWidth="50dip"></Button>
 
 
 </LinearLayout>

@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.common.collect.Lists;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -32,9 +34,9 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 
 /**
@@ -49,11 +51,15 @@ public class StatsPanel extends Composite {
   private DateTimeFormat df = DateTimeFormat.getFormat("MM/dd/yyyy");
   private ExperimentDAO experiment;
   private boolean isAdmin;
+  private List<ExperimentListener> listeners;
+  private MyConstants myConstants; 
 
-
-  public StatsPanel(ExperimentStatsDAO stats, ExperimentDAO experiment, boolean joinView) {
+  public StatsPanel(ExperimentStatsDAO stats, ExperimentDAO experiment, boolean joinView, ExperimentListener listener) {
+    myConstants = GWT.create(MyConstants.class);
     this.experimentStats = stats;
     this.experiment = experiment;
+    this.listeners = Lists.newArrayList();
+    listeners.add(listener);
     this.isAdmin = !joinView; // isAdmin(experiment, loggedInUser);
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -138,17 +144,18 @@ public class StatsPanel extends Composite {
       return false;
     }
     for (int i = 0; i < admins.length; i++) {
-      if (admins[i].equals(loggedInUser)) return true;
+      if (admins[i].toLowerCase().equals(loggedInUser)) return true;
     }
     return false;
   }
 
   private void showJoinedStats(Grid grid) {
-    Label joinedLabel = new Label("Participants Joined (click for list):");
+    Label joinedLabel = new Label("Participants Data (click for detail):");
     joinedLabel.setStyleName("gwt-Label-Header");
     joinedLabel.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
-        showParticipantsPopup();
+        //showParticipantsPopup();
+        fireExperimentCode(ExperimentListener.INDIVIDUAL_STATS_CODE);
       }
     });
     grid.setWidget(0, 0, joinedLabel);
@@ -156,14 +163,6 @@ public class StatsPanel extends Composite {
 
     Label label = new Label(Integer.toString(createMapofParticipantsAndJoinTimes().values().size()));
     grid.setWidget(0, 1, label);
-  }
-
-  protected void showParticipantsPopup() {
-    HashMap<String, String> participants = createMapofParticipantsAndJoinTimes();
-    JoinedParticipantsPanel jp = new JoinedParticipantsPanel(participants.values());
-    jp.show();
-    jp.center();
-    jp.center();
   }
 
   private HashMap<String, String> createMapofParticipantsAndJoinTimes() {
@@ -179,6 +178,12 @@ public class StatsPanel extends Composite {
       participants.put(who, existingWhoValue);
     }
     return participants;
+  }
+
+  private void fireExperimentCode(int code) {
+    for (ExperimentListener listener : listeners) {
+      listener.eventFired(code, experiment, false, false);
+    }
   }
 
 

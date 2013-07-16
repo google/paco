@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco;
 
+import com.pacoapp.paco.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -35,17 +37,17 @@ public class OptionsMenu {
   }
 
   public boolean init(Menu menu) {
-    menu.add(0, PAGING_ITEM, 0, PAGING_HOURS);
-    menu.add(0, STOP_ITEM, 1, STOP_ITEM_TITLE);
-    menu.add(0, DATA_ITEM, 2, DATA_ITEM_TITLE);
-    menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, REFRESH_EXPERIMENT_ITEM_TITLE);
+    menu.add(0, PAGING_ITEM, 0, R.string.edit_schedule_menu_item);
+    menu.add(0, STOP_ITEM, 1, R.string.stop_experiment_menu_item);
+    menu.add(0, DATA_ITEM, 2, R.string.explore_data_menu_item);
+    menu.add(0, REFRESH_EXPERIMENT_ITEM, 2, R.string.refresh_experiment_menu_item);
     if (context instanceof ExperimentManagerActivity) {
-      menu.add(0, UPDATE_ITEM, 2, CHECK_FOR_UPDATES);
+      menu.add(0, UPDATE_ITEM, 2, R.string.check_updates_menu_item);
     }
     if (wasSignalled) {
-    menu.add(0, MAINPAGE_ITEM, 2, MAINPAGE_STRING);
+    menu.add(0, MAINPAGE_ITEM, 2, R.string.main_page_menu_item);
     }
-    menu.add(0, HELP_ITEM, 3, HELP_STRING);
+    menu.add(0, HELP_ITEM, 3, R.string.about_paco_menu_item);
 
 //    menu.add(0, OPT_OUT_ITEM, 2, OPT_OUT);
 //    if (context instanceof Results) {
@@ -85,9 +87,9 @@ public class OptionsMenu {
 //      case RESULTS_ITEM:
 //        launchResultsScreen();
 //        return true;
-      case UPDATE_ITEM:
-        launchUpdateCheck();
-        return true;
+//      case UPDATE_ITEM:
+//        launchUpdateCheck();
+//        return true;
       default:
         return false;
     } 
@@ -156,14 +158,6 @@ public class OptionsMenu {
   private static final String DEBUG = "DEBUG";
   private static final String REFRESH = "Refresh Data";
   private static final String RESULTS = "Results Page";
-  private static final String PAGING_HOURS = "Edit Schedule";
-  private static final String STOP_ITEM_TITLE = "Stop Experiment";
-  private static final String DATA_ITEM_TITLE = "Explore Data";
-  private static final String CHECK_FOR_UPDATES = "Check Updates";
-
-  
-  private static final CharSequence REFRESH_EXPERIMENT_ITEM_TITLE = "Refresh Experiment";
-
   private static final int PAGING_ITEM = 0;
   private static final int STOP_ITEM = 1;
   private static final int DATA_ITEM = 2;
@@ -171,9 +165,6 @@ public class OptionsMenu {
   private static final int HELP_ITEM = 4;
   private static final int REFRESH_EXPERIMENT_ITEM = 5;
   private static final int UPDATE_ITEM = 6;
-  
-  private static final CharSequence MAINPAGE_STRING = "Main Page";
-  private static final CharSequence HELP_STRING = "About Paco";
 
   
 //  private static final int DEBUG_ITEM = 2;

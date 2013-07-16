@@ -21,6 +21,10 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
+import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -51,16 +55,31 @@ public class UserPreferences {
 
   private static final String APP_PREFERENCES = "app_prefs";
 
-  private static final int LIST_REFRESH_TIMEOUT = 86400000; //24 hrs in millis
+  private static final int LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
 
   private static final String LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
 
   private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
   
+  private static final String SELECTED_ACCOUNT_KEY = "selected_account";
+
+  private static final String SELECTED_ACCOUNT_PREF = "selected_account_pref";
+
+  private static final String RINGTONE_PREF_KEY = "ringtone_pref";
+
+  private static final String RINGTONE_KEY = "ringtone_key";
+
+  private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
+
+  
   private SharedPreferences signallingPrefs;
   private Context context;
 
   private SharedPreferences appPrefs;
+
+  public static final String COOKIE_PREFERENCE_KEY = "http-cookies";
+
+  public static final String PREFERENCE_KEY = "url-content-manager";
 
   public UserPreferences(Context context) {
     this.context = context;
@@ -132,16 +151,52 @@ public class UserPreferences {
     return pref.getString(LAST_PHOTO_ADDRESS, null);
   }
 
-  public String getGoogleEmailType() {
-    return (String) context.getText(R.string.emailSuffix);    
-  }  
-
   public long getNextServerCommunicationServiceAlarmTime() {
     return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());    
   }
   
   public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
     getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
+  }
+
+  public void saveSelectedAccount(String name) {
+    SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
+    prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();    
+    deleteAccountCookie();
+  }
+
+  private void deleteAccountCookie() {
+    SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+    preferences.edit().remove(COOKIE_PREFERENCE_KEY).commit();    
+  }
+
+  public void saveSelectedAccount(Account account) {
+    saveSelectedAccount(account.name);
+  }
+
+  public String getSelectedAccount() {
+    SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
+    return prefs.getString(SELECTED_ACCOUNT_KEY, null);
+  }
+  
+  public void setRingtone(String ringtoneUri) {
+    getAppPrefs().edit().putString(RINGTONE_KEY, ringtoneUri).commit();    
+  }
+  
+  public String getRingtone() {
+    return getAppPrefs().getString(RINGTONE_KEY, null);
+  }
+  
+  public boolean clearRingtone() {
+    return getAppPrefs().edit().clear().commit();
+  }
+
+  public boolean hasInstalledPacoBarkRingtone() {
+    return getAppPrefs().getBoolean(RINGTONE_INSTALLED_KEY, false);
+  }
+  
+  public void setPacoBarkRingtoneInstalled() {
+    getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
   }
 
 }

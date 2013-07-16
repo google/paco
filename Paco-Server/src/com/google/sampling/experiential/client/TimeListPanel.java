@@ -18,10 +18,11 @@ package com.google.sampling.experiential.client;
 
 import java.util.LinkedList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Container Panel for the times an experiment is scheduled,
@@ -36,11 +37,12 @@ public class TimeListPanel extends Composite {
   private LinkedList<TimePanel> timesPanelList;
 
   public TimeListPanel(SignalScheduleDAO schedule) {
+    MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     verticalPanel_1 = new VerticalPanel();
     verticalPanel_1.setSpacing(2);
     initWidget(verticalPanel_1);
-    Label lblSignalTimes = new Label("Signal Time (s)");
+    Label lblSignalTimes = new Label(myConstants.signalTimes());
     lblSignalTimes.setStyleName("gwt-Label-Header");
     verticalPanel_1.add(lblSignalTimes);
 

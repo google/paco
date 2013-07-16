@@ -16,9 +16,13 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+//import com.google.gwt.maps.client.MapWidget;
+//import com.google.gwt.maps.client.overlays.Marker;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -26,8 +30,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -148,16 +152,25 @@ public class ChartPanel extends Composite {
           continue;
         }
 
+        String formattedResponseTime = formatTime(event.getResponseTime());
+        String formattedScheduledTime = formatTime(event.getScheduledTime());
         HTML picture = new HTML("<div style=\"text-align:center;margin-left:2;margin-right:2;\">"
             + "<img height=\"375\" src=\"data:image/jpg;base64," 
             + blobData 
-            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formatter.format(event.getResponseTime()) + "</b>"
-            + "<br><b>" + formatter.format(event.getScheduledTime()) + "</b>"
+            + "\"><br><b>" + event.getWho() + "</b><br><b>" + formattedResponseTime + "</b>"
+            + "<br><b>" + formattedScheduledTime + "</b>"
             +"</div>");
         horizontalPanel.add(picture);
       }
     }
     return photosPanel;
+  }
+
+  private String formatTime(Date time) {
+    if (time == null) {
+      return "";
+    }
+    return formatter.format(time);
   }
 
   /**
@@ -175,10 +188,10 @@ public class ChartPanel extends Composite {
   }
 
   private Widget renderEventsOnMap() {
-	  return null;
+//	  return new HTML();
 //    markers.clear();
 //    createMap();
-//    LatLngBounds bounds = LatLngBounds.newInstance();
+//    LatLngBounds bounds = LatLngBounds.newInstance(null, null);
 //    map.setCenter(bounds.getCenter());
 //    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
 //    for (final EventDAO eventRating : data) {
@@ -196,15 +209,17 @@ public class ChartPanel extends Composite {
 //
 //        MarkerOptions markerOptions = MarkerOptions.newInstance();
 //        markerOptions.setTitle(eventRating.getWhatString());
-//        final Marker marker = new Marker(LatLng.newInstance(latitude, longitude), markerOptions);
-//        bounds.extend(marker.getPoint());
-//        marker.addMarkerClickHandler(new MarkerClickHandler() {
-//
+//        LatLng newInstance = LatLng.newInstance(latitude, longitude);
+//        final Marker marker = new Marker();
+//        marker.setPosition(newInstance);
+//        marker.setOptions(markerOptions);
+//        bounds.extend(marker.getPosition());
+//        marker.addClickHandler(new ClickMapHandler() {
+//          
 //          @Override
-//          public void onClick(MarkerClickEvent event) {
+//          public void onEvent(ClickMapEvent event) {
 //            openInfoWindowForMarker(eventRating, marker);
 //          }
-//
 //        });
 //        markers.put(eventRating, marker);
 //        map.addOverlay(marker);
@@ -217,13 +232,15 @@ public class ChartPanel extends Composite {
 //    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
 //    map.checkResizeAndCenter();
 //    return map;
+    return null;
+    
   }
 
 //  private void openInfoWindowForMarker(final EventDAO eventRating, final Marker marker) {
-//    map.getInfoWindow().open(marker.getPoint(), createInfoWindowForEventRating(eventRating));
+//    map.getInfoWindow().open(marker.getPosition(), createInfoWindowForEventRating(eventRating));
 //  }
-
-
+//
+//
 //  private InfoWindowContent createInfoWindowForEventRating(final EventDAO eventRating) {
 //    return new InfoWindowContent(
 //        "What: " + eventRating.getWhatString() + "<br/>Who: " + eventRating.getWho() + "<br/>When: "

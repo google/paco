@@ -16,10 +16,12 @@
 */
 package com.google.sampling.experiential.shared;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.paco.shared.model.ExperimentDAO;
 
 /*
  * * The async counterpart of <code>MeetingService</code>.
@@ -33,7 +35,8 @@ public interface MapServiceAsync {
       String scheduledTime, 
       String responseTime, 
       String experimentId,
-      Map<String, String> kvPairs, 
+      Map<String, String> kvPairs,
+      Integer experimentVersion,
       boolean shared, AsyncCallback<Void> asyncCallback);
 
   /**
@@ -47,7 +50,7 @@ public interface MapServiceAsync {
    */
   void saveExperiment(ExperimentDAO experiment, AsyncCallback<Void> asyncCallback);
 
-  void getExperimentsForUser(AsyncCallback<List<ExperimentDAO>> callback);
+  void getExperimentsAvailableToUser(AsyncCallback<List<ExperimentDAO>> callback);
 
   /**
    * @param experiment
@@ -61,5 +64,17 @@ public interface MapServiceAsync {
   void statsForExperiment(Long id, boolean justUser, AsyncCallback<ExperimentStatsDAO> callback);
   
   void getUsersJoinedExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+
+  void saveEvent(EventDAO event, AsyncCallback<Void> asyncCallback);
+
+  void referencedExperiment(Long referencedExperimentId, AsyncCallback<ExperimentDAO> referencedCheckCallback);
+
+  void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId, AsyncCallback<Void> callback);
+
+  void getEndOfDayEvents(String queryText, AsyncCallback<Map<Date, EventDAO>> referringCallback);
+
+  void getUsersAdministeredExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+
+  void joinExperiment(Long id, AsyncCallback<Boolean> asyncCallback);
 
 }

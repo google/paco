@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 
@@ -13,16 +14,25 @@ import net.sf.jsr107cache.CacheManager;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.model.ExperimentReference;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCacheHelper {
 
   public static final String EXPERIMENT_CACHE_KEY = "EXPERIMENT_CACHE_KEY";
+  
+  public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
+
 
   private static ExperimentCacheHelper instance;
 
@@ -69,16 +79,33 @@ public class ExperimentCacheHelper {
     }
   }
 
-  public List<ExperimentDAO> getJoinableExperiments() {
+  public List<ExperimentDAO> getJoinableExperiments(String tz) {
     List<ExperimentDAO> experiments = getExperiments();
     List<ExperimentDAO> joinable = Lists.newArrayList(experiments);
-    DateTime now = new DateTime();
+    
+    DateTime now = getDateForEndOfExperiments(tz);
+    
     for (ExperimentDAO experiment : experiments) {
       if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, now)) {
         joinable.remove(experiment);
       }
     }
     return joinable;
+  }
+
+  private DateTime getDateForEndOfExperiments(String tz) {
+    DateTime now = new DateTime();
+    if (tz != null) {
+      DateTimeZone timeZone = DateTimeZone.forID(tz);
+      if (timeZone != null) { 
+        now = new DateTime().withZone(timeZone);
+      } else {
+        now = new DateTime();
+      }
+    } else {
+      now = new DateTime();
+    }
+    return now;
   }
 
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
@@ -88,16 +115,20 @@ public class ExperimentCacheHelper {
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
-    if (experiment.getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      Long[] times = experiment.getSchedule().getTimes();
-      // get the latest time
+    SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
+    if (signalingMechanismDAO instanceof SignalScheduleDAO && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
+      Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
-
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return getDateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
+      return getDateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
     }
+  }
+ 
+  private DateMidnight getDateMidnight(String dateStr) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateMidnight(formatter.parseDateTime(dateStr));
   }
 
   private synchronized List<ExperimentDAO> getExperiments() {
@@ -111,7 +142,13 @@ public class ExperimentCacheHelper {
     experimentDAOs = getExperimentsFromDatastore();
     
     if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {      
-      cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      
+      try {
+        cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      } catch (Exception e) {
+        log.severe("Could not put experiment entry in cache:" + e.getMessage());
+      }
+      
       return experimentDAOs;
     } else {
       return Collections.EMPTY_LIST;   
@@ -124,7 +161,19 @@ public class ExperimentCacheHelper {
       pm = PMF.get().getPersistenceManager();
       javax.jdo.Query q = pm.newQuery(Experiment.class);
       List<Experiment> experiments = (List<Experiment>) q.execute();
-      return DAOConverter.createDAOsFor(experiments);      
+      
+      List<Long> referringIds = Lists.newArrayList();
+      List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class).execute();
+      for (ExperimentReference experimentReference : references) {
+        referringIds.add(experimentReference.getReferringExperimentId());
+      }
+      
+      
+      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+      for (ExperimentDAO experiment : experimentDAOs) {
+        experiment.setWebRecommended(referringIds.contains(experiment.getId()));        
+      }
+      return experimentDAOs;      
     } finally {
       if (pm != null) {
         pm.close();

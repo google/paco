@@ -9,12 +9,13 @@ public class Whitelist {
 
   public Whitelist() {
     allowedEmails = new ArrayList<String>();
-    
-//    allowedEmails.add("");
-
-  }
+ }
 
   public boolean allowed(String email) {
+    if (email == null || email.isEmpty()) {
+      return false;
+    }
+
     return allowedEmails.contains(email.toLowerCase());
   }
 }

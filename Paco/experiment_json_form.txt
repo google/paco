@@ -12,14 +12,14 @@ experiment : {
   hash : bytes/string,
   icon : bytes/url,
   questionsChange : boolean (1 | 0),
-  joinDate : date as long,
-  modifyDate : date as long of last time this experiment was changed,
+  joinDate : date as string of form yyyy/MM/ddZ,
+  modifyDate : date as string of form yyyy/MM/dd of last time this experiment was changed,
 
   scheduleDetails : {
      scheduleType : enum/strings/ or ints indicating [fixed, daily, esm] todo clarify this with questionsChange field on experiment,
      fixedDuration : boolean ( 1 | 0),
-     startDate : date as long,
-     endDate : date as long,
+     startDate : date as string of form yyyy/MM/dd,
+     endDate : date as string of form yyyy/MM/dd,
      esmFrequency : string describing pings / time period,
      defaultTime : long as seconds after midnight .
      scheduledDate : long for changing questions apps like qotd, the day for which this question is intended 

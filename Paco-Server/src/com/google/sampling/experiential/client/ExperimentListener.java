@@ -16,7 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
-import com.google.sampling.experiential.shared.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentDAO;
 
 /**
  * A narrow interface for the actions available to do on 
@@ -37,6 +37,15 @@ public interface ExperimentListener {
   public static final int CSV_ANON_CODE = 9;
   public static final int COPY_EXPERIMENT_CODE = 10;
   public static final int ANON_MAPPING_CODE = 11;
+  public static final int DATA_CODE = 12;
+  public static final int EXPERIMENT_RESPONSE_CODE = 13;
+  public static final int EXPERIMENT_RESPONSE_CANCELED_CODE = 14;
+  public static final int SHOW_EXPERIMENT_RESPONSE_CODE = 15;
+  public static final int SHOW_QR_CODE = 16;
+  public static final int SHOW_REF_CODE = 17;
+  public static final int INDIVIDUAL_STATS_CODE = 18;
+  public static final int JOINED_CODE = 19;
+  
 
-  void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined);
+  void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView);
 }

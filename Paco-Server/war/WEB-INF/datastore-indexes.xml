@@ -17,105 +17,17 @@
  -->
 <datastore-indexes autoGenerate="true">
     <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="whatKeys" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
         <property name="who" direction="asc"/>
         <property name="who" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
     <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="lat" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="lon" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="whatKeys" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="appId" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-   <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="appId" direction="asc"/>
         <property name="who" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
     <datastore-index kind="Event" ancestor="false" source="manual">
         <property name="shared" direction="asc"/>
         <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="appId" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-    <datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="keysList" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
     <datastore-index kind="Experiment" ancestor="false" source="manual">
@@ -126,17 +38,6 @@
         <property name="experimentName" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentName" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>    
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentName" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
     <datastore-index kind="Event" ancestor="false" source="manual">
         <property name="experimentName" direction="asc"/>
         <property name="who" direction="asc"/>
@@ -144,35 +45,6 @@
     </datastore-index>
 <datastore-index kind="Event" ancestor="false" source="manual">
         <property name="experimentId" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="valuesList" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="who" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="keysList" direction="asc"/>
-        <property name="shared" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="who" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
 <datastore-index kind="Event" ancestor="false" source="manual">
@@ -183,12 +55,6 @@
 <datastore-index kind="Event" ancestor="false" source="manual">
         <property name="experimentId" direction="asc"/>
         <property name="shared" direction="asc"/>
-        <property name="when" direction="desc"/>
-    </datastore-index>
-<datastore-index kind="Event" ancestor="false" source="manual">
-        <property name="experimentId" direction="asc"/>
-        <property name="experimentId" direction="asc"/>
-        <property name="keysList" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
 <datastore-index kind="Event" ancestor="false" source="manual">

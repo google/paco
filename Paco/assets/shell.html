@@ -11,7 +11,7 @@
  	    }
  	  $(document).ready(function() {
  	    
-   		var jsondata = window.env.getValue("experimentalData");
+   		var jsondata = window.env.getValue("lastResponse");
         var experimentData = $.parseJSON(jsondata);
         if (!experimentData) {
           // hack for samsung tmobile phones

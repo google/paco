@@ -18,6 +18,6 @@
 
 <Button
  xmlns:android="http://schemas.android.com/apk/res/android" 
-android:textSize="20dip" android:text="9:30am"
+android:textSize="20dip" android:text="@string/default_start_time"
 	android:layout_width="wrap_content" android:layout_gravity="left|bottom"
 	android:layout_height="wrap_content" android:id="@+id/timePickerLabel" style="@android:style/Widget.Button" />

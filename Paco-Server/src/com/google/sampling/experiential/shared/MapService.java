@@ -16,11 +16,13 @@
 */
 package com.google.sampling.experiential.shared;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.google.paco.shared.model.ExperimentDAO;
 
 /*
  * * The client side stub for the RPC service.
@@ -31,20 +33,28 @@ public interface MapService extends RemoteService {
 
   List<EventDAO> mapWithTags(String tags);
 
-  void saveEvent(String who, 
-      String scheduledTime, 
-      String responseTime, 
-      String experimentId,
-      Map<String, String> kvPairs, 
-      boolean shared);
+  void saveEvent(String who, String scheduledTime, String responseTime, String experimentId,
+                 Map<String, String> kvPairs, Integer experimentVersion, boolean shared);
   
   void saveExperiment(ExperimentDAO experiment);
   
   Boolean deleteExperiment(ExperimentDAO experiment);
   
-  List<ExperimentDAO> getExperimentsForUser();
+  List<ExperimentDAO> getExperimentsAvailableToUser();
   
   ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
   
   List<ExperimentDAO> getUsersJoinedExperiments();
+
+  void saveEvent(EventDAO event);
+
+  ExperimentDAO referencedExperiment(Long referencedExperimentId);
+
+  void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
+
+  Map<Date, EventDAO> getEndOfDayEvents(String queryText);
+
+  List<ExperimentDAO> getUsersAdministeredExperiments();
+
+  boolean joinExperiment(Long id);
 }

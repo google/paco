@@ -18,6 +18,7 @@ package com.google.corp.productivity.specialprojects.android.comm;
 
 import org.apache.http.protocol.HTTP;
 
+
 import java.nio.charset.Charset;
 
 /**
@@ -33,6 +34,6 @@ public abstract class Constants {
   static final String KEY_ORIGINAL_REQUEST = "original.request";
   static final String KEY_SECOND_ATTEMPT = "second.attempt";
 
-  static final String DEFAULT_CHARSET_NAME = HTTP.ISO_8859_1;
+  static final String DEFAULT_CHARSET_NAME = HTTP.UTF_8;
   static final Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_CHARSET_NAME);
 }

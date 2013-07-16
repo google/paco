@@ -18,13 +18,17 @@ package com.google.sampling.experiential.shared;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Paco Shared lib tests
- * @author bobevans@google.com (Bob Evans)
+ * @author(Bob Evans)
  */
 public class AllTests extends TestCase {
   public static Test suite() {
-    return new AllTestSuiteBuilder("com.google.sampling.experiential.shared").build();
+    Class[] tests = new Class[] {
+     com.google.sampling.experiential.shared.WordCloudTest.class,                           
+    };
+    return new TestSuite(tests);
   }
 }

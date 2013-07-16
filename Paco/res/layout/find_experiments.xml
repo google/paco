@@ -29,7 +29,7 @@
 		android:layout_weight="1"
 		>
 
-		<TextView android:text="Your Current Experiments" android:id="@+id/ExperimentListTitle"
+		<TextView android:text="@string/your_current_experiments" android:id="@+id/ExperimentListTitle"
 			android:gravity="center|top" android:layout_gravity="center|top"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:background="@drawable/list_header_background"
@@ -46,7 +46,7 @@
 		android:layout_height="50dip"
 		android:layout_weight="0"
 		>
-		<Button android:text="Refresh Experiments List From Server" android:id="@+id/RefreshExperimentsButton2"
+		<Button android:text="@string/refresh_experiments_list_from_server" android:id="@+id/RefreshExperimentsButton2"
 			android:layout_width="fill_parent" android:layout_height="50dip"
 			android:layout_gravity="center" />
 	</LinearLayout>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
  ~ Copyright 2011 Google Inc. All Rights Reserved.
  ~
@@ -16,22 +16,23 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 	<application>quantifiedself</application>
-	<version>15</version>
+	<version>74</version>
 	<static-files>
-    <exclude path="**/*.gwt.rpc"/>
+    <exclude path='**/*.gwt.rpc'/>
   </static-files>
   <resource-files>
-    <include path="**/*.gwt.rpc"/>
+    <include path='**/*.gwt.rpc'/>
   </resource-files>
   
 	<!-- Configure java.util.logging -->
 	<system-properties>
-	  <property name="java.util.logging.config.file" value="WEB-INF/classes/logging.properties"/> 
+	  <property value='WEB-INF/classes/logging.properties' name='java.util.logging.config.file'/> 
 	</system-properties>
 	
     <sessions-enabled>true</sessions-enabled>
 <precompilation-enabled>true</precompilation-enabled>
+<threadsafe>false</threadsafe>
 </appengine-web-app>
 

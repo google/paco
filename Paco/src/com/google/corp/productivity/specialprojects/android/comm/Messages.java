@@ -16,6 +16,7 @@
 */
 package com.google.corp.productivity.specialprojects.android.comm;
 
+import com.pacoapp.paco.R;
 import java.text.MessageFormat;
 
 /**

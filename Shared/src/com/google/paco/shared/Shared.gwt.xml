@@ -1,0 +1,4 @@
+<module>
+      <source path='client'/>
+      <source path='model'/>
+</module>

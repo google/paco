@@ -17,6 +17,7 @@
 package com.google.android.apps.paco;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,15 +26,22 @@ import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
@@ -94,10 +102,10 @@ public class ExperimentProviderUtil {
   public Uri insertFullJoinedExperiment(Experiment experiment) {
     // fully load the other parts of the experiment prototype
     // before saving a cloned version
-    loadInputsForExperiment(experiment);
-    loadFeedbackForExperiment(experiment);
+//    loadInputsForExperiment(experiment);
+//    loadFeedbackForExperiment(experiment);
 //    loadScheduleForExperiment(experiment);
-    experiment.unsetId();
+//    experiment.unsetId();
 
     ContentResolver contentResolver = context.getContentResolver();
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI, 
@@ -107,28 +115,40 @@ public class ExperimentProviderUtil {
     
     experiment.setId(rowId);
     SignalSchedule schedule = experiment.getSchedule();
-    schedule.setId(null);
-    schedule.setExperimentId(rowId);
-    schedule.setBeginDate(experiment.getJoinDate().getMillis());
-    insertSchedule(schedule);
+//    schedule.setId(null);
+    if (schedule != null) {
+      schedule.setExperimentId(rowId);
+      schedule.setBeginDate(getJoinDateMillis(experiment));
+      insertSchedule(schedule);
+    } 
     
     for (Input input : experiment.getInputs()) {
-      input.setId(null);
+//      input.setId(null);
       input.setExperimentId(rowId);
       insertInput(input);      
     }
     for (Feedback feedback : experiment.getFeedback()) {
-      feedback.setId(null);
+//      feedback.setId(null);
       feedback.setExperimentId(rowId);
       insertFeedback(feedback);      
     }
 
     return uri;
   }
+  
+  private Long getJoinDateMillis(Experiment experiment) {
+    return TimeUtil.unformatDateWithZone(experiment.getJoinDate()).getMillis();
+  }
 
   private void loadScheduleForExperiment(Experiment experiment) {
       String select = SignalScheduleColumns.EXPERIMENT_ID + " = " + experiment.getId();
-      experiment.setSchedule(findScheduleBy(select));
+      SignalSchedule schedule = findScheduleBy(select);
+      if (schedule != null) {
+        List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+        signalingMechanisms.add(schedule);
+        experiment.setSchedule(schedule);
+        experiment.setSignalingMechanisms(signalingMechanisms);
+      }
   }
 
   private SignalSchedule findScheduleBy(String select) {
@@ -165,46 +185,49 @@ public class ExperimentProviderUtil {
    * then update it, otherwise, add it.
    * @param experiments
    */
-  public void insertOrUpdateExperiments(List<Experiment> experiments) {    
+  public void updateExistingExperiments(List<Experiment> experiments) {    
     for (Experiment experiment : experiments) {
-      Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
+      //Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
-      if (existingList.size() > 0) { // there should only be one unjoined, and 1 more for each time joined.
-        for (Experiment existingExperiment : existingList) {
-          if (existingExperiment.getJoinDate() == null) { // this is the downloaded original definition of the experiment, not the clone that the user has joined already.
-            long startTime = System.currentTimeMillis();            
-            deleteFullExperiment(existingExperiment);
-            experiment.setId(existingExperiment.getId());
-            insertFullExperiment(experiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing/joined experiment: " + (System.currentTimeMillis() - startTime));
-          } else {
-            long startTime = System.currentTimeMillis();
-            deleteAllInputsForExperiment(existingExperiment.getId());            
-            existingExperiment.setInputs(experiment.getInputs());
-            deleteAllFeedbackForExperiment(existingExperiment.getId());
-            existingExperiment.setFeedback(experiment.getFeedback());
-            SignalSchedule schedule = experiment.getSchedule();
-            schedule.setExperimentId(existingExperiment.getId());
-            existingExperiment.setSchedule(schedule);
-            insertSchedule(schedule);
-            insertInputsForJoinedExperiment(existingExperiment);
-            insertFeedbackForJoinedExperiment(existingExperiment);
-            copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
-            updateJoinedExperiment(existingExperiment);
-            Log.i(PacoConstants.TAG, "Time to update one existing (unjoined) experiment: " + (System.currentTimeMillis() - startTime));
-          }
-        }
-      } else /*if (existingList.size() == 0)*/ {
-        long startTime = System.currentTimeMillis();
-        insertFullExperiment(experiment);
-        Log.i(PacoConstants.TAG, "Time to update one new experiment: " + (System.currentTimeMillis() - startTime));
+      if (existingList.size() == 0) {
+        continue;
       }
+      for (Experiment existingExperiment : existingList) {
+        if (existingExperiment.getJoinDate() == null) { // It better not be null
+          continue;
+        }
+        long startTime = System.currentTimeMillis();
+        deleteAllInputsForExperiment(existingExperiment.getId());            
+        existingExperiment.setInputs(experiment.getInputs());
+        deleteAllFeedbackForExperiment(existingExperiment.getId());
+        existingExperiment.setFeedback(experiment.getFeedback());
+        SignalSchedule schedule = experiment.getSchedule();
+        if (schedule != null) {
+          schedule.setExperimentId(existingExperiment.getId());
+          existingExperiment.setSchedule(schedule);      
+          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+          signalingMechanisms.add(schedule);
+          existingExperiment.setSignalingMechanisms(signalingMechanisms);
+          insertSchedule(schedule);
+        } else {
+          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
+          signalingMechanisms.add(experiment.getTrigger());
+          existingExperiment.setSignalingMechanisms(signalingMechanisms);
+        }
+        insertInputsForJoinedExperiment(existingExperiment);
+        insertFeedbackForJoinedExperiment(existingExperiment);
+        copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
+        updateJoinedExperiment(existingExperiment);
+        Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));          
+      }
+       
     }  
   }
 
 
   private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
     existingExperiment.setCreator(experiment.getCreator());
+    existingExperiment.setVersion(experiment.getVersion());
     existingExperiment.setDescription(experiment.getDescription());
     existingExperiment.setEndDate(experiment.getEndDate());
     existingExperiment.setFixedDuration(experiment.isFixedDuration());
@@ -213,6 +236,7 @@ public class ExperimentProviderUtil {
     existingExperiment.setQuestionsChange(experiment.isQuestionsChange());
     existingExperiment.setStartDate(experiment.getStartDate());
     existingExperiment.setTitle(experiment.getTitle());
+    existingExperiment.setWebRecommended(experiment.isWebRecommended());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -227,22 +251,6 @@ public class ExperimentProviderUtil {
         SignalScheduleColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
-  private void insertFullExperiment(Experiment experiment) {
-    Uri uri = insertExperiment(experiment);
-    Long rowId = Long.valueOf(uri.getLastPathSegment());
-    SignalSchedule schedule = experiment.getSchedule();
-    schedule.setExperimentId(rowId);
-    insertSchedule(schedule);
-    for (Input input : experiment.getInputs()) {
-      input.setExperimentId(rowId);
-      insertInput(input);      
-    }
-    for (Feedback feedback : experiment.getFeedback()) {
-      feedback.setExperimentId(rowId);
-      insertFeedback(feedback);      
-    }
-  }
-  
   private int deleteAllFeedbackForExperiment(Long id) {
     return context.getContentResolver().delete(FeedbackColumns.CONTENT_URI, 
         FeedbackColumns.EXPERIMENT_ID + " = " + id, null);
@@ -253,20 +261,15 @@ public class ExperimentProviderUtil {
           InputColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
-  public void updateExperiment(Experiment experiment) {
-    int count = context.getContentResolver().update(ExperimentColumns.CONTENT_URI,
-        createContentValues(experiment), 
-        ExperimentColumns.SERVER_ID + "=" + experiment.getServerId() + 
-        " AND " + ExperimentColumns.JOIN_DATE +" IS NULL ", null);
-    Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
-  }
-
   public void updateJoinedExperiment(Experiment experiment) {
     int count = context.getContentResolver().update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
         createContentValues(experiment), 
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
-    updateSchedule(experiment.getSchedule());
+    SignalSchedule schedule = experiment.getSchedule();
+    if (schedule != null) {
+      updateSchedule(schedule);
+    }
   }
 
   public void deleteAllExperiments() {
@@ -319,8 +322,10 @@ public class ExperimentProviderUtil {
       cursor = context.getContentResolver().query(contentUri,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
-        Experiment experiment = createExperiment(cursor);    
-        loadScheduleForExperiment(experiment);
+        Experiment experiment = createExperiment(cursor);
+        if (experiment.getTrigger() == null) {
+          loadScheduleForExperiment(experiment);
+        }
         return experiment;
       }
     } catch (RuntimeException e) {
@@ -361,6 +366,7 @@ public class ExperimentProviderUtil {
     int idIndex = cursor.getColumnIndexOrThrow(ExperimentColumns._ID);
     int serverIdIndex = cursor.getColumnIndexOrThrow(ExperimentColumns.SERVER_ID);
     int titleIndex = cursor.getColumnIndex(ExperimentColumns.TITLE);
+    int versionIndex = cursor.getColumnIndex(ExperimentColumns.VERSION);
     int descIndex = cursor.getColumnIndex(ExperimentColumns.DESCRIPTION);
     int creatorIndex = cursor.getColumnIndex(ExperimentColumns.CREATOR);
     int icIndex = cursor.getColumnIndex(ExperimentColumns.INFORMED_CONSENT);
@@ -371,6 +377,8 @@ public class ExperimentProviderUtil {
     int joinDateIndex = cursor.getColumnIndex(ExperimentColumns.JOIN_DATE);
     int questionsChangeIndex = cursor.getColumnIndex(ExperimentColumns.QUESTIONS_CHANGE);
     int iconIndex = cursor.getColumnIndex(ExperimentColumns.ICON);
+    int webRecommendedIndex = cursor.getColumnIndex(ExperimentColumns.WEB_RECOMMENDED);
+    int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
     
     Experiment experiment = new Experiment();
     
@@ -384,6 +392,10 @@ public class ExperimentProviderUtil {
     
     if (!cursor.isNull(titleIndex)) {
       experiment.setTitle(cursor.getString(titleIndex));
+    }
+    
+    if (!cursor.isNull(versionIndex)) {
+      experiment.setVersion(cursor.getInt(versionIndex));
     }
     
     if (!cursor.isNull(descIndex)) {
@@ -407,16 +419,16 @@ public class ExperimentProviderUtil {
     }
     
     if (!cursor.isNull(startDateIndex)) {
-      experiment.setStartDate(new DateTime(cursor.getLong(startDateIndex)));
+      experiment.setStartDate(cursor.getString(startDateIndex));
     }
     
     if (!cursor.isNull(endDateIndex)) {
-      experiment.setEndDate(new DateTime(cursor.getLong(endDateIndex)));
+      experiment.setEndDate(cursor.getString(endDateIndex));
     }
     
     if (!cursor.isNull(joinDateIndex)) {
       // TODO (bobevans) add the timezone from the user. The default is probably fine for now.
-      experiment.setJoinDate(new DateTime(cursor.getLong(joinDateIndex)));
+      experiment.setJoinDate(cursor.getString(joinDateIndex));
     }
     
     if (!cursor.isNull(questionsChangeIndex)) {
@@ -426,6 +438,36 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(iconIndex)) {
       experiment.setIcon(cursor.getBlob(iconIndex));
     }
+    
+    if (!cursor.isNull(webRecommendedIndex)) {
+      experiment.setWebRecommended(cursor.getLong(webRecommendedIndex) == 1);
+    }
+    
+    if (!cursor.isNull(jsonIndex)) {
+      String jsonOfExperiment = cursor.getString(jsonIndex);
+      experiment.setJson(jsonOfExperiment);
+      try {
+        Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
+        Trigger trigger = experimentFromJson.getTrigger();
+        if (trigger != null) {
+          List<SignalingMechanism> signalingMechanisms = new ArrayList();
+          signalingMechanisms.add(trigger);
+          experiment.setTrigger(trigger);
+          experiment.setSignalingMechanisms(signalingMechanisms);
+        }
+        
+      } catch (JsonParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (JsonMappingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+
     return experiment;
   }
   
@@ -440,6 +482,9 @@ public class ExperimentProviderUtil {
     }
     if (experiment.getTitle() != null) {
       values.put(ExperimentColumns.TITLE, experiment.getTitle() );
+    }
+    if (experiment.getVersion() != null) {
+      values.put(ExperimentColumns.VERSION, experiment.getVersion() );
     }
     if (experiment.getDescription() != null) {
       values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription() );
@@ -457,14 +502,14 @@ public class ExperimentProviderUtil {
     values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
 
     if (experiment.getStartDate() != null) {
-      values.put(ExperimentColumns.START_DATE, experiment.getStartDate().getMillis());
+      values.put(ExperimentColumns.START_DATE, experiment.getStartDate());
     }
     if (experiment.getEndDate() != null) {
-      values.put(ExperimentColumns.END_DATE, experiment.getEndDate().getMillis() );
+      values.put(ExperimentColumns.END_DATE, experiment.getEndDate());
     }
 
     if (experiment.getJoinDate() != null) {
-      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate().getMillis() );
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
     values.put(ExperimentColumns.QUESTIONS_CHANGE, experiment.isQuestionsChange() ? 1 : 0 );
 
@@ -472,10 +517,34 @@ public class ExperimentProviderUtil {
           values.put(ExperimentColumns.ICON, experiment.getIcon() );
     }
 
+    values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
+    
+    String json = experiment.getJson();
+    if (json == null || json.length() == 0) {
+      json = getJson(experiment);
+    }
+    values.put(ExperimentColumns.JSON, json);
     return values;
   }
 
   
+  private String getJson(Experiment experiment) {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
+    try {
+      return mapper.writeValueAsString(experiment);
+    } catch (JsonGenerationException e) {
+      Log.e(PacoConstants.TAG, "Json generation error " + e);
+    } catch (JsonMappingException e) {
+      Log.e(PacoConstants.TAG, "JsonMapping error getting experiment json: " + e.getMessage());
+    } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "IO error getting experiment: " + e.getMessage());
+    }
+
+    return null;
+  }
+
   public void loadInputsForExperiment(Experiment experiment) {
     String select = InputColumns.EXPERIMENT_ID + " = " + experiment.getId();
     experiment.setInputs(findInputsBy(select));
@@ -893,6 +962,7 @@ public class ExperimentProviderUtil {
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE );
+    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT );
     
     SignalSchedule schedule = new SignalSchedule();    
     if (!cursor.isNull(idIndex)) {
@@ -952,7 +1022,9 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(userEditableIndex)) {
       schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
     }
-
+    if (!cursor.isNull(timeoutIndex)) {
+      schedule.setTimeout(cursor.getInt(timeoutIndex));
+    }
     return schedule;
   }
   
@@ -991,6 +1063,9 @@ public class ExperimentProviderUtil {
     }
     if (schedule.getUserEditable() != null) {
       values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0); 
+    }
+    if (schedule.getTimeout() != null) {
+      values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout()); 
     }
     StringBuilder buf = new StringBuilder();
     boolean first = true;
@@ -1061,6 +1136,9 @@ public class ExperimentProviderUtil {
     }
     if (event.getExperimentServerId() >= 0) {
       values.put(EventColumns.EXPERIMENT_SERVER_ID, event.getExperimentServerId());
+    }
+    if (event.getExperimentVersion() != null) {
+      values.put(EventColumns.EXPERIMENT_VERSION, event.getExperimentVersion());
     }
     if (event.getExperimentName() != null) {
       values.put(EventColumns.EXPERIMENT_NAME, event.getExperimentName());
@@ -1176,6 +1254,7 @@ public class ExperimentProviderUtil {
     int idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
     int experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
+    int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
     int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
     int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
     int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
@@ -1193,6 +1272,9 @@ public class ExperimentProviderUtil {
     
     if (!cursor.isNull(experimentServerIdIndex)) {
       input.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
+    }
+    if (!cursor.isNull(experimentVersionIndex)) {
+      input.setExperimentVersion(cursor.getInt(experimentVersionIndex));
     }
     if (!cursor.isNull(experimentNameIndex)) {
       input.setExperimentName(cursor.getString(experimentNameIndex));
@@ -1403,7 +1485,11 @@ public class ExperimentProviderUtil {
     }
   }
 
-  public int deleteNotificationsForExperiment(long experimentId) {
+  public int deleteNotificationsForExperiment(Long experimentId) {
+    if (experimentId == null) {
+      return 0;
+    }
+
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     return context.getContentResolver().delete(NotificationHolderColumns.CONTENT_URI, 
@@ -1488,15 +1574,31 @@ public class ExperimentProviderUtil {
     
   }
 
-  public List<Experiment> loadExperimentsFromDisk() throws IOException {
-    FileInputStream fis = context.openFileInput(FILENAME);    
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    List<Experiment> experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+  public List<Experiment> loadExperimentsFromDisk() {
+    List<Experiment> experiments = null;
+    try {
+      experiments = createObjectsFromJsonStream(context.openFileInput(FILENAME));
+    } catch (IOException e) {
+      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist");
+      e.printStackTrace();
+    }
+    return ensureExperiments(experiments);
+  }
+
+  private List<Experiment> ensureExperiments(List<Experiment> experiments) {
     if (experiments != null) {
       return experiments;
     }
     return new ArrayList<Experiment>();
+  }
+
+  private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
+                                                                           JsonMappingException {
+    List<Experiment> experiments;
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    return experiments;
   }
 
   public boolean hasJoinedExperiments() {
@@ -1511,6 +1613,59 @@ public class ExperimentProviderUtil {
       }
     }
   }
+
+  public void loadLastEventForExperiment(Experiment experiment) {
+    String select = EventColumns.EXPERIMENT_ID + "=" + experiment.getId();
+    String sortOrder = EventColumns._ID +" DESC";
+
+    List<Event> events = new ArrayList<Event>();
+    Cursor cursor = null;
+    try {
+      cursor = context.getContentResolver().query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
+      if (cursor != null) {
+        if (cursor.moveToFirst()) {
+          Event event = createEvent(cursor);
+          event.setResponses(findResponsesFor(event));
+          events.add(event);
+        }
+      }
+      experiment.setEvents(events);
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+  }
+
+  public Experiment getExperimentFromDisk(Uri uri) {
+    Long experimentServerId = new Long(uri.getLastPathSegment());
+    return getExperimentFromDisk(experimentServerId);
+  }
+
+  public Experiment getExperimentFromDisk(Long experimentServerId) {
+    List<Experiment> experiments= loadExperimentsFromDisk();
+    for (Experiment experiment : experiments) {
+      if (experiment.getServerId().equals(experimentServerId)) {
+        return experiment;
+      }
+    }
+    return null;
+  }
+
+  public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return mapper.readValue(contentAsString, new TypeReference<List<Experiment>>() {});
+  }
+  
+  public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return mapper.readValue(contentAsString, Experiment.class);
+  }
+
 
 }
 

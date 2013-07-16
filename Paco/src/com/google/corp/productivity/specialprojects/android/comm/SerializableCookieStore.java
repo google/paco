@@ -18,6 +18,8 @@ package com.google.corp.productivity.specialprojects.android.comm;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import com.pacoapp.paco.R;
+import com.google.android.apps.paco.UserPreferences;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -38,7 +40,6 @@ import java.util.List;
  *
  */
 public class SerializableCookieStore extends BasicCookieStore {
-  private static final String PREFERENCE_KEY = "http-cookies";
   private static final String ATTR_SECURE = "secure";
   private static final String ATTR_PORTS = "ports";
   private static final String ATTR_EXPIRY_DATE = "expiryDate";
@@ -88,13 +89,13 @@ public class SerializableCookieStore extends BasicCookieStore {
       }
     }
     Editor editor = preferences.edit();
-    editor.putString(PREFERENCE_KEY, array.toString());
+    editor.putString(UserPreferences.COOKIE_PREFERENCE_KEY, array.toString());
     editor.commit();
     dirty = false;
   }
   
   public SerializableCookieStore(SharedPreferences preferences) {
-    String cookiesString = preferences.getString(PREFERENCE_KEY, null);
+    String cookiesString = preferences.getString(UserPreferences.COOKIE_PREFERENCE_KEY, null);
     if (cookiesString != null) {
       try {
         JSONArray cookies = new JSONArray(cookiesString);

@@ -90,11 +90,13 @@ public class ServerCommunication {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     UrlContentManager manager = null;
     try {
-      String emailSuffix = userPrefs.getGoogleEmailType();
-      manager = new UrlContentManager(context, true, emailSuffix);
+      manager = new UrlContentManager(context);
       
       String serverAddress = userPrefs.getServerAddress();
-      Response response = manager.createRequest().setUrl("https://"+serverAddress+"/experiments").execute();
+      Response response = manager.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/experiments"))
+              .addHeader("http.useragent", "Android")
+              .addHeader("paco.version", AndroidUtils.getAppVersion(context))
+              .execute();
       String contentAsString = response.getContentAsString();
       Log.i("FindExperimentsActivity", "data: " + contentAsString);
       ArrayList<Experiment> result = null;
@@ -105,6 +107,11 @@ public class ServerCommunication {
           result = mapper.readValue(contentAsString,
               new TypeReference<List<Experiment>>() {
               });
+          if (result != null) {
+            experimentProviderUtil.deleteAllUnJoinedExperiments();
+            experimentProviderUtil.updateExistingExperiments(result);
+            experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+          }
         } catch (JsonParseException e) {
           Log.e(PacoConstants.TAG, "Could not parse text: " + contentAsString);
           e.printStackTrace();
@@ -117,10 +124,7 @@ public class ServerCommunication {
           e.printStackTrace();
         }
       }
-      if (result != null) {
-        experimentProviderUtil.deleteAllUnJoinedExperiments();
-        experimentProviderUtil.insertOrUpdateExperiments(result);
-      }
+      
       userPrefs.setExperimentListRefreshTime(new Date().getTime());
 
     } finally {

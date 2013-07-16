@@ -1,0 +1,2 @@
+function bpb(){var a,b,c;b=new kUb;p4b(b.cb,npc,'cwFlowPanel');for(c=0;c<30;++c){a=new gNb(Fvc+c);dj(a.cb,'cw-FlowPanel-checkBox',true);JLb(b,a,b.cb)}return b}
+o1(723,1,Hnc);_.lc=function hpb(){Y3(this.a,bpb())};uoc(wn)(8);
