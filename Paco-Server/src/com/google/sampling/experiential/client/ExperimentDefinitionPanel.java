@@ -16,7 +16,6 @@
 */
 package com.google.sampling.experiential.client;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -588,7 +588,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
   
   private String formatDateAsString(Date date) {
-    SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.format(date);
   }
 
