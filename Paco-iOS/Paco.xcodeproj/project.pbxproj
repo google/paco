@@ -20,6 +20,7 @@
 		3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721C163F2672000AC06B /* SystemConfiguration.framework */; };
 		31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */; };
 		364DDB321756A8760035F18F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 364DDB311756A8760035F18F /* Default-568h@2x.png */; };
+		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
 		36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B07177A385A005E0C04 /* PacoExperimentInput.m */; };
 		36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */; };
@@ -165,6 +166,8 @@
 		3197721C163F2672000AC06B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		364DDB311756A8760035F18F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
+		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
 		36946B03177A37CE005E0C04 /* PacoExperimentFeedback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentFeedback.h; sourceTree = "<group>"; };
 		36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentFeedback.m; sourceTree = "<group>"; };
 		36946B06177A385A005E0C04 /* PacoExperimentInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentInput.h; sourceTree = "<group>"; };
@@ -679,6 +682,8 @@
 				36B8EB6417568DAF004CF035 /* PacoTableViewDelegate.h */,
 				36B8EB6517568DAF004CF035 /* PacoTitleView.h */,
 				36B8EB6617568DAF004CF035 /* PacoTitleView.m */,
+				368C2EDF178DFFBA00546918 /* PacoAlertView.h */,
+				368C2EE0178DFFBA00546918 /* PacoAlertView.m */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -1100,6 +1105,7 @@
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				36946B11177A56E9005E0C04 /* PacoEvent.m in Sources */,
 				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
+				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

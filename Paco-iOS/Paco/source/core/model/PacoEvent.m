@@ -15,6 +15,9 @@
 
 #import "PacoEvent.h"
 #import "PacoDate.h"
+#import "PacoClient.h"
+#import "PacoExperiment.h"
+#import "PacoExperimentDefinition.h"
 
 @interface PacoEvent ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -85,6 +88,23 @@
     [dictionary setValue:self.responses forKey:@"responses"];
   }
   return [NSDictionary dictionaryWithDictionary:dictionary];
+}
+
++ (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment 
+{
+  //create an event for stopping the experiement.
+  PacoEvent *event = [PacoEvent pacoEventForIOS];
+  event.who = [PacoClient sharedInstance].userEmail;
+  event.experimentId = experiment.definition.experimentId;
+  event.experimentName = experiment.instanceId;//YMZ:TODO: not sure about this
+  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+  
+//  NSDictionary *responsePair = @{@"name":@"joined", @"answer":@"false", @"inputId":@"-1"};
+  NSDictionary *responsePair = @{@"name":@"joined", @"answer":@"false"};
+  event.responses = @[responsePair];
+  
+  //  [responsePair setObject:@"-1" forKey:@"inputId"];
+  return event;
 }
 
 @end

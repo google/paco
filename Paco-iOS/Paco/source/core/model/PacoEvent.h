@@ -15,6 +15,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class PacoExperiment;
+
 @interface PacoEvent : NSObject
 
 @property (nonatomic, copy) NSString *who;
@@ -33,5 +35,8 @@
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)jsonObject;
 - (id)generateJsonObject;
+
++ (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment;
+
 
 @end

@@ -26,6 +26,7 @@
 #import "PacoQuestionScreenViewController.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
+#import "PacoAlertView.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -68,16 +69,13 @@
   }
 }
 
+
 - (void)updateUIWithError:(NSError*)error
 {
   PacoTableView* tableView = (PacoTableView*)self.view;
   if (error) {
     tableView.data = [NSArray array];
-    [[[UIAlertView alloc] initWithTitle:@"Sorry"
-                                message:@"Something went wrong, please try again later."
-                               delegate:nil
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
+    [PacoAlertView showGeneralErrorAlert];
   }else{
     tableView.data = [PacoClient sharedInstance].model.experimentInstances;
   }
@@ -153,6 +151,48 @@
   [self.navigationController pushViewController:questions animated:YES];
 }
 
+- (void)showStopConfirmAlert
+{
+  PacoAlertViewDidDismissBlock dismissBlock = ^(NSInteger buttonIndex){
+    switch (buttonIndex) {
+      case 0://cancel
+        break;
+        
+      case 1://confirm
+      {
+        [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment
+                                    completionBlock:^(NSError* error) {
+                                      NSString* title = @"Success";
+                                      NSString* message = @"The experiment was stopped.";
+                                      if (error) {
+                                        title = @"Sorry";
+                                        message = @"Failed to stop the experiment, "
+                                                  @"please try again later.";
+                                      }else{
+                                        //YMZ:TODO: how to refresh?
+                                        PacoTableView* tableView = (PacoTableView*)self.view;
+                                        tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+                                      }
+                                      [PacoAlertView showAlertWithTitle:title
+                                                                message:message
+                                                      cancelButtonTitle:@"OK"];
+
+                                    }];
+      }
+        break;
+      default:
+        NSAssert(NO, @"buttonIndex has to be 0 or 1");
+        break;
+    }
+  };
+  
+  [PacoAlertView showAlertWithTitle:@"Are you sure?"
+                            message:@"All your data will be deleted permanently with this experiment."
+                       dismissBlock:dismissBlock
+                  cancelButtonTitle:@"Cancel"
+                  otherButtonTitles:@"Absolutely Sure!", nil];
+}
+
 
 #pragma mark - UIAlertViewDelegate
 
@@ -168,6 +208,7 @@
     case 2: // Edit
       break;
     case 3: // Stop
+      [self showStopConfirmAlert];
       break;
     case 4: // Explore
       break;
