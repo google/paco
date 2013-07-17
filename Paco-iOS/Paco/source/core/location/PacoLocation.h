@@ -23,11 +23,12 @@
 @end
 
 @interface PacoLocation : NSObject {
-
 }
 @property (nonatomic, assign) id <PacoLocationDelegate> delegate;
 @property (nonatomic, copy, readonly) CLLocation *location;
 
 - (void)updateLocation;
+- (void)enableLocationTimer;
+- (void)disableLocationTimer;
 
 @end

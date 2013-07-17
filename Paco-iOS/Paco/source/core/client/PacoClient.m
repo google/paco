@@ -82,23 +82,23 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 - (id)init {
-  self = [super init];
-  if (self) {
-    self.authenticator = [[PacoAuthenticator alloc] init];
-    self.location = nil;//[[PacoLocation alloc] init];
-    self.scheduler = [[PacoScheduler alloc] init];
-    self.service = [[PacoService alloc] init];
-    self.model = [[PacoModel alloc] init];
-    self.prefetchState = [[PacoPrefetchState alloc] init];
-    
-    
-    if (SERVER_DOMAIN_FLAG == 0) {//production
-      self.serverDomain = @"https://quantifiedself.appspot.com";
-    }else{//localserver
-      self.serverDomain = @"http://127.0.0.1";
+    self = [super init];
+    if (self) {
+        self.authenticator = [[PacoAuthenticator alloc] init];
+        self.location = nil;
+        self.scheduler = [[PacoScheduler alloc] init];
+        self.service = [[PacoService alloc] init];
+        self.model = [[PacoModel alloc] init];
+        self.prefetchState = [[PacoPrefetchState alloc] init];
+        
+        
+        if (SERVER_DOMAIN_FLAG == 0) {//production
+            self.serverDomain = @"https://quantifiedself.appspot.com";
+        }else{//localserver
+            self.serverDomain = @"http://127.0.0.1";
+        }
     }
-  }
-  return self;
+    return self;
 }
 
 #pragma mark Public methods
@@ -251,6 +251,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 {
   self.prefetchState.finishLoadingExperiments = YES;
   self.prefetchState.errorLoadingExperiments = error;
+  
+  // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
+  if (self.model.experimentInstances.count > 0) {
+    self.location = [[PacoLocation alloc] init];
+  }
+  
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
 }
 

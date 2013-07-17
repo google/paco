@@ -22,6 +22,7 @@
 #import "PacoMainViewController.h"
 #import "PacoQuestionScreenViewController.h"
 #import "PacoScheduler.h"
+#import "PacoLocation.h"
 
 @implementation PacoAppDelegate
 
@@ -86,6 +87,20 @@
   } else {
     NSLog(@"FAILED TO SAVE TO FILE");
   }
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+  if ([PacoClient sharedInstance].location != nil) {
+    [[PacoClient sharedInstance].location enableLocationTimer];
+  }
+  NSLog(@"Paco is going to enter the background");
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+  if ([PacoClient sharedInstance].location != nil) {
+    [[PacoClient sharedInstance].location disableLocationTimer];
+  }
+  NSLog(@"Paco is going to enter the foreground");
 }
 
 @end
