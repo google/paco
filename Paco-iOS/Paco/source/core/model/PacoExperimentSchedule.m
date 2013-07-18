@@ -34,6 +34,7 @@
           self.scheduleId, @"id",
           [NSNumber numberWithInt:self.nthAMonth], @"nthAMonth",
           [NSNumber numberWithInt:self.repeatPeriod], @"repeatRate",
+          [NSNumber numberWithInt:self.timeout], @"timeout",
           [NSNumber numberWithInt:self.scheduleType], @"scheduleType",
           self.times, @"times",
           [NSNumber numberWithBool:self.userEditable], @"userEditable",
@@ -63,6 +64,7 @@
   schedule.nthAMonth = [[scheduleMembers objectForKey:@"nthAMonth"] intValue];
   schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
+  schedule.timeout = [[scheduleMembers objectForKey:@"timeout"] intValue];
   schedule.times = [scheduleMembers objectForKey:@"times"];
   schedule.times = [schedule.times sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     NSDate *lhs = obj1;
@@ -91,6 +93,7 @@
           @"repeatPeriod=%d "
           @"scheduleType=%d "
           @"times=%@ "
+          @"timeout=%d "
           @"weekDaysScheduled=%d >",
           self,
           self.byDayOfMonth,
@@ -107,6 +110,7 @@
           self.repeatPeriod,
           self.scheduleType,
           self.times,
+          self.timeout,
           self.weekDaysScheduled,
           nil];
 }

@@ -67,6 +67,7 @@ typedef enum {
 @property (nonatomic, retain) NSArray *times;  // NSNumber<long >
 @property (nonatomic, assign) BOOL userEditable;
 @property (nonatomic, assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
+@property (nonatomic, assign) NSInteger timeout;
 @property (nonatomic, retain) id jsonObject;
 @property (nonatomic, retain) NSArray *esmSchedule;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
