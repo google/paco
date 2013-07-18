@@ -73,6 +73,16 @@
   }];
   schedule.userEditable = [[scheduleMembers objectForKey:@"userEditable"] boolValue];
   schedule.weekDaysScheduled = [[scheduleMembers objectForKey:@"weekDaysScheduled"] intValue];
+  
+  // !!! TPE temporary timeout fix for issue #9
+  if (schedule.timeout == 0) {
+    if (schedule.scheduleType == kPacoScheduleTypeESM) {
+      schedule.timeout = 59;
+    } else {
+      schedule.timeout = 470;
+    }
+  }
+  
   schedule.jsonObject = jsonObject;
   return schedule;
 }
