@@ -21,7 +21,9 @@ package com.google.sampling.experiential.client;
 
 import java.util.LinkedList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
@@ -33,15 +35,22 @@ import com.google.paco.shared.model.InputDAO;
  *
  */
 public class InputsListPanel extends Composite {
+  
+  private MyConstants myConstants;
+  
   private VerticalPanel mainPanel;
   private ExperimentDAO experiment;
   private LinkedList<InputsPanel> inputsPanelsList;
 
   public InputsListPanel(ExperimentDAO experiment) {
+    myConstants = GWT.create(MyConstants.class);
+    
     this.experiment = experiment;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
+    
+    mainPanel.add(createInputsHeader());
 
     inputsPanelsList = new LinkedList<InputsPanel>();
     InputDAO[] inputs = experiment.getInputs();
@@ -59,6 +68,12 @@ public class InputsListPanel extends Composite {
         inputsPanelsList.add(inputsPanel);
       }
     }
+  }
+  
+  private HTML createInputsHeader() {
+    HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + "</h2>");
+    questionsPrompt.setStyleName("keyLabel");
+    return questionsPrompt;
   }
 
   public void deleteInput(InputsPanel inputsPanel) {

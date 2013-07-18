@@ -30,6 +30,7 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.LocaleInfo;
+import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -47,6 +48,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -96,6 +98,8 @@ public class Main implements EntryPoint, ExperimentListener {
   protected MyMessages myMessages;
   private ScrollPanel leftSidePanel;
 
+//  interface Binder extends UiBinder<ExperimentDefinitionPanel, Main> { }
+//  private static final Binder binder = GWT.create(Binder.class);
 
   public void onModuleLoad() {
     if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
@@ -115,6 +119,8 @@ public class Main implements EntryPoint, ExperimentListener {
     }
     
     checkLoginStatusAndLoadPage();
+    
+    // RootLayoutPanel.get().add(binder.createAndBindUi());
   }
 
   private void checkLoginStatusAndLoadPage() {
@@ -169,8 +175,8 @@ public class Main implements EntryPoint, ExperimentListener {
 //      signOutLink.setVisible(true);
     }
     loginPanel.add(index2Html);
-    RootPanel.get().add(loginPanel);
-    RootPanel.get().add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
+    RootLayoutPanel.get().add(loginPanel);
+    RootLayoutPanel.get().add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
   }
 
   class HomePageLocaleHelper extends GWTLocaleHelper<HTML> {
