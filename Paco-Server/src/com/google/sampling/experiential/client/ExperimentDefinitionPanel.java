@@ -563,10 +563,12 @@ public class ExperimentDefinitionPanel extends Composite {
 
   // Visible for testing
   protected boolean canSubmit() {
-    List<Boolean> allRequirementsAreMet = Arrays.asList(checkRequiredFieldsAreFilledAndHighlight(), 
+    List<Boolean> allRequirementsAreMet = Arrays.asList(checkRequiredFieldsAreFilledAndHighlight(),
+                                                        checkVariableNamesHaveNoSpacesAndHighlight(),
                                                         startDateIsNotAfterEndDate(),
                                                         checkEmailFieldsAreValidAndHighlight());
-    List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(), 
+    List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(),
+                                                     myConstants.varNameUnfilledOrHasSpacesError(),
                                                      myConstants.startEndDateError(),
                                                      myConstants.emailAddressesError());
     removeExistingErrorMessages();
@@ -610,16 +612,24 @@ public class ExperimentDefinitionPanel extends Composite {
   // Required fields are: title, informed consent, and at least one valid
   // question.
   private boolean checkRequiredFieldsAreFilledAndHighlight() {
-    List<Boolean> areRequiredWidgetsFilled = Arrays.asList(textFieldIsFilled(titlePanel),
-                                                           textFieldIsFilled(informedConsentPanel),
-                                                           inputsListPanel.checkAllInputsAreFilledAndHighlight());
+    List<Boolean> areRequiredWidgetsFilled = Arrays.asList(checkTextFieldIsFilledAndHighlight(titlePanel),
+                                                           // textFieldIsFilled(informedConsentPanel),
+                                                           checkListItemsHaveAtLeastOneOptionAndHighlight());
     return !areRequiredWidgetsFilled.contains(false);
   }
 
-  private boolean textFieldIsFilled(TextBoxBase widget) {
+  private boolean checkTextFieldIsFilledAndHighlight(TextBoxBase widget) {
     boolean isFilled = !widget.getText().isEmpty();
     setPanelHighlight(widget, isFilled);
     return isFilled;
+  }
+  
+  private boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    return inputsListPanel.checkListItemsHaveAtLeatOneOptionAndHighlight();
+  }
+  
+  private boolean checkVariableNamesHaveNoSpacesAndHighlight() {
+    return inputsListPanel.checkVarNamesFilledWithoutSpacesAndHighlight();
   }
   
   // Visible for testing

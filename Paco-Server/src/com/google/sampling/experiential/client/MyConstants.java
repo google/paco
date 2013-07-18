@@ -418,4 +418,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Email address list may be invalid.")
   String emailAddressesError();
   
+  @DefaultStringValue("Input names are required and cannot contain spaces.")
+  String varNameUnfilledOrHasSpacesError();
+  
 }

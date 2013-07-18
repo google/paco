@@ -113,25 +113,19 @@ public class InputsPanel extends Composite {
     return input.getText();
   }
 
-  public boolean checkRequiredFieldsAreFilledAndHighlight() {
-    if (input.isInvisibleInput()) {
-      // First remove any field highlight that might exist from when the
-      // input was of a different type. This horrible fix is a
-      // side-effect of how highlighting and required field verification
-      // is done in parallel, and will be fixed when experiment creation
-      // is refactored. (TODO: refactor input verification)
-      setFieldHighlight(inputPromptTextPanel.getWidget(1), true);
-      return checkVarNameFieldIsFilledAndHighlight();
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
-      boolean textPromptFilled = checkTextPromptFieldIsFilledAndHighlight();
-      boolean textVarNameFilled = checkVarNameFieldIsFilledAndHighlight();
-      boolean listChoicesNotEmpty = checkLChoicesAreNotEmptyAndHighlight();
-      return textPromptFilled && textVarNameFilled && listChoicesNotEmpty;
+  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    if (input.getResponseType().equals(InputDAO.LIST)) {
+      return checkLChoicesAreNotEmptyAndHighlight();
     } else {
-      boolean textPromptFilled = checkTextPromptFieldIsFilledAndHighlight();
-      boolean textVarNameFilled = checkVarNameFieldIsFilledAndHighlight();
-      return textPromptFilled && textVarNameFilled;
+      return true;
     }
+  }
+  
+  public boolean checkVarNameFilledWithoutSpacesAndHighlight() {
+    boolean filledAndHasNoSpaces = !(input.getName() == null) 
+        && !input.getName().isEmpty() && !input.getName().contains(" ");
+    setFieldHighlight(varNamePanel.getWidget(1), filledAndHasNoSpaces);
+    return filledAndHasNoSpaces;
   }
 
   private boolean checkTextPromptFieldIsFilledAndHighlight() {

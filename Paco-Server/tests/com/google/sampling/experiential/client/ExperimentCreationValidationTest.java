@@ -45,11 +45,11 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
   
-  public void testInformedConsentIsMandatory() {
-    createValidExperimentDefinitionPanel();
-    experimentDefinitionPanel.setInformedConsentInPanel("");
-    assertFalse(experimentDefinitionPanel.canSubmit());
-  }
+//  public void testInformedConsentIsMandatory() {
+//    createValidExperimentDefinitionPanel();
+//    experimentDefinitionPanel.setInformedConsentInPanel("");
+//    assertFalse(experimentDefinitionPanel.canSubmit());
+//  }
   
   public void testAdminsMustBeValid() {
     createValidExperimentDefinitionPanel();
@@ -114,13 +114,13 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
   
   public void testInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[]{createInvalidNameTextPromptInput(InputDAO.LIKERT)});
+    experiment.setInputs(new InputDAO[]{createNameInputWithoutVarName(InputDAO.LIKERT)});
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
   
   public void testListWithOnlyValidInputsIsAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameTextPromptInput(InputDAO.LIKERT_SMILEYS),
+    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidListInput()});
     createExperimentDefinitionPanel(experiment);
@@ -128,51 +128,60 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
   
   public void testListWithInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameTextPromptInput(InputDAO.LIKERT_SMILEYS),
+    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
-                                         createInvalidListInput(),
+                                         createListInputWithoutFirstOption(),
                                          createValidListInput()});
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
   
   public void testLikertInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameTextPromptInput(InputDAO.LIKERT)));
-    assertFalse(inputsPanelIsValid(createInvalidNameTextPromptInput(InputDAO.LIKERT)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LIKERT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LIKERT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LIKERT)));
   }
   
   public void testLikertSmileysInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameTextPromptInput(InputDAO.LIKERT_SMILEYS)));
-    assertFalse(inputsPanelIsValid(createInvalidNameTextPromptInput(InputDAO.LIKERT_SMILEYS)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LIKERT_SMILEYS)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LIKERT_SMILEYS)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LIKERT_SMILEYS)));
   }
   
   public void testOpenTextInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameTextPromptInput(InputDAO.OPEN_TEXT)));
-    assertFalse(inputsPanelIsValid(createInvalidNameTextPromptInput(InputDAO.OPEN_TEXT)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.OPEN_TEXT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.OPEN_TEXT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.OPEN_TEXT)));
   }
   
   public void testNumberInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameTextPromptInput(InputDAO.NUMBER)));
-    assertFalse(inputsPanelIsValid(createInvalidNameTextPromptInput(InputDAO.NUMBER)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.NUMBER)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.NUMBER)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.NUMBER)));
   }
   
   public void testLocationInputProperlyValidated() {
     assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LOCATION)));
-    assertFalse(inputsPanelIsValid(createInvalidNameInput(InputDAO.LOCATION)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LOCATION)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LOCATION)));
   }
   
   public void testPhotoInputProperlyValidated() {
     assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.PHOTO)));
-    assertFalse(inputsPanelIsValid(createInvalidNameInput(InputDAO.PHOTO)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.PHOTO)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.PHOTO)));
   }
   
   public void testListInputProperlyValidated() {
     assertTrue(inputsPanelIsValid(createValidListInput()));
-    assertFalse(inputsPanelIsValid(createInvalidListInput()));
+    assertFalse(inputsPanelIsValid(createListInputWithoutFirstOption()));
+    assertFalse(inputsPanelIsValid(createListInputWithSpaceyVarName()));
   }
   
   private boolean inputsPanelIsValid(InputDAO input) {
-    return new InputsPanel(null, input).checkRequiredFieldsAreFilledAndHighlight();
+    InputsPanel panel = new InputsPanel(null, input);
+    return panel.checkListItemsHaveAtLeastOneOptionAndHighlight()
+        && panel.checkVarNameFilledWithoutSpacesAndHighlight();
   }
   
   private LoginInfo createLoginInfo() {
@@ -193,35 +202,26 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     experiment.setTitle("title");
     experiment.setInformedConsentForm("informed consent");
     experiment.setFixedDuration(false);
-    experiment.setInputs(new InputDAO[]{createValidNameTextPromptInput(InputDAO.LIKERT)});
-  }
-
-  private InputDAO createValidNameTextPromptInput(String type) {
-    assertTrue(type.equals(InputDAO.LIKERT) || type.equals(InputDAO.LIKERT_SMILEYS)
-               || type.equals(InputDAO.OPEN_TEXT) || type.equals(InputDAO.NUMBER));
-    InputDAO input = new InputDAO(null, "inputName", null, "inputText");
-    input.setResponseType(type);
-    return input;
-  }
-  
-  private InputDAO createInvalidNameTextPromptInput(String type) {
-    assertTrue(type.equals(InputDAO.LIKERT) || type.equals(InputDAO.LIKERT_SMILEYS)
-               || type.equals(InputDAO.OPEN_TEXT) || type.equals(InputDAO.NUMBER));
-    InputDAO input = new InputDAO(null, "", null, "");
-    input.setResponseType(type);
-    return input;
+    experiment.setInputs(new InputDAO[]{createValidNameInput(InputDAO.LIKERT)});
   }
   
   private InputDAO createValidNameInput(String type) {
-    assertTrue(type.equals(InputDAO.LOCATION) || type.equals(InputDAO.PHOTO));
+    assertTrue(!type.equals(InputDAO.LIST));
     InputDAO input = new InputDAO(null, "inputName", null, "");
     input.setResponseType(type);
     return input;
   }
   
-  private InputDAO createInvalidNameInput(String type) {
-    assertTrue(type.equals(InputDAO.LOCATION) || type.equals(InputDAO.PHOTO));
+  private InputDAO createNameInputWithoutVarName(String type) {
+    assertTrue(!type.equals(InputDAO.LIST));
     InputDAO input = new InputDAO(null, "", null, "inputPrompt");
+    input.setResponseType(type);
+    return input;
+  }
+  
+  private InputDAO createNameInputWithSpaceyVarName(String type) {
+    assertTrue(!type.equals(InputDAO.LIST));
+    InputDAO input = new InputDAO(null, "varName with space", null, "inputPrompt");
     input.setResponseType(type);
     return input;
   }
@@ -233,9 +233,16 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     return input;
   }
   
-  private InputDAO createInvalidListInput() {
+  private InputDAO createListInputWithoutFirstOption() {
     InputDAO input = new InputDAO(null, "inputName", null, "inputPrompt");
     input.setResponseType(InputDAO.LIST);
+    return input;
+  }
+  
+  private InputDAO createListInputWithSpaceyVarName() {
+    InputDAO input = new InputDAO(null, "varName with space", null, "inputPrompt");
+    input.setResponseType(InputDAO.LIST);
+    input.setListChoices(new String[]{"option1"});
     return input;
   }
   
