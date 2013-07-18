@@ -27,8 +27,10 @@ import junit.framework.TestSuite;
 public class AllTests extends TestCase {
   public static Test suite() {
     Class[] tests = new Class[] {
+      com.google.sampling.experiential.server.ExperimentCacheHelperTests.class,
       com.google.sampling.experiential.server.EventMatcherTest.class,
-      com.google.sampling.experiential.server.QueryParserTest.class
+      com.google.sampling.experiential.server.QueryParserTest.class,
+      com.google.sampling.experiential.server.ExperimentServletHandlerTest.class
     };
     return new TestSuite(tests);
   }

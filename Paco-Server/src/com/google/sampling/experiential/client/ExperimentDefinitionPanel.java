@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -57,6 +58,8 @@ import com.google.sampling.experiential.shared.LoginInfo;
  *
  */
 public class ExperimentDefinitionPanel extends Composite {
+  
+  private static String DATE_FORMAT = "yyyy/MM/dd";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
@@ -580,11 +583,16 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void setModifyDateOn(ExperimentDAO experiment) {
     if (experiment.getModifyDate() == null) {
-      experiment.setModifyDate(new Date().getTime());
+      experiment.setModifyDate(formatDateAsString(new Date()));
     }
   }
+  
+  private String formatDateAsString(Date date) {
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.format(date);
+  }
 
-
+  
 
   private void setPublishingOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
@@ -604,12 +612,8 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setDurationOn(ExperimentDAO experiment) {
     experiment.setFixedDuration(durationPanel.isFixedDuration());
     if (experiment.getFixedDuration()) {
-      experiment
-          .setStartDate(durationPanel.getStartDate() != null ? Long.valueOf(
-              durationPanel.getStartDate().getTime()) : null);
-      experiment
-          .setEndDate(durationPanel.getEndDate() != null
-              ? Long.valueOf(durationPanel.getEndDate().getTime()) : null);
+      experiment.setStartDate(durationPanel.getStartDate());
+      experiment.setEndDate(durationPanel.getEndDate());
     } else {
       experiment.setStartDate(null);
       experiment.setEndDate(null);

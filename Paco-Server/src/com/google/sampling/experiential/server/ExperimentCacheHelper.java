@@ -3,8 +3,10 @@ package com.google.sampling.experiential.server;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
 
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
@@ -14,19 +16,24 @@ import net.sf.jsr107cache.CacheManager;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCacheHelper {
 
   public static final String EXPERIMENT_CACHE_KEY = "EXPERIMENT_CACHE_KEY";
+  
+  public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
+
 
   private static ExperimentCacheHelper instance;
 
@@ -114,10 +121,15 @@ public class ExperimentCacheHelper {
       Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return getDateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
+      return getDateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
     }
+  }
+ 
+  private DateMidnight getDateMidnight(String dateStr) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateMidnight(formatter.parseDateTime(dateStr));
   }
 
   private synchronized List<ExperimentDAO> getExperiments() {
@@ -131,7 +143,13 @@ public class ExperimentCacheHelper {
     experimentDAOs = getExperimentsFromDatastore();
     
     if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {      
-      cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      
+      try {
+        cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+      } catch (Exception e) {
+        log.severe("Could not put experiment entry in cache:" + e.getMessage());
+      }
+      
       return experimentDAOs;
     } else {
       return Collections.EMPTY_LIST;   

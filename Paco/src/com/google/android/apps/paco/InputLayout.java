@@ -17,11 +17,16 @@
 package com.google.android.apps.paco;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,19 +46,21 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Spinner;
@@ -61,10 +68,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 
-public class InputLayout extends LinearLayout {
+public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+  // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
+  private static final String AUTOCOMPLETE_DATA_FILE_NAME = "autocompleteData";
   private Input input;
   private View componentWithValue;
   private List<ChangeListener> inputChangeListeners;
@@ -206,7 +217,7 @@ public class InputLayout extends LinearLayout {
       if (!listHasBeenSelected) {
         return null;
       }
-      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      return Integer.toString(((Spinner) componentWithValue).getSelectedItemPosition());
     }
     return getMultiSelectListValueAsString();
   }
@@ -259,6 +270,8 @@ public class InputLayout extends LinearLayout {
   private final int IMAGE_MAX_SIZE = 600;
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
+  private MultiAutoCompleteTextView openTextView;
+  private List<String> autocompleteDatabase;
 
   private Bitmap decodeFile(File f) {
     Bitmap b = null;
@@ -338,7 +351,7 @@ public class InputLayout extends LinearLayout {
   private List<Integer> getListValue() {
     if (!input.isMultiselect()) {
       ArrayList<Integer> list = new ArrayList<Integer>();
-      list.add(((Spinner) componentWithValue).getSelectedItemPosition() + 1);
+      list.add(((Spinner) componentWithValue).getSelectedItemPosition());
       return list;
     }
     return getMultiSelectListValue();
@@ -370,7 +383,9 @@ public class InputLayout extends LinearLayout {
   }
 
   private String getOpenTextValue() {
-    return ((EditText) componentWithValue).getText().toString();
+    String text = ((EditText) componentWithValue).getText().toString();
+    updateAutoCompleteDatabase(text);
+    return text;
   }
 
   private Integer getNumberValue() {
@@ -441,7 +456,6 @@ public class InputLayout extends LinearLayout {
   
   public static final int MEDIA_TYPE_IMAGE = 1;
   public static final int MEDIA_TYPE_VIDEO = 2;
-
   /** Create a file Uri for saving an image or video */
   private Uri getOutputMediaFileUri(int type){
         return Uri.fromFile(getOutputMediaFile(type));
@@ -633,16 +647,21 @@ public class InputLayout extends LinearLayout {
     View listView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.list_choices, this, true);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
+    // Formerly android.R.layout.simple_spinner_item
+    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), R.layout.multiline_spinner_item,
         input.getListChoices());
+    String defaultListItem = getResources().getString(R.string.default_list_item);
+    choices.insert(defaultListItem, 0);       // "No selection" list item.
     findViewById.setAdapter(choices);
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-      public void onItemSelected(AdapterView<?> arg0, View v, int arg2, long arg3) {
+      public void onItemSelected(AdapterView<?> arg0, View v, int index, long id) {
         if (!setupClickHasHappened) {
           setupClickHasHappened = true;
-        } else {
+        } else if (index != 0) {              // Option has been selected. 
           listHasBeenSelected = true;
+        } else {
+          listHasBeenSelected = false;
         }
         notifyChangeListeners();
       }
@@ -731,17 +750,115 @@ public class InputLayout extends LinearLayout {
   private View renderOpenText() {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
-    final EditText openTextView = (EditText) findViewById(R.id.open_text_answer);
+    openTextView = (MultiAutoCompleteTextView) findViewById(R.id.open_text_answer);
+    openTextView.setThreshold(1);
+    // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
+    // emulator, so we need to test it on the device.
+    openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+    ensureAutoCompleteDatabase();
+    openTextView.setAdapter(new ArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
+    openTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
         if (v.equals(openTextView) && !hasFocus) {
+          updateAutoCompleteDatabase(openTextView.getText().toString());
           notifyChangeListeners();
         }
       }
 
     });
+    final ImageButton micButton = (ImageButton) findViewById(R.id.micButton);
+    micButton.setOnClickListener(new OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        launchSpeechRecognizer();        
+      }
+    });
     return openTextView;
+  }
+
+  private void ensureAutoCompleteDatabase() {
+    if (autocompleteDatabase == null) {
+      autocompleteDatabase = loadAutocompleteDataFromDisk();
+    }    
+  }
+  
+  private void updateAutoCompleteDatabase(String responseText) {
+    ensureAutoCompleteDatabase();
+    addWordToAutocompleteDatabase(responseText);
+    Iterable<String> words = Splitter.on(" ").trimResults().split(responseText);
+    for (String word : words) {
+      addWordToAutocompleteDatabase(word);
+    }
+    
+    saveAutocompleteToDisk();    
+  }
+
+  private void addWordToAutocompleteDatabase(String word) {
+    if (autocompleteDatabase.contains(word)) {
+      return;
+    }      
+    autocompleteDatabase.add(word);
+  }
+
+  private void saveAutocompleteToDisk() {
+    OutputStreamWriter f = null;
+    try {
+      f = new OutputStreamWriter(getContext().openFileOutput(AUTOCOMPLETE_DATA_FILE_NAME, getContext().MODE_PRIVATE));
+      BufferedWriter buf = new BufferedWriter(f);
+      for (String word : autocompleteDatabase) {
+        f.write(word);
+        f.write("\n");
+      }
+      f.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (f != null) {
+        try {
+          f.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private List<String> loadAutocompleteDataFromDisk() {
+    List<String> lines = Lists.newArrayList();
+    BufferedReader buf = null;
+      try {
+        InputStream in = getContext().openFileInput(AUTOCOMPLETE_DATA_FILE_NAME); 
+        if (in != null) {
+          buf = new BufferedReader(new InputStreamReader(in));                   
+          String line = null; 
+          while ((line = buf.readLine()) != null) {
+            lines.add(line);
+          }
+        }
+      } catch (FileNotFoundException e) {
+        Log.d(PacoConstants.TAG, "No autocomplete database found yet", e);
+      } catch (IOException e) {
+        Log.d(PacoConstants.TAG, "Could not talk to autocomplete database", e);
+      } finally {
+        try {
+          if (buf != null) {
+            buf.close();
+          }
+        } catch (IOException e) {
+          // Not worth it, there is no recovery.
+        }
+      }
+      return lines;
+    }
+     
+
+  private void launchSpeechRecognizer() {
+    ((ExperimentExecutor)getContext()).startSpeechRecognition(this);
   }
 
   private TextView getInputTextView() {
@@ -823,6 +940,20 @@ public class InputLayout extends LinearLayout {
       
     });
     return findViewById;
+  }
+
+  @Override
+  public void speechRetrieved(List<String> text) {
+    String message = openTextView.getText().toString();
+    if (text.size() >= 1) {
+      String bestPhrase = text.get(0);      
+      message += bestPhrase;
+      openTextView.setText(message);
+      updateAutoCompleteDatabase(bestPhrase);
+    } else {
+      Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
+    }    
+    ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
   }
 
 }
