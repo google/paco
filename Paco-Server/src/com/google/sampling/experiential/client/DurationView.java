@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * View for configuring the run length of an experiment.
@@ -57,7 +58,8 @@ public class DurationView extends Composite {
     mainPanel = new HorizontalPanel();
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     Date today = new Date();
-    Date tomorrow = new Date(today.getTime() + 86450000);
+    Date tomorrow = new Date(today.getTime() + TimeUtil.MILLIS_IN_A_DAY 
+                             + TimeUtil.EXTRA_MILLIS_OFFSET);
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
     this.startDate = start != null ? new Date(start) : today;
     this.endDate = end != null ? new Date(end) : tomorrow;

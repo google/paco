@@ -82,11 +82,13 @@ public class InputsListPanel extends Composite {
     updateExperimentInputs();
   }
   
-  public boolean allInputsAreFilled() {
+  public boolean checkAllInputsAreFilledAndHighlight() {
     boolean requiredFieldsAreFilled = true;
     for (InputsPanel inputsPanel : inputsPanelsList) {
-      if (!inputsPanel.requiredFieldsAreFilled()) {
+      if (!inputsPanel.checkRequiredFieldsAreFilledAndHighlight()) {
         requiredFieldsAreFilled = false;
+        // Note: no break statement here since we need to continue
+        // highlighting erroneous panels.
       }
     }
     return requiredFieldsAreFilled;

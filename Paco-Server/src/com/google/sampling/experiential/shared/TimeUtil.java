@@ -7,4 +7,7 @@ public class TimeUtil {
   public static final String DATETIME_FORMAT_FOR_FILENAME = "yyyy_MM_dd_HH_mm_ssZ";
   public static final String DATETIME_FORMAT_OLD = "yyyyMMdd:HH:mm:ssZ";
   
+  public static final int MILLIS_IN_A_DAY = 24 * 60 * 60 * 1000;
+  public static final int EXTRA_MILLIS_OFFSET = 50000;
+  
 }

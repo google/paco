@@ -62,9 +62,21 @@ import com.google.sampling.experiential.shared.LoginInfo;
  */
 public class ExperimentDefinitionPanel extends Composite {
   
+  /* Note: a valid email address, by our definition, contains:
+   *  A user name at least one character long. Valid characters are alphanumeric
+   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+), 
+   *    and period (.). The user name cannot start with a period or a plus,
+   *    and there cannot be two periods in a row.
+   *  A domain name that follows the same restrictions as a user name, except that it
+   *    cannot contain any underscore or plus characters.
+   *  A top-level domain, or TLD, (e.g. com, gov, edu) at least two characters long
+   *    and containing only alphabetic characters.
+   * The overall form of the email address must be username@domain.TLD
+   * Please update this documentation if changing the email regex below.
+   */
   private static String EMAIL_REGEX = 
-      //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+      //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
@@ -184,8 +196,7 @@ public class ExperimentDefinitionPanel extends Composite {
     informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
     formPanel.add(informedConsentPanelPair.container);
 
-    durationPanel = createDurationPanel(experiment);
-    formPanel.add(durationPanel);
+    formPanel.add(createDurationPanel(experiment));
     formPanel.add(createSignalMechanismPanel(experiment));
 
     formPanel.add(createInputsHeader());
@@ -208,8 +219,9 @@ public class ExperimentDefinitionPanel extends Composite {
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && experiment.getFeedback().length > 0
-                                      && !defaultFeedback(experiment.getFeedback()[0]));
+    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
+        experiment.getFeedback().length > 0 &&
+        !defaultFeedback(experiment.getFeedback()[0]));
     feedbackPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label(myConstants.customFeedback());
     feedbackPanel.add(feedbackLabel);
@@ -387,7 +399,8 @@ public class ExperimentDefinitionPanel extends Composite {
 
   class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
-      add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
+      add(isOpen ? images.disclosurePanelOpen().createImage() 
+                 : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
   }
@@ -550,9 +563,9 @@ public class ExperimentDefinitionPanel extends Composite {
 
   // Visible for testing
   protected boolean canSubmit() {
-    List<Boolean> allRequirementsAreMet = Arrays.asList(requiredFieldsAreFilled(), 
+    List<Boolean> allRequirementsAreMet = Arrays.asList(checkRequiredFieldsAreFilledAndHighlight(), 
                                                         startDateIsNotAfterEndDate(),
-                                                        emailFieldsAreValid());
+                                                        checkEmailFieldsAreValidAndHighlight());
     List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(), 
                                                      myConstants.startEndDateError(),
                                                      myConstants.emailAddressesError());
@@ -596,10 +609,10 @@ public class ExperimentDefinitionPanel extends Composite {
 
   // Required fields are: title, informed consent, and at least one valid
   // question.
-  private boolean requiredFieldsAreFilled() {
+  private boolean checkRequiredFieldsAreFilledAndHighlight() {
     List<Boolean> areRequiredWidgetsFilled = Arrays.asList(textFieldIsFilled(titlePanel),
                                                            textFieldIsFilled(informedConsentPanel),
-                                                           inputsListPanel.allInputsAreFilled());
+                                                           inputsListPanel.checkAllInputsAreFilledAndHighlight());
     return !areRequiredWidgetsFilled.contains(false);
   }
 
@@ -621,11 +634,13 @@ public class ExperimentDefinitionPanel extends Composite {
     }
   }
   
-  private boolean emailFieldsAreValid() {
-    return emailFieldIsValid(adminList) & emailFieldIsValid(userList);
+  private boolean checkEmailFieldsAreValidAndHighlight() {
+    boolean adminListIsValid = checkEmailFieldIsValidAndHighlight(adminList);
+    boolean userListIsValid = checkEmailFieldIsValidAndHighlight(userList);
+    return adminListIsValid && userListIsValid;
   }
   
-  private boolean emailFieldIsValid(TextBoxBase widget) {
+  private boolean checkEmailFieldIsValidAndHighlight(TextBoxBase widget) {
     boolean emailAddressesAreValid = emailStringIsValid(widget.getText());
     setPanelHighlight(widget, emailAddressesAreValid);
     return emailAddressesAreValid;

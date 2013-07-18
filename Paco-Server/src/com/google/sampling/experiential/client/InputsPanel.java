@@ -1,23 +1,22 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.  
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
-
 
 import java.util.concurrent.Callable;
 
@@ -42,11 +41,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.InputDAO;
 
 /**
- *
+ * 
  * Panel for viewing/editing one Input object.
- *
+ * 
  * @author Bob Evans
- *
+ * 
  */
 public class InputsPanel extends Composite {
 
@@ -109,51 +108,51 @@ public class InputsPanel extends Composite {
   public InputDAO getInput() {
     return input;
   }
-  
+
   public String getInputTextPrompt() {
     return input.getText();
   }
-  
-  public boolean requiredFieldsAreFilled() {
+
+  public boolean checkRequiredFieldsAreFilledAndHighlight() {
     if (input.isInvisibleInput()) {
       // First remove any field highlight that might exist from when the
-      // input was of a different type.  This horrible fix is a
+      // input was of a different type. This horrible fix is a
       // side-effect of how highlighting and required field verification
       // is done in parallel, and will be fixed when experiment creation
-      // is refactored.  (TODO: refactor input verification)
-      setFieldHighlight(inputPromptTextPanel.getWidget(1), true); 
-      return varNameFieldIsFilled();
+      // is refactored. (TODO: refactor input verification)
+      setFieldHighlight(inputPromptTextPanel.getWidget(1), true);
+      return checkVarNameFieldIsFilledAndHighlight();
     } else if (input.getResponseType().equals(InputDAO.LIST)) {
-      return textPromptFieldIsFilled()
-          & varNameFieldIsFilled()
-          & listChoicesAreNotEmpty();
+      boolean textPromptFilled = checkTextPromptFieldIsFilledAndHighlight();
+      boolean textVarNameFilled = checkVarNameFieldIsFilledAndHighlight();
+      boolean listChoicesNotEmpty = checkLChoicesAreNotEmptyAndHighlight();
+      return textPromptFilled && textVarNameFilled && listChoicesNotEmpty;
     } else {
-      return textPromptFieldIsFilled()
-          & varNameFieldIsFilled();
+      boolean textPromptFilled = checkTextPromptFieldIsFilledAndHighlight();
+      boolean textVarNameFilled = checkVarNameFieldIsFilledAndHighlight();
+      return textPromptFilled && textVarNameFilled;
     }
-}
-  
-  private boolean textPromptFieldIsFilled() {
+  }
+
+  private boolean checkTextPromptFieldIsFilledAndHighlight() {
     boolean isFilled = !(input.getText() == null) && !input.getText().isEmpty();
     setFieldHighlight(inputPromptTextPanel.getWidget(1), isFilled);
     return isFilled;
   }
-  
-  private boolean varNameFieldIsFilled() {
+
+  private boolean checkVarNameFieldIsFilledAndHighlight() {
     boolean isFilled = !(input.getName() == null) && !input.getName().isEmpty();
     setFieldHighlight(varNamePanel.getWidget(1), isFilled);
     return isFilled;
   }
-  
-  private boolean listChoicesAreNotEmpty() {
-    boolean isFilled = !(input.getListChoices().length == 0)
-        && !input.getListChoices()[0].isEmpty();
-    TextBox firstListChoiceTextBox = 
-        responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
+
+  private boolean checkLChoicesAreNotEmptyAndHighlight() {
+    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
+    TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
     setFieldHighlight(firstListChoiceTextBox, isFilled);
     return isFilled;
   }
-  
+
   private void setFieldHighlight(Widget widget, boolean isFilled) {
     if (isFilled) {
       removeErrorHighlight(widget);
@@ -161,11 +160,11 @@ public class InputsPanel extends Composite {
       addErrorHighlight(widget);
     }
   }
-  
+
   private void addErrorHighlight(Widget widget) {
     widget.addStyleName(Main.ERROR_HIGHLIGHT);
   }
-  
+
   private void removeErrorHighlight(Widget widget) {
     widget.removeStyleName(Main.ERROR_HIGHLIGHT);
   }
@@ -183,14 +182,13 @@ public class InputsPanel extends Composite {
     createVarNameColumn();
     createInputTextColumn();
 
-
     createResponseViewPanel();
 
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
 
-    //createScheduledDateColumn(upperLinePanel);
+    // createScheduledDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -217,8 +215,8 @@ public class InputsPanel extends Composite {
       }
     });
 
-    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;"
-        + "text-color:#888888;'>" + "(" + myConstants.eg() + ", " + "q1name < 3" +")" + "</span>"));
+    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;" + "text-color:#888888;'>" + "("
+                                  + myConstants.eg() + ", " + "q1name < 3" + ")" + "</span>"));
   }
 
   private void createConditionCheckboxColumn() {
@@ -267,7 +265,7 @@ public class InputsPanel extends Composite {
     rp.add(responseTypeLabel);
 
     final ListBox responseTypeListBox = new ListBox();
-    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);    
+    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);
     responseTypeListBox.addItem(InputDAO.LIKERT);
     responseTypeListBox.addItem(InputDAO.OPEN_TEXT);
     responseTypeListBox.addItem(InputDAO.LIST);

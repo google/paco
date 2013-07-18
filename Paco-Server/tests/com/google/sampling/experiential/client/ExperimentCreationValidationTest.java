@@ -6,6 +6,7 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCreationValidationTest extends GWTTestCase {
   
@@ -171,7 +172,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
   
   private boolean inputsPanelIsValid(InputDAO input) {
-    return new InputsPanel(null, input).requiredFieldsAreFilled();
+    return new InputsPanel(null, input).checkRequiredFieldsAreFilledAndHighlight();
   }
   
   private LoginInfo createLoginInfo() {
@@ -254,7 +255,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
   
   private Date getTomorrow() {
-    return new Date(new Date().getTime() + 86400000);
+    return new Date(new Date().getTime() + TimeUtil.MILLIS_IN_A_DAY);
   }
 
 }
