@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -9,23 +10,25 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ExperimentCreationMenuBar extends Composite {
-  
+
   public static final int DESCRIPTION_PANEL = 0;
   public static final int SCHEDULE_PANEL = 1;
   public static final int INPUTS_PANEL = 2;
   public static final int PUBLISHING_PANEL = 3;
 
-  private VerticalPanel mainPanel;
+  private MyConstants myConstants;
 
+  private VerticalPanel mainPanel;
   private Tree menuTree;
-  private TreeItem showDescription;
+  private TreeItem showDescriptionItem;
   private TreeItem inputGroupsRootTree;
-  private TreeItem showPublishing;
-  
+  private TreeItem showPublishingItem;
+
   private ExperimentCreationListener listener;
 
   public ExperimentCreationMenuBar(ExperimentCreationListener listener) {
     super();
+    myConstants = GWT.create(MyConstants.class);
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
     initMenu();
@@ -37,31 +40,29 @@ public class ExperimentCreationMenuBar extends Composite {
     menuTree = new Tree();
 
     // Main menu roots.
-    showDescription = new TreeItem("Experiment Description");
-    inputGroupsRootTree = new TreeItem("Input Groups");
-    showPublishing = new TreeItem("Experiment Finishing");
+    showDescriptionItem = new TreeItem(myConstants.experimentScheduleButtonText());
+    inputGroupsRootTree = new TreeItem(myConstants.experimentInputGroupsHeaderText());
+    showPublishingItem = new TreeItem(myConstants.experimentPublishingButtonText());
 
-    // Create first input group and add to input groups root tree.
-    // Unfold the tree by default.
     createInputGroup();
-    inputGroupsRootTree.setState(true);
+    inputGroupsRootTree.setState(true); // Unfold the tree by default.
 
     // Add main menu headers to menu tree.
-    menuTree.addItem(showDescription);
+    menuTree.addItem(showDescriptionItem);
     menuTree.addItem(inputGroupsRootTree);
-    menuTree.addItem(showPublishing);
+    menuTree.addItem(showPublishingItem);
 
     menuTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
       @Override
       public void onSelection(SelectionEvent<TreeItem> event) {
         TreeItem selectedButton = event.getSelectedItem();
-        if (selectedButton.equals(showDescription)) {
+        if (selectedButton.equals(showDescriptionItem)) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_DESCRIPTION_CODE);
-        } else if (selectedButton.equals(inputGroupsRootTree.getChild(0).getChild(0))) {
+        } else if (selectedButton.equals(getShowScheduleItem())) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE);
-        } else if (selectedButton.equals(inputGroupsRootTree.getChild(0).getChild(1))) {
+        } else if (selectedButton.equals(getShowInputsItem())) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_INPUTS_CODE);
-        } else if (selectedButton.equals(showPublishing)) {
+        } else if (selectedButton.equals(showPublishingItem)) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_PUBLISHING_CODE);
         }
       }
@@ -78,44 +79,52 @@ public class ExperimentCreationMenuBar extends Composite {
     TreeItem toRemove = inputGroupsRootTree.getChild(groupNum - 1);
     inputGroupsRootTree.removeItem(toRemove);
   }
-  
+
   public void setSelectedItem(int itemNum) {
     switch (itemNum) {
-      case DESCRIPTION_PANEL:
-        menuTree.setSelectedItem(showDescription, false);
-        break;
-      case SCHEDULE_PANEL:
-        menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(0), false);
-        break;
-      case INPUTS_PANEL:
-        menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(1), false);
-        break;
-      case PUBLISHING_PANEL:
-        menuTree.setSelectedItem(showPublishing, false);
-        break;
-      default:
-        System.err.println("Unhandled code sent to experiment listener.");
+    case DESCRIPTION_PANEL:
+      menuTree.setSelectedItem(showDescriptionItem, false);
+      break;
+    case SCHEDULE_PANEL:
+      menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(0), false);
+      break;
+    case INPUTS_PANEL:
+      menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(1), false);
+      break;
+    case PUBLISHING_PANEL:
+      menuTree.setSelectedItem(showPublishingItem, false);
+      break;
+    default:
+      System.err.println("Unhandled code sent to experiment creation menu.");
     }
   }
 
   private void createMenuHeader() {
     Label labelMessage = new Label();
     labelMessage.setSize("200", "30");
-    labelMessage.setText("Experiment Creation\n");
+    labelMessage.setText(myConstants.experimentCreation());
     mainPanel.add(labelMessage);
   }
 
   private void createInputGroup() {
     int groupNum = inputGroupsRootTree.getChildCount() + 1;
-    TreeItem inputGroup = new TreeItem("Input Group " + groupNum);
-    TreeItem showSchedule = new TreeItem("Experiment Schedule");
-    TreeItem showInputs = new TreeItem("Experiment Inputs");
+    TreeItem inputGroup = new TreeItem(myConstants.experimentSingleInputGroupHeaderText() + " " + groupNum);
+    TreeItem showSchedule = new TreeItem(myConstants.experimentScheduleButtonText());
+    TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
     inputGroup.addItem(showSchedule);
     inputGroup.addItem(showInputs);
-    inputGroup.setState(true);
+    inputGroup.setState(true); // Input group is open by default.
     inputGroupsRootTree.addItem(inputGroup);
   }
-  
+
+  private TreeItem getShowInputsItem() {
+    return inputGroupsRootTree.getChild(0).getChild(1);
+  }
+
+  private TreeItem getShowScheduleItem() {
+    return inputGroupsRootTree.getChild(0).getChild(0);
+  }
+
   private void fireExperimentCreationCode(int code) {
     listener.eventFired(code, null, null);
   }
