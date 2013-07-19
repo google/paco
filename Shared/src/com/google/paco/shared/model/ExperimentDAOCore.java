@@ -6,6 +6,8 @@ public class ExperimentDAOCore implements Serializable {
 
   public static final int SCHEDULED_SIGNALING = 1;
   public static final int TRIGGERED_SIGNALING = 1;
+  protected static final String DEFAULT_STRING = "";
+  
   protected String title;
   protected String description;
   protected String informedConsentForm;
@@ -40,6 +42,9 @@ public class ExperimentDAOCore implements Serializable {
    */
   public ExperimentDAOCore() {
     super();
+    this.title = DEFAULT_STRING;
+    this.description = DEFAULT_STRING;
+    this.informedConsentForm = DEFAULT_STRING;
     this.signalingMechanisms = new SignalingMechanismDAO[] { new SignalScheduleDAO()};
     setScheduleForBackwardCompatibility();
   }

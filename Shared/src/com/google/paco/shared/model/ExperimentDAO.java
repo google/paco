@@ -20,7 +20,6 @@ package com.google.paco.shared.model;
 
 import java.io.Serializable;
 
-
 /**
  * 
  * Dumb data object for passing the experiment definition to the
@@ -36,6 +35,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   /**
    * 
    */
+  
   private Boolean questionsChange = false;
 
   private String hash;

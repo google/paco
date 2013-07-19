@@ -17,15 +17,10 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -64,11 +59,6 @@ public class ExperimentDescriptionPanel extends Composite {
   private VerticalPanel mainPanel;
   private CheckBox publishCheckBox;
   private CheckBox customFeedbackCheckBox;
-  private DurationView durationPanel;
-  private TextArea informedConsentPanel;
-  private Label titlePanel;
-  private Label creatorPanel;
-  private TextArea descriptionPanel;
 
   
   public ExperimentDescriptionPanel() {

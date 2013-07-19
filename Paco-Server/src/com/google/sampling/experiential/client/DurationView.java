@@ -21,6 +21,8 @@ package com.google.sampling.experiential.client;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
@@ -30,6 +32,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -42,6 +45,8 @@ import com.google.sampling.experiential.shared.TimeUtil;
  */
 public class DurationView extends Composite {
   
+  // PRIYA - fix how dates are passed around here.
+  
   private static DateTimeFormat FORMATTER = DateTimeFormat.getFormat(TimeUtil.DATE_FORMAT);
   
   HorizontalPanel mainPanel;
@@ -53,12 +58,17 @@ public class DurationView extends Composite {
   private DateBox endBox;
   private DateBox startBox;
   private MyConstants myConstants;
+  
+  private ExperimentDAO experiment;
 
-  public DurationView(Boolean fixedDuration, String start, String end) {
+  public DurationView(ExperimentDAO experiment) {//Boolean fixedDuration, String start, String end) {
     super();
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new HorizontalPanel();
-    this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
+    
+    this.experiment = experiment;
+    
+    this.fixedDuration = experiment.getFixedDuration() != null ? experiment.getFixedDuration() : Boolean.FALSE;
     
     Date today = new Date();
     Date tomorrow = new Date(today.getTime() + 8645000);
@@ -66,8 +76,8 @@ public class DurationView extends Composite {
     String tomorrowString = FORMATTER.format(tomorrow);
     
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
-    this.startDate = start != null ? start : todayString;
-    this.endDate = end != null ? end : tomorrowString;
+    this.startDate = experiment.getStartDate() != null ? experiment.getStartDate() : todayString;
+    this.endDate = experiment.getEndDate() != null ? experiment.getEndDate() : tomorrowString;
     initWidget(mainPanel);
     init();
   }
@@ -99,6 +109,13 @@ public class DurationView extends Composite {
     startBox = new DateBox();
     startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
     startBox.setValue(FORMATTER.parse(startDate));
+    experiment.setStartDate(startDate);
+    startBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
+      @Override
+      public void onValueChange(ValueChangeEvent<Date> event) {
+        experiment.setStartDate(FORMATTER.format(event.getValue()));        
+      }
+    });
 
     Label startLabel = new Label(myConstants.startDate()+":");
     keyLabel.setStyleName("keyLabel");
@@ -111,6 +128,13 @@ public class DurationView extends Composite {
     endBox = new DateBox();
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
     endBox.setValue(FORMATTER.parse(endDate));
+    experiment.setEndDate(endDate);
+    endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
+      @Override
+      public void onValueChange(ValueChangeEvent<Date> event) {
+        experiment.setEndDate(FORMATTER.format(event.getValue()));        
+      }
+    });
    
     Label endLabel = new Label(myConstants.endDate() + ":");
     keyLabel.setStyleName("keyLabel");
@@ -127,8 +151,10 @@ public class DurationView extends Composite {
       public void onClick(Widget sender) {
         if (sender.equals(radio1)) {
           datePanel.setVisible(false);
+          experiment.setFixedDuration(false);
         } else {
           datePanel.setVisible(true);
+          experiment.setFixedDuration(true);
         }
       }
       

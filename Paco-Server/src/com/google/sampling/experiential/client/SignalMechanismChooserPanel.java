@@ -52,6 +52,11 @@ public class SignalMechanismChooserPanel extends Composite {
     rootPanel = new VerticalPanel();
     initWidget(rootPanel);
     
+    String titleText = myConstants.experimentDefinition();
+    Label lblExperimentDefinition = new Label(titleText);
+    lblExperimentDefinition.setStyleName("paco-HTML-Large");
+    rootPanel.add(lblExperimentDefinition);
+    
     choicePanel = new HorizontalPanel();
     rootPanel.add(choicePanel);
     
