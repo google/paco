@@ -59,11 +59,6 @@ public class ExperimentDescriptionPanel extends Composite {
   private VerticalPanel mainPanel;
   private CheckBox publishCheckBox;
   private CheckBox customFeedbackCheckBox;
-  private DurationView durationPanel;
-  private TextArea informedConsentPanel;
-  private Label titlePanel;
-  private Label creatorPanel;
-  private TextArea descriptionPanel;
 
   
   public ExperimentDescriptionPanel() {

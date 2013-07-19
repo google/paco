@@ -85,7 +85,6 @@ public class Main implements EntryPoint, ExperimentListener {
   private VerticalPanel experimentPanel;
   private List<ExperimentDAO> experiments;
   
-
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
   private LoginInfo loginInfo = null;
@@ -97,9 +96,6 @@ public class Main implements EntryPoint, ExperimentListener {
   protected MyConstants myConstants;
   protected MyMessages myMessages;
   private ScrollPanel leftSidePanel;
-
-//  interface Binder extends UiBinder<ExperimentDefinitionPanel, Main> { }
-//  private static final Binder binder = GWT.create(Binder.class);
 
   public void onModuleLoad() {
     if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
@@ -119,8 +115,6 @@ public class Main implements EntryPoint, ExperimentListener {
     }
     
     checkLoginStatusAndLoadPage();
-    
-    // RootLayoutPanel.get().add(binder.createAndBindUi());
   }
 
   private void checkLoginStatusAndLoadPage() {
@@ -592,8 +586,9 @@ public class Main implements EntryPoint, ExperimentListener {
         contentPanel.clear();
         joinExperiment(experiment);
         break;   
-  
-
+      default:
+        System.err.println("Unhandled code sent to experiment listener.");
+        break;
     }
   }
 

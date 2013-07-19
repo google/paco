@@ -20,7 +20,6 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.sampling.experiential.client.ExperimentDefinitionPanel.DisclosurePanelHeader;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 public class ExperimentMetadataPanel extends Composite {
@@ -58,6 +57,11 @@ public class ExperimentMetadataPanel extends Composite {
   }
   
   public void createPanel() {
+     String titleText = myConstants.experimentDefinition();
+     Label lblExperimentDefinition = new Label(titleText);
+     lblExperimentDefinition.setStyleName("paco-HTML-Large");
+     formPanel.add(lblExperimentDefinition);
+    
     PanelPair titlePanelPair = createTitlePanel(experiment);
     titlePanel = (TextBox) titlePanelPair.valueHolder;
     titlePanel.addValueChangeHandler(new ValueChangeHandler<String>() {
