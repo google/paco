@@ -21,10 +21,12 @@ package com.google.sampling.experiential.client;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -45,11 +47,10 @@ import com.google.sampling.experiential.shared.TimeUtil;
  */
 public class DurationView extends Composite {
   
-  // PRIYA - fix how dates are passed around here.
-  
   private static DateTimeFormat FORMATTER = DateTimeFormat.getFormat(TimeUtil.DATE_FORMAT);
   
-  HorizontalPanel mainPanel;
+  private HorizontalPanel mainPanel;
+  private HorizontalPanel datePanel;
   private boolean fixedDuration;
   private String startDate;
   private String endDate;
@@ -61,7 +62,7 @@ public class DurationView extends Composite {
   
   private ExperimentDAO experiment;
 
-  public DurationView(ExperimentDAO experiment) {//Boolean fixedDuration, String start, String end) {
+  public DurationView(ExperimentDAO experiment) {
     super();
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new HorizontalPanel();
@@ -94,20 +95,18 @@ public class DurationView extends Composite {
     outer.add(keyLabel);  
     radio1 = new RadioButton("duration", myConstants.ongoingDuration());
     radio2 = new RadioButton("duration", myConstants.fixedDuration());
-    radio1.setChecked(!fixedDuration);
-    radio2.setChecked(fixedDuration);
-    
-    
+    radio1.setValue(!fixedDuration);
+    radio2.setValue(fixedDuration);
     
     line.add(radio1);
     line.add(radio2);
     outer.add(line);
     
-    final HorizontalPanel datePanel = new HorizontalPanel();
+    datePanel = new HorizontalPanel();
     VerticalPanel startPanel = new VerticalPanel();
     datePanel.add(startPanel);
     startBox = new DateBox();
-    startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+    startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     startBox.setValue(FORMATTER.parse(startDate));
     experiment.setStartDate(startDate);
     startBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
@@ -126,7 +125,7 @@ public class DurationView extends Composite {
     VerticalPanel endPanel = new VerticalPanel();
     datePanel.add(endPanel);
     endBox = new DateBox();
-    endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+    endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     endBox.setValue(FORMATTER.parse(endDate));
     experiment.setEndDate(endDate);
     endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
@@ -145,27 +144,31 @@ public class DurationView extends Composite {
     datePanel.setVisible(fixedDuration);
     line.add(datePanel);
     
-    ClickListener selectionListener = new ClickListener() {
-
-      @Override
-      public void onClick(Widget sender) {
-        if (sender.equals(radio1)) {
-          datePanel.setVisible(false);
-          experiment.setFixedDuration(false);
-        } else {
-          datePanel.setVisible(true);
-          experiment.setFixedDuration(true);
-        }
-      }
+    ClickHandler selectionListener = new ClickHandler() {
       
+      @Override
+      public void onClick(ClickEvent event) {
+        Widget sender = (RadioButton) event.getSource();
+        if (sender.equals(radio1)) {
+          setDatePanelFixedDuration(false);
+        } else {
+          setDatePanelFixedDuration(true);
+        }
+      }  
     };
-    radio1.addClickListener(selectionListener);
-    radio2.addClickListener(selectionListener);
+    
+    radio1.addClickHandler(selectionListener);
+    radio2.addClickHandler(selectionListener);
     mainPanel.add(outer);
   }
-
+  
+  private void setDatePanelFixedDuration(boolean isFixedDuration) {
+    datePanel.setVisible(isFixedDuration);
+    experiment.setFixedDuration(isFixedDuration);
+  }
+  
   public boolean isFixedDuration() {
-    return radio2.isChecked();
+    return radio2.getValue();
   }
   
   public String getStartDate() {
@@ -174,6 +177,23 @@ public class DurationView extends Composite {
   
   public String getEndDate() {
     return FORMATTER.format(endBox.getValue());
+  }
+  
+  // Visible for testing
+  protected void setFixedDuration(boolean isFixedDuration) {
+    radio1.setValue(!isFixedDuration);
+    radio2.setValue(isFixedDuration);
+    setDatePanelFixedDuration(isFixedDuration);
+  }
+  
+  // Visible for testing
+  protected void setStartDate(String startDate) {
+    startBox.setValue(FORMATTER.parse(startDate), true);
+  }
+  
+  // Visible for testing
+  protected void setEndDate(String endDate) {
+    endBox.setValue(FORMATTER.parse(endDate), true);
   }
   
 }

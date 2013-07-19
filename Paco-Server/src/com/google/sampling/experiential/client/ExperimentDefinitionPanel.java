@@ -17,7 +17,9 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -25,10 +27,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -55,11 +55,13 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   private HorizontalPanel mainPanel;
   private ExperimentCreationMenuBar leftMenuBar;
   private ExperimentCreationContentPanel contentPanel;
-  private ExperimentMetadataPanel descriptionPanel;
-  private SignalMechanismChooserPanel signalPanel;
-  private InputsListPanel inputsListPanel;
-  private ExperimentCreationPublishingPanel publishingPanel;
-  private Widget showingPanel;
+  private Composite showingPanel;
+  
+  // Visible for testing
+  protected ExperimentMetadataPanel descriptionPanel;
+  protected SignalMechanismChooserPanel signalPanel;
+  protected InputsListPanel inputsListPanel;
+  protected ExperimentCreationPublishingPanel publishingPanel;
 
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -78,36 +80,39 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     leftMenuBar = createLeftMenuBar();
     mainPanel.add(leftMenuBar);
 
-    contentPanel = createContentPanel(experiment);
+    // The panels to be displayed in the content panel.
+    descriptionPanel = createDescriptionPanel();
+    signalPanel = createSignalMechanismPanel();
+    inputsListPanel = createInputsListPanel();
+    publishingPanel = createPublishingPanel();
+
+    contentPanel = createContentPanel();
     mainPanel.add(contentPanel);
 
-    descriptionPanel = createDescriptionPanel();
-    signalPanel = createSignalMechanismPanel(experiment);
-    inputsListPanel = createInputsListPanel(experiment);
-    publishingPanel = createPublishingPanel();
-    createButtonPanel(experiment);
-    
-    showingPanel = descriptionPanel;
-    showShowingPanel();
+    // Entry view is description panel.
+    showPanel(descriptionPanel);
+
+    createButtonPanel();
   }
 
-  private ExperimentCreationContentPanel createContentPanel(ExperimentDAO experiment) {
-    return new ExperimentCreationContentPanel(experiment, this);
+  private ExperimentCreationContentPanel createContentPanel() {
+    List<Composite> panels = Arrays.asList(descriptionPanel, signalPanel, inputsListPanel, publishingPanel);
+    return new ExperimentCreationContentPanel(experiment, this, panels);
   }
-  
+
   private ExperimentCreationMenuBar createLeftMenuBar() {
     return new ExperimentCreationMenuBar(this);
   }
-  
+
   private ExperimentMetadataPanel createDescriptionPanel() {
     return new ExperimentMetadataPanel(experiment, loginInfo);
   }
 
-  private SignalMechanismChooserPanel createSignalMechanismPanel(ExperimentDAO experiment2) {
+  private SignalMechanismChooserPanel createSignalMechanismPanel() {
     return new SignalMechanismChooserPanel(experiment);
   }
 
-  private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
+  private InputsListPanel createInputsListPanel() {
     InputsListPanel inputsListPanel = new InputsListPanel(experiment);
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
@@ -116,12 +121,13 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   private ExperimentCreationPublishingPanel createPublishingPanel() {
     return new ExperimentCreationPublishingPanel(experiment);
   }
-  
-  private void showShowingPanel() {
+
+  private void showPanel(Composite panel) {
+    showingPanel = panel;
     contentPanel.changeShowingView(showingPanel);
   }
 
-  private void createButtonPanel(ExperimentDAO experiment) {
+  private void createButtonPanel() {
     HorizontalPanel buttonPanel = new HorizontalPanel();
     buttonPanel.add(createSubmitButton(experiment));
     buttonPanel.add(createCancelButton());
@@ -141,33 +147,15 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   }
 
   private Widget createSubmitButton(final ExperimentDAO experiment) {
-
-    Button whatButton = new Button(experiment.getId() == null ? myConstants.createExperiment()
-                                                              : myConstants.updateExperiment());
-    whatButton.addClickListener(new ClickListener() {
-
+    Button submitButton = new Button(experiment.getId() == null ? myConstants.createExperiment()
+                                                               : myConstants.updateExperiment());
+    submitButton.addClickHandler(new ClickHandler() {
       @Override
-      public void onClick(Widget sender) {
-        submitEvent(experiment);
+      public void onClick(ClickEvent event) {
+        submitEvent();
       }
-
     });
-    return whatButton;
-  }
-
-  public static PanelPair createDisplayLine(String key, String value) {
-    HorizontalPanel line = new HorizontalPanel();
-    line.setStyleName("left");
-    Label keyLabel = new Label(key + ": ");
-    keyLabel.setStyleName("keyLabel");
-
-    Label valueBox = new Label();
-    if (value != null) {
-      valueBox.setText(value);
-    }
-    line.add(keyLabel);
-    line.add(valueBox);
-    return new PanelPair(line, valueBox);
+    return submitButton;
   }
 
   private void progressView() {
@@ -182,22 +170,39 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
       showExperimentPublishing();
       advanceLeftMenuBar(ExperimentCreationMenuBar.PUBLISHING_PANEL);
     } else {
-      showExperimentDescription();  
+      showExperimentDescription();
       advanceLeftMenuBar(ExperimentCreationMenuBar.DESCRIPTION_PANEL);
     }
+  }
+
+  private void showExperimentDescription() {
+    showPanel(descriptionPanel);
+  }
+
+  private void showExperimentSchedule() {
+    showPanel(signalPanel);
+  }
+
+  private void showExperimentInputs() {
+    showPanel(inputsListPanel);
+  }
+
+  private void showExperimentPublishing() {
+    showPanel(publishingPanel);
   }
 
   private void advanceLeftMenuBar(int toPanel) {
     leftMenuBar.setSelectedItem(toPanel);
   }
 
-//  private Label createLabel(String title) {
-//    Label responseTypeLabel = new Label(title);
-//    responseTypeLabel.setStyleName("keyLabel");
-//    return responseTypeLabel;
-//  }
+  // private Label createLabel(String title) {
+  // Label responseTypeLabel = new Label(title);
+  // responseTypeLabel.setStyleName("keyLabel");
+  // return responseTypeLabel;
+  // }
 
-  private void submitEvent(ExperimentDAO experiment) {
+  // Visible for testing
+  protected void submitEvent() {
     try {
       setCreatorOn(experiment);
       setModifyDateOn(experiment);
@@ -208,14 +213,14 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   }
 
   private void setCreatorOn(ExperimentDAO experiment) {
-    // Ensure there is a creator. If none, the current user is
-    // the creator.
+    // Ensure there is a creator. If none, the current user is the creator.
     if (experiment.getCreator() == null) {
       experiment.setCreator(loginInfo.getEmailAddress());
     }
   }
 
   private void setModifyDateOn(ExperimentDAO experiment) {
+    // Modify date = creation date.
     if (experiment.getModifyDate() == null) {
       experiment.setModifyDate(formatDateAsString(new Date()));
     }
@@ -224,26 +229,6 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   private String formatDateAsString(Date date) {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.format(date);
-  }
-  
-  private void showExperimentDescription() {
-    showingPanel = descriptionPanel;
-    showShowingPanel();
-  }
-
-  private void showExperimentSchedule() {
-    showingPanel = signalPanel;
-    showShowingPanel();
-  }
-
-  private void showExperimentInputs() {
-    showingPanel = inputsListPanel;
-    showShowingPanel();
-  }
-
-  private void showExperimentPublishing() {
-    showingPanel = publishingPanel;
-    contentPanel.changeShowingView(publishingPanel);
   }
 
   protected void fireCanceled() {
@@ -262,7 +247,7 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
 
   @Override
   public void eventFired(int creationCode, ExperimentDAO experiment, Integer inputGroupNumber) {
-    switch (creationCode) { 
+    switch (creationCode) {
     case ExperimentCreationListener.SHOW_DESCRIPTION_CODE:
       showExperimentDescription();
       break;
@@ -282,6 +267,10 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
       System.err.println("Unhandled code sent to experiment creation listener.");
       break;
     }
-
+  }
+  
+  // Visible for testing
+  protected ExperimentDAO getExperiment() {
+    return experiment;
   }
 }

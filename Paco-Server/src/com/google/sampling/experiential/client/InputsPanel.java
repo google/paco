@@ -54,9 +54,15 @@ public class InputsPanel extends Composite {
   private HorizontalPanel lowerLinePanel;
   private ResponseViewPanel responseView;
   private HorizontalPanel conditionalPanel;
-  private CheckBox conditionalBox;
   private VerticalPanel inputPromptTextPanel;
   MyConstants myConstants = GWT.create(MyConstants.class);
+  
+  // Visible for testing
+  protected TextBox varNameText;
+  protected TextBox inputPromptText;
+  protected CheckBox requiredBox;
+  protected CheckBox conditionalBox;
+  protected ListBox responseTypeListBox; 
 
   public InputsPanel(InputsListPanel parent, InputDAO input) {
     this.input = input;
@@ -106,7 +112,6 @@ public class InputsPanel extends Composite {
     return input;
   }
 
-  @SuppressWarnings("deprecation")
   private void createInputFormLine() {
     upperLinePanel = new HorizontalPanel();
     upperLinePanel.setStyleName("left");
@@ -126,7 +131,7 @@ public class InputsPanel extends Composite {
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
 
-    //createScheduledDateColumn(upperLinePanel);
+//    createScheduledDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -146,9 +151,9 @@ public class InputsPanel extends Composite {
     final TextBox conditionText = new TextBox();
     conditionText.setText(input.getConditionExpression());
     conditionalPanel.add(conditionText);
-    conditionText.addValueChangeHandler(new ValueChangeHandler() {
+    conditionText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
+      public void onValueChange(ValueChangeEvent<String> arg0) {
         input.setConditionExpression(conditionText.getText());
       }
     });
@@ -171,7 +176,7 @@ public class InputsPanel extends Composite {
 
     conditionalBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
         input.setConditional(conditionalBox.getValue());
         conditionalPanel.setVisible(conditionalBox.getValue());
       }
@@ -184,13 +189,13 @@ public class InputsPanel extends Composite {
     Label mandatoryLabel = new Label(myConstants.required() + ":");
     mandatoryLabel.setStyleName("keyLabel");
     mp.add(mandatoryLabel);
-    final CheckBox valueBox = new CheckBox();
-    valueBox.setValue(input.getMandatory());
-    mp.add(valueBox);
-    valueBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+    requiredBox = new CheckBox();
+    requiredBox.setValue(input.getMandatory());
+    mp.add(requiredBox);
+    requiredBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setMandatory(valueBox.getValue());
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
+        input.setMandatory(requiredBox.getValue());
       }
     });
   }
@@ -202,7 +207,7 @@ public class InputsPanel extends Composite {
     responseTypeLabel.setStyleName("keyLabel");
     rp.add(responseTypeLabel);
 
-    final ListBox responseTypeListBox = new ListBox();
+    responseTypeListBox = new ListBox();
     responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);    
     responseTypeListBox.addItem(InputDAO.LIKERT);
     responseTypeListBox.addItem(InputDAO.OPEN_TEXT);
@@ -210,8 +215,8 @@ public class InputsPanel extends Composite {
     responseTypeListBox.addItem(InputDAO.NUMBER);
     responseTypeListBox.addItem(InputDAO.LOCATION);
     responseTypeListBox.addItem(InputDAO.PHOTO);
-    // responseType.addItem(InputDAO.SOUND);
-    // responseType.addItem(InputDAO.ACTIVITY);
+//    responseType.addItem(InputDAO.SOUND);
+//    responseType.addItem(InputDAO.ACTIVITY);
     responseTypeListBox.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
     for (int i = 0; i < InputDAO.RESPONSE_TYPES.length; i++) {
@@ -239,18 +244,17 @@ public class InputsPanel extends Composite {
     Label valueLabel = new Label(myConstants.inputPromptPrompt() + ":");
     valueLabel.setStyleName("keyLabel");
     inputPromptTextPanel.add(valueLabel);
-    final TextBox valueText = new TextBox();
-    valueText.setWidth("350px");
+    inputPromptText = new TextBox();
+    inputPromptText.setWidth("350px");
     if (input.getText() != null) {
-      valueText.setText(input.getText());
+      inputPromptText.setText(input.getText());
     }
-    inputPromptTextPanel.add(valueText);
+    inputPromptTextPanel.add(inputPromptText);
     inputPromptTextPanel.setVisible(!input.isInvisibleInput());
-    valueText.addValueChangeHandler(new ValueChangeHandler<String>() {
-
+    inputPromptText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
-        input.setText(valueText.getText());
+        input.setText(inputPromptText.getText());
       }
     });
   }
@@ -262,20 +266,18 @@ public class InputsPanel extends Composite {
     nameLabel.setStyleName("keyLabel");
     varNamePanel.add(nameLabel);
 
-    final TextBox nameText = new TextBox();
-    nameText.setWidth("75px");
+    varNameText = new TextBox();
+    varNameText.setWidth("75px");
     if (input.getName() != null) {
-      nameText.setText(input.getName());
+      varNameText.setText(input.getName());
     }
-    varNamePanel.add(nameText);
+    varNamePanel.add(varNameText);
 
-    nameText.addChangeHandler(new ChangeHandler() {
-
+    varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
-      public void onChange(ChangeEvent event) {
-        input.setName(nameText.getText());
+      public void onValueChange(ValueChangeEvent<String> event) {
+        input.setName(varNameText.getText());
       }
-
     });
   }
 

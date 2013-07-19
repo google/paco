@@ -40,7 +40,7 @@ public class ExperimentCreationMenuBar extends Composite {
     menuTree = new Tree();
 
     // Main menu roots.
-    showDescriptionItem = new TreeItem(myConstants.experimentScheduleButtonText());
+    showDescriptionItem = new TreeItem(myConstants.experimentDescriptionButtonText());
     inputGroupsRootTree = new TreeItem(myConstants.experimentInputGroupsHeaderText());
     showPublishingItem = new TreeItem(myConstants.experimentPublishingButtonText());
 
@@ -52,6 +52,7 @@ public class ExperimentCreationMenuBar extends Composite {
     menuTree.addItem(inputGroupsRootTree);
     menuTree.addItem(showPublishingItem);
 
+    // Navigation callbacks.
     menuTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
       @Override
       public void onSelection(SelectionEvent<TreeItem> event) {
@@ -86,10 +87,10 @@ public class ExperimentCreationMenuBar extends Composite {
       menuTree.setSelectedItem(showDescriptionItem, false);
       break;
     case SCHEDULE_PANEL:
-      menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(0), false);
+      menuTree.setSelectedItem(getShowScheduleItem(), false);
       break;
     case INPUTS_PANEL:
-      menuTree.setSelectedItem(inputGroupsRootTree.getChild(0).getChild(1), false);
+      menuTree.setSelectedItem(getShowInputsItem(), false);
       break;
     case PUBLISHING_PANEL:
       menuTree.setSelectedItem(showPublishingItem, false);
@@ -116,13 +117,13 @@ public class ExperimentCreationMenuBar extends Composite {
     inputGroup.setState(true); // Input group is open by default.
     inputGroupsRootTree.addItem(inputGroup);
   }
+  
+  private TreeItem getShowScheduleItem() {
+    return inputGroupsRootTree.getChild(0).getChild(0);
+  }
 
   private TreeItem getShowInputsItem() {
     return inputGroupsRootTree.getChild(0).getChild(1);
-  }
-
-  private TreeItem getShowScheduleItem() {
-    return inputGroupsRootTree.getChild(0).getChild(0);
   }
 
   private void fireExperimentCreationCode(int code) {

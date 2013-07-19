@@ -30,14 +30,14 @@ public class ExperimentMetadataPanel extends Composite {
   private ExperimentDAO experiment;
   private LoginInfo loginInfo;
 
-  VerticalPanel formPanel;
-
-  private TextBox titlePanel;
-  private Label creatorPanel;
-  private TextArea descriptionPanel;
-  private DurationView durationPanel;
-  private TextArea informedConsentPanel;
-  private TextArea adminList;
+  private VerticalPanel formPanel;
+  
+  // Visible for testing
+  protected TextBox titlePanel;
+  protected TextArea descriptionPanel;
+  protected DurationView durationPanel;
+  protected TextArea informedConsentPanel;
+  protected TextArea adminList;
 
   public ExperimentMetadataPanel(ExperimentDAO experiment, LoginInfo loginInfo) {
     myConstants = GWT.create(MyConstants.class);
@@ -47,7 +47,7 @@ public class ExperimentMetadataPanel extends Composite {
     this.loginInfo = loginInfo;
 
     formPanel = new VerticalPanel();
-    initWidget(formPanel);  
+    initWidget(formPanel);
     createPanel();
   }
 
@@ -57,7 +57,7 @@ public class ExperimentMetadataPanel extends Composite {
     lblExperimentDefinition.setStyleName("paco-HTML-Large");
     formPanel.add(lblExperimentDefinition);
 
-    PanelPair titlePanelPair = createTitlePanel(experiment);
+    PanelPair titlePanelPair = createTitlePanel();
     titlePanel = (TextBox) titlePanelPair.valueHolder;
     titlePanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
@@ -67,10 +67,10 @@ public class ExperimentMetadataPanel extends Composite {
     });
     formPanel.add(titlePanelPair.container);
 
-    formPanel.add(createIdPanel(experiment).container);
-    formPanel.add(createVersionPanel(experiment).container);
+    formPanel.add(createIdPanel().container);
+    formPanel.add(createVersionPanel().container);
 
-    PanelPair descriptionPanelPair = createDescriptionPanel(experiment);
+    PanelPair descriptionPanelPair = createDescriptionPanel();
     descriptionPanel = (TextArea) descriptionPanelPair.valueHolder;
     descriptionPanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
@@ -80,13 +80,13 @@ public class ExperimentMetadataPanel extends Composite {
     });
     formPanel.add(descriptionPanelPair.container);
 
-    PanelPair creatorPanelPair = createCreatorPanel(experiment);
-    creatorPanel = (Label) creatorPanelPair.valueHolder;
+    PanelPair creatorPanelPair = createCreatorPanel();
+    // Label creatorPanel = (Label) creatorPanelPair.valueHolder;
     formPanel.add(creatorPanelPair.container);
 
-    formPanel.add(createAdminDisclosurePanel(experiment));
+    formPanel.add(createAdminDisclosurePanel());
 
-    PanelPair informedConsentPanelPair = createInformedConsentPanel(experiment);
+    PanelPair informedConsentPanelPair = createInformedConsentPanel();
     informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
     informedConsentPanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
@@ -96,45 +96,49 @@ public class ExperimentMetadataPanel extends Composite {
     });
     formPanel.add(informedConsentPanelPair.container);
 
-
-    durationPanel = createDurationPanel(experiment);
+    durationPanel = createDurationPanel();
     formPanel.add(durationPanel);
   }
 
-  private PanelPair createTitlePanel(ExperimentDAO experiment) {
+  private PanelPair createTitlePanel() {
     return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
   }
 
-  private PanelPair createIdPanel(ExperimentDAO experiment) {
-    return createDisplayLine(myConstants.experimentId(), 
+  private PanelPair createIdPanel() {
+    return createDisplayLine(myConstants.experimentId(),
                              Long.toString(experiment.getId() != null ? experiment.getId() : 0));
   }
 
-  private PanelPair createVersionPanel(ExperimentDAO experiment) {
-    return createDisplayLine(myConstants.experimentVersion(), 
+  private PanelPair createVersionPanel() {
+    return createDisplayLine(myConstants.experimentVersion(),
                              Integer.toString(experiment.getVersion() == null ? 0 : experiment.getVersion()));
   }
 
-
-  private PanelPair createDescriptionPanel(ExperimentDAO experiment) {
+  private PanelPair createDescriptionPanel() {
     return createFormArea(myConstants.experimentDescription(), experiment.getDescription(), 75, "100");
   }
 
-  private PanelPair createCreatorPanel(ExperimentDAO experiment) {
+  private PanelPair createCreatorPanel() {
     return createDisplayLine(myConstants.experimentCreator(),
                              experiment.getCreator() != null ? experiment.getCreator() : loginInfo.getEmailAddress());
   }
 
-  private PanelPair createInformedConsentPanel(ExperimentDAO experiment) {
+  private PanelPair createInformedConsentPanel() {
     return createFormArea(myConstants.informedConsent(), experiment.getInformedConsentForm(), 100, "200");
   }
 
-  private DisclosurePanel createAdminDisclosurePanel(final ExperimentDAO experiment) {
+  private DisclosurePanel createAdminDisclosurePanel() {
     final DisclosurePanel adminPanel = new DisclosurePanel();
-    final DisclosurePanelHeader closedHeaderWidget =
-        new DisclosurePanelHeader(false, "<b>" + myConstants.clickToEditAdministrators() + "</b>");
-    final DisclosurePanelHeader openHeaderWidget =
-        new DisclosurePanelHeader(true, "<b>" + myConstants.clickToCloseAdministratorEditor() + "</b>");
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditAdministrators()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToCloseAdministratorEditor()
+                                                                                 + "</b>");
     adminPanel.setHeader(closedHeaderWidget);
     adminPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
@@ -157,12 +161,12 @@ public class ExperimentMetadataPanel extends Composite {
     String loginEmailLowercase = loginInfo.getEmailAddress().toLowerCase();
     if (!admins.contains(loginEmailLowercase)) {
       admins.add(loginEmailLowercase);
+      // Update the data model.
       setAdminsOn(experiment, toCSVString(admins));
     }
     adminList.setText(toCSVString(admins));
     adminContentPanel.add(adminList);
     adminPanel.setContent(adminContentPanel);
-
     adminList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -187,11 +191,11 @@ public class ExperimentMetadataPanel extends Composite {
     experiment.setAdmins(adminStrArray);
   }
 
-  private DurationView createDurationPanel(ExperimentDAO experiment) {
+  private DurationView createDurationPanel() {
     DurationView durationPanel = new DurationView(experiment);
     return durationPanel;
   }
-  
+
   private PanelPair createFormLine(String key, String value, String styleName) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
@@ -224,7 +228,7 @@ public class ExperimentMetadataPanel extends Composite {
       public void onValueChange(ValueChangeEvent<String> event) {
         if (valueBox.getText().length() >= 500) {
           // TODO surface a message that their text is being truncated.
-          valueBox.setText(valueBox.getText().substring(0,499));
+          valueBox.setText(valueBox.getText().substring(0, 499));
         }
 
       }
@@ -235,7 +239,7 @@ public class ExperimentMetadataPanel extends Composite {
     return new PanelPair(line, valueBox);
   }
 
-  public static PanelPair createDisplayLine(String key, String value) {
+  private static PanelPair createDisplayLine(String key, String value) {
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
@@ -249,7 +253,6 @@ public class ExperimentMetadataPanel extends Composite {
     line.add(valueBox);
     return new PanelPair(line, valueBox);
   }
-
 
   private String toCSVString(List<String> list) {
     StringBuilder buf = new StringBuilder();
@@ -271,14 +274,11 @@ public class ExperimentMetadataPanel extends Composite {
     return responseTypeLabel;
   }
 
-  final DisclosurePanelImages images =
-      (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
+  final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
 
-  class DisclosurePanelHeader extends HorizontalPanel {
+  private class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
-      add(
-          isOpen ? images.disclosurePanelOpen().createImage()
-                 : images.disclosurePanelClosed().createImage());
+      add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
   }

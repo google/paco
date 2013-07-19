@@ -40,7 +40,9 @@ public class InputsListPanel extends Composite {
   
   private VerticalPanel mainPanel;
   private ExperimentDAO experiment;
-  private LinkedList<InputsPanel> inputsPanelsList;
+  
+  // Visible for testing
+  protected LinkedList<InputsPanel> inputsPanelsList;
 
   public InputsListPanel(ExperimentDAO experiment) {
     myConstants = GWT.create(MyConstants.class);

@@ -397,5 +397,17 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
+  
+  @DefaultStringValue("Experiment Schedule")
+  String experimentSchedule();
+  
+  @DefaultStringValue("Experiment Publishing")
+  String experimentPublishing();
+  
+  @DefaultStringValue("Scheduling Signaling")
+  String scheduledSignaling();
+  
+  @DefaultStringValue("Triggered Signaling")
+  String triggeredSignaling();
 
 }

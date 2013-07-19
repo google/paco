@@ -6,6 +6,8 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -28,28 +30,32 @@ public class ExperimentCreationPublishingPanel extends Composite {
   private ExperimentDAO experiment;
   private MyConstants myConstants;
 
-  private VerticalPanel formPanel;
-
-  private CheckBox customFeedbackCheckBox;
+  private VerticalPanel mainPanel;
   private DisclosurePanel customFeedbackPanel;
-  private TextArea customFeedbackText;
-  private CheckBox publishCheckBox;
   private DisclosurePanel publishedUsersPanel;
-  private TextArea userList;
+  
+  // Visible for testing
+  protected CheckBox customFeedbackCheckBox;
+  protected TextArea customFeedbackText;
+  protected CheckBox publishCheckBox;
+  protected TextArea publishedUserList;
 
   public ExperimentCreationPublishingPanel(ExperimentDAO experiment) {
     myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
 
-    formPanel = new VerticalPanel();
-    initWidget(formPanel);
-
-    createExperimentForm();
-  }
-
-  private void createExperimentForm() {
+    mainPanel = new VerticalPanel();
+    initWidget(mainPanel);
+    createPublishingHeader();
     createFeedbackEntryPanel();
     createPublishingPanel();
+  }
+  
+  private void createPublishingHeader() {
+    String titleText = myConstants.experimentPublishing();
+    Label lblExperimentPublishing = new Label(titleText);
+    lblExperimentPublishing.setStyleName("paco-HTML-Large");
+    mainPanel.add(lblExperimentPublishing);
   }
 
   private Widget createFeedbackEntryPanel() {
@@ -57,15 +63,21 @@ public class ExperimentCreationPublishingPanel extends Composite {
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && experiment.getFeedback().length > 0
+    customFeedbackCheckBox.setValue(experiment.getFeedback() != null && experiment.getFeedback().length > 0
         && !defaultFeedback(experiment.getFeedback()[0]));
+    customFeedbackCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        setFeedbackOn(experiment);
+      }
+    });
     feedbackPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label(myConstants.customFeedback());
     feedbackPanel.add(feedbackLabel);
-    formPanel.add(feedbackPanel);
+    mainPanel.add(feedbackPanel);
 
     createCustomFeedbackDisclosurePanel();
-    formPanel.add(customFeedbackPanel);
+    mainPanel.add(customFeedbackPanel);
     return feedbackPanel;
   }
 
@@ -87,12 +99,10 @@ public class ExperimentCreationPublishingPanel extends Composite {
     customFeedbackPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
         customFeedbackPanel.setHeader(closedHeaderWidget);
-        setFeedbackOn(experiment);
       }
 
       public void onOpen(DisclosureEvent event) {
         customFeedbackPanel.setHeader(openHeaderWidget);
-        setFeedbackOn(experiment);
       }
     });
 
@@ -120,10 +130,6 @@ public class ExperimentCreationPublishingPanel extends Composite {
     customFeedbackPanel.setContent(userContentPanel);
   }
 
-  /**
-   * @param feedbackDAO
-   * @return
-   */
   private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
     return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE)
         && feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
@@ -131,7 +137,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
 
   final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
 
-  class DisclosurePanelHeader extends HorizontalPanel {
+  private class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
       add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
@@ -142,15 +148,25 @@ public class ExperimentCreationPublishingPanel extends Composite {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
+//    publishCheckBox.addClickHandler(new ClickHandler() {
+//      public void onClick(ClickEvent event) {
+//        setIsPublishedOn(experiment);
+//      }
+//    });
+    publishCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+        setIsPublishedOn(experiment);   
+      }
+    });
     publishingPanel.add(publishCheckBox);
     Label publishLabel = new Label(myConstants.published());
     publishingPanel.add(publishLabel);
-    formPanel.add(publishingPanel);
+    mainPanel.add(publishingPanel);
 
     createPublishedUsersDisclosurePanel(experiment);
-    formPanel.add(publishedUsersPanel);
+    mainPanel.add(publishedUsersPanel);
   }
-
 
   private void createPublishedUsersDisclosurePanel(ExperimentDAO experiment2) {
     publishedUsersPanel = new DisclosurePanel();
@@ -170,12 +186,10 @@ public class ExperimentCreationPublishingPanel extends Composite {
 
       public void onClose(DisclosureEvent event) {
         publishedUsersPanel.setHeader(closedHeaderWidget);
-        setPublishingOn(experiment);
       }
 
       public void onOpen(DisclosureEvent event) {
         publishedUsersPanel.setHeader(openHeaderWidget);
-        setPublishingOn(experiment);
       }
     });
 
@@ -183,27 +197,40 @@ public class ExperimentCreationPublishingPanel extends Composite {
     Label instructionLabel = new Label(myConstants.publishedEditorPrompt());
     userContentPanel.add(instructionLabel);
 
-    userList = new TextArea();
-    userList.setCharacterWidth(100);
-    userList.setHeight("100");
-    userList.addValueChangeHandler(new ValueChangeHandler<String>() {
+    publishedUserList = new TextArea();
+    publishedUserList.setCharacterWidth(100);
+    publishedUserList.setHeight("100");
+    publishedUserList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        setPublishingOn(experiment);
+        setPublishedUsersOn(experiment);
       }
     });
 
     String[] usersStrArray = experiment.getPublishedUsers();
     List<String> userEmails = Lists.newArrayList(usersStrArray);
-    userList.setText(toCSVString(userEmails));
+    publishedUserList.setText(toCSVString(userEmails));
 
-    userContentPanel.add(userList);
+    userContentPanel.add(publishedUserList);
     publishedUsersPanel.setContent(userContentPanel);
   }
 
-  private void setPublishingOn(ExperimentDAO experiment) {
+  private void setIsPublishedOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
-    setPublishedUsersOn(experiment);
+  }
+
+  private void setPublishedUsersOn(ExperimentDAO experiment) {
+    List<String> userEmails = new ArrayList<String>();
+    String userListText = publishedUserList.getText();
+    if (userListText.length() > 0) {
+      Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
+      for (String userEmail : sp.split(userListText)) {
+        userEmails.add(userEmail);
+      }
+    }
+    String[] userEmailsStrArray = new String[userEmails.size()];
+    userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
+    experiment.setPublishedUsers(userEmailsStrArray);
   }
 
   private void setFeedbackOn(ExperimentDAO experiment) {
@@ -215,21 +242,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
                                                                  customFeedbackText.getText()) });
     }
   }
-  
-  private void setPublishedUsersOn(ExperimentDAO experiment) {
-    List<String> userEmails = new ArrayList<String>();
-    String userListText = userList.getText();
-    if (userListText.length() > 0) {
-      Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
-      for (String userEmail : sp.split(userListText)) {
-        userEmails.add(userEmail);
-      }
-    }
-    String[] userEmailsStrArray = new String[userEmails.size()];
-    userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
-    experiment.setPublishedUsers(userEmailsStrArray);
-  }
-  
+
   private String toCSVString(List<String> list) {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
