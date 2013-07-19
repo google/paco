@@ -46,14 +46,9 @@ public class ExperimentCreationContentPanel extends Composite {
     buttonPanel.add(createNextButton());
     mainPanel.add(buttonPanel);
   }
-
-  private void fireExperimentCreationCode(int code) {
-    listener.eventFired(code, experiment, null);
-  }
   
   private Widget createNextButton() {
-
-    Button nextButton = new Button("Next"); // PRIYA
+    Button nextButton = new Button(myConstants.next());
     nextButton.addClickListener(new ClickListener() {
 
       @Override
@@ -64,5 +59,10 @@ public class ExperimentCreationContentPanel extends Composite {
 
     return nextButton;
   }
+  
+  private void fireExperimentCreationCode(int code) {
+    listener.eventFired(code, experiment, null);
+  }
+  
 
 }

@@ -10,6 +10,9 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Cancel")
   String cancel();
+  
+  @DefaultStringValue("Next")
+  String next();
 
   @DefaultStringValue("Success!")
   String success();
@@ -373,5 +376,26 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
+  
+  @DefaultStringValue("Experiment Description")
+  String experimentDescriptionButtonText();
+  
+  @DefaultStringValue("Experiment Schedule")
+  String experimentScheduleButtonText();
+  
+  @DefaultStringValue("Experiment Inputs")
+  String experimentInputsButtonText();
+  
+  @DefaultStringValue("Experiment Publishing")
+  String experimentPublishingButtonText();
+  
+  @DefaultStringValue("Input Groups")
+  String experimentInputGroupsHeaderText();
+  
+  @DefaultStringValue("Input Group")
+  String experimentSingleInputGroupHeaderText();
+  
+  @DefaultStringValue("Experiment Creation")
+  String experimentCreation();
 
 }

@@ -48,15 +48,11 @@ public class ExperimentCreationPublishingPanel extends Composite {
   }
 
   private void createExperimentForm() {
-    createFeedbackEntryPanel(experiment);
-    createPublishingPanel(experiment);
+    createFeedbackEntryPanel();
+    createPublishingPanel();
   }
 
-  /**
-   * @param experiment2
-   * @return
-   */
-  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
+  private Widget createFeedbackEntryPanel() {
     // checkbox for default or custom feedback "[] Create Custom Feedback Page"
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
@@ -68,15 +64,12 @@ public class ExperimentCreationPublishingPanel extends Composite {
     feedbackPanel.add(feedbackLabel);
     formPanel.add(feedbackPanel);
 
-    createCustomFeedbackDisclosurePanel(experiment);
+    createCustomFeedbackDisclosurePanel();
     formPanel.add(customFeedbackPanel);
     return feedbackPanel;
   }
 
-  /**
-   * @param experiment2
-   */
-  private void createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
+  private void createCustomFeedbackDisclosurePanel() {
     customFeedbackPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
@@ -94,10 +87,12 @@ public class ExperimentCreationPublishingPanel extends Composite {
     customFeedbackPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
         customFeedbackPanel.setHeader(closedHeaderWidget);
+        setFeedbackOn(experiment);
       }
 
       public void onOpen(DisclosureEvent event) {
         customFeedbackPanel.setHeader(openHeaderWidget);
+        setFeedbackOn(experiment);
       }
     });
 
@@ -143,7 +138,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
     }
   }
 
-  private void createPublishingPanel(ExperimentDAO experiment) {
+  private void createPublishingPanel() {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
@@ -175,10 +170,12 @@ public class ExperimentCreationPublishingPanel extends Composite {
 
       public void onClose(DisclosureEvent event) {
         publishedUsersPanel.setHeader(closedHeaderWidget);
+        setPublishingOn(experiment);
       }
 
       public void onOpen(DisclosureEvent event) {
         publishedUsersPanel.setHeader(openHeaderWidget);
+        setPublishingOn(experiment);
       }
     });
 
@@ -204,9 +201,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
     publishedUsersPanel.setContent(userContentPanel);
   }
 
-  private void setPublishingOn(ExperimentDAO experiment) { // PRIYA - need to
-    // set checkbox and
-    // stuff separately
+  private void setPublishingOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
     setPublishedUsersOn(experiment);
   }
