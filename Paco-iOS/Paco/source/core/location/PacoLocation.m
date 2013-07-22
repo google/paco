@@ -49,6 +49,11 @@ NSTimer* LocationTimer;
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
   NSLog(@"Paco LocationTimer fired @ %@", [LocationTimer fireDate]);
+
+  // Notify our PacoClient that our timer fired
+  if ([self.delegate respondsToSelector:@selector(timerUpdated)]) {
+    [_delegate timerUpdated];
+  }
 }
 
 - (void)enableLocationTimer {
@@ -87,7 +92,7 @@ NSTimer* LocationTimer;
   self.location = newLocation;
   self.numUpdates = self.numUpdates + 1;
   if (self.numUpdates > 3) {
-// TODO TPE: temporary disabled since the logic for the location is going to change
+// TODO TPE: temporary disabled since the logic for the location is going to change 
 //    [self.manager stopUpdatingLocation];
     if ([self.delegate respondsToSelector:@selector(locationUpdated:)]) {
       [_delegate locationUpdated:self.location];

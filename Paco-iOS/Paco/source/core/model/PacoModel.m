@@ -69,7 +69,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  // TODO TPE temporary disabled this debug message
+  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectDefinitions = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];

@@ -36,7 +36,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @end
 
 @implementation PacoPrefetchState
-
 - (void)reset
 {
   self.finishLoadingDefinitions = NO;
@@ -45,11 +44,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   self.finishLoadingExperiments = NO;
   self.errorLoadingExperiments = nil;
 }
-
 @end
-
-
-
 
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
@@ -57,7 +52,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (void)applyDefinitionJSON:(id)jsonObject;
 @end
 
-@interface PacoClient ()
+@interface PacoClient () <PacoLocationDelegate>
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
 @property (nonatomic, retain, readwrite) PacoModel *model;
@@ -102,17 +97,18 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 #pragma mark Public methods
-- (BOOL)isLoggedIn
-{
+- (BOOL)isLoggedIn {
   return [self.authenticator isLoggedIn];
 }
 
+- (void)timerUpdated {
+  [self.scheduler refreshiOSNotifications:self.model.experimentInstances];
+}
 
 //YMZ: TODO: we need to store user email and address inside keychain
 //However, if we migrate to OAuth2, it looks like GTMOAuth2ViewControllerTouch
 //already handles keychain storage
-- (BOOL)isUserAccountStored
-{
+- (BOOL)isUserAccountStored {
   NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
   NSString* pwd = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
   if ([email length] > 0 && [pwd length] > 0) {
@@ -255,6 +251,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
   if (self.model.experimentInstances.count > 0) {
     self.location = [[PacoLocation alloc] init];
+    self.location.delegate = self;
   }
   
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];

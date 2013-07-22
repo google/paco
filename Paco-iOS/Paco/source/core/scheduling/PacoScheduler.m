@@ -139,7 +139,35 @@
   
 }
 
-- (NSArray *)notificationsForExperimentId:(NSString *)experimentId {
+- (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
+  NSDate *now = [NSDate dateWithTimeIntervalSinceNow:0];
+  UILocalNotification *notification = [[UILocalNotification alloc] init];
+  
+  notification.fireDate = [PacoDate nextScheduledDateForExperiment:experiment fromThisDate:now];
+  
+  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+  assert(experiment.instanceId.length);
+  [userInfo setObject:experiment.instanceId forKey:@"experimentInstanceId"];
+  
+  // put the esm schedule in the notification dictionary
+  NSArray *scheduleDates = nil;
+  if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
+    scheduleDates = experiment.schedule.esmSchedule;
+    if (!scheduleDates.count) {
+      scheduleDates = [PacoDate createESMScheduleDates:experiment fromThisDate:now];
+      experiment.schedule.esmSchedule = scheduleDates;
+    }
+    [userInfo setObject:scheduleDates forKey:@"esmSchedule"];
+  }
+  
+  notification.userInfo = userInfo;
+  notification.timeZone = [NSTimeZone systemTimeZone];
+  notification.alertBody = [NSString stringWithFormat:@"PACO Experiment Time!"];
+  notification.applicationIconBadgeNumber = 1;
+  [[UIApplication sharedApplication] scheduleLocalNotification:notification];  
+}
+
+- (NSArray *)getiOSNotificationsForExperimentId:(NSString *)experimentId {
   NSMutableArray *array = [NSMutableArray array];
   for (UILocalNotification *notification in [UIApplication sharedApplication].scheduledLocalNotifications) {
     NSString *expId = [notification.userInfo objectForKey:@"experimentInstanceId"];
@@ -150,11 +178,52 @@
   return array;
 }
 
-- (void)cancelNotificationsForExperimentId:(NSString *)experimentId {
-  NSArray *notifications = [self notificationsForExperimentId:experimentId];
+- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId {
+  NSArray *notifications = [self getiOSNotificationsForExperimentId:experimentId];
   for (UILocalNotification *notification in notifications) {
     [[UIApplication sharedApplication] cancelLocalNotification:notification];
   }
+}
+
+- (void)cancelExpirediOSNotifications: (NSArray *)experiments {
+  NSDate *now = [NSDate date];
+  
+  // get all current scheduled notifications for this app
+  for (UILocalNotification *notification in [UIApplication sharedApplication].scheduledLocalNotifications) {
+    NSString *expId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+    NSDate *fireDate = notification.fireDate;
+    
+    // get the timeout for the experiment
+    for (PacoExperiment *experiment in experiments) {
+      if ([expId isEqualToString:experiment.instanceId]) {
+        if ([now compare:[fireDate dateByAddingTimeInterval:experiment.schedule.timeout * 60]] == NSOrderedDescending) {
+          // the firedate + timeout falls before now, so the notification has expired and should be deleted
+          NSLog(@"Paco cancelling iOS notification for %@", expId);
+          [[UIApplication sharedApplication] cancelLocalNotification:notification];
+          // Let the server know about this Missed Responses/Signals
+          // TODO TPE: let the server know about the Missed Responses/Signals
+          // [[PacoClient sharedInstance].service
+        }
+        break;
+      }
+    }
+  }
+}
+
+- (void)registerUpcomingiOSNotifications: (NSArray *)experiments {
+  // go through all experiments, see if a notification is already scheduled, and if not add it to the schedule
+  for (PacoExperiment *experiment in experiments) {
+    if ([self getiOSNotificationsForExperimentId:experiment.instanceId].count == 0) {
+      // ok, so no notification exists, so schedule one
+      NSLog(@"Paco registering iOS notification for %@", experiment.instanceId);
+      [self registeriOSNotificationForExperiment:experiment];
+    }
+  }
+}
+
+- (void)refreshiOSNotifications: (NSArray *)experiments {
+  [self cancelExpirediOSNotifications:experiments];
+  [self registerUpcomingiOSNotifications:experiments];
 }
 
 - (void)handleLocalNotification:(UILocalNotification *)notification {
@@ -165,7 +234,7 @@
   if (esmSchedule) {
     experiment.schedule.esmSchedule = esmSchedule;
   }
-  [self cancelNotificationsForExperimentId:experimentId];
+  [self canceliOSNotificationsForExperimentId:experimentId];
   [self registerScheduleWithOS:experiment];
 }
 

@@ -32,14 +32,17 @@
 @interface PacoScheduler : NSObject
 
 // Creates 3 UILocalNotifications per experiment.
-- (void)registerScheduleWithOS:(PacoExperiment *)experiment;
-- (void)registerSchedulesWithOS:(NSArray *)experiments;
+//- (void)registerScheduleWithOS:(PacoExperiment *)experiment;
+//- (void)registerSchedulesWithOS:(NSArray *)experiments;
 
 // Call from your app delegate to handle the local notification that the app
 // was opened with.
 - (void)handleLocalNotification:(UILocalNotification *)notification;
 
 // Cancel all scheduled notifications for this experiment.
-- (void)cancelNotificationsForExperimentId:(NSString *)experimentId;
+- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId;
+
+// see which Notifications have expired, and schedule new ones
+- (void)refreshiOSNotifications: (NSArray *)experiments;
 
 @end

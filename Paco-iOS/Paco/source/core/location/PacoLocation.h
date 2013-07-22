@@ -19,6 +19,7 @@
 
 @protocol PacoLocationDelegate <NSObject>
  @optional
+- (void)timerUpdated;
 - (void)locationUpdated:(CLLocation *)location;
 @end
 
