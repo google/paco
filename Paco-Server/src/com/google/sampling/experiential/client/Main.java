@@ -29,7 +29,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -50,13 +49,11 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.server.Whitelist;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -83,7 +80,6 @@ public class Main implements EntryPoint, ExperimentListener {
   private VerticalPanel experimentPanel;
   private List<ExperimentDAO> experiments;
   
-
   private MapServiceAsync mapService = GWT.create(MapService.class);
 
   private LoginInfo loginInfo = null;
@@ -95,7 +91,6 @@ public class Main implements EntryPoint, ExperimentListener {
   protected MyConstants myConstants;
   protected MyMessages myMessages;
   private ScrollPanel leftSidePanel;
-
 
   public void onModuleLoad() {
     if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
@@ -586,8 +581,9 @@ public class Main implements EntryPoint, ExperimentListener {
         contentPanel.clear();
         joinExperiment(experiment);
         break;   
-  
-
+      default:
+        System.err.println("Unhandled code sent to experiment listener.");
+        break;
     }
   }
 

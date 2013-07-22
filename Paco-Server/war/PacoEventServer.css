@@ -167,3 +167,10 @@ table, tbody, tr, td {
 a.paco-Login a.paco-Login:visited, a.paco-Login:hover {
 	color: #333333;
 }
+
+.floating-Panel {
+	position: fixed;
+	display: block;
+	left: 450;
+	bottom: 20;
+}

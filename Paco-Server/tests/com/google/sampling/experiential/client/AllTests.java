@@ -27,7 +27,7 @@ import junit.framework.TestSuite;
 public class AllTests extends TestCase {
   public static Test suite() {
     Class[] tests = new Class[] {
-       com.google.sampling.experiential.datastore.JsonConverterTest.class,
+       com.google.sampling.experiential.client.ExperimentCreationTest.class
     };
     return new TestSuite(tests);
   }
