@@ -18,6 +18,7 @@
 #import "PacoClient.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoExperimentSchedule.h"
 
 @interface PacoEvent ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -88,6 +89,42 @@
     [dictionary setValue:self.responses forKey:@"responses"];
   }
   return [NSDictionary dictionaryWithDictionary:dictionary];
+}
+
++ (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition
+                        withSchedule:(PacoExperimentSchedule*)schedule {
+  // Setup an event for joining the experiement.
+  PacoEvent *event = [PacoEvent pacoEventForIOS];
+  event.who = [PacoClient sharedInstance].userEmail;
+  event.experimentId = definition.experimentId;
+  
+  // Pass the instance id as experiment name so that multiple experiment instances
+  // are distinguished
+  event.experimentName = [NSString stringWithFormat:@"%@_%@", definition.title, [PacoDate timestampFromDate:[NSDate dateWithTimeIntervalSinceNow:0]]];
+  
+  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+  NSMutableDictionary *response = [NSMutableDictionary dictionary];
+  NSArray *responses = [NSArray arrayWithObject:response];
+  
+  // Special response values to indicate the user is joining this experiement.
+  [response setObject:@"joined" forKey:@"name"];
+  [response setObject:@"true" forKey:@"answer"];
+  
+  // Adding a schedule to the join event.  The join event is the only way to
+  // edit a schedule.
+  if (schedule &&
+      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport &&
+      definition.schedule.scheduleType != kPacoScheduleTypeAdvanced) {
+    [response setObject:@"schedule" forKey:@"name"];
+    [response setObject:[schedule jsonString] forKey:@"answer"];
+  }
+  
+  //For now, we need to indicate inputId=-1 to avoid server exception,
+  //in the future, server needs to fix and accept JOIN and STOP events without inputId
+  [response setObject:@"-1" forKey:@"inputId"];
+  
+  event.responses = responses;
+  return event;
 }
 
 + (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment 
