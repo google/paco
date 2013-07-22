@@ -225,9 +225,8 @@
     [response setObject:[schedule jsonString] forKey:@"answer"];
   }
 
-  // TODO(gregvance): I don't understand why inputId is needed here but it
-  //     the call will fail without it.
-  // update: bobevans@ says this shouldn't be needed
+  //For now, we need to indicate inputId=-1 to avoid server exception,
+  //in the future, server needs to fix and accept JOIN and STOP events without inputId
   [response setObject:@"-1" forKey:@"inputId"];
 
   event.responses = responses;

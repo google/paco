@@ -99,11 +99,11 @@
   event.experimentName = experiment.instanceId;//YMZ:TODO: not sure about this
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   
-//  NSDictionary *responsePair = @{@"name":@"joined", @"answer":@"false", @"inputId":@"-1"};
-  NSDictionary *responsePair = @{@"name":@"joined", @"answer":@"false"};
+  //For now, we need to indicate inputId=-1 to avoid server exception,
+  //in the future, server needs to fix and accept JOIN and STOP events without inputId
+  NSDictionary *responsePair = @{@"name":@"joined", @"answer":@"false", @"inputId":@"-1"};
   event.responses = @[responsePair];
   
-  //  [responsePair setObject:@"-1" forKey:@"inputId"];
   return event;
 }
 
