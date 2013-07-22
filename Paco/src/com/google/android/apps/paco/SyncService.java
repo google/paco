@@ -82,7 +82,7 @@ public class SyncService extends Service {
 
 
   private void syncData() {
-    if (!isConnected()) {
+    if (!NetworkUtil.isConnected(this)) {
       return;
     }
     synchronized (SyncService.class) {
@@ -94,13 +94,5 @@ public class SyncService extends Service {
       eventUploader.uploadEvents(allEvents); 
     }
   }
-
-
-  private boolean isConnected() {
-    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
-  }
-
 
 }

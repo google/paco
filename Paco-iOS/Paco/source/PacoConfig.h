@@ -13,4 +13,4 @@
  * limitations under the License.
  */
 
-#define PACO_MAKE_SOON_EVENT_ON_JOIN 1
+#define PACO_TEST_MAKE_SOON_EVENT_ON_JOIN 0

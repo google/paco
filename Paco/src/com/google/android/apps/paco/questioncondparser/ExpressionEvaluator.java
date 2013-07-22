@@ -16,7 +16,6 @@
 */
 package com.google.android.apps.paco.questioncondparser;
 
-import com.pacoapp.paco.R;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,10 +29,10 @@ import org.antlr.runtime.RecognitionException;
 
 public class ExpressionEvaluator {
   
-      private Environment interpreter;
+      private Environment environment;
 
-      public ExpressionEvaluator(Environment interpreter) {
-        this.interpreter = interpreter;
+      public ExpressionEvaluator(Environment environment) {
+        this.environment = environment;
       }
 
 	public static void main(String[] args) throws IOException {
@@ -76,7 +75,7 @@ public class ExpressionEvaluator {
         }
 		QuestionConditionLexer lex = new QuestionConditionLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lex);
-		QuestionConditionParser parser = new QuestionConditionParser(tokens, interpreter);
+		QuestionConditionParser parser = new QuestionConditionParser(tokens, environment);
 		try {
 			try {
 				return parser.expression();				

@@ -17,6 +17,13 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Date;
+import java.util.List;
+
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import com.pacoapp.paco.R;
@@ -32,6 +39,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -52,7 +61,9 @@ import android.widget.TextView;
  *
  */
 public class RunningExperimentsActivity extends Activity {
-
+  
+  public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+  
   private static final int DATA_EXPERIMENT_OPTION = 3;
   private static final int STOP_EXPERIMENT_OPTION = 2;
   private static final int EDIT_EXPERIMENT_OPTION = 1;
@@ -62,10 +73,11 @@ public class RunningExperimentsActivity extends Activity {
   private Cursor cursor;
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
-  private ProgressDialog  p;
   private ViewGroup mainLayout;
   public UserPreferences userPrefs;
   private BaseAdapter adapter;
+  
+  private static DownloadFullExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +91,24 @@ public class RunningExperimentsActivity extends Activity {
 
     userPrefs = new UserPreferences(this);    
     list = (ListView) findViewById(R.id.find_experiments_list);
+    list.setBackgroundColor(333);
     createListHeader();
+    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     
-    Button listFooter = (Button) findViewById(R.id.RefreshExperimentsButton2);
-    listFooter.setVisibility(View.GONE);
+    Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
+    refreshButton.setVisibility(View.VISIBLE);
+    
+    refreshButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        if (!isConnected()) {
+          showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+        } else {
+          refreshList();
+        }
+      }
+    });
 
     cursor = managedQuery(getIntent().getData(), new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE, 
                                                                 ExperimentColumns.CREATOR, ExperimentColumns.ICON },
@@ -95,7 +119,68 @@ public class RunningExperimentsActivity extends Activity {
     registerForContextMenu(list);
   }
   
+  private boolean isConnected() {
+    return NetworkUtil.isConnected(this);
+  }
   
+  private void refreshList() {
+    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
+      
+      @Override
+      public void done(String resultCode) {
+        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        if (resultCode == DownloadHelper.SUCCESS) {
+          saveDownloadedExperiments();
+          saveRefreshTime();
+        } else {
+          showFailureDialog(resultCode);
+        }
+      }
+    };
+ 
+    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
+    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, joinedExperimentServerIds);
+    experimentDownloadTask.execute();
+  }
+  
+  private void saveDownloadedExperiments() {
+    String contentAsString = experimentDownloadTask.getContentAsString();
+    saveDownloadedExperiments(contentAsString);
+  }
+  
+  // Visible for testing
+  public void saveDownloadedExperiments(String contentAsString) {
+    try {
+      experimentProviderUtil.updateExistingExperiments(contentAsString);
+    } catch (JsonParseException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (JsonMappingException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (UnsupportedCharsetException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    } catch (IOException e) {
+      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+    }
+  }
+  
+  private void saveRefreshTime() {
+    userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
+    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
+    listHeader.setText(header); 
+  }
+  
+  private void showFailureDialog(String status) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    } else {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+    }      
+  }
+ 
   
   @Override
   protected void onResume() {
@@ -131,7 +216,8 @@ public class RunningExperimentsActivity extends Activity {
     startActivity(experimentIntent);
   }
 
-  private void deleteExperiment(long id) {
+  // Visible for testing
+  public void deleteExperiment(long id) {
     NotificationCreator nc = NotificationCreator.create(this);
     nc.timeoutNotificationsForExperiment(id);
     Uri experimentUri = Uri.withAppendedPath(getIntent().getData(), Long.toString(id));
@@ -206,6 +292,84 @@ public class RunningExperimentsActivity extends Activity {
     return listHeader;
   }
 
+  private TextView createRefreshHeader() {
+    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
+    if (lastRefresh == null) {
+      listHeader.setVisibility(View.GONE);
+    } else {
+      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+      listHeader.setText(header);
+      listHeader.setTextSize(15);
+    }
+    return listHeader;
+  }
+
+  
+  protected Dialog onCreateDialog(int id, Bundle args) {
+    switch (id) {
+      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
+          return getRefreshJoinedDialog();
+      } case DownloadHelper.INVALID_DATA_ERROR: {
+          return getUnableToJoinDialog(getString(R.string.invalid_data));
+      } case DownloadHelper.SERVER_ERROR: {
+        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      } case DownloadHelper.NO_NETWORK_CONNECTION: {
+        return getNoNetworkDialog();
+      } default: {
+        return null;
+      }
+    }
+  }
+
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    return super.onCreateDialog(id);
+  }
+  
+  private ProgressDialog getRefreshJoinedDialog() {
+    return ProgressDialog.show(this, getString(R.string.experiment_refresh),
+                               getString(R.string.updating_your_joined_experiments_from_the_server), 
+                               true, true);
+  }
+  
+  private AlertDialog getUnableToJoinDialog(String message) {
+    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           finish();
+                         }
+                       });
+    return unableToJoinBldr.create();
+  }
+  
+  private AlertDialog getNoNetworkDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
+    noNetworkBldr.setTitle(R.string.network_required)
+                 .setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                         public void onClick(DialogInterface dialog, int which) {
+                           showNetworkConnectionActivity();
+                         }
+                       })
+                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                          public void onClick(DialogInterface dialog, int which) {
+                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                            finish();
+                          }
+                    });
+    return noNetworkBldr.create();
+  }
+  
+  private void showNetworkConnectionActivity() {
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+  }
+  
+  
   private class RunningExperimentListAdapter extends CursorAdapter {
 
     private LayoutInflater mInflater;
@@ -227,6 +391,7 @@ public class RunningExperimentsActivity extends Activity {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+      
       String id = cursor.getString(idColumn);
       
       TextView tv = (TextView) view.findViewById(R.id.experimentListRowTitle);

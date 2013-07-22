@@ -170,8 +170,9 @@ public class ExperimentJoinPanel extends Composite {
 
   private Widget createDurationPanel(ExperimentDAO experiment) {
     if (experiment.getFixedDuration()) {
-      String startDateStr = DateTimeFormat.getShortDateFormat().format(new Date(experiment.getStartDate()));
-      String endDateStr = DateTimeFormat.getShortDateFormat().format(new Date(experiment.getEndDate()));
+      // TODO: change to different date format if desired
+      String startDateStr = experiment.getStartDate();
+      String endDateStr = experiment.getEndDate();
       return createFormLine(myConstants.duration(), startDateStr + "- " + endDateStr);
     } else {
       return createFormLine(myConstants.duration(), myConstants.ongoingDuration());

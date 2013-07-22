@@ -33,11 +33,42 @@
     [super tearDown];
 }
 
-- (void)testExample {
+- (void)testAddition {
+    int valueA = 5;
+    int valueB = 10;
+    
+    STAssertTrue(valueA + valueB == 15, @"The expected value of the addition should be 15");
+}
 
-  
-        STFail(@"Unit tests are not implemented yet in PacoTests");
-  
+// This method should be running different test suites on the PacoDate object
+- (void)testPacoDate {
+    // This is the NSDate we'll be working with
+    int testDay = 2;
+    int testMonth = 7;
+    int testYear = 1989;
+    int testHour = 20;
+    int testMinute = 45;
+    NSTimeZone *testTimeZone = [NSTimeZone timeZoneWithName:@"Europe/Brussels"];
+    
+    // create a NSDate date for use in our tests
+    NSDateComponents *comps = [[NSDateComponents alloc] init];
+    [comps setDay:testDay];
+    [comps setMonth:testMonth];
+    [comps setYear:testYear];
+    [comps setHour:testHour];
+    [comps setMinute:testMinute];
+    [comps setTimeZone:testTimeZone];
+    
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    NSDate *testDate = [gregorian dateFromComponents:comps];
+ 
+    // *** TESTS ***
+    // PacoDate pacoStringForDate:<#(NSDate *)#>
+    // Keep in mind that pacoStringForDate will convert the datetime to the local timezone of the iOS device
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+    STAssertEqualObjects([PacoDate pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
 }
 
 @end
