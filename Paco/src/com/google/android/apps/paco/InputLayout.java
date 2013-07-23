@@ -54,6 +54,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -270,7 +271,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private final int IMAGE_MAX_SIZE = 600;
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
-  private MultiAutoCompleteTextView openTextView;
+  private AutoCompleteTextView openTextView;
   private List<String> autocompleteDatabase;
 
   private Bitmap decodeFile(File f) {
@@ -750,14 +751,14 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderOpenText() {
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
-    openTextView = (MultiAutoCompleteTextView) findViewById(R.id.open_text_answer);
+    openTextView = (AutoCompleteTextView) findViewById(R.id.open_text_answer);
     openTextView.setThreshold(1);
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
     openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
     ensureAutoCompleteDatabase();
     openTextView.setAdapter(new ArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
-    openTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+    //openTextView.setTokenizer(new AutoCompleteTextView(getContext()));
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {

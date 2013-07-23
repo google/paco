@@ -1621,11 +1621,14 @@ public class ExperimentProviderUtil {
 
   private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
-    List<Experiment> experiments;
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
-    return experiments;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Lists.newArrayList();
   }
 
   public boolean hasJoinedExperiments() {
