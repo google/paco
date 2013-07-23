@@ -54,9 +54,8 @@
   self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
   [self.window makeKeyAndVisible];
   
-//    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-//    questions.experiment = experiment;
-//    [self.navigationController pushViewController:questions animated:YES];
+  
+  //YMZ:TODO: the following piece of code should happen after user is successfully logged in?
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
