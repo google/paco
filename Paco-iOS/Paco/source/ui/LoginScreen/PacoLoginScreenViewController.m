@@ -136,9 +136,12 @@
         if (self.completionBlock) {
           self.completionBlock(nil);
         }
-    }];
+      }];
     } else {
       NSLog(@"PACO LOGIN FAILURE! %@", error);
+      if (self.completionBlock) {
+        self.completionBlock(error);
+      }
     }
   }];
 }

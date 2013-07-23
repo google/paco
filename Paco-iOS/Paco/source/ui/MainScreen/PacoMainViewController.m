@@ -24,6 +24,8 @@
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
 
+#import "GoogleClientLogin.h"
+
 @implementation PacoMainViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -92,7 +94,25 @@
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
+  
+  [self loginWithCompletionBlock:^(NSError *error) {
+    NSString* title = @"Nice";
+    NSString* message = @"You are logged in successfully!";
+    if (error) {
+      title = @"Oops";
+      message = [GoogleClientLogin descriptionForError:error.domain];
+      if (0 == [message length]) {//just in case
+        message = @"Something went wrong, please try again.";
+      }
+    }
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:message
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }];
 }
+
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
@@ -102,20 +122,8 @@
 #pragma mark - Button Callbacks
 
 - (void)onRunningExperiments {
-  void(^finishBlock)() = ^{
-    PacoRunningExperimentsViewController *controller = [[PacoRunningExperimentsViewController alloc] init];
-    [self.navigationController pushViewController:controller animated:YES];
-  };
-  
-  if ([[PacoClient sharedInstance] isLoggedIn]) {
-    finishBlock();
-  }else{
-    [self loginWithCompletionBlock:^(NSError *error) {
-      if (!error) {
-        finishBlock();
-      }
-    }];
-  }
+  PacoRunningExperimentsViewController *controller = [[PacoRunningExperimentsViewController alloc] init];
+  [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (void)onExploreData {
@@ -125,20 +133,8 @@
 }
 
 - (void)onFindAllExperiments {
-  void(^finishBlock)() = ^{
-    PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
-    [self.navigationController pushViewController:controller animated:YES];
-  };
-  
-  if ([[PacoClient sharedInstance] isLoggedIn]) {
-    finishBlock();
-  }else{
-    [self loginWithCompletionBlock:^(NSError *error) {
-      if (!error) {
-        finishBlock();
-      }
-    }];
-  }
+  PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
+  [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (void)onSendFeedback {
@@ -150,6 +146,7 @@
   PacoLoginScreenViewController *loginViewController = [PacoLoginScreenViewController controllerWithCompletionBlock:block];
   [self.navigationController presentViewController:loginViewController animated:YES completion:nil];
 }
+
 
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block
