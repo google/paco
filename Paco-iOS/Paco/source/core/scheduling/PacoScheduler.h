@@ -42,7 +42,11 @@
 // Cancel all scheduled notifications for this experiment.
 - (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId;
 
+// Cancel all notifications that have expired (= have fired, and reached the timeout)
+// Return a Paco
+- (void)cancelExpirediOSNotifications: (NSArray *)experiments;
+
 // see which Notifications have expired, and schedule new ones
-- (void)refreshiOSNotifications: (NSArray *)experiments;
+- (void)updateiOSNotifications: (NSArray *)experiments;
 
 @end

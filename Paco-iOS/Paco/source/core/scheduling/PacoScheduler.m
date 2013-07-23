@@ -221,7 +221,7 @@
   }
 }
 
-- (void)refreshiOSNotifications: (NSArray *)experiments {
+- (void)updateiOSNotifications: (NSArray *)experiments {
   [self cancelExpirediOSNotifications:experiments];
   [self registerUpcomingiOSNotifications:experiments];
 }

@@ -72,7 +72,7 @@
        schedule:self.experiment.schedule
        events:[NSArray arrayWithObject:event]];
       
-      [[PacoClient sharedInstance].scheduler refreshiOSNotifications:[PacoClient sharedInstance].model.experimentInstances];
+      [[PacoClient sharedInstance].scheduler updateiOSNotifications:[PacoClient sharedInstance].model.experimentInstances];
     }else{
       title = @"Sorry";
       message = @"Something went wrong, please try again later.";

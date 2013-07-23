@@ -102,7 +102,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 - (void)timerUpdated {
-  [self.scheduler refreshiOSNotifications:self.model.experimentInstances];
+  [self.scheduler updateiOSNotifications:self.model.experimentInstances];
 }
 
 //YMZ: TODO: we need to store user email and address inside keychain
