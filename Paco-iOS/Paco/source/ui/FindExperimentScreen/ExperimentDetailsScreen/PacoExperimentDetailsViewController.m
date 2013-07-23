@@ -21,6 +21,7 @@
 #import "PacoModel.h"
 #import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoClient.h"
 
 @interface PacoExperimentDetailsViewController ()
 
@@ -99,6 +100,15 @@
 }
 
 - (void)onJoin {
+  BOOL joined = [[PacoClient sharedInstance] hasJoinedExperimentWithId:self.experiment.experimentId];
+  if (joined) {
+    [[[UIAlertView alloc] initWithTitle:@"Congratulations!"
+                                message:@"You have joined this experiment,\n"
+                                         "Check it out in Current Experiments."
+                               delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    return;
+  }
+  
   PacoConsentViewController *consent = [[PacoConsentViewController alloc] init];
   consent.experiment = self.experiment;
   [self.navigationController pushViewController:consent animated:YES];

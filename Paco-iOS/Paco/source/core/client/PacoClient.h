@@ -20,6 +20,7 @@
 @class PacoModel;
 @class PacoScheduler;
 @class PacoService;
+@class PacoExperimentDefinition;
 
 //production server: 0
 //local server: 1
@@ -41,6 +42,8 @@
 + (PacoClient *)sharedInstance;
 
 - (BOOL)isLoggedIn;
+
+- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (BOOL)isUserAccountStored;
 - (void)loginWithClientLogin:(NSString *)email
