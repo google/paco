@@ -69,8 +69,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  // TODO TPE temporary disabled this debug message
-  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  // TODO TPE: temporary disabled this comment since it's quite verbose
+  // NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectDefinitions = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];
@@ -358,7 +358,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     NSLog(@"Failed to load from %@", fileName);
   }
   [self applyDefinitionJSON:experiments];
-  NSLog(@"LOADED DEFINTION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
+  // TODO TPE: temporary disabled this comment since it's quite verbose
+  // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
   return experiments.count > 0;
 }
 

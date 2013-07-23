@@ -104,7 +104,7 @@
   layoutRect.size.height = 200;
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
-  NSArray *elements = [NSArray arrayWithObjects:login, textField, textField2, logout, nil];
+  NSArray *elements = [NSArray arrayWithObjects:logout, textField, textField2, login, nil];
   [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];  
 }
 
