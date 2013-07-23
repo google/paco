@@ -49,6 +49,7 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (BOOL)deleteFile;
 
 + (PacoModel *)pacoModelFromFile;
+- (BOOL)isExperimentJoined:(NSString*)definitionId;
 
 @end
 

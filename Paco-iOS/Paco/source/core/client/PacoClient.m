@@ -121,6 +121,10 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   return NO;
 }
 
+- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId {
+  return [self.model isExperimentJoined:definitionId];
+}
+
 - (void)storeEmail:(NSString*)email password:(NSString*)password
 {
   NSAssert([email length] > 0 && [password length] > 0, @"There isn't any valid user account to stored!");
