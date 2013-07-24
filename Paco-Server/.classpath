@@ -135,5 +135,6 @@
 			<attribute name="javadoc_location" value="file:../tools/appengine-java-sdk-1.7.5/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-dnd-r1057.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
