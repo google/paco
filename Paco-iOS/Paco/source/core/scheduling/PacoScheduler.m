@@ -67,6 +67,7 @@
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = [NSString stringWithFormat:@"PACO Experiment Time!"];
   notification.applicationIconBadgeNumber = 1;
+  notification.soundName = @"deepbark_trial.mp3";
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   
