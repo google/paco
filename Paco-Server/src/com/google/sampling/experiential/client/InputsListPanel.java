@@ -81,6 +81,30 @@ public class InputsListPanel extends Composite {
 
     updateExperimentInputs();
   }
+  
+  public boolean checkListItemsHaveAtLeatOneOptionAndHighlight() {
+    boolean requiredFieldsAreFilled = true;
+    for (InputsPanel inputsPanel : inputsPanelsList) {
+      if (!inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight()) {
+        requiredFieldsAreFilled = false;
+        // Note: no break statement here since we need to continue
+        // highlighting erroneous panels.
+      }
+    }
+    return requiredFieldsAreFilled;
+  }
+  
+  public boolean checkVarNamesFilledWithoutSpacesAndHighlight() {
+    boolean varNamesHaveNoSpaces = true;
+    for (InputsPanel inputsPanel : inputsPanelsList) {
+      if (!inputsPanel.checkVarNameFilledWithoutSpacesAndHighlight()) {
+        varNamesHaveNoSpaces = false;
+        // Note: no break statement here since we need to continue
+        // highlighting erroneous panels.
+      }
+    }
+    return varNamesHaveNoSpaces;
+  }
 
   /**
    * @return
