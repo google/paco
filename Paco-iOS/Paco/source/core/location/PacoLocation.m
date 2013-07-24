@@ -38,12 +38,15 @@ NSTimer* LocationTimer;
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
     
-    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
-                                             target:self
-                                           selector:@selector(LocationTimerHandler:)
-                                           userInfo:nil
-                                            repeats:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+                                                       target:self
+                                                     selector:@selector(LocationTimerHandler:)
+                                                     userInfo:nil
+                                                      repeats:YES];
+    });
   }
+
   return self;
 }
 
@@ -57,12 +60,12 @@ NSTimer* LocationTimer;
 }
 
 - (void)enableLocationTimer {
-  NSLog(@"Paco LocationTimer got enabled");
+  NSLog(@"Paco background LocationTimer got enabled");
   [self.manager startUpdatingLocation];
 }
 
 - (void)disableLocationTimer {
-  NSLog(@"Paco LocationTimer got disabled");
+  NSLog(@"Paco background LocationTimer got disabled");
   [self.manager stopUpdatingLocation];
 }
 

@@ -140,6 +140,24 @@
   
 }
 
+- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId {
+  NSArray *notifications = [self getiOSNotificationsForExperimentId:experimentId];
+  for (UILocalNotification *notification in notifications) {
+    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  }
+}
+
+- (NSArray *)getiOSNotificationsForExperimentId:(NSString *)experimentId {
+  NSMutableArray *array = [NSMutableArray array];
+  for (UILocalNotification *notification in [UIApplication sharedApplication].scheduledLocalNotifications) {
+    NSString *expId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+    if ([expId isEqualToString:experimentId]) {
+      [array addObject:notification];
+    }
+  }
+  return array;
+}
+
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
   NSDate *now = [NSDate dateWithTimeIntervalSinceNow:0];
   UILocalNotification *notification = [[UILocalNotification alloc] init];
@@ -164,26 +182,9 @@
   notification.userInfo = userInfo;
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = [NSString stringWithFormat:@"PACO Experiment Time!"];
-  notification.applicationIconBadgeNumber = 1;
+  notification.soundName = @"deepbark_trial.mp3";
+  notification.applicationIconBadgeNumber = notification.applicationIconBadgeNumber + 1;
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];  
-}
-
-- (NSArray *)getiOSNotificationsForExperimentId:(NSString *)experimentId {
-  NSMutableArray *array = [NSMutableArray array];
-  for (UILocalNotification *notification in [UIApplication sharedApplication].scheduledLocalNotifications) {
-    NSString *expId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    if ([expId isEqualToString:experimentId]) {
-      [array addObject:notification];
-    }
-  }
-  return array;
-}
-
-- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId {
-  NSArray *notifications = [self getiOSNotificationsForExperimentId:experimentId];
-  for (UILocalNotification *notification in notifications) {
-    [[UIApplication sharedApplication] cancelLocalNotification:notification];
-  }
 }
 
 - (void)cancelExpirediOSNotifications: (NSArray *)experiments {

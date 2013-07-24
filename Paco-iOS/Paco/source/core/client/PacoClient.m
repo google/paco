@@ -101,7 +101,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)timerUpdated {
   [self.scheduler updateiOSNotifications:self.model.experimentInstances];
-  NSLog(@"Paco Timer fired");
 }
 
 //YMZ: TODO: we need to store user email and address inside keychain
