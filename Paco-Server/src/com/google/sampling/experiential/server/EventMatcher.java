@@ -30,6 +30,7 @@ import org.joda.time.Interval;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Converts string queries into method calls and tests on an Event
@@ -127,12 +128,12 @@ public class EventMatcher {
   }
 
   private DateMidnight newDateMidnightFromString(String firstDate) {
-    SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
     try {
       return new DateMidnight(df.parse(firstDate).getTime());
     } catch (ParseException e) {
       throw new IllegalArgumentException("Cannot parse date: " + firstDate + 
-          ". Format is yyyy/MM/dd");
+          ". Format is " + TimeUtil.DATE_FORMAT);
     }
   }
 

@@ -50,6 +50,14 @@ public interface Request {
   Request addHeader(String headerKey, String headerValue);
   
   /**
+   * Gets value of a header given a key.
+   * 
+   * @param headerKey Key of the header.
+   * @return Value of the header.
+   */
+  String getHeaderValue(String headerKey);
+  
+  /**
    * Remove the first header from this request.  Only headers
    * created with addHeader() can be removed.
    * @param headerKey   key of the header

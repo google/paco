@@ -177,7 +177,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   instance.definition = definition;
   instance.events = events;
   NSDate *nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSString *nowdateStr = [[[NSDateFormatter alloc] init] stringFromDate:nowdate];
+  NSString *nowdateStr = [[[NSDateFormatter alloc] init] stringFromDate:nowdate]; //YMZ:TODO: this returns an empty string
   instance.instanceId = [NSString stringWithFormat:@"%@_%@", definition.title, nowdateStr];
   instance.lastEventQueryTime = nowdate;
   [self.experimentInstances addObject:instance];
@@ -396,6 +396,21 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   BOOL check2 = [self loadExperimentInstancesFromFile];
   success = success && check2;
   return success;
+}
+
+//YMZ: TODO: this method may need to be re-designed to be more efficient
+- (BOOL)isExperimentJoined:(NSString*)definitionId {
+  if (0 == [definitionId length]) {
+    return NO;
+  }
+  
+  for (PacoExperiment* experiment in self.experimentInstances) {
+    NSAssert([experiment.definition.experimentId length] > 0, @"experimentId is invalid!");
+    if ([experiment.definition.experimentId isEqualToString:definitionId]) {
+      return YES;
+    }
+  }
+  return NO;
 }
 
 
