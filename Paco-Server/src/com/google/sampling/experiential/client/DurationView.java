@@ -61,10 +61,10 @@ public class DurationView extends Composite {
     this.fixedDuration = fixedDuration != null ? fixedDuration : Boolean.FALSE;
     
     Date today = new Date();
-    Date tomorrow = new Date(today.getTime() + 8645000);
+    Date tomorrow = new Date(today.getTime() + TimeUtil.MILLIS_IN_A_DAY 
+                             + TimeUtil.EXTRA_MILLIS_OFFSET);
     String todayString = FORMATTER.format(today);
     String tomorrowString = FORMATTER.format(tomorrow);
-    
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
     this.startDate = start != null ? start : todayString;
     this.endDate = end != null ? end : tomorrowString;
@@ -141,13 +141,29 @@ public class DurationView extends Composite {
   public boolean isFixedDuration() {
     return radio2.isChecked();
   }
+    
+  // Visible for testing
+  protected void setFixedDuration(boolean isFixedDuration) {
+    radio1.setChecked(!isFixedDuration);
+    radio2.setChecked(isFixedDuration);
+  }
   
   public String getStartDate() {
     return FORMATTER.format(startBox.getValue());
   }
   
+  // Visible for testing
+  protected void setStartDate(String startDate) {
+    startBox.setValue(FORMATTER.parse(startDate));
+  }
+  
   public String getEndDate() {
     return FORMATTER.format(endBox.getValue());
+  }
+  
+  // Visible for testing
+  protected void setEndDate(String endDate) {
+    endBox.setValue(FORMATTER.parse(endDate));
   }
   
 }
