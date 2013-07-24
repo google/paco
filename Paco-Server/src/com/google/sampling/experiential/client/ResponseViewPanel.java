@@ -20,6 +20,7 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -42,9 +43,12 @@ public class ResponseViewPanel extends Composite {
   private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
+  
+  private MouseDownHandler mouseDownHandler;
 
-  public ResponseViewPanel(InputDAO input) {
+  public ResponseViewPanel(InputDAO input, MouseDownHandler mouseDownHandler) {
     super();
+    this.mouseDownHandler = mouseDownHandler;
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
     drawWidgetForInput(input);
@@ -72,7 +76,7 @@ public class ResponseViewPanel extends Composite {
   }
 
   private void drawListPanel() {
-    ListChoicesPanel outer = new ListChoicesPanel(input);
+    ListChoicesPanel outer = new ListChoicesPanel(input, mouseDownHandler);
     outer.setStyleName("left");
     mainPanel.add(outer);
     // outer.add(new HTML("List responses not implemented yet!"));
@@ -117,6 +121,9 @@ public class ResponseViewPanel extends Composite {
     stepsText.addChangeHandler(handler);
     leftSideText.addChangeHandler(handler);
     rightSideText.addChangeHandler(handler);
+    stepsText.addMouseDownHandler(mouseDownHandler);
+    leftSideText.addMouseDownHandler(mouseDownHandler);
+    rightSideText.addMouseDownHandler(mouseDownHandler);
   }
 
   private void setLikertValueInWidget() {

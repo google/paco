@@ -156,12 +156,20 @@ table, tbody, tr, td {
   border:1px solid gray;
 }
 
-
 .paco-Login {
   padding: 2px;
   font-size: 45px;
   font-weight: bold;
   color: #333333;    
+}
+
+.vertical-Panel-Drag-Spacer {
+  padding: 0.1em;
+  margin: 0.1em;
+}
+
+.paco-Input {
+  border:1px solid gray;
 }
 
 a.paco-Login a.paco-Login:visited, a.paco-Login:hover {

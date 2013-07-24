@@ -22,6 +22,7 @@ import java.util.LinkedList;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
@@ -41,11 +42,11 @@ public class ListChoicesPanel extends Composite {
   private VerticalPanel mainPanel;
   private LinkedList<ListChoicePanel> choicePanelsList;
 
-  /**
-   * @param input
-   */
-  public ListChoicesPanel(final InputDAO input) {
+  private MouseDownHandler textFieldMouseDownHandler;
+
+  public ListChoicesPanel(final InputDAO input, MouseDownHandler textFieldMouseDownHandler) {
     this.input = input;
+    this.textFieldMouseDownHandler = textFieldMouseDownHandler;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -69,7 +70,7 @@ public class ListChoicesPanel extends Composite {
     choicePanelsList = new LinkedList<ListChoicePanel>();
     String[] choices = input.getListChoices();
     if (choices == null || choices.length == 0) {
-      ListChoicePanel choicePanel = new ListChoicePanel(this);
+      ListChoicePanel choicePanel = new ListChoicePanel(this, textFieldMouseDownHandler);
       String choice = choicePanel.getChoice();
       choices = new String[] {choice};
       mainPanel.add(choicePanel);
@@ -77,7 +78,7 @@ public class ListChoicesPanel extends Composite {
       input.setListChoices(choices);
     } else {
       for (int i = 0; i < choices.length; i++) {
-        ListChoicePanel choicePanel = new ListChoicePanel(this);
+        ListChoicePanel choicePanel = new ListChoicePanel(this, textFieldMouseDownHandler);
         choicePanel.setChoice(choices[i]);
         mainPanel.add(choicePanel);
         choicePanelsList.add(choicePanel);
@@ -97,7 +98,7 @@ public class ListChoicesPanel extends Composite {
   public void addChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
 
-    ListChoicePanel choicePanel2 = new ListChoicePanel(this);
+    ListChoicePanel choicePanel2 = new ListChoicePanel(this, textFieldMouseDownHandler);
     choicePanelsList.add(index + 1, choicePanel2);
 
     int widgetIndex = mainPanel.getWidgetIndex(choicePanel);

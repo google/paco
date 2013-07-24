@@ -38,6 +38,7 @@
 <inherits name="com.google.gwt.json.JSON" />
 <inherits name="com.google.gwt.i18n.I18N"/>
 <inherits name="com.google.paco.shared.Shared" />
+<inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
  
 <extend-property name="locale" values="fi"/>
  <extend-property name="locale" values="ja"/>
