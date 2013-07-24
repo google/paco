@@ -103,6 +103,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)timerUpdated {
   [self.scheduler updateiOSNotifications:self.model.experimentInstances];
+  NSLog(@"Paco Timer fired");
 }
 
 //YMZ: TODO: we need to store user email and address inside keychain
@@ -162,6 +163,11 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       [self prefetchBackground:^{
                                         // let's handle setting up the notifications after that thread completes
                                         NSLog(@"Paco loginWithClientLogin experiments load has completed.");
+                                        // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
+                                        if (self.model.experimentInstances.count > 0) {
+                                          self.location = [[PacoLocation alloc] init];
+                                          self.location.delegate = self;
+                                        }
                                       }];
                                       completionHandler(nil);
                                     } else {
@@ -185,6 +191,11 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
         [self prefetchBackground:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
+          // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
+          if (self.model.experimentInstances.count > 0) {
+            self.location = [[PacoLocation alloc] init];
+            self.location.delegate = self;
+          }
         }];
         completionHandler(nil);
       } else {
@@ -270,12 +281,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   self.prefetchState.finishLoadingExperiments = YES;
   self.prefetchState.errorLoadingExperiments = error;
   
-  // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
-  if (self.model.experimentInstances.count > 0) {
-    self.location = [[PacoLocation alloc] init];
-    self.location.delegate = self;
-  }
-  
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
 }
 
@@ -313,7 +318,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   }
 }
 
-
 - (void)fetchExperimentsForDefinition:(PacoExperimentDefinition*)definition completionBlock:(void(^)(NSError*))completionBlock
 {
   NSAssert(definition != nil, @"definition should NOT be nil!");
@@ -348,7 +352,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                     [[PacoClient sharedInstance].model addExperimentsWithDefinition:definition events:pacoEvents];
                     completionBlock(nil);
                   }];
-
+  
 }
 
 
