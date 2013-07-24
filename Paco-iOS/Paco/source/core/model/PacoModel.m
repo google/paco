@@ -412,4 +412,13 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 }
 
 
+#pragma mark delete an experiment
+- (void)deleteExperiment:(PacoExperiment*)experiment
+{
+  NSUInteger index = [self.experimentInstances indexOfObject:experiment];
+  NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
+  [self.experimentInstances removeObject:experiment];
+}
+
+
 @end
