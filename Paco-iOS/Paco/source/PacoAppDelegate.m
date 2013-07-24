@@ -41,6 +41,9 @@
   // Stir!
   arc4random_stir();
   
+  // Clear all Application Badges
+  application.applicationIconBadgeNumber = 0;
+  
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
 
