@@ -80,7 +80,8 @@ public class InputsListPanel extends Composite {
     updateExperimentInputs();
   }
 
-  public void addInput(InputsPanel inputsPanel) {
+  // Visible for testing
+  protected void addInput(InputsPanel inputsPanel) {
     int index = inputsPanelsList.indexOf(inputsPanel);
     InputsPanel newInputsPanel = new InputsPanel(this, createEmptyInput());
     inputsPanelsList.add(index + 1, newInputsPanel);
@@ -157,16 +158,6 @@ public class InputsListPanel extends Composite {
         updateExperimentInputs();
     }
 
-    private void updateInputPanelsList() {
-      Collections.sort(inputsPanelsList, new Comparator<InputsPanel>() {
-        @Override
-        public int compare(InputsPanel first, InputsPanel second) {
-          // Sort input panels based on vertical position.
-          return first.getAbsoluteTop() - second.getAbsoluteTop();
-        }
-      });
-    }
-
     @Override
     public void onDragStart(DragStartEvent event) {
       // Nothing to be done here.
@@ -181,6 +172,27 @@ public class InputsListPanel extends Composite {
     public void onPreviewDragStart(DragStartEvent event) throws VetoDragException {
       // Nothing to be done here.
     }
+  }
+  
+  // Visible for testing
+  protected void updateInputPanelsList() {
+    Collections.sort(inputsPanelsList, new Comparator<InputsPanel>() {
+      @Override
+      public int compare(InputsPanel first, InputsPanel second) {
+        // Sort input panels based on vertical position.
+        return first.getAbsoluteTop() - second.getAbsoluteTop();
+      }
+    });
+  }
+  
+  // Visible for testing
+  protected LinkedList<InputsPanel> getInputsPanels() {
+    return inputsPanelsList;
+  }
+  
+  // Visible for testing
+  protected VerticalPanel getContentPanel() {
+    return mainPanel;
   }
 
 }
