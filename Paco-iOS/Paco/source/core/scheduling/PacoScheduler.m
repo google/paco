@@ -228,6 +228,11 @@
 
 - (void)handleLocalNotification:(UILocalNotification *)notification {
   NSLog(@"LOCAL NOTIFICATION INFO = %@", notification.userInfo);
+
+  // make sure to decrement the Application Badge Number
+  UIApplication *application = [UIApplication sharedApplication];
+  application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
+  
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   NSArray *esmSchedule = [notification.userInfo objectForKey:@"esmSchedule"];
