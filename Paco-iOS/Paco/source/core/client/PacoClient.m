@@ -61,8 +61,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) NSString* userEmail;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
-
-- (void)prefetch;
 @end
 
 @implementation PacoClient
