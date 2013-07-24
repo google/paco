@@ -97,4 +97,11 @@
                     verbose="${verbose}" />
 -->
 
+  <target name="build-shared">
+    <subant target="copy-shared">
+      <fileset dir=".." includes="build.xml"/>
+    </subant>
+  </target>
+
+    <target name="-setup" depends="build-shared,android_rules.-setup,-check-env"></target>
 </project>

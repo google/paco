@@ -365,6 +365,13 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("This is a triggered experiment. No schedule to configure.")
   String triggeredExperimentNotScheduled();
+  
 
+
+  @DefaultStringValue("")
+  String defaultListItem();
+
+  @DefaultStringValue("Source of Paco Action")
+  String chooseTriggerSourceIdentifier();
 
 }

@@ -1,23 +1,26 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.  
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.google.android.apps.paco;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.Locale;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -26,6 +29,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,6 +40,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,10 +74,10 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private Object updateLock = new Object();
   private UserPreferences userPrefs;
   private ProgressDialog p;
-  
+
   private ArrayList<InputLayout> locationInputs;
   private Location location;
-  
+
   private Long notificationHolderId;
   private boolean shouldExpireNotificationHolder;
   private View buttonView;
@@ -80,7 +85,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private Button doOnWebButton;
   private TextView warningText;
 
-  
+  private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
+  public static final int RESULT_SPEECH = 3;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -94,13 +101,13 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
-      
+
       experimentProviderUtil.loadInputsForExperiment(experiment);
       experimentProviderUtil.loadFeedbackForExperiment(experiment);      
 
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);                  
       setContentView(mainLayout);
-      
+
       inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
       displayExperimentTitle();
 
@@ -108,10 +115,10 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
                                                                            mainLayout, true);
       buttonView = findViewById(R.id.ExecutorButtonLayout);
       buttonView.setVisibility(View.GONE);
-      
+
       warningText = (TextView) findViewById(R.id.webRecommendedWarningText);
       warningText.setText(warningText.getText() + getString(R.string.use_browser) + "http://"
-                          + getString(R.string.about_weburl));
+          + getString(R.string.about_weburl));
 
       doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
       doOnPhoneButton.setVisibility(View.GONE);
@@ -131,37 +138,22 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
           finish();
         }
       });      
-      
-      refreshButton = (Button)findViewById(R.id.RefreshQuestionsButton);
-      if (!experiment.hasFreshInputs()) {
-        enableRefreshExperimentsButton();
+
+      if (experiment.isWebRecommended()) {
+        renderWebRecommendedMessage();
       } else {
-        if (experiment.isWebRecommended()) {
-          renderWebRecommendedMessage();
-        } else {
-          showForm();
-        }
+        showForm();
       }
     }
 
 
   }
 
-  private void enableRefreshExperimentsButton() {
-    refreshButton.setVisibility(View.VISIBLE);
-    ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.GONE);
-    refreshButton.setOnClickListener(new OnClickListener() {          
-      public void onClick(View v) {
-        refreshExperiment();
-      }
-    });
-  }
-
   private void renderWebRecommendedMessage() {
     final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
     scrollView.setVisibility(View.GONE);
     buttonView.setVisibility(View.VISIBLE);
-    
+
   }
 
   private void getSignallingData() {
@@ -175,7 +167,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       } else {
         scheduledTime = null;          
       }
-      
+
       if (isExpiredEsmPing()) {
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
@@ -203,7 +195,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
     }
   }
-  
+
   @Override
   protected void onResume() {
     super.onResume();
@@ -215,7 +207,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     super.onPause();
     unregisterLocationListenerIfNecessary();
   }
- 
+
   private void unregisterLocationListenerIfNecessary() {
     if (locationInputs.size() > 0) {
       locationInputs.clear();
@@ -234,28 +226,28 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       registerLocationListener();
     }
   }
-  
+
   // Location
-  
+
   private void registerLocationListener() {
     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     if (!lm.isProviderEnabled("gps")) {
       new AlertDialog.Builder(this)
-        .setMessage(R.string.gps_message)
-        .setCancelable(true)
-        .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
-          public void onClick(DialogInterface dialog, int which) {
-            launchGpsSettings();
-            dialog.dismiss();
-          }
-        })
-        .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
-          public void onClick(DialogInterface dialog, int which) {
-            dialog.cancel();
-          }
-        })
-        .create()
-        .show();
+      .setMessage(R.string.gps_message)
+      .setCancelable(true)
+      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
+        public void onClick(DialogInterface dialog, int which) {
+          launchGpsSettings();
+          dialog.dismiss();
+        }
+      })
+      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
+        public void onClick(DialogInterface dialog, int which) {
+          dialog.cancel();
+        }
+      })
+      .create()
+      .show();
     }
     if (lm != null) {
       getBestProvider(lm);
@@ -265,7 +257,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   void launchGpsSettings() {
     startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
   }
-  
+
 
   private void getBestProvider(LocationManager lm) {
     Criteria criteria = new Criteria();
@@ -279,7 +271,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       for (InputLayout input : locationInputs) {
         input.setLocation(location);  
       }
-      
+
     } else {
       new AlertDialog.Builder(this)
       .setMessage(R.string.need_location)
@@ -336,7 +328,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private boolean isExpiredEsmPing() {
     return (scheduledTime != null && scheduledTime != 0L) && 
-      (new DateTime(scheduledTime)).plus(experiment.getExpirationTimeInMillis()).isBefore(new DateTime());
+        (new DateTime(scheduledTime)).plus(experiment.getExpirationTimeInMillis()).isBefore(new DateTime());
   }
 
   private void showForm() {
@@ -348,11 +340,11 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     View saveButtonView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_save_buttons, 
                                                                                               inputsScrollPane, 
                                                                                               true);
-//    inputsScrollPane.removeView(saveButtonView);
+    //    inputsScrollPane.removeView(saveButtonView);
     //LinearLayout saveButtonLayout = (LinearLayout)findViewById(R.id.ExecutorButtonLayout);
     Button saveButton = (Button)findViewById(R.id.SaveResponseButton);
     //saveButtonLayout.removeView(saveButton);
-//    inputsScrollPane.addView(saveButtonView);
+    //    inputsScrollPane.addView(saveButtonView);
     saveButton.setOnClickListener(new OnClickListener() {        
       public void onClick(View v) {
         save();
@@ -372,8 +364,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       Event event = createEvent();
       gatherResponses(event);
       experimentProviderUtil.insertEvent(event);
-      
-      
+
+
       deleteNotification();
 
       Bundle extras = getIntent().getExtras();
@@ -388,9 +380,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       finish();
     } catch (IllegalStateException ise) {
       new AlertDialog.Builder(this)
-        .setIcon(R.drawable.paco64)
-        .setTitle(R.string.required_answers_missing)
-        .setMessage(ise.getMessage()).show();
+      .setIcon(R.drawable.paco64)
+      .setTitle(R.string.required_answers_missing)
+      .setMessage(ise.getMessage()).show();
     }
   }
 
@@ -487,7 +479,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         openText.setImeActionLabel("Next", EditorInfo.IME_ACTION_NEXT);
       }
     }
-    
+
   }
 
   /**
@@ -557,16 +549,16 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     // todo make interpreter a field to optimize updates.
     if (interpreter == null) {
       interpreter = new Environment();
-    
+
       for (InputLayout inputLayout : inputs) {
         interpreter.addInput(createBindingFromInputView(inputLayout));
       }
     } 
-//    else {
-//      if (input != null) {
-//        interpreter.addInput(createBindingFromInputView(input));
-//      }
-//    }
+    //    else {
+    //      if (input != null) {
+    //        interpreter.addInput(createBindingFromInputView(input));
+    //      }
+    //    }
     return interpreter;
   }
 
@@ -578,37 +570,43 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     return binding;
   }
 
-  public void refreshExperiment() {
-    Runnable runnable = new Runnable() {
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
 
-      public void run() {
-        experimentProviderUtil.loadInputsForExperiment(experiment);
-        experimentProviderUtil.loadFeedbackForExperiment(experiment);      
-
-        if (experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, R.string.found_updated_questions, Toast.LENGTH_SHORT).show();
-          refreshButton.setVisibility(View.GONE);
-          ((Button)findViewById(R.id.SaveResponseButton)).setVisibility(View.VISIBLE);
-          // TODO - consolidate this logic into one method, shared with onCreate.
-          experiment = getExperimentFromIntent();
-          experimentProviderUtil.loadInputsForExperiment(experiment);
-          experimentProviderUtil.loadFeedbackForExperiment(experiment);      
-
-          showForm();
-        } else if (!experiment.hasFreshInputs() && experiment.isQuestionsChange()) {
-          Toast.makeText(ExperimentExecutor.this, R.string.didnt_find_updated_questions, Toast.LENGTH_SHORT);
-        } else {
-          Toast.makeText(ExperimentExecutor.this, R.string.invalid_experiment_warning, Toast.LENGTH_LONG);
-          finish();
-        }
-        
-      }
-    };
-    new DownloadExperimentsTask(this, null, userPrefs, experimentProviderUtil, runnable).execute();
+    if (requestCode == RESULT_SPEECH) {
+      handleSpeechRecognitionActivityResult(resultCode, data);
+    }
   }
 
+  private void handleSpeechRecognitionActivityResult(int resultCode, Intent data) {
+    if (resultCode == Activity.RESULT_OK && null != data) {
+      ArrayList<String> guesses = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+      notifySpeechRecognitionListeners(guesses);
+    }
+  }
 
+  private void notifySpeechRecognitionListeners(ArrayList<String> guesses) {
+    for (SpeechRecognitionListener listener : speechRecognitionListeners) {
+      listener.speechRetrieved(guesses);
+    }    
+  }
 
+  public void removeSpeechRecognitionListener(SpeechRecognitionListener listener) {
+    speechRecognitionListeners.remove(listener);
+  }
 
+  public void startSpeechRecognition(SpeechRecognitionListener listener) {
+    speechRecognitionListeners .add(listener);
+    Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());  
+
+    try {
+      startActivityForResult(intent, RESULT_SPEECH);
+    } catch (ActivityNotFoundException a) {
+      Toast t = Toast.makeText(getApplicationContext(), R.string.oops_your_device_doesn_t_support_speech_to_text, Toast.LENGTH_SHORT);
+      t.show();
+    }    
+  }
 
 }

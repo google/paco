@@ -20,5 +20,6 @@
 + (UIColor *)pacoBlue;
 + (UIColor *)pacoLightBlue;
 + (UIColor *)pacoDarkBlue;
++ (UIColor *)pacoBackgroundBlue;
 
 @end

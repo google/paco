@@ -86,6 +86,8 @@ public class EventServlet extends HttpServlet {
       } else if (req.getParameter("json") != null) {
         resp.setContentType("application/json;charset=UTF-8");
         dumpEventsJson(resp, req, anon);
+      } else if (req.getParameter("photozip") != null) {
+        dumpPhotosZip(resp, req, anon);
       } else if (req.getParameter("csv") != null) {
         dumpEventsCSV(resp, req, anon);
       } else {
@@ -230,8 +232,24 @@ public class EventServlet extends HttpServlet {
     } catch (InterruptedException e) {
     }
     resp.sendRedirect("/jobStatus?jobId=" + jobId);
-    
   }
+
+  private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
+      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    }
+    
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip");
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+  }
+
 
 
   /**

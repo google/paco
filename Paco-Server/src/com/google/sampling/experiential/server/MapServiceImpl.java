@@ -174,7 +174,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       experiment.setVersion(1);
     }
     
-    
     if (experiment.getId() != null) {
       User loggedInUser = getWhoFromLogin();
       String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();

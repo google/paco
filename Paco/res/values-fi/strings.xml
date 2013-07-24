@@ -19,7 +19,6 @@
 <resources>
     <string name='app_name'>PACO</string>
     
-  <string name='version'>2.0.78</string>
   <string name='server'>quantifiedself.appspot.com</string>
   <string name='app_package'>com.google.android.apps.paco</string>
   <string name='contact_email'>paco-users@googlegroups.com</string>
@@ -273,6 +272,20 @@
    <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
    <string name="updated_paco_notification_content_title">Paco Update</string>
    <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
-   
-   
+   <string name="default_list_item"/>
+   <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
+   <string name="experiment_retrieval">Experiment Retrieval</string>
+   <string name="dialog_dismiss">OK</string>
+   <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
+   <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
+   <string name="server_error">Something went wrong with the server.</string>
+   <string name="network_required">Network Required</string>
+   <string name="need_network_connection">You will need a network connection to join the experiment. Enable connection now?</string>
+   <string name="no_thanks">No, Thanks.</string>
+   <string name="go_to_network_settings">Network Settings</string>
+   <string name="last_refreshed">Last Refreshed</string>
+   <string name="answer_by_speaking">Answer by speaking</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
+   <string name="successfully_joined_experiment">Success! Please go to Current Experiments for a list of all joined experiments.</string>
+   <string name="updating_your_joined_experiments_from_the_server">Updating Your Joined Experiments From the Server</string>
 </resources>

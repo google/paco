@@ -58,53 +58,61 @@
   UIButton *login = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [login setTitle:@"Login" forState:UIControlStateNormal];
   [login addTarget:self action:@selector(onLogin) forControlEvents:UIControlEventTouchUpInside];
+  login.frame = CGRectMake(0, 0, 100, 40);
   [self.view addSubview:login];
-  [login sizeToFit];
-
-  UIButton *logout = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [logout setTitle:@"Logout" forState:UIControlStateNormal];
-  [logout addTarget:self action:@selector(onLogout) forControlEvents:UIControlEventTouchUpInside];
-  [self.view addSubview:logout];
-  [logout sizeToFit];
 
   UITextField *textField = [[UITextField alloc] initWithFrame:CGRectZero];
+  textField.textColor = [UIColor whiteColor];
   textField.text = @"";
   textField.placeholder = @"<email>";
   textField.keyboardType = UIKeyboardTypeEmailAddress;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-  textField.backgroundColor = [PacoColor pacoLightBlue];
+  textField.backgroundColor = [PacoColor pacoBackgroundBlue];
   textField.delegate = self;
   [self.view addSubview:textField];
   [textField sizeToFit];
   CGRect frame = textField.frame;
   frame.size.width = 200;
+  frame.size.height = 25;
   textField.frame = frame;
   self.emailField = textField;
   
 
   UITextField *textField2 = [[UITextField alloc] initWithFrame:CGRectZero];
+  textField.textColor = [UIColor whiteColor];
   textField2.text = @"";
   textField2.placeholder = @"<password>";
   textField2.keyboardType = UIKeyboardTypeDefault;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField2.secureTextEntry = YES;
-  textField2.backgroundColor = [PacoColor pacoLightBlue];
+  textField2.backgroundColor = [PacoColor pacoBackgroundBlue];
   textField2.delegate = self;
   [self.view addSubview:textField2];
   [textField2 sizeToFit];
   frame = textField2.frame;
   frame.size.width = 200;
+  frame.size.height = 25;
   textField2.frame = frame;
   self.pwdField = textField2;
+  
+  UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+  label.numberOfLines = 3;
+  label.center = self.view.center;
+  label.backgroundColor = [UIColor clearColor];
+  label.textColor = [UIColor whiteColor];
+  label.shadowColor = [UIColor lightGrayColor];
+  [label setText:@"Hi, Log In Now\n\n  Run Your Paco Experiment today!"];
+  label.textAlignment = NSTextAlignmentCenter;
+  [self.view addSubview:label];
 
   CGRect layoutRect = self.view.bounds;
-  layoutRect.origin.y += 15;
+  layoutRect.origin.y += 40;
   layoutRect.size.height = 200;
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
-  NSArray *elements = [NSArray arrayWithObjects:login, textField, textField2, logout, nil];
+  NSArray *elements = [NSArray arrayWithObjects:textField, textField2, login, nil];
   [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];  
 }
 
@@ -136,9 +144,12 @@
         if (self.completionBlock) {
           self.completionBlock(nil);
         }
-    }];
+      }];
     } else {
       NSLog(@"PACO LOGIN FAILURE! %@", error);
+      if (self.completionBlock) {
+        self.completionBlock(error);
+      }
     }
   }];
 }

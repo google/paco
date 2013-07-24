@@ -42,7 +42,7 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   static final String DATABASE_NAME = "experiments.db";
-  static final int DATABASE_VERSION = 13;
+  static final int DATABASE_VERSION = 14;
   
   static final String EXPERIMENTS_TABLE_NAME = "experiments";
   static final String SCHEDULES_TABLE_NAME = "schedules";
@@ -52,7 +52,6 @@ public class ExperimentProvider extends ContentProvider {
   static final String OUTPUTS_TABLE_NAME = "outputs";
   static final String FEEDBACK_TABLE_NAME = "feedback";
   static final String NOTIFICATION_TABLE_NAME = "notifications";
-
   
   private static HashMap<String, String> liveFolderProjectionMap;
 

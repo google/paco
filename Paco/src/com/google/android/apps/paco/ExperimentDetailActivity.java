@@ -129,8 +129,9 @@ public class ExperimentDetailActivity extends Activity {
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
     if (experiment.isFixedDuration()) {
-      startDate = df.print(experiment.getStartDate());
-      endDate = df.print(experiment.getEndDate());
+      // TODO: change format to short if necessary.
+      startDate = experiment.getStartDate();
+      endDate = experiment.getEndDate();
       ((TextView)findViewById(R.id.startDate)).setText(startDate);
       ((TextView)findViewById(R.id.endDate)).setText(endDate);
     } else {
@@ -240,10 +241,10 @@ public class ExperimentDetailActivity extends Activity {
 
   
   protected void refreshList() {
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
 
       @Override
-      public void done() {          
+      public void done(String unusedResult) {          
           experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
           dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
           if (experiment != null) {
@@ -256,7 +257,7 @@ public class ExperimentDetailActivity extends Activity {
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadExperimentsTask(this, listener, userPrefs, experimentProviderUtil, null).execute();
+    new DownloadShortExperimentsTask(this, listener, userPrefs).execute();
 
   }
   

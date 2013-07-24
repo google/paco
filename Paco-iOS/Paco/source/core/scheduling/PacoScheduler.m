@@ -94,7 +94,7 @@
   NSDate *fireDate2a = [fireDate2 dateByAddingTimeInterval:60];
   NSDate *fireDate3 = [PacoDate nextScheduledDateForExperiment:experiment fromThisDate:fireDate2a];
 
-#if PACO_MAKE_SOON_EVENT_ON_JOIN
+#if PACO_TEST_MAKE_SOON_EVENT_ON_JOIN
   NSDate *soon = [NSDate dateWithTimeIntervalSinceNow:5];
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   notification.fireDate = soon;
