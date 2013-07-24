@@ -199,43 +199,10 @@
 - (void)joinExperiment:(PacoExperimentDefinition *)experiment
               schedule:(PacoExperimentSchedule *)schedule
      completionHandler:(void (^)(PacoEvent *, NSError *))completionHandler {
-  // Setup an event for joining the experiement.
-  PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = self.authenticator.auth.userEmail;
-  event.experimentId = experiment.experimentId;
-  
-  // Pass the instance id as experiment name so that multiple experiment instances
-  // are distinguished
-  event.experimentName = [NSString stringWithFormat:@"%@_%@", experiment.title, [PacoDate timestampFromDate:[NSDate dateWithTimeIntervalSinceNow:0]]];
-
-  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSMutableDictionary *response = [NSMutableDictionary dictionary];
-  NSArray *responses = [NSArray arrayWithObject:response];
-
-  // Special response values to indicate the user is joining this experiement.
-  [response setObject:@"joined" forKey:@"name"];
-  [response setObject:@"true" forKey:@"answer"];
-
-  // Adding a schedule to the join event.  The join event is the only way to
-  // edit a schedule.
-  if (schedule &&
-      experiment.schedule.scheduleType != kPacoScheduleTypeSelfReport &&
-      experiment.schedule.scheduleType != kPacoScheduleTypeAdvanced) {
-    [response setObject:@"schedule" forKey:@"name"];
-    [response setObject:[schedule jsonString] forKey:@"answer"];
-  }
-
-  // TODO(gregvance): I don't understand why inputId is needed here but it
-  //     the call will fail without it.
-  // update: bobevans@ says this shouldn't be needed
-  [response setObject:@"-1" forKey:@"inputId"];
-
-  event.responses = responses;
-
-  [self submitEvent:event withCompletionHandler:^(NSError *error) {
+  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:experiment withSchedule:schedule];
+  [self submitEvent:joinEvent withCompletionHandler:^(NSError *error) {
       if (completionHandler) {
-
-        completionHandler(event, error);
+        completionHandler(joinEvent, error);
       }
   }];
 }
