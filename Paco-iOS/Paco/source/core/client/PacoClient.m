@@ -159,7 +159,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       [self storeEmail:email password:password];
                                       
                                       // Fetch the experiment definitions and the events of joined experiments.
-                                      [self prefetchBackground:^{
+                                      [self prefetchInBackgroundWithBlock:^{
                                         // let's handle setting up the notifications after that thread completes
                                         NSLog(@"Paco loginWithClientLogin experiments load has completed.");
                                       }];
@@ -182,7 +182,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
         // Authorize the service.
         self.service.authenticator = self.authenticator;
         // Fetch the experiment definitions and the events of joined experiments.
-        [self prefetchBackground:^{
+        [self prefetchInBackgroundWithBlock:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
         }];
@@ -223,45 +223,37 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
 }
 
-- (void)prefetchBackground:(void (^)(void))completionHandler {
+- (void)prefetchInBackgroundWithBlock:(void (^)(void))completionBlock {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [[PacoClient sharedInstance] prefetch];
-    if (completionHandler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        // prefetch is done
-        completionHandler();
-      });
-    }
-  });
-}
-
-- (void)prefetch {
-  [self.prefetchState reset];
-  
-  // we need to send do this in the background as we don't want the launch of the App on the same thread
-  
-  // Load the experiment definitions.  
-  BOOL success = [self.model loadExperimentDefinitionsFromFile];
-  if (success) {
-    [self definitionsLoadedWithError:nil];
-    [self prefetchExperiments];
-    return;
-  }
-  
-  [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
-    if (error) {
-      NSLog(@"Failed to prefetch definitions: %@", [error description]);
-      [self definitionsLoadedWithError:error];
+    [self.prefetchState reset];
+    // Load the experiment definitions.
+    BOOL success = [self.model loadExperimentDefinitionsFromFile];
+    if (success) {
+      [self definitionsLoadedWithError:nil];
+      [self prefetchExperimentsWithBlock:completionBlock];
       return;
     }
     
-    NSLog(@"Loaded %d experiments", [experiments count]);
-    // Convert the JSON response into an object model.
-    [self.model applyDefinitionJSON:experiments];
-    [self definitionsLoadedWithError:nil];
-    
-    [self prefetchExperiments];
-  }];
+    [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
+      if (error) {
+        NSLog(@"Failed to prefetch definitions: %@", [error description]);
+        [self definitionsLoadedWithError:error];
+        if (completionBlock) {
+          completionBlock();
+        }
+        return;
+      }
+      
+      NSLog(@"Loaded %d experiments", [experiments count]);
+      // Convert the JSON response into an object model.
+      [self.model applyDefinitionJSON:experiments];
+      [self definitionsLoadedWithError:nil];
+      
+      [self prefetchExperimentsWithBlock:completionBlock];
+    }];
+
+  });
+
 }
 
 
@@ -280,11 +272,13 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 
-- (void)prefetchExperiments
-{
+- (void)prefetchExperimentsWithBlock:(void (^)(void))completionBlock {
   BOOL success = [self.model loadExperimentInstancesFromFile];
   if (success) {
     [self experimentsLoadedWithError:nil];
+    if (completionBlock) {
+      completionBlock();
+    }
     return;
   }
   
@@ -302,6 +296,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     
     if(numOfDefinitions == numOfResponses){
       [self experimentsLoadedWithError:resultError];
+      if (completionBlock) {
+        completionBlock();
+      }
     }
   };
   
