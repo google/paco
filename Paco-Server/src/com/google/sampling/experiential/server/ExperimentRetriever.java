@@ -130,7 +130,7 @@ public class ExperimentRetriever {
 
   public static void removeSensitiveFields(List<ExperimentDAO> availableExperiments) {
     for (ExperimentDAO experimentDAO : availableExperiments) {
-      experimentDAO.setPublished(null);
+      experimentDAO.setPublishedUsers(null);
       experimentDAO.setAdmins(null);
     }
     

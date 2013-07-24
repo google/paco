@@ -30,6 +30,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -77,6 +78,8 @@ public class ExperimentDefinitionPanel extends Composite {
   private static String EMAIL_REGEX = 
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
       //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
+
+  private static String DATE_FORMAT = "yyyy/MM/dd";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
@@ -635,7 +638,9 @@ public class ExperimentDefinitionPanel extends Composite {
   // Visible for testing
   protected boolean startDateIsNotAfterEndDate() {
     if (durationPanel.isFixedDuration()) {
-      boolean startDateNotAfterEndDate = !(durationPanel.getEndDate().before(durationPanel.getStartDate()));
+      Date startDate = getDateFromFormattedString(durationPanel.getStartDate());
+      Date endDate = getDateFromFormattedString(durationPanel.getEndDate());
+      boolean startDateNotAfterEndDate = !(endDate.before(startDate));
       setPanelHighlight(durationPanel, startDateNotAfterEndDate);
       return startDateNotAfterEndDate;
     } else {
@@ -736,8 +741,18 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void setModifyDateOn(ExperimentDAO experiment) {
     if (experiment.getModifyDate() == null) {
-      experiment.setModifyDate(new Date().getTime());
+      experiment.setModifyDate(formatDateAsString(new Date()));
     }
+  }
+  
+  private String formatDateAsString(Date date) {
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.format(date);
+  }
+  
+  private Date getDateFromFormattedString(String dateString) {
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.parse(dateString);
   }
 
   private void setPublishingOn(ExperimentDAO experiment) {
@@ -758,10 +773,8 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setDurationOn(ExperimentDAO experiment) {
     experiment.setFixedDuration(durationPanel.isFixedDuration());
     if (experiment.getFixedDuration()) {
-      experiment.setStartDate(durationPanel.getStartDate() != null ? Long.valueOf(durationPanel.getStartDate()
-                                                                                               .getTime()) : null);
-      experiment.setEndDate(durationPanel.getEndDate() != null ? Long.valueOf(durationPanel.getEndDate().getTime())
-                                                              : null);
+      experiment.setStartDate(durationPanel.getStartDate());
+      experiment.setEndDate(durationPanel.getEndDate());
     } else {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
@@ -769,7 +782,6 @@ public class ExperimentDefinitionPanel extends Composite {
     
   }
   
-
   private void setAdminsOn(ExperimentDAO experiment) {
     List<String> admins = new ArrayList<String>();
     String adminsText = adminList.getText();

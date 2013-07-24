@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -22,6 +24,7 @@ import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
 import com.google.sampling.experiential.model.Trigger;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class DAOConverter {
 
@@ -75,11 +78,11 @@ public class DAOConverter {
     Boolean fixedDuration = experiment.getFixedDuration();
     Boolean questionsChange = experiment.getQuestionsChange();
     Boolean deleted = experiment.getDeleted();
-    Long startDate = experiment.getStartDate() != null ? experiment.getStartDate().getTime() : null;
-    Long endDate = experiment.getEndDate() != null ? experiment.getEndDate().getTime() : null;
+    String startDate = experiment.getStartDate();
+    String endDate = experiment.getEndDate();
     String hash = experiment.getHash();
-    Long joinDate = experiment.getJoinDate() != null ? experiment.getJoinDate().getTime() : null;
-    Long modifyDate = experiment.getModifyDate() != null ? experiment.getModifyDate().getTime() : null;
+    String joinDate = experiment.getJoinDate();
+    String modifyDate = experiment.getModifyDate();
 
     List<String> admins = experiment.getAdmins();
     String[] adminStrArray = new String[admins.size()];
@@ -177,22 +180,15 @@ public class DAOConverter {
     experiment.setInformedConsentFormText(experimentDAO.getInformedConsentForm());
     experiment.setQuestionsChange(experimentDAO.getQuestionsChange());
     experiment.setFixedDuration(experimentDAO.getFixedDuration());
-    Long startDateDAO = experimentDAO.getStartDate();
-    Date startDate = null;
-    if (startDateDAO != null) {
-      startDate = new DateTime(startDateDAO).toDate();
-    }
+    
+    String startDate = experimentDAO.getStartDate();
     experiment.setStartDate(startDate);
     
-    Long endDateDAO = experimentDAO.getEndDate();
-    Date endDate = null;
-    if (endDateDAO != null) {
-      endDate = new DateTime(endDateDAO).toDate();
-    }
+    String endDate = experimentDAO.getEndDate();
     experiment.setEndDate(endDate);
     
-    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? new Date(experimentDAO
-        .getModifyDate()) : new Date());
+    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? experimentDAO
+        .getModifyDate() : getTodayAsString());
     
     Key key = null;
     if (experiment.getId() != null) {
@@ -216,6 +212,11 @@ public class DAOConverter {
     experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
     experiment.setDeleted(experimentDAO.getDeleted());
     return experiment;
+  }
+  
+  private static String getTodayAsString() {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateTime().toString(formatter);
   }
 
   private static Trigger fromTriggerDAO(Key key, TriggerDAO signalingMechanismDAO) {

@@ -16,6 +16,8 @@ import net.sf.jsr107cache.CacheManager;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
@@ -24,6 +26,7 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCacheHelper {
 
@@ -118,10 +121,15 @@ public class ExperimentCacheHelper {
       Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
       Arrays.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return getDateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
+      return getDateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
     }
+  }
+ 
+  private DateMidnight getDateMidnight(String dateStr) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateMidnight(formatter.parseDateTime(dateStr));
   }
 
   private synchronized List<ExperimentDAO> getExperiments() {

@@ -11,6 +11,7 @@ import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.ExperimentScheduleActivity;
 import com.google.android.apps.paco.SignalSchedule;
+import com.google.android.apps.paco.TimeUtil;
 import com.google.common.collect.Lists;
 
 import android.content.Context;
@@ -277,7 +278,8 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private void joinExperiment(Experiment experiment) {
-    experiment.setJoinDate(new DateTime());
+    String now = TimeUtil.formatDateWithZone(new DateTime());
+    experiment.setJoinDate(now);
     experimentProviderUtil.insertFullJoinedExperiment(experiment);
   }
 

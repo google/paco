@@ -1,18 +1,16 @@
 package com.google.sampling.experiential.client;
 
-import java.util.Date;
-
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
-import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCreationValidationTest extends GWTTestCase {
   
+  private static final String LATER_DAY = "2013/25/07";
+  private static final String EARLIER_DAY = "2013/24/07";
+
   private ExperimentDefinitionPanel experimentDefinitionPanel;
-  private InputsListPanel inputsListPanel;
-  private DurationView durationPanel;
   
   private LoginInfo loginInfo;
   private ExperimentDAO experiment;
@@ -76,40 +74,35 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   
   public void testValidFixedDurationIsAccepted() {
     experiment.setFixedDuration(true);
-    experiment.setStartDate(getToday().getTime());
-    experiment.setEndDate(getTomorrow().getTime());
+    experiment.setStartDate(EARLIER_DAY);
+    experiment.setEndDate(LATER_DAY);
     createExperimentDefinitionPanel(experiment);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
   
   public void testInvalidFixedDurationIsNotAccepted() {
     experiment.setFixedDuration(true);
-    experiment.setStartDate(getTomorrow().getTime());
-    experiment.setEndDate(getToday().getTime());
+    experiment.setStartDate(LATER_DAY);
+    experiment.setEndDate(EARLIER_DAY);
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
   
   public void testDurationPanelAcceptsStartDateBeforeEndDate() {
     createValidExperimentDefinitionPanel();
-    Date today = getToday();
-    Date tomorrow = getTomorrow();
-    setDurationOnDurationPanel(today, tomorrow);
+    setDurationOnDurationPanel(EARLIER_DAY, LATER_DAY);
     assertTrue(experimentDefinitionPanel.startDateIsNotAfterEndDate());
   }
 
   public void testDurationPanelAcceptsStartDateSameAsEndDate() {
     createValidExperimentDefinitionPanel();
-    Date today = getToday();
-    setDurationOnDurationPanel(today, today);
+    setDurationOnDurationPanel(EARLIER_DAY, EARLIER_DAY);
     assertTrue(experimentDefinitionPanel.startDateIsNotAfterEndDate());
   }
   
   public void testDurationPanelDisallowsStartDateAfterEndDate() {
     createValidExperimentDefinitionPanel();
-    Date today = getToday();
-    Date tomorrow = getTomorrow();
-    setDurationOnDurationPanel(tomorrow, today);
+    setDurationOnDurationPanel(LATER_DAY, EARLIER_DAY);
     assertFalse(experimentDefinitionPanel.startDateIsNotAfterEndDate());
   }
   
@@ -250,19 +243,10 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     experimentDefinitionPanel = new ExperimentDefinitionPanel(experiment,loginInfo, null);
   }
   
-  private void setDurationOnDurationPanel(Date startDate, Date endDate) {
+  private void setDurationOnDurationPanel(String startDate, String endDate) {
     DurationView durationPanel = experimentDefinitionPanel.getDurationPanel();
     durationPanel.setFixedDuration(true);
     durationPanel.setStartDate(startDate);
     durationPanel.setEndDate(endDate);
   }
-  
-  private Date getToday() {
-    return new Date();
-  }
-  
-  private Date getTomorrow() {
-    return new Date(new Date().getTime() + TimeUtil.MILLIS_IN_A_DAY);
-  }
-
 }
