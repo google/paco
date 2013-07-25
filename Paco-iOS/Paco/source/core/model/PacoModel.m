@@ -176,8 +176,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   instance.definition = definition;
   instance.events = events;
   NSDate *nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSString *nowdateStr = [[[NSDateFormatter alloc] init] stringFromDate:nowdate]; //YMZ:TODO: this returns an empty string
-  instance.instanceId = [NSString stringWithFormat:@"%@_%@", definition.title, nowdateStr];
+  instance.instanceId = definition.experimentId;
   instance.lastEventQueryTime = nowdate;
   [self.experimentInstances addObject:instance];
   return instance;
@@ -195,7 +194,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   
   NSMutableDictionary *map = [NSMutableDictionary dictionary];
   for (PacoEvent *event in events) {
-    NSString *instanceId = event.experimentName;
+    NSString *instanceId = event.experimentId;
     NSMutableArray *instanceEvents = [map objectForKey:instanceId];
     if (!instanceEvents) {
       instanceEvents = [NSMutableArray array];
@@ -215,11 +214,10 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     PacoExperiment *experiment = [self addExperimentInstance:definition
                                                     schedule:definition.schedule
                                                       events:instanceEvents];
-    
-    //YMZ: confusing, why we are using two different instanceId?
-    // Use the instance id from the sorted event map.
-    experiment.instanceId = instanceId;
-  }  
+    NSAssert([experiment.instanceId isEqualToString:definition.experimentId] &&
+             [instanceId isEqualToString:definition.experimentId],
+             @"instanceId should be equal to experimentId!");    
+  }
 }
 
 
