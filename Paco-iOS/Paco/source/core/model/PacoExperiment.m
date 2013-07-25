@@ -80,6 +80,7 @@
   
   NSString *experimentId = [map objectForKey:@"experimentId"];
   PacoExperimentDefinition *experimentDefinition = [model experimentDefinitionForId:experimentId];
+  NSAssert(experimentDefinition != nil, @"definition doesn't exist!");
   self.definition = experimentDefinition;
 }
 

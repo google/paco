@@ -177,52 +177,11 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   instance.definition = definition;
   instance.events = events;
   NSDate *nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSString *nowdateStr = [[[NSDateFormatter alloc] init] stringFromDate:nowdate]; //YMZ:TODO: this returns an empty string
-  instance.instanceId = [NSString stringWithFormat:@"%@_%@", definition.title, nowdateStr];
+  instance.instanceId = definition.experimentId;
   instance.lastEventQueryTime = nowdate;
   [self.experimentInstances addObject:instance];
   return instance;
 }
-
-//YMZ: this piece of code needs to be refactored to be more efficient!
-- (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events
-{
-  NSAssert(definition != nil && [events count] > 0, @"definition should NOT be nil, or events should have more than one element!");
-  
-  NSArray *instances = [self instancesForExperimentId:definition.experimentId];
-  // Expecting no existing instances in model
-  assert([instances count] == 0);
-  //need to split events out into each instance via the experiment name == experiment instance id
-  
-  NSMutableDictionary *map = [NSMutableDictionary dictionary];
-  for (PacoEvent *event in events) {
-    NSString *instanceId = event.experimentName;
-    NSMutableArray *instanceEvents = [map objectForKey:instanceId];
-    if (!instanceEvents) {
-      instanceEvents = [NSMutableArray array];
-      [map setObject:instanceEvents forKey:instanceId];
-    }
-    [instanceEvents addObject:event];
-  }
-  
-  // Make experiment instances for each instance id.
-  NSArray *instanceIds = [map allKeys];
-  NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, definition.experimentId, definition.title);
-  
-  
-  for (NSString *instanceId in instanceIds) {
-    NSArray *instanceEvents = [map objectForKey:instanceId];
-    NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
-    PacoExperiment *experiment = [self addExperimentInstance:definition
-                                                    schedule:definition.schedule
-                                                      events:instanceEvents];
-    
-    //YMZ: confusing, why we are using two different instanceId?
-    // Use the instance id from the sorted event map.
-    experiment.instanceId = instanceId;
-  }  
-}
-
 
 - (void)makeJSONObjectFromExperiments {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
@@ -283,9 +242,9 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   NSString *documentsDirectory = [paths objectAtIndex:0];
   NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
   NSLog(@"Saving to %@", fileName);
-  if ([self.jsonObjectInstances count] == 0) {
-    [self makeJSONObjectFromInstances];
-  }
+  
+  [self makeJSONObjectFromInstances];
+  
   NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]], @"jsonObjectInstances should be an array!");
 
   NSError *jsonError = nil;
@@ -363,38 +322,57 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return experiments.count > 0;
 }
 
-- (BOOL)loadExperimentInstancesFromFile {
+- (NSError*)loadExperimentInstancesFromFile {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
   NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
   NSLog(@"Loading from %@", fileName);
-  //NSDictionary *json = [NSDictionary dictionaryWithContentsOfFile:fileName];
-  //if (!json) {
-  //  NSLog(@"Failed to load from %@", fileName);
- // }
-  NSData *jsonData = [[NSFileManager defaultManager] contentsAtPath:fileName];
-  if (!jsonData) {
-    NSLog(@"Failed to load data for file %@", fileName);
+  
+  NSError* error = nil;
+  NSData* jsonData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
+  if (error != nil) {
+    NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+    //We should ignore error of "No such file or directory"
+    if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
+        && underlyingError.code == ENOENT) {
+      NSLog(@"Instances plist doesn't exist.");
+      [self applyInstanceJSON:nil];
+      return nil;
+    }
+    
+    NSLog(@"[Error]Failed to load instances: %@",
+          error.description ? error.description : @"unknown error");
+    return error;
   }
+  
+  if (jsonData == nil) {
+    NSLog(@"Loaded 0 instances from file \n");
+    [self applyInstanceJSON:nil];
+    return nil;
+  }
+  
   NSError *jsonError = nil;
-  id jsonObj = !jsonData ? nil : [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
-  if (!jsonObj) {
-    return NO;
+  id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
+  if (jsonError) {
+    NSLog(@"[Error]Failed to parse instances json data: %@",
+          error.description ? error.description : @"unknown error");
+    return jsonError;
   }
-  assert([jsonObj isKindOfClass:[NSArray class]]);
+  
+  NSAssert([jsonObj isKindOfClass:[NSArray class]], @"jsonObj should be an array!");
 
-  NSArray *experiments = jsonObj;
-  [self applyInstanceJSON:experiments];
-  NSLog(@"LOADED INSTANCE JSON FROM FILE \n%@", self.jsonObjectInstances);
-  return experiments.count > 0;
+  [self applyInstanceJSON:jsonObj];
+  NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
+  NSLog(@"Loaded %d instances from file \n", [self.jsonObjectInstances count]);
+  return nil;
 }
 
 - (BOOL)loadFromFile {
   BOOL success = YES;
   BOOL check1 = [self loadExperimentDefinitionsFromFile];
   success = success && check1;
-  BOOL check2 = [self loadExperimentInstancesFromFile];
-  success = success && check2;
+  NSError* error = [self loadExperimentInstancesFromFile];
+  success = success && (error == nil);
   return success;
 }
 
