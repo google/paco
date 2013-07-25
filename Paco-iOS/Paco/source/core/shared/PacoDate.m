@@ -399,6 +399,7 @@
   break;
   case kPacoScheduleTypeSelfReport:
   case kPacoScheduleTypeAdvanced:
+  case kPacoScheduleTypeTesting:    
     break;
   }
   return nil;

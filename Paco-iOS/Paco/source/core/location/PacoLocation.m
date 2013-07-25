@@ -39,7 +39,7 @@ NSTimer* LocationTimer;
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:5.0
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
                                                      userInfo:nil

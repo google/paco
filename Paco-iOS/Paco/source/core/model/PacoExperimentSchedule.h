@@ -39,6 +39,7 @@ typedef enum {
   kPacoScheduleTypeESM = 4,
   kPacoScheduleTypeSelfReport = 5,
   kPacoScheduleTypeAdvanced = 6,
+  kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications  
 } PacoScheduleType;
 
 typedef enum {

@@ -141,6 +141,8 @@
       return @"Self report only";
     case kPacoScheduleTypeAdvanced:
       return @"Advanced";
+    case kPacoScheduleTypeTesting:
+      return @"iOS Testing";
   }
   return nil;
 }

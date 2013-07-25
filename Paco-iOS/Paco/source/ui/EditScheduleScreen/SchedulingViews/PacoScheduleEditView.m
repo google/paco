@@ -131,6 +131,8 @@ NSString *kCellIdText = @"text";
     return [NSArray arrayWithObjects:
                 [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
                 nil];
+  case kPacoScheduleTypeTesting: // TPE special type only used for iOS Notification testing
+    return nil;
   }
   return nil;
 }
@@ -242,6 +244,10 @@ NSString *kCellIdText = @"text";
   case kPacoScheduleTypeAdvanced:
     // not implemented on the server.
     break;
+  case kPacoScheduleTypeTesting: {
+    // special type for testing Notification
+    }
+  break;
   }
 
 }
@@ -308,6 +314,10 @@ NSLog(@"TODO: implement schedule editing hookups");
     break;
   case kPacoScheduleTypeAdvanced:
     // not implemented on the server.
+    break;
+  case kPacoScheduleTypeTesting: {
+    // special type for testing Notification
+    }
     break;
   }
 
