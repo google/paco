@@ -59,7 +59,8 @@ public class ExperimentCreationMenuBar extends Composite {
         TreeItem selectedButton = event.getSelectedItem();
         if (selectedButton.equals(showDescriptionItem)) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_DESCRIPTION_CODE);
-        } else if (selectedButton.equals(getShowScheduleItem())) {
+        } else if (selectedButton.equals(getShowScheduleItem())|| 
+            selectedButton.equals(getInputGroupHeaderItem())) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE);
         } else if (selectedButton.equals(getShowInputsItem())) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_INPUTS_CODE);
@@ -118,12 +119,16 @@ public class ExperimentCreationMenuBar extends Composite {
     inputGroupsRootTree.addItem(inputGroup);
   }
   
+  private TreeItem getInputGroupHeaderItem() {
+    return inputGroupsRootTree.getChild(0);
+  }
+  
   private TreeItem getShowScheduleItem() {
-    return inputGroupsRootTree.getChild(0).getChild(0);
+    return getInputGroupHeaderItem().getChild(0);
   }
 
   private TreeItem getShowInputsItem() {
-    return inputGroupsRootTree.getChild(0).getChild(1);
+    return getInputGroupHeaderItem().getChild(1);
   }
 
   private void fireExperimentCreationCode(int code) {

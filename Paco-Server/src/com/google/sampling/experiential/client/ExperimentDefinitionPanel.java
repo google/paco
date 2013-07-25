@@ -89,10 +89,12 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     contentPanel = createContentPanel();
     mainPanel.add(contentPanel);
 
+    createButtonPanel();
+    
     // Entry view is description panel.
     showPanel(descriptionPanel);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL);
 
-    createButtonPanel();
   }
 
   private ExperimentCreationContentPanel createContentPanel() {
@@ -162,16 +164,16 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
       showExperimentSchedule();
-      advanceLeftMenuBar(ExperimentCreationMenuBar.SCHEDULE_PANEL);
+      setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL);
     } else if (showingPanel.equals(signalPanel)) {
       showExperimentInputs();
-      advanceLeftMenuBar(ExperimentCreationMenuBar.INPUTS_PANEL);
+      setLeftMenuBarHighlight(ExperimentCreationMenuBar.INPUTS_PANEL);
     } else if (showingPanel.equals(inputsListPanel)) {
       showExperimentPublishing();
-      advanceLeftMenuBar(ExperimentCreationMenuBar.PUBLISHING_PANEL);
+      setLeftMenuBarHighlight(ExperimentCreationMenuBar.PUBLISHING_PANEL);
     } else {
       showExperimentDescription();
-      advanceLeftMenuBar(ExperimentCreationMenuBar.DESCRIPTION_PANEL);
+      setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL);
     }
   }
 
@@ -191,7 +193,7 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     showPanel(publishingPanel);
   }
 
-  private void advanceLeftMenuBar(int toPanel) {
+  private void setLeftMenuBarHighlight(int toPanel) {
     leftMenuBar.setSelectedItem(toPanel);
   }
 
