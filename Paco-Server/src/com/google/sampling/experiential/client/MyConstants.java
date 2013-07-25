@@ -1,7 +1,6 @@
 package com.google.sampling.experiential.client;
 
 import com.google.gwt.i18n.client.Constants;
-import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface MyConstants extends Constants {
 
@@ -421,11 +420,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Experiment Publishing")
   String experimentPublishingButtonText();
   
-  @DefaultStringValue("Input Groups")
-  String experimentInputGroupsHeaderText();
+  @DefaultStringValue("Signal Groups")
+  String experimentSignalGroupsHeaderText();
   
-  @DefaultStringValue("Input Group")
-  String experimentSingleInputGroupHeaderText();
+  @DefaultStringValue("Signal Group")
+  String experimentSingleSignalGroupHeaderText();
   
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
@@ -441,6 +440,12 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Triggered Signaling")
   String triggeredSignaling();
+  
+  @DefaultStringValue("Add Signal Group")
+  String newSignalGroupButtonText();
+  
+  @DefaultStringValue("Save Experiment")
+  String saveExperiment();
 
   @DefaultStringValue("Please fix the following before submitting your experiment:")
   String experimentCreationError();

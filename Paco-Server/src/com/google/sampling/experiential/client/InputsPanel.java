@@ -19,8 +19,6 @@
 package com.google.sampling.experiential.client;
 
 
-import java.util.concurrent.Callable;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

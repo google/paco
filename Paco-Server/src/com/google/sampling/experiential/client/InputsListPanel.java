@@ -30,9 +30,9 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.allen_sauer.gwt.dnd.client.VetoDragException;
 import com.allen_sauer.gwt.dnd.client.drop.VerticalPanelDropController;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
@@ -56,10 +56,18 @@ public class InputsListPanel extends Composite {
   // Visible for testing.
   protected LinkedList<InputsPanel> inputsPanelsList;
   
+  private int signalGroupNum;
+  
+  // TODO: this is here for backwards compatibility. Remove later.
   public InputsListPanel(ExperimentDAO experiment) {
+    this(experiment, 0);
+  }
+
+  public InputsListPanel(ExperimentDAO experiment, int signalGroupNum) {
     myConstants = GWT.create(MyConstants.class);
     
     this.experiment = experiment;
+    this.signalGroupNum =  signalGroupNum;
 
     // An absolute panel is necessary for dragging.
     rootPanel = new AbsolutePanel();
@@ -68,7 +76,10 @@ public class InputsListPanel extends Composite {
 
     // Holds content.
     mainPanel = new VerticalPanel();
-    mainPanel.setSpacing(4);
+    mainPanel.setSpacing(2);
+    initWidget(mainPanel);
+    
+    mainPanel.add(createSignalGroupHeader());
     mainPanel.add(createInputsHeader());
     rootPanel.add(mainPanel);
 
@@ -79,6 +90,13 @@ public class InputsListPanel extends Composite {
       makeDraggable(panel);
     }
     createDragSpaceBuffer();
+  }
+  
+  private Label createSignalGroupHeader() {
+    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
+    Label lblExperimentSchedule = new Label(titleText);
+    lblExperimentSchedule.setStyleName("paco-HTML-Large");
+    return lblExperimentSchedule;
   }
   
   private HTML createInputsHeader() {
@@ -110,7 +128,7 @@ public class InputsListPanel extends Composite {
     updateExperimentInputs();
   }
   
-  public boolean checkListItemsHaveAtLeatOneOptionAndHighlight() {
+  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
     boolean requiredFieldsAreFilled = true;
     for (InputsPanel inputsPanel : inputsPanelsList) {
       if (!inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight()) {
@@ -137,7 +155,8 @@ public class InputsListPanel extends Composite {
   private void createInputsPanels(ExperimentDAO experiment) {
     inputsPanelsList = new LinkedList<InputsPanel>();
     InputDAO[] inputs = experiment.getInputs();
-    if (inputs == null || inputs.length == 0) {
+    if (signalGroupNum != 0 || // TODO: for now high input group numbers have no meaning. Will change with signal groups.
+        inputs == null || inputs.length == 0) {
       InputDAO emptyInputDAO = createEmptyInput();
       InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO);
       inputs = new InputDAO[] {emptyInputDAO};
