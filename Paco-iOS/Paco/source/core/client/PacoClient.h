@@ -20,6 +20,7 @@
 @class PacoModel;
 @class PacoScheduler;
 @class PacoService;
+@class PacoExperiment;
 @class PacoExperimentDefinition;
 
 //production server: 0
@@ -58,5 +59,8 @@
 - (NSError*)errorOfPrefetchingDefinitions;
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
+
+- (void)stopExperiment:(PacoExperiment*)experiment
+       completionBlock:(void (^)(NSError*))completionBlock;
 
 @end
