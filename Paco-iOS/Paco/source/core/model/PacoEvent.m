@@ -40,21 +40,16 @@
   return [[PacoEvent alloc] init];
 }
 
-+ (NSDate *)pacoDateForString:(NSString *)dateStr {
-  // Assuming its a long long for ms since epoch.
-  long long timeInterval = [dateStr longLongValue];
-  return [NSDate dateWithTimeIntervalSince1970:timeInterval];
-}
 
 + (id)pacoEventFromJSON:(id)jsonObject {
   PacoEvent *event = [[PacoEvent alloc] init];
   NSDictionary *eventMembers = jsonObject;
   event.who = [eventMembers objectForKey:@"who"];
-  event.when = [self pacoDateForString:[eventMembers objectForKey:@"when"]];
+  event.when = [PacoDate pacoDateForString:[eventMembers objectForKey:@"when"]];
   event.latitude = [[eventMembers objectForKey:@"lat"] longLongValue];
   event.longitude = [[eventMembers objectForKey:@"long"] longLongValue];
-  event.responseTime = [self pacoDateForString:[eventMembers objectForKey:@"responseTime"]];
-  event.scheduledTime = [self pacoDateForString:[eventMembers objectForKey:@"scheduledTime"]];
+  event.responseTime = [PacoDate pacoDateForString:[eventMembers objectForKey:@"responseTime"]];
+  event.scheduledTime = [PacoDate pacoDateForString:[eventMembers objectForKey:@"scheduledTime"]];
   event.appId = [eventMembers objectForKey:@"appId"];
   event.pacoVersion = [eventMembers objectForKey:@"pacoVersion"];
   event.experimentId = [eventMembers objectForKey:@"experimentId"];
