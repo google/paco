@@ -53,7 +53,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
-- (BOOL)loadExperimentInstancesFromFile;
+- (NSError*)loadExperimentInstancesFromFile;
 - (void)applyDefinitionJSON:(id)jsonObject;
 - (void)deleteExperiment:(PacoExperiment*)experiment;
 @end
@@ -262,74 +262,10 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)prefetchExperiments
 {
-  BOOL success = [self.model loadExperimentInstancesFromFile];
-  if (success) {
-    [self experimentsLoadedWithError:nil];
-    return;
-  }
-  
-  // Load events for each known experiment, if events exist then this
-  // will indicate that the user has joined this experiment.
-  int numOfDefinitions = [self.model.experimentDefinitions count];
-  __block int numOfResponses = 0;
-  __block NSError* resultError = nil;
-  void(^finishBlock)(NSError*) = ^(NSError* error){
-    numOfResponses++;
-    //record the first error for now
-    if (resultError == nil && error != nil) {
-      resultError = error;
-    }
-    
-    if(numOfDefinitions == numOfResponses){
-      [self experimentsLoadedWithError:resultError];
-    }
-  };
-  
-  
-  for (PacoExperimentDefinition *experimentDefinition in self.model.experimentDefinitions) {
-    [self fetchExperimentsForDefinition:experimentDefinition completionBlock:^(NSError *error) {
-      finishBlock(error);
-    }];
-  }
+  NSError* error = [self.model loadExperimentInstancesFromFile];
+  [self experimentsLoadedWithError:error];
 }
 
-
-- (void)fetchExperimentsForDefinition:(PacoExperimentDefinition*)definition completionBlock:(void(^)(NSError*))completionBlock
-{
-  NSAssert(definition != nil, @"definition should NOT be nil!");
-  
-  [self.service loadEventsForExperiment:definition
-                  withCompletionHandler:^(NSArray *events, NSError *error) {
-                    //YMZ: TODO error handling interface
-                    if (error != nil) {
-                      NSLog(@"Error fetching events: %@", [error description]);
-                      completionBlock(error);
-                      return;
-                    }
-                    
-                    if ([events count] == 0) {
-                      completionBlock(nil);
-                      return;
-                    }
-                    
-                    NSLog(@"\tFound %d events in experiment \"%@\"", [events count], definition.title);
-                    // Convert the JSON events into event objects.
-                    NSMutableArray *pacoEvents = [NSMutableArray array];
-                    for (id jsonEvent in events) {
-                      PacoEvent *pacoEvent = [PacoEvent pacoEventFromJSON:jsonEvent];
-                      [pacoEvents addObject:pacoEvent];
-                    }
-                    
-                    if ([pacoEvents count] == 0) {
-                      completionBlock(nil);
-                      return;
-                    }
-                    
-                    [[PacoClient sharedInstance].model addExperimentsWithDefinition:definition events:pacoEvents];
-                    completionBlock(nil);
-                  }];
-
-}
 
 #pragma mark stop an experiment
 - (void)deleteLocalExperiment:(PacoExperiment*)experiment
