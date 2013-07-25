@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
@@ -43,8 +44,15 @@ public class InputsListPanel extends Composite {
   
   // Visible for testing
   protected LinkedList<InputsPanel> inputsPanelsList;
-
+  
+  private int signalGroupNum;
+  
+  // TODO: this is here for backwards compatibility. Remove later.
   public InputsListPanel(ExperimentDAO experiment) {
+    this(experiment, 0);
+  }
+
+  public InputsListPanel(ExperimentDAO experiment, int signalGroupNum) {
     myConstants = GWT.create(MyConstants.class);
     
     this.experiment = experiment;
@@ -52,11 +60,16 @@ public class InputsListPanel extends Composite {
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
     
+    mainPanel.add(createSignalGroupHeader());
     mainPanel.add(createInputsHeader());
 
     inputsPanelsList = new LinkedList<InputsPanel>();
     InputDAO[] inputs = experiment.getInputs();
-    if (inputs == null || inputs.length == 0) {
+    
+    this.signalGroupNum =  signalGroupNum;
+    
+    if (signalGroupNum != 0 || // TODO: for now high input group numbers have no meaning. Will change with signal groups.
+        inputs == null || inputs.length == 0) {
       InputDAO emptyInputDAO = createEmptyInput();
       InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO);
       inputs = new InputDAO[] {emptyInputDAO};
@@ -70,6 +83,13 @@ public class InputsListPanel extends Composite {
         inputsPanelsList.add(inputsPanel);
       }
     }
+  }
+  
+  private Label createSignalGroupHeader() {
+    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
+    Label lblExperimentSchedule = new Label(titleText);
+    lblExperimentSchedule.setStyleName("paco-HTML-Large");
+    return lblExperimentSchedule;
   }
   
   private HTML createInputsHeader() {

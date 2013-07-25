@@ -48,14 +48,17 @@ public class SignalMechanismChooserPanel extends Composite {
   private VerticalPanel mainPanel;
   
   protected ListBox signalingMechanismChoices;
+  
+  private int signalGroupNum;
 
-  public SignalMechanismChooserPanel(ExperimentDAO experiment) {
+  public SignalMechanismChooserPanel(ExperimentDAO experiment, int signalGroupNum) {
     myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
 
     rootPanel = new VerticalPanel();
     initWidget(rootPanel);
-
+    
+    rootPanel.add(createSignalGroupHeader());
     rootPanel.add(createScheduleHeader());
 
     choicePanel = new HorizontalPanel();
@@ -71,8 +74,11 @@ public class SignalMechanismChooserPanel extends Composite {
     signalingMechanismChoices.addItem(myConstants.triggeredSignaling());
 
     choicePanel.add(signalingMechanismChoices);
+    
+    this.signalGroupNum = signalGroupNum;
 
-    if (experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
+    if (signalGroupNum != 0 ||  // TODO: for now high input group numbers have no meaning. Will change with signal groups.
+        experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
       SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
       signalingMechanisms[0] = new SignalScheduleDAO();
       experiment.setSignalingMechanisms(signalingMechanisms);
@@ -99,6 +105,13 @@ public class SignalMechanismChooserPanel extends Composite {
 
   private Label createScheduleHeader() {
     String titleText = myConstants.experimentSchedule();
+    Label lblExperimentSchedule = new Label(titleText);
+    lblExperimentSchedule.setStyleName("paco-HTML-Large");
+    return lblExperimentSchedule;
+  }
+  
+  private Label createSignalGroupHeader() {
+    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;
