@@ -16,34 +16,21 @@
  */
 package com.google.android.apps.paco;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -62,15 +49,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.pacoapp.paco.R;
+
 public class ExperimentScheduleActivity extends Activity {
 
-  public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
-  
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
   private Uri uri;
   private Experiment experiment;
-  ExperimentProviderUtil experimentProviderUtil;
+  private ExperimentProviderUtil experimentProviderUtil;
   private TimePicker timePicker;
   private TextView startHourField;
   private TextView endHourField;
@@ -94,10 +81,6 @@ public class ExperimentScheduleActivity extends Activity {
 
   private LinearLayout timesScheduleLayout;
 
-  private boolean showingJoinedExperiments;
-
-  private DownloadFullExperimentsTask experimentDownloadTask;
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -105,18 +88,18 @@ public class ExperimentScheduleActivity extends Activity {
     final Intent intent = getIntent();
     uri = intent.getData();
     if (uri != null) {
-      showingJoinedExperiments = uri.getPathSegments().get(0)
-          .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
+//      showingJoinedExperiments = uri.getPathSegments().get(0)
+//          .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
 
 
       // branch out into a different view to include based on the type of schedule
       // in the experiment.
       experimentProviderUtil = new ExperimentProviderUtil(this);
-      if (showingJoinedExperiments) {
-        experiment = experimentProviderUtil.getExperiment(uri);
-      } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri);
-      }
+      // if (showingJoinedExperiments) {
+      experiment = experimentProviderUtil.getExperiment(uri);
+      // } else {
+      // experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+      // }
 
       setUpSchedulingLayout();
     }
@@ -153,13 +136,11 @@ public class ExperimentScheduleActivity extends Activity {
       setupScheduleSaving();
     }
   }
-  
+
   // Visible for testing
-  public void setActivityProperties(Experiment experiment, ExperimentProviderUtil experimentProviderUtil, 
-                                    boolean showingJoinedExperiments) {
+  public void setActivityProperties(Experiment experiment, ExperimentProviderUtil experimentProviderUtil) {
     this.experiment = experiment;
     this.experimentProviderUtil = experimentProviderUtil;
-    this.showingJoinedExperiments = showingJoinedExperiments;
     
     // TODO: Uncomment this to do true instrumentation testing.
     // setUpSchedulingLayout();
@@ -530,66 +511,24 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void saveExperimentRegistration() {
-
     if (experiment.getSchedule() != null
         && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       AlarmStore alarmStore = new AlarmStore(this);
       alarmStore.deleteAllSignalsForSurvey(experiment.getId());
       experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     }
-
-    if (isJoiningExperiment()) {
-      experiment.setJoinDate(getTodayAsStringWithZone());
-      experimentProviderUtil.insertFullJoinedExperiment(experiment);
-      createJoinEvent();
-      startService(new Intent(this, SyncService.class));
-    } else {
-      experimentProviderUtil.updateJoinedExperiment(experiment);
-    }
   }
 
-  private boolean isJoiningExperiment() {
-    return experiment.getJoinDate() == null;
-  }
-
-  /**
-   * Creates a pacot for a newly registered experiment
-   */
-  private void createJoinEvent() {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-    responseForInput.setAnswer("true");
-    responseForInput.setName("joined");
-    event.addResponse(responseForInput);
-
-    Output responseForSchedule = new Output();
-    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    responseForSchedule.setAnswer(schedule.toString());
-    responseForSchedule.setName("schedule");
-    event.addResponse(responseForSchedule);
-
-    experimentProviderUtil.insertEvent(event);
-  }
- 
   private void save() {
     Validation valid = isValid();
     if (!valid.ok()) {
       Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
       return;
     }
-    if (showingJoinedExperiments) {
-      scheduleExperiment();
-    } else {
-      requestFullExperiment();
-    }
+    scheduleExperiment();
+    Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
   }
-  
+
   // Visible for testing
   public void scheduleExperiment() {
     saveExperimentRegistration();    
@@ -598,77 +537,6 @@ public class ExperimentScheduleActivity extends Activity {
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
     }
     finish();
-  }
-
-  private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
-  }
-
-  private void requestFullExperiment() {
-    if (!NetworkUtil.isConnected(this)) {
-      showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
-    } else {
-      DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
-
-        @Override
-        public void done(String resultCode) {
-          dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
-          if (resultCode.equals(DownloadHelper.SUCCESS)) {
-            saveDownloadedExperiment();
-          } else {
-            showFailureDialog(resultCode);
-          }
-        }
-      };
-      showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
-      
-      List<Long> experimentServerIds = Arrays.asList(experiment.getServerId());
-      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), 
-                                                               experimentServerIds);
-      experimentDownloadTask.execute();
-    }
-  }
-
-  private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
-    } else {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
-    }      
-  }
-
-  private void saveDownloadedExperiment() {
-    List<Experiment> experimentList = getDownloadedExperimentsList();
-    Preconditions.checkArgument(experimentList.size() == 1);
-    saveDownloadedExperiment(experimentList.get(0));
-  }
-  
-  // Visible for testing
-  public void saveDownloadedExperiment(Experiment fullExperiment) {
-    SignalSchedule oldSchedule = experiment.getSchedule();
-    experiment = fullExperiment;
-    experiment.setSchedule(oldSchedule);
-    scheduleExperiment();
-    Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
-  }
-
-  private List<Experiment> getDownloadedExperimentsList() {
-    String contentAsString = experimentDownloadTask.getContentAsString();
-    List<Experiment> experimentList;
-    try {
-      experimentList = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
-    } catch (JsonParseException e) {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
-      return null;
-    } catch (JsonMappingException e) {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
-      return null;
-    } catch (IOException e) {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
-      return null;
-    }
-    return experimentList;
   }
 
   private Validation isValid() {
@@ -692,61 +560,12 @@ public class ExperimentScheduleActivity extends Activity {
 
 
   protected Dialog onCreateDialog(int id, Bundle args) {
-    switch (id) {
-    case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
-      return getRefreshJoinedDialog();
-    } case DownloadHelper.INVALID_DATA_ERROR: {
-      return getUnableToJoinDialog(getString(R.string.invalid_data));
-    } case DownloadHelper.SERVER_ERROR: {
-      return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-    } case DownloadHelper.NO_NETWORK_CONNECTION: {
-      return getNoNetworkDialog();
-    } default: {
-      return getDaysOfWeekDialog();
-    }
-    }
+    return getDaysOfWeekDialog();
   }
 
   @Override
   protected Dialog onCreateDialog(int id) {
     return super.onCreateDialog(id);
-  }
-
-  private ProgressDialog getRefreshJoinedDialog() {
-    return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                               getString(R.string.retrieving_your_joined_experiment_from_the_server), 
-                               true, true);
-  }
-
-  private AlertDialog getUnableToJoinDialog(String message) {
-    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
-    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
-    .setMessage(message)
-    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
-    return unableToJoinBldr.create();
-  }
-
-  private AlertDialog getNoNetworkDialog() {
-    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
-    noNetworkBldr.setTitle(R.string.network_required)
-    .setMessage(getString(R.string.need_network_connection))
-    .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        showNetworkConnectionActivity();
-      }
-    })
-    .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
-    return noNetworkBldr.create();
   }
 
   private AlertDialog getDaysOfWeekDialog() {
@@ -794,10 +613,6 @@ public class ExperimentScheduleActivity extends Activity {
   // Visible for testing
   public Experiment getExperiment() {
     return experiment;
-  }
-
-  private String getTodayAsStringWithZone() {
-    return TimeUtil.formatDateWithZone(new DateTime());
   }
 
 }
