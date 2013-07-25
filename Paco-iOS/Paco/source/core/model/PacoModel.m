@@ -182,45 +182,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return instance;
 }
 
-//YMZ: this piece of code needs to be refactored to be more efficient!
-- (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events
-{
-  NSAssert(definition != nil && [events count] > 0, @"definition should NOT be nil, or events should have more than one element!");
-  
-  NSArray *instances = [self instancesForExperimentId:definition.experimentId];
-  // Expecting no existing instances in model
-  assert([instances count] == 0);
-  //need to split events out into each instance via the experiment name == experiment instance id
-  
-  NSMutableDictionary *map = [NSMutableDictionary dictionary];
-  for (PacoEvent *event in events) {
-    NSString *instanceId = event.experimentId;
-    NSMutableArray *instanceEvents = [map objectForKey:instanceId];
-    if (!instanceEvents) {
-      instanceEvents = [NSMutableArray array];
-      [map setObject:instanceEvents forKey:instanceId];
-    }
-    [instanceEvents addObject:event];
-  }
-  
-  // Make experiment instances for each instance id.
-  NSArray *instanceIds = [map allKeys];
-  NSLog(@"FOUND %d INSTANCES OF EXPERIMENT %@ %@", instanceIds.count, definition.experimentId, definition.title);
-  
-  
-  for (NSString *instanceId in instanceIds) {
-    NSArray *instanceEvents = [map objectForKey:instanceId];
-    NSLog(@"\tFOUND %d EVENTS FOR INSTANCE %@", instanceEvents.count, instanceId);
-    PacoExperiment *experiment = [self addExperimentInstance:definition
-                                                    schedule:definition.schedule
-                                                      events:instanceEvents];
-    NSAssert([experiment.instanceId isEqualToString:definition.experimentId] &&
-             [instanceId isEqualToString:definition.experimentId],
-             @"instanceId should be equal to experimentId!");    
-  }
-}
-
-
 - (void)makeJSONObjectFromExperiments {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {

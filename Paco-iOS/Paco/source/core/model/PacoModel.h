@@ -39,7 +39,6 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
                                  schedule:(PacoExperimentSchedule *)schedule
                                    events:(NSArray *)events;
-- (void)addExperimentsWithDefinition:(PacoExperimentDefinition*)definition events:(NSArray*)events;
 
 
 - (NSArray *)joinedExperiments;
