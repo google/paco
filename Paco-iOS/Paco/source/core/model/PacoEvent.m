@@ -98,9 +98,7 @@
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = definition.experimentId;
   
-  // Pass the instance id as experiment name so that multiple experiment instances
-  // are distinguished
-  event.experimentName = [NSString stringWithFormat:@"%@_%@", definition.title, [PacoDate timestampFromDate:[NSDate dateWithTimeIntervalSinceNow:0]]];
+  event.experimentName = definition.title;
   
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   NSMutableDictionary *response = [NSMutableDictionary dictionary];
@@ -133,7 +131,7 @@
   PacoEvent *event = [PacoEvent pacoEventForIOS];
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = experiment.definition.experimentId;
-  event.experimentName = experiment.instanceId;//YMZ:TODO: not sure about this
+  event.experimentName = experiment.definition.title;
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   
   //For now, we need to indicate inputId=-1 to avoid server exception,
