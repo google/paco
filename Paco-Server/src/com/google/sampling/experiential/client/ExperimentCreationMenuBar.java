@@ -21,8 +21,10 @@ public class ExperimentCreationMenuBar extends Composite {
   private VerticalPanel mainPanel;
   private Tree menuTree;
   private TreeItem showDescriptionItem;
-  private TreeItem inputGroupsRootTree;
+  private TreeItem signalGroupsRootTree;
   private TreeItem showPublishingItem;
+  
+  private int numSignalGroups;
 
   private ExperimentCreationListener listener;
 
@@ -41,56 +43,72 @@ public class ExperimentCreationMenuBar extends Composite {
 
     // Main menu roots.
     showDescriptionItem = new TreeItem(myConstants.experimentDescriptionButtonText());
-    inputGroupsRootTree = new TreeItem(myConstants.experimentInputGroupsHeaderText());
+    signalGroupsRootTree = new TreeItem(myConstants.experimentSignalGroupsHeaderText());
     showPublishingItem = new TreeItem(myConstants.experimentPublishingButtonText());
 
-    createInputGroup();
-    inputGroupsRootTree.setState(true); // Unfold the tree by default.
+    numSignalGroups = 0;
+    createAddSignalGroupButton();
+    createSignalGroup();
+    signalGroupsRootTree.setState(true); // Unfold the tree by default.
 
     // Add main menu headers to menu tree.
     menuTree.addItem(showDescriptionItem);
-    menuTree.addItem(inputGroupsRootTree);
+    menuTree.addItem(signalGroupsRootTree);
     menuTree.addItem(showPublishingItem);
+    
+    createMainMenuTreeSelectionHandler();
+    mainPanel.add(menuTree);
+  }
 
+  private void createMainMenuTreeSelectionHandler() {
     // Navigation callbacks.
     menuTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
       @Override
       public void onSelection(SelectionEvent<TreeItem> event) {
         TreeItem selectedButton = event.getSelectedItem();
         if (selectedButton.equals(showDescriptionItem)) {
-          fireExperimentCreationCode(ExperimentCreationListener.SHOW_DESCRIPTION_CODE);
-        } else if (selectedButton.equals(getShowScheduleItem())) {
-          fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE);
-        } else if (selectedButton.equals(getShowInputsItem())) {
-          fireExperimentCreationCode(ExperimentCreationListener.SHOW_INPUTS_CODE);
+          fireExperimentCreationCode(ExperimentCreationListener.SHOW_DESCRIPTION_CODE, 0);
         } else if (selectedButton.equals(showPublishingItem)) {
-          fireExperimentCreationCode(ExperimentCreationListener.SHOW_PUBLISHING_CODE);
+          fireExperimentCreationCode(ExperimentCreationListener.SHOW_PUBLISHING_CODE, 0);
+        } else if (selectedItemIsSpecificSignalGroupHeader(selectedButton)){
+          int signalGroupNum = signalGroupsRootTree.getChildIndex(selectedButton);
+          if (selectedItemIsAddNewSignalGroup(signalGroupNum)) {
+            fireExperimentCreationCode(ExperimentCreationListener.NEW_SIGNAL_GROUP, null);
+          } else {
+            fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE, signalGroupNum);
+          }
+        } else {
+          int signalGroupNum = signalGroupsRootTree.getChildIndex(selectedButton.getParentItem());
+          int viewWithinSignalGroupNum = selectedButton.getParentItem().getChildIndex(selectedButton);
+          if (selectedItemIsShowSchedule(viewWithinSignalGroupNum)) {
+            fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE, signalGroupNum);
+          } else {
+            fireExperimentCreationCode(ExperimentCreationListener.SHOW_INPUTS_CODE, signalGroupNum);
+          }
         }
       }
     });
-
-    mainPanel.add(menuTree);
   }
 
-  public void addInputGroup() {
-    createInputGroup();
+  public void addSignalGroup() {
+    createSignalGroup();
   }
 
-  public void deleteInputGroup(int groupNum) {
-    TreeItem toRemove = inputGroupsRootTree.getChild(groupNum - 1);
-    inputGroupsRootTree.removeItem(toRemove);
+  public void deleteSignalGroup(int groupNum) {
+    TreeItem toRemove = signalGroupsRootTree.getChild(groupNum - 1);
+    signalGroupsRootTree.removeItem(toRemove);
   }
 
-  public void setSelectedItem(int itemNum) {
-    switch (itemNum) {
+  public void setSelectedItem(int itemType, Integer groupNum) {
+    switch (itemType) {
     case DESCRIPTION_PANEL:
       menuTree.setSelectedItem(showDescriptionItem, false);
       break;
     case SCHEDULE_PANEL:
-      menuTree.setSelectedItem(getShowScheduleItem(), false);
+      menuTree.setSelectedItem(getShowScheduleItem(groupNum), false);
       break;
     case INPUTS_PANEL:
-      menuTree.setSelectedItem(getShowInputsItem(), false);
+      menuTree.setSelectedItem(getShowInputsItem(groupNum), false);
       break;
     case PUBLISHING_PANEL:
       menuTree.setSelectedItem(showPublishingItem, false);
@@ -107,26 +125,48 @@ public class ExperimentCreationMenuBar extends Composite {
     mainPanel.add(labelMessage);
   }
 
-  private void createInputGroup() {
-    int groupNum = inputGroupsRootTree.getChildCount() + 1;
-    TreeItem inputGroup = new TreeItem(myConstants.experimentSingleInputGroupHeaderText() + " " + groupNum);
-    TreeItem showSchedule = new TreeItem(myConstants.experimentScheduleButtonText());
-    TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
-    inputGroup.addItem(showSchedule);
-    inputGroup.addItem(showInputs);
-    inputGroup.setState(true); // Input group is open by default.
-    inputGroupsRootTree.addItem(inputGroup);
+  private void createAddSignalGroupButton() {
+    TreeItem addSignalGroup = new TreeItem(myConstants.newSignalGroupButtonText());
+    signalGroupsRootTree.addItem(addSignalGroup);
   }
   
-  private TreeItem getShowScheduleItem() {
-    return inputGroupsRootTree.getChild(0).getChild(0);
+  private void createSignalGroup() {
+    int groupNum = signalGroupsRootTree.getChildCount() - 1;
+    TreeItem signalGroup = new TreeItem(myConstants.experimentSingleSignalGroupHeaderText() + " " + groupNum);
+    TreeItem showSchedule = new TreeItem(myConstants.experimentScheduleButtonText());
+    TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
+    signalGroup.addItem(showSchedule);
+    signalGroup.addItem(showInputs);
+    signalGroup.setState(true); // Input group is open by default.
+    signalGroupsRootTree.insertItem(groupNum, signalGroup); // Insert in front of "Add Signal Group" item.
+    ++numSignalGroups;
+  }
+  
+  private TreeItem getSignalGroupHeaderItem(int groupNum) {
+    return signalGroupsRootTree.getChild(groupNum);
+  }
+  
+  private TreeItem getShowScheduleItem(int groupNum) {
+    return getSignalGroupHeaderItem(groupNum).getChild(0);
   }
 
-  private TreeItem getShowInputsItem() {
-    return inputGroupsRootTree.getChild(0).getChild(1);
+  private TreeItem getShowInputsItem(int groupNum) {
+    return getSignalGroupHeaderItem(groupNum).getChild(1);
+  }
+  
+  private boolean selectedItemIsShowSchedule(int viewWithinSignalGroupNum) {
+    return viewWithinSignalGroupNum == 0;
   }
 
-  private void fireExperimentCreationCode(int code) {
-    listener.eventFired(code, null, null);
+  private boolean selectedItemIsAddNewSignalGroup(int signalGroupNum) {
+    return signalGroupNum == numSignalGroups;
+  }
+
+  private boolean selectedItemIsSpecificSignalGroupHeader(TreeItem selectedButton) {
+    return selectedButton.getParentItem().equals(signalGroupsRootTree);
+  }
+
+  private void fireExperimentCreationCode(int code, Integer groupNum) {
+    listener.eventFired(code, null, groupNum);
   }
 }

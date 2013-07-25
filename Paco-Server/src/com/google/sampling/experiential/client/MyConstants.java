@@ -389,11 +389,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Experiment Publishing")
   String experimentPublishingButtonText();
   
-  @DefaultStringValue("Input Groups")
-  String experimentInputGroupsHeaderText();
+  @DefaultStringValue("Signal Groups")
+  String experimentSignalGroupsHeaderText();
   
-  @DefaultStringValue("Input Group")
-  String experimentSingleInputGroupHeaderText();
+  @DefaultStringValue("Signal Group")
+  String experimentSingleSignalGroupHeaderText();
   
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
@@ -409,5 +409,11 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Triggered Signaling")
   String triggeredSignaling();
+  
+  @DefaultStringValue("Add Signal Group")
+  String newSignalGroupButtonText();
+  
+  @DefaultStringValue("Save Experiment")
+  String saveExperiment();
 
 }

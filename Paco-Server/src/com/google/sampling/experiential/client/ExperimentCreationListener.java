@@ -15,6 +15,9 @@ public interface ExperimentCreationListener {
   public static final int SHOW_INPUTS_CODE = 3;
   public static final int SHOW_PUBLISHING_CODE = 4;
   public static final int NEXT = 5;
+  public static final int NEW_SIGNAL_GROUP = 6;
+  public static final int SAVE_EXPERIMENT = 7;
 
+  // TODO: is experiment parameter needed?
   void eventFired(int creationCode, ExperimentDAO experiment, Integer inputGroupNumber);
 }

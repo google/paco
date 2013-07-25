@@ -106,7 +106,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   }
   
   public void testScheduledSignalingSavedOnExperiment() {
-    SignalMechanismChooserPanel panel = experimentDefinitionPanel.signalPanel;
+    SignalMechanismChooserPanel panel = experimentDefinitionPanel.signalPanels.get(0);
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.SCHEDULED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
@@ -114,7 +114,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   }
   
   public void testTriggeredSignalingSavedOnExperiment() {
-    SignalMechanismChooserPanel panel = experimentDefinitionPanel.signalPanel;
+    SignalMechanismChooserPanel panel = experimentDefinitionPanel.signalPanels.get(0);
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.TRIGGERED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
@@ -122,7 +122,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   }
   
   public void testInputsSavedOnExperiment() {
-    InputsListPanel panel = experimentDefinitionPanel.inputsListPanel;
+    InputsListPanel panel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel input1 = panel.inputsPanelsList.get(0);
     input1.varNameText.setValue(TEST_TEXT, true);
     input1.inputPromptText.setValue(TEST_TEXT, true);
