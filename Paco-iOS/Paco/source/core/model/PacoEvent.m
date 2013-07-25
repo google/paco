@@ -30,6 +30,7 @@ static NSString* const kPacoEventKeyScheduledTime = @"scheduledTime";
 static NSString* const kPacoEventKeyPacoVersion = @"pacoVersion";
 static NSString* const kPacoEventKeyExperimentId = @"experimentId";
 static NSString* const kPacoEventKeyExperimentName = @"experimentName";
+static NSString* const kPacoEventKeyExperimentVersion = @"experimentVersion";
 static NSString* const kPacoEventKeyResponses = @"responses";
 
 static NSString* const kPacoResponseKeyName = @"name";
@@ -70,34 +71,36 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.pacoVersion = [eventMembers objectForKey:kPacoEventKeyPacoVersion];
   event.experimentId = [eventMembers objectForKey:kPacoEventKeyExperimentId];
   event.experimentName = [eventMembers objectForKey:kPacoEventKeyExperimentName];
+  event.experimentVersion = [[eventMembers objectForKey:kPacoEventKeyExperimentVersion] intValue];
   event.responses = [eventMembers objectForKey:kPacoEventKeyResponses];
   return event;
 }
 
 - (id)generateJsonObject {
   NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-  [dictionary setValue:self.experimentId forKey:kPacoEventKeyExperimentId];
-  [dictionary setValue:self.experimentName forKey:kPacoEventKeyExperimentName];
-  [dictionary setValue:self.who forKey:kPacoEventKeyWho];
-  [dictionary setValue:self.appId forKey:kPacoEventKeyAppId];
-  [dictionary setValue:self.pacoVersion forKey:kPacoEventKeyPacoVersion];
+  [dictionary setObject:self.experimentId forKey:kPacoEventKeyExperimentId];
+  [dictionary setObject:self.experimentName forKey:kPacoEventKeyExperimentName];
+  [dictionary setObject:[NSString stringWithFormat:@"%d", self.experimentVersion] forKey:kPacoEventKeyExperimentVersion];
+  [dictionary setObject:self.who forKey:kPacoEventKeyWho];
+  [dictionary setObject:self.appId forKey:kPacoEventKeyAppId];
+  [dictionary setObject:self.pacoVersion forKey:kPacoEventKeyPacoVersion];
   if (self.when) {
-    [dictionary setValue:[PacoDate pacoStringForDate:self.when] forKey:kPacoEventKeyWhen];
+    [dictionary setObject:[PacoDate pacoStringForDate:self.when] forKey:kPacoEventKeyWhen];
   }
   if (self.latitude) {
-    [dictionary setValue:[NSString stringWithFormat:@"%lld", self.latitude] forKey:kPacoEventKeyLatitude];
+    [dictionary setObject:[NSString stringWithFormat:@"%lld", self.latitude] forKey:kPacoEventKeyLatitude];
   }
   if (self.longitude) {
-    [dictionary setValue:[NSString stringWithFormat:@"%lld", self.longitude] forKey:kPacoEventKeyLongitude];
+    [dictionary setObject:[NSString stringWithFormat:@"%lld", self.longitude] forKey:kPacoEventKeyLongitude];
   }
   if (self.responseTime) {
-    [dictionary setValue:[PacoDate pacoStringForDate:self.responseTime] forKey:kPacoEventKeyResponseTime];
+    [dictionary setObject:[PacoDate pacoStringForDate:self.responseTime] forKey:kPacoEventKeyResponseTime];
   }
   if (self.scheduledTime) {
-    [dictionary setValue:[PacoDate pacoStringForDate:self.scheduledTime] forKey:kPacoEventKeyScheduledTime];
+    [dictionary setObject:[PacoDate pacoStringForDate:self.scheduledTime] forKey:kPacoEventKeyScheduledTime];
   }
   if (self.responses) {
-    [dictionary setValue:self.responses forKey:kPacoEventKeyResponses];
+    [dictionary setObject:self.responses forKey:kPacoEventKeyResponses];
   }
   return [NSDictionary dictionaryWithDictionary:dictionary];
 }
@@ -108,7 +111,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   PacoEvent *event = [PacoEvent pacoEventForIOS];
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = definition.experimentId;
-  
+  event.experimentVersion = definition.experimentVersion;
   event.experimentName = definition.title;
   
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
@@ -143,6 +146,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = experiment.definition.experimentId;
   event.experimentName = experiment.definition.title;
+  event.experimentVersion = experiment.definition.experimentVersion;
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   
   //For now, we need to indicate inputId=-1 to avoid server exception,
