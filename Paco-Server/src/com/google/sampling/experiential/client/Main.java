@@ -919,10 +919,10 @@ public class Main implements EntryPoint, ExperimentListener {
       ExperimentJoinPanel ep = new ExperimentJoinPanel(experiment, loginInfo, this);
       contentPanel.add(ep);      
     } else if (!joined) {
-      ExperimentDescriptionPanel ep = new ExperimentDescriptionPanel(experiment, loginInfo, this);
+      ExperimentDetailPanel ep = new ExperimentDetailPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
     } else {
-      ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, loginInfo, this);
+      ExperimentCreationPanel ep = new ExperimentCreationPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
     }
     

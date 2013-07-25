@@ -26,7 +26,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   
   private ExperimentDAO experiment;
   private ExperimentDAO savedExperiment;
-  private ExperimentDefinitionPanel experimentDefinitionPanel;
+  private ExperimentCreationPanel experimentDefinitionPanel;
   
   @Override
   public String getModuleName() {
@@ -35,7 +35,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   
   protected void gwtSetUp() {
     experiment = getEmptyExperiment();
-    experimentDefinitionPanel = new  ExperimentDefinitionPanel(experiment, createLoginInfo(), null);
+    experimentDefinitionPanel = new  ExperimentCreationPanel(experiment, createLoginInfo(), null);
   }
   
   public void testEmptyExperimentSubmits() {

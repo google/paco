@@ -77,8 +77,6 @@ public class InputsListPanel extends Composite {
     // Holds content.
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
-    initWidget(mainPanel);
-    
     mainPanel.add(createSignalGroupHeader());
     mainPanel.add(createInputsHeader());
     rootPanel.add(mainPanel);

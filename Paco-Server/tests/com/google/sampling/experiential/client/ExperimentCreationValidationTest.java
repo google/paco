@@ -10,7 +10,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private static final String LATER_DAY = "2013/25/07";
   private static final String EARLIER_DAY = "2013/24/07";
 
-  private ExperimentDefinitionPanel experimentDefinitionPanel;
+  private ExperimentCreationPanel experimentDefinitionPanel;
   
   private LoginInfo loginInfo;
   private ExperimentDAO experiment;
@@ -240,7 +240,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
   
   private void createExperimentDefinitionPanel(ExperimentDAO experiment) {
-    experimentDefinitionPanel = new ExperimentDefinitionPanel(experiment,loginInfo, null);
+    experimentDefinitionPanel = new ExperimentCreationPanel(experiment,loginInfo, null);
   }
   
   private void setDurationOnDurationPanel(String startDate, String endDate) {

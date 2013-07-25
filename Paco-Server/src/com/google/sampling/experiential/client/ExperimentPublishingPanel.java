@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 
-public class ExperimentCreationPublishingPanel extends Composite {
+public class ExperimentPublishingPanel extends Composite {
 
   private ExperimentDAO experiment;
   private MyConstants myConstants;
@@ -40,7 +40,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
   protected CheckBox publishCheckBox;
   protected TextArea publishedUserList;
 
-  public ExperimentCreationPublishingPanel(ExperimentDAO experiment) {
+  public ExperimentPublishingPanel(ExperimentDAO experiment) {
     myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
 

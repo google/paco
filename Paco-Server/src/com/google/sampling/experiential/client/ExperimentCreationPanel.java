@@ -46,7 +46,7 @@ import com.google.sampling.experiential.shared.LoginInfo;
  * @author Bob Evans
  * 
  */
-public class ExperimentDefinitionPanel extends Composite implements ExperimentCreationListener {
+public class ExperimentCreationPanel extends Composite implements ExperimentCreationListener {
   
   /* Note: a valid email address, by our definition, contains:
    *  A user name at least one character long. Valid characters are alphanumeric
@@ -78,16 +78,16 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
   private Composite showingPanel;
   
   // Visible for testing
-  protected ExperimentMetadataPanel descriptionPanel;
+  protected ExperimentDescriptionPanel descriptionPanel;
   protected List<SignalMechanismChooserPanel> signalPanels;
   protected List<InputsListPanel> inputsListPanels;
-  protected ExperimentCreationPublishingPanel publishingPanel;
+  protected ExperimentPublishingPanel publishingPanel;
   
   private int numSignalGroups;
 
   private List<String> errorMessagesToDisplay;
 
-  public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
+  public ExperimentCreationPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
@@ -139,8 +139,8 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     return new ExperimentCreationMenuBar(this);
   }
 
-  private ExperimentMetadataPanel createDescriptionPanel() {
-    return new ExperimentMetadataPanel(experiment, loginInfo);
+  private ExperimentDescriptionPanel createDescriptionPanel() {
+    return new ExperimentDescriptionPanel(experiment, loginInfo);
   }
 
   private SignalMechanismChooserPanel createSignalMechanismPanel(int groupNum) {
@@ -164,8 +164,8 @@ public class ExperimentDefinitionPanel extends Composite implements ExperimentCr
     return inputsListPanel;
   }
 
-  private ExperimentCreationPublishingPanel createPublishingPanel() {
-    return new ExperimentCreationPublishingPanel(experiment);
+  private ExperimentPublishingPanel createPublishingPanel() {
+    return new ExperimentPublishingPanel(experiment);
   }
 
   private void showPanel(Composite panel) {
