@@ -20,6 +20,7 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -45,7 +46,7 @@ public class ListChoicePanel extends Composite {
   /**
    * @param listChoicesPanel
    */
-  public ListChoicePanel(ListChoicesPanel listChoicesPanel) {
+  public ListChoicePanel(ListChoicesPanel listChoicesPanel, MouseDownHandler textFieldMouseDownHandler) {
     this.parent = listChoicesPanel;
     horizontalPanel = new HorizontalPanel();
     horizontalPanel.setSpacing(2);
@@ -65,6 +66,7 @@ public class ListChoicePanel extends Composite {
         updateChoice();
       }
     });
+    textField.addMouseDownHandler(textFieldMouseDownHandler);
 
     Button btnDelete = new Button("-");
     btnDelete.addClickHandler(new ClickHandler() {
