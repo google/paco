@@ -280,9 +280,9 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   NSString *documentsDirectory = [paths objectAtIndex:0];
   NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
   NSLog(@"Saving to %@", fileName);
-  if ([self.jsonObjectInstances count] == 0) {
-    [self makeJSONObjectFromInstances];
-  }
+  
+  [self makeJSONObjectFromInstances];
+  
   NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]], @"jsonObjectInstances should be an array!");
 
   NSError *jsonError = nil;
