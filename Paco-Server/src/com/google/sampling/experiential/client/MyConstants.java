@@ -13,9 +13,37 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Next")
   String next();
+  
+  @DefaultStringValue("OK")
+  String ok();
 
   @DefaultStringValue("Success!")
   String success();
+    
+  @DefaultStringValue("Failure")
+  String failure();
+  
+  @DefaultStringValue("Failed to login.")
+  String failedToLogin();
+  
+  @DefaultStringValue("Failure to join experiment.")
+  String failureToJoinExperiment();
+  
+  @DefaultStringValue("Something went wrong in saving to the server.")
+  String saveToServerFailure();
+  
+  @DefaultStringValue("Error message")
+  String errorMessage();
+  
+  @DefaultStringValue("Error deleting experiment.")
+  String errorDeletingExperiment();
+  
+  @DefaultStringValue("Could not retrieve charts.")
+  String couldNotRetrieveCharts();
+  
+  @DefaultStringValue("No results for your query.")
+  String noResultsForQuery();
+
 
   @DefaultStringValue("TODAY'S RESPONSES")
   String todaysResponses();
@@ -218,6 +246,10 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Purge")
   String purge();
+  
+  @DefaultStringValue("Are you sure you want to delete this experiment definition? " 
+            + "Perhaps you want to unpublish it to hide it from new users?")
+  String areYouSureYouWantToDelete();
 
   @DefaultStringValue("QR Code")
   String qrCode();
@@ -410,4 +442,18 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Triggered Signaling")
   String triggeredSignaling();
 
+  @DefaultStringValue("Please fix the following before submitting your experiment:")
+  String experimentCreationError();
+  
+  @DefaultStringValue("Some required fields need to be completed.")
+  String needToCompleteRequiredFields();
+  
+  @DefaultStringValue("End date cannot be before start date.")
+  String startEndDateError();
+  
+  @DefaultStringValue("Email address list may be invalid.")
+  String emailAddressesError();
+  
+  @DefaultStringValue("Input names are required and cannot contain spaces.")
+  String varNameUnfilledOrHasSpacesError();
 }

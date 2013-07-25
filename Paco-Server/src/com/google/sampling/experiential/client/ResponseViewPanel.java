@@ -43,6 +43,7 @@ public class ResponseViewPanel extends Composite {
   private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
+  private ListChoicesPanel listChoicesPanel;
   
   private MouseDownHandler mouseDownHandler;
 
@@ -76,10 +77,13 @@ public class ResponseViewPanel extends Composite {
   }
 
   private void drawListPanel() {
-    ListChoicesPanel outer = new ListChoicesPanel(input, mouseDownHandler);
-    outer.setStyleName("left");
-    mainPanel.add(outer);
-    // outer.add(new HTML("List responses not implemented yet!"));
+    listChoicesPanel = new ListChoicesPanel(input, mouseDownHandler);
+    listChoicesPanel.setStyleName("left");
+    mainPanel.add(listChoicesPanel);
+  }
+  
+  public ListChoicesPanel getListChoicesPanel() {
+    return listChoicesPanel;
   }
 
   private void drawLikertStepsPanel() {

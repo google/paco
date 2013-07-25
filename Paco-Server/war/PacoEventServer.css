@@ -160,7 +160,7 @@ table, tbody, tr, td {
   padding: 2px;
   font-size: 45px;
   font-weight: bold;
-  color: #333333;    
+  color: #333333;
 }
 
 .vertical-Panel-Drag-Spacer {
@@ -181,4 +181,8 @@ a.paco-Login a.paco-Login:visited, a.paco-Login:hover {
 	display: block;
 	left: 450;
 	bottom: 20;
+}
+
+.error-highlight {
+  border: 3px solid red;
 }

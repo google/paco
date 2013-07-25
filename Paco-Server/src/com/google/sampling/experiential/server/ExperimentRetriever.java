@@ -150,7 +150,7 @@ public class ExperimentRetriever {
     for (ExperimentDAO experiment : experiments) {
       String creatorEmail = experiment.getCreator().toLowerCase();
       if (creatorEmail.equals(email) || ExperimentRetriever.arrayContains(experiment.getAdmins(), email) || 
-          (experiment.getPublished() == true && 
+          (experiment.getPublished() != null && experiment.getPublished() == true &&
                   (experiment.getPublishedUsers().length == 0 || ExperimentRetriever.arrayContains(experiment.getPublishedUsers(), email)))) {
         availableExperiments.add(experiment);
       }

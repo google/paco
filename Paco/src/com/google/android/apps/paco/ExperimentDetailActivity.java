@@ -115,16 +115,19 @@ public class ExperimentDetailActivity extends Activity {
     ((TextView)findViewById(R.id.description)).setText(experiment.getDescription());
     ((TextView)findViewById(R.id.creator)).setText(experiment.getCreator());
 
-    SignalSchedule schedule = experiment.getSchedule();
-    Trigger trigger = experiment.getTrigger();
-    if (schedule != null && trigger == null) {
-      Integer scheduleType = schedule.getScheduleType();
-      int scheduleName = SignalSchedule.SCHEDULE_TYPES_NAMES[scheduleType];
-      ((TextView) findViewById(R.id.schedule)).setText(scheduleName);
-    } else if (trigger != null) {
-      String triggerDetails = Trigger.getNameForCode(trigger.getEventCode());
-      ((TextView) findViewById(R.id.schedule)).setText(triggerDetails);
-    }
+//    SignalSchedule schedule = experiment.getSchedule();
+//    Trigger trigger = experiment.getTrigger();
+//    if (schedule != null && trigger == null) {
+//      Integer scheduleType = schedule.getScheduleType();
+//      int scheduleName = SignalSchedule.SCHEDULE_TYPES_NAMES[scheduleType];
+//      ((TextView) findViewById(R.id.schedule)).setText(scheduleName);
+//    } else if (trigger != null) {
+//      String triggerDetails = Trigger.getNameForCode(trigger.getEventCode());
+//      ((TextView) findViewById(R.id.schedule)).setText(triggerDetails);
+//    }
+    
+    // Hide the schedule panel for now (a short experiment load comes with no schedule info).
+    findViewById(R.id.scheduleDisplayPanel).setVisibility(View.GONE);
     
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
@@ -141,18 +144,19 @@ public class ExperimentDetailActivity extends Activity {
     ((TextView)findViewById(R.id.startDate)).setText(startDate);
     ((TextView)findViewById(R.id.endDate)).setText(endDate);
 
-    String esm_frequency = schedule != null && schedule.getEsmFrequency() != null 
-      ? schedule.getEsmFrequency().toString() 
-      : null;
-    if (schedule != null && schedule.getScheduleType() == SignalSchedule.ESM && esm_frequency != null && esm_frequency.length() > 0) {
-      findViewById(R.id.esmPanel).setVisibility(View.VISIBLE); 
-      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + getString(SignalSchedule.ESM_PERIODS_NAMES[schedule.getEsmPeriodInDays()]));
-    }
-    // TODO (bobevans): Update to show all the new shceduling types in a succinct readonly way
-    if (isJoinedExperiment()) {
-      findViewById(R.id.timePanel).setVisibility(View.VISIBLE); 
-      ((TextView)findViewById(R.id.time)).setText(toCommaSeparatedString(schedule != null ? schedule.getTimes() : null));
-    }
+//    String esm_frequency = schedule != null && schedule.getEsmFrequency() != null 
+//      ? schedule.getEsmFrequency().toString() 
+//      : null;
+//    if (schedule != null && schedule.getScheduleType() == SignalSchedule.ESM && esm_frequency != null && esm_frequency.length() > 0) {
+//      findViewById(R.id.esmPanel).setVisibility(View.VISIBLE); 
+//      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + getString(SignalSchedule.ESM_PERIODS_NAMES[schedule.getEsmPeriodInDays()]));
+//    }
+//    // TODO (bobevans): Update to show all the new shceduling types in a succinct readonly way
+//    if (isJoinedExperiment()) {
+//      findViewById(R.id.timePanel).setVisibility(View.VISIBLE); 
+//      ((TextView)findViewById(R.id.time)).setText(toCommaSeparatedString(schedule != null ? schedule.getTimes() : null));
+//    }
+    
     if (!isJoinedExperiment()) {
       joinButton.setOnClickListener(new OnClickListener() {    	 
         public void onClick(View v) {

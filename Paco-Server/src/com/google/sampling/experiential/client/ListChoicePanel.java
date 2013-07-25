@@ -110,6 +110,10 @@ public class ListChoicePanel extends Composite {
   public void setChoice(String choice) {
     textField.setText(choice);
   }
+  
+  public TextBox getTextField() {
+    return textField;
+  }
 
 
 

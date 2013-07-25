@@ -28,7 +28,8 @@ public class AllTests extends TestCase {
   public static Test suite() {
     Class[] tests = new Class[] {
        com.google.sampling.experiential.client.ExperimentCreationTest.class,
-       com.google.sampling.experiential.client.InputsListPanelTest.class
+       com.google.sampling.experiential.client.InputsListPanelTest.class,
+       com.google.sampling.experiential.client.ExperimentCreationValidationTest.class
     };
     return new TestSuite(tests);
   }

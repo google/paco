@@ -33,7 +33,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
   private VerticalPanel mainPanel;
   private DisclosurePanel customFeedbackPanel;
   private DisclosurePanel publishedUsersPanel;
-  
+
   // Visible for testing
   protected CheckBox customFeedbackCheckBox;
   protected TextArea customFeedbackText;
@@ -50,7 +50,7 @@ public class ExperimentCreationPublishingPanel extends Composite {
     createFeedbackEntryPanel();
     createPublishingPanel();
   }
-  
+
   private void createPublishingHeader() {
     String titleText = myConstants.experimentPublishing();
     Label lblExperimentPublishing = new Label(titleText);
@@ -148,11 +148,11 @@ public class ExperimentCreationPublishingPanel extends Composite {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
-//    publishCheckBox.addClickHandler(new ClickHandler() {
-//      public void onClick(ClickEvent event) {
-//        setIsPublishedOn(experiment);
-//      }
-//    });
+    //    publishCheckBox.addClickHandler(new ClickHandler() {
+    //      public void onClick(ClickEvent event) {
+    //        setIsPublishedOn(experiment);
+    //      }
+    //    });
     publishCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -214,6 +214,10 @@ public class ExperimentCreationPublishingPanel extends Composite {
     userContentPanel.add(publishedUserList);
     publishedUsersPanel.setContent(userContentPanel);
   }
+  
+  public TextArea getPublishedUserPanel() {
+    return publishedUserList;
+  }
 
   private void setIsPublishedOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
@@ -255,6 +259,11 @@ public class ExperimentCreationPublishingPanel extends Composite {
       buf.append(item.toLowerCase());
     }
     return buf.toString();
+  }
+  
+  // Visible for testing
+  protected void setPublishedUsersInPanel(String commaSepEmailList) {
+    publishedUserList.setText(commaSepEmailList);
   }
 
 }

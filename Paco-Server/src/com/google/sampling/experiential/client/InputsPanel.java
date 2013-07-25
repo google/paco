@@ -18,6 +18,9 @@
 
 package com.google.sampling.experiential.client;
 
+
+import java.util.concurrent.Callable;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -41,6 +44,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.InputDAO;
 
 /**
@@ -61,6 +65,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private ResponseViewPanel responseView;
   private HorizontalPanel conditionalPanel;
   private VerticalPanel inputPromptTextPanel;
+  private VerticalPanel varNamePanel;
   MyConstants myConstants = GWT.create(MyConstants.class);
   
   // Visible for testing
@@ -153,6 +158,61 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     return input;
   }
 
+  public String getInputTextPrompt() {
+    return input.getText();
+  }
+
+  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    if (input.getResponseType().equals(InputDAO.LIST)) {
+      return checkLChoicesAreNotEmptyAndHighlight();
+    } else {
+      return true;
+    }
+  }
+  
+  public boolean checkVarNameFilledWithoutSpacesAndHighlight() {
+    boolean filledAndHasNoSpaces = !(input.getName() == null) 
+        && !input.getName().isEmpty() && !input.getName().contains(" ");
+    setFieldHighlight(varNamePanel.getWidget(1), filledAndHasNoSpaces);
+    return filledAndHasNoSpaces;
+  }
+
+  private boolean checkTextPromptFieldIsFilledAndHighlight() {
+    boolean isFilled = !(input.getText() == null) && !input.getText().isEmpty();
+    setFieldHighlight(inputPromptTextPanel.getWidget(1), isFilled);
+    return isFilled;
+  }
+
+  private boolean checkVarNameFieldIsFilledAndHighlight() {
+    boolean isFilled = !(input.getName() == null) && !input.getName().isEmpty();
+    setFieldHighlight(varNamePanel.getWidget(1), isFilled);
+    return isFilled;
+  }
+
+  private boolean checkLChoicesAreNotEmptyAndHighlight() {
+    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
+    TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
+    setFieldHighlight(firstListChoiceTextBox, isFilled);
+    return isFilled;
+  }
+
+  private void setFieldHighlight(Widget widget, boolean isFilled) {
+    if (isFilled) {
+      removeErrorHighlight(widget);
+    } else {
+      addErrorHighlight(widget);
+    }
+  }
+
+  private void addErrorHighlight(Widget widget) {
+    widget.addStyleName(Main.ERROR_HIGHLIGHT);
+  }
+
+  private void removeErrorHighlight(Widget widget) {
+    widget.removeStyleName(Main.ERROR_HIGHLIGHT);
+  }
+
+  @SuppressWarnings("deprecation")
   private void createInputFormLine() {
     upperLinePanel = new HorizontalPanel();
     upperLinePanel.setStyleName("left");
@@ -272,7 +332,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
       public void onChange(ChangeEvent event) {
         input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
-        inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
       }
     });
     responseTypeListBox.addMouseDownHandler(this);
@@ -301,7 +361,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   }
 
   private void createVarNameColumn() {
-    VerticalPanel varNamePanel = new VerticalPanel();
+    varNamePanel = new VerticalPanel();
     upperLinePanel.add(varNamePanel);
     Label nameLabel = new Label(myConstants.varName() + ":");
     nameLabel.setStyleName("keyLabel");

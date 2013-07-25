@@ -99,6 +99,10 @@ public class ExperimentMetadataPanel extends Composite {
     durationPanel = createDurationPanel();
     formPanel.add(durationPanel);
   }
+  
+  public TextBox getTitleTextPanel() {
+    return titlePanel;
+  }
 
   private PanelPair createTitlePanel() {
     return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
@@ -174,6 +178,10 @@ public class ExperimentMetadataPanel extends Composite {
       }
     });
     return adminPanel;
+  }
+  
+  public TextArea getAdminListPanel() {
+    return adminList;
   }
 
   private void setAdminsOn(ExperimentDAO experiment, String adminsText) {
@@ -281,6 +289,21 @@ public class ExperimentMetadataPanel extends Composite {
       add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
+  }
+  
+  // Visible for testing
+  protected void setTitleInPanel(String title) {
+    titlePanel.setText(title);
+  }
+  
+  // Visible for testing
+  protected void setAdminsInPanel(String commaSepEmailList) {
+    adminList.setText(commaSepEmailList);
+  }
+  
+  // Visible for testing
+  protected DurationView getDurationPanel() {
+    return durationPanel;
   }
 
 }

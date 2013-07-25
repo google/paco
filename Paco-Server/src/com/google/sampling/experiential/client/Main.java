@@ -71,6 +71,8 @@ import com.google.sampling.experiential.shared.MapServiceAsync;
  */
 public class Main implements EntryPoint, ExperimentListener {
 
+  public static String ERROR_HIGHLIGHT = "error-highlight";
+  
   private Label statusLabel;
   private FlexTable flexTable;
   Images resources;
@@ -116,7 +118,7 @@ public class Main implements EntryPoint, ExperimentListener {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
     loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
-        Window.alert("Failed to login");
+        Window.alert(myConstants.failedToLogin());
       }
 
       public void onSuccess(LoginInfo result) {
@@ -503,8 +505,7 @@ public class Main implements EntryPoint, ExperimentListener {
             "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'", "_blank","");
         break;
       case ExperimentListener.DELETE_CODE:
-        if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
-            + "Perhaps you want to unpublish it to hide it from new users?")) {
+        if (Window.confirm(myConstants.areYouSureYouWantToDelete())) {
           deleteExperiment(experiment, joined);
         }
         break;
@@ -594,7 +595,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Failure");
+        Window.alert(myConstants.failure());
         statusLabel.setVisible(false);
 
       }
@@ -602,9 +603,9 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(Boolean result) {
         if (result) {
-          Window.alert("Success");
+          Window.alert(myConstants.success());
         } else {
-          Window.alert("Failure to Join Experiment");
+          Window.alert(myConstants.failureToJoinExperiment());
         }
         statusLabel.setVisible(false);
 
@@ -635,7 +636,7 @@ public class Main implements EntryPoint, ExperimentListener {
       
       HorizontalPanel buttonPanel = new HorizontalPanel();
       referenceDialogPanel.add(buttonPanel);
-      Button ok = new Button("OK");
+      Button ok = new Button(myConstants.ok());
       buttonPanel.add(ok);
       ok.addClickHandler(new ClickHandler() {
 
@@ -654,7 +655,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
               @Override
               public void onSuccess(Void result) {
-                Window.alert("Success.");                
+                Window.alert(myConstants.success());                
               }
               
             };
@@ -664,7 +665,7 @@ public class Main implements EntryPoint, ExperimentListener {
           
         }
       });
-      Button cancel = new Button("Cancel");
+      Button cancel = new Button(myConstants.cancel());
       buttonPanel.add(cancel);
       cancel.addClickHandler(new ClickHandler() {
 
@@ -710,16 +711,18 @@ public class Main implements EntryPoint, ExperimentListener {
 
     mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
 
+      // PRIYA - see how this is
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Failure");
+        Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure()
+                     + "\n" + myConstants.errorMessage() + ": " + caught.getMessage());
         statusLabel.setVisible(false);
 
       }
 
       @Override
       public void onSuccess(Void result) {
-        Window.alert("Success");
+        Window.alert(myConstants.success());
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);
@@ -736,14 +739,14 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Failure");
+        Window.alert(myConstants.failure());
         statusLabel.setVisible(false);
 
       }
 
       @Override
       public void onSuccess(Void result) {
-        Window.alert("Success");
+        Window.alert(myConstants.success());
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);
@@ -772,7 +775,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Error deleting experiment.");
+        Window.alert(myConstants.errorDeletingExperiment());
         statusLabel.setVisible(false);
       }
 
@@ -798,7 +801,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve charts");
+        Window.alert(myConstants.couldNotRetrieveCharts());
         statusLabel.setVisible(false);
 
       }
@@ -806,7 +809,7 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(List<EventDAO> eventList) {
         if (eventList.size() == 0) {
-          Window.alert("No results for your query");
+          Window.alert(myConstants.noResultsForQuery());
           statusLabel.setVisible(false);
           return;
         }
