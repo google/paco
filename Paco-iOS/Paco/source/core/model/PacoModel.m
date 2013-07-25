@@ -359,38 +359,57 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return experiments.count > 0;
 }
 
-- (BOOL)loadExperimentInstancesFromFile {
+- (NSError*)loadExperimentInstancesFromFile {
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
   NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
   NSLog(@"Loading from %@", fileName);
-  //NSDictionary *json = [NSDictionary dictionaryWithContentsOfFile:fileName];
-  //if (!json) {
-  //  NSLog(@"Failed to load from %@", fileName);
- // }
-  NSData *jsonData = [[NSFileManager defaultManager] contentsAtPath:fileName];
-  if (!jsonData) {
-    NSLog(@"Failed to load data for file %@", fileName);
+  
+  NSError* error = nil;
+  NSData* jsonData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
+  if (error != nil) {
+    NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+    //We should ignore error of "No such file or directory"
+    if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
+        && underlyingError.code == ENOENT) {
+      NSLog(@"Instances plist doesn't exist.");
+      [self applyInstanceJSON:nil];
+      return nil;
+    }
+    
+    NSLog(@"[Error]Failed to load instances: %@",
+          error.description ? error.description : @"unknown error");
+    return error;
   }
+  
+  if (jsonData == nil) {
+    NSLog(@"Loaded 0 instances from file \n");
+    [self applyInstanceJSON:nil];
+    return nil;
+  }
+  
   NSError *jsonError = nil;
-  id jsonObj = !jsonData ? nil : [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
-  if (!jsonObj) {
-    return NO;
+  id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
+  if (jsonError) {
+    NSLog(@"[Error]Failed to parse instances json data: %@",
+          error.description ? error.description : @"unknown error");
+    return jsonError;
   }
-  assert([jsonObj isKindOfClass:[NSArray class]]);
+  
+  NSAssert([jsonObj isKindOfClass:[NSArray class]], @"jsonObj should be an array!");
 
-  NSArray *experiments = jsonObj;
-  [self applyInstanceJSON:experiments];
-  NSLog(@"LOADED INSTANCE JSON FROM FILE \n%@", self.jsonObjectInstances);
-  return experiments.count > 0;
+  [self applyInstanceJSON:jsonObj];
+  NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
+  NSLog(@"Loaded %d instances from file \n", [self.jsonObjectInstances count]);
+  return nil;
 }
 
 - (BOOL)loadFromFile {
   BOOL success = YES;
   BOOL check1 = [self loadExperimentDefinitionsFromFile];
   success = success && check1;
-  BOOL check2 = [self loadExperimentInstancesFromFile];
-  success = success && check2;
+  NSError* error = [self loadExperimentInstancesFromFile];
+  success = success && (error == nil);
   return success;
 }
 

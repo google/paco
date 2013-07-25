@@ -53,7 +53,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
-- (BOOL)loadExperimentInstancesFromFile;
+- (NSError*)loadExperimentInstancesFromFile;
 - (void)applyDefinitionJSON:(id)jsonObject;
 - (void)deleteExperiment:(PacoExperiment*)experiment;
 @end
@@ -262,14 +262,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)prefetchExperiments
 {
-  //TODO: loadExperimentInstancesFromFile needs to return its error except FileNotExist
-  BOOL success = [self.model loadExperimentInstancesFromFile];
-  if (success) {
-    [self experimentsLoadedWithError:nil];
-  }else{
-    //TODO: temp
-    [self experimentsLoadedWithError:[NSError errorWithDomain:@"com.paco.file" code:100 userInfo:nil]];
-  }
+  NSError* error = [self.model loadExperimentInstancesFromFile];
+  [self experimentsLoadedWithError:error];
 }
 
 
