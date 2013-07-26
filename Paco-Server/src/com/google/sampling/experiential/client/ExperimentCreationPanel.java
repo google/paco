@@ -200,8 +200,8 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
         showExperimentPublishing();
         setLeftMenuBarHighlight(ExperimentCreationMenuBar.PUBLISHING_PANEL, null);
       } else {
-        showExperimentSchedule(groupNum);
-        setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, groupNum);
+        showExperimentSchedule(groupNum + 1);
+        setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, groupNum + 1);
       }
     } else {
       showExperimentDescription();
