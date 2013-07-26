@@ -47,8 +47,15 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
 - (id)init {
   self = [super init];
   if (self) {
-    _appId = @"ios_paco";
-    _pacoVersion = @"1";
+    NSString* appID = [[[NSBundle mainBundle] infoDictionary]
+                       objectForKey:(NSString*)kCFBundleIdentifierKey];
+    NSAssert([appID length] > 0, @"appID is not valid!");
+    _appId = appID;
+    
+    NSString *version = [[[NSBundle mainBundle] infoDictionary]
+                         objectForKey:(NSString*)kCFBundleVersionKey];
+    NSAssert([version length] > 0, @"version number is not valid!");
+    _pacoVersion = version;
   }
   return self;
 }
