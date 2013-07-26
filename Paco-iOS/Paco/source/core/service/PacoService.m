@@ -115,10 +115,13 @@
   // Serialize to JSON for the request body.
   NSError *jsonError = nil;
   id jsonObject = [event generateJsonObject];
+  
+  //YMZ:TODO: error handling here
   NSData *jsonData =
       [NSJSONSerialization dataWithJSONObject:jsonObject
                                       options:NSJSONWritingPrettyPrinted
                                         error:&jsonError];
+  
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]
       forHTTPHeaderField:@"Content-Length"];

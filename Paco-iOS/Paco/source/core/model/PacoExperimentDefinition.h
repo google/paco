@@ -35,6 +35,7 @@
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, assign) BOOL webReccommended;
 @property (nonatomic, retain) id jsonObject;
+@property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (void)tagQuestionsForDependencies;
