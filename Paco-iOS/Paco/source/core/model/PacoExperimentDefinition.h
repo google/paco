@@ -27,7 +27,7 @@
 @property (nonatomic, copy) NSString *experimentId;
 @property (nonatomic, copy) NSString *informedConsentForm;
 @property (nonatomic, retain) NSArray *inputs;  // <PacoExperimentInput>
-@property (nonatomic, assign) long long modifyDate;
+@property (nonatomic, copy) NSString* modifyDate;
 @property (nonatomic, assign) BOOL published;
 @property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
 @property (nonatomic, assign) BOOL questionsChange;

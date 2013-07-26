@@ -42,7 +42,7 @@
     [inputObjects addObject:[PacoExperimentInput pacoExperimentInputFromJSON:jsonInput]];
   }
   definition.inputs = inputObjects;
-  definition.modifyDate = [[definitionMembers objectForKey:@"modifyDate"] longLongValue];
+  definition.modifyDate = [definitionMembers objectForKey:@"modifyDate"]; //Format: "2012/01/17"
   definition.published = [[definitionMembers objectForKey:@"published"] boolValue];
   definition.publishedUsers = [definitionMembers objectForKey:@"publishedUsers"];
   definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
@@ -72,7 +72,7 @@
           @"fixedDuration=%d "
           @"informedConsentForm=%@ "
           @"inputs=%@ "
-          @"modifyDate=%lld "
+          @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
           @"questionsChange=%d "
