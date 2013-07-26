@@ -17,6 +17,7 @@ public interface ExperimentCreationListener {
   public static final int NEXT = 5;
   public static final int NEW_SIGNAL_GROUP = 6;
   public static final int SAVE_EXPERIMENT = 7;
+  public static final int PREVIOUS = 8;
 
   // TODO: is experiment parameter needed?
   void eventFired(int creationCode, ExperimentDAO experiment, Integer inputGroupNumber);
