@@ -19,6 +19,8 @@
 
 @interface PacoDate : NSObject
 + (NSString *)pacoStringForDate:(NSDate *)date;
++ (NSDate *)pacoDateForString:(NSString *)dateStr;
+
 + (int)dayIndexOfDate:(NSDate *)date;
 + (int)weekdayIndexOfDate:(NSDate *)date;
 + (int)weekOfYearIndexOfDate:(NSDate *)date;

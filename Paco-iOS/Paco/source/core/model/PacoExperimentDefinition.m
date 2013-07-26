@@ -53,6 +53,7 @@
   
   definition.title = [definitionMembers objectForKey:@"title"];
   definition.webReccommended = [[definitionMembers objectForKey:@"webRecommended"] boolValue];
+  definition.experimentVersion = [[definitionMembers objectForKey:@"version"] intValue];
   
   definition.jsonObject = jsonObject;
   
@@ -76,7 +77,8 @@
           @"publishedUsers=%@ "
           @"questionsChange=%d "
           @"schedule=%@ "
-          @"webReccommended=%d >",
+          @"webReccommended=%d "
+          @"experimentVersion=%d >",
           self,
           self.experimentId,
           self.title,
@@ -94,6 +96,7 @@
           self.questionsChange,
           self.schedule,
           self.webReccommended,
+          self.experimentVersion,
           nil];
 }
 
