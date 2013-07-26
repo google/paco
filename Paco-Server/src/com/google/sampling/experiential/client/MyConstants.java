@@ -13,6 +13,9 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Next")
   String next();
   
+  @DefaultStringValue("Previous")
+  String previous();
+  
   @DefaultStringValue("OK")
   String ok();
 

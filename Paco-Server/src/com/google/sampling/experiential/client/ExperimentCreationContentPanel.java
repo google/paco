@@ -29,6 +29,8 @@ public class ExperimentCreationContentPanel extends Composite {
   
   private Widget addNewSignalGroupButton;
   private Widget createExperimentButton;
+  
+  private int numStandardButtons;
 
   public ExperimentCreationContentPanel(ExperimentDAO experiment, ExperimentCreationListener listener,
                                         List<Composite> showingViews) {
@@ -70,9 +72,9 @@ public class ExperimentCreationContentPanel extends Composite {
   }
   
   private void resetButtonPanel() {
-    // Button count should only ever be 1 or 2.
-    if (buttonPanel.getWidgetCount() == 2) {
-      buttonPanel.remove(1);
+    // Button count should only ever be one larger than standard.
+    if (buttonPanel.getWidgetCount() == numStandardButtons + 1) {
+      buttonPanel.remove(numStandardButtons);
     }
   }
   
@@ -99,10 +101,28 @@ public class ExperimentCreationContentPanel extends Composite {
 
   private void createButtonPanel() {
     buttonPanel = new HorizontalPanel();
-    buttonPanel.add(createNextButton());
+    numStandardButtons = 0;
+    addStandardButton(createPreviousButton());
+    addStandardButton(createNextButton());
     addNewSignalGroupButton = createNewSignalGroupButton();
     createExperimentButton = createCreateExperimentButton();
     mainPanel.add(buttonPanel);
+  }
+  
+  private void addStandardButton(Widget button) {
+    buttonPanel.add(button);
+    ++numStandardButtons;
+  }
+  
+  private Widget createPreviousButton() {
+    Button previousButton = new Button(myConstants.previous());
+    previousButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        fireExperimentCreationCode(ExperimentCreationListener.PREVIOUS);
+      }
+    });
+    return previousButton;
   }
 
   private Widget createNextButton() {
