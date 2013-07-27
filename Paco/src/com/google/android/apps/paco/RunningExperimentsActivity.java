@@ -137,11 +137,13 @@ public class RunningExperimentsActivity extends Activity {
         }
       }
     };
- 
-    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+     
     List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
-    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, joinedExperimentServerIds);
-    experimentDownloadTask.execute();
+    if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
+      showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, joinedExperimentServerIds);
+      experimentDownloadTask.execute();
+    }
   }
   
   private void saveDownloadedExperiments() {

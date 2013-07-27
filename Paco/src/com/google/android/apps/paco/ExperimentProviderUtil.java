@@ -32,6 +32,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -58,6 +59,8 @@ public class ExperimentProviderUtil {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String FILENAME = "experiments";
   
+  DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
+  
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -73,8 +76,17 @@ public class ExperimentProviderUtil {
     return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);    
   }
   
-  public List<Long> getJoinedExperimentServerIds() {
-    List<Long> experimentIds = Lists.transform(getJoinedExperiments(), new Function<Experiment, Long>() {
+  public List<Long> getJoinedExperimentServerIds() {    
+    List<Experiment> joinedExperiments = getJoinedExperiments();    
+    List<Experiment> stillRunningExperiments = Lists.newArrayList();
+    DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
+    for (Experiment experiment : joinedExperiments) {      
+      String endDate = experiment.getEndDate();      
+      if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || formatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
+        stillRunningExperiments.add(experiment);
+      }
+    }
+    List<Long> experimentIds = Lists.transform(stillRunningExperiments, new Function<Experiment, Long>() {
       public Long apply(Experiment experiment) {
         return experiment.getServerId();
       }
