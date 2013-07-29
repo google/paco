@@ -70,7 +70,7 @@ NSString *kCellIdQuestion = @"question";
     self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"Done"
+        [[UIBarButtonItem alloc] initWithTitle:@"Save"
                                          style:UIBarButtonItemStyleDone
                                         target:self
                                         action:@selector(onDone)];
