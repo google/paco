@@ -26,6 +26,8 @@
 #import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
 
+static const int kInvalidIndex = -1;
+
 @interface PacoQuestionView () <MKMapViewDelegate,
                                 PacoCheckboxViewDelegate,
                                 PacoSliderViewDelegate,
@@ -250,7 +252,7 @@
       NSNumber *number = self.question.responseObject;
       [self selectSmiley:[number intValue]];
     } else {
-      [self selectSmiley:3];
+      [self selectSmiley:kInvalidIndex];
     }
   } else if ([self.question.responseType isEqualToString:@"likert"]) {
     // Number Steps
@@ -268,8 +270,7 @@
       NSNumber *number = self.question.responseObject;
       [self selectNumberButton:[number intValue]];
     } else {
-      int mid = self.question.likertSteps / 2;
-      [self selectNumberButton:mid];
+      [self selectNumberButton:kInvalidIndex];
     }
   } else if ([self.question.responseType isEqualToString:@"open text"]) {
     // Open Text Field
