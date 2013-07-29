@@ -59,7 +59,7 @@ public class ExperimentProviderUtil {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String FILENAME = "experiments";
   
-  DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
+  DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
   
   public ExperimentProviderUtil(Context context) {
     super();
@@ -82,7 +82,7 @@ public class ExperimentProviderUtil {
     DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
     for (Experiment experiment : joinedExperiments) {      
       String endDate = experiment.getEndDate();      
-      if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || formatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
+      if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || endDateFormatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
         stillRunningExperiments.add(experiment);
       }
     }
