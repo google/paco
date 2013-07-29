@@ -141,7 +141,7 @@
     completionHandler:(void (^)(NSError *))completionHandler {
   // Setup an event for joining the experiement.
   PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = self.authenticator.auth.userEmail;
+  event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = experiment.experimentId;
   event.experimentName = experiment.title;
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
