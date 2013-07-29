@@ -185,12 +185,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 - (void)makeJSONObjectFromExperiments {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
-  
-    // remove this after debbugging
-    if (![definition.title isEqualToString:@"TestExperiment"]) {
-      continue;
-    }
-
     assert(definition.jsonObject);
     [experiments addObject:definition.jsonObject];
   }

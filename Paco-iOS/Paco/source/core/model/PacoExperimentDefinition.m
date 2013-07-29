@@ -100,9 +100,7 @@
           nil];
 }
 
-- (void)tagQuestionsForDependencies {
-  if (![self.title isEqualToString:@"TestExperiment"])
-    return;
+- (void)tagQuestionsForDependencies {  
   for (PacoExperimentInput *input in self.inputs) {
     input.isADependencyForOthers = NO;
   }
