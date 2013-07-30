@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.InputDAO;
 
 
@@ -37,7 +36,7 @@ import com.google.paco.shared.model.InputDAO;
  */
 @SuppressWarnings("deprecation")
 public class ResponseViewPanel extends Composite {
-
+  
   private HorizontalPanel mainPanel;
   private InputDAO input;
   private TextBox stepsText;
@@ -46,10 +45,13 @@ public class ResponseViewPanel extends Composite {
   private ListChoicesPanel listChoicesPanel;
   
   private MouseDownHandler mouseDownHandler;
+  private InputsPanel parent;
 
-  public ResponseViewPanel(InputDAO input, MouseDownHandler mouseDownHandler) {
+  public ResponseViewPanel(InputDAO input, MouseDownHandler mouseDownHandler,
+                           InputsPanel parent) {
     super();
     this.mouseDownHandler = mouseDownHandler;
+    this.parent = parent;
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
     drawWidgetForInput(input);
@@ -58,6 +60,12 @@ public class ResponseViewPanel extends Composite {
   public void drawWidgetForInput(InputDAO input) {
     this.input = input;
     mainPanel.clear();
+    
+    // Note: since response view panel content is re-drawn each time response type
+    // is changed, we need only remove errors and do not need to check the
+    // re-drawn panels for errors.
+    removeResponseTypeErrors();
+    
     String responseType = input.getResponseType();
     if (responseType == null  || responseType.equals(InputDAO.LIKERT_SMILEYS)
         || responseType.equals(InputDAO.OPEN_TEXT)) {
@@ -76,10 +84,25 @@ public class ResponseViewPanel extends Composite {
     line.setStyleName("left");
   }
 
+  private void removeResponseTypeErrors() {
+    parent.removeLikertStepsError();
+    parent.removeFirstListChoiceError();
+  }
+
   private void drawListPanel() {
-    listChoicesPanel = new ListChoicesPanel(input, mouseDownHandler);
+    listChoicesPanel = new ListChoicesPanel(input, mouseDownHandler, this);
     listChoicesPanel.setStyleName("left");
     mainPanel.add(listChoicesPanel);
+  }
+  
+  public void checkListChoicesAreNotEmptyAndHighlight() {
+    listChoicesPanel.checkListChoicesAreNotEmptyAndHighlight();
+  }
+  
+  public void ensureListChoicesErrorNotFired() {
+    if (listChoicesPanel != null) {
+      listChoicesPanel.ensureListChoicesErrorNotFired();
+    }
   }
   
   public ListChoicesPanel getListChoicesPanel() {
@@ -111,6 +134,8 @@ public class ResponseViewPanel extends Composite {
         try {
           Integer steps = Integer.valueOf(stepsText.getValue());
           input.setLikertSteps(steps);
+          parent.removeLikertStepsError();
+          ExperimentCreationPanel.setPanelHighlight(stepsText, true);
 
           String leftSideLabel = leftSideText.getValue();
           input.setLeftSideLabel(leftSideLabel);
@@ -118,7 +143,9 @@ public class ResponseViewPanel extends Composite {
           String rightSideLabel = rightSideText.getValue();
           input.setRightSideLabel(rightSideLabel);
         } catch (NumberFormatException e) {
-          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+//          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+          parent.addLikertStepsError();
+          ExperimentCreationPanel.setPanelHighlight(stepsText, false);
         }
       }
     };
@@ -147,5 +174,13 @@ public class ResponseViewPanel extends Composite {
 
   public InputDAO getInput() {
     return input;
+  }
+
+  public void addFirstListChoiceError() {
+    parent.addFirstListChoiceError();
+  }
+
+  public void removeFirstListChoiceError() {
+    parent.removeFirstListChoiceError();
   }
 }

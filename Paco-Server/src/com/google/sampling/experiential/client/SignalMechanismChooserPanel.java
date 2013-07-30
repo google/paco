@@ -111,7 +111,7 @@ public class SignalMechanismChooserPanel extends Composite {
   }
   
   private Label createSignalGroupHeader() {
-    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
+    String titleText = myConstants.signalGroup() + " " + signalGroupNum;
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;

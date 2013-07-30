@@ -1,6 +1,5 @@
 package com.google.sampling.experiential.client;
 
-import com.google.paco.shared.model.ExperimentDAO;
 
 /**
  * A narrow interface for the actions available to navigate
@@ -17,7 +16,8 @@ public interface ExperimentCreationListener {
   public static final int NEXT = 5;
   public static final int NEW_SIGNAL_GROUP = 6;
   public static final int SAVE_EXPERIMENT = 7;
+  public static final int REMOVE_ERROR = 9;
+  public static final int ADD_ERROR = 10;
 
-  // TODO: is experiment parameter needed?
-  void eventFired(int creationCode, ExperimentDAO experiment, Integer inputGroupNumber);
+  void eventFired(int creationCode, Integer signalGroupNumber, String message);
 }

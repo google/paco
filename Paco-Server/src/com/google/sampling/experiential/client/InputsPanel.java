@@ -64,6 +64,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private HorizontalPanel conditionalPanel;
   private VerticalPanel inputPromptTextPanel;
   private VerticalPanel varNamePanel;
+  private ExperimentCreationListener listener;
   MyConstants myConstants = GWT.create(MyConstants.class);
   
   // Visible for testing
@@ -73,9 +74,11 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   protected CheckBox conditionalBox;
   protected ListBox responseTypeListBox; 
 
-  public InputsPanel(InputsListPanel parent, InputDAO input) {
+  public InputsPanel(InputsListPanel parent, InputDAO input,
+                     ExperimentCreationListener listener) {
     this.input = input;
     this.parent = parent;
+    this.listener = listener;
     createDraggableRootPanel();
     createContentPanel();
     createLayout();
@@ -160,54 +163,16 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     return input.getText();
   }
 
-  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+  public void checkListItemsHaveAtLeastOneOptionAndHighlight() {
     if (input.getResponseType().equals(InputDAO.LIST)) {
-      return checkLChoicesAreNotEmptyAndHighlight();
+      responseView.checkListChoicesAreNotEmptyAndHighlight();
     } else {
-      return true;
+      responseView.ensureListChoicesErrorNotFired();
     }
   }
   
-  public boolean checkVarNameFilledWithoutSpacesAndHighlight() {
-    boolean filledAndHasNoSpaces = !(input.getName() == null) 
-        && !input.getName().isEmpty() && !input.getName().contains(" ");
-    setFieldHighlight(varNamePanel.getWidget(1), filledAndHasNoSpaces);
-    return filledAndHasNoSpaces;
-  }
-
-  private boolean checkTextPromptFieldIsFilledAndHighlight() {
-    boolean isFilled = !(input.getText() == null) && !input.getText().isEmpty();
-    setFieldHighlight(inputPromptTextPanel.getWidget(1), isFilled);
-    return isFilled;
-  }
-
-  private boolean checkVarNameFieldIsFilledAndHighlight() {
-    boolean isFilled = !(input.getName() == null) && !input.getName().isEmpty();
-    setFieldHighlight(varNamePanel.getWidget(1), isFilled);
-    return isFilled;
-  }
-
-  private boolean checkLChoicesAreNotEmptyAndHighlight() {
-    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
-    TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
-    setFieldHighlight(firstListChoiceTextBox, isFilled);
-    return isFilled;
-  }
-
-  private void setFieldHighlight(Widget widget, boolean isFilled) {
-    if (isFilled) {
-      removeErrorHighlight(widget);
-    } else {
-      addErrorHighlight(widget);
-    }
-  }
-
-  private void addErrorHighlight(Widget widget) {
-    widget.addStyleName(Main.ERROR_HIGHLIGHT);
-  }
-
-  private void removeErrorHighlight(Widget widget) {
-    widget.removeStyleName(Main.ERROR_HIGHLIGHT);
+  public void checkVarNameFilledWithoutSpacesAndHighlight() {
+    changeVarNameWithValidationAndHighlight(varNameText.getText());
   }
 
   @SuppressWarnings("deprecation")
@@ -231,7 +196,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   }
 
   private void createResponseViewPanel() {
-    responseView = new ResponseViewPanel(input, this);
+    responseView = new ResponseViewPanel(input, this, this);
     lowerLinePanel.add(responseView);
   }
 
@@ -375,11 +340,29 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        input.setName(varNameText.getText());
+        changeVarNameWithValidationAndHighlight(event.getValue());
       }
     });
-
     varNameText.addMouseDownHandler(this);
+  }
+  
+  private void changeVarNameWithValidationAndHighlight(String varName) {
+    removeVarNameErrorMessage();
+    try {
+      input.setName(varName);
+      ExperimentCreationPanel.setPanelHighlight(varNameText, true);
+    } catch (IllegalArgumentException e) {
+      addVarNameErrorMessage();
+      ExperimentCreationPanel.setPanelHighlight(varNameText, false);
+    }
+  }
+  
+  private void removeVarNameErrorMessage() {
+    parent.removeVarNameErrorMessage(this);
+  }
+  
+  private void addVarNameErrorMessage() {
+    parent.addVarNameErrorMessage(this);
   }
 
   /*
@@ -402,6 +385,22 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
       return addDomHandler(handler, MouseDownEvent.getType());
     }
+  }
+
+  public void removeLikertStepsError() {
+    parent.removeLikertScaleErrorMessage(this);
+  }
+  
+  public void addLikertStepsError() {
+    parent.addLikertScaleErrorMessage(this);
+  }
+  
+  public void removeFirstListChoiceError() {
+    parent.removeFirstListChoiceErrorMessage(this);
+  }
+
+  public void addFirstListChoiceError() {
+    parent.addFirstListChoiceErrorMessage(this);
   }
 
 }

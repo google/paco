@@ -180,7 +180,7 @@ public class ExperimentJoinPanel extends Composite {
 }
 
   private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
-    InputsListPanel inputsListPanel = new InputsListPanel(experiment);
+    InputsListPanel inputsListPanel = new InputsListPanel(experiment, null);
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
   }

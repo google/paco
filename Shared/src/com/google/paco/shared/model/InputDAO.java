@@ -179,7 +179,18 @@ public class InputDAO implements Serializable {
   }
   
   public void setName(String name) {
+    setNameWithValidation(name);
+  }
+  
+  private void setNameWithValidation(String name) {
+    if (!varNameIsFilledWithoutSpaces(name)) {
+      throw new IllegalArgumentException("Input name cannot be empty or contain spaces.");
+    }
     this.name = name;
+  }
+  
+  private boolean varNameIsFilledWithoutSpaces(String name) {
+    return !(name == null) && !name.isEmpty() && !name.contains(" ");
   }
 
   public Boolean getConditional() {
@@ -217,14 +228,22 @@ public class InputDAO implements Serializable {
   public String[] getListChoices() {
     return listChoices;
   }
+  
+  public void setListChoiceAtIndex(int index, String listChoice) {
+    setListChoiceAtIndexWithValidation(index, listChoice);
+  }
+  
+  private void setListChoiceAtIndexWithValidation(int index, String listChoice) {
+    if (index == 0 & listChoice.equals("")) {
+      throw new IllegalArgumentException("First list choice cannot be empty.");
+    }
+    listChoices[index] = listChoice;
+  }
 
   public void setListChoices(String[] listChoices) {
     this.listChoices = listChoices;
   }
 
-  /**
-   * @return
-   */
   public boolean isInvisibleInput() {
     return getResponseType().equals(InputDAO.LOCATION) || getResponseType().equals(InputDAO.PHOTO);
   }
@@ -236,8 +255,5 @@ public class InputDAO implements Serializable {
   public void setMultiselect(Boolean multiselect) {
     this.multiselect = multiselect;
   }
-
-  
- 
   
 }

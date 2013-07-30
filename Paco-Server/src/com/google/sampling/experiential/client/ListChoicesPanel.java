@@ -43,10 +43,13 @@ public class ListChoicesPanel extends Composite {
   private LinkedList<ListChoicePanel> choicePanelsList;
 
   private MouseDownHandler textFieldMouseDownHandler;
+  private ResponseViewPanel parent;
 
-  public ListChoicesPanel(final InputDAO input, MouseDownHandler textFieldMouseDownHandler) {
+  public ListChoicesPanel(final InputDAO input, MouseDownHandler textFieldMouseDownHandler,
+                          ResponseViewPanel parent) {
     this.input = input;
     this.textFieldMouseDownHandler = textFieldMouseDownHandler;
+    this.parent = parent;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -117,9 +120,17 @@ public class ListChoicesPanel extends Composite {
     input.setListChoices(newTimes);
   }
 
-  public void updateChoice(ListChoicePanel choicePanel) {
+  public void updateChoice(ListChoicePanel choicePanel) throws IllegalArgumentException {
     int index = choicePanelsList.indexOf(choicePanel);
-    input.getListChoices()[index] = choicePanel.getChoice();
+    input.setListChoiceAtIndex(index, choicePanel.getChoice());
+  }
+  
+  public void checkListChoicesAreNotEmptyAndHighlight() {
+      choicePanelsList.get(0).setInputListChoiceAndHighlight();
+  }
+  
+  public void ensureListChoicesErrorNotFired() {
+    choicePanelsList.get(0).ensureListChoicesErrorNotFired();
   }
   
   public ListChoicePanel getFirstChoicePanel() {
@@ -130,5 +141,12 @@ public class ListChoicesPanel extends Composite {
     return choicePanelsList.get(index);
   }
 
+  public void addFirstListChoiceError() {
+    parent.addFirstListChoiceError();
+  }
+
+  public void removeFirstListChoiceError() {
+    parent.removeFirstListChoiceError();
+  }
 
 }

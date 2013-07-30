@@ -60,7 +60,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
    * The overall form of the email address must be username@domain.TLD
    * Please update this documentation if changing the email regex below.
    */
-  private static String EMAIL_REGEX = 
+  public static final String EMAIL_REGEX = 
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
       //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
 
@@ -85,7 +85,9 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   
   private int numSignalGroups;
 
-  private List<String> errorMessagesToDisplay;
+  private List<String> errorMessagesAccumulated;
+
+  public static String ERROR_HIGHLIGHT = "error-highlight";
 
   public ExperimentCreationPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -103,6 +105,9 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
 
     leftMenuBar = createLeftMenuBar();
     mainPanel.add(leftMenuBar);
+    
+    // Experiment validation error messages
+    errorMessagesAccumulated = new ArrayList<String>();
 
     // The panels to be displayed in the content panel.
     descriptionPanel = createDescriptionPanel();
@@ -124,15 +129,11 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // Entry view is description panel.
     showPanel(descriptionPanel);
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL, null);
-    
-    // Experiment validation error messages
-    errorMessagesToDisplay = new ArrayList<String>();
-    errorMessagesToDisplay.add(myConstants.experimentCreationError());
   }
 
   private ExperimentCreationContentPanel createContentPanel() {
     List<Composite> panels = Arrays.asList(descriptionPanel, signalPanels.get(0), inputsListPanels.get(0), publishingPanel);
-    return new ExperimentCreationContentPanel(experiment, this, panels);
+    return new ExperimentCreationContentPanel(this, panels);
   }
 
   private ExperimentCreationMenuBar createLeftMenuBar() {
@@ -140,7 +141,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
 
   private ExperimentDescriptionPanel createDescriptionPanel() {
-    return new ExperimentDescriptionPanel(experiment, loginInfo);
+    return new ExperimentDescriptionPanel(experiment, loginInfo, this);
   }
 
   private SignalMechanismChooserPanel createSignalMechanismPanel(int groupNum) {
@@ -156,16 +157,16 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // TODO: Change to reflect new data model
     InputsListPanel inputsListPanel;
     if (groupNum == 0) {
-      inputsListPanel = new InputsListPanel(experiment, groupNum);
+      inputsListPanel = new InputsListPanel(experiment, groupNum, this);
     } else {
-      inputsListPanel = new InputsListPanel(new ExperimentDAO(), groupNum);
+      inputsListPanel = new InputsListPanel(new ExperimentDAO(), groupNum, this);
     }
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
   }
 
   private ExperimentPublishingPanel createPublishingPanel() {
-    return new ExperimentPublishingPanel(experiment);
+    return new ExperimentPublishingPanel(experiment, this);
   }
 
   private void showPanel(Composite panel) {
@@ -298,21 +299,15 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
 
   // Visible for testing
   protected boolean canSubmit() {
-    List<Boolean> allRequirementsAreMet = Arrays.asList(checkRequiredFieldsAreFilledAndHighlight(),
-                                                        checkVariableNamesHaveNoSpacesAndHighlight(),
-                                                        startDateIsNotAfterEndDate(),
-                                                        checkEmailFieldsAreValidAndHighlight());
-    List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(),
-                                                     myConstants.varNameUnfilledOrHasSpacesError(),
-                                                     myConstants.startEndDateError(),
-                                                     myConstants.emailAddressesError());
-    removeExistingErrorMessages();
-    for (int i = 0; i < allRequirementsAreMet.size(); ++i) {
-      if (!allRequirementsAreMet.get(i)) {
-        addErrorMessage(requirementMessages.get(i));
-      }
+    descriptionPanel.verify();
+    for (InputsListPanel panel : inputsListPanels) {
+      panel.verify();
     }
-    return !allRequirementsAreMet.contains(false);
+    return allValidationCriteriaAreMet();
+  }
+  
+  private boolean allValidationCriteriaAreMet() {
+    return errorMessagesAccumulated.isEmpty();
   }
   
   // Visible for testing
@@ -326,111 +321,56 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     return descriptionPanel.getDurationPanel();
   }
 
-  private void removeExistingErrorMessages() {
-    if (errorMessagesListHasMessages()) {
-      errorMessagesToDisplay.subList(1, errorMessagesToDisplay.size()).clear();
+  private void removeErrorMessage(String errorMessage, Integer signalGroupNum) {
+    if (signalGroupNum != null) {
+      errorMessage = prependSignalGroupToErrorMessage(errorMessage, signalGroupNum);
+    }
+    errorMessagesAccumulated.remove(errorMessage);
+  }
+  
+  private void addErrorMessage(String errorMessage, Integer signalGroupNum) {
+    if (signalGroupNum != null) {
+      errorMessage = prependSignalGroupToErrorMessage(errorMessage, signalGroupNum);
+    }
+    if (!errorMessagesAccumulated.contains(errorMessage)) {
+      errorMessagesAccumulated.add(errorMessage);
     }
   }
   
-  private boolean errorMessagesListHasMessages() {
-    Preconditions.checkArgument(!errorMessagesToDisplay.isEmpty());
-    return !(errorMessagesToDisplay.size() == 1);
-  }
-
-  private void addErrorMessage(String errorMessage) {
-    errorMessagesToDisplay.add(errorMessage);
+  private String prependSignalGroupToErrorMessage(String errorMessage, Integer signalGroupNum) {
+    return myConstants.signalGroup() + " " + signalGroupNum + ": " + errorMessage;
   }
   
   private String getErrorMessages() {
-    return Joiner.on("\n").join(errorMessagesToDisplay);
-  }
-
-  // Required fields are: title, informed consent, and at least one valid
-  // question.
-  private boolean checkRequiredFieldsAreFilledAndHighlight() {
-    List<Boolean> areRequiredWidgetsFilled = Arrays.asList(
-                            checkTextFieldIsFilledAndHighlight(descriptionPanel.getTitleTextPanel()),
-                            checkListItemsHaveAtLeastOneOptionAndHighlight());
-    return !areRequiredWidgetsFilled.contains(false);
-  }
-
-  private boolean checkTextFieldIsFilledAndHighlight(TextBoxBase widget) {
-    boolean isFilled = !widget.getText().isEmpty();
-    setPanelHighlight(widget, isFilled);
-    return isFilled;
+    return myConstants.experimentCreationError() + "\n" + 
+        Joiner.on("\n").join(errorMessagesAccumulated);
   }
   
-  private boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
-    for (InputsListPanel panel : inputsListPanels) {
-      if (!panel.checkListItemsHaveAtLeastOneOptionAndHighlight()) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  private boolean checkVariableNamesHaveNoSpacesAndHighlight() {
-    for (InputsListPanel panel : inputsListPanels) {
-      if (!panel.checkVarNamesFilledWithoutSpacesAndHighlight()) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  // Visible for testing
-  protected boolean startDateIsNotAfterEndDate() {
-    DurationView durationPanel = descriptionPanel.getDurationPanel();
-    if (durationPanel.isFixedDuration()) {
-      Date startDate = getDateFromFormattedString(durationPanel.getStartDate());
-      Date endDate = getDateFromFormattedString(durationPanel.getEndDate());
-      boolean startDateNotAfterEndDate = !(endDate.before(startDate));
-      setPanelHighlight(durationPanel, startDateNotAfterEndDate);
-      return startDateNotAfterEndDate;
-    } else {
-      setPanelHighlight(durationPanel, true);
-      return true;
-    }
-  }
-  
-  private boolean checkEmailFieldsAreValidAndHighlight() {
-    boolean adminListIsValid = checkEmailFieldIsValidAndHighlight(descriptionPanel.getAdminListPanel());
-    boolean userListIsValid = checkEmailFieldIsValidAndHighlight(publishingPanel.getPublishedUserPanel());
-    return adminListIsValid && userListIsValid;
-  }
-  
-  private boolean checkEmailFieldIsValidAndHighlight(TextBoxBase widget) {
-    boolean emailAddressesAreValid = emailStringIsValid(widget.getText());
-    setPanelHighlight(widget, emailAddressesAreValid);
-    return emailAddressesAreValid;
-  }
-  
-  // Visible for testing
-  protected boolean emailStringIsValid(String emailString) {
-    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
-    for (String email : sp.split(emailString)) {
-      if (!email.matches(EMAIL_REGEX)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private void setPanelHighlight(Widget widget, boolean isFilled) {
-    if (isFilled) {
-      removeErrorHighlight(widget);
-    } else {
-      addErrorHighlight(widget);
-    }
-  }
-
-  private void addErrorHighlight(Widget widget) {
-    widget.addStyleName(Main.ERROR_HIGHLIGHT);
-  }
-
-  private void removeErrorHighlight(Widget widget) {
-    widget.removeStyleName(Main.ERROR_HIGHLIGHT);
-  }
+//  // Visible for testing
+//  protected boolean startDateIsNotAfterEndDate() {
+//    DurationView durationPanel = descriptionPanel.getDurationPanel();
+//    if (durationPanel.isFixedDuration()) {
+//      Date startDate = getDateFromFormattedString(durationPanel.getStartDate());
+//      Date endDate = getDateFromFormattedString(durationPanel.getEndDate());
+//      boolean startDateNotAfterEndDate = !(endDate.before(startDate));
+//      setPanelHighlight(durationPanel, startDateNotAfterEndDate);
+//      return startDateNotAfterEndDate;
+//    } else {
+//      setPanelHighlight(durationPanel, true);
+//      return true;
+//    }
+//  }
+//  
+//  // Visible for testing
+//  protected boolean emailStringIsValid(String emailString) {
+//    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
+//    for (String email : sp.split(emailString)) {
+//      if (!email.matches(EMAIL_REGEX)) {
+//        return false;
+//      }
+//    }
+//    return true;
+//  }
 
   // Visible for testing
   protected void submitEvent() {
@@ -468,12 +408,11 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private void fireExperimentCode(int code) {
     for (ExperimentListener listener : listeners) {
       listener.eventFired(code, experiment, false, false);
-    }
-    
+    }  
   }
 
   @Override
-  public void eventFired(int creationCode, ExperimentDAO experiment, Integer signalGroupNumber) {
+  public void eventFired(int creationCode, Integer signalGroupNumber, String message) {
     switch (creationCode) {
     case ExperimentCreationListener.SHOW_DESCRIPTION_CODE:
       showExperimentDescription();
@@ -496,6 +435,12 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     case ExperimentCreationListener.SAVE_EXPERIMENT:
       submitEvent();
       break;
+    case ExperimentCreationListener.REMOVE_ERROR:
+      removeErrorMessage(message, signalGroupNumber);
+      break;
+    case ExperimentCreationListener.ADD_ERROR:
+      addErrorMessage(message, signalGroupNumber);
+      break;
     default:
       System.err.println("Unhandled code sent to experiment creation listener.");
       break;
@@ -505,11 +450,6 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private String formatDateAsString(Date date) {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.format(date);
-  }
-  
-  private Date getDateFromFormattedString(String dateString) {
-    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
-    return formatter.parse(dateString);
   }
   
   // Visible for testing
@@ -530,5 +470,21 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
     publishingPanel.setPublishedUsersInPanel(commaSepEmailList);
+  }
+  
+  public static void setPanelHighlight(Widget widget, boolean isValid) {
+    if (isValid) {
+      removeErrorHighlight(widget);
+    } else {
+      addErrorHighlight(widget);
+    }
+  }
+
+  public static void addErrorHighlight(Widget widget) {
+    widget.addStyleName(ERROR_HIGHLIGHT);    
+  }
+
+  public static void removeErrorHighlight(Widget widget) {
+    widget.removeStyleName(ERROR_HIGHLIGHT);
   }
 }
