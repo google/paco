@@ -38,4 +38,5 @@
 + (id)pacoExperimentInputFromJSON:(id)jsonObject;
 + (NSArray *)parseExpression:(NSString *)expr;
 
+- (NSString*)stringForListChoices;
 @end

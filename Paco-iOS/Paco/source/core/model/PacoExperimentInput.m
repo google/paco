@@ -60,6 +60,42 @@
   return nil;
 }
 
+
++ (NSArray*)choicesFromBitFlags:(NSNumber*)bitFlags sizeOfList:(int)sizeOfList {
+  NSAssert(sizeOfList > 0, @"sizeOfList should be larger than 0!");
+  
+  NSMutableArray* choices = [NSMutableArray arrayWithCapacity:sizeOfList];
+  unsigned int result = [bitFlags unsignedIntValue];
+  if (0 == result) {
+    return choices;
+  }
+  
+  for (int itemIndex = 0; itemIndex < sizeOfList; itemIndex++) {
+    unsigned int flag = (1 << itemIndex);
+    unsigned int value = (result & flag);
+    unsigned int bitValue = value >> itemIndex;
+    NSAssert(bitValue == 1 || bitValue == 0, @"bitValue is not correct!");
+    if (bitValue == 1) {
+      [choices addObject:[NSNumber numberWithInt:(itemIndex + 1)]]; //start from 1, not 0
+    }
+  }
+  return choices;
+}
+
+- (NSString*)stringForListChoices {
+  if (![self.responseType isEqualToString:@"list"]) {
+    return nil;
+  }
+  int sizeOfList = [self.listChoices count];
+  NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
+                                                   sizeOfList:sizeOfList];
+  if (0 == [choices count]) {
+    return @"";
+  }else{
+    return [choices componentsJoinedByString:@","];
+  }
+}
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentInput:%p - "
           @"conditional=%d "

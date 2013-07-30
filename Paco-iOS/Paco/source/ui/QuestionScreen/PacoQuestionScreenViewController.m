@@ -26,41 +26,63 @@
 #import "PacoExperimentInput.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
-
+#import "PacoAlertView.h"
 
 NSString *kCellIdQuestion = @"question";
 
 @interface PacoQuestionScreenViewController () <PacoTableViewDelegate>
 
+@property(nonatomic, strong) NSArray* visibleInputs;
+
 @end
 
 @implementation PacoQuestionScreenViewController
 
-- (void)onDone {
-  int i = 0;
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    id response = question.responseObject;
-    if ([question.questionType isEqualToString:@"question"]) {
-      if ([question.responseType isEqualToString:@"likert_smileys"]) {
-      } else if ([question.responseType isEqualToString:@"likert"]) {
-      } else if ([question.responseType isEqualToString:@"open text"]) {
-      } else if ([question.responseType isEqualToString:@"list"]) {
-      } else if ([question.responseType isEqualToString:@"number"]) {
-      } else if ([question.responseType isEqualToString:@"location"]) {
-      } else if ([question.responseType isEqualToString:@"photo"]) {
-      }
+//validate all the inputs until we find the first invalid input
+- (NSError*)validateInputs {
+  NSError* error = nil;
+  for (PacoExperimentInput* input in self.visibleInputs) {
+    if (input.mandatory && input.responseObject == nil) {
+      error = [NSError errorWithDomain:@"com.paco.userinput"
+                                  code:-1
+                              userInfo:@{NSLocalizedDescriptionKey : input.text}];
+      break;
     }
-    NSLog(@"RESPONSE %d = [%@]", i, response);
-    i++;
   }
-  [[PacoClient sharedInstance].service submitAnswers:self.experiment.definition
-                                   completionHandler:^(NSError *error) {
-                                       if (error) {
-                                         NSLog(@"ERROR submitting answers %@", error);
-                                       } else {
-                                         NSLog(@"SUCCESS submitting answers");
-                                       }
-                                       [self.navigationController popViewControllerAnimated:YES];
+  return error;
+}
+
+- (void)onDone {
+  NSError* error = [self validateInputs];
+  if (error) {
+    [[[UIAlertView alloc] initWithTitle:@"Required Answer Missing:"
+                                message:error.localizedDescription
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+    return;
+  }
+    
+  [[PacoClient sharedInstance].service submitSurveyForDefinition:self.experiment.definition
+                                                      withInputs:self.visibleInputs
+                                               completionHandler:^(NSError *error) {
+                                     NSString* title = @"Nice";
+                                     NSString* message = @"Your survey was successfully submitted!";
+                                     
+                                     if (error != nil) {
+                                       title = @"Oops";
+                                       message = @"Something went wrong, please try again later.";
+                                     }
+                                     
+                                     [PacoAlertView showAlertWithTitle:title
+                                                               message:message
+                                                          dismissBlock:^(NSInteger buttonIndex) {
+                                                            if (error == nil) {
+                                                              [self.navigationController popViewControllerAnimated:YES];
+                                                            }
+                                                          }
+                                                     cancelButtonTitle:@"OK"
+                                                     otherButtonTitles:nil];
                                    }];
 }
 
@@ -70,7 +92,7 @@ NSString *kCellIdQuestion = @"question";
     self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"Done"
+        [[UIBarButtonItem alloc] initWithTitle:@"Submit"
                                          style:UIBarButtonItemStyleDone
                                         target:self
                                         action:@selector(onDone)];
@@ -248,6 +270,8 @@ NSString *kCellIdQuestion = @"question";
       }
     }
   }
+  
+  self.visibleInputs = questions;
   PacoTableView *table = (PacoTableView *)self.view;
   table.data = [self boxInputs:questions];
 }

@@ -168,4 +168,9 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
   }
 }
 
+
+- (BOOL)hasCheckedBox {
+  return 0 < [self.bitFlags intValue];
+}
+
 @end
