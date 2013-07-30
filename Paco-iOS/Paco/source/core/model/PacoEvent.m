@@ -173,6 +173,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = definition.experimentId;
   event.experimentName = definition.title;
+  event.experimentVersion = definition.experimentVersion;
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   
   NSMutableArray *responses = [NSMutableArray array];
