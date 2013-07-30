@@ -41,7 +41,9 @@ public class ListChoicePanel extends Composite {
   
   private ListChoicesPanel parent;
   private HorizontalPanel horizontalPanel;
-  private TextBox textField;
+  
+  // Visible for testing
+  protected TextBox textField;
 
   /**
    * @param listChoicesPanel

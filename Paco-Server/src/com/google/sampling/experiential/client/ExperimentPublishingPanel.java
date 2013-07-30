@@ -276,7 +276,7 @@ public class ExperimentPublishingPanel extends Composite {
   
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
-    publishedUserList.setText(commaSepEmailList);
+    publishedUserList.setValue(commaSepEmailList, true);
   }
 
 }

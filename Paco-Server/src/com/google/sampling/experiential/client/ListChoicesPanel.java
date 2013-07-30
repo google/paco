@@ -40,10 +40,12 @@ public class ListChoicesPanel extends Composite {
 
   private InputDAO input;
   private VerticalPanel mainPanel;
-  private LinkedList<ListChoicePanel> choicePanelsList;
 
   private MouseDownHandler textFieldMouseDownHandler;
   private ResponseViewPanel parent;
+  
+  // Visible for testing
+  protected LinkedList<ListChoicePanel> choicePanelsList;
 
   public ListChoicesPanel(final InputDAO input, MouseDownHandler textFieldMouseDownHandler,
                           ResponseViewPanel parent) {

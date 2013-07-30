@@ -196,7 +196,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   }
 
   // Visible for testing
-  protected boolean emailListIsValid(String[] emailList) {
+  public boolean emailListIsValid(String[] emailList) {
     for (String email : emailList) {
       if (!email.matches(EMAIL_REGEX)) {
         return false;

@@ -331,12 +331,12 @@ public class ExperimentDescriptionPanel extends Composite {
   
   // Visible for testing
   protected void setTitleInPanel(String title) {
-    titlePanel.setText(title);
+    titlePanel.setValue(title, true);
   }
   
   // Visible for testing
   protected void setAdminsInPanel(String commaSepEmailList) {
-    adminList.setText(commaSepEmailList);
+    adminList.setValue(commaSepEmailList, true);
   }
   
   // Visible for testing

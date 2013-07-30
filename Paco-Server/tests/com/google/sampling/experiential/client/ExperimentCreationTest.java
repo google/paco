@@ -89,7 +89,9 @@ public class ExperimentCreationTest extends GWTTestCase {
   public void testFixedDurationWithDatesSavedOnExperiment() {
     DurationView durationPanel = experimentDefinitionPanel.descriptionPanel.durationPanel;
     durationPanel.setFixedDuration(true);
+    durationPanel.ensureValueChangeEventsWillFire();  // Must be called due to GWT 2.1 bug.
     durationPanel.setStartDate(START_DATE);
+    durationPanel.ensureValueChangeEventsWillFire();  // Must be called due to GWT 2.1 bug.
     durationPanel.setEndDate(END_DATE);
     submitAndGetSavedExperiment();
     assertTrue(savedExperiment.getFixedDuration());

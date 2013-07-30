@@ -60,25 +60,23 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
-  private ResponseViewPanel responseView;
   private HorizontalPanel conditionalPanel;
   private VerticalPanel inputPromptTextPanel;
   private VerticalPanel varNamePanel;
-  private ExperimentCreationListener listener;
-  MyConstants myConstants = GWT.create(MyConstants.class);
+  private CheckBox requiredBox;
+  private CheckBox conditionalBox;
+  
+  private MyConstants myConstants = GWT.create(MyConstants.class);
   
   // Visible for testing
   protected TextBox varNameText;
   protected TextBox inputPromptText;
-  protected CheckBox requiredBox;
-  protected CheckBox conditionalBox;
-  protected ListBox responseTypeListBox; 
+  protected ResponseViewPanel responseView;
+  protected ListBox responseTypeListBox;
 
-  public InputsPanel(InputsListPanel parent, InputDAO input,
-                     ExperimentCreationListener listener) {
+  public InputsPanel(InputsListPanel parent, InputDAO input) {
     this.input = input;
     this.parent = parent;
-    this.listener = listener;
     createDraggableRootPanel();
     createContentPanel();
     createLayout();
@@ -346,10 +344,12 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     varNameText.addMouseDownHandler(this);
   }
   
-  private void changeVarNameWithValidationAndHighlight(String varName) {
-    removeVarNameErrorMessage();
-    try {
+  // Visible for testing
+  protected void changeVarNameWithValidationAndHighlight(String varName) {
+    try {    
+      removeVarNameErrorMessage();
       input.setName(varName);
+      
       ExperimentCreationPanel.setPanelHighlight(varNameText, true);
     } catch (IllegalArgumentException e) {
       addVarNameErrorMessage();

@@ -258,5 +258,10 @@ public class DurationView extends Composite {
   private void fireExperimentCode(int code, String message) {
     listener.eventFired(code, null, message);
   }
+  
+  // For testing
+  protected void ensureValueChangeEventsWillFire() {
+    valueChangeHandlerCounter = 0;
+  }
 
 }

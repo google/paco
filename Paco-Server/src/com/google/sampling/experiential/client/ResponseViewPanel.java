@@ -39,13 +39,15 @@ public class ResponseViewPanel extends Composite {
   
   private HorizontalPanel mainPanel;
   private InputDAO input;
-  private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
-  private ListChoicesPanel listChoicesPanel;
   
   private MouseDownHandler mouseDownHandler;
   private InputsPanel parent;
+  
+  // Visible for testing
+  protected ListChoicesPanel listChoicesPanel;
+  protected TextBox stepsText;
 
   public ResponseViewPanel(InputDAO input, MouseDownHandler mouseDownHandler,
                            InputsPanel parent) {

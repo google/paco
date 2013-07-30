@@ -124,7 +124,7 @@ public class InputsListPanel extends Composite {
   // Visible for testing
   protected void addInput(InputsPanel inputsPanel) {
     int index = inputsPanelsList.indexOf(inputsPanel);
-    InputsPanel newInputsPanel = new InputsPanel(this, createEmptyInput(), listener);
+    InputsPanel newInputsPanel = new InputsPanel(this, createEmptyInput());
     inputsPanelsList.add(index + 1, newInputsPanel);
 
     int widgetIndex = mainPanel.getWidgetIndex(inputsPanel);
@@ -212,14 +212,14 @@ public class InputsListPanel extends Composite {
     if (signalGroupNum != 0 || // TODO: for now high input group numbers have no meaning. Will change with signal groups.
         inputs == null || inputs.length == 0) {
       InputDAO emptyInputDAO = createEmptyInput();
-      InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO, listener);
+      InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO);
       inputs = new InputDAO[] {emptyInputDAO};
       mainPanel.add(inputsPanel);
       inputsPanelsList.add(inputsPanel);
       experiment.setInputs(inputs);
     } else {
       for (int i = 0; i < inputs.length; i++) {
-        InputsPanel inputsPanel = new InputsPanel(this, inputs[i], listener);
+        InputsPanel inputsPanel = new InputsPanel(this, inputs[i]);
         mainPanel.add(inputsPanel);
         inputsPanelsList.add(inputsPanel);
       }
