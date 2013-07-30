@@ -31,4 +31,7 @@
 @property (nonatomic, retain) NSNumber *bitFlags;
 @property (nonatomic, retain) NSArray *optionLabels;
 @property (nonatomic, assign) BOOL vertical;
+
+- (BOOL)hasCheckedBox;
+
 @end

@@ -15,7 +15,6 @@
 
 #import "PacoService.h"
 
-#import <CoreLocation/CoreLocation.h>
 
 #import "GTMHTTPFetcher.h"
 #import "GTMOAuth2Authentication.h"
@@ -137,59 +136,15 @@
   }]; 
 }
 
-- (void)submitAnswers:(PacoExperimentDefinition *)experiment
+- (void)submitSurveyForDefinition:(PacoExperimentDefinition *)definition
+           withInputs:(NSArray*)visibleInputs
     completionHandler:(void (^)(NSError *))completionHandler {
-  // Setup an event for joining the experiement.
-  PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = self.authenticator.auth.userEmail;
-  event.experimentId = experiment.experimentId;
-  event.experimentName = experiment.title;
-  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
-
-  NSMutableArray *responses = [NSMutableArray array];
-
-  for (PacoExperimentInput *input in experiment.inputs) {
-    NSMutableDictionary *response = [NSMutableDictionary dictionary];
-    id responseObject = input.responseObject;
-    if (responseObject == nil) {
-      continue;
-    }
-    NSLog(@"INPUT RESPONSE NAME = %@", input.name);
-    [response setObject:input.name forKey:@"name"];
-    [response setObject:input.inputIdentifier forKey:@"inputId"];
-    if ([input.questionType isEqualToString:@"question"]) {
-      if ([input.responseType isEqualToString:@"likert_smileys"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"likert"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"open text"]) {
-        NSString *string = input.responseObject;
-        [response setObject:string forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"list"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"number"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"location"]) {
-        CLLocation *location = input.responseObject;
-        NSString *locationString = [NSString stringWithFormat:@"(%f,%f)", location.coordinate.latitude, location.coordinate.longitude];
-        [response setObject:locationString forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"photo"]) {
-        [response setObject:@"TODO:ImageUploading" forKey:@"answer"];
-      }
-    }
-    [responses addObject:response];
-  }
-
-  event.responses = responses;
-
-  [self submitEvent:event withCompletionHandler:^(NSError *error) {
+  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
+                                                    withInputs:visibleInputs];
+  [self submitEvent:surveyEvent withCompletionHandler:^(NSError *error) {
       // If submission was successful then clear the old response objects.
       if (!error) {
-        for (PacoExperimentInput *input in experiment.inputs) {
+        for (PacoExperimentInput *input in definition.inputs) {
           input.responseObject = nil;
         }
       }
