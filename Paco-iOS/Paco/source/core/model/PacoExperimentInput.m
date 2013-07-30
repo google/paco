@@ -28,6 +28,7 @@
   input.likertSteps = [[inputMembers objectForKey:@"likertSteps"] intValue];
   input.listChoices = [inputMembers objectForKey:@"listChoices"];
   input.mandatory = [[inputMembers objectForKey:@"mandatory"] boolValue];
+  input.multiSelect = [[inputMembers objectForKey:@"multiselect"] boolValue];
   input.name = [inputMembers objectForKey:@"name"];
   input.questionType = [inputMembers objectForKey:@"questionType"];
   input.responseType = [inputMembers objectForKey:@"responseType"];
@@ -106,6 +107,7 @@
           @"likertSteps=%d "
           @"listChoices=%@ "
           @"mandatory=%d "
+          @"multiSelect=%@ "
           @"name=%@ "
           @"questionType=%@ "
           @"responseType=%@ "
@@ -120,6 +122,7 @@
           self.likertSteps,
           self.listChoices,
           self.mandatory,
+          self.multiSelect ? @"YES" : @"NO",
           self.name,
           self.questionType,
           self.responseType,
