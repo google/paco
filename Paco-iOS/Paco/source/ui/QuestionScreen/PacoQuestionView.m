@@ -585,7 +585,13 @@ static const int kInvalidIndex = -1;
 #pragma mark - PacoCheckboxViewDelegate
 
 - (void)onCheckboxChanged:(PacoCheckboxView *)checkbox {
-  self.question.responseObject = checkbox.bitFlags;
+  //if nothing is selected, set the responseObject to nil so that
+  //this input can be validated correctly.
+  if ([checkbox hasCheckedBox]) {
+    self.question.responseObject = checkbox.bitFlags;
+  }else {
+    self.question.responseObject = nil;
+  }
   [self updateConditionals];
 }
 
