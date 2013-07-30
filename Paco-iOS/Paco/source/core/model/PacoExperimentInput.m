@@ -66,6 +66,10 @@
   
   NSMutableArray* choices = [NSMutableArray arrayWithCapacity:sizeOfList];
   unsigned int result = [bitFlags unsignedIntValue];
+  if (0 == result) {
+    return choices;
+  }
+  
   for (int itemIndex = 0; itemIndex < sizeOfList; itemIndex++) {
     unsigned int flag = (1 << itemIndex);
     unsigned int value = (result & flag);
