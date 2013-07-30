@@ -62,24 +62,7 @@ NSString *kCellIdQuestion = @"question";
                       otherButtonTitles:nil] show];
     return;
   }
-  
-  int i = 0;
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    id response = question.responseObject;
-    if ([question.questionType isEqualToString:@"question"]) {
-      if ([question.responseType isEqualToString:@"likert_smileys"]) {
-      } else if ([question.responseType isEqualToString:@"likert"]) {
-      } else if ([question.responseType isEqualToString:@"open text"]) {
-      } else if ([question.responseType isEqualToString:@"list"]) {
-      } else if ([question.responseType isEqualToString:@"number"]) {
-      } else if ([question.responseType isEqualToString:@"location"]) {
-      } else if ([question.responseType isEqualToString:@"photo"]) {
-      }
-    }
-    NSLog(@"RESPONSE %d = [%@]", i, response);
-    i++;
-  }
-  
+    
   [[PacoClient sharedInstance].service submitSurveyForDefinition:self.experiment.definition
                                                       withInputs:self.visibleInputs
                                                completionHandler:^(NSError *error) {
