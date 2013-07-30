@@ -18,8 +18,6 @@
 
 package com.google.sampling.experiential.client;
 
-// http://code.google.com/p/google-web-toolkit/issues/detail?id=4785
-
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
@@ -69,6 +67,7 @@ public class DurationView extends Composite {
    * Value change events on DateBox objects are fired twice, so this member is
    * used as a guard to make sure only the first of the value change events triggers
    * value change handler operations.
+   * Bug: http://code.google.com/p/google-web-toolkit/issues/detail?id=4785
    */
   private int valueChangeHandlerCounter = 0;
 
