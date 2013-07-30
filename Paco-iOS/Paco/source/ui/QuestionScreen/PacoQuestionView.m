@@ -288,12 +288,17 @@ static const int kInvalidIndex = -1;
       self.textField.text = self.question.responseObject;
     }
   } else if ([self.question.responseType isEqualToString:@"list"]) {
-    // TODO: radio list or multi checkboxes
+    // TODO: radio list UI implementation
     // TODO: modify checkboxes to be vertical
-    PacoCheckboxView *checkboxes = [[PacoCheckboxView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_list"];
+    NSString* listIdentifier = @"question_list";
+    if (!self.question.multiSelect) {
+      listIdentifier = @"question_list_radio";
+    }
+    PacoCheckboxView *checkboxes = [[PacoCheckboxView alloc] initWithStyle:UITableViewStylePlain
+                                                           reuseIdentifier:listIdentifier];
     checkboxes.optionLabels = self.question.listChoices;
     checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
-    checkboxes.radioStyle = NO;  // TODO(gregvance): get this from the server
+    checkboxes.radioStyle = !self.question.multiSelect;  
     checkboxes.vertical = YES;
     checkboxes.delegate = self;
     self.checkboxes = checkboxes;
