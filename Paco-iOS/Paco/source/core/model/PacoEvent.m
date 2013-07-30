@@ -168,7 +168,10 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   return event;
 }
 
-+ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition {
++ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition
+                            withInputs:(NSArray*)visibleInputs {
+  NSAssert(visibleInputs != nil, @"visibleInputs should not be nil!");
+  
   PacoEvent *event = [PacoEvent pacoEventForIOS];
   event.who = [PacoClient sharedInstance].userEmail;
   event.experimentId = definition.experimentId;
@@ -178,7 +181,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   
   NSMutableArray *responses = [NSMutableArray array];
   
-  for (PacoExperimentInput *input in definition.inputs) {
+  for (PacoExperimentInput *input in visibleInputs) {
     NSMutableDictionary *response = [NSMutableDictionary dictionary];
     id responseObject = input.responseObject;
     if (responseObject == nil) {

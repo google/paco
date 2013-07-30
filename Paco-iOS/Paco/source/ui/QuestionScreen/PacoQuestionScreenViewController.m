@@ -32,6 +32,8 @@ NSString *kCellIdQuestion = @"question";
 
 @interface PacoQuestionScreenViewController () <PacoTableViewDelegate>
 
+@property(nonatomic, strong) NSArray* visibleInputs;
+
 @end
 
 @implementation PacoQuestionScreenViewController
@@ -39,7 +41,7 @@ NSString *kCellIdQuestion = @"question";
 //validate all the inputs until we find the first invalid input
 - (NSError*)validateInputs {
   NSError* error = nil;
-  for (PacoExperimentInput* input in self.experiment.definition.inputs) {
+  for (PacoExperimentInput* input in self.visibleInputs) {
     if (input.mandatory && input.responseObject == nil) {
       error = [NSError errorWithDomain:@"com.paco.userinput"
                                   code:-1
@@ -77,8 +79,10 @@ NSString *kCellIdQuestion = @"question";
     NSLog(@"RESPONSE %d = [%@]", i, response);
     i++;
   }
-  [[PacoClient sharedInstance].service submitAnswers:self.experiment.definition
-                                   completionHandler:^(NSError *error) {
+  
+  [[PacoClient sharedInstance].service submitSurveyForDefinition:self.experiment.definition
+                                                      withInputs:self.visibleInputs
+                                               completionHandler:^(NSError *error) {
                                      NSString* title = @"Nice";
                                      NSString* message = @"Your survey was successfully submitted!";
                                      
@@ -283,6 +287,8 @@ NSString *kCellIdQuestion = @"question";
       }
     }
   }
+  
+  self.visibleInputs = questions;
   PacoTableView *table = (PacoTableView *)self.view;
   table.data = [self boxInputs:questions];
 }
