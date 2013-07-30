@@ -189,17 +189,20 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
     [response setObject:input.inputIdentifier forKey:@"inputId"];
     if ([input.questionType isEqualToString:@"question"]) {
       if ([input.responseType isEqualToString:@"likert_smileys"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
+        //result starts from 1, not 0
+        int result = [input.responseObject intValue] + 1;
+        [response setObject:[NSNumber numberWithInt:result] forKey:@"answer"];
       } else if ([input.responseType isEqualToString:@"likert"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
+        //result starts from 1, not 0
+        int result = [input.responseObject intValue] + 1;
+        [response setObject:[NSNumber numberWithInt:result] forKey:@"answer"];
       } else if ([input.responseType isEqualToString:@"open text"]) {
         NSString *string = input.responseObject;
         [response setObject:string forKey:@"answer"];
       } else if ([input.responseType isEqualToString:@"list"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
+        NSString* result = [input stringForListChoices];
+        NSAssert(result != nil, @"result should not be nil!");
+        [response setObject:result forKey:@"answer"];
       } else if ([input.responseType isEqualToString:@"number"]) {
         NSNumber *number = input.responseObject;
         [response setObject:number forKey:@"answer"];
