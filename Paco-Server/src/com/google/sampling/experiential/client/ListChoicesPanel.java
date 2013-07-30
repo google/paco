@@ -120,6 +120,14 @@ public class ListChoicesPanel extends Composite {
     int index = choicePanelsList.indexOf(choicePanel);
     input.getListChoices()[index] = choicePanel.getChoice();
   }
+  
+  public ListChoicePanel getFirstChoicePanel() {
+    return getChoicePanel(0);
+  }
+  
+  private ListChoicePanel getChoicePanel(int index) {
+    return choicePanelsList.get(index);
+  }
 
 
 }

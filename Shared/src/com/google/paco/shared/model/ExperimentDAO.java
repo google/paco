@@ -36,6 +36,10 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   /**
    * 
    */
+  
+  public static final int SCHEDULED_SIGNALING = 1;
+  public static final int TRIGGERED_SIGNALING = 1;
+  
   private Boolean questionsChange = false;
 
   private String hash;
@@ -48,6 +52,9 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private Boolean deleted = false;
   private Boolean webRecommended = false;
   private Integer version;
+  protected SignalingMechanismDAO[] signalingMechanisms;
+  protected SignalScheduleDAO schedule;
+  
   /**
    * @param id
    * @param title
@@ -65,13 +72,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
       Boolean deleted, Boolean webRecommended, Integer version) {
-    super(id, title, description, informedConsentForm, email, signalingMechanisms, fixedDuration, startDate, endDate, joinDate);
+    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
     this.description = description;
     this.informedConsentForm = informedConsentForm;
     this.creator = email;
     this.signalingMechanisms = signalingMechanisms;
+    setScheduleForBackwardCompatibility();
     this.fixedDuration = fixedDuration;
     this.questionsChange = questionsChange;
     this.startDate = startDate;
@@ -194,6 +202,33 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   
   public void setVersion(Integer version) {
     this.version = version;
+  }
+
+  public SignalingMechanismDAO[] getSignalingMechanisms() {
+    return signalingMechanisms;
+  }
+
+  public void setSignalingMechanisms(SignalingMechanismDAO[] signalingMechanisms) {
+    this.signalingMechanisms = signalingMechanisms;
+  }
+
+  public void setScheduleForBackwardCompatibility() {
+    if (getSignalingMechanisms() != null 
+            && getSignalingMechanisms().length > 0 
+            && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
+      schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
+    } else {
+      schedule = new SignalScheduleDAO();
+      schedule.setScheduleType(SignalScheduleDAO.SELF_REPORT);
+    }
+  }
+
+  public SignalScheduleDAO getSchedule() {
+    return schedule;
+  }
+
+  public void setSchedule(SignalScheduleDAO schedule) {
+    this.schedule = schedule;
   }
   
   
