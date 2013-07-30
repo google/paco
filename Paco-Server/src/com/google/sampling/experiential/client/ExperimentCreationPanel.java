@@ -168,7 +168,8 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     return new ExperimentPublishingPanel(experiment);
   }
 
-  private void showPanel(Composite panel) {
+  // Visible for testing
+  protected void showPanel(Composite panel) {
     showPanel(panel, ExperimentCreationContentPanel.NO_EXTRA_BUTTON);
   }
   
@@ -185,43 +186,83 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     buttonPanel.setStyleName("floating-Panel");
   }
 
-  private void progressView() {
+  // Visible for testing
+  protected void progressView() {
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
-      showExperimentSchedule(0);
-      setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, 0);
+      showExperimentSchedule(0); // Show first group's schedule.
     } else if (showingPanel instanceof SignalMechanismChooserPanel) {
       int groupNum = signalPanels.indexOf(showingPanel);
       showExperimentInputs(groupNum);
-      setLeftMenuBarHighlight(ExperimentCreationMenuBar.INPUTS_PANEL, groupNum);
     } else if (showingPanel instanceof InputsListPanel) {
       int groupNum = inputsListPanels.indexOf(showingPanel);
-      if (isInLastInputGroup(groupNum)) {
+      if (isLastInputGroup(groupNum)) {
         showExperimentPublishing();
-        setLeftMenuBarHighlight(ExperimentCreationMenuBar.PUBLISHING_PANEL, null);
       } else {
-        showExperimentSchedule(groupNum + 1);
-        setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, groupNum + 1);
+        showExperimentSchedule(groupNum + 1); // Show next group's schedule.
       }
     } else {
       showExperimentDescription();
-      setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL, null);
     }
   }
-  
-  private boolean isInLastInputGroup(int groupNum) {
-    return groupNum == numSignalGroups - 1;
+
+  // Visible for testing
+  protected void regressView() {
+    // Change content view and the highlight on the left menu bar.
+    if (showingPanel.equals(descriptionPanel)) {
+      showExperimentPublishing();
+    } else if (showingPanel instanceof SignalMechanismChooserPanel) {
+      int groupNum = signalPanels.indexOf(showingPanel);
+      if (isFirstInputGroup(groupNum)) {
+        showExperimentDescription();
+      } else {
+        showExperimentInputs(groupNum - 1); // Show previous group's inputs
+      }
+    } else if (showingPanel instanceof InputsListPanel) {
+      int groupNum = inputsListPanels.indexOf(showingPanel);
+      showExperimentSchedule(groupNum);
+    } else {
+      showExperimentInputs(numSignalGroups - 1); // Show last group's inputs
+    }
   }
 
   private void showExperimentDescription() {
+    showExperimentDescriptionPanel();
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL, null);
+  }
+
+  private void showExperimentSchedule(int groupNum) {
+    showExperimentSchedulePanel(groupNum);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, groupNum);
+  }
+
+  private void showExperimentInputs(int groupNum) {
+    showExperimentInputsPanel(groupNum);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.INPUTS_PANEL, groupNum);
+  }
+
+  private void showExperimentPublishing() {
+    showExperimentPublishingPanel();
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.PUBLISHING_PANEL, null);
+  }
+  
+  private boolean isLastInputGroup(int groupNum) {
+    return groupNum == numSignalGroups - 1;
+  }
+  
+  private boolean isFirstInputGroup(int groupNum) {
+    return groupNum == 0;
+  }
+
+  private void showExperimentDescriptionPanel() {
     showPanel(descriptionPanel);
   }
 
-  private void showExperimentSchedule(int signalGroupNum) {
+  private void showExperimentSchedulePanel(int signalGroupNum) {
     showPanel(signalPanels.get(signalGroupNum));
   }
 
-  private void showExperimentInputs(int signalGroupNum) {
+  private void showExperimentInputsPanel(int signalGroupNum) {
     if (signalGroupNum == numSignalGroups - 1) {
       showPanel(inputsListPanels.get(signalGroupNum), ExperimentCreationContentPanel.ADD_SIGNAL_GROUP_BUTTON);
     } else {
@@ -229,17 +270,18 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     }
   }
 
-  private void showExperimentPublishing() {
+  private void showExperimentPublishingPanel() {
     showPanel(publishingPanel, ExperimentCreationContentPanel.ADD_CREATE_EXPERIMENT_BUTTON);
   }
   
   private void createAndDisplayNewSignalGroup() {
     createNewSignalGroup();
-    showExperimentSchedule(numSignalGroups - 1);
+    showExperimentSchedulePanel(numSignalGroups - 1);
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, numSignalGroups - 1);
   }
   
-  private void createNewSignalGroup() {
+  // Visible for testing
+  protected void createNewSignalGroup() {
     // TODO: update the data model as well
     // For now, the panel is associated with a random experiment.
     // Later, each panel will be associated with a particular signal group.
@@ -476,19 +518,22 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   public void eventFired(int creationCode, ExperimentDAO experiment, Integer signalGroupNumber) {
     switch (creationCode) {
     case ExperimentCreationListener.SHOW_DESCRIPTION_CODE:
-      showExperimentDescription();
+      showExperimentDescriptionPanel();
       break;
     case ExperimentCreationListener.SHOW_SCHEDULE_CODE:
-      showExperimentSchedule(signalGroupNumber);
+      showExperimentSchedulePanel(signalGroupNumber);
       break;
     case ExperimentCreationListener.SHOW_INPUTS_CODE:
-      showExperimentInputs(signalGroupNumber);
+      showExperimentInputsPanel(signalGroupNumber);
       break;
     case ExperimentCreationListener.SHOW_PUBLISHING_CODE:
-      showExperimentPublishing();
+      showExperimentPublishingPanel();
       break;
     case ExperimentCreationListener.NEXT:
       progressView();
+      break;
+    case ExperimentCreationListener.PREVIOUS:
+      regressView();
       break;
     case ExperimentCreationListener.NEW_SIGNAL_GROUP:
       createAndDisplayNewSignalGroup();
@@ -518,6 +563,31 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   // Visible for testing
+  protected ExperimentDescriptionPanel getDescriptionPanel() {
+    return descriptionPanel;
+  }
+  
+  // Visible for testing
+  protected SignalMechanismChooserPanel getSignalPanelForSignalGroup(int groupNum) {
+    return signalPanels.get(groupNum);
+  }
+  
+  // Visible for testing
+  protected InputsListPanel getInputsListPanelForSignalGroup(int groupNum) {
+    return inputsListPanels.get(groupNum);
+  }
+  
+  // Visible for testing
+  protected ExperimentPublishingPanel getPublishingPanel() {
+    return publishingPanel;
+  }
+  
+  // Visible for testing
+  protected Composite getShowingPanel() {
+    return showingPanel;
+  }
+  
+  // Visible for testing
   protected void setTitleInPanel(String title) {
     descriptionPanel.setTitleInPanel(title);
   }
@@ -530,5 +600,10 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
     publishingPanel.setPublishedUsersInPanel(commaSepEmailList);
+  }
+  
+  // Visible for testing
+  protected int getNumSignalGroups() {
+    return numSignalGroups;
   }
 }
