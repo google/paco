@@ -19,6 +19,8 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -53,7 +55,7 @@ import com.google.paco.shared.model.InputDAO;
  * 
  */
 public class InputsPanel extends Composite implements MouseDownHandler {
-
+  
   private InputsListPanel parent;
   private InputDAO input;
   private DraggableAbsolutePanel draggableRootPanel;
@@ -61,7 +63,8 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
   private ResponseViewPanel responseView;
-  private HorizontalPanel conditionalPanel;
+//  private HorizontalPanel conditionalPanel;   // PRIYA
+  private ConditionalExpressionsPanel conditionalPanel;
   private VerticalPanel inputPromptTextPanel;
   private VerticalPanel varNamePanel;
   MyConstants myConstants = GWT.create(MyConstants.class);
@@ -236,27 +239,9 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   }
 
   private void createConditionExpressionPanel() {
-    conditionalPanel = new HorizontalPanel();
+    conditionalPanel = new ConditionalExpressionsPanel(input, this);
     mainPanel.add(conditionalPanel);
     conditionalPanel.setVisible(conditionalBox.getValue());
-
-    Label conditionalExpressionLabel = new Label(myConstants.conditionalPrompt() + ":");
-    conditionalExpressionLabel.setStyleName("keyLabel");
-    conditionalPanel.add(conditionalExpressionLabel);
-
-    final TextBox conditionText = new TextBox();
-    conditionText.setText(input.getConditionExpression());
-    conditionalPanel.add(conditionText);
-    conditionText.addValueChangeHandler(new ValueChangeHandler<String>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<String> arg0) {
-        input.setConditionExpression(conditionText.getText());
-      }
-    });
-    conditionText.addMouseDownHandler(this);
-
-    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;" + "text-color:#888888;'>" + "("
-                                  + myConstants.eg() + ", " + "q1name < 3" + ")" + "</span>"));
   }
 
   private void createConditionCheckboxColumn() {
@@ -402,6 +387,10 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
       return addDomHandler(handler, MouseDownEvent.getType());
     }
+  }
+
+  public List<InputDAO> getPrecedingInputsWithVarName(String varName) {
+    return parent.getPrecedingInputsWithVarName(varName, input);
   }
 
 }

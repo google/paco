@@ -22,6 +22,7 @@ package com.google.sampling.experiential.client;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandler;
@@ -250,6 +251,20 @@ public class InputsListPanel extends Composite {
   // Visible for testing
   protected VerticalPanel getContentPanel() {
     return mainPanel;
+  }
+
+  // TODO PRIYA this is slow
+  public List<InputDAO> getPrecedingInputsWithVarName(String varName, InputDAO stopInput) {
+    List<InputDAO> varNameInputs = new LinkedList<InputDAO>();
+    for (InputDAO input : experiment.getInputs()) {
+      if (input.equals(stopInput)) {
+        break;
+      } else if (input.getName().equals(varName)) {
+        varNameInputs.add(input);
+        // PRIYA - should I break or let it continue?
+      }
+    }
+    return varNameInputs;
   }
 
 }

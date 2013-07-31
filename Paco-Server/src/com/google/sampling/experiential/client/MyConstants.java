@@ -464,4 +464,31 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Input names are required and cannot contain spaces.")
   String varNameUnfilledOrHasSpacesError();
+  
+  @DefaultStringValue("AND")
+  String AND();
+  
+  @DefaultStringValue("OR")
+  String OR();
+  
+  @DefaultStringValue("equals")
+  String equals();
+  
+  @DefaultStringValue("not equals")
+  String notEquals();
+  
+  @DefaultStringValue("greater than")
+  String greaterThan();
+  
+  @DefaultStringValue("greater than or equals")
+  String greaterThanOrEquals();
+  
+  @DefaultStringValue("less than")
+  String lessThan();
+  
+  @DefaultStringValue("less than or equals")
+  String lessThanOrEquals();
+  
+  @DefaultStringValue("contains")
+  String contains();
 }
