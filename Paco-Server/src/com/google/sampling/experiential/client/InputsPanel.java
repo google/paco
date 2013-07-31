@@ -1,23 +1,24 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.  
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
 
+import java.util.concurrent.Callable;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -36,14 +37,15 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.InputDAO;
 
 /**
- *
+ * 
  * Panel for viewing/editing one Input object.
- *
+ * 
  * @author Bob Evans
- *
+ * 
  */
 public class InputsPanel extends Composite {
 
@@ -56,6 +58,7 @@ public class InputsPanel extends Composite {
   private HorizontalPanel conditionalPanel;
   private CheckBox conditionalBox;
   private VerticalPanel inputPromptTextPanel;
+  private VerticalPanel varNamePanel;
   MyConstants myConstants = GWT.create(MyConstants.class);
 
   public InputsPanel(InputsListPanel parent, InputDAO input) {
@@ -106,6 +109,60 @@ public class InputsPanel extends Composite {
     return input;
   }
 
+  public String getInputTextPrompt() {
+    return input.getText();
+  }
+
+  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    if (input.getResponseType().equals(InputDAO.LIST)) {
+      return checkLChoicesAreNotEmptyAndHighlight();
+    } else {
+      return true;
+    }
+  }
+  
+  public boolean checkVarNameFilledWithoutSpacesAndHighlight() {
+    boolean filledAndHasNoSpaces = !(input.getName() == null) 
+        && !input.getName().isEmpty() && !input.getName().contains(" ");
+    setFieldHighlight(varNamePanel.getWidget(1), filledAndHasNoSpaces);
+    return filledAndHasNoSpaces;
+  }
+
+  private boolean checkTextPromptFieldIsFilledAndHighlight() {
+    boolean isFilled = !(input.getText() == null) && !input.getText().isEmpty();
+    setFieldHighlight(inputPromptTextPanel.getWidget(1), isFilled);
+    return isFilled;
+  }
+
+  private boolean checkVarNameFieldIsFilledAndHighlight() {
+    boolean isFilled = !(input.getName() == null) && !input.getName().isEmpty();
+    setFieldHighlight(varNamePanel.getWidget(1), isFilled);
+    return isFilled;
+  }
+
+  private boolean checkLChoicesAreNotEmptyAndHighlight() {
+    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
+    TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
+    setFieldHighlight(firstListChoiceTextBox, isFilled);
+    return isFilled;
+  }
+
+  private void setFieldHighlight(Widget widget, boolean isFilled) {
+    if (isFilled) {
+      removeErrorHighlight(widget);
+    } else {
+      addErrorHighlight(widget);
+    }
+  }
+
+  private void addErrorHighlight(Widget widget) {
+    widget.addStyleName(Main.ERROR_HIGHLIGHT);
+  }
+
+  private void removeErrorHighlight(Widget widget) {
+    widget.removeStyleName(Main.ERROR_HIGHLIGHT);
+  }
+
   @SuppressWarnings("deprecation")
   private void createInputFormLine() {
     upperLinePanel = new HorizontalPanel();
@@ -119,14 +176,13 @@ public class InputsPanel extends Composite {
     createVarNameColumn();
     createInputTextColumn();
 
-
     createResponseViewPanel();
 
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
 
-    //createScheduledDateColumn(upperLinePanel);
+    // createScheduledDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
@@ -153,8 +209,8 @@ public class InputsPanel extends Composite {
       }
     });
 
-    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;"
-        + "text-color:#888888;'>" + "(" + myConstants.eg() + ", " + "q1name < 3" +")" + "</span>"));
+    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;" + "text-color:#888888;'>" + "("
+                                  + myConstants.eg() + ", " + "q1name < 3" + ")" + "</span>"));
   }
 
   private void createConditionCheckboxColumn() {
@@ -203,7 +259,7 @@ public class InputsPanel extends Composite {
     rp.add(responseTypeLabel);
 
     final ListBox responseTypeListBox = new ListBox();
-    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);    
+    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);
     responseTypeListBox.addItem(InputDAO.LIKERT);
     responseTypeListBox.addItem(InputDAO.OPEN_TEXT);
     responseTypeListBox.addItem(InputDAO.LIST);
@@ -228,7 +284,7 @@ public class InputsPanel extends Composite {
       public void onChange(ChangeEvent event) {
         input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
-        inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
       }
     });
   }
@@ -256,7 +312,7 @@ public class InputsPanel extends Composite {
   }
 
   private void createVarNameColumn() {
-    VerticalPanel varNamePanel = new VerticalPanel();
+    varNamePanel = new VerticalPanel();
     upperLinePanel.add(varNamePanel);
     Label nameLabel = new Label(myConstants.varName() + ":");
     nameLabel.setStyleName("keyLabel");

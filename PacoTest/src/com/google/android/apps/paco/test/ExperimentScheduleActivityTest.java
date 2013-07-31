@@ -7,18 +7,15 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
+import android.content.Context;
+import android.content.Intent;
+import android.test.ActivityUnitTestCase;
+
 import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.ExperimentScheduleActivity;
 import com.google.android.apps.paco.SignalSchedule;
 import com.google.android.apps.paco.TimeUtil;
-import com.google.common.collect.Lists;
-
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.test.ActivityUnitTestCase;
 
 /*
  * TODO: Make this into instrumentation testing, changing the experiment schedule
@@ -30,8 +27,6 @@ import android.test.ActivityUnitTestCase;
  */
 public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<ExperimentScheduleActivity> {
 
-  private ExperimentScheduleActivity activity;
-
   private static final Long START_TIME = Long.valueOf(500000);
   private static final Long END_TIME = Long.valueOf(1000000);
   private static final Integer REPEAT_RATE = 4;
@@ -39,12 +34,10 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   private static final Integer DAY_OF_MONTH = 4;
   private static final Integer DAY_OF_WEEK = 2;
 
+  private ExperimentScheduleActivity activity;
   private MockExperimentProviderUtil experimentProviderUtil;
   private Context context;
-
   private Intent intent;
-  private Bundle bundle;
-
   private long experimentId = 0;
 
   public ExperimentScheduleActivityTest() {
@@ -157,98 +150,6 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
     checkSavedExperimentMonthlyNthOfMonthSchedule(savedExperiment);
   }
 
-  public void testEsmJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.FIXED_ESM);
-    configureActivityForTesting(experiment);
-
-    setActivityExperimentEsmSchedule();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentEsmSchedule(savedExperiment);
-  }
-
-  public void testWeekdayJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.FIXED_WEEKDAY);
-    configureActivityForTesting(experiment);
-
-    int timesLength = setActivityExperimentRepeatRateAndTimes();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentRepeatRateAndTimes(timesLength, savedExperiment);
-  }
-
-  public void testDailyJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_DAILY);
-    configureActivityForTesting(experiment);
-
-    int timesLength = setActivityExperimentRepeatRateAndTimes();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentRepeatRateAndTimes(timesLength, savedExperiment);
-  }
-
-  public void testWeeklyJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_WEEKLY);
-    configureActivityForTesting(experiment);
-
-    int timesLength = setActivityExperimentWeeklySchedule();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentWeeklySchedule(timesLength, savedExperiment);
-  }
-
-  public void testMonthlyDayOfMonthJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_MONTHLY);
-    configureActivityForTesting(experiment);
-
-    setActivityExperimentMonthlyDayOfMonthSchedule();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentMonthlyDayOfMonthSchedule(savedExperiment);
-  }
-
-  public void testMonthlyNthOfMonthJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_MONTHLY);
-    configureActivityForTesting(experiment);
-
-    setActivityExperimentMonthlyNthOfMonthSchedule();
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-    checkSavedExperimentMonthlyNthOfMonthSchedule(savedExperiment);
-  }
-
-  public void testSelfReportJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.FIXED_SELFREPORT);
-    configureActivityForTesting(experiment);
-
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-  }
-
-  public void testTriggeredJoining() {
-    Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_TRIGGERED);
-    configureActivityForTesting(experiment);
-
-    simulateDownloadingAndSchedulingExperiment(experiment);
-
-    Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
-    checkExperimentProperlyJoined(savedExperiment);
-  }
-
   private Experiment getTestExperiment(String experimentTitle) {
     Experiment experiment = getExperimentFromJson(experimentTitle);
     experiment.setId(experimentId++);
@@ -284,20 +185,11 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private void configureActivityForTesting(Experiment experiment) {
-    activity.setActivityProperties(experiment, experimentProviderUtil, true);
+    activity.setActivityProperties(experiment, experimentProviderUtil);
   }
   
   private void saveExperimentSchedule() {
     activity.scheduleExperiment();
-  }
-
-  private void simulateDownloadingAndSchedulingExperiment(Experiment experiment) {
-    activity.saveDownloadedExperiment(experiment);
-  }
-
-  private void checkExperimentProperlyJoined(Experiment savedExperiment) {
-    assertNotNull(savedExperiment);
-    assertNotNull(savedExperiment.getJoinDate());
   }
 
   private void checkSavedExperimentEsmSchedule(Experiment savedExperiment) {
@@ -388,64 +280,4 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
       assertEquals(newTimes.get(j), ADAPTER_TIME);
     }
   }
-
-  private class MockExperimentProviderUtil extends ExperimentProviderUtil {
-
-    private List<Experiment> experimentList;
-
-    MockExperimentProviderUtil(Context context) {
-      super(context);
-      experimentList = Lists.newArrayList();
-    }
-
-    @Override
-    public Uri insertFullJoinedExperiment(Experiment experiment) {
-      experimentList.add(experiment);
-      return Uri.parse("http://www.thisIsATest.com");
-    }
-
-    @Override
-    public int deleteNotificationsForExperiment(Long experimentId) {
-      return 0;
-    }
-
-    @Override
-    public void updateJoinedExperiment(Experiment experiment) {
-      Experiment experimentToDelete = null;
-      for (Experiment e : experimentList) {
-        if (e.getId().equals(experiment.getId())) {
-          experimentToDelete = e;
-        }
-      }
-      if (experimentToDelete != null) {
-        experimentList.remove(experimentToDelete);
-        experimentList.add(experiment);
-      }
-    }
-
-    @Override
-    public Experiment getExperiment(long experimentId) {
-      for (Experiment e : experimentList) {
-        if (e.getId().equals(experimentId)) {
-          return e;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public void deleteExperiment(long experimentId) {
-      Experiment experimentToDelete = null;
-      for (Experiment e : experimentList) {
-        if (e.getId().equals(experimentId)) {
-          experimentToDelete = e;
-        }
-      }
-      if (experimentToDelete != null) {
-        experimentList.remove(experimentToDelete);
-      }
-    }
-
-  }
-
 }

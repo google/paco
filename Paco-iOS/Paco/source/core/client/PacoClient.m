@@ -166,8 +166,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                           self.location = [[PacoLocation alloc] init];
                                           self.location.delegate = self;
                                         }
-                                        // for testing purposes let's load a sample experiment
-                                        [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
                                       }];
                                       completionHandler(nil);
                                     } else {
@@ -241,6 +239,10 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {
       [self definitionsLoadedWithError:nil];
+      
+      // for testing purposes let's load a sample experiment
+      [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
+      
       [self prefetchExperimentsWithBlock:completionBlock];
       return;
     }

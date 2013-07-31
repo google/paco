@@ -32,7 +32,7 @@
           [NSNumber numberWithLongLong:self.esmStartHour], @"esmStartHour",
           [NSNumber numberWithBool:self.esmWeekends], @"esmWeekends",
           self.scheduleId, @"id",
-          [NSNumber numberWithInt:self.nthAMonth], @"nthAMonth",
+          [NSNumber numberWithInt:self.nthOfMonth], @"nthOfMonth",
           [NSNumber numberWithInt:self.repeatPeriod], @"repeatRate",
           [NSNumber numberWithInt:self.timeout], @"timeout",
           [NSNumber numberWithInt:self.scheduleType], @"scheduleType",
@@ -61,7 +61,7 @@
   schedule.esmStartHour = [[scheduleMembers objectForKey:@"esmStartHour"] longLongValue];
   schedule.esmWeekends = [[scheduleMembers objectForKey:@"esmWeekends" ] boolValue];
   schedule.scheduleId = [NSString stringWithFormat:@"%ld", [[scheduleMembers objectForKey:@"id"] longValue]];
-  schedule.nthAMonth = [[scheduleMembers objectForKey:@"nthAMonth"] intValue];
+  schedule.nthOfMonth = [[scheduleMembers objectForKey:@"nthOfMonth"] intValue];
   schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
   schedule.timeout = [[scheduleMembers objectForKey:@"timeout"] intValue];
@@ -99,7 +99,7 @@
           @"esmStartHour=%lld "
           @"esmWeekends=%d "
           @"scheduleId=%@ "
-          @"nthAMonth=%d "
+          @"nthOfMonth=%d "
           @"repeatPeriod=%d "
           @"scheduleType=%d "
           @"times=%@ "
@@ -116,7 +116,7 @@
           self.esmStartHour,
           self.esmWeekends,
           self.scheduleId,
-          self.nthAMonth,
+          self.nthOfMonth,
           self.repeatPeriod,
           self.scheduleType,
           self.times,
@@ -210,7 +210,7 @@
   
   [json appendFormat:@"repeatPeriod = %d;", self.repeatPeriod];
   [json appendFormat:@"daysOfWeek = %@;", [self weekDaysScheduledString]];
-  [json appendFormat:@"nthOfMonth = %d;", self.nthAMonth];
+  [json appendFormat:@"nthOfMonth = %d;", self.nthOfMonth];
   [json appendFormat:@"byDayOfMonth = %d;", self.byDayOfMonth];
   [json appendFormat:@"dayOfMonth = %d", self.dayOfMonth];
   [json appendString:@"}"];

@@ -74,7 +74,7 @@ public class JsonConverter {
   private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
                                  experiment.getInformedConsentForm(), experiment.getCreator(), 
-                                 experiment.getSignalingMechanisms(), experiment.getFixedDuration(),
+                                 experiment.getFixedDuration(),
                                  experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate());
   }
 

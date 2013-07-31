@@ -21,13 +21,29 @@
 
 @implementation PacoDate
 
-+ (NSString *)pacoStringForDate:(NSDate *)date {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  // tpe: temporary disabled changing the timezone to GMT as we're not sure if this is correct behavior
-  // [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-  [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
-  return [dateFormatter stringFromDate:date];
+/*
+ * 2013/07/25 12:33:22-0700
+ */
++ (NSDateFormatter*)dateFormatter {
+  static NSDateFormatter* dateFormatter = nil;
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+  });
+  
+  return dateFormatter;
 }
+
++ (NSString *)pacoStringForDate:(NSDate *)date {
+  return [[PacoDate dateFormatter] stringFromDate:date];
+}
+
++ (NSDate *)pacoDateForString:(NSString *)dateStr {
+  return [[PacoDate dateFormatter] dateFromString:dateStr];
+}
+
 
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];

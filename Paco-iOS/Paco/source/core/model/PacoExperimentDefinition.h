@@ -34,11 +34,12 @@
 @property (nonatomic, assign) BOOL fixedDuration;
 @property (nonatomic, copy) NSString *informedConsentForm;
 @property (nonatomic, retain) NSArray *inputs;  // <PacoExperimentInput>
-@property (nonatomic, assign) long long modifyDate;
+@property (nonatomic, copy) NSString* modifyDate;
 @property (nonatomic, assign) BOOL questionsChange;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;
 @property (nonatomic, assign) BOOL webReccommended;
 @property (nonatomic, retain) id jsonObject;
+@property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (void)tagQuestionsForDependencies;

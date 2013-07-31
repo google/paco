@@ -40,6 +40,7 @@
 - (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler;
 
 // Submit question answers to the server.
-- (void)submitAnswers:(PacoExperimentDefinition *)experiment
-    completionHandler:(void (^)(NSError *))completionHandler;
+- (void)submitSurveyForDefinition:(PacoExperimentDefinition *)definition
+                       withInputs:(NSArray*)visibleInputs
+                completionHandler:(void (^)(NSError *))completionHandler;
 @end

@@ -31,6 +31,7 @@
 @property (nonatomic, readonly, copy) NSString *pacoVersion;
 @property (nonatomic, copy) NSString *experimentId;
 @property (nonatomic, copy) NSString *experimentName;
+@property (nonatomic, assign) int experimentVersion;
 @property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
 @property (nonatomic, retain) id jsonObject;
 + (id)pacoEventForIOS;
@@ -41,6 +42,8 @@
 + (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment;
 + (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition
                         withSchedule:(PacoExperimentSchedule*)schedule;
++ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition
+                            withInputs:(NSArray*)visibleInputs;
 
 
 @end

@@ -42,7 +42,7 @@
     [inputObjects addObject:[PacoExperimentInput pacoExperimentInputFromJSON:jsonInput]];
   }
   definition.inputs = inputObjects;
-  definition.modifyDate = [[definitionMembers objectForKey:@"modifyDate"] longLongValue];
+  definition.modifyDate = [definitionMembers objectForKey:@"modifyDate"]; //Format: "2012/01/17"
   definition.published = [[definitionMembers objectForKey:@"published"] boolValue];
   definition.publishedUsers = [definitionMembers objectForKey:@"publishedUsers"];
   definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
@@ -53,6 +53,7 @@
   
   definition.title = [definitionMembers objectForKey:@"title"];
   definition.webReccommended = [[definitionMembers objectForKey:@"webRecommended"] boolValue];
+  definition.experimentVersion = [[definitionMembers objectForKey:@"version"] intValue];
   
   definition.jsonObject = jsonObject;
   
@@ -71,12 +72,13 @@
           @"fixedDuration=%d "
           @"informedConsentForm=%@ "
           @"inputs=%@ "
-          @"modifyDate=%lld "
+          @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
           @"questionsChange=%d "
           @"schedule=%@ "
-          @"webReccommended=%d >",
+          @"webReccommended=%d "
+          @"experimentVersion=%d >",
           self,
           self.experimentId,
           self.title,
@@ -94,12 +96,11 @@
           self.questionsChange,
           self.schedule,
           self.webReccommended,
+          self.experimentVersion,
           nil];
 }
 
-- (void)tagQuestionsForDependencies {
-  if (![self.title isEqualToString:@"TestExperiment"])
-    return;
+- (void)tagQuestionsForDependencies {  
   for (PacoExperimentInput *input in self.inputs) {
     input.isADependencyForOthers = NO;
   }
@@ -120,7 +121,7 @@
 }
 
 + (PacoExperimentDefinition *)testPacoExperimentDefinition {
-  NSString *testDefinitionJSON = @"{\"title\":\"Test Local Notification iOS Experiment\",\"description\":\"This experiment is to test the iOS Notification system for Paco.\",\"informedConsentForm\":\"You consent to be used for world domination\",\"creator\":\"tom.pennings@gmail.com\",\"fixedDuration\":false,\"id\":8798005,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000,36300000,36600000,36900000,37200000,37500000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000,36300000,36600000,36900000,37200000,37500000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false},\"questionsChange\":false,\"modifyDate\":\"2013/07/25\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"Do you feel OK today?\",\"mandatory\":true,\"responseType\":\"list\",\"likertSteps\":5,\"name\":\"feel_ok\",\"conditional\":false,\"listChoices\":[\"Yes\",\"No\"],\"multiselect\":true,\"invisibleInput\":false}],\"feedback\":[{\"id\":2,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":1}";
+  NSString *testDefinitionJSON = @"{\"title\":\"Test Local: Notification iOS Experiment\",\"description\":\"This experiment is to test the iOS Notification system for Paco.\",\"informedConsentForm\":\"You consent to be used for world domination\",\"creator\":\"tom.pennings@gmail.com\",\"fixedDuration\":false,\"id\":8798005,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000,36300000,36600000,36900000,37200000,37500000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000,36300000,36600000,36900000,37200000,37500000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false},\"questionsChange\":false,\"modifyDate\":\"2013/07/25\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"Do you feel OK today?\",\"mandatory\":true,\"responseType\":\"list\",\"likertSteps\":5,\"name\":\"feel_ok\",\"conditional\":false,\"listChoices\":[\"Yes\",\"No\"],\"multiselect\":true,\"invisibleInput\":false}],\"feedback\":[{\"id\":2,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":1}";
   
   NSError *jsonError = nil;
   NSData* jsonData = [testDefinitionJSON dataUsingEncoding:NSUTF8StringEncoding];  

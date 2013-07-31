@@ -26,6 +26,8 @@
 #import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
 
+static const int kInvalidIndex = -1;
+
 @interface PacoQuestionView () <MKMapViewDelegate,
                                 PacoCheckboxViewDelegate,
                                 PacoSliderViewDelegate,
@@ -215,146 +217,154 @@
 }
 
 - (void)setupUIForQuestion {
-  if ([self.question.questionType isEqualToString:@"question"]) {
-    // Question Label
-    self.questionText = [[UILabel alloc] initWithFrame:CGRectZero];
-    self.questionText.text = self.question.text;
-    self.questionText.backgroundColor = [UIColor clearColor];
-    self.questionText.textColor = [PacoColor pacoDarkBlue];
-    self.questionText.font = [PacoFont pacoTableCellFont];
-    self.questionText.numberOfLines = 0;  // Number of lines limited to view size
-    [self addSubview:self.questionText];
-    [self.questionText sizeToFit];
+  if (self.question == nil) {
+    return;
+  }
+  
+  if (![self.question.questionType isEqualToString:@"question"]) {
+    NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
+    return;
+  }
+
+  // Question Label
+  self.questionText = [[UILabel alloc] initWithFrame:CGRectZero];
+  self.questionText.text = self.question.text;
+  self.questionText.backgroundColor = [UIColor clearColor];
+  self.questionText.textColor = [PacoColor pacoDarkBlue];
+  self.questionText.font = [PacoFont pacoTableCellFont];
+  self.questionText.numberOfLines = 0;  // Number of lines limited to view size
+  [self addSubview:self.questionText];
+  [self.questionText sizeToFit];
+
+  if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
+    // Smiley Buttons
+    NSMutableArray *buttons = [NSMutableArray array];
+    for (int i = 1; i <= 5; ++i) {
+      UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+      [buttons addObject:button];
+      [self addSubview:button];
+      [button sizeToFit];
+      [button addTarget:self action:@selector(onSmiley:) forControlEvents:UIControlEventTouchUpInside];
+    }
     
-
-    if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
-      // Smiley Buttons
-      NSMutableArray *buttons = [NSMutableArray array];
-      for (int i = 1; i <= 5; ++i) {
-        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [buttons addObject:button];
-        [self addSubview:button];
-        [button sizeToFit];
-        [button addTarget:self action:@selector(onSmiley:) forControlEvents:UIControlEventTouchUpInside];
-      }
-      
-      self.smileysButtons = buttons;
-      if (self.question.responseObject) {
-        NSNumber *number = self.question.responseObject;
-        [self selectSmiley:[number intValue]];
-      } else {
-        [self selectSmiley:3];
-      }
-    } else if ([self.question.responseType isEqualToString:@"likert"]) {
-      // Number Steps
-      NSMutableArray *buttons = [NSMutableArray array];
-      for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
-        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
-        [buttons addObject:button];
-        [self addSubview:button];
-        [button sizeToFit];
-        [button addTarget:self action:@selector(onNumber:) forControlEvents:UIControlEventTouchUpInside];
-      }
-      self.numberButtons = buttons;
-      if (self.question.responseObject) {
-        NSNumber *number = self.question.responseObject;
-        [self selectNumberButton:[number intValue]];
-      } else {
-        int mid = self.question.likertSteps / 2;
-        [self selectNumberButton:mid];
-      }
-    } else if ([self.question.responseType isEqualToString:@"open text"]) {
-      // Open Text Field
-      self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
-      self.textField.placeholder = @"<type response here>";
-      self.textField.borderStyle = UITextBorderStyleRoundedRect;
-      
-      [self addSubview:self.textField];
-      self.textField.delegate = self;
-      if (self.question.responseObject) {
-        if (![self.question.responseObject isKindOfClass:[NSString class]]) {
-          //NSString *reponseType = NSStringFromClass([self.question.responseObject class]);
-          assert(0); // should clear map thing for sure between table instantiations, or sometinng, make sure either way
-        }
-        self.textField.text = self.question.responseObject;
-      }
-    } else if ([self.question.responseType isEqualToString:@"list"]) {
-      // TODO: radio list or multi checkboxes
-      // TODO: modify checkboxes to be vertical
-      PacoCheckboxView *checkboxes = [[PacoCheckboxView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_list"];
-      checkboxes.optionLabels = self.question.listChoices;
-      checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
-      checkboxes.radioStyle = NO;  // TODO(gregvance): get this from the server
-      checkboxes.vertical = YES;
-      checkboxes.delegate = self;
-      self.checkboxes = checkboxes;
-      [self addSubview:checkboxes];
-      if (self.question.responseObject) {
-        checkboxes.bitFlags = self.question.responseObject;
-      }
-    } else if ([self.question.responseType isEqualToString:@"number"]) {
-      PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
-      slider.format = @"%d";
-      if (self.question.responseObject) {
-        slider.value = self.question.responseObject;
-      } else {
-        slider.value = [NSNumber numberWithInt:0];
-      }
-      slider.minValue = 0;
-      slider.maxValue = 100;
-      slider.delegate = self;
-      self.numberSlider = slider;
-      [self addSubview:slider];
-
-    } else if ([self.question.responseType isEqualToString:@"location"]) {
-      if ([self.question.text length] == 0) {
-        self.questionText.text = @"Attaching your location ...";
-        [self.questionText sizeToFit];
-      }
-      if (!self.map) {
-        self.map = [[MKMapView alloc] initWithFrame:CGRectZero];
-        self.map.delegate = self;
-        self.map.showsUserLocation = YES;
-        self.map.zoomEnabled = NO;
-        self.map.userInteractionEnabled = NO;
-        self.map.userTrackingMode = MKUserTrackingModeFollow;
-        self.map.mapType = MKMapTypeHybrid;// MKMapTypeStandard,MKMapTypeSatellite,MKMapTypeHybrid
-      }
-      [self addSubview:self.map];
-    } else if ([self.question.responseType isEqualToString:@"photo"]) {
-      if ([self.question.text length] == 0) {
-        self.questionText.text = @"Attach a photo.";
-        [self.questionText sizeToFit];
-      }
-      self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"Camera", @"Library"]];
-      self.photoSegmentControl.selectedSegmentIndex = 0;
-      [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
-      [self addSubview:self.photoSegmentControl];
-      
-      self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      [self updateChoosePhotoButtonTitle];
-      [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-      [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-      [self addSubview:self.choosePhotoButton];
-      if (self.question.responseObject) {
-        //NSString *classType = self.question.responseObject ? NSStringFromClass([self.question.responseObject class]) : nil;
-        assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
-        UIImage *image = self.question.responseObject;
-        [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
-      }
-//      [self.choosePhotoButton sizeToFit];
-      [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
-      if (self.question.responseObject) {
-        assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
-        self.image = self.question.responseObject;
-      }
+    self.smileysButtons = buttons;
+    if (self.question.responseObject) {
+      NSNumber *number = self.question.responseObject;
+      [self selectSmiley:[number intValue]];
     } else {
+      [self selectSmiley:kInvalidIndex];
+    }
+  } else if ([self.question.responseType isEqualToString:@"likert"]) {
+    // Number Steps
+    NSMutableArray *buttons = [NSMutableArray array];
+    for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
+      UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+      [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
+      [buttons addObject:button];
+      [self addSubview:button];
+      [button sizeToFit];
+      [button addTarget:self action:@selector(onNumber:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    self.numberButtons = buttons;
+    if (self.question.responseObject) {
+      NSNumber *number = self.question.responseObject;
+      [self selectNumberButton:[number intValue]];
+    } else {
+      [self selectNumberButton:kInvalidIndex];
+    }
+  } else if ([self.question.responseType isEqualToString:@"open text"]) {
+    // Open Text Field
+    self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
+    self.textField.placeholder = @"<type response here>";
+    self.textField.borderStyle = UITextBorderStyleRoundedRect;
+    
+    [self addSubview:self.textField];
+    self.textField.delegate = self;
+    if (self.question.responseObject) {
+      if (![self.question.responseObject isKindOfClass:[NSString class]]) {
+        //NSString *reponseType = NSStringFromClass([self.question.responseObject class]);
+        assert(0); // should clear map thing for sure between table instantiations, or sometinng, make sure either way
+      }
+      self.textField.text = self.question.responseObject;
+    }
+  } else if ([self.question.responseType isEqualToString:@"list"]) {
+    // TODO: radio list UI implementation
+    // TODO: modify checkboxes to be vertical
+    NSString* listIdentifier = @"question_list";
+    if (!self.question.multiSelect) {
+      listIdentifier = @"question_list_radio";
+    }
+    PacoCheckboxView *checkboxes = [[PacoCheckboxView alloc] initWithStyle:UITableViewStylePlain
+                                                           reuseIdentifier:listIdentifier];
+    checkboxes.optionLabels = self.question.listChoices;
+    checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
+    checkboxes.radioStyle = !self.question.multiSelect;  
+    checkboxes.vertical = YES;
+    checkboxes.delegate = self;
+    self.checkboxes = checkboxes;
+    [self addSubview:checkboxes];
+    if (self.question.responseObject) {
+      checkboxes.bitFlags = self.question.responseObject;
+    }
+  } else if ([self.question.responseType isEqualToString:@"number"]) {
+    PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
+    slider.format = @"%d";
+    if (self.question.responseObject) {
+      slider.value = self.question.responseObject;
+    } else {
+      slider.value = [NSNumber numberWithInt:0];
+    }
+    slider.minValue = 0;
+    slider.maxValue = 100;
+    slider.delegate = self;
+    self.numberSlider = slider;
+    [self addSubview:slider];
 
-      NSLog(@"TODO: implement response type \"%@\"", self.question.responseType);
+  } else if ([self.question.responseType isEqualToString:@"location"]) {
+    if ([self.question.text length] == 0) {
+      self.questionText.text = @"Attaching your location ...";
+      [self.questionText sizeToFit];
+    }
+    if (!self.map) {
+      self.map = [[MKMapView alloc] initWithFrame:CGRectZero];
+      self.map.delegate = self;
+      self.map.showsUserLocation = YES;
+      self.map.zoomEnabled = NO;
+      self.map.userInteractionEnabled = NO;
+      self.map.userTrackingMode = MKUserTrackingModeFollow;
+      self.map.mapType = MKMapTypeHybrid;// MKMapTypeStandard,MKMapTypeSatellite,MKMapTypeHybrid
+    }
+    [self addSubview:self.map];
+  } else if ([self.question.responseType isEqualToString:@"photo"]) {
+    if ([self.question.text length] == 0) {
+      self.questionText.text = @"Attach a photo.";
+      [self.questionText sizeToFit];
+    }
+    self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"Camera", @"Library"]];
+    self.photoSegmentControl.selectedSegmentIndex = 0;
+    [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
+    [self addSubview:self.photoSegmentControl];
+    
+    self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [self updateChoosePhotoButtonTitle];
+    [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
+    [self addSubview:self.choosePhotoButton];
+    if (self.question.responseObject) {
+      //NSString *classType = self.question.responseObject ? NSStringFromClass([self.question.responseObject class]) : nil;
+      assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
+      UIImage *image = self.question.responseObject;
+      [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
+    }
+//      [self.choosePhotoButton sizeToFit];
+    [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
+    if (self.question.responseObject) {
+      assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
+      self.image = self.question.responseObject;
     }
   } else {
-    NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
+
+    NSLog(@"TODO: implement response type \"%@\"", self.question.responseType);
   }
 }
 
@@ -387,27 +397,31 @@
   PacoExperimentInput *question = (PacoExperimentInput *)[array objectAtIndex:1];
   CGSize textSize = [self textSizeToFitSize:CGSizeMake(320, 10000) text:question.text font:nil];
   
-  if ([question.questionType isEqualToString:@"question"]) {
-    if ([question.responseType isEqualToString:@"likert_smileys"]) {
-      return [NSNumber numberWithInt:100 + (textSize.height)];
-    } else if ([question.responseType isEqualToString:@"likert"]) {
-      return [NSNumber numberWithInt:100 + (textSize.height)];
-    } else if ([question.responseType isEqualToString:@"open text"]) {
-    } else if ([question.responseType isEqualToString:@"list"]) {
-      // radio list or multi checkboxes
-      int numChoices = question.listChoices.count;
-      return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
-    } else if ([question.responseType isEqualToString:@"number"]) {
-      return [NSNumber numberWithInt:100 + (textSize.height)];
-    } else if ([question.responseType isEqualToString:@"location"]) {
-      return [NSNumber numberWithInt:300 + (textSize.height)];
-    } else if ([question.responseType isEqualToString:@"photo"]) {
-      return [NSNumber numberWithInt:300 + (textSize.height)];
-    }
-  } else {
-    NSLog(@"TODO: implement question type \"%@\" [%@]", question.questionType, question.text);
+  if (question == nil) {
+    return [NSNumber numberWithInt:140 + (textSize.height)];
   }
 
+  if (![question.questionType isEqualToString:@"question"]) {
+    NSLog(@"TODO: implement question type \"%@\" [%@]", question.questionType, question.text);
+    return [NSNumber numberWithInt:140 + (textSize.height)];
+  }
+  
+  if ([question.responseType isEqualToString:@"likert_smileys"]) {
+    return [NSNumber numberWithInt:100 + (textSize.height)];
+  } else if ([question.responseType isEqualToString:@"likert"]) {
+    return [NSNumber numberWithInt:100 + (textSize.height)];
+  } else if ([question.responseType isEqualToString:@"open text"]) {
+  } else if ([question.responseType isEqualToString:@"list"]) {
+    // radio list or multi checkboxes
+    int numChoices = question.listChoices.count;
+    return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
+  } else if ([question.responseType isEqualToString:@"number"]) {
+    return [NSNumber numberWithInt:100 + (textSize.height)];
+  } else if ([question.responseType isEqualToString:@"location"]) {
+    return [NSNumber numberWithInt:300 + (textSize.height)];
+  } else if ([question.responseType isEqualToString:@"photo"]) {
+    return [NSNumber numberWithInt:300 + (textSize.height)];
+  }
 
   return [NSNumber numberWithInt:140 + (textSize.height)];
 }
@@ -420,65 +434,71 @@
   CGSize textsize = [self.class textSizeToFitSize:self.questionText.frame.size
                                              text:self.questionText.text
                                              font:self.questionText.font];
-  if ([self.question.questionType isEqualToString:@"question"]) {
-    if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
-      int numSmileys = self.smileysButtons.count;
-      CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
-      NSArray *smileys = [PacoLayout splitRectHorizontally:bounds numSections:numSmileys];
-      //for (NSValue *valueRect in smileys) {
-      for (int i = 0; i < numSmileys; ++i) {
-        UIButton *button = [self.smileysButtons objectAtIndex:i];
-        NSValue *valueRect = [smileys objectAtIndex:i];
-        CGRect rect = [valueRect CGRectValue];
-        button.frame = rect;
-      }
-    } else if ([self.question.responseType isEqualToString:@"likert"]) {
-      int numValues = self.numberButtons.count;
-      CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
-      NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
-      //for (NSValue *valueRect in smileys) {
-      for (int i = 0; i < numValues; ++i) {
-        UIButton *button = [self.numberButtons objectAtIndex:i];
-        NSValue *valueRect = [numbers objectAtIndex:i];
-        CGRect rect = [valueRect CGRectValue];
-        button.frame = rect;
-      }
-    } else if ([self.question.responseType isEqualToString:@"open text"]) {
-      CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-      self.textField.frame = bounds;
-    } else if ([self.question.responseType isEqualToString:@"list"]) {
-      // radio list or multi checkboxes
-      CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-      self.checkboxes.frame = bounds;
+  
+  if (self.question == nil) {
+    return;
+  }
+  
+  if (![self.question.questionType isEqualToString:@"question"]) {
+    NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
+    return;
+  }
+
+  if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
+    int numSmileys = self.smileysButtons.count;
+    CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
+    NSArray *smileys = [PacoLayout splitRectHorizontally:bounds numSections:numSmileys];
+    //for (NSValue *valueRect in smileys) {
+    for (int i = 0; i < numSmileys; ++i) {
+      UIButton *button = [self.smileysButtons objectAtIndex:i];
+      NSValue *valueRect = [smileys objectAtIndex:i];
+      CGRect rect = [valueRect CGRectValue];
+      button.frame = rect;
+    }
+  } else if ([self.question.responseType isEqualToString:@"likert"]) {
+    int numValues = self.numberButtons.count;
+    CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
+    NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
+    //for (NSValue *valueRect in smileys) {
+    for (int i = 0; i < numValues; ++i) {
+      UIButton *button = [self.numberButtons objectAtIndex:i];
+      NSValue *valueRect = [numbers objectAtIndex:i];
+      CGRect rect = [valueRect CGRectValue];
+      button.frame = rect;
+    }
+  } else if ([self.question.responseType isEqualToString:@"open text"]) {
+    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
+    self.textField.frame = bounds;
+  } else if ([self.question.responseType isEqualToString:@"list"]) {
+    // radio list or multi checkboxes
+    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
+    self.checkboxes.frame = bounds;
 //      int numChoices = self.question.listChoices.count;
 //      NSArray *choices = [PacoLayout splitRectVertically:bounds numSections:numChoices];
 //      for (int i = 0; i < numChoices; ++i) {
 //
 //      }
-    } else if ([self.question.responseType isEqualToString:@"number"]) {
-      CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
+  } else if ([self.question.responseType isEqualToString:@"number"]) {
+    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
-      self.numberSlider.frame = bounds;
-    } else if ([self.question.responseType isEqualToString:@"location"]) {
-      CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
+    self.numberSlider.frame = bounds;
+  } else if ([self.question.responseType isEqualToString:@"location"]) {
+    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
-      self.map.frame = bounds;
-    } else if ([self.question.responseType isEqualToString:@"photo"]) {
-      CGRect segmentControlFrame = CGRectMake(self.questionText.frame.origin.x + textsize.width + 20,
-                                              self.questionText.frame.origin.y + 5,
-                                              self.photoSegmentControl.frame.size.width,
-                                              self.photoSegmentControl.frame.size.height);
-      self.photoSegmentControl.frame = segmentControlFrame;
-      
-      float maxHeight = MAX(textsize.height, self.photoSegmentControl.frame.size.height);
-      CGRect photoButtonFrame = CGRectMake(10,
-                                           maxHeight + 20,
-                                           self.frame.size.width - 20,
-                                           self.frame.size.height - maxHeight - 30);
-      self.choosePhotoButton.frame = photoButtonFrame;
-    }
-  } else {
-    NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
+    self.map.frame = bounds;
+  } else if ([self.question.responseType isEqualToString:@"photo"]) {
+    CGRect segmentControlFrame = CGRectMake(self.questionText.frame.origin.x + textsize.width + 20,
+                                            self.questionText.frame.origin.y + 5,
+                                            self.photoSegmentControl.frame.size.width,
+                                            self.photoSegmentControl.frame.size.height);
+    self.photoSegmentControl.frame = segmentControlFrame;
+    
+    float maxHeight = MAX(textsize.height, self.photoSegmentControl.frame.size.height);
+    CGRect photoButtonFrame = CGRectMake(10,
+                                         maxHeight + 20,
+                                         self.frame.size.width - 20,
+                                         self.frame.size.height - maxHeight - 30);
+    self.choosePhotoButton.frame = photoButtonFrame;
   }
 }
 
@@ -570,7 +590,13 @@
 #pragma mark - PacoCheckboxViewDelegate
 
 - (void)onCheckboxChanged:(PacoCheckboxView *)checkbox {
-  self.question.responseObject = checkbox.bitFlags;
+  //if nothing is selected, set the responseObject to nil so that
+  //this input can be validated correctly.
+  if ([checkbox hasCheckedBox]) {
+    self.question.responseObject = checkbox.bitFlags;
+  }else {
+    self.question.responseObject = nil;
+  }
   [self updateConditionals];
 }
 

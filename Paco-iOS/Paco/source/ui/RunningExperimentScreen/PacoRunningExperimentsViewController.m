@@ -197,7 +197,6 @@
 #pragma mark - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-  NSLog(@"BUTTON INDEX + %d", buttonIndex);
   switch (buttonIndex) {
     case 0: // Cancel
       break;
