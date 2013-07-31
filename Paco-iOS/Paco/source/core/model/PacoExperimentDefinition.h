@@ -42,6 +42,6 @@
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (void)tagQuestionsForDependencies;
-- (PacoExperimentDefinition *)testPacoExperimentDefinition;
++ (PacoExperimentDefinition *)testPacoExperimentDefinition;
 
 @end

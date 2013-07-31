@@ -50,7 +50,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (BOOL)loadExperimentDefinitionsFromFile;
 - (NSError*)loadExperimentInstancesFromFile;
 - (void)applyDefinitionJSON:(id)jsonObject;
-- (void)deleteExperiment:(PacoExperiment*)experiment;
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
 @interface PacoClient () <PacoLocationDelegate>
@@ -166,6 +166,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                           self.location = [[PacoLocation alloc] init];
                                           self.location.delegate = self;
                                         }
+                                        // for testing purposes let's load a sample experiment
+                                        [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
                                       }];
                                       completionHandler(nil);
                                     } else {
@@ -288,7 +290,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (void)deleteLocalExperiment:(PacoExperiment*)experiment
 {
   //remove experiment from local cache
-  [self.model deleteExperiment:experiment];
+  [self.model deleteExperimentInstance:experiment];
   
   //TODO: ymz: clear all scheduled notifications and anything else
 }

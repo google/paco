@@ -92,17 +92,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   [self updateExperimentDefinitions:definitions];
 }
 
-- (void)updateExperimentDefinitions:(NSArray*)definitions
-{
-  self.experimentDefinitions = definitions;
-}
-
-- (void)updateExperimentInstances:(NSMutableArray*)experiments
-{
-  self.experimentInstances = experiments;
-}
-
-
 - (void)applyInstanceJSON:(id)jsonObject {
   NSMutableArray *instances = [NSMutableArray array];
   if (jsonObject == nil) {
@@ -167,20 +156,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     }
   }
   return array;
-}
-
-- (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                 schedule:(PacoExperimentSchedule *)schedule
-                                   events:(NSArray *)events {
-  PacoExperiment *instance = [[PacoExperiment alloc] init];
-  instance.schedule = schedule;
-  instance.definition = definition;
-  instance.events = events;
-  NSDate *nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  instance.instanceId = definition.experimentId;
-  instance.lastEventQueryTime = nowdate;
-  [self.experimentInstances addObject:instance];
-  return instance;
 }
 
 - (void)makeJSONObjectFromExperiments {
@@ -391,14 +366,55 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return NO;
 }
 
+#pragma mark Experiment Definition operations
+- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
+  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
+  [definitions addObject:experimentDefinition];
+  
+  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+}
 
-#pragma mark delete an experiment
-- (void)deleteExperiment:(PacoExperiment*)experiment
-{
+- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
+  NSUInteger index = [self.experimentDefinitions indexOfObject:experimentDefinition];
+  NSAssert(index != NSNotFound, @"An experiment definition must be in model to be deleted!");
+  
+  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
+  [definitions removeObject:experimentDefinition];
+  
+  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+}
+
+- (void)updateExperimentDefinitions:(NSArray*)definitions {
+  self.experimentDefinitions = definitions;
+}
+
+#pragma mark Experiment Instance operations
+- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition *)definition
+                                schedule:(PacoExperimentSchedule *)schedule
+                                  events:(NSArray *)events {
+  PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.events = events;
+  NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
+  experimentInstance.instanceId = definition.experimentId;
+  experimentInstance.lastEventQueryTime = nowdate;
+  [self addExperimentInstance:experimentInstance];
+  return experimentInstance;
+}
+
+- (void)addExperimentInstance:(PacoExperiment*)experiment {
+  [self.experimentInstances addObject:experiment];
+}
+
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment {
   NSUInteger index = [self.experimentInstances indexOfObject:experiment];
   NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
   [self.experimentInstances removeObject:experiment];
 }
 
+- (void)updateExperimentInstances:(NSMutableArray*)experiments {
+  self.experimentInstances = experiments;
+}
 
 @end

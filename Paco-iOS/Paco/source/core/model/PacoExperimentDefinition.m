@@ -97,92 +97,6 @@
           nil];
 }
 
-- (PacoExperimentDefinition *)testPacoExperimentDefinition {
-  NSString *testDefinitionJSON =
-    @"{"
-    "creator = \"tom.pennings@gmail.com\";"
-    "deleted = 0;"
-    "description = \"This experiment is to test the iOS Notification system for Paco\";"
-    "feedback =         ("
-    "                    {"
-    "                      feedbackType = display;"
-    "                      id = 2;"
-    "                      text = \"Thanks for Participating!\";"
-    "                    }"
-    "                    );"
-    "fixedDuration = 0;"
-    "id = -1;"
-    "informedConsentForm = \"You consent to be used for world domination\";"
-    "inputs =         ("
-    "                  {"
-    "                    conditional = 0;"
-    "                    id = 3;"
-    "                    invisibleInput = 0;"
-    "                    likertSteps = 5;"
-    "                    listChoices =                 ("
-    "                                                   Yes,"
-    "                                                   No"
-    "                                                   );"
-    "                    mandatory = 1;"
-    "                    name = Feel;"
-    "                    questionType = question;"
-    "                    responseType = list;"
-    "                    text = \"Do you feel good?\";"
-    "                  }"
-    "                  );"
-    "modifyDate = \"2013/07/25\";"
-    "published = 0;"
-    "questionsChange = 0;"
-    "schedule =         {"
-    "  byDayOfMonth = 1;"
-    "  byDayOfWeek = 0;"
-    "  dayOfMonth = 1;"
-    "  esmEndHour = 61200000;"
-    "  esmFrequency = 100;"
-    "  esmPeriodInDays = 0;"
-    "  esmStartHour = 32400000;"
-    "  esmWeekends = 0;"
-    "  id = 1;"
-    "  nthOfMonth = 1;"
-    "  repeatRate = 1;"
-    "  scheduleType = 4;"
-    "  timeout = 1;"
-    "  times =             ("
-    "                       36000000"
-    "                       );"
-    "  type = signalSchedule;"
-    "  weekDaysScheduled = 0;"
-    "};"
-    "signalingMechanisms =         ("
-    "                               {"
-    "                                 byDayOfMonth = 1;"
-    "                                 byDayOfWeek = 0;"
-    "                                 dayOfMonth = 1;"
-    "                                 esmEndHour = 61200000;"
-    "                                 esmFrequency = 100;"
-    "                                 esmPeriodInDays = 0;"
-    "                                 esmStartHour = 32400000;"
-    "                                 esmWeekends = 0;"
-    "                                 id = 1;"
-    "                                 nthOfMonth = 1;"
-    "                                 repeatRate = 1;"
-    "                                 scheduleType = 4;"
-    "                                 timeout = 1;"
-    "                                 times =                 ("
-    "                                                          36000000"
-    "                                                          );"
-    "                                 type = signalSchedule;"
-    "                                 weekDaysScheduled = 0;"
-    "                               }"
-    "                               );"
-    "title = \"TEST: iOS Notifications\";"
-    "version = 1;"
-    "webRecommended = 0;"
-  "}";
-
-  return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:testDefinitionJSON];
-}
-
 - (void)tagQuestionsForDependencies {
   if (![self.title isEqualToString:@"TestExperiment"])
     return;
@@ -203,6 +117,16 @@
       }
     }
   }
+}
+
++ (PacoExperimentDefinition *)testPacoExperimentDefinition {
+  NSString *testDefinitionJSON = @"{\"title\":\"Test: Notification iOS Experiment\",\"description\":\"This experiment is to test the iOS Notification system for Paco.\",\"informedConsentForm\":\"You consent to be used for world domination\",\"creator\":\"tom.pennings@gmail.com\",\"fixedDuration\":false,\"id\":8798005,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":999  ,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[50400000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":1,\"id\":1,\"scheduleType\":4,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[50400000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false},\"questionsChange\":false,\"modifyDate\":\"2013/07/25\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"Do you feel OK today?\",\"mandatory\":true,\"responseType\":\"list\",\"likertSteps\":5,\"name\":\"feel_ok\",\"conditional\":false,\"listChoices\":[\"Yes\",\"No\"],\"multiselect\":true,\"invisibleInput\":false}],\"feedback\":[{\"id\":2,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":1}";
+  
+  NSError *jsonError = nil;
+  NSData* jsonData = [testDefinitionJSON dataUsingEncoding:NSUTF8StringEncoding];  
+  id jsonObj = !jsonData ? nil : [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
+  
+  return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonObj];
 }
 
 @end

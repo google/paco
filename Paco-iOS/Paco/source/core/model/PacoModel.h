@@ -36,9 +36,6 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
-- (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                 schedule:(PacoExperimentSchedule *)schedule
-                                   events:(NSArray *)events;
 
 
 - (NSArray *)joinedExperiments;
@@ -49,6 +46,20 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 
 + (PacoModel *)pacoModelFromFile;
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
+
+/* Operations on the model */
+
+/* adding/removing Experiment Definitions */
+- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
+- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
+
+/* adding/removing Experiment Instances */
+- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition*)definition
+                                schedule:(PacoExperimentSchedule*)schedule
+                                  events:(NSArray*)events;
+- (void)addExperimentInstance:(PacoExperiment*)experiment;
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment;
+
 
 @end
 
