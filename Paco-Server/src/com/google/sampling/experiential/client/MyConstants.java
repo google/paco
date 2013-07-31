@@ -374,4 +374,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
 
+  @DefaultStringValue("Minimum time between signals")
+  String minimumBuffer();
+
 }

@@ -101,8 +101,11 @@ public class ServerCommunication {
     DownloadHelper downloadHelper = new DownloadHelper(context, userPrefs);
     List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
     if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
-      downloadHelper.downloadRunningExperiments(joinedExperimentServerIds);
-      saveDownloadedExperiments(experimentProviderUtil, downloadHelper.getContentAsString()); 
+      String resultCode = downloadHelper.downloadRunningExperiments(joinedExperimentServerIds);
+      String contentAsString = downloadHelper.getContentAsString();
+      if (resultCode.equals(DownloadHelper.SUCCESS) && contentAsString != null) {
+        saveDownloadedExperiments(experimentProviderUtil, contentAsString); 
+      }
     }
     userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
   }

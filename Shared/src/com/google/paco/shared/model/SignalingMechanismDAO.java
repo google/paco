@@ -6,6 +6,7 @@ public abstract class SignalingMechanismDAO implements Serializable {
 
   protected String type;
   protected Integer timeout;
+  protected Integer minimumBuffer;
 
   public SignalingMechanismDAO() {
     super();
@@ -31,9 +32,12 @@ public abstract class SignalingMechanismDAO implements Serializable {
     this.timeout = timeout;
 
   }
-  
 
-  
-  
+  public Integer getMinimumBuffer() {
+    return minimumBuffer;
+  }
 
+  public void setMinimumBuffer(Integer minimumBuffer) {
+    this.minimumBuffer = minimumBuffer;
+  }
 }

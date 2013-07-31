@@ -57,7 +57,6 @@ public class WeeklyPanel extends Composite {
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-
   }
 
   private void createRepeatWeeklyPanel(VerticalPanel verticalPanel) {

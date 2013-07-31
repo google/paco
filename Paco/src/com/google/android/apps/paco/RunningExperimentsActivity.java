@@ -148,7 +148,9 @@ public class RunningExperimentsActivity extends Activity {
   
   private void saveDownloadedExperiments() {
     String contentAsString = experimentDownloadTask.getContentAsString();
-    saveDownloadedExperiments(contentAsString);
+    if (contentAsString != null) {
+      saveDownloadedExperiments(contentAsString);
+    }
   }
   
   // Visible for testing

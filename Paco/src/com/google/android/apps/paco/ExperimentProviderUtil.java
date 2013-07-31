@@ -1002,8 +1002,9 @@ public class ExperimentProviderUtil {
     int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
-    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE );
-    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT );
+    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
+    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
+    int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
     
     SignalSchedule schedule = new SignalSchedule();    
     if (!cursor.isNull(idIndex)) {
@@ -1066,6 +1067,10 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(timeoutIndex)) {
       schedule.setTimeout(cursor.getInt(timeoutIndex));
     }
+    if (!cursor.isNull(minBufferIndex)) {
+      schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
+    }
+
     return schedule;
   }
   
@@ -1108,6 +1113,11 @@ public class ExperimentProviderUtil {
     if (schedule.getTimeout() != null) {
       values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout()); 
     }
+    
+    if (schedule.getMinimumBuffer() != null) {
+      values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer()); 
+    }
+
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Long time : schedule.getTimes()) {
