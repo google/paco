@@ -28,6 +28,7 @@ import com.google.paco.shared.model.FeedbackDAO;
 public class ExperimentPublishingPanel extends Composite {
 
   private ExperimentDAO experiment;
+  private ExperimentCreationListener listener;
   private MyConstants myConstants;
 
   private VerticalPanel mainPanel;
@@ -40,9 +41,10 @@ public class ExperimentPublishingPanel extends Composite {
   protected CheckBox publishCheckBox;
   protected TextArea publishedUserList;
 
-  public ExperimentPublishingPanel(ExperimentDAO experiment) {
+  public ExperimentPublishingPanel(ExperimentDAO experiment, ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
     this.experiment = experiment;
+    this.listener = listener;
 
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
@@ -148,11 +150,6 @@ public class ExperimentPublishingPanel extends Composite {
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
-    //    publishCheckBox.addClickHandler(new ClickHandler() {
-    //      public void onClick(ClickEvent event) {
-    //        setIsPublishedOn(experiment);
-    //      }
-    //    });
     publishCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
@@ -203,7 +200,7 @@ public class ExperimentPublishingPanel extends Composite {
     publishedUserList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        setPublishedUsersOn(experiment);
+        setExperimentPublishedUsersAndHighlight(event.getValue());
       }
     });
 
@@ -222,10 +219,22 @@ public class ExperimentPublishingPanel extends Composite {
   private void setIsPublishedOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
   }
+  
+  private void setExperimentPublishedUsersAndHighlight(String publishedList) {
+    try {
+      setPublishedUsersOn(experiment, publishedList);
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
+                         myConstants.publishedUsersListIsInvalid());
+      ExperimentCreationPanel.setPanelHighlight(publishedUserList, true);
+    } catch (IllegalArgumentException e) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
+                         myConstants.publishedUsersListIsInvalid());
+      ExperimentCreationPanel.setPanelHighlight(publishedUserList, false);
+    }
+  }
 
-  private void setPublishedUsersOn(ExperimentDAO experiment) {
+  private void setPublishedUsersOn(ExperimentDAO experiment, String userListText) {
     List<String> userEmails = new ArrayList<String>();
-    String userListText = publishedUserList.getText();
     if (userListText.length() > 0) {
       Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
       for (String userEmail : sp.split(userListText)) {
@@ -261,9 +270,13 @@ public class ExperimentPublishingPanel extends Composite {
     return buf.toString();
   }
   
+  private void fireExperimentCode(int code, String message) {
+    listener.eventFired(code, null, message);
+  }
+  
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
-    publishedUserList.setText(commaSepEmailList);
+    publishedUserList.setValue(commaSepEmailList, true);
   }
 
 }

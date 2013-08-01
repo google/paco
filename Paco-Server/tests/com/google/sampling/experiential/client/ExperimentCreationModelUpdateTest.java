@@ -15,7 +15,7 @@ import com.google.sampling.experiential.shared.LoginInfo;
 
 public class ExperimentCreationModelUpdateTest extends GWTTestCase {
   
-  private static final String TEST_TEXT = "test_text";
+  private static final String TEST_TEXT = "testText";
   private static final String TEST_EMAIL_1 = "test@test.com" ;
   private static final String TEST_EMAIL_2 = "example@example.org";
   private static final String START_DATE = "2013/07/21";
@@ -89,7 +89,9 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
   public void testFixedDurationWithDatesSavedOnExperiment() {
     DurationView durationPanel = experimentCreationPanel.descriptionPanel.durationPanel;
     durationPanel.setFixedDuration(true);
+    durationPanel.ensureValueChangeEventsWillFire();  // Must be called due to GWT 2.1 bug.
     durationPanel.setStartDate(START_DATE);
+    durationPanel.ensureValueChangeEventsWillFire();  // Must be called due to GWT 2.1 bug.
     durationPanel.setEndDate(END_DATE);
     submitAndGetSavedExperiment();
     assertTrue(savedExperiment.getFixedDuration());

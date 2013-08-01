@@ -40,20 +40,23 @@ public class SignalMechanismChooserPanel extends Composite {
   public static final int SCHEDULED_SIGNALING_INDEX = 0;
   public static final int TRIGGERED_SIGNALING_INDEX = 1;
 
-  private ExperimentDAO experiment;
-
+  private ExperimentDAO experiment; 
+  private int signalGroupNum;
+  private ExperimentCreationListener listener;
+  
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private HorizontalPanel choicePanel;
   private VerticalPanel mainPanel;
   
   protected ListBox signalingMechanismChoices;
-  
-  private int signalGroupNum;
 
-  public SignalMechanismChooserPanel(ExperimentDAO experiment, int signalGroupNum) {
+  public SignalMechanismChooserPanel(ExperimentDAO experiment, int signalGroupNum,
+                                     ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
-    this.experiment = experiment;
+    this.experiment = experiment;  
+    this.signalGroupNum = signalGroupNum;
+    this.listener = listener;
 
     rootPanel = new VerticalPanel();
     initWidget(rootPanel);
@@ -74,8 +77,6 @@ public class SignalMechanismChooserPanel extends Composite {
     signalingMechanismChoices.addItem(myConstants.triggeredSignaling());
 
     choicePanel.add(signalingMechanismChoices);
-    
-    this.signalGroupNum = signalGroupNum;
 
     if (signalGroupNum != 0 ||  // TODO: for now high input group numbers have no meaning. Will change with signal groups.
         experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
@@ -111,7 +112,7 @@ public class SignalMechanismChooserPanel extends Composite {
   }
   
   private Label createSignalGroupHeader() {
-    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
+    String titleText = myConstants.signalGroup() + " " + signalGroupNum;
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;
@@ -141,11 +142,23 @@ public class SignalMechanismChooserPanel extends Composite {
   }
 
   private SchedulePanel createSchedulePanel() {
-    return new SchedulePanel((SignalScheduleDAO) experiment.getSignalingMechanisms()[0]);
+    return new SchedulePanel((SignalScheduleDAO) experiment.getSignalingMechanisms()[0], this);
   }
 
   private TriggerPanel createTriggerPanel() {
-    return new TriggerPanel((TriggerDAO) experiment.getSignalingMechanisms()[0]);
+    return new TriggerPanel((TriggerDAO) experiment.getSignalingMechanisms()[0], this);
+  }
+
+  public void addTimeoutErrorMessage() {
+    fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.timeoutMustBeValid());
+  }
+  
+  public void removeTimeoutErrorMessage() {
+    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.timeoutMustBeValid());
+  }
+  
+  public void fireExperimentCode(int code, String message) {
+    listener.eventFired(code, signalGroupNum, message);
   }
 
 }

@@ -64,10 +64,9 @@ public class InputDAO implements Serializable {
   private String[] listChoices;
   private Boolean multiselect;
   
-  /**
-   * 
-   */
   public static final Integer DEFAULT_LIKERT_STEPS = 5;
+  
+  public static final String NAME_REGEX = "[a-zA-Z][a-zA-Z0-9]*";
 
   /**
    * @param id
@@ -168,6 +167,13 @@ public class InputDAO implements Serializable {
   }
 
   public void setLikertSteps(Integer steps) {
+    setLikertStepsWithValidation(steps);
+  }
+  
+  private void setLikertStepsWithValidation(Integer steps) {
+    if (steps <= 0) {
+      throw new IllegalArgumentException("Likert steps must be positive.");
+    }
     this.likertSteps = steps;
   }
 
@@ -179,7 +185,22 @@ public class InputDAO implements Serializable {
   }
   
   public void setName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("Input name cannot be null.");
+    }
+    name.trim();
+    setNameWithValidation(name);
+  }
+  
+  private void setNameWithValidation(String name) {
+    if (!varNameIsValid(name)) {
+      throw new IllegalArgumentException("Input name cannot be empty or contain spaces.");
+    }
     this.name = name;
+  }
+  
+  private boolean varNameIsValid(String name) {
+    return name.matches(NAME_REGEX);
   }
 
   public Boolean getConditional() {
@@ -217,14 +238,22 @@ public class InputDAO implements Serializable {
   public String[] getListChoices() {
     return listChoices;
   }
+  
+  public void setListChoiceAtIndex(int index, String listChoice) {
+    setListChoiceAtIndexWithValidation(index, listChoice);
+  }
+  
+  private void setListChoiceAtIndexWithValidation(int index, String listChoice) {
+    if (index == 0 & listChoice.equals("")) {
+      throw new IllegalArgumentException("First list choice cannot be empty.");
+    }
+    listChoices[index] = listChoice;
+  }
 
   public void setListChoices(String[] listChoices) {
     this.listChoices = listChoices;
   }
 
-  /**
-   * @return
-   */
   public boolean isInvisibleInput() {
     return getResponseType().equals(InputDAO.LOCATION) || getResponseType().equals(InputDAO.PHOTO);
   }
@@ -236,8 +265,5 @@ public class InputDAO implements Serializable {
   public void setMultiselect(Boolean multiselect) {
     this.multiselect = multiselect;
   }
-
-  
- 
   
 }

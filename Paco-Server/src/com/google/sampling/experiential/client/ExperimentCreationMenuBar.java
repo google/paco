@@ -43,7 +43,7 @@ public class ExperimentCreationMenuBar extends Composite {
 
     // Main menu roots.
     showDescriptionItem = new TreeItem(myConstants.experimentDescriptionButtonText());
-    signalGroupsRootTree = new TreeItem(myConstants.experimentSignalGroupsHeaderText());
+    signalGroupsRootTree = new TreeItem(myConstants.signalGroups());
     showPublishingItem = new TreeItem(myConstants.experimentPublishingButtonText());
 
     numSignalGroups = 0;
@@ -132,7 +132,7 @@ public class ExperimentCreationMenuBar extends Composite {
   
   private void createSignalGroup() {
     int groupNum = signalGroupsRootTree.getChildCount() - 1;
-    TreeItem signalGroup = new TreeItem(myConstants.experimentSingleSignalGroupHeaderText() + " " + groupNum);
+    TreeItem signalGroup = new TreeItem(myConstants.signalGroup() + " " + groupNum);
     TreeItem showSchedule = new TreeItem(myConstants.experimentScheduleButtonText());
     TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
     signalGroup.addItem(showSchedule);
@@ -167,6 +167,6 @@ public class ExperimentCreationMenuBar extends Composite {
   }
 
   private void fireExperimentCreationCode(int code, Integer groupNum) {
-    listener.eventFired(code, null, groupNum);
+    listener.eventFired(code, groupNum, null);
   }
 }

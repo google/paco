@@ -19,6 +19,7 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 
@@ -38,6 +39,10 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   
   public static final int SCHEDULED_SIGNALING = 1;
   public static final int TRIGGERED_SIGNALING = 1;
+  
+  // Please see ExperimentCreationPanel for documentation about valid email addresses.
+  public static final String EMAIL_REGEX = 
+      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
   
   private Boolean questionsChange = false;
 
@@ -165,18 +170,39 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   }
   
   public void setAdmins(String[] admins) {
+    setAdminsWithValidation(admins);
+  }
+  
+  private void setAdminsWithValidation(String[] admins) {
+    if (!emailListIsValid(admins)) {
+      throw new IllegalArgumentException("Admins email address list is invalid.");
+    }
     this.admins = admins;
   }
 
-  /**
-   * @return
-   */
   public String[] getPublishedUsers() {
     return publishedUsers;
   }
 
   public void setPublishedUsers(String[] publishedUsers) {
+    setPublishedUsersWithValidation(publishedUsers);
+  }
+  
+  private void setPublishedUsersWithValidation(String[] publishedUsers) {
+    if (!emailListIsValid(publishedUsers)) {
+      throw new IllegalArgumentException("Published email address list is invalid.");
+    }
     this.publishedUsers = publishedUsers;
+  }
+
+  // Visible for testing
+  public boolean emailListIsValid(String[] emailList) {
+    for (String email : emailList) {
+      if (!email.matches(EMAIL_REGEX)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public Boolean getDeleted() {
@@ -228,8 +254,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   public void setSchedule(SignalScheduleDAO schedule) {
     this.schedule = schedule;
-  }
-  
-  
+  } 
   
 }

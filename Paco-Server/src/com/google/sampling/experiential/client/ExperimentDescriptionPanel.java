@@ -29,6 +29,7 @@ public class ExperimentDescriptionPanel extends Composite {
 
   private ExperimentDAO experiment;
   private LoginInfo loginInfo;
+  private ExperimentCreationListener listener;
 
   private VerticalPanel formPanel;
   
@@ -39,12 +40,14 @@ public class ExperimentDescriptionPanel extends Composite {
   protected TextArea informedConsentPanel;
   protected TextArea adminList;
 
-  public ExperimentDescriptionPanel(ExperimentDAO experiment, LoginInfo loginInfo) {
+  public ExperimentDescriptionPanel(ExperimentDAO experiment, LoginInfo loginInfo,
+                                    ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
     this.experiment = experiment;
     this.loginInfo = loginInfo;
+    this.listener = listener;
 
     formPanel = new VerticalPanel();
     initWidget(formPanel);
@@ -62,7 +65,7 @@ public class ExperimentDescriptionPanel extends Composite {
     titlePanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        experiment.setTitle(event.getValue());
+        setExperimentTitleWithValidation(event.getValue());
       }
     });
     formPanel.add(titlePanelPair.container);
@@ -98,6 +101,25 @@ public class ExperimentDescriptionPanel extends Composite {
 
     durationPanel = createDurationPanel();
     formPanel.add(durationPanel);
+  }
+  
+  private void setExperimentTitleWithValidation(String newTitle) {
+    try {
+      experiment.setTitle(newTitle);
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.titleIsRequired());
+      ExperimentCreationPanel.setPanelHighlight(titlePanel, true);
+    } catch (IllegalArgumentException e) {
+      ExperimentCreationPanel.setPanelHighlight(titlePanel, false);
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.titleIsRequired());
+    }
+  }
+  
+  public void verify() {
+    checkTitleIsValidAndHighlight();
+  }
+  
+  public void checkTitleIsValidAndHighlight() {
+    setExperimentTitleWithValidation(titlePanel.getText());
   }
   
   public TextBox getTitleTextPanel() {
@@ -174,10 +196,22 @@ public class ExperimentDescriptionPanel extends Composite {
     adminList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        setAdminsOn(experiment, event.getValue());
+        String adminsList = event.getValue();
+        setExperimentAdminsAndHighlight(adminsList);
       }
     });
     return adminPanel;
+  }
+  
+  private void setExperimentAdminsAndHighlight(String adminsList) {
+    try {
+      setAdminsOn(experiment, adminsList);
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.adminsListIsInvalid());
+      ExperimentCreationPanel.setPanelHighlight(adminList, true);
+    } catch (IllegalArgumentException e) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.adminsListIsInvalid());
+      ExperimentCreationPanel.setPanelHighlight(adminList, false);
+    }
   }
   
   public TextArea getAdminListPanel() {
@@ -200,7 +234,7 @@ public class ExperimentDescriptionPanel extends Composite {
   }
 
   private DurationView createDurationPanel() {
-    DurationView durationPanel = new DurationView(experiment);
+    DurationView durationPanel = new DurationView(experiment, listener);
     return durationPanel;
   }
 
@@ -291,14 +325,18 @@ public class ExperimentDescriptionPanel extends Composite {
     }
   }
   
+  private void fireExperimentCode(int code, String message) {
+    listener.eventFired(code, null, message);
+  }
+  
   // Visible for testing
   protected void setTitleInPanel(String title) {
-    titlePanel.setText(title);
+    titlePanel.setValue(title, true);
   }
   
   // Visible for testing
   protected void setAdminsInPanel(String commaSepEmailList) {
-    adminList.setText(commaSepEmailList);
+    adminList.setValue(commaSepEmailList, true);
   }
   
   // Visible for testing

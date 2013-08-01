@@ -71,8 +71,6 @@ import com.google.sampling.experiential.shared.MapServiceAsync;
  */
 public class Main implements EntryPoint, ExperimentListener {
 
-  public static String ERROR_HIGHLIGHT = "error-highlight";
-  
   private Label statusLabel;
   private FlexTable flexTable;
   Images resources;
@@ -711,7 +709,6 @@ public class Main implements EntryPoint, ExperimentListener {
 
     mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
 
-      // PRIYA - see how this is
       @Override
       public void onFailure(Throwable caught) {
         Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure()

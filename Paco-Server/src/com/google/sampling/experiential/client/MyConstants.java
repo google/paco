@@ -424,10 +424,10 @@ public interface MyConstants extends Constants {
   String experimentPublishingButtonText();
   
   @DefaultStringValue("Signal Groups")
-  String experimentSignalGroupsHeaderText();
+  String signalGroups();
   
   @DefaultStringValue("Signal Group")
-  String experimentSingleSignalGroupHeaderText();
+  String signalGroup();
   
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
@@ -464,4 +464,22 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Input names are required and cannot contain spaces.")
   String varNameUnfilledOrHasSpacesError();
+  
+  @DefaultStringValue("Experiment title is required.")
+  String titleIsRequired();
+  
+  @DefaultStringValue("Admins list is invalid.")
+  String adminsListIsInvalid();
+  
+  @DefaultStringValue("Published users list is invalid.")
+  String publishedUsersListIsInvalid();
+  
+  @DefaultStringValue("First list choice cannot be empty.")
+  String firstListChoiceCannotBeEmpty();
+  
+  @DefaultStringValue("Likert steps must be a valid nonnegative number.")
+  String likertStepsMustBeValid();
+  
+  @DefaultStringValue("Timeout must be a valid nonnegative number.")
+  String timeoutMustBeValid();
 }

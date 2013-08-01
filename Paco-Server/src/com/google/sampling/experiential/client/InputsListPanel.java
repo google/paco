@@ -52,22 +52,28 @@ public class InputsListPanel extends Composite {
   private VerticalPanel mainPanel;
   private ExperimentDAO experiment;
   private PickupDragController dragController;
+  private ExperimentCreationListener listener;
+  private int signalGroupNum;
+  
+  private LinkedList<InputsPanel> inputsPanelsWithVarNameErrors;
+  private LinkedList<InputsPanel> inputsPanelsWithListChoiceErrors;
+  private LinkedList<InputsPanel> inputsPanelsWithLikertScaleErrors;
 
   // Visible for testing.
   protected LinkedList<InputsPanel> inputsPanelsList;
   
-  private int signalGroupNum;
-  
   // TODO: this is here for backwards compatibility. Remove later.
-  public InputsListPanel(ExperimentDAO experiment) {
-    this(experiment, 0);
+  public InputsListPanel(ExperimentDAO experiment, ExperimentCreationListener listener) {
+    this(experiment, 0, listener);
   }
 
-  public InputsListPanel(ExperimentDAO experiment, int signalGroupNum) {
+  public InputsListPanel(ExperimentDAO experiment, int signalGroupNum, 
+                         ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
     
     this.experiment = experiment;
     this.signalGroupNum =  signalGroupNum;
+    this.listener = listener;
 
     // An absolute panel is necessary for dragging.
     rootPanel = new AbsolutePanel();
@@ -81,6 +87,9 @@ public class InputsListPanel extends Composite {
     mainPanel.add(createInputsHeader());
     rootPanel.add(mainPanel);
 
+    inputsPanelsWithVarNameErrors = new LinkedList<InputsPanel>();
+    inputsPanelsWithListChoiceErrors = new LinkedList<InputsPanel>();
+    inputsPanelsWithLikertScaleErrors = new LinkedList<InputsPanel> ();
     createInputsPanels(experiment);
 
     createDragController();
@@ -91,7 +100,7 @@ public class InputsListPanel extends Composite {
   }
   
   private Label createSignalGroupHeader() {
-    String titleText = myConstants.experimentSingleSignalGroupHeaderText() + " " + signalGroupNum;
+    String titleText = myConstants.signalGroup() + " " + signalGroupNum;
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;
@@ -126,28 +135,75 @@ public class InputsListPanel extends Composite {
     updateExperimentInputs();
   }
   
-  public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
-    boolean requiredFieldsAreFilled = true;
-    for (InputsPanel inputsPanel : inputsPanelsList) {
-      if (!inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight()) {
-        requiredFieldsAreFilled = false;
-        // Note: no break statement here since we need to continue
-        // highlighting erroneous panels.
-      }
-    }
-    return requiredFieldsAreFilled;
+  public void verify() {
+    checkListItemsHaveAtLeastOneOptionAndHighlight();
+    checkVarNamesFilledWithoutSpacesAndHighlight();
   }
   
-  public boolean checkVarNamesFilledWithoutSpacesAndHighlight() {
-    boolean varNamesHaveNoSpaces = true;
+  public void checkListItemsHaveAtLeastOneOptionAndHighlight() {
     for (InputsPanel inputsPanel : inputsPanelsList) {
-      if (!inputsPanel.checkVarNameFilledWithoutSpacesAndHighlight()) {
-        varNamesHaveNoSpaces = false;
-        // Note: no break statement here since we need to continue
-        // highlighting erroneous panels.
-      }
+      inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight();
     }
-    return varNamesHaveNoSpaces;
+  }
+  
+  public void checkVarNamesFilledWithoutSpacesAndHighlight() {
+    for (InputsPanel inputsPanel : inputsPanelsList) {
+      inputsPanel.checkVarNameFilledWithoutSpacesAndHighlight();
+    }
+  }
+  
+  public void removeVarNameErrorMessage(InputsPanel panel) {
+    inputsPanelsWithVarNameErrors.remove(panel);
+    if (inputsPanelsWithVarNameErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
+                         myConstants.varNameUnfilledOrHasSpacesError());
+    }
+  }
+  
+  public void addVarNameErrorMessage(InputsPanel panel) {
+    if (inputsPanelsWithVarNameErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
+                         myConstants.varNameUnfilledOrHasSpacesError());
+    }
+    if (!inputsPanelsWithVarNameErrors.contains(panel)) {
+      inputsPanelsWithVarNameErrors.add(panel);
+    }
+  }
+  
+  public void removeFirstListChoiceErrorMessage(InputsPanel panel) {
+    inputsPanelsWithListChoiceErrors.remove(panel);
+    if (inputsPanelsWithListChoiceErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
+                         myConstants.firstListChoiceCannotBeEmpty());
+    }
+  }
+  
+  public void addFirstListChoiceErrorMessage(InputsPanel panel) {
+    if (inputsPanelsWithListChoiceErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
+                         myConstants.firstListChoiceCannotBeEmpty());
+    }
+    if (!inputsPanelsWithListChoiceErrors.contains(panel)) {
+      inputsPanelsWithListChoiceErrors.add(panel);
+    }
+  }
+  
+  public void removeLikertScaleErrorMessage(InputsPanel panel) {
+    inputsPanelsWithLikertScaleErrors.remove(panel);
+    if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
+                         myConstants.likertStepsMustBeValid());
+    }
+  }
+  
+  public void addLikertScaleErrorMessage(InputsPanel panel) {
+    if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
+                         myConstants.likertStepsMustBeValid());
+    }
+    if (!inputsPanelsWithLikertScaleErrors.contains(panel)) {
+      inputsPanelsWithLikertScaleErrors.add(panel);
+    }
   }
 
   private void createInputsPanels(ExperimentDAO experiment) {
@@ -229,6 +285,10 @@ public class InputsListPanel extends Composite {
     public void onPreviewDragStart(DragStartEvent event) throws VetoDragException {
       // Nothing to be done here.
     }
+  }
+  
+  public void fireExperimentCode(int code, String message) {
+    listener.eventFired(code, signalGroupNum, message);
   }
   
   // Visible for testing

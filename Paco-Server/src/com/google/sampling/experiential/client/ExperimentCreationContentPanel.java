@@ -21,7 +21,6 @@ public class ExperimentCreationContentPanel extends Composite {
 
   private MyConstants myConstants;
   private ExperimentCreationListener listener;
-  private ExperimentDAO experiment;
 
   private VerticalPanel mainPanel;
   private HorizontalPanel buttonPanel;
@@ -32,13 +31,12 @@ public class ExperimentCreationContentPanel extends Composite {
   
   private int numStandardButtons;
 
-  public ExperimentCreationContentPanel(ExperimentDAO experiment, ExperimentCreationListener listener,
+  public ExperimentCreationContentPanel(ExperimentCreationListener listener,
                                         List<Composite> showingViews) {
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
     this.listener = listener;
-    this.experiment = experiment;
     addShowingViews(showingViews);
     createButtonPanel();
   }
@@ -159,7 +157,7 @@ public class ExperimentCreationContentPanel extends Composite {
   }
 
   private void fireExperimentCreationCode(int code) {
-    listener.eventFired(code, experiment, null);
+    listener.eventFired(code, null, null);
   }
 
 }

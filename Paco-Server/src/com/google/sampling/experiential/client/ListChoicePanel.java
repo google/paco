@@ -38,10 +38,12 @@ import com.google.gwt.user.client.ui.TextBox;
  *
  */
 public class ListChoicePanel extends Composite {
-
+  
   private ListChoicesPanel parent;
   private HorizontalPanel horizontalPanel;
-  private TextBox textField;
+  
+  // Visible for testing
+  protected TextBox textField;
 
   /**
    * @param listChoicesPanel
@@ -61,9 +63,9 @@ public class ListChoicePanel extends Composite {
 
     textField = new TextBox();
     horizontalPanel.add(textField);
-    textField.addValueChangeHandler(new ValueChangeHandler() {
-      public void onValueChange(ValueChangeEvent event) {
-        updateChoice();
+    textField.addValueChangeHandler(new ValueChangeHandler<String>() {
+      public void onValueChange(ValueChangeEvent<String> event) {
+        setInputListChoiceAndHighlight();
       }
     });
     textField.addMouseDownHandler(textFieldMouseDownHandler);
@@ -87,8 +89,27 @@ public class ListChoicePanel extends Composite {
 
     });
   }
+  
+  public void setInputListChoiceAndHighlight() {
+    try {
+      updateChoice();
+      ensureListChoicesErrorNotFired();
+      ExperimentCreationPanel.setPanelHighlight(textField, true);
+    } catch (IllegalArgumentException e) {
+      fireListChoicesError();
+      ExperimentCreationPanel.setPanelHighlight(textField, false);
+    }
+  }
 
-  protected void updateChoice() {
+  private void fireListChoicesError() {
+    parent.addFirstListChoiceError();
+  }
+  
+  public void ensureListChoicesErrorNotFired() {
+    parent.removeFirstListChoiceError();
+  }
+
+  protected void updateChoice() throws IllegalArgumentException {
     parent.updateChoice(this);
   }
 
@@ -114,7 +135,5 @@ public class ListChoicePanel extends Composite {
   public TextBox getTextField() {
     return textField;
   }
-
-
 
 }

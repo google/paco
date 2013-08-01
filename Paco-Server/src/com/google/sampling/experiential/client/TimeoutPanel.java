@@ -13,11 +13,16 @@ import com.google.paco.shared.model.SignalingMechanismDAO;
 public class TimeoutPanel extends Composite {
 
   private SignalingMechanismDAO signalingMechanism;
+  private SignalMechanismChooserPanel ancestorSignalPanel;
   private HorizontalPanel mainPanel;
+  
+  // Visible for testing
+  protected TextBox textBox;
 
-  public TimeoutPanel(final SignalingMechanismDAO schedule) {
+  public TimeoutPanel(final SignalingMechanismDAO schedule, SignalMechanismChooserPanel ancestor) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.signalingMechanism = schedule;
+    this.ancestorSignalPanel = ancestor;
     mainPanel = new HorizontalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -26,7 +31,7 @@ public class TimeoutPanel extends Composite {
     timeoutLabel.setStyleName("gwt-Label-Header");
     mainPanel.add(timeoutLabel);
     
-    final TextBox textBox = new TextBox();
+    textBox = new TextBox();
     textBox.setWidth("5em");
     textBox.setMaxLength(5);
     mainPanel.add(textBox);
@@ -37,18 +42,25 @@ public class TimeoutPanel extends Composite {
     minutesLabel.setStyleName("paco-small");
     mainPanel.add(minutesLabel);
     
-    textBox.addValueChangeHandler(new ValueChangeHandler() {
+    textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
+      public void onValueChange(ValueChangeEvent<String> arg0) {
         String text = textBox.getText();
-        
         try {
           int timeoutMinutes = Integer.parseInt(text);
           schedule.setTimeout(timeoutMinutes);
+          removeTimeoutError();
+          ExperimentCreationPanel.setPanelHighlight(textBox, true);
         } catch (NumberFormatException nfe) {
-          
+          handleTimeoutError();
+        } catch (IllegalArgumentException e) {
+          handleTimeoutError();
         }
-        
+      }
+      
+      private void handleTimeoutError() {
+        addTimeoutError();
+        ExperimentCreationPanel.setPanelHighlight(textBox, false);
       }
     });
     
@@ -63,8 +75,15 @@ public class TimeoutPanel extends Composite {
       } else {
         return "479";
       }
-    }
-    
+    } 
+  }
+  
+  public void removeTimeoutError() {
+    ancestorSignalPanel.removeTimeoutErrorMessage();
+  }
+  
+  public void addTimeoutError() {
+    ancestorSignalPanel.addTimeoutErrorMessage();
   }
 
 }
