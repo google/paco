@@ -60,12 +60,12 @@ public class MinimumBufferPanel extends Composite {
     } else {
       if (signalingMechanism instanceof SignalScheduleDAO) {
         if (((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {
-          return "59";
+          return SignalingMechanismDAO.ESM_SIGNAL_TIMEOUT;
         } else {
-          return "479";
+          return SignalingMechanismDAO.FIXED_SCHEDULE_TIMEOUT;
         }
       } else {
-        return "59";
+        return SignalingMechanismDAO.TRIGGER_SIGNAL_TIMEOUT;
       }
     }
     

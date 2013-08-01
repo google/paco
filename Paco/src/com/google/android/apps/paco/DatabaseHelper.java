@@ -195,7 +195,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs, 
                                   ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);      
     }
-    if (oldVersion <= 15) {
+    if (oldVersion <= 14) {
       db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
               + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER"
               + ";");      
