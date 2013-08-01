@@ -26,6 +26,7 @@
 
 @implementation PacoAppDelegate
 
+// this method will fire at the point that
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   if (notification) {
     [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];

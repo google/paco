@@ -161,11 +161,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       [self prefetchInBackgroundWithBlock:^{
                                         // let's handle setting up the notifications after that thread completes
                                         NSLog(@"Paco loginWithClientLogin experiments load has completed.");
-                                        // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
-                                        if (self.model.experimentInstances.count > 0) {
-                                          self.location = [[PacoLocation alloc] init];
-                                          self.location.delegate = self;
-                                        }
+                                        // 
+                                        self.location = [[PacoLocation alloc] init];
+                                        self.location.delegate = self;
                                       }];
                                       completionHandler(nil);
                                     } else {
@@ -261,6 +259,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
       // Convert the JSON response into an object model.
       [self.model applyDefinitionJSON:experiments];
       [self definitionsLoadedWithError:nil];
+      
+      // for testing purposes let's load a sample experiment
+      [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
       
       [self prefetchExperimentsWithBlock:completionBlock];
     }];

@@ -34,19 +34,23 @@ NSTimer* LocationTimer;
     self.manager = [[CLLocationManager alloc] init];
     self.manager.delegate = self;
     self.numUpdates = 0;
-
+    
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
+
+    // clear the history of Local Notifications as soon as the App is launched
+    // this code won't happen if we bring the App from the background
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:25.0
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
                                                      userInfo:nil
                                                       repeats:YES];
     });
   }
-
+  
   return self;
 }
 

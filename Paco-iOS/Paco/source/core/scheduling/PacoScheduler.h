@@ -44,9 +44,11 @@
 
 // Cancel all notifications that have expired (= have fired, and reached the timeout)
 // Return a Paco
-- (void)cancelExpirediOSNotifications: (NSArray *)experiments;
+- (void)cancelExpirediOSLocalNotifications: (NSArray *)experiments;
 
 // see which Notifications have expired, and schedule new ones
 - (void)updateiOSNotifications: (NSArray *)experiments;
+
+@property(atomic, readwrite, retain) UILocalNotification* myLocalNotification;
 
 @end
