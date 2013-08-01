@@ -18,6 +18,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -56,8 +57,8 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
    *    and there cannot be two periods in a row.
    *  A domain name that follows the same restrictions as a user name, except that it
    *    cannot contain any underscore or plus characters.
-   *  A top-level domain, or TLD, (e.g. com, gov, edu) at least two characters long
-   *    and containing only alphabetic characters.
+   *  A top-level domain, or TLD, (e.g. com, gov, edu, co.uk)
+   *    containing only alphabetic characters and periods.
    * The overall form of the email address must be username@domain.TLD
    * Please update this documentation if changing the email regex below.
    */
@@ -393,6 +394,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   private String getErrorMessages() {
+    Collections.sort(errorMessagesAccumulated, String.CASE_INSENSITIVE_ORDER);
     return myConstants.experimentCreationError() + "\n" + 
         Joiner.on("\n").join(errorMessagesAccumulated);
   }

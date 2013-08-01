@@ -28,6 +28,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   private static final String VALID_EMAIL_STRING_0 = "donti@google.com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String VALID_EMAIL_STRING_1 = "donti@google.com,  yimingzhang@google.com,, rbe5000@gmail.com";
+  private static final String VALID_EMAIL_STRING_2 = "donti@google.com, me@yahoo.co.uk";
   private static final String INVALID_EMAIL_STRING_0 = "donti@google.com\nyimingzhang@google.com\nrbe5000@gmail.com";
   private static final String INVALID_EMAIL_STRING_1 = "donti@google.com, yimingzhang@google.com, rbe5000@gmail.com]";
   private static final String INVALID_EMAIL_STRING_2 = "donti@google,com, yimingzhang@google.com, rbe5000@gmail.com";
@@ -85,6 +86,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   public void testExperimentModelCorrectlyValidatesEmailAddresses() {
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_0)));
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_1)));
+    assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_2)));
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_0)));
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_1)));
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_2)));
