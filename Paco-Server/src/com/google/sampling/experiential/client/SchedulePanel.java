@@ -43,11 +43,13 @@ public class SchedulePanel extends Composite {
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
   private SignalScheduleDAO schedule;
+  private SignalMechanismChooserPanel ancestor;
   private MyConstants myConstants;
 
-  public SchedulePanel(SignalScheduleDAO schedule) {
-    this.schedule = schedule;
+  public SchedulePanel(SignalScheduleDAO schedule, SignalMechanismChooserPanel ancestor) {
     myConstants = GWT.create(MyConstants.class);
+    this.schedule = schedule;
+    this.ancestor = ancestor;
 
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
@@ -158,15 +160,15 @@ public class SchedulePanel extends Composite {
   }
 
   protected void setEsmPanel() {
-    setPanel(new EsmPanel(schedule));
+    setPanel(new EsmPanel(schedule, ancestor));
   }
 
   private void setDailyPanel(boolean everyday) {
-    setPanel(new DailyPanel(schedule));
+    setPanel(new DailyPanel(schedule, ancestor));
   }
 
   private void setWeekdayPanel(boolean everyday) {
-    setPanel(new DailyPanel(schedule));
+    setPanel(new DailyPanel(schedule, ancestor));
   }
 
   private void setPanel(Widget panel) {
@@ -175,11 +177,11 @@ public class SchedulePanel extends Composite {
   }
 
   private void setWeeklyPanel() {
-    setPanel(new WeeklyPanel(schedule));
+    setPanel(new WeeklyPanel(schedule, ancestor));
   }
 
   private void setMonthlyPanel() {
-    setPanel(new MonthlyPanel(schedule));
+    setPanel(new MonthlyPanel(schedule, ancestor));
   }
 
 }

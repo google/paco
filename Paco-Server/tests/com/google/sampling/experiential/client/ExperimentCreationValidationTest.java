@@ -13,14 +13,19 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
+// TODO: split this file.
+
 public class ExperimentCreationValidationTest extends GWTTestCase {
-  
+
   private static final String LATEST_DAY = "2013/30/07";
   private static final String LATER_DAY = "2013/25/07";
   private static final String EARLIER_DAY = "2013/24/07";
-  
+
   private static final String VALID_EMAIL_STRING_0 = "donti@google.com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String VALID_EMAIL_STRING_1 = "donti@google.com,  yimingzhang@google.com,, rbe5000@gmail.com";
   private static final String INVALID_EMAIL_STRING_0 = "donti@google.com\nyimingzhang@google.com\nrbe5000@gmail.com";
@@ -28,35 +33,40 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private static final String INVALID_EMAIL_STRING_2 = "donti@google,com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String INVALID_EMAIL_STRING_3 = "donti@google, yimingzhang@google, rbe5000@gmail";
   private static final String INVALID_EMAIL_STRING_4 = "donti@google.com, yimingzhang@google.com, rbe5000@@gmail.com";
-  
-  private static final String NAME_WITH_SPACES = "name with spaces";
+
+  private static final String NAME_WITH_SPACES = "name With spaces";
   private static final String NAME_WITHOUT_SPACES = "nameWithoutSpaces";
   private static final String NAME_WITHOUT_SPACES_2 = "nameWithoutSpaces2";
-  
-  private static final String FIVE = "5";
-  private static final String SEVEN = "7";
-  
+  private static final String NAME_STARTING_WITH_NUMBER = "9apPples";
+  private static final String NAME_WITH_INVALID_CHARACTERS = "rstl*&E";
+
+  private static final String POS_NUM_STR = "5";
+  private static final String POS_NUM_STR_2 = "7";
+  private static final int NEG_NUM = -90;
+  private static final int ZERO = 0;
+  private static final int VALID_TIMEOUT = 80;
+
   private static final int OPEN_TEXT_INPUT_INDEX = 2;
 
   private ExperimentCreationPanel experimentDefinitionPanel;
-  
+
   private LoginInfo loginInfo;
   private ExperimentDAO experiment;
 
   public String getModuleName() {
     return "com.google.sampling.experiential.PacoEventserver";
   }
-  
+
   protected void gwtSetUp() {
     loginInfo = createLoginInfo();
     createValidOngoingExperiment();
   }
-  
+
   public void testValidExperimentIsSubmittable() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testExperimentModelBlocksInvalidTitle() {
     try {
       experiment.setTitle("");
@@ -65,13 +75,13 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(true);
     }
   }
-  
+
   public void testTitleIsMandatoryInDefPanel() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     experimentDefinitionPanel.setTitleInPanel("");
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testExperimentModelCorrectlyValidatesEmailAddresses() {
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_0)));
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_1)));
@@ -81,7 +91,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_3)));
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_4)));
   }
-  
+
   // Copied from ExperimentDescriptionPanel/ExperimentPublishingPanel.
   // TODO: consolidate.
   private String[] tokenize(String emailString) {
@@ -96,17 +106,17 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testAdminsMustBeValidInDefPanel() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     experimentDefinitionPanel.setAdminsInPanel(INVALID_EMAIL_STRING_0);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testPublishedUsersMustBeValidInDefPanel() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     experimentDefinitionPanel.setPublishedUsersInPanel(INVALID_EMAIL_STRING_0);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testExperimentModelAcceptsValidFixedDuration() {
     try {
       experiment.setFixedDuration(true);
@@ -128,7 +138,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(false);
     }
   }
-  
+
   public void testExperimentModelDeclinesInvalidFixedDuration() {
     try {
       experiment.setFixedDuration(true);
@@ -139,53 +149,53 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(true);
     }
   }
-  
+
   public void testDurationPanelAcceptsStartDateBeforeEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(EARLIER_DAY, LATER_DAY);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
 
   public void testDurationPanelAcceptsStartDateSameAsEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(EARLIER_DAY, EARLIER_DAY);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelDisallowsStartDateAfterEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATER_DAY, EARLIER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelProtectsMovingStartDateAfterEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(EARLIER_DAY, LATER_DAY);
     setDurationPanelStartDate(LATEST_DAY);
     assertTrue(getDateFromString(experiment.getStartDate()).equals(getDateFromString(LATEST_DAY)));
     assertTrue(getDateFromString(experiment.getEndDate()).after(getDateFromString(LATEST_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelRejectsMovingEndDateBeforeStartDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATER_DAY, LATEST_DAY);
     setDurationPanelEndDate(EARLIER_DAY);
     assertTrue(getDateFromString(experiment.getStartDate()).equals(getDateFromString(LATER_DAY)));
     assertTrue(getDateFromString(experiment.getEndDate()).after(getDateFromString(LATER_DAY)));
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelAllowsMovingEndDateToStartDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATER_DAY, LATEST_DAY);
     setDurationPanelEndDate(LATER_DAY);
     assertTrue(getDateFromString(experiment.getEndDate()).equals(getDateFromString(LATER_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelErrorFixedByMovingEndDateAfterStartDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATER_DAY, EARLIER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
     setDurationPanelEndDate(LATEST_DAY);
@@ -193,9 +203,9 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertTrue(getDateFromString(experiment.getEndDate()).equals(getDateFromString(LATEST_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelErrorFixedByMovingEndDateToStartDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATER_DAY, EARLIER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
     setDurationPanelEndDate(LATER_DAY);
@@ -203,9 +213,9 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertTrue(getDateFromString(experiment.getEndDate()).equals(getDateFromString(LATER_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelErrorFixedByMovingStartDateBeforeEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATEST_DAY, LATER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
     setDurationPanelStartDate(EARLIER_DAY);
@@ -213,9 +223,9 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertTrue(getDateFromString(experiment.getEndDate()).equals(getDateFromString(LATER_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelErrorFixedByMovingStartDateToEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATEST_DAY, LATER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
     setDurationPanelStartDate(LATER_DAY);
@@ -223,22 +233,22 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertTrue(getDateFromString(experiment.getEndDate()).equals(getDateFromString(LATER_DAY)));
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testDurationPanelErrorFixedByMakingOngoing() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentCreationPanel();
     setDurationOnDurationPanel(LATEST_DAY, LATER_DAY);
     assertFalse(experimentDefinitionPanel.canSubmit());
     setOngoingDurationOnDurationPanel();
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
-  
+
+
   public void testInvalidInputNotAccepted() {
     experiment.setInputs(new InputDAO[]{createNameInputWithoutVarName(InputDAO.LIKERT)});
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testListWithOnlyValidInputsIsAccepted() {
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
@@ -246,7 +256,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     createExperimentDefinitionPanel(experiment);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testListWithInvalidInputNotAccepted() {
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
@@ -255,7 +265,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testInputModelAllowsValidName() {
     InputDAO input = new InputDAO();
     try {
@@ -265,7 +275,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(false);
     }
   }
-  
+
   public void testInputModelBlocksBlankName() {
     InputDAO input = new InputDAO();
     try {
@@ -275,7 +285,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(true);
     }
   }
-  
+
   public void testInputModelBlocksSpaceyName() {
     InputDAO input = new InputDAO();
     try {
@@ -285,7 +295,27 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(true);
     }
   }
-  
+
+  public void testInputModelBlocksNameWithInvalidCharacters() {
+    InputDAO input = new InputDAO();
+    try {
+      input.setName(NAME_WITH_INVALID_CHARACTERS);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+  }
+
+  public void testInputModelBlocksNameStartingWithNumber() {
+    InputDAO input = new InputDAO();
+    try {
+      input.setName(NAME_STARTING_WITH_NUMBER);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+  }
+
   public void testSettingBlankVarNameRejectedByDefPanel() {    
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
@@ -296,32 +326,32 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     firstInputsPanel.varNameText.setValue("", true);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testFixingOneBlankVarNameDoesNotAllowOtherBlankVarName() {
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidListInput()});
     createExperimentDefinitionPanel(experiment);
-    
+
     // Get two inputs panels
     InputsListPanel firstInputsListPanel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
-    
+
     // Set invalid variable names for both
     firstInputsPanel.varNameText.setValue("", true);
     secondInputsPanel.varNameText.setValue(NAME_WITH_SPACES, true);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Set valid variable name for second inputs panel. Fire events.
     secondInputsPanel.varNameText.setValue(NAME_WITHOUT_SPACES, true);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Set valid variable name for first inputs panel. Fire events.
     firstInputsPanel.varNameText.setValue(NAME_WITHOUT_SPACES_2, true);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testInputModelDisallowsBlankFirstListItem() {
     InputDAO input = createValidListInput();
     try {
@@ -331,14 +361,14 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
       assertTrue(true);
     }
   } 
-  
+
   public void testFixingOneBlankListItemDoesNotAllowOtherBlankListItem() {
     experiment.setInputs(new InputDAO[] {createListInputWithoutFirstOption(),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createListInputWithoutFirstOption()});
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Get list inputs panels first list choice text field
     InputsListPanel firstInputsListPanel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
@@ -347,74 +377,90 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
         firstInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
     TextBox thirdInputFirstListChoice = 
         thirdInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
-    
+
     // Set valid list choice for first list panel. Fire events.
     firstInputFirstListChoice.setValue(NAME_WITH_SPACES, true);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Set valid list choice for second list panel. Fire events.
     thirdInputFirstListChoice.setValue(NAME_WITHOUT_SPACES, true);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
+  public void testInputModelDisallowsInvalidLikertSteps() {
+    InputDAO input = createValidListInput();
+    try {
+      input.setLikertSteps(NEG_NUM);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+    try {
+      input.setLikertSteps(ZERO);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+  } 
+
   public void testFixingOneBadLikertItemDoesNotAllowOtherBadLikertItem() {
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidNameInput(InputDAO.LIKERT)});
     createExperimentDefinitionPanel(experiment);
-    
+
     // Get inputs panels likert steps text fields
     InputsListPanel firstInputsListPanel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
     TextBox firstInputLikertSteps = firstInputsPanel.responseView.stepsText;
     TextBox thirdInputLikertSteps = thirdInputsPanel.responseView.stepsText;
-    
+
     // Set invalid likert steps for both. Fire events.
     firstInputLikertSteps.setValue(NAME_WITH_SPACES);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), firstInputLikertSteps);
     thirdInputLikertSteps.setValue(NAME_WITHOUT_SPACES);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), thirdInputLikertSteps);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Set valid likert steps for first input. Fire events.
-    firstInputLikertSteps.setValue(FIVE);
+    firstInputLikertSteps.setValue(POS_NUM_STR);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), firstInputLikertSteps);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Set valid likert steps for third input. Fire events.
-    thirdInputLikertSteps.setValue(SEVEN);
+    thirdInputLikertSteps.setValue(POS_NUM_STR_2);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), thirdInputLikertSteps);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testSwitchingInputAwayFromLikertInvalidatesErrors() {
     experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT)});
     createExperimentDefinitionPanel(experiment);
-    
+
     // Get inputs panel and some child widgets.
     InputsListPanel firstInputsListPanel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     TextBox firstInputLikertSteps = firstInputsPanel.responseView.stepsText;
     ListBox responseTypeListBox = firstInputsPanel.responseTypeListBox;
-    
+
     // Invalidate inputs panel (likert error).
     firstInputLikertSteps.setValue(NAME_WITH_SPACES);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), firstInputLikertSteps);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Switch input type.
     responseTypeListBox.setSelectedIndex(OPEN_TEXT_INPUT_INDEX);
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), responseTypeListBox);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
   public void testSwitchingInputAwayFromListInvalidatesErrors() {
     // Start with invalid input.
     experiment.setInputs(new InputDAO[] {createListInputWithoutFirstOption()});
     createExperimentDefinitionPanel(experiment);
     assertFalse(experimentDefinitionPanel.canSubmit());
-    
+
     // Get inputs panel and some child widgets.
     InputsListPanel firstInputsListPanel = experimentDefinitionPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
@@ -425,7 +471,44 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     DomEvent.fireNativeEvent(Document.get().createChangeEvent(), responseTypeListBox);
     assertTrue(experimentDefinitionPanel.canSubmit());
   }
-  
+
+  public void testSignalModelAllowsValidTimeout() {
+    SignalingMechanismDAO signal = new SignalScheduleDAO();
+    SignalingMechanismDAO trigger = new TriggerDAO();
+    try {
+      signal.setTimeout(VALID_TIMEOUT);
+      trigger.setTimeout(VALID_TIMEOUT);
+      assertTrue(true);
+    } catch (IllegalArgumentException e) {
+      assertTrue(false);
+    }
+  }
+
+  public void testSignalModelBlocksInvalidTimeout() {
+    SignalingMechanismDAO signal = new SignalScheduleDAO();
+    SignalingMechanismDAO trigger = new TriggerDAO();
+    try {
+      signal.setTimeout(NEG_NUM);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+    try {
+      trigger.setTimeout(NEG_NUM);
+      assertTrue(false);
+    } catch (IllegalArgumentException e) {
+      assertTrue(true);
+    }
+  }
+
+  public void testTimeoutPanelDisallowsNonNumericInput() {
+    createValidExperimentCreationPanel();
+    SignalMechanismChooserPanel ancestor = experimentDefinitionPanel.signalPanels.get(0);
+    TimeoutPanel panel = new TimeoutPanel(experiment.getSchedule(), ancestor);
+    panel.textBox.setValue(NAME_WITHOUT_SPACES, true);
+    assertFalse(experimentDefinitionPanel.canSubmit());
+  }
+
   private LoginInfo createLoginInfo() {
     LoginInfo info = new LoginInfo();
     info.setLoggedIn(true);
@@ -434,50 +517,51 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     info.setWhitelisted(true);
     return info;
   }
-  
-  private void createValidExperimentDefinitionPanel() {
+
+  private void createValidExperimentCreationPanel() {
     createExperimentDefinitionPanel(experiment);
   }
-  
+
   private void createValidOngoingExperiment() {
     experiment = new ExperimentDAO();
     experiment.setTitle("title");
     experiment.setInformedConsentForm("informed consent");
     experiment.setFixedDuration(false);
     experiment.setInputs(new InputDAO[]{createValidNameInput(InputDAO.LIKERT)});
+    experiment.setSchedule(new SignalScheduleDAO());
   }
-  
+
   private InputDAO createValidNameInput(String type) {
     assertTrue(!type.equals(InputDAO.LIST));
     InputDAO input = new InputDAO(null, "inputName", null, "");
     input.setResponseType(type);
     return input;
   }
-  
+
   private InputDAO createNameInputWithoutVarName(String type) {
     assertTrue(!type.equals(InputDAO.LIST));
     InputDAO input = new InputDAO(null, "", null, "inputPrompt");
     input.setResponseType(type);
     return input;
   }
-  
+
   private InputDAO createValidListInput() {
     InputDAO input = new InputDAO(null, "inputName", null, "inputPrompt");
     input.setResponseType(InputDAO.LIST);
     input.setListChoices(new String[]{"option1"});
     return input;
   }
-  
+
   private InputDAO createListInputWithoutFirstOption() {
     InputDAO input = new InputDAO(null, "inputName", null, "inputPrompt");
     input.setResponseType(InputDAO.LIST);
     return input;
   }
-  
+
   private void createExperimentDefinitionPanel(ExperimentDAO experiment) {
     experimentDefinitionPanel = new ExperimentCreationPanel(experiment,loginInfo, null);
   }
-  
+
   private void setDurationOnDurationPanel(String startDate, String endDate) {
     setFixedDurationOnDurationPanel();
     setDurationPanelStartDate(startDate);
@@ -489,27 +573,27 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     durationPanel.ensureValueChangeEventsWillFire();
     durationPanel.setFixedDuration(true);
   }
-  
+
   private void setDurationPanelStartDate(String startDate) {
     DurationView durationPanel = experimentDefinitionPanel.getDurationPanel();
     durationPanel.ensureValueChangeEventsWillFire();
     durationPanel.setStartDate(startDate);
   }
-  
+
   private void setDurationPanelEndDate(String endDate) {
     DurationView durationPanel = experimentDefinitionPanel.getDurationPanel();
     durationPanel.ensureValueChangeEventsWillFire();
     durationPanel.setEndDate(endDate);
   }
-  
+
   private void setOngoingDurationOnDurationPanel() {
     DurationView durationPanel = experimentDefinitionPanel.getDurationPanel();
     durationPanel.ensureValueChangeEventsWillFire();
     durationPanel.setFixedDuration(false);
   }
-  
+
   private Date getDateFromString(String dateString) {
-      DateTimeFormat formatter = DateTimeFormat.getFormat(ExperimentCreationPanel.DATE_FORMAT);
-      return formatter.parse(dateString);
+    DateTimeFormat formatter = DateTimeFormat.getFormat(ExperimentCreationPanel.DATE_FORMAT);
+    return formatter.parse(dateString);
   }
 }

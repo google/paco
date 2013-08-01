@@ -237,13 +237,5 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     public void setUserEditable(Boolean userEditable) {
       this.userEditable = userEditable;
     }
-
-    public Integer getTimeout() {
-      return timeout;
-    }
-    
-    public void setTimeout(Integer timeout) {
-      this.timeout = timeout;
-    }
     
 }

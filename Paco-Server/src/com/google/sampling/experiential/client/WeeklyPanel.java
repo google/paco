@@ -35,7 +35,7 @@ public class WeeklyPanel extends Composite {
   private SignalScheduleDAO schedule;
   private MyConstants myConstants;
 
-  public WeeklyPanel(SignalScheduleDAO schedule) {
+  public WeeklyPanel(SignalScheduleDAO schedule, SignalMechanismChooserPanel ancestor) {
     myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -54,7 +54,7 @@ public class WeeklyPanel extends Composite {
     verticalPanel.add(timeListPanel);
     timeListPanel.setWidth("286px");
     
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule, ancestor);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
 

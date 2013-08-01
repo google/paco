@@ -474,6 +474,9 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("First list choice cannot be empty.")
   String firstListChoiceCannotBeEmpty();
   
-  @DefaultStringValue("Likert steps must be a valid number.")
+  @DefaultStringValue("Likert steps must be a valid nonnegative number.")
   String likertStepsMustBeValid();
+  
+  @DefaultStringValue("Timeout must be a valid nonnegative number.")
+  String timeoutMustBeValid();
 }

@@ -28,12 +28,14 @@ public abstract class SignalingMechanismDAO implements Serializable {
   }
   
   public void setTimeout(Integer timeout) {
-    this.timeout = timeout;
-
+    setTimeoutWithValidation(timeout);
   }
-  
-
-  
-  
+ 
+  public void setTimeoutWithValidation(Integer timeout) {
+    if (timeout <= 0) {
+      throw new IllegalArgumentException("Timeout must be positive.");
+    }
+    this.timeout = timeout;
+  }
 
 }

@@ -64,10 +64,9 @@ public class InputDAO implements Serializable {
   private String[] listChoices;
   private Boolean multiselect;
   
-  /**
-   * 
-   */
   public static final Integer DEFAULT_LIKERT_STEPS = 5;
+  
+  public static final String NAME_REGEX = "[a-zA-Z][a-zA-Z0-9]*";
 
   /**
    * @param id
@@ -168,6 +167,13 @@ public class InputDAO implements Serializable {
   }
 
   public void setLikertSteps(Integer steps) {
+    setLikertStepsWithValidation(steps);
+  }
+  
+  private void setLikertStepsWithValidation(Integer steps) {
+    if (steps <= 0) {
+      throw new IllegalArgumentException("Likert steps must be positive.");
+    }
     this.likertSteps = steps;
   }
 
@@ -179,18 +185,22 @@ public class InputDAO implements Serializable {
   }
   
   public void setName(String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("Input name cannot be null.");
+    }
+    name.trim();
     setNameWithValidation(name);
   }
   
   private void setNameWithValidation(String name) {
-    if (!varNameIsFilledWithoutSpaces(name)) {
+    if (!varNameIsValid(name)) {
       throw new IllegalArgumentException("Input name cannot be empty or contain spaces.");
     }
     this.name = name;
   }
   
-  private boolean varNameIsFilledWithoutSpaces(String name) {
-    return !(name == null) && !name.isEmpty() && !name.contains(" ");
+  private boolean varNameIsValid(String name) {
+    return name.matches(NAME_REGEX);
   }
 
   public Boolean getConditional() {

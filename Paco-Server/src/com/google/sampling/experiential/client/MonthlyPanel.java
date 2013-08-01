@@ -40,7 +40,7 @@ public class MonthlyPanel extends Composite {
   private SignalScheduleDAO schedule;
   private MyConstants myConstants;
   
-  public MonthlyPanel(final SignalScheduleDAO schedule) {
+  public MonthlyPanel(final SignalScheduleDAO schedule, SignalMechanismChooserPanel ancestor) {
     myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -142,7 +142,7 @@ public class MonthlyPanel extends Composite {
       toggleDayOfMonthDayOfWeekPanels(schedule, listBox, nth, weekDayPanel, true);
     }
     
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule, ancestor);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
 

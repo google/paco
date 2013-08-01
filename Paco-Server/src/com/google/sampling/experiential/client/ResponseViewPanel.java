@@ -20,7 +20,6 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -42,17 +41,14 @@ public class ResponseViewPanel extends Composite {
   private TextBox leftSideText;
   private TextBox rightSideText;
   
-  private MouseDownHandler mouseDownHandler;
   private InputsPanel parent;
   
   // Visible for testing
   protected ListChoicesPanel listChoicesPanel;
   protected TextBox stepsText;
 
-  public ResponseViewPanel(InputDAO input, MouseDownHandler mouseDownHandler,
-                           InputsPanel parent) {
+  public ResponseViewPanel(InputDAO input, InputsPanel parent) {
     super();
-    this.mouseDownHandler = mouseDownHandler;
     this.parent = parent;
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
@@ -92,7 +88,7 @@ public class ResponseViewPanel extends Composite {
   }
 
   private void drawListPanel() {
-    listChoicesPanel = new ListChoicesPanel(input, mouseDownHandler, this);
+    listChoicesPanel = new ListChoicesPanel(input, parent, this);
     listChoicesPanel.setStyleName("left");
     mainPanel.add(listChoicesPanel);
   }
@@ -146,17 +142,25 @@ public class ResponseViewPanel extends Composite {
           input.setRightSideLabel(rightSideLabel);
         } catch (NumberFormatException e) {
 //          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
-          parent.addLikertStepsError();
-          ExperimentCreationPanel.setPanelHighlight(stepsText, false);
+          handleLikertStepsError();
+        } catch (IllegalArgumentException e) {
+          handleLikertStepsError();
         }
+      }
+
+      private void handleLikertStepsError() {
+        parent.addLikertStepsError();
+        ExperimentCreationPanel.setPanelHighlight(stepsText, false);
       }
     };
     stepsText.addChangeHandler(handler);
     leftSideText.addChangeHandler(handler);
     rightSideText.addChangeHandler(handler);
-    stepsText.addMouseDownHandler(mouseDownHandler);
-    leftSideText.addMouseDownHandler(mouseDownHandler);
-    rightSideText.addMouseDownHandler(mouseDownHandler);
+    
+    // Let InputsPanel handle mouse down events due to InputsPanel draggability.
+    stepsText.addMouseDownHandler(parent);
+    leftSideText.addMouseDownHandler(parent);
+    rightSideText.addMouseDownHandler(parent);
   }
 
   private void setLikertValueInWidget() {

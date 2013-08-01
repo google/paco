@@ -69,7 +69,8 @@ public class DurationView extends Composite {
    * value change handler operations.
    * Bug: http://code.google.com/p/google-web-toolkit/issues/detail?id=4785
    */
-  private int valueChangeHandlerCounter = 0;
+  private int startBoxValueChangeHandlerCounter = 0;
+  private int endBoxValueChangeHandlerCounter = 0;
 
   public DurationView(ExperimentDAO experiment, ExperimentCreationListener listener) {
     super();
@@ -122,10 +123,10 @@ public class DurationView extends Composite {
     startBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
-        if (valueChangeHandlerCounter % 2 == 0) {
-          setDurationViewStartDate(event.getValue());
+        if (startBoxValueChangeHandlerCounter % 2 == 0) {
+          setDurationViewStartDate(startBox.getValue());
         }
-        ++valueChangeHandlerCounter;
+        ++startBoxValueChangeHandlerCounter;
       }
     });
 
@@ -144,10 +145,10 @@ public class DurationView extends Composite {
     endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
-        if (valueChangeHandlerCounter % 2 == 0) {
-          setDurationViewEndDateAndHighlight(event.getValue());
+        if (endBoxValueChangeHandlerCounter % 2 == 0) {
+          setDurationViewEndDateAndHighlight(endBox.getValue());
         }
-        ++valueChangeHandlerCounter;
+        ++endBoxValueChangeHandlerCounter;
       }
     });
 
@@ -259,9 +260,10 @@ public class DurationView extends Composite {
     listener.eventFired(code, null, message);
   }
   
-  // For testing
+  // For testing - remove upon upgrade to GWT 2.5
   protected void ensureValueChangeEventsWillFire() {
-    valueChangeHandlerCounter = 0;
+    startBoxValueChangeHandlerCounter = 0;
+    endBoxValueChangeHandlerCounter = 0;
   }
 
 }

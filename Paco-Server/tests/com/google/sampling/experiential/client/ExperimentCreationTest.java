@@ -17,7 +17,7 @@ public class ExperimentCreationTest extends GWTTestCase {
   
   private static final String EMAIL = "bobevans@google.com";
   private static final String NICKNAME = "Bob Evans";
-  private static final String TEST_TEXT = "test_text";
+  private static final String TEST_TEXT = "testText";
   private static final String TEST_EMAIL_1 = "test@test.com" ;
   private static final String TEST_EMAIL_2 = "example@example.org";
   private static final String START_DATE = "2013/07/21";

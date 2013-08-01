@@ -45,7 +45,7 @@ public class EsmPanel extends Composite {
 
   private SignalScheduleDAO schedule;
 
-  public EsmPanel(final SignalScheduleDAO schedule) {
+  public EsmPanel(final SignalScheduleDAO schedule, SignalMechanismChooserPanel ancestor) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -153,8 +153,8 @@ public class EsmPanel extends Composite {
     horizontalPanel_2.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     verticalPanel.add(horizontalPanel_2);
     horizontalPanel_2.setWidth("");
-    startTimeBox.addValueChangeHandler(new ValueChangeHandler() {
-      public void onValueChange(ValueChangeEvent event) {
+    startTimeBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
+      public void onValueChange(ValueChangeEvent<Date> event) {
         Date dateTime = startTimeBox.getDateTime();
         long offset = (dateTime.getHours() * 60 * 60 * 1000) + (dateTime.getMinutes() * 60 * 1000);
         schedule.setEsmStartHour(offset);
@@ -187,15 +187,15 @@ public class EsmPanel extends Composite {
             DateTimeFormat.getFormat("mm"), null);
 
     horizontalPanel_2.add(endTimePicker);
-    endTimePicker.addValueChangeHandler(new ValueChangeHandler() {
-      public void onValueChange(ValueChangeEvent event) {
+    endTimePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
+      public void onValueChange(ValueChangeEvent<Date> event) {
         Date dateTime = endTimePicker.getDateTime();
         long offset = (dateTime.getHours() * 60 * 60 * 1000) + (dateTime.getMinutes() * 60 * 1000);
         schedule.setEsmEndHour(offset);
       }
     });
     
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule, ancestor);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
 

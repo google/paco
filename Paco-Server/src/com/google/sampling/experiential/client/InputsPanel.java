@@ -194,7 +194,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   }
 
   private void createResponseViewPanel() {
-    responseView = new ResponseViewPanel(input, this, this);
+    responseView = new ResponseViewPanel(input, this);
     lowerLinePanel.add(responseView);
   }
 

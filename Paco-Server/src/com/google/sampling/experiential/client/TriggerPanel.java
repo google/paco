@@ -39,7 +39,7 @@ public class TriggerPanel extends Composite {
   private TriggerDAO trigger;
   private Widget sourceIdentifierPanel;
 
-  public TriggerPanel(TriggerDAO triggerDAO) {
+  public TriggerPanel(TriggerDAO triggerDAO, SignalMechanismChooserPanel parent) {
     this.trigger = triggerDAO;
     myConstants = GWT.create(MyConstants.class);
 
@@ -50,7 +50,7 @@ public class TriggerPanel extends Composite {
     verticalPanel.add(sourceIdentifierPanel);
     verticalPanel.add(createDelayChooser());
 
-    TimeoutPanel timeoutPanel = new TimeoutPanel(trigger);
+    TimeoutPanel timeoutPanel = new TimeoutPanel(trigger, parent);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
 

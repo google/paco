@@ -25,6 +25,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dev.util.collect.Lists;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -148,9 +149,9 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private SignalMechanismChooserPanel createSignalMechanismPanel(int groupNum) {
     // TODO: Change to reflect new data model
     if (groupNum == 0) {
-      return new SignalMechanismChooserPanel(experiment, groupNum);
+      return new SignalMechanismChooserPanel(experiment, groupNum, this);
     } else {
-      return new SignalMechanismChooserPanel(new ExperimentDAO(), groupNum);
+      return new SignalMechanismChooserPanel(new ExperimentDAO(), groupNum, this);
     }
   }
 
@@ -287,15 +288,19 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
       
       @Override
       public void onClick(ClickEvent event) {
-        if (canSubmit()) {
-          submitEvent();
-        } else {
-          Window.alert(getErrorMessages());
-        }
+        submitEventWithValidation();
       }
 
     });
     return whatButton;
+  }
+  
+  private void submitEventWithValidation() {
+    if (canSubmit()) {
+      submitEvent();
+    } else {
+      Window.alert(getErrorMessages());
+    }
   }
 
   // Visible for testing
@@ -330,6 +335,9 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   private void addErrorMessage(String errorMessage, Integer signalGroupNum) {
+    if (errorMessage == null) {
+      throw new IllegalArgumentException("Error message cannot be null.");
+    }   
     if (signalGroupNum != null) {
       errorMessage = prependSignalGroupToErrorMessage(errorMessage, signalGroupNum);
     }
@@ -346,32 +354,6 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     return myConstants.experimentCreationError() + "\n" + 
         Joiner.on("\n").join(errorMessagesAccumulated);
   }
-  
-//  // Visible for testing
-//  protected boolean startDateIsNotAfterEndDate() {
-//    DurationView durationPanel = descriptionPanel.getDurationPanel();
-//    if (durationPanel.isFixedDuration()) {
-//      Date startDate = getDateFromFormattedString(durationPanel.getStartDate());
-//      Date endDate = getDateFromFormattedString(durationPanel.getEndDate());
-//      boolean startDateNotAfterEndDate = !(endDate.before(startDate));
-//      setPanelHighlight(durationPanel, startDateNotAfterEndDate);
-//      return startDateNotAfterEndDate;
-//    } else {
-//      setPanelHighlight(durationPanel, true);
-//      return true;
-//    }
-//  }
-//  
-//  // Visible for testing
-//  protected boolean emailStringIsValid(String emailString) {
-//    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
-//    for (String email : sp.split(emailString)) {
-//      if (!email.matches(EMAIL_REGEX)) {
-//        return false;
-//      }
-//    }
-//    return true;
-//  }
 
   // Visible for testing
   protected void submitEvent() {
@@ -434,7 +416,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
       createAndDisplayNewSignalGroup();
       break;
     case ExperimentCreationListener.SAVE_EXPERIMENT:
-      submitEvent();
+      submitEventWithValidation();
       break;
     case ExperimentCreationListener.REMOVE_ERROR:
       removeErrorMessage(message, signalGroupNumber);
