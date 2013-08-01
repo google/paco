@@ -68,10 +68,14 @@ public class ExperimentServlet extends HttpServlet {
       String email = getEmailOfUser(req, user);
 
       String shortParam = req.getParameter("short");
+      String experimentsPublishedToMeParam = req.getParameter("mine");      
       String selectedExperimentsParam = req.getParameter("id");
+      
       String experimentsJson = null;
       ExperimentServletHandler handler;
-      if (shortParam != null) {
+      if (experimentsPublishedToMeParam != null) {
+        handler = new ExperimentServletExperimentsForMeLoadHandler(email, tz);
+      } else if (shortParam != null) {
         handler = new ExperimentServletShortLoadHandler(email, tz);
       } else if (selectedExperimentsParam != null && !selectedExperimentsParam.isEmpty()) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, tz, selectedExperimentsParam);

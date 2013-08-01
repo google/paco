@@ -23,9 +23,9 @@ public class ExperimentServletAllExperimentsFullLoadHandler extends ExperimentSe
     ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
     String experimentsJson = cacheHelper.getExperimentsJsonForUser(userId);
     if (experimentsJson != null) {
-      log.info("Got cached experiments for " + email);
+      log.info("Got cached experiment json for " + email);
     } else {
-      log.info("No cached experiments for " + email);
+      log.info("No cached experiment json for " + email);
       List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(email, tz);
       experimentsJson = JsonConverter.jsonify(availableExperiments);
       cacheHelper.putExperimentJsonForUser(userId, experimentsJson); 

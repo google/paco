@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
 
 import net.sf.jsr107cache.Cache;
 import net.sf.jsr107cache.CacheException;
@@ -81,13 +80,14 @@ public class ExperimentCacheHelper {
   }
 
   public List<ExperimentDAO> getJoinableExperiments(String tz) {
-    List<ExperimentDAO> experiments = getExperiments();
-    List<ExperimentDAO> joinable = Lists.newArrayList(experiments);
-    
-    DateTime now = getDateForEndOfExperiments(tz);
-    
+    return filterFinishedExperiments(tz, getExperiments());
+  }
+
+  private List<ExperimentDAO> filterFinishedExperiments(String tz, List<ExperimentDAO> experiments) {
+    List<ExperimentDAO> joinable = Lists.newArrayList(experiments);    
+    DateTime nowInUserTimezone = getDateForEndOfExperiments(tz);    
     for (ExperimentDAO experiment : experiments) {
-      if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, now)) {
+      if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, nowInUserTimezone)) {
         joinable.remove(experiment);
       }
     }
@@ -111,8 +111,9 @@ public class ExperimentCacheHelper {
 
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
   // This is the reason we are doing this here instead of on the dao class where it belongs.
-  public boolean isOver(ExperimentDAO experiment, DateTime now) {
-    return experiment.getFixedDuration() != null && experiment.getFixedDuration() && now.isAfter(getEndDateTime(experiment));
+  public boolean isOver(ExperimentDAO experiment, DateTime nowInUserTimezone) {
+    return experiment.getFixedDuration() != null && experiment.getFixedDuration() 
+           && getEndDateTime(experiment).isBefore(nowInUserTimezone);
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
@@ -142,14 +143,12 @@ public class ExperimentCacheHelper {
     }  
     experimentDAOs = getExperimentsFromDatastore();
     
-    if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {      
-      
+    if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {            
       try {
         cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
       } catch (Exception e) {
         log.severe("Could not put experiment entry in cache:" + e.getMessage());
-      }
-      
+      }      
       return experimentDAOs;
     } else {
       return Collections.EMPTY_LIST;   
@@ -162,23 +161,71 @@ public class ExperimentCacheHelper {
       pm = PMF.get().getPersistenceManager();
       javax.jdo.Query q = pm.newQuery(Experiment.class);
       List<Experiment> experiments = (List<Experiment>) q.execute();
-      
-      List<Long> referringIds = Lists.newArrayList();
-      List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class).execute();
-      for (ExperimentReference experimentReference : references) {
-        referringIds.add(experimentReference.getReferringExperimentId());
-      }
-      
-      
       List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
-      for (ExperimentDAO experiment : experimentDAOs) {
-        experiment.setWebRecommended(referringIds.contains(experiment.getId()));        
-      }
+      markEndOfDayExperiments(pm, experimentDAOs);
       return experimentDAOs;      
     } finally {
       if (pm != null) {
         pm.close();
       }
+    }
+  }
+
+  /**
+   * returns experiments that either the user has created, admins, 
+   * or that have been published explicitly to them.
+   * 
+   * @param tz
+   * @return
+   */
+  public List<ExperimentDAO> getMyExperiments(String email, String tz) {
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      @SuppressWarnings("unchecked")
+      List<Experiment> experiments = getAdminExperiments(email, pm);
+      List<Experiment> experimentsPublishedToMe = getPublishedExperiments(email, pm);
+      experiments.addAll(experimentsPublishedToMe);
+      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);      
+//      markEndOfDayExperiments(pm, experiments);
+      return filterFinishedExperiments(tz, experimentDAOs);
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+  }
+
+  private List<Experiment> getAdminExperiments(String email, PersistenceManager pm) {
+    ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
+    jdoQuery.addFilters("admins == idParam");
+    jdoQuery.declareParameters("String idParam");
+    jdoQuery.addParameterObjects(email);
+    @SuppressWarnings("unchecked")
+    List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(jdoQuery.getParameters());
+    return experiments;
+  }
+  
+  private List<Experiment> getPublishedExperiments(String email, PersistenceManager pm) {
+    ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
+    jdoQuery.addFilters("publishedUsers == idParam");
+    jdoQuery.declareParameters("String idParam");
+    jdoQuery.addParameterObjects(email);
+    @SuppressWarnings("unchecked")
+    List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(jdoQuery.getParameters());
+    return experiments;
+  }
+
+
+  private void markEndOfDayExperiments(PersistenceManager pm, List<ExperimentDAO> experimentDAOs) {
+    List<Long> referringIds = Lists.newArrayList();
+    List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class).execute();
+    for (ExperimentReference experimentReference : references) {
+      referringIds.add(experimentReference.getReferringExperimentId());
+    }
+    
+    for (ExperimentDAO experiment : experimentDAOs) {
+      experiment.setWebRecommended(referringIds.contains(experiment.getId()));        
     }
   }
 }

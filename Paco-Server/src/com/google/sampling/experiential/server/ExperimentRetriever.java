@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -145,23 +144,31 @@ public class ExperimentRetriever {
     return false;
   }
 
-  public static List<ExperimentDAO> getSortedExperimentsAvailableToUser(List<ExperimentDAO> experiments, String email) {
+  public static List<ExperimentDAO> filterExperimentsUnavailableToUser(List<ExperimentDAO> experiments, String email) {
     List<ExperimentDAO> availableExperiments = Lists.newArrayList();
     for (ExperimentDAO experiment : experiments) {
       String creatorEmail = experiment.getCreator().toLowerCase();
-      if (creatorEmail.equals(email) || ExperimentRetriever.arrayContains(experiment.getAdmins(), email) || 
-          (experiment.getPublished() != null && experiment.getPublished() == true &&
-                  (experiment.getPublishedUsers().length == 0 || ExperimentRetriever.arrayContains(experiment.getPublishedUsers(), email)))) {
+      boolean isCreator = creatorEmail.equals(email);
+      boolean isAdmin = ExperimentRetriever.arrayContains(experiment.getAdmins(), email);
+      boolean isPublished = experiment.getPublished() != null && experiment.getPublished() == true;
+      boolean isPublishedToAll = experiment.getPublishedUsers().length == 0;
+      boolean isPublishedUser = ExperimentRetriever.arrayContains(experiment.getPublishedUsers(), email);
+      if (isCreator || isAdmin || (isPublished && (isPublishedToAll || isPublishedUser))) {
         availableExperiments.add(experiment);
       }
     }
+    
+    sortExperiments(availableExperiments);
+    return availableExperiments;
+  }
+
+  public static void sortExperiments(List<ExperimentDAO> availableExperiments) {
     Collections.sort(availableExperiments, new Comparator<ExperimentDAO>() {
       @Override
       public int compare(ExperimentDAO o1, ExperimentDAO o2) {
         return o1.getTitle().toLowerCase().compareTo(o2.getTitle().toLowerCase());
-      }      
+      }
     });
-    return availableExperiments;
   }
 
 }

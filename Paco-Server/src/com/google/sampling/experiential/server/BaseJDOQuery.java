@@ -36,10 +36,13 @@ import com.google.common.collect.Lists;
  */
 public class BaseJDOQuery {
 
+  private static final String OR_JUNCTION = " || ";
+  private static final String AND_JUNCTION = " && ";
   protected Query query;
   protected List<String> parameterDecls;
   protected List<Object> parameterObjects;
   protected List<String> filters;
+  private boolean conjunctive = true;
 
   /**
    * 
@@ -83,10 +86,25 @@ public class BaseJDOQuery {
       query.declareParameters(params);
     }
     if (filters.size() > 0) {
-      String filter = Joiner.on(" && ").join(filters);
+      String filter = Joiner.on(getJunctionString()).join(filters);
       query.setFilter(filter);
     }
     return query;
+  }
+
+  private String getJunctionString() {
+    if (conjunctive) {
+      return defaultJunction();
+    }
+    return OR_JUNCTION;
+  }
+  
+  public void setConjunctive(boolean conjunctive) {
+    this.conjunctive = conjunctive;
+  }
+
+  private String defaultJunction() {
+    return AND_JUNCTION;
   }
 
   public List<Object> getParameters() {

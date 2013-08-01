@@ -541,7 +541,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   public List<ExperimentDAO> getExperimentsAvailableToUser() {
     ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
     List<ExperimentDAO> joinableExperiments = cacheHelper.getJoinableExperiments(null);
-    List<ExperimentDAO> availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(joinableExperiments, getWho());        
+    List<ExperimentDAO> availableExperiments = ExperimentRetriever.filterExperimentsUnavailableToUser(joinableExperiments, getWho());        
     ExperimentRetriever.removeSensitiveFields(availableExperiments);
     return availableExperiments;
   }

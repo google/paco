@@ -17,7 +17,7 @@ abstract class ExperimentServletHandler {
       joinableExperiments = Lists.newArrayList();
       availableExperiments = joinableExperiments;        
     } else {
-      availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(joinableExperiments, email);        
+      availableExperiments = ExperimentRetriever.filterExperimentsUnavailableToUser(joinableExperiments, email);        
     }
     ExperimentRetriever.removeSensitiveFields(availableExperiments);
     return availableExperiments;
