@@ -252,17 +252,9 @@ public class ExperimentCacheHelper {
           triggerLoadingOfMemberObjects(experiment);
         }
 
-        List<Long> referringIds = Lists.newArrayList();
-        List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class)
-                                                                             .execute();
-        for (ExperimentReference experimentReference : references) {
-          referringIds.add(experimentReference.getReferringExperimentId());
-        }
-
         List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
-        for (ExperimentDAO experiment : experimentDAOs) {
-          experiment.setWebRecommended(referringIds.contains(experiment.getId()));
-        }
+        markEndOfDayExperiments(pm, experimentDAOs);
+
         return experimentDAOs;
       }
     } finally {
