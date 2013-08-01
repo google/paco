@@ -23,32 +23,39 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
   
   @Override
   public String performLoad() {
-    List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(email, tz);
-    HashMap<Long, Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
-    return loadSelectedExperiments(experimentIds, availableExperiments);
-  }
-  
-  private String loadSelectedExperiments(HashMap<Long,Long> experimentIds, List<ExperimentDAO> availableExperiments) {
-    List<ExperimentDAO> experiments = Lists.newArrayList();
-    for (ExperimentDAO experiment : availableExperiments) {
-      if (experimentIds.containsKey(experiment.getId())) {
-        experiments.add(experiment);
-      }
-    }
-    if (experiments.isEmpty()) {
-      log.severe("Experiment id's " + experimentIds + " are all invalid.  No experiments were fetched from server.");
+    List<Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      log.info("Experiment list is empty.");
       return "[]";
     }
+
+    List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(experimentIds, email, tz);
+    
+    return loadSelectedExperiments(availableExperiments);
+  }
+  
+  private String loadSelectedExperiments(List<ExperimentDAO> experiments) {
+//    List<ExperimentDAO> experiments = Lists.newArrayList();
+//    for (ExperimentDAO experiment : availableExperiments) {
+//      if (experimentIds.containsKey(experiment.getId())) {
+//        experiments.add(experiment);
+//      }
+//    }
+    if (experiments.isEmpty()) {
+      log.info("Experiment list is empty.");
+      return "[]";
+    }
+
     return JsonConverter.jsonify(experiments);
   }
   
-  private HashMap<Long,Long> parseExperimentIds(String expStr) {
-    HashMap<Long,Long> experimentIds = new HashMap<Long, Long>();
+  private List<Long> parseExperimentIds(String expStr) {
+    List<Long> experimentIds = Lists.newArrayList();
     Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
     for (String id : strIds) {
       Long experimentId = extractExperimentId(id);
       if (!experimentId.equals(new Long(-1))) {
-        experimentIds.put(experimentId, null);
+        experimentIds.add(experimentId);
       }
     }
     return experimentIds;
@@ -62,6 +69,29 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
       log.severe("Invalid experiment id " + expStr + " sent to server.");
       return new Long(-1);
     }
+  }
+  
+  //
+  
+
+  protected List<ExperimentDAO> getExperimentsAvailableToUser(List<Long> experimentIds, String email, String tz) {
+    List<ExperimentDAO> joinableExperiments = getJoinableExperiments(experimentIds, tz);
+    List<ExperimentDAO> availableExperiments = null;
+    if (joinableExperiments == null) {
+      joinableExperiments = Lists.newArrayList();
+      availableExperiments = joinableExperiments;        
+    } else {
+      availableExperiments = ExperimentRetriever.filterExperimentsUnavailableToUser(joinableExperiments, email);        
+    }
+    ExperimentRetriever.removeSensitiveFields(availableExperiments);
+    return availableExperiments;
+  }
+
+  private List<ExperimentDAO> getJoinableExperiments(List<Long> experimentIds, String tz) {
+    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
+    List<ExperimentDAO> experiments = cacheHelper.getJoinableExperiments(experimentIds, tz);
+    log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
+    return experiments;
   }
 
 }

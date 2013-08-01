@@ -53,8 +53,10 @@ public class TriggerPanel extends Composite {
     TimeoutPanel timeoutPanel = new TimeoutPanel(trigger);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-
     
+    MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(trigger);
+    verticalPanel.add(minimumBufferPanel);
+    minimumBufferPanel.setWidth("286px");
   }
 
   private Widget createTriggerSourceIdentifierChooser() {

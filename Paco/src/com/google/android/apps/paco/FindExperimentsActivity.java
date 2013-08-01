@@ -262,10 +262,13 @@ public class FindExperimentsActivity extends Activity {
       @Override
       public void done(String resultCode) {
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        if (resultCode == DownloadHelper.SUCCESS) {
-          updateDownloadedExperiments();
+        String contentAsString = experimentDownloadTask.getContentAsString();
+        if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
+          updateDownloadedExperiments(contentAsString);
           saveRefreshTime();
-        } else {
+        } else if (resultCode == DownloadHelper.SUCCESS && contentAsString == null) {
+          showFailureDialog("No experiment data retrieved. Try again.");
+        } else {          
           showFailureDialog(resultCode);
         }
       }
@@ -273,11 +276,6 @@ public class FindExperimentsActivity extends Activity {
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
     experimentDownloadTask.execute();
-  }
-  
-  private void updateDownloadedExperiments() {
-    String contentAsString = experimentDownloadTask.getContentAsString();
-    updateDownloadedExperiments(contentAsString);
   }
   
   // Visible for testing

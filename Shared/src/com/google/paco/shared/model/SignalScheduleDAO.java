@@ -86,11 +86,12 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      * @param times
      * @param weekDaysScheduled
      * @param esmWeekends TODO
+     * @param minimumBuffer 
      */
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
         Long esmStartHour, Integer nthOfMonth, Integer repeatRate, Long[] times,
-        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout) {
+        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer) {
       this.id = id;
       this.scheduleType = scheduleType;
       this.byDayOfMonth = byDayOfMonth;
@@ -106,6 +107,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.weekDaysScheduled = weekDaysScheduled;
       this.userEditable = userEditable;
       this.timeout = timeout;
+      this.minimumBuffer = minimumBuffer;
       this.type = "signalSchedule";
     }
 

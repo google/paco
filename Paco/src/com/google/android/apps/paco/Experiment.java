@@ -240,6 +240,12 @@ public class Experiment implements Parcelable {
     return questionsChange;
   }
 
+  @JsonIgnore
+  public boolean isOver(DateTime now) {
+    return isFixedDuration() != null && isFixedDuration() && now.isAfter(getEndDateTime());
+  }
+
+
   public void setQuestionsChange(boolean questionsChange) {
     this.questionsChange = questionsChange;
   }

@@ -18,6 +18,8 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Date;
+import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -34,6 +36,7 @@ import com.google.corp.productivity.specialprojects.android.comm.UrlContentManag
 
 public class ServerCommunication {
 
+  private static final int DURATION_IN_MINUTES_THAT_IS_LONGER_THAN_TIME_TO_DOWNLOAD_JOINED_EXPERIMENTS = 5;
   private static ServerCommunication instance;
   
   public static synchronized ServerCommunication getInstance(Context context) {
@@ -65,8 +68,8 @@ public class ServerCommunication {
   public synchronized void checkIn(Boolean forTesting) {
     if (userPrefs.isJoinedExperimentsListStale() && !forTesting) {
       updateJoinedExperiments();
+      
     }
-    
     setNextWakeupTime();
   }
   
@@ -90,14 +93,21 @@ public class ServerCommunication {
   }
 
   private boolean isInFuture(DateTime time) {
-    return time.isAfter(new DateTime().plusSeconds(10));
+    return time.isAfter(new DateTime().plusMinutes(DURATION_IN_MINUTES_THAT_IS_LONGER_THAN_TIME_TO_DOWNLOAD_JOINED_EXPERIMENTS));
   }
   
   private void updateJoinedExperiments() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     DownloadHelper downloadHelper = new DownloadHelper(context, userPrefs);
-    downloadHelper.downloadRunningExperiments(experimentProviderUtil.getJoinedExperimentServerIds());
-    saveDownloadedExperiments(experimentProviderUtil, downloadHelper.getContentAsString());
+    List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
+    if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
+      String resultCode = downloadHelper.downloadRunningExperiments(joinedExperimentServerIds);
+      String contentAsString = downloadHelper.getContentAsString();
+      if (resultCode.equals(DownloadHelper.SUCCESS) && contentAsString != null) {
+        saveDownloadedExperiments(experimentProviderUtil, contentAsString); 
+      }
+    }
+    userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
   }
 
   private void saveDownloadedExperiments(ExperimentProviderUtil experimentProviderUtil, 

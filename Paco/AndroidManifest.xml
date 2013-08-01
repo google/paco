@@ -15,7 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<manifest package='com.pacoapp.paco' android:versionCode='82' android:versionName='2.0.82' xmlns:android='http://schemas.android.com/apk/res/android'>
+<manifest package='com.pacoapp.paco' android:versionCode='89' android:versionName='2.0.89' xmlns:android='http://schemas.android.com/apk/res/android'>
     <uses-permission android:name='android.permission.READ_PHONE_STATE'/>
     
 
@@ -45,7 +45,7 @@
                 <data android:mimeType='vnd.android.cursor.dir/vnd.google.paco.experiment'/>
             </intent-filter>
         </activity>
-        <activity android:name='com.google.android.apps.paco.RunningExperimentsActivity'>
+        <activity android:name='com.google.android.apps.paco.RunningExperimentsActivity' android:screenOrientation='portrait' >
             <intent-filter>
                 <action android:name='android.intent.action.VIEW'/>
 
