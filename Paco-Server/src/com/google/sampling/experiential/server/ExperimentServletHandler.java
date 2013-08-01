@@ -14,8 +14,7 @@ abstract class ExperimentServletHandler {
     List<ExperimentDAO> joinableExperiments = getJoinableExperiments(tz);
     List<ExperimentDAO> availableExperiments = null;
     if (joinableExperiments == null) {
-      joinableExperiments = Lists.newArrayList();
-      availableExperiments = joinableExperiments;        
+      availableExperiments = Lists.newArrayList();        
     } else {
       availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(joinableExperiments, email);        
     }

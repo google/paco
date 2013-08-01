@@ -26,6 +26,10 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
+import com.google.sampling.experiential.model.Feedback;
+import com.google.sampling.experiential.model.Input;
+import com.google.sampling.experiential.model.SignalSchedule;
+import com.google.sampling.experiential.model.Trigger;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class ExperimentCacheHelper {
@@ -93,6 +97,21 @@ public class ExperimentCacheHelper {
     }
     return joinable;
   }
+  
+  public List<ExperimentDAO> getJoinableExperiments(List<Long> experimentIds, String tz) {
+    List<ExperimentDAO> experiments = getExperiments(experimentIds);
+    List<ExperimentDAO> joinable = Lists.newArrayList(experiments);
+    
+    DateTime now = getDateForEndOfExperiments(tz);
+    
+    for (ExperimentDAO experiment : experiments) {
+      if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, now)) {
+        joinable.remove(experiment);
+      }
+    }
+    return joinable;
+  }
+
 
   private DateTime getDateForEndOfExperiments(String tz) {
     DateTime now = new DateTime();
@@ -155,6 +174,31 @@ public class ExperimentCacheHelper {
       return Collections.EMPTY_LIST;   
     }      
   }
+  
+  private synchronized List<ExperimentDAO> getExperiments(List<Long> experimentIds) {
+    List<ExperimentDAO> experimentDAOs;
+//    if (cache != null) {
+//      experimentDAOs = (List<ExperimentDAO>) cache.get(EXPERIMENT_CACHE_KEY);
+//      if (experimentDAOs != null) {
+//        return experimentDAOs;
+//      }
+//    }  
+    experimentDAOs = getExperimentsFromDatastore(experimentIds);
+    
+    if (/*cache != null && */experimentDAOs != null && !experimentDAOs.isEmpty()) {      
+//      
+//      try {
+//        cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
+//      } catch (Exception e) {
+//        log.severe("Could not put experiment entry in cache:" + e.getMessage());
+//      }
+      
+      return experimentDAOs;
+    } else {
+      return Collections.EMPTY_LIST;   
+    }      
+  }
+
 
   private List<ExperimentDAO> getExperimentsFromDatastore() {
     PersistenceManager pm = null;
@@ -181,4 +225,60 @@ public class ExperimentCacheHelper {
       }
     }
   }
+  
+  private List<ExperimentDAO> getExperimentsFromDatastore(List<Long> experimentIds) {
+    PersistenceManager pm = null;
+    try {
+      if (experimentIds != null && !experimentIds.isEmpty()) {
+        pm = PMF.get().getPersistenceManager();
+        javax.jdo.Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
+        List<Experiment> experiments = (List<Experiment>) q.execute(experimentIds);
+
+        for (Experiment experiment : experiments) {
+          triggerLoadingOfMemberObjects(experiment);
+        }
+
+        List<Long> referringIds = Lists.newArrayList();
+        List<ExperimentReference> references = (List<ExperimentReference>) pm.newQuery(ExperimentReference.class)
+                                                                             .execute();
+        for (ExperimentReference experimentReference : references) {
+          referringIds.add(experimentReference.getReferringExperimentId());
+        }
+
+        List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+        for (ExperimentDAO experiment : experimentDAOs) {
+          experiment.setWebRecommended(referringIds.contains(experiment.getId()));
+        }
+        return experimentDAOs;
+      }
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+    return Lists.newArrayList();
+  }
+
+  // load related piecs before we close the Persistence Manager.
+  // TODO eager load the experiment's object graph
+  // we now need to actually access related objects for them to get loaded.
+  // Also, defaultFetchGroup was causing errors. TODO: Revisit this in the future.
+  private void triggerLoadingOfMemberObjects(Experiment experiment) {
+    List<Feedback> feedback = experiment.getFeedback();
+    feedback.get(0);
+    List<Input> inputs = experiment.getInputs();
+    inputs.get(0);
+    SignalSchedule schedule = experiment.getSchedule();
+    Trigger trigger = experiment.getTrigger();
+    if (schedule != null) {
+      schedule.getId();
+    }
+    if (trigger != null) {
+      trigger.getId();
+    }
+  }
+
+
+  
+
 }

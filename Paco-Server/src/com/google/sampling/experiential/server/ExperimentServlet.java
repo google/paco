@@ -73,7 +73,7 @@ public class ExperimentServlet extends HttpServlet {
       ExperimentServletHandler handler;
       if (shortParam != null) {
         handler = new ExperimentServletShortLoadHandler(email, tz);
-      } else if (selectedExperimentsParam != null && !selectedExperimentsParam.isEmpty()) {
+      } else if (selectedExperimentsParam != null) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, tz, selectedExperimentsParam);
       } else {
         handler = new ExperimentServletAllExperimentsFullLoadHandler(user.getUserId(), email, tz);

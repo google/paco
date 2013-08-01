@@ -91,14 +91,14 @@ public class ReportJobExecutor {
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
       return generateCSVReport(anon, jobId, experimentId, events, timeZoneForClient);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
-      return generatePhotoZip(jobId, experimentId, events, anon);
+      return generatePhotoZip(jobId, experimentId, events, anon, timeZoneForClient);
     } else {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, events);
     }
   }
 
-  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon) {    
-      return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, events, jobId);
+  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon, DateTimeZone timeZoneForClient) {    
+      return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, events, jobId, timeZoneForClient.getID());
   }
 
   private String generateHtmlReport(DateTimeZone timeZoneForClient, boolean anon, String jobId, String experimentId,

@@ -32,6 +32,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -58,6 +59,8 @@ public class ExperimentProviderUtil {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String FILENAME = "experiments";
   
+  DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -73,8 +76,17 @@ public class ExperimentProviderUtil {
     return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);    
   }
   
-  public List<Long> getJoinedExperimentServerIds() {
-    List<Long> experimentIds = Lists.transform(getJoinedExperiments(), new Function<Experiment, Long>() {
+  public List<Long> getJoinedExperimentServerIds() {    
+    List<Experiment> joinedExperiments = getJoinedExperiments();    
+    List<Experiment> stillRunningExperiments = Lists.newArrayList();
+    DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
+    for (Experiment experiment : joinedExperiments) {      
+      String endDate = experiment.getEndDate();      
+      if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || endDateFormatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
+        stillRunningExperiments.add(experiment);
+      }
+    }
+    List<Long> experimentIds = Lists.transform(stillRunningExperiments, new Function<Experiment, Long>() {
       public Long apply(Experiment experiment) {
         return experiment.getServerId();
       }
@@ -990,8 +1002,9 @@ public class ExperimentProviderUtil {
     int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
-    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE );
-    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT );
+    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
+    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
+    int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
     
     SignalSchedule schedule = new SignalSchedule();    
     if (!cursor.isNull(idIndex)) {
@@ -1054,6 +1067,10 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(timeoutIndex)) {
       schedule.setTimeout(cursor.getInt(timeoutIndex));
     }
+    if (!cursor.isNull(minBufferIndex)) {
+      schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
+    }
+
     return schedule;
   }
   
@@ -1096,6 +1113,11 @@ public class ExperimentProviderUtil {
     if (schedule.getTimeout() != null) {
       values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout()); 
     }
+    
+    if (schedule.getMinimumBuffer() != null) {
+      values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer()); 
+    }
+
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Long time : schedule.getTimes()) {
@@ -1621,11 +1643,14 @@ public class ExperimentProviderUtil {
 
   private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
-    List<Experiment> experiments;
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    experiments = mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
-    return experiments;
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Lists.newArrayList();
   }
 
   public boolean hasJoinedExperiments() {

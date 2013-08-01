@@ -106,6 +106,8 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
       schedule.beginDate = source.readLong();
 
       schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
+      schedule.timeout = source.readInt();
+      schedule.minimumBuffer = source.readInt();
       return schedule;
     }
 
@@ -379,6 +381,8 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     dest.writeInt(dayOfMonth);
     dest.writeLong(beginDate);
     dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
+    dest.writeInt(timeout);
+    dest.writeInt(minimumBuffer);
   }
 
   public DateTime getNextAlarmTime(DateTime dateTime) {
