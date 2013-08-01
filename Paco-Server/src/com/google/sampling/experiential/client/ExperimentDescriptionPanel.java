@@ -6,6 +6,10 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -166,15 +170,19 @@ public class ExperimentDescriptionPanel extends Composite {
                                                                                  + myConstants.clickToCloseAdministratorEditor()
                                                                                  + "</b>");
     adminPanel.setHeader(closedHeaderWidget);
-    adminPanel.addEventHandler(new DisclosureHandler() {
-      public void onClose(DisclosureEvent event) {
-        adminPanel.setHeader(closedHeaderWidget);
-      }
-
-      public void onOpen(DisclosureEvent event) {
-        adminPanel.setHeader(openHeaderWidget);
+    adminPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() { 
+      @Override
+      public void onOpen(OpenEvent<DisclosurePanel> event) {
+        adminPanel.setHeader(openHeaderWidget);    
       }
     });
+    adminPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() { 
+      @Override
+      public void onClose(CloseEvent<DisclosurePanel> event) {
+        adminPanel.setHeader(closedHeaderWidget);
+      }
+    });
+    
     VerticalPanel adminContentPanel = new VerticalPanel();
     Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);

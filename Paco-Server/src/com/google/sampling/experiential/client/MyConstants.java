@@ -509,4 +509,10 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("contains")
   String contains();
+  
+  @DefaultStringValue("Click to use menus to edit condition")
+  String clickToEditCondition();
+  
+  @DefaultStringValue("Click to close condition editing menus")
+  String clickToCloseConditionEditor();
 }

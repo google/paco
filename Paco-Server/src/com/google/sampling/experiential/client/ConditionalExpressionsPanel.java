@@ -5,9 +5,15 @@ import java.util.List;
 
 import com.google.common.base.Joiner;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -27,6 +33,7 @@ public class ConditionalExpressionsPanel extends Composite {
 
   private VerticalPanel mainPanel;
   private HorizontalPanel textEntryPanel;
+  private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
   private TextBox conditionDisplayTextBox;
 
@@ -50,7 +57,7 @@ public class ConditionalExpressionsPanel extends Composite {
 
   private void createPanel() {
     createTextEntryPanel();
-    createConditionalListPanel();
+    createConditionalListDisclosurePanel();
   }
 
   private void createTextEntryPanel() {
@@ -77,13 +84,55 @@ public class ConditionalExpressionsPanel extends Composite {
         + myConstants.eg() + ", " + "q1name < 3" + ")" + "</span>"));
   }
 
-  private void createConditionalListPanel() {
+  private void createConditionalListDisclosurePanel() {
+    conditionalListDisclosurePanel = new DisclosurePanel();
+    
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditCondition()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToCloseConditionEditor()
+                                                                                 + "</b>");
+
+    conditionalListDisclosurePanel.setHeader(closedHeaderWidget);
+    conditionalListDisclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+      @Override
+      public void onOpen(OpenEvent<DisclosurePanel> event) {
+        conditionalListDisclosurePanel.setHeader(openHeaderWidget);
+      }
+    });
+    conditionalListDisclosurePanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+      @Override
+      public void onClose(CloseEvent<DisclosurePanel> event) {
+        conditionalListDisclosurePanel.setHeader(closedHeaderWidget);
+      }
+    });
+
     conditionalListPanel = new VerticalPanel();
-    mainPanel.add(conditionalListPanel);
     ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
     conditionalListPanel.add(conditionalPanel);
+    updateConditionalPanelsLists(conditionalPanel);
+    conditionalListDisclosurePanel.setContent(conditionalListPanel);
+    
+    mainPanel.add(conditionalListDisclosurePanel);
+  }
+
+  private void updateConditionalPanelsLists(ConditionalExpressionPanel conditionalPanel) {
     conditionPanels.add(conditionalPanel);
     conditionalExpressions.add(conditionalPanel.constructExpression());
+  }
+  
+  final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
+
+  private class DisclosurePanelHeader extends HorizontalPanel {
+    public DisclosurePanelHeader(boolean isOpen, String html) {
+      add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
+      add(new HTML(html));
+    }
   }
 
   public List<InputDAO> getPrecedingInputsWithVarName(String varName) {

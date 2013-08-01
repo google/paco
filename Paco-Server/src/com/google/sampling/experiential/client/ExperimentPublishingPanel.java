@@ -8,6 +8,10 @@ import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -98,13 +102,16 @@ public class ExperimentPublishingPanel extends Composite {
                                                                                  + "</b>");
 
     customFeedbackPanel.setHeader(closedHeaderWidget);
-    customFeedbackPanel.addEventHandler(new DisclosureHandler() {
-      public void onClose(DisclosureEvent event) {
-        customFeedbackPanel.setHeader(closedHeaderWidget);
-      }
-
-      public void onOpen(DisclosureEvent event) {
+    customFeedbackPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+      @Override
+      public void onOpen(OpenEvent<DisclosurePanel> event) {
         customFeedbackPanel.setHeader(openHeaderWidget);
+      }
+    });
+    customFeedbackPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+      @Override
+      public void onClose(CloseEvent<DisclosurePanel> event) {
+        customFeedbackPanel.setHeader(closedHeaderWidget);
       }
     });
 
@@ -179,14 +186,16 @@ public class ExperimentPublishingPanel extends Composite {
                                                                                  + "</b>");
 
     publishedUsersPanel.setHeader(closedHeaderWidget);
-    publishedUsersPanel.addEventHandler(new DisclosureHandler() {
-
-      public void onClose(DisclosureEvent event) {
-        publishedUsersPanel.setHeader(closedHeaderWidget);
-      }
-
-      public void onOpen(DisclosureEvent event) {
+    publishedUsersPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+      @Override
+      public void onOpen(OpenEvent<DisclosurePanel> event) {
         publishedUsersPanel.setHeader(openHeaderWidget);
+      }
+    });
+    publishedUsersPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+      @Override
+      public void onClose(CloseEvent<DisclosurePanel> event) {
+        publishedUsersPanel.setHeader(closedHeaderWidget);
       }
     });
 
