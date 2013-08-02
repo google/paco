@@ -14,7 +14,221 @@
  */
 
 #import "PacoEventManager.h"
+#import "PacoEvent.h"
+
+static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
+static NSString* const kAllEventsFileName = @"allEvents.plist";
+
+@interface PacoEventManager ()
+//array of PacoEvent
+@property(atomic, strong) NSMutableArray* pendingEvents;
+//dictionary: key is experiment's instanceId, value is an array of events, ordered by responseTime,
+//the first event in this array is the oldest
+@property(atomic, strong) NSMutableDictionary* eventsDict;
+
+@end
+
 
 @implementation PacoEventManager
+
++ (PacoEventManager*)sharedInstance {
+  static PacoEventManager* manager = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    manager = [[PacoEventManager alloc] init];
+  });
+  return manager;
+}
+
+#pragma mark Private methods
+- (NSString*)documentPathForFile:(NSString*)fileName {
+  NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString* documentsDirectory = [paths objectAtIndex:0];
+  NSString* fullPath = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
+  return fullPath;
+}
+
+//check to see if the error is "No such file or directory"
+- (BOOL)isFileNotExistError:(NSError*)error {
+  if (error == nil) {
+    return NO;
+  }
+  
+  NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+  if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
+      && underlyingError.code == ENOENT) {
+    return YES;
+  }else {
+    return NO;
+  }
+}
+
+- (id)loadJsonObjectFromFile:(NSString*)fileName {
+  NSString* filePath = [self documentPathForFile:fileName];
+  NSError* error = nil;
+  NSData* jsonData = [NSData dataWithContentsOfFile:filePath
+                                            options:NSDataReadingMappedIfSafe
+                                              error:&error];
+  if (error != nil && ![self isFileNotExistError:error]) {
+    NSLog(@"[Error]Failed to load %@: %@",
+          fileName,
+          error.description ? error.description : @"unknown error");
+    return nil;
+  }
+  
+  if (jsonData == nil) {
+    return nil;
+  }
+  NSError *jsonError = nil;
+  id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData
+                                               options:NSJSONReadingAllowFragments
+                                                 error:&jsonError];
+  if (jsonError) {
+    NSLog(@"[Error]Failed to serialize %@: %@",
+          fileName,
+          error.description ? error.description : @"unknown error");
+    return nil;
+  }
+  return jsonObj;
+}
+
+- (NSError*)saveJsonObject:(id)jsonObject toFile:(NSString*)fileName {
+  NSError* jsonError = nil;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&jsonError];
+  if (jsonError) {
+    NSLog(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
+    return jsonError;
+  }
+  NSAssert(jsonData != nil, @"jsonData should not be nil!");
+  
+  NSError* saveError = nil;
+  [jsonData writeToFile:[self documentPathForFile:fileName]
+                options:NSDataWritingFileProtectionComplete
+                  error:&saveError];
+  if (saveError) {
+    NSLog(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
+  }else {
+    NSLog(@"Succeeded to save %@.", fileName);    
+  }
+  return saveError;
+}
+
+
+- (NSMutableArray*)deserializedEvents:(id)jsonEvents {
+  NSAssert(jsonEvents != nil, @"jsonEvents should not be nil!");  
+  NSAssert([jsonEvents isKindOfClass:[NSArray class]],
+           @"jsonEvents should be a NSArray!");
+  
+  NSMutableArray* deserializedEvents = [NSMutableArray arrayWithCapacity:[jsonEvents count]];
+  for (id eventJson in jsonEvents) {
+    PacoEvent* event = [PacoEvent pacoEventFromJSON:eventJson];
+    NSAssert(event != nil, @"event should not be nil!");
+    [deserializedEvents addObject:event];
+  }
+  return deserializedEvents;
+}
+
+
+- (void)fetchAllEventsIfNecessary {
+  if (self.eventsDict == nil) {
+    NSDictionary* dict = [self loadJsonObjectFromFile:kAllEventsFileName];
+    NSAssert(!(dict != nil && ![dict isKindOfClass:[NSDictionary class]]),
+             @"dict should be a dictionary!");
+    
+    NSMutableDictionary* allEventsDict = [NSMutableDictionary dictionary];
+    for (NSString* definitionId in dict) {
+      id events = [dict objectForKey:definitionId];
+      [allEventsDict setObject:[self deserializedEvents:events] forKey:definitionId];
+    }      
+    self.eventsDict = allEventsDict;
+  }
+}
+
+- (void)fetchPendingEventsIfNecessary {
+  if (self.pendingEvents == nil) {
+    NSArray* events = [self loadJsonObjectFromFile:kPendingEventsFileName];
+    NSAssert(!(events != nil && ![events isKindOfClass:[NSArray class]]),
+             @"events should be an array");
+
+    NSMutableArray* pendingEvents = [NSMutableArray array];
+    if (events != nil) {
+      pendingEvents = [self deserializedEvents:pendingEvents];
+    }
+    self.pendingEvents = pendingEvents;
+  }
+}
+
+- (NSMutableArray*)jsonArrayFromEvents:(NSArray*)events {
+  NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
+  for (PacoEvent* event in events) {
+    id json = [event generateJsonObject];
+    NSAssert(json != nil, @"json should not be nil!");
+    [jsonArr addObject:json];
+  }
+  return jsonArr;
+}
+
+- (void)saveAllEventsToFile {
+  //If eventsDict is never loaded, then no need to save anything
+  if (self.eventsDict == nil) {
+    return;
+  }
+  
+  NSMutableDictionary* jsonDict = [NSMutableDictionary dictionary];
+  for (NSString* definitionId in self.eventsDict) {
+    NSMutableArray* eventsArr = [self jsonArrayFromEvents:[self.eventsDict objectForKey:definitionId]];
+    NSAssert(eventsArr != nil, @"eventsArr should not be nil!");
+    [jsonDict setObject:eventsArr forKey:definitionId];
+  }
+  [self saveJsonObject:jsonDict toFile:kAllEventsFileName];
+}
+
+
+- (void)savePendingEventsToFile {
+  //If pendingEvents is never loaded, then no need to save anything
+  if (self.pendingEvents == nil) {
+    return;
+  }
+  NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
+  [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
+}
+
+
+
+#pragma mark Public API
+- (void)saveEvent:(PacoEvent*)event {
+  NSAssert(event != nil, @"nil event cannot be saved!");
+  NSAssert([[event.experimentId
+             stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
+            length] > 0, @"experimentId should not be empty!");
+  
+  [self fetchAllEventsIfNecessary];
+  
+  NSMutableArray* events = [self.eventsDict objectForKey:event.experimentId];
+  if (events == nil) {
+    events = [NSMutableArray array];
+  }
+  [events addObject:event];
+  [self.eventsDict setObject:events forKey:event.experimentId];
+
+  //YMZ:TODO: start synch service
+}
+
+- (void)markEventComplete:(PacoEvent*)event {
+  NSAssert(self.pendingEvents != nil, @"pending events should have already loaded");
+  [self.pendingEvents removeObject:event];
+}
+
+- (NSArray*)currentPendingEvents {
+  [self fetchPendingEventsIfNecessary];
+  return self.pendingEvents;
+}
+
+- (void)saveDataToFile {
+  [self savePendingEventsToFile];
+  [self saveAllEventsToFile];
+}
 
 @end

@@ -15,6 +15,24 @@
 
 #import <Foundation/Foundation.h>
 
+@class PacoEvent;
+
+//YMZ:TODO: fully testing
+//YMZ:TODO: thread safe
+//YMZ:TODO: use async design
+//YMZ:TODO: use core data
+//YMZ:TODO: error handling of file operation
 @interface PacoEventManager : NSObject
+
++ (PacoEventManager*)sharedInstance;
+
+- (void)saveEvent:(PacoEvent*)event;
+
+- (void)markEventComplete:(PacoEvent*)event;
+
+- (NSArray*)currentPendingEvents;
+
+- (void)saveDataToFile;
+
 
 @end
