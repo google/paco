@@ -31,11 +31,6 @@
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
           withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
-// Join an Experiment
-- (void)joinExperiment:(PacoExperimentDefinition *)experiment
-              schedule:(PacoExperimentSchedule *)schedule
-     completionHandler:(void (^)(PacoEvent *, NSError *))completionHandler;
-
 // Submit an event to the server.
 - (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler;
 

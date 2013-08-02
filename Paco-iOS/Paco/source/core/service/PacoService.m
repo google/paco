@@ -154,16 +154,6 @@
   }];
 }
 
-- (void)joinExperiment:(PacoExperimentDefinition *)experiment
-              schedule:(PacoExperimentSchedule *)schedule
-     completionHandler:(void (^)(PacoEvent *, NSError *))completionHandler {
-  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:experiment withSchedule:schedule];
-  [self submitEvent:joinEvent withCompletionHandler:^(NSError *error) {
-      if (completionHandler) {
-        completionHandler(joinEvent, error);
-      }
-  }];
-}
 
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
     withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
