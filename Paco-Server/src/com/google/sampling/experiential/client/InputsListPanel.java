@@ -313,7 +313,7 @@ public class InputsListPanel extends Composite {
     return mainPanel;
   }
 
-  // TODO PRIYA this is slow
+  // TODO: this is slow.
   public List<InputDAO> getPrecedingInputsWithVarName(String varName, InputDAO stopInput) {
     List<InputDAO> varNameInputs = new LinkedList<InputDAO>();
     for (InputDAO input : experiment.getInputs()) {
@@ -321,7 +321,6 @@ public class InputsListPanel extends Composite {
         break;
       } else if (input.getName().equals(varName)) {
         varNameInputs.add(input);
-        // PRIYA - should I break or let it continue?
       }
     }
     return varNameInputs;

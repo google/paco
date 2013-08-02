@@ -42,13 +42,8 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     mainPanel = new HorizontalPanel();
     mainPanel.setSpacing(2);
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    initWidget(mainPanel);
     mainPanel.setWidth("100%");
-
-    // Label lblTime = new Label("Input name: ");
-    // lblTime.setStyleName("gwt-Label-Header");
-    // horizontalPanel.add(lblTime);
-    // lblTime.setWidth("90px");
+    initWidget(mainPanel);
 
     createOperatorArea(initialOp);
     createVarNameTextBox();
@@ -57,6 +52,17 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     createAddNextListBox();
 
     isValid = false;
+  }
+  
+  public ConditionalExpressionPanel(ConditionalExpressionsPanel parent, MouseDownHandler precedenceMouseDownHandler,
+                                    int initialOp, String inputName, int comparator, int predicate) {
+    this(parent, precedenceMouseDownHandler, initialOp);
+    varNameText.setValue(inputName);
+    configurePanelForInput(inputName);
+    if (isValid) {
+      setComparatorListBoxSelectedIndex(comparator);
+      predicatePanel.setValue(predicate);
+    }
   }
 
   public boolean isValid() {
@@ -68,7 +74,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   protected void updateExpression() {
-    parent.updateExpression(this);
+    parent.updateExpressionUsingListPanel(this);
   }
 
   protected String constructExpression() {
@@ -81,6 +87,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       expression = Joiner.on(" ").join(op, varName, comparator, predicate);
     }
     return expression;
+  }
+
+  protected void invalidateSelection() {
+    setExpressionValidity(false);
   }
 
   private void createOperatorArea(int conditionalOp) {
@@ -109,9 +119,14 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     operatorListBox.setVisibleItemCount(1);
     operatorListBox.addMouseDownHandler(precedenceMouseDownHandler);
     operatorListBox.setEnabled(true);
+    operatorListBox.addChangeHandler(this);
     // Index is off-by-one from constant since this menu has no no-op option.
-    operatorListBox.setSelectedIndex(conditionalOp - 1);
+    setOperatorListBoxSelectedIndex(conditionalOp - 1);
     mainPanel.add(operatorListBox);
+  }
+  
+  private void setOperatorListBoxSelectedIndex(Integer selectedIndex) {
+    setListBoxSelectedIndex(selectedIndex, operatorListBox);
   }
 
   private void createVarNameTextBox() {
@@ -121,14 +136,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        List<InputDAO> inputs = getPrecedingInputsWithVarName(event.getValue());
-        if (inputs != null && inputs.size() == 1 && !inputCannotBeConditionalized(inputs.get(0))) {
-          predicatePanel.configureForInput(inputs.get(0));
-          configureComparatorListBoxForInput(inputs.get(0));
-          setExpressionValidity(true);
-        } else {
-          setExpressionValidity(false);
-        }
+        configurePanelForInput(event.getValue());
         updateExpression();
       }
     });
@@ -164,6 +172,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     } else if (lastListBoxItem.equals(listExtra)) {
       comparatorListBox.removeItem(lastListBoxIndex);
     }
+  }
+  
+  private void setComparatorListBoxSelectedIndex(Integer value) {
+    setListBoxSelectedIndex(value, comparatorListBox);
   }
 
   private boolean inputCannotBeConditionalized(InputDAO input) {
@@ -204,6 +216,31 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     mainPanel.add(addNextListBox);
   }
 
+  private void configurePanelForInput(String inputName) {
+    List<InputDAO> inputs = getPrecedingInputsWithVarName(inputName);
+    if (inputs != null && inputs.size() == 1 && !inputCannotBeConditionalized(inputs.get(0))) {
+      predicatePanel.configureForInput(inputs.get(0));
+      configureComparatorListBoxForInput(inputs.get(0));
+      setExpressionValidity(true);
+    } else {
+      setExpressionValidity(false);
+    }
+  }
+  
+  private void setListBoxSelectedIndex(Integer value, ListBox listBox) {
+    // Note: error-checking is done this way because ListBox objects do not throw
+    // exceptions when given an illegal index.
+    if (valueIsNullOrOutOfBounds(value, listBox)) {
+      invalidateSelection();
+    } else {
+      listBox.setSelectedIndex(value);
+    }
+  }
+  
+  private boolean valueIsNullOrOutOfBounds(Integer value, ListBox listBox) {
+    return value == null || value < 0 || value >= listBox.getItemCount();
+  }
+ 
   @Override
   public void onChange(ChangeEvent event) {
     updateExpression();
