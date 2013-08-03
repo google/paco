@@ -120,4 +120,10 @@
   }
 }
 
+- (void)clearInputs {
+  for (PacoExperimentInput *input in self.inputs) {
+    input.responseObject = nil;
+  }
+}
+
 @end

@@ -136,25 +136,6 @@
   }]; 
 }
 
-- (void)submitSurveyForDefinition:(PacoExperimentDefinition *)definition
-           withInputs:(NSArray*)visibleInputs
-    completionHandler:(void (^)(NSError *))completionHandler {
-  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
-                                                    withInputs:visibleInputs];
-  [self submitEvent:surveyEvent withCompletionHandler:^(NSError *error) {
-      // If submission was successful then clear the old response objects.
-      if (!error) {
-        for (PacoExperimentInput *input in definition.inputs) {
-          input.responseObject = nil;
-        }
-      }
-      if (completionHandler) {
-        completionHandler(error);
-      }
-  }];
-}
-
-
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
     withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
   // Setup our request.
