@@ -69,7 +69,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private MyConstants myConstants = GWT.create(MyConstants.class);
   
   // Visible for testing
-  protected TextBox varNameText;
+  protected MouseOverTextBoxBase varNameText;
   protected TextBox inputPromptText;
   protected ResponseViewPanel responseView;
   protected ListBox responseTypeListBox;
@@ -305,17 +305,18 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private void createVarNameColumn() {
     varNamePanel = new VerticalPanel();
     upperLinePanel.add(varNamePanel);
-    Label nameLabel = new Label(myConstants.varName() + ":");
+    Label nameLabel = new Label("* " + myConstants.varName() + ":");
     nameLabel.setStyleName("keyLabel");
     varNamePanel.add(nameLabel);
 
-    varNameText = new TextBox();
+    varNameText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     varNameText.setWidth("75px");
     if (input.getName() != null) {
       varNameText.setText(input.getName());
     }
     varNamePanel.add(varNameText);
 
+    varNameText.setMessage(myConstants.varNameSyntaxError());
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -328,38 +329,39 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   // Visible for testing
   protected void changeVarNameWithValidationAndHighlight(String varName) {
     try {    
-      removeVarNameErrorMessage();
       input.setName(varName);
-      
       ExperimentCreationPanel.setPanelHighlight(varNameText, true);
+      varNameText.disableMouseOver();
+      removeVarNameErrorMessage();
     } catch (IllegalArgumentException e) {
-      addVarNameErrorMessage();
       ExperimentCreationPanel.setPanelHighlight(varNameText, false);
+      varNameText.enableMouseOver();
+      addVarNameErrorMessage();
     }
   }
   
   private void removeVarNameErrorMessage() {
-    parent.removeVarNameErrorMessage(this);
+    parent.removeVarNameErrorMessage(this, varNameText.getMessage());
   }
   
   private void addVarNameErrorMessage() {
-    parent.addVarNameErrorMessage(this);
+    parent.addVarNameErrorMessage(this, varNameText.getMessage());
   }
   
-  public void removeLikertStepsError() {
-    parent.removeLikertScaleErrorMessage(this);
+  public void removeLikertStepsError(String message) {
+    parent.removeLikertScaleErrorMessage(this, message);
   }
   
-  public void addLikertStepsError() {
-    parent.addLikertScaleErrorMessage(this);
+  public void addLikertStepsError(String message) {
+    parent.addLikertScaleErrorMessage(this, message);
   }
   
-  public void removeFirstListChoiceError() {
-    parent.removeFirstListChoiceErrorMessage(this);
+  public void removeFirstListChoiceError(String message) {
+    parent.removeFirstListChoiceErrorMessage(this, message);
   }
 
-  public void addFirstListChoiceError() {
-    parent.addFirstListChoiceErrorMessage(this);
+  public void addFirstListChoiceError(String message) {
+    parent.addFirstListChoiceErrorMessage(this, message);
   }
 
   /*

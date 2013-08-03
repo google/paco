@@ -153,54 +153,48 @@ public class InputsListPanel extends Composite {
     }
   }
   
-  public void removeVarNameErrorMessage(InputsPanel panel) {
+  public void removeVarNameErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithVarNameErrors.remove(panel);
     if (inputsPanelsWithVarNameErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
-                         myConstants.varNameUnfilledOrHasSpacesError());
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
   
-  public void addVarNameErrorMessage(InputsPanel panel) {
+  public void addVarNameErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithVarNameErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
-                         myConstants.varNameUnfilledOrHasSpacesError());
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
     }
     if (!inputsPanelsWithVarNameErrors.contains(panel)) {
       inputsPanelsWithVarNameErrors.add(panel);
     }
   }
   
-  public void removeFirstListChoiceErrorMessage(InputsPanel panel) {
+  public void removeFirstListChoiceErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithListChoiceErrors.remove(panel);
     if (inputsPanelsWithListChoiceErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
-                         myConstants.firstListChoiceCannotBeEmpty());
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
   
-  public void addFirstListChoiceErrorMessage(InputsPanel panel) {
+  public void addFirstListChoiceErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithListChoiceErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
-                         myConstants.firstListChoiceCannotBeEmpty());
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
     }
     if (!inputsPanelsWithListChoiceErrors.contains(panel)) {
       inputsPanelsWithListChoiceErrors.add(panel);
     }
   }
   
-  public void removeLikertScaleErrorMessage(InputsPanel panel) {
+  public void removeLikertScaleErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithLikertScaleErrors.remove(panel);
     if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
-                         myConstants.likertStepsMustBeValid());
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
   
-  public void addLikertScaleErrorMessage(InputsPanel panel) {
+  public void addLikertScaleErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
-                         myConstants.likertStepsMustBeValid());
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
     }
     if (!inputsPanelsWithLikertScaleErrors.contains(panel)) {
       inputsPanelsWithLikertScaleErrors.add(panel);

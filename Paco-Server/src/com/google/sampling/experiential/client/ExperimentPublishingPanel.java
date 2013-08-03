@@ -43,7 +43,7 @@ public class ExperimentPublishingPanel extends Composite {
   protected CheckBox customFeedbackCheckBox;
   protected TextArea customFeedbackText;
   protected CheckBox publishCheckBox;
-  protected TextArea publishedUserList;
+  protected MouseOverTextBoxBase publishedUserList;
 
   public ExperimentPublishingPanel(ExperimentDAO experiment, ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -203,9 +203,10 @@ public class ExperimentPublishingPanel extends Composite {
     Label instructionLabel = new Label(myConstants.publishedEditorPrompt());
     userContentPanel.add(instructionLabel);
 
-    publishedUserList = new TextArea();
+    publishedUserList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA);
     publishedUserList.setCharacterWidth(100);
     publishedUserList.setHeight("100");
+    publishedUserList.setMessage(myConstants.publishedUsersListIsInvalid());
     publishedUserList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -220,10 +221,6 @@ public class ExperimentPublishingPanel extends Composite {
     userContentPanel.add(publishedUserList);
     publishedUsersPanel.setContent(userContentPanel);
   }
-  
-  public TextArea getPublishedUserPanel() {
-    return publishedUserList;
-  }
 
   private void setIsPublishedOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
@@ -232,13 +229,13 @@ public class ExperimentPublishingPanel extends Composite {
   private void setExperimentPublishedUsersAndHighlight(String publishedList) {
     try {
       setPublishedUsersOn(experiment, publishedList);
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, 
-                         myConstants.publishedUsersListIsInvalid());
       ExperimentCreationPanel.setPanelHighlight(publishedUserList, true);
+      publishedUserList.disableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, publishedUserList.getMessage());
     } catch (IllegalArgumentException e) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, 
-                         myConstants.publishedUsersListIsInvalid());
       ExperimentCreationPanel.setPanelHighlight(publishedUserList, false);
+      publishedUserList.enableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, publishedUserList.getMessage());
     }
   }
 

@@ -149,12 +149,12 @@ public class SignalMechanismChooserPanel extends Composite {
     return new TriggerPanel((TriggerDAO) experiment.getSignalingMechanisms()[0], this);
   }
 
-  public void addTimeoutErrorMessage() {
-    fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.timeoutMustBeValid());
+  public void addTimeoutErrorMessage(String message) {
+    fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
   }
   
-  public void removeTimeoutErrorMessage() {
-    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.timeoutMustBeValid());
+  public void removeTimeoutErrorMessage(String message) {
+    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
   }
   
   public void fireExperimentCode(int code, String message) {

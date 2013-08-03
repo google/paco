@@ -43,7 +43,7 @@ public class ListChoicePanel extends Composite {
   private HorizontalPanel horizontalPanel;
   
   // Visible for testing
-  protected TextBox textField;
+  protected MouseOverTextBoxBase textField;
 
   /**
    * @param listChoicesPanel
@@ -56,13 +56,18 @@ public class ListChoicePanel extends Composite {
     initWidget(horizontalPanel);
     horizontalPanel.setWidth("258px");
 
-    Label lblTime = new Label("Choice: ");
+    String choiceLabel = "Choice: ";
+    if (isFirstPanel()) {
+      choiceLabel = "* " + choiceLabel;
+    }
+    Label lblTime = new Label(choiceLabel);
     lblTime.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblTime);
-    lblTime.setWidth("45px");
+    lblTime.setWidth("57px");
 
-    textField = new TextBox();
+    textField = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     horizontalPanel.add(textField);
+    textField.setMessage(parent.getListChoiceErrorMessage());
     textField.addValueChangeHandler(new ValueChangeHandler<String>() {
       public void onValueChange(ValueChangeEvent<String> event) {
         setInputListChoiceAndHighlight();
@@ -93,11 +98,13 @@ public class ListChoicePanel extends Composite {
   public void setInputListChoiceAndHighlight() {
     try {
       updateChoice();
-      ensureListChoicesErrorNotFired();
       ExperimentCreationPanel.setPanelHighlight(textField, true);
+      ensureListChoicesErrorNotFired();
+      textField.disableMouseOver();
     } catch (IllegalArgumentException e) {
-      fireListChoicesError();
       ExperimentCreationPanel.setPanelHighlight(textField, false);
+      textField.enableMouseOver();
+      fireListChoicesError();
     }
   }
 
@@ -121,9 +128,6 @@ public class ListChoicePanel extends Composite {
     parent.deleteChoice(this);
   }
 
-  /**
-   * @return
-   */
   public String getChoice() {
     return textField.getText();
   }
@@ -132,8 +136,8 @@ public class ListChoicePanel extends Composite {
     textField.setText(choice);
   }
   
-  public TextBox getTextField() {
-    return textField;
+  private boolean isFirstPanel() {
+    return parent.hasNoChildren();
   }
 
 }
