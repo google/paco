@@ -14,7 +14,7 @@ import java.util.Map;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.common.base.Splitter;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
@@ -90,7 +90,7 @@ public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
           if (v1) {
             wordCounts.put(line, 1);
           } else {
-            List<String> splits = Lists.newArrayList(Splitter.on(":").trimResults().split(line));
+            List<String> splits = splitOnLastColon(line);
             String word = splits.get(0);
             if (word.equals("version")) {
               continue;
@@ -114,6 +114,17 @@ public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
       }
     }
     return wordCounts;
+  }
+
+  @VisibleForTesting
+  List<String> splitOnLastColon(String line) {
+    int lastIndexOf = line.lastIndexOf(":");
+    List<String> splits = Lists.newArrayList();
+    if (lastIndexOf != -1) {
+      splits.add(line.substring(0,lastIndexOf));
+      splits.add(line.substring(lastIndexOf + 1));
+    }
+    return splits;
   }
 
 }
