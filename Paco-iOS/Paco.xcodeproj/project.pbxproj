@@ -21,6 +21,7 @@
 		31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */; };
 		363E210817AAD028007DE3CE /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210717AAD028007DE3CE /* PacoEvent.m */; };
 		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
+		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
 		364DDB321756A8760035F18F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 364DDB311756A8760035F18F /* Default-568h@2x.png */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
@@ -169,6 +170,8 @@
 		363E210717AAD028007DE3CE /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
 		363E210917AAD05B007DE3CE /* PacoEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManager.h; sourceTree = "<group>"; };
 		363E210A17AAD05B007DE3CE /* PacoEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventManager.m; sourceTree = "<group>"; };
+		363E211117AF8420007DE3CE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		363E211217AF8420007DE3CE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		364DDB311756A8760035F18F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
@@ -436,6 +439,15 @@
 				363E210A17AAD05B007DE3CE /* PacoEventManager.m */,
 			);
 			path = events;
+			sourceTree = "<group>";
+		};
+		363E211017AF8420007DE3CE /* reachability */ = {
+			isa = PBXGroup;
+			children = (
+				363E211117AF8420007DE3CE /* Reachability.h */,
+				363E211217AF8420007DE3CE /* Reachability.m */,
+			);
+			path = reachability;
 			sourceTree = "<group>";
 		};
 		36B8EB0017568DAF004CF035 /* source */ = {
@@ -781,6 +793,7 @@
 		36B8EC1217568E33004CF035 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				363E211017AF8420007DE3CE /* reachability */,
 				36B8EC1317568E33004CF035 /* google-toolbox-for-mac */,
 				36B8EC1917568E33004CF035 /* gtm-oauth2 */,
 				36B8EC2617568E33004CF035 /* touchengine */,
@@ -1118,6 +1131,7 @@
 				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
 				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
+				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
