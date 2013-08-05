@@ -7,14 +7,22 @@ import android.test.AndroidTestCase;
 public class PersistentAutocompleteDictionaryTest extends AndroidTestCase {
 
   public void testSplitterForStorageEasyCase() {
-    assertEquals(2, new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("hello:1").size());
-    assertEqualParts("hello", "1", new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("hello:1"));
+    List<String> autocompleteEntry = new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("hello:1");
+    assertEquals(2, autocompleteEntry.size());
+    assertEqualParts("hello", "1", autocompleteEntry);
   }
 
 
   public void testSplitterForStorageWithColonInAutocompleteText() {
-    assertEquals(2, new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("hello:1").size());
-    assertEqualParts("list of stuff:one, two, three", "1", new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("list of stuff:one, two, three:1"));
+    List<String> autocompleteEntry = new PersistentAutocompleteDictionary(getContext()).splitOnLastColon("list of stuff:one, two, three:1");
+    assertEquals(2, autocompleteEntry.size());
+    assertEqualParts("list of stuff:one, two, three", "1", autocompleteEntry);
+  }
+
+  public void testSplitterForEmptyCase() throws Exception {
+    List<String> autocompletEntry = new PersistentAutocompleteDictionary(getContext()).splitOnLastColon(":1");
+    assertEquals(2, autocompletEntry.size());
+    assertEqualParts("", "1", autocompletEntry);
   }
 
   private void assertEqualParts(String expectedAutocompleteword, String expectedFrequency, List<String> splitOnLastColon) {
