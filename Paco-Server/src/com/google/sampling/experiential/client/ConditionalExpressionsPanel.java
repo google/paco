@@ -11,6 +11,8 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DisclosurePanelImages;
@@ -28,6 +30,16 @@ public class ConditionalExpressionsPanel extends Composite {
   public static final int OR_OP = 2;
   public static final String[] OPS = new String[] { "", "&&", "||" };
   public static final String[] COMPARATORS = new String[] { "==", "!=", ">", ">=", "<", "<=", "contains" };
+  
+  private static final String OP_REGEX = "(&&|\\|\\|)";
+  private static final String NAME_REGEX = "(" + InputDAO.NAME_REGEX + ")";
+  private static final String COMP_REGEX = "(==|!=|>|>=|<|<=|contains)";
+  private static final String PREDICATE_REGEX = "([0-9]+)";
+  private static final String WHITESPACE = "\\s*";
+  private static final String NO_OP_CONDITIONAL_REGEX = NAME_REGEX + WHITESPACE + COMP_REGEX + WHITESPACE + PREDICATE_REGEX;
+  private static final String OP_CONDITIONAL_REGEX = OP_REGEX + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
+  public static final String SINGLE_CONDITIONAL_REGEX = OP_REGEX + "?" + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
+  public static final String OVERALL_CONDITIONAL_REGEX = NO_OP_CONDITIONAL_REGEX + "(" + WHITESPACE + OP_CONDITIONAL_REGEX + ")*";
 
   private MyConstants myConstants;
 
@@ -70,12 +82,12 @@ public class ConditionalExpressionsPanel extends Composite {
 
     conditionDisplayTextBox = new TextBox();
     conditionDisplayTextBox.setVisibleLength(60);
-    conditionDisplayTextBox.setText(input.getConditionExpression());
+    updateTextDisplayExpression(input.getConditionExpression());
     conditionDisplayTextBox.addMouseDownHandler(parent);
     conditionDisplayTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
-        input.setConditionExpression(conditionDisplayTextBox.getText());
+        updateExpressionUsingTextPanel(conditionDisplayTextBox.getValue());
       }
     });
     textEntryPanel.add(conditionDisplayTextBox);
@@ -86,17 +98,11 @@ public class ConditionalExpressionsPanel extends Composite {
 
   private void createConditionalListDisclosurePanel() {
     conditionalListDisclosurePanel = new DisclosurePanel();
-    
-    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
-                                                                               false,
-                                                                               "<b>"
-                                                                                   + myConstants.clickToEditCondition()
-                                                                                   + "</b>");
-    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
-                                                                             true,
-                                                                             "<b>"
-                                                                                 + myConstants.clickToCloseConditionEditor()
-                                                                                 + "</b>");
+
+    final DisclosurePanelHeader closedHeaderWidget = 
+        new DisclosurePanelHeader(false,"<b>" + myConstants.clickToEditCondition() + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = 
+        new DisclosurePanelHeader(true, "<b>" + myConstants.clickToCloseConditionEditor() + "</b>");
 
     conditionalListDisclosurePanel.setHeader(closedHeaderWidget);
     conditionalListDisclosurePanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
@@ -113,19 +119,14 @@ public class ConditionalExpressionsPanel extends Composite {
     });
 
     conditionalListPanel = new VerticalPanel();
-    ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
-    conditionalListPanel.add(conditionalPanel);
-    updateConditionalPanelsLists(conditionalPanel);
-    conditionalListDisclosurePanel.setContent(conditionalListPanel);
+    createFirstPanel();
+    updateListDisplayExpression(input.getConditionExpression());
     
+    conditionalListDisclosurePanel.setContent(conditionalListPanel);
+
     mainPanel.add(conditionalListDisclosurePanel);
   }
 
-  private void updateConditionalPanelsLists(ConditionalExpressionPanel conditionalPanel) {
-    conditionPanels.add(conditionalPanel);
-    conditionalExpressions.add(conditionalPanel.constructExpression());
-  }
-  
   final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
 
   private class DisclosurePanelHeader extends HorizontalPanel {
@@ -140,28 +141,125 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   public void addConditionalPanel(ConditionalExpressionPanel conditionalExpressionPanel, int conditionalOp) {
-
     ConditionalExpressionPanel newPanel = new ConditionalExpressionPanel(this, parent, conditionalOp);
-
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
-    conditionPanels.add(index + 1, newPanel);
-    conditionalExpressions.add(index + 1, newPanel.constructExpression());
-
     int widgetIndex = conditionalListPanel.getWidgetIndex(conditionalExpressionPanel);
-    conditionalListPanel.insert(newPanel, widgetIndex + 1);
-
-    updateExpression(newPanel);
+    insertConditionalPanelIntoLists(newPanel, index, widgetIndex);
+    updateExpressionUsingListPanel(newPanel);
   }
 
-  public void updateExpression(ConditionalExpressionPanel conditionalExpressionPanel) {
+  public void updateExpressionUsingListPanel(ConditionalExpressionPanel conditionalExpressionPanel) {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
-    updateDisplayedExpression();
+    String expression = Joiner.on(" ").join(conditionalExpressions);
+    updateInputModelExpression(expression);
+    updateTextDisplayExpression(expression);
   }
 
-  private void updateDisplayedExpression() {
-    String expression = Joiner.on(" ").join(conditionalExpressions);
-    conditionDisplayTextBox.setValue(expression, true);
+  private void updateExpressionUsingTextPanel(String expression) {
+    updateInputModelExpression(expression);
+    updateListDisplayExpression(expression);
+  }
+
+  private void updateInputModelExpression(String expression) {
+    input.setConditionExpression(expression);
+  }
+
+  private void updateTextDisplayExpression(String expression) {
+    conditionDisplayTextBox.setValue(expression, false);
+  }
+
+  // TODO: clean this up with more error-checking visible to the user.
+  // TODO: callbacks to ExperimentCreationPanel when there are errors.
+  private void updateListDisplayExpression(String expression) {
+    clearConditionalPanelLists();
+    
+    // TODO: clean up duplicate call to createFirstPanel once parens are no longer ignored.
+    if (expression == null) {
+      createFirstPanel();
+      return;
+    }
+    
+    // For now, ignore parentheses. TODO: use parentheses.
+    expression = expression.replace("(", "");
+    expression = expression.replace(")", "");
+    if (expression.isEmpty() || !expression.matches(OVERALL_CONDITIONAL_REGEX)) {
+      createFirstPanel();
+      return;
+    }
+
+    RegExp pattern = RegExp.compile(SINGLE_CONDITIONAL_REGEX, "g");
+    MatchResult result = null;
+    while ((result = pattern.exec(expression)) != null) { 
+      String op = extractOperationSymbol(result);
+      String name = result.getGroup(2);
+      String comp = result.getGroup(3);
+      String val = result.getGroup(4);
+      ConditionalExpressionPanel repPanel = 
+          new ConditionalExpressionPanel(this, parent, getOperatorIndex(op), name, 
+                                         getComparatorIndex(comp), getPredicateValue(val));
+      addConditionalPanelToLists(repPanel);
+    }
+  }
+  
+  private void createFirstPanel() {
+    ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
+    addConditionalPanelToLists(conditionalPanel);
+  }
+
+  private void clearConditionalPanelLists() {
+    conditionalListPanel.clear();
+    conditionalExpressions.clear();
+    conditionPanels.clear();
+  }
+  
+  private void addConditionalPanelToLists(ConditionalExpressionPanel panel) {
+    conditionalListPanel.add(panel);
+    conditionPanels.add(panel);
+    conditionalExpressions.add(panel.constructExpression());
+  }
+  
+  private void insertConditionalPanelIntoLists(ConditionalExpressionPanel panel, 
+                                               int index, int widgetIndex) {
+    conditionPanels.add(index + 1, panel);
+    conditionalExpressions.add(index + 1, panel.constructExpression());
+    conditionalListPanel.insert(panel, widgetIndex + 1);
+  }
+
+  private int getOperatorIndex(String op) {
+    int opsIndex = 0;
+    for (int j = 0; j < OPS.length; ++j) {
+      if (OPS[j].equals(op)) {
+        opsIndex = j;
+        break;
+      }
+    }
+    return opsIndex;
+  }
+  
+  private int getComparatorIndex(String comp) {
+    int compIndex = 0;
+    for (int k = 0; k < COMPARATORS.length; ++k) {
+      if (COMPARATORS[k].equals(comp)) {
+        compIndex = k;
+        break;
+      }
+    }
+    return compIndex;
+  }
+  
+  private int getPredicateValue(String val) {
+    return Integer.parseInt(val);
+  }
+
+  private String extractOperationSymbol(MatchResult result) {
+    String op;
+    if (result.getGroup(1) != null && result.getGroup(1).length() > 0) {
+      op = result.getGroup(1);
+    } else {
+      op = OPS[NO_OP];
+    }
+    return op;
   }
 
 }

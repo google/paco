@@ -1,6 +1,5 @@
 package com.google.sampling.experiential.client;
 
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -15,18 +14,21 @@ public class PredicatePanel extends Composite {
   private TextBox predicateTextBox;
 
   private String responseType;
+  private ConditionalExpressionPanel parent;
 
-  public PredicatePanel(MouseDownHandler precedenceMouseDownHandler, ChangeHandler changeHandler) {
+  public PredicatePanel(MouseDownHandler precedenceMouseDownHandler, ConditionalExpressionPanel parent) {
+    this.parent = parent;
+    
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
 
     predicateListBox = new ListBox();
     predicateListBox.addMouseDownHandler(precedenceMouseDownHandler);
-    predicateListBox.addChangeHandler(changeHandler);
+    predicateListBox.addChangeHandler(parent);
 
     predicateTextBox = new TextBox();
     predicateTextBox.addMouseDownHandler(precedenceMouseDownHandler);
-    predicateTextBox.addChangeHandler(changeHandler);
+    predicateTextBox.addChangeHandler(parent);
 
     mainPanel.add(predicateListBox);
   }
@@ -53,7 +55,7 @@ public class PredicatePanel extends Composite {
       }
       predicateListBox.setSelectedIndex(0);
       mainPanel.add(predicateListBox);
-    } else if (responseType.equals(InputDAO.NUMBER)) {
+    } else if (responseTypeRequiresTextBox()) {
       predicateTextBox.setValue("0", true);
       mainPanel.add(predicateTextBox);
     }
@@ -65,13 +67,51 @@ public class PredicatePanel extends Composite {
   }
 
   public String getValue() {
-    if (responseType.equals(InputDAO.LIKERT) || responseType.equals(InputDAO.LIST)
-        || responseType.equals(InputDAO.LIKERT_SMILEYS)) {
+    if (responseTypeRequiresListBox()) {
       return predicateListBox.getValue(predicateListBox.getSelectedIndex());
-    } else if (responseType.equals(InputDAO.NUMBER)) {
+    } else if (responseTypeRequiresTextBox()) {
       return predicateTextBox.getValue();
     }
     return "";
+  }
+  
+  public void setValue(Integer value) {
+    if (value == null) {
+      throw new IllegalArgumentException("Predicate value cannot be null.");
+    }
+    if (responseTypeRequiresListBox()) {
+      setListBoxSelectedIndex(value);
+    } else if (responseTypeRequiresTextBox()) {
+      predicateTextBox.setValue(value.toString());
+    }
+  }
+
+  private boolean responseTypeRequiresTextBox() {
+    return responseType.equals(InputDAO.NUMBER);
+  }
+  
+  private boolean responseTypeRequiresListBox() {
+    return responseType.equals(InputDAO.LIKERT) || responseType.equals(InputDAO.LIST)
+        || responseType.equals(InputDAO.LIKERT_SMILEYS);
+  }
+
+  private void setListBoxSelectedIndex(Integer value) {
+    // Note: error-checking is done this way because ListBox objects do not throw
+    // exceptions when given an illegal index.
+    int selectedIndex = value - 1;
+    if (valueIsOutOfBounds(selectedIndex)) {
+      invalidateSelection();
+    } else {
+      predicateListBox.setSelectedIndex(selectedIndex);
+    }
+  }
+
+  private boolean valueIsOutOfBounds(Integer value) {
+    return value < 0 || value >= predicateListBox.getItemCount();
+  }
+  
+  private void invalidateSelection() {
+    parent.invalidateSelection();
   }
 
 }
