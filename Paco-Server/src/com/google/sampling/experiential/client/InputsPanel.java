@@ -199,6 +199,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
 
   private void createConditionExpressionPanel() {
     conditionalPanel = new ConditionalExpressionsPanel(input, this);
+    // conditionalPanel = new VerticalPanel();
     mainPanel.add(conditionalPanel);
     conditionalPanel.setVisible(conditionalBox.getValue());
   }
