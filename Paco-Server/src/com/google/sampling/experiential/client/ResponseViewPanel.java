@@ -88,7 +88,8 @@ public class ResponseViewPanel extends Composite {
   private void removeResponseTypeErrors() {
     if (stepsText != null) {
       parent.removeLikertStepsError(stepsText.getMessage());
-    } if (listChoicesPanel != null) {
+    } 
+    if (listChoicesPanel != null) {
       parent.removeFirstListChoiceError(listChoicesPanel.getListChoiceErrorMessage());
     }
   }
