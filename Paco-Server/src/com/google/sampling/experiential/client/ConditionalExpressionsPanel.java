@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.base.Joiner;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -13,6 +15,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DisclosurePanelImages;
@@ -30,16 +33,21 @@ public class ConditionalExpressionsPanel extends Composite {
   public static final int OR_OP = 2;
   public static final String[] OPS = new String[] { "", "&&", "||" };
   public static final String[] COMPARATORS = new String[] { "==", "!=", ">", ">=", "<", "<=", "contains" };
-  
+
   private static final String OP_REGEX = "(&&|\\|\\|)";
   private static final String NAME_REGEX = "(" + InputDAO.NAME_REGEX + ")";
   private static final String COMP_REGEX = "(==|!=|>|>=|<|<=|contains)";
   private static final String PREDICATE_REGEX = "([0-9]+)";
   private static final String WHITESPACE = "\\s*";
-  private static final String NO_OP_CONDITIONAL_REGEX = NAME_REGEX + WHITESPACE + COMP_REGEX + WHITESPACE + PREDICATE_REGEX;
+  private static final String LEFT_PARENS = "((?:\\(*" + WHITESPACE + ")*)";
+  private static final String RIGHT_PARENS = "((?:" + WHITESPACE + "\\))*)";
+  private static final String NO_OP_CONDITIONAL_REGEX = LEFT_PARENS + WHITESPACE + NAME_REGEX + WHITESPACE 
+      + COMP_REGEX + WHITESPACE + PREDICATE_REGEX + RIGHT_PARENS;
   private static final String OP_CONDITIONAL_REGEX = OP_REGEX + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
-  public static final String SINGLE_CONDITIONAL_REGEX = OP_REGEX + "?" + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
-  public static final String OVERALL_CONDITIONAL_REGEX = NO_OP_CONDITIONAL_REGEX + "(" + WHITESPACE + OP_CONDITIONAL_REGEX + ")*";
+  public static final String SINGLE_CONDITIONAL_REGEX = OP_REGEX + "?" + WHITESPACE 
+      + NO_OP_CONDITIONAL_REGEX;
+  public static final String OVERALL_CONDITIONAL_REGEX = NO_OP_CONDITIONAL_REGEX + "(" 
+      + WHITESPACE + OP_CONDITIONAL_REGEX + ")*";
 
   private MyConstants myConstants;
 
@@ -48,12 +56,14 @@ public class ConditionalExpressionsPanel extends Composite {
   private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
   private TextBox conditionDisplayTextBox;
+  private Button parenCancelButton;
 
   private InputDAO input;
   private InputsPanel parent;
 
   private List<ConditionalExpressionPanel> conditionPanels;
   private List<String> conditionalExpressions;
+  private ConditionalExpressionPanel unbalancedParenPanel;
 
   public ConditionalExpressionsPanel(InputDAO input, InputsPanel parent) {
     super();
@@ -70,6 +80,7 @@ public class ConditionalExpressionsPanel extends Composite {
   private void createPanel() {
     createTextEntryPanel();
     createConditionalListDisclosurePanel();
+    createParenCancelButton();
   }
 
   private void createTextEntryPanel() {
@@ -119,9 +130,9 @@ public class ConditionalExpressionsPanel extends Composite {
     });
 
     conditionalListPanel = new VerticalPanel();
-    createFirstPanel();
+    createLonePanel();
     updateListDisplayExpression(input.getConditionExpression());
-    
+
     conditionalListDisclosurePanel.setContent(conditionalListPanel);
 
     mainPanel.add(conditionalListDisclosurePanel);
@@ -134,6 +145,42 @@ public class ConditionalExpressionsPanel extends Composite {
       add(isOpen ? images.disclosurePanelOpen().createImage() : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
+  }
+
+  private void createParenCancelButton() {
+    parenCancelButton = new Button(myConstants.cancel());
+    parenCancelButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        if (unbalancedParenPanel != null) {
+          switch (unbalancedParenPanel.getParenBalancingMode()) {
+          case ConditionalExpressionPanel.JUST_ADDED_LEFT_PAREN:
+            unbalancedParenPanel.decreaseLeftParensWithUpdate();
+            break;
+          case ConditionalExpressionPanel.JUST_ADDED_RIGHT_PAREN:
+            unbalancedParenPanel.decreaseRightParensWithUpdate();
+            break;
+          case ConditionalExpressionPanel.JUST_DELETED_LEFT_PAREN:
+            unbalancedParenPanel.increaseLeftParensWithUpdate();
+            break;
+          case ConditionalExpressionPanel.JUST_DELETED_RIGHT_PAREN:
+            unbalancedParenPanel.increaseRightParensWithUpdate();
+            break;
+          default:
+            break;
+          }
+        }
+        restoreOverallNormalMode();
+      }
+    });
+  }
+
+  private void addParenCancelButton() {
+    mainPanel.add(parenCancelButton);
+  }
+
+  private void removeParenCancelButton() {
+    mainPanel.remove(parenCancelButton);
   }
 
   public List<InputDAO> getPrecedingInputsWithVarName(String varName) {
@@ -170,39 +217,38 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   // TODO: clean this up with more error-checking visible to the user.
-  // TODO: callbacks to ExperimentCreationPanel when there are errors.
   private void updateListDisplayExpression(String expression) {
     clearConditionalPanelLists();
-    
-    // TODO: clean up duplicate call to createFirstPanel once parens are no longer ignored.
-    if (expression == null) {
-      createFirstPanel();
-      return;
-    }
-    
-    // For now, ignore parentheses. TODO: use parentheses.
-    expression = expression.replace("(", "");
-    expression = expression.replace(")", "");
-    if (expression.isEmpty() || !expression.matches(OVERALL_CONDITIONAL_REGEX)) {
-      createFirstPanel();
+
+    // TODO: callbacks to ExperimentCreationPanel when there are errors.
+    // TODO: check for unbalanced parentheses errors.
+    if (expression == null || expression.isEmpty() || !expression.matches(OVERALL_CONDITIONAL_REGEX)) {
+      createLonePanel();
       return;
     }
 
     RegExp pattern = RegExp.compile(SINGLE_CONDITIONAL_REGEX, "g");
     MatchResult result = null;
-    while ((result = pattern.exec(expression)) != null) { 
-      String op = extractOperationSymbol(result);
-      String name = result.getGroup(2);
-      String comp = result.getGroup(3);
-      String val = result.getGroup(4);
+    while ((result = pattern.exec(expression)) != null) {
+      String op = extractOperationSymbol(result, 1);
+      String leftParens =  result.getGroup(2);
+      String name = result.getGroup(3);
+      String comp = result.getGroup(4);
+      String val = result.getGroup(5);
+      String rightParens = result.getGroup(6);
       ConditionalExpressionPanel repPanel = 
           new ConditionalExpressionPanel(this, parent, getOperatorIndex(op), name, 
-                                         getComparatorIndex(comp), getPredicateValue(val));
+                                         getComparatorIndex(comp), getPredicateValue(val),
+                                         getNumParens(leftParens), getNumParens(rightParens));
       addConditionalPanelToLists(repPanel);
     }
   }
-  
-  private void createFirstPanel() {
+
+  private int getNumParens(String parenString) {
+    return parenString.replaceAll(WHITESPACE, "").length();
+  }
+
+  private void createLonePanel() {
     ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
     addConditionalPanelToLists(conditionalPanel);
   }
@@ -212,13 +258,13 @@ public class ConditionalExpressionsPanel extends Composite {
     conditionalExpressions.clear();
     conditionPanels.clear();
   }
-  
+
   private void addConditionalPanelToLists(ConditionalExpressionPanel panel) {
     conditionalListPanel.add(panel);
     conditionPanels.add(panel);
     conditionalExpressions.add(panel.constructExpression());
   }
-  
+
   private void insertConditionalPanelIntoLists(ConditionalExpressionPanel panel, 
                                                int index, int widgetIndex) {
     conditionPanels.add(index + 1, panel);
@@ -236,7 +282,7 @@ public class ConditionalExpressionsPanel extends Composite {
     }
     return opsIndex;
   }
-  
+
   private int getComparatorIndex(String comp) {
     int compIndex = 0;
     for (int k = 0; k < COMPARATORS.length; ++k) {
@@ -247,19 +293,83 @@ public class ConditionalExpressionsPanel extends Composite {
     }
     return compIndex;
   }
-  
+
   private int getPredicateValue(String val) {
     return Integer.parseInt(val);
   }
 
-  private String extractOperationSymbol(MatchResult result) {
+  private String extractOperationSymbol(MatchResult result, int captureGroupNum) {
     String op;
-    if (result.getGroup(1) != null && result.getGroup(1).length() > 0) {
+    if (result.getGroup(captureGroupNum) != null && result.getGroup(captureGroupNum).length() > 0) {
       op = result.getGroup(1);
     } else {
       op = OPS[NO_OP];
     }
     return op;
+  }
+
+  public void enableAddRightParenMode(ConditionalExpressionPanel sender) {
+    enableUnbalancedParenMode(sender);
+    boolean isAfterSender = false;
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      if (panel.equals(sender)) {
+        isAfterSender = true;
+      }
+      if (isAfterSender) {
+        panel.enableAddRightParenMode();
+      }
+    }
+  }
+
+  public void enableAddLeftParenMode(ConditionalExpressionPanel sender) {
+    enableUnbalancedParenMode(sender);
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.enableAddLeftParenMode();
+      if (panel.equals(sender)) {
+        break;
+      }
+    }
+  }
+
+  public void enableDeleteRightParenMode(ConditionalExpressionPanel sender) {
+    enableUnbalancedParenMode(sender);
+    boolean isAfterSender = false;
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      if (panel.equals(sender)) {
+        isAfterSender = true;
+      }
+      if (isAfterSender) {
+        panel.enableDeleteRightParenMode();
+      }
+    }
+  }
+
+  public void enableDeleteLeftParenMode(ConditionalExpressionPanel sender) {
+    enableUnbalancedParenMode(sender);
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.enableDeleteLeftParenMode();
+      if (panel.equals(sender)) {
+        break;
+      }
+    }
+  }
+
+  public void restoreOverallNormalMode() {
+    disableUnbalancedParenMode();
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.enableNormalMode();
+    }
+  }
+  
+  private void enableUnbalancedParenMode(ConditionalExpressionPanel sender) {
+    unbalancedParenPanel = sender;
+    addParenCancelButton();
+  }
+
+  private void disableUnbalancedParenMode() {
+    unbalancedParenPanel.setParenBalancingMode(ConditionalExpressionPanel.NEUTRAL_PAREN_MODE);
+    unbalancedParenPanel = null;
+    removeParenCancelButton();
   }
 
 }
