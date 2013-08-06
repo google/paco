@@ -73,9 +73,6 @@ NSString *kCellIdQuestion = @"question";
   //clear all inputs' submitted responseObject for the definition 
   [self.experiment.definition clearInputs];
   
-  //submit this event to server
-  [[PacoClient sharedInstance].service submitEvent:surveyEvent withCompletionHandler:nil];
-
   NSString* title = @"Nice";
   NSString* message = @"Your survey was successfully submitted!";  
   [PacoAlertView showAlertWithTitle:title

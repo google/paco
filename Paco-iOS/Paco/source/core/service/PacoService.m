@@ -102,38 +102,46 @@
   }];
 }
 
-- (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler {
+
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSError*))completionBlock {
+  NSAssert([eventList count] > 0, @"eventList should have more than one item!");
+  
   // Setup our request.
   NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoClient sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
+  [NSMutableURLRequest requestWithURL:url
+                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                      timeoutInterval:120];
   [request setHTTPMethod:@"POST"];
-
+  
   // Serialize to JSON for the request body.
-  NSError *jsonError = nil;
-  id jsonObject = [event generateJsonObject];
+  NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
+  for (PacoEvent* event in eventList) {
+    id jsonObject = [event generateJsonObject];
+    NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
+    [body addObject:jsonObject];
+  }
   
   //YMZ:TODO: error handling here
+  NSError *jsonError = nil;
   NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:jsonObject
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&jsonError];
+  [NSJSONSerialization dataWithJSONObject:body
+                                  options:NSJSONWritingPrettyPrinted
+                                    error:&jsonError];
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]
-      forHTTPHeaderField:@"Content-Length"];
+ forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
-
+  
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
-                     NSLog(@"JOIN RESPONSE = %@", jsonData);
-      if (completionHandler) {
-        completionHandler(error);
-      }
-  }]; 
+               NSLog(@"JOIN RESPONSE = %@", jsonData);
+               if (completionBlock) {
+                 completionBlock(error);
+               }
+             }];
 }
 
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment

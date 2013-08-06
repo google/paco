@@ -25,6 +25,7 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
+#import "PacoEventUploader.h"
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
@@ -63,7 +64,7 @@
 - (void)onJoin {
   //create a join event and save it to cache
   PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:self.experiment withSchedule:nil];
-  [[PacoEventManager sharedInstance] saveEvent:joinEvent];
+  [[PacoEventManager sharedInstance] saveEvent:joinEvent];  
   
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [[PacoClient sharedInstance].model
@@ -73,9 +74,6 @@
   
   //start scheduling notifications for this joined experiment
   [[PacoClient sharedInstance].scheduler registerScheduleWithOS:experiment];
-
-  //submit this event to server
-  [[PacoClient sharedInstance].service submitEvent:joinEvent withCompletionHandler:nil];
   
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";

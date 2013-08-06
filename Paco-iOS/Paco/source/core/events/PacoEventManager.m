@@ -15,16 +15,19 @@
 
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
+#import "PacoEventUploader.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
 
-@interface PacoEventManager ()
+@interface PacoEventManager () <PacoEventUploaderDelegate>
 //array of PacoEvent
 @property(atomic, strong) NSMutableArray* pendingEvents;
 //dictionary: key is experiment's instanceId, value is an array of events, ordered by responseTime,
 //the first event in this array is the oldest
 @property(atomic, strong) NSMutableDictionary* eventsDict;
+
+@property(atomic, strong) PacoEventUploader* uploader;
 
 @end
 
@@ -38,6 +41,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     manager = [[PacoEventManager alloc] init];
   });
   return manager;
+}
+
+- (id)init {
+  self = [super init];
+  if (self) {
+    _uploader = [PacoEventUploader uploaderWithDelegate:self];
+  }
+  return self;
 }
 
 #pragma mark Private methods
@@ -197,6 +208,39 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 
+#pragma mark PacoEventUploaderDelegate 
+- (NSArray*)currentPendingEvents {
+  @synchronized(self) {
+    [self fetchPendingEventsIfNecessary];
+    
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
+    for (PacoEvent* event in self.pendingEvents) {
+      [result addObject:event];
+    }
+    return result;
+  }
+}
+
+- (void)markEventsComplete:(NSArray*)events {
+  if (0 == [events count]) {
+    NSLog(@"[WARNING]: events list should not be empty!");
+    return;
+  }
+  
+  @synchronized(self) {
+    NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
+    for (PacoEvent* event in events) {
+      int index = [self.pendingEvents indexOfObject:event];
+      if (index == NSNotFound) {
+        NSLog(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
+      }
+      [self.pendingEvents removeObject:event];
+    }
+  }
+}
+
+
+
 #pragma mark Public API
 - (void)saveEvent:(PacoEvent*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
@@ -212,23 +256,21 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   }
   [events addObject:event];
   [self.eventsDict setObject:events forKey:event.experimentId];
-
-  //YMZ:TODO: start synch service
-}
-
-- (void)markEventComplete:(PacoEvent*)event {
-  NSAssert(self.pendingEvents != nil, @"pending events should have already loaded");
-  [self.pendingEvents removeObject:event];
-}
-
-- (NSArray*)currentPendingEvents {
+  
+  //add this event to pendingEvent list too
   [self fetchPendingEventsIfNecessary];
-  return self.pendingEvents;
+  [self.pendingEvents addObject:event];
+  
+  //submit this event to server
+  [[PacoEventManager sharedInstance].uploader startUploading];
 }
 
 - (void)saveDataToFile {
   [self savePendingEventsToFile];
   [self saveAllEventsToFile];
 }
+
+
+
 
 @end

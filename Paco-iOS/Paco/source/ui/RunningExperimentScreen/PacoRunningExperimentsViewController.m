@@ -163,9 +163,6 @@
   PacoEvent* event = [PacoEvent stopEventForExperiment:self.selectedExperiment];
   [[PacoEventManager sharedInstance] saveEvent:event];
   
-  //submit this stop event to server
-  [[PacoClient sharedInstance].service submitEvent:event withCompletionHandler:nil];
-
   NSString* title = @"Success";
   NSString* message = @"The experiment was stopped.";
   [PacoAlertView showAlertWithTitle:title

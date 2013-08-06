@@ -15,24 +15,18 @@
 
 #import <Foundation/Foundation.h>
 
-@class PacoEvent;
-@class PacoEventUploader;
+@protocol PacoEventUploaderDelegate <NSObject>
+@required
+- (NSArray*)currentPendingEvents;
+- (void)markEventsComplete:(NSArray*)events;
 
-//YMZ:TODO: fully testing
-//YMZ:TODO: thread safe
-//YMZ:TODO: use async design
-//YMZ:TODO: use core data
-//YMZ:TODO: error handling of file operation
-@interface PacoEventManager : NSObject
+@end
 
+@interface PacoEventUploader : NSObject
+@property(nonatomic, weak) id<PacoEventUploaderDelegate> delegate;
 
-@property(atomic, strong, readonly) PacoEventUploader* uploader;
-
-+ (PacoEventManager*)sharedInstance;
-
-- (void)saveEvent:(PacoEvent*)event;
-
-- (void)saveDataToFile;
++ (PacoEventUploader*)uploaderWithDelegate:(id<PacoEventUploaderDelegate>)delegate;
+- (void)startUploading;
 
 
 @end

@@ -31,7 +31,7 @@
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
           withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
-// Submit an event to the server.
-- (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler;
+// Batch submit a list of events
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSError*))completionBlock;
 
 @end
