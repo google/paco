@@ -1,8 +1,6 @@
 /**
- * @author Priya Donti
  * A limited wrapper class for a DatePicker, with added mouse-over functionality. 
  * Code adapted from: https://groups.google.com/forum/#!topic/google-web-toolkit/-I3l577JRB8
- *
  */
 package com.google.sampling.experiential.client;
 
@@ -30,7 +28,7 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
   private FlowPanel mainPanel;
   private DateBox dateBox;
   private HTML mouseOverText;
-  private boolean shouldShowMouseOver;
+  private boolean mouseOverIsEnabled;
 
   public MouseOverDateBox() {
     FocusPanel container = new FocusPanel();
@@ -59,9 +57,9 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
     setShouldShowMouseOver(false);
   }
   
-  private void setShouldShowMouseOver(boolean shouldShowMouseOver) {
-    this.shouldShowMouseOver = shouldShowMouseOver;
-    if (!shouldShowMouseOver) {
+  private void setShouldShowMouseOver(boolean mouseOverIsEnabled) {
+    this.mouseOverIsEnabled = mouseOverIsEnabled;
+    if (!mouseOverIsEnabled) {
       mouseOverText.setVisible(false);
     }
   }
@@ -104,14 +102,14 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
   
   @Override
   public void onMouseOver(MouseOverEvent event) {
-    if (shouldShowMouseOver) {
+    if (mouseOverIsEnabled) {
       mouseOverText.setVisible(true);
     }
   }
 
   @Override
   public void onMouseOut(MouseOutEvent event) {
-    if (shouldShowMouseOver) {
+    if (mouseOverIsEnabled) {
       mouseOverText.setVisible(false);
     }
   }

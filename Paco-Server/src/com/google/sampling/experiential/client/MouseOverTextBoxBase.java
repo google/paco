@@ -1,6 +1,5 @@
 
 /**
- * @author Priya Donti 
  * A limited wrapper class for a TextBoxBase (specifically TextArea or TextBox), 
  * with added mouse-over functionality. 
  * Code adapted from: https://groups.google.com/forum/#!topic/google-web-toolkit/-I3l577JRB8
@@ -95,7 +94,7 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   }
 
   public void setEnabled(boolean isEnabled) {
-    textBox.setEnabled(true);
+    textBox.setEnabled(isEnabled);
   }
   
   public void setMessage(String message) {
