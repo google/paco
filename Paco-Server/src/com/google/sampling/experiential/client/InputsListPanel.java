@@ -319,7 +319,7 @@ public class InputsListPanel extends Composite {
     for (InputDAO input : experiment.getInputs()) {
       if (input.equals(stopInput)) {
         break;
-      } else if (input.getName().equals(varName)) {
+      } else if (input.getName() != null && input.getName().equals(varName)) {
         varNameInputs.add(input);
       }
     }
