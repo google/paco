@@ -56,8 +56,8 @@ public class DurationView extends Composite {
   private String endDate;
   private RadioButton radio1;
   private RadioButton radio2;
-  private DateBox endBox;
   private DateBox startBox;
+  private MouseOverDateBox endBox;
   private MyConstants myConstants;
 
   private ExperimentDAO experiment;
@@ -138,10 +138,11 @@ public class DurationView extends Composite {
 
     VerticalPanel endPanel = new VerticalPanel();
     datePanel.add(endPanel);
-    endBox = new DateBox();
+    endBox = new MouseOverDateBox();
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     endBox.setValue(FORMATTER.parse(endDate));
     experiment.setEndDate(endDate);
+    endBox.setMessage(myConstants.startEndDateError());
     endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
@@ -204,16 +205,22 @@ public class DurationView extends Composite {
   private void setDurationViewEndDateAndHighlight(Date date) {
     try {
       experiment.setEndDate(FORMATTER.format(date)); 
-      ensureStartEndDateErrorNotFired();
       ExperimentCreationPanel.setPanelHighlight(endBox, true);
+      endBox.disableMouseOver();
+      ensureStartEndDateErrorNotFired();
     } catch (IllegalArgumentException e) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.startEndDateError());
       ExperimentCreationPanel.setPanelHighlight(endBox, false);
+      endBox.enableMouseOver();
+      fireStartEndDateError();
     }
   }
   
   private void ensureStartEndDateErrorNotFired() {
-    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.startEndDateError());
+    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, endBox.getMessage());
+  }
+  
+  private void fireStartEndDateError() {
+    fireExperimentCode(ExperimentCreationListener.ADD_ERROR, endBox.getMessage());
   }
 
   private void setDatePanelFixedDuration(boolean isFixedDuration) {

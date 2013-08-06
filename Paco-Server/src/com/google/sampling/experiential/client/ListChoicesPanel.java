@@ -20,6 +20,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.LinkedList;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownHandler;
@@ -37,7 +38,9 @@ import com.google.paco.shared.model.InputDAO;
  *
  */
 public class ListChoicesPanel extends Composite {
-
+  private MyConstants myConstants;
+  private String listChoiceErrorMessage;
+  
   private InputDAO input;
   private VerticalPanel mainPanel;
 
@@ -49,6 +52,8 @@ public class ListChoicesPanel extends Composite {
 
   public ListChoicesPanel(final InputDAO input, MouseDownHandler textFieldMouseDownHandler,
                           ResponseViewPanel parent) {
+    myConstants = GWT.create(MyConstants.class);
+    this.listChoiceErrorMessage = myConstants.firstListChoiceCannotBeEmpty();
     this.input = input;
     this.textFieldMouseDownHandler = textFieldMouseDownHandler;
     this.parent = parent;
@@ -144,11 +149,19 @@ public class ListChoicesPanel extends Composite {
   }
 
   public void addFirstListChoiceError() {
-    parent.addFirstListChoiceError();
+    parent.addFirstListChoiceError(listChoiceErrorMessage);
   }
 
   public void removeFirstListChoiceError() {
-    parent.removeFirstListChoiceError();
+    parent.removeFirstListChoiceError(listChoiceErrorMessage);
+  }
+  
+  protected String getListChoiceErrorMessage() {
+    return listChoiceErrorMessage;
+  }
+  
+  protected boolean hasNoChildren() {
+    return choicePanelsList.isEmpty();
   }
 
 }

@@ -6,6 +6,10 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.MouseOverEvent;
+import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -17,6 +21,8 @@ import com.google.gwt.user.client.ui.DisclosureEvent;
 import com.google.gwt.user.client.ui.DisclosureHandler;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DisclosurePanelImages;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -38,11 +44,11 @@ public class ExperimentDescriptionPanel extends Composite {
   private VerticalPanel formPanel;
   
   // Visible for testing
-  protected TextBox titlePanel;
+  protected MouseOverTextBoxBase titlePanel;
   protected TextArea descriptionPanel;
   protected DurationView durationPanel;
   protected TextArea informedConsentPanel;
-  protected TextArea adminList;
+  protected MouseOverTextBoxBase adminList;
 
   public ExperimentDescriptionPanel(ExperimentDAO experiment, LoginInfo loginInfo,
                                     ExperimentCreationListener listener) {
@@ -65,7 +71,8 @@ public class ExperimentDescriptionPanel extends Composite {
     formPanel.add(lblExperimentDefinition);
 
     PanelPair titlePanelPair = createTitlePanel();
-    titlePanel = (TextBox) titlePanelPair.valueHolder;
+    titlePanel = (MouseOverTextBoxBase) titlePanelPair.valueHolder;
+    titlePanel.setMessage(myConstants.titleIsRequired());
     titlePanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -110,11 +117,13 @@ public class ExperimentDescriptionPanel extends Composite {
   private void setExperimentTitleWithValidation(String newTitle) {
     try {
       experiment.setTitle(newTitle);
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.titleIsRequired());
       ExperimentCreationPanel.setPanelHighlight(titlePanel, true);
+      titlePanel.disableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, titlePanel.getMessage());
     } catch (IllegalArgumentException e) {
       ExperimentCreationPanel.setPanelHighlight(titlePanel, false);
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.titleIsRequired());
+      titlePanel.enableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, titlePanel.getMessage());
     }
   }
   
@@ -126,12 +135,12 @@ public class ExperimentDescriptionPanel extends Composite {
     setExperimentTitleWithValidation(titlePanel.getText());
   }
   
-  public TextBox getTitleTextPanel() {
-    return titlePanel;
-  }
+//  public ControlledTextBox getTitleTextPanel() {
+//    return titlePanel;
+//  }
 
   private PanelPair createTitlePanel() {
-    return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
+    return createFormLine("* " + myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
   }
 
   private PanelPair createIdPanel() {
@@ -187,7 +196,7 @@ public class ExperimentDescriptionPanel extends Composite {
     Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);
 
-    adminList = new TextArea();
+    adminList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA);
     adminList.setCharacterWidth(100);
     adminList.setHeight("100");
     String[] adminStrArray = experiment.getAdmins();
@@ -201,6 +210,7 @@ public class ExperimentDescriptionPanel extends Composite {
     adminList.setText(toCSVString(admins));
     adminContentPanel.add(adminList);
     adminPanel.setContent(adminContentPanel);
+    adminList.setMessage(myConstants.adminsListIsInvalid());
     adminList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -214,16 +224,14 @@ public class ExperimentDescriptionPanel extends Composite {
   private void setExperimentAdminsAndHighlight(String adminsList) {
     try {
       setAdminsOn(experiment, adminsList);
-      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, myConstants.adminsListIsInvalid());
       ExperimentCreationPanel.setPanelHighlight(adminList, true);
+      adminList.disableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, adminList.getMessage());
     } catch (IllegalArgumentException e) {
-      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, myConstants.adminsListIsInvalid());
       ExperimentCreationPanel.setPanelHighlight(adminList, false);
+      adminList.enableMouseOver();
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, adminList.getMessage());
     }
-  }
-  
-  public TextArea getAdminListPanel() {
-    return adminList;
   }
 
   private void setAdminsOn(ExperimentDAO experiment, String adminsText) {
@@ -246,12 +254,12 @@ public class ExperimentDescriptionPanel extends Composite {
     return durationPanel;
   }
 
-  private PanelPair createFormLine(String key, String value, String styleName) {
+  private PanelPair createFormLine(String key, String value, String labelStyleName) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
-    keyLabel.setStyleName(styleName == null ? "keyLabel" : styleName);
-    TextBox valueBox = new TextBox();
+    keyLabel.setStyleName(labelStyleName == null ? "keyLabel" : labelStyleName);
+    MouseOverTextBoxBase valueBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     if (value != null) {
       valueBox.setText(value);
     }
