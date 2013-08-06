@@ -165,7 +165,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
     NSMutableArray* pendingEvents = [NSMutableArray array];
     if (events != nil) {
-      pendingEvents = [self deserializedEvents:pendingEvents];
+      pendingEvents = [self deserializedEvents:events];
     }
     self.pendingEvents = pendingEvents;
   }
@@ -236,6 +236,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       }
       [self.pendingEvents removeObject:event];
     }
+    
+    NSLog(@"[Mark Complete] %d events! ", [events count]);
+    NSLog(@"[Pending Events] %d.", [self.pendingEvents count]);
   }
 }
 

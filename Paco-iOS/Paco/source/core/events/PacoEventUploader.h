@@ -27,6 +27,7 @@
 
 + (PacoEventUploader*)uploaderWithDelegate:(id<PacoEventUploaderDelegate>)delegate;
 - (void)startUploading;
+- (void)stopUploading;
 
 
 @end

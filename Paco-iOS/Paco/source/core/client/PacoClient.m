@@ -23,6 +23,8 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoEvent.h"
 #import "Reachability.h"
+#import "PacoEventManager.h"
+#import "PacoEventUploader.h"
 
 
 static NSString* const kUserEmail = @"PacoClient.userEmail";
@@ -170,6 +172,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       
                                       // Fetch the experiment definitions and the events of joined experiments.
                                       [self prefetch];
+                                      
+                                      [self uploadPendingEventsInBackground];
+                                      
                                       completionHandler(nil);
                                     } else {
                                       completionHandler(error);
@@ -196,6 +201,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
       }
     }];
   }
+}
+
+- (void)uploadPendingEventsInBackground {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [[PacoEventManager sharedInstance].uploader startUploading];
+  });
 }
 
 - (BOOL)prefetchedDefinitions

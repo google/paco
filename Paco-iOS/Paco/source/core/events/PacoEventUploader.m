@@ -88,13 +88,6 @@
   }
 }
 
-- (void)stopUploading {
-  @synchronized(self) {
-    self.isWorking = NO;
-    [self stopObserveReachability];
-  }
-}
-
 - (BOOL)isOfflineError:(NSError*)error {
   if (error == nil) {
     return NO;
@@ -117,6 +110,18 @@
       if (error != nil && [self isOfflineError:error]) {
         [self startObserveReachability];
         return;
+      }
+      
+      //authentication error
+      
+      //server 500 error
+      
+      //client 400 error
+      
+      if (error == nil) {
+        NSLog(@"%d events successfully uploaded!", [pendingEvents count]);
+      }else {
+        NSLog(@"Failed to upload %d events! Error: %@", [pendingEvents count], [error description]);
       }
       
       [self stopUploading];
@@ -145,5 +150,15 @@
     [self uploadEvents];
   }
 }
+
+
+- (void)stopUploading {
+  @synchronized(self) {
+    self.isWorking = NO;
+    [self stopObserveReachability];
+  }
+}
+
+
 
 @end
