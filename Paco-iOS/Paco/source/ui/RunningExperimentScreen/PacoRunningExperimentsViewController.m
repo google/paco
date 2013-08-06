@@ -161,6 +161,7 @@
 
   //create a stop event and save it to cache through PacoEventManager
   PacoEvent* event = [PacoEvent stopEventForExperiment:self.selectedExperiment];
+  //YMZ:TODO: should we remove all the events for a stopped experiment?
   [[PacoEventManager sharedInstance] saveEvent:event];
   
   NSString* title = @"Success";

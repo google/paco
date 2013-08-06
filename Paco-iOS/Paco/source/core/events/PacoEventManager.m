@@ -209,16 +209,21 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark PacoEventUploaderDelegate 
-- (NSArray*)currentPendingEvents {
+- (BOOL)hasPendingEvents {
+  @synchronized(self) {
+    [self fetchPendingEventsIfNecessary];
+    return [self.pendingEvents count] > 0;
+  }
+}
+
+- (NSArray*)eventsUptoMaxNumber:(NSUInteger)maxNum {
   @synchronized(self) {
     [self fetchPendingEventsIfNecessary];
     
-    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
-    for (PacoEvent* event in self.pendingEvents) {
-      [result addObject:event];
-    }
+    int num = MIN(maxNum, [self.pendingEvents count]);
+    NSArray* result = [self.pendingEvents subarrayWithRange:NSMakeRange(0, num)];
     return result;
-  }
+  }  
 }
 
 - (void)markEventsComplete:(NSArray*)events {

@@ -17,9 +17,9 @@
 
 @protocol PacoEventUploaderDelegate <NSObject>
 @required
-- (NSArray*)currentPendingEvents;
+- (NSArray*)eventsUptoMaxNumber:(NSUInteger)maxNum;
 - (void)markEventsComplete:(NSArray*)events;
-
+- (BOOL)hasPendingEvents;
 @end
 
 @interface PacoEventUploader : NSObject

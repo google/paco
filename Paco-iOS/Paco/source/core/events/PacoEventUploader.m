@@ -18,6 +18,8 @@
 #import "PacoClient.h"
 #import "PacoService.h"
 
+static int const kMaxNumOfEventsToUpload = 50;
+
 @interface PacoEventUploader ()
 
 @property(atomic, assign) BOOL isWorking;
@@ -75,7 +77,7 @@
 
 - (void)uploadEvents {
   @synchronized(self) {
-    NSArray* pendingEvents = [self.delegate currentPendingEvents];
+    NSArray* pendingEvents = [self.delegate eventsUptoMaxNumber:kMaxNumOfEventsToUpload];
     NSAssert([pendingEvents count] > 0, @"there should be pending events!");
     
     self.isWorking = YES;
@@ -107,27 +109,36 @@
   void(^completionBlock)(NSError*) = ^(NSError* error){
     //Since this block is fired on main thread, send it to a background thread
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      if (error != nil && [self isOfflineError:error]) {
-        [self startObserveReachability];
-        return;
-      }
-      
-      //authentication error
-      
-      //server 500 error
-      
-      //client 400 error
-      
       if (error == nil) {
         NSLog(@"%d events successfully uploaded!", [pendingEvents count]);
-      }else {
-        NSLog(@"Failed to upload %d events! Error: %@", [pendingEvents count], [error description]);
+        
+        [self.delegate markEventsComplete:pendingEvents];        
+                
+        if (![self.delegate hasPendingEvents]) {
+          NSLog(@"All pending events uploaded!");
+          [self stopUploading];
+        } else {
+          NSLog(@"Continue uploading...");
+          [self uploadEvents];
+        }
+      } else {
+        if ([self isOfflineError:error]) {
+          [self startObserveReachability];
+        } else {
+          [self stopUploading];
+          
+          NSLog(@"Failed to upload %d events! Error: %@", [pendingEvents count], [error description]);
+          NSLog(@"Stop uploading because of error!");
+          
+          //TODO: other proper error handling
+          
+          //authentication error
+          
+          //server 500 error
+          
+          //client 400 error
+        }
       }
-      
-      [self stopUploading];
-      
-      //TODO: other proper error handling
-      [self.delegate markEventsComplete:pendingEvents];
     });
   };
   
@@ -143,8 +154,7 @@
       return;
     }
     
-    NSArray* pendingEvents = [self.delegate currentPendingEvents];
-    if (0 == [pendingEvents count]) {
+    if (![self.delegate hasPendingEvents]) {
       return;
     }
     [self uploadEvents];
