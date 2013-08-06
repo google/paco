@@ -23,19 +23,37 @@
 #import "PacoQuestionScreenViewController.h"
 #import "PacoScheduler.h"
 #import "PacoLocation.h"
+#import "JCNotificationCenter.h"
+#import "JCNotificationBannerPresenterIOSStyle.h"
 
 @implementation PacoAppDelegate
 
-// this method will fire at the point that
+// this method will fire if the App is in UIApplicationStateActive state, not UIApplicationStateBackground
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+//  [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+  
   if (notification) {
-    [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-    NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-    questions.experiment = experiment;
-    [self.viewController.navigationController pushViewController:questions animated:YES];
+      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOSStyle new];
+    
+    
+    NSString* title = @"Push Notification";
+    NSString* alert = @"Hello world";
+    [JCNotificationCenter
+     enqueueNotificationWithTitle:title
+     message:alert
+     tapHandler:^{
+       NSLog(@"Received tap on notification banner!");
+     }];
   }
+  
+//  if (notification) {
+//    [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+//    NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+//    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+//    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+//    questions.experiment = experiment;
+//    [self.viewController.navigationController pushViewController:questions animated:YES];
+//  }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
