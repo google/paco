@@ -11,6 +11,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
@@ -376,9 +377,9 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
-    TextBox firstInputFirstListChoice = 
+    MouseOverTextBoxBase firstInputFirstListChoice = 
         firstInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
-    TextBox thirdInputFirstListChoice = 
+    MouseOverTextBoxBase thirdInputFirstListChoice = 
         thirdInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
 
     // Set valid list choice for first list panel. Fire events.
@@ -416,8 +417,8 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
-    TextBox firstInputLikertSteps = firstInputsPanel.responseView.stepsText;
-    TextBox thirdInputLikertSteps = thirdInputsPanel.responseView.stepsText;
+    TextBoxBase firstInputLikertSteps = firstInputsPanel.responseView.stepsText.textBox;
+    TextBoxBase thirdInputLikertSteps = thirdInputsPanel.responseView.stepsText.textBox;
 
     // Set invalid likert steps for both. Fire events.
     firstInputLikertSteps.setValue(NAME_WITH_SPACES);
@@ -444,12 +445,12 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     // Get inputs panel and some child widgets.
     InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
-    TextBox firstInputLikertSteps = firstInputsPanel.responseView.stepsText;
+    MouseOverTextBoxBase firstInputLikertSteps = firstInputsPanel.responseView.stepsText;
     ListBox responseTypeListBox = firstInputsPanel.responseTypeListBox;
 
     // Invalidate inputs panel (likert error).
     firstInputLikertSteps.setValue(NAME_WITH_SPACES);
-    DomEvent.fireNativeEvent(Document.get().createChangeEvent(), firstInputLikertSteps);
+    DomEvent.fireNativeEvent(Document.get().createChangeEvent(), firstInputLikertSteps.textBox);
     assertFalse(experimentCreationPanel.canSubmit());
 
     // Switch input type.

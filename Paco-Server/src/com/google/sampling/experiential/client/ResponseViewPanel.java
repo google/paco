@@ -18,6 +18,7 @@
 
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -35,6 +36,7 @@ import com.google.paco.shared.model.InputDAO;
  */
 @SuppressWarnings("deprecation")
 public class ResponseViewPanel extends Composite {
+  private MyConstants myConstants;
   
   private HorizontalPanel mainPanel;
   private InputDAO input;
@@ -45,10 +47,11 @@ public class ResponseViewPanel extends Composite {
   
   // Visible for testing
   protected ListChoicesPanel listChoicesPanel;
-  protected TextBox stepsText;
+  protected MouseOverTextBoxBase stepsText;
 
   public ResponseViewPanel(InputDAO input, InputsPanel parent) {
     super();
+    myConstants = GWT.create(MyConstants.class);
     this.parent = parent;
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
@@ -83,8 +86,12 @@ public class ResponseViewPanel extends Composite {
   }
 
   private void removeResponseTypeErrors() {
-    parent.removeLikertStepsError();
-    parent.removeFirstListChoiceError();
+    if (stepsText != null) {
+      parent.removeLikertStepsError(stepsText.getMessage());
+    } 
+    if (listChoicesPanel != null) {
+      parent.removeFirstListChoiceError(listChoicesPanel.getListChoiceErrorMessage());
+    }
   }
 
   private void drawListPanel() {
@@ -112,7 +119,7 @@ public class ResponseViewPanel extends Composite {
     outer.setStyleName("left");
     mainPanel.add(outer);
     outer.add(GWTUtil.createLabel("Number of steps in scale"));
-    stepsText = new TextBox();
+    stepsText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     outer.add(stepsText);
 
     outer.add(GWTUtil.createLabel("Left side label"));
@@ -132,8 +139,7 @@ public class ResponseViewPanel extends Composite {
         try {
           Integer steps = Integer.valueOf(stepsText.getValue());
           input.setLikertSteps(steps);
-          parent.removeLikertStepsError();
-          ExperimentCreationPanel.setPanelHighlight(stepsText, true);
+          removeLikertStepsError();
 
           String leftSideLabel = leftSideText.getValue();
           input.setLeftSideLabel(leftSideLabel);
@@ -148,11 +154,19 @@ public class ResponseViewPanel extends Composite {
         }
       }
 
+      private void removeLikertStepsError() {
+        ExperimentCreationPanel.setPanelHighlight(stepsText, true);
+        stepsText.disableMouseOver();
+        parent.removeLikertStepsError(stepsText.getMessage());
+      }
+
       private void handleLikertStepsError() {
-        parent.addLikertStepsError();
         ExperimentCreationPanel.setPanelHighlight(stepsText, false);
+        stepsText.enableMouseOver();
+        parent.addLikertStepsError(stepsText.getMessage());
       }
     };
+    stepsText.setMessage(myConstants.likertStepsMustBeValid());
     stepsText.addChangeHandler(handler);
     leftSideText.addChangeHandler(handler);
     rightSideText.addChangeHandler(handler);
@@ -182,11 +196,11 @@ public class ResponseViewPanel extends Composite {
     return input;
   }
 
-  public void addFirstListChoiceError() {
-    parent.addFirstListChoiceError();
+  public void addFirstListChoiceError(String message) {
+    parent.addFirstListChoiceError(message);
   }
 
-  public void removeFirstListChoiceError() {
-    parent.removeFirstListChoiceError();
+  public void removeFirstListChoiceError(String message) {
+    parent.removeFirstListChoiceError(message);
   }
 }

@@ -17,7 +17,7 @@ public class TimeoutPanel extends Composite {
   private HorizontalPanel mainPanel;
   
   // Visible for testing
-  protected TextBox textBox;
+  protected MouseOverTextBoxBase textBox;
 
   public TimeoutPanel(final SignalingMechanismDAO schedule, SignalMechanismChooserPanel ancestor) {
     MyConstants myConstants = GWT.create(MyConstants.class);
@@ -31,7 +31,7 @@ public class TimeoutPanel extends Composite {
     timeoutLabel.setStyleName("gwt-Label-Header");
     mainPanel.add(timeoutLabel);
     
-    textBox = new TextBox();
+    textBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     textBox.setWidth("5em");
     textBox.setMaxLength(5);
     mainPanel.add(textBox);
@@ -42,6 +42,7 @@ public class TimeoutPanel extends Composite {
     minutesLabel.setStyleName("paco-small");
     mainPanel.add(minutesLabel);
     
+    textBox.setMessage(myConstants.timeoutMustBeValid());
     textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
@@ -49,8 +50,9 @@ public class TimeoutPanel extends Composite {
         try {
           int timeoutMinutes = Integer.parseInt(text);
           schedule.setTimeout(timeoutMinutes);
-          removeTimeoutError();
           ExperimentCreationPanel.setPanelHighlight(textBox, true);
+          textBox.disableMouseOver();
+          removeTimeoutError();
         } catch (NumberFormatException nfe) {
           handleTimeoutError();
         } catch (IllegalArgumentException e) {
@@ -59,8 +61,9 @@ public class TimeoutPanel extends Composite {
       }
       
       private void handleTimeoutError() {
-        addTimeoutError();
         ExperimentCreationPanel.setPanelHighlight(textBox, false);
+        addTimeoutError();
+        textBox.enableMouseOver();
       }
     });
     
@@ -79,11 +82,11 @@ public class TimeoutPanel extends Composite {
   }
   
   public void removeTimeoutError() {
-    ancestorSignalPanel.removeTimeoutErrorMessage();
+    ancestorSignalPanel.removeTimeoutErrorMessage(textBox.getMessage());
   }
   
   public void addTimeoutError() {
-    ancestorSignalPanel.addTimeoutErrorMessage();
+    ancestorSignalPanel.addTimeoutErrorMessage(textBox.getMessage());
   }
 
 }
