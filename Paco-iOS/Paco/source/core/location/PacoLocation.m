@@ -43,7 +43,7 @@ NSTimer* LocationTimer;
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:25.0
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
                                                      userInfo:nil

@@ -24,36 +24,28 @@
 #import "PacoScheduler.h"
 #import "PacoLocation.h"
 #import "JCNotificationCenter.h"
-#import "JCNotificationBannerPresenterIOSStyle.h"
+#import "JCNotificationBannerPresenterSmokeStyle.h"
 
 @implementation PacoAppDelegate
 
 // this method will fire if the App is in UIApplicationStateActive state, not UIApplicationStateBackground
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-//  [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-  
   if (notification) {
-      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOSStyle new];
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
     
-    
-    NSString* title = @"Push Notification";
-    NSString* alert = @"Hello world";
     [JCNotificationCenter
-     enqueueNotificationWithTitle:title
-     message:alert
+     enqueueNotificationWithTitle:@""
+     message:notification.alertBody
      tapHandler:^{
        NSLog(@"Received tap on notification banner!");
+       [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+       NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+       PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+       PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+       questions.experiment = experiment;
+       [self.viewController.navigationController pushViewController:questions animated:YES];
      }];
   }
-  
-//  if (notification) {
-//    [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-//    NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-//    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-//    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-//    questions.experiment = experiment;
-//    [self.viewController.navigationController pushViewController:questions animated:YES];
-//  }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
