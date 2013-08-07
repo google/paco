@@ -208,7 +208,7 @@ public class ResponseViewPanel extends Composite {
   }
   
   protected void updateAllConditionals() {
-    parent.updateAllConditionals();
+    parent.updateAllConditionalConfigurations();
   }
   
   protected void invalidatePertinentConditionals() {

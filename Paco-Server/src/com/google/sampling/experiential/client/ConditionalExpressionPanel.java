@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Joiner;
@@ -50,7 +51,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private int numRightParens;
   private int parenBalancingMode;
   
-  private InputDAO input;
+  private InputDAO configuredInput;
 
   public ConditionalExpressionPanel(ConditionalExpressionsPanel parent, 
                                     MouseDownHandler precedenceMouseDownHandler,
@@ -208,9 +209,9 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     String listExtra = ConditionalExpressionsPanel.COMPARATORS[6];
     int lastListBoxIndex = comparatorListBox.getItemCount() - 1;
     String lastListBoxItem = comparatorListBox.getValue(lastListBoxIndex);
-    if (input.getResponseType().equals(InputDAO.LIST) && !lastListBoxItem.equals(listExtra)) {
+    if (configuredInput.getResponseType().equals(InputDAO.LIST) && !lastListBoxItem.equals(listExtra)) {
       comparatorListBox.addItem(myConstants.contains(), listExtra);
-    } else if (!input.getResponseType().equals(InputDAO.LIST) && lastListBoxItem.equals(listExtra)) {
+    } else if (!configuredInput.getResponseType().equals(InputDAO.LIST) && lastListBoxItem.equals(listExtra)) {
       comparatorListBox.removeItem(lastListBoxIndex);
     }
   }
@@ -220,9 +221,9 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   private boolean inputCannotBeConditionalized() {
-    return input.getResponseType().equals(InputDAO.OPEN_TEXT) 
-        || input.getResponseType().equals(InputDAO.LOCATION)
-        || input.getResponseType().equals(InputDAO.PHOTO);
+    return configuredInput.getResponseType().equals(InputDAO.OPEN_TEXT) 
+        || configuredInput.getResponseType().equals(InputDAO.LOCATION)
+        || configuredInput.getResponseType().equals(InputDAO.PHOTO);
   }
 
   private void setExpressionValidity(boolean isValid) {
@@ -491,11 +492,15 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private void configurePanelForInput(String inputName) {
     List<InputDAO> inputs = getPrecedingInputsWithVarName(inputName);
+    configurePanelForPrecedingInputs(inputs);
+  }
+
+  private void configurePanelForPrecedingInputs(List<InputDAO> inputs) {
     if (inputs == null || inputs.size() != 1) {
       setExpressionValidity(false);
       return;
     }
-    input = inputs.get(0);
+    configuredInput = inputs.get(0);
     if (inputCannotBeConditionalized()) {
       setExpressionValidity(false);
     } else {
@@ -506,7 +511,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   protected void configureSubPanelsForInput() {
     configureComparatorListBoxForInput();
-    predicatePanel.configureForInput(input);
+    predicatePanel.configureForInput(configuredInput);
   }
 
   private void setListBoxSelectedIndex(Integer value, ListBox listBox) {
@@ -523,7 +528,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     return value == null || value < 0 || value >= listBox.getItemCount();
   }
 
-  protected void updateConditionalsForInput(InputDAO changedInput) {
+  protected void updateConditionalConfigurationForInput(InputDAO changedInput) {
     if (conditionalIsForInput(changedInput))  {
       if (inputCannotBeConditionalized()) {
         setExpressionValidity(false);
@@ -545,25 +550,48 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     setExpressionValidity(false);
     updateExpression();
   }
-  
-  protected void deleteConditionalsForInput(InputDAO deletedInput) {
-    if (conditionalIsForInput(deletedInput)) {
-      deleteThis();
-    }
-  }
 
   protected boolean conditionalIsForInput(InputDAO changedInput) {
-    if (input == null) {
+    if (configuredInput == null) {
       return false;
     }
-    return input.equals(changedInput);
+    return configuredInput.equals(changedInput);
   }
   
-  protected boolean conditionalIsForInputInList(List<InputDAO> inputs) {
-    if (input == null) {
-      return false;
+  protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    List<InputDAO> varNameMatches = getDaosWithMatchingName(precedingDaos);
+    configurePanelForPrecedingInputs(varNameMatches);
+  }
+  
+  // TODO: this is slow
+  // TODO: do some uniqueness checking when renaming the input.
+  protected void updateConditionalsForRename(InputDAO changedInput) {
+    if (configuredInput != null && configuredInput.equals(changedInput)) {
+      varNameText.setValue(changedInput.getName());
+      // Reconfigure panel to fix name collision errors.
+      configurePanelForInput(varNameText.getValue());
+    } else if (configuredInput != null) {
+      // Reconfigure panel to fix name collision errors.
+      configurePanelForInput(varNameText.getValue());
+    } else if (configuredInput == null && inputNameMatchesVarNameText(changedInput)) {
+      // If no input was previously configured, perhaps configure one now.
+      // Do this the long way as a partial check for uniqueness.
+      configurePanelForInput(varNameText.getValue());
     }
-    return inputs.contains(input);
+  }
+  
+  private List<InputDAO> getDaosWithMatchingName(List<InputDAO> precedingDaos) {
+    List<InputDAO> matchingDaos = new ArrayList<InputDAO>();
+    for (InputDAO input : precedingDaos) {
+      if (inputNameMatchesVarNameText(input)) {
+        matchingDaos.add(input);
+      }
+    }
+    return matchingDaos;
+  }
+
+  private boolean inputNameMatchesVarNameText(InputDAO input) {
+    return input.getName() != null && input.getName().equals(varNameText.getValue());
   }
 
   protected void removePrecedingOpWithUpdate() {

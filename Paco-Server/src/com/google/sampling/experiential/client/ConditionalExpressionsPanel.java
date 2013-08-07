@@ -178,9 +178,13 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   public void updateExpressionUsingListPanel(ConditionalExpressionPanel conditionalExpressionPanel) {
+    updatePanelExpression(conditionalExpressionPanel);
+    updateConditionalModelAndText(constructConditionalExpression());
+  }
+
+  private void updatePanelExpression(ConditionalExpressionPanel conditionalExpressionPanel) {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
-    updateConditionalModelAndText(constructConditionalExpression());
   }
 
   private String constructConditionalExpression() {
@@ -362,9 +366,9 @@ public class ConditionalExpressionsPanel extends Composite {
     removeParenCancelButton();
   }
   
-  protected void updateConditionalsForInput(InputDAO input) {
+  protected void updateConditionalConfigurationForInput(InputDAO input) {
     for (ConditionalExpressionPanel panel : conditionPanels) {
-      panel.updateConditionalsForInput(input);
+      panel.updateConditionalConfigurationForInput(input);
     }
   }
   
@@ -384,6 +388,22 @@ public class ConditionalExpressionsPanel extends Composite {
     for (ConditionalExpressionPanel panelToDelete : panelsToDelete) {
       deleteConditionPanel(panelToDelete);
     }
+  }
+  
+  protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.updateConditionalsForOrdering(precedingDaos);
+      updatePanelExpression(panel);
+    }
+    updateConditionalModelAndText(constructConditionalExpression());
+  }
+  
+  protected void updateConditionalsForRename(InputDAO input) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.updateConditionalsForRename(input);
+      updatePanelExpression(panel);
+    }
+    updateConditionalModelAndText(constructConditionalExpression());
   }
   
   protected void deleteConditionPanel(ConditionalExpressionPanel sender) {
