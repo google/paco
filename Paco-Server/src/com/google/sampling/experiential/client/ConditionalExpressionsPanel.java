@@ -46,8 +46,8 @@ public class ConditionalExpressionsPanel extends Composite {
   private static final String OP_CONDITIONAL_REGEX = OP_REGEX + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
   public static final String SINGLE_CONDITIONAL_REGEX = OP_REGEX + "?" + WHITESPACE 
       + NO_OP_CONDITIONAL_REGEX;
-  public static final String OVERALL_CONDITIONAL_REGEX = NO_OP_CONDITIONAL_REGEX + "(" 
-      + WHITESPACE + OP_CONDITIONAL_REGEX + ")*";
+  public static final String OVERALL_CONDITIONAL_REGEX = WHITESPACE + NO_OP_CONDITIONAL_REGEX + "(" 
+      + WHITESPACE + OP_CONDITIONAL_REGEX + ")*" + WHITESPACE;
 
   private MyConstants myConstants;
 
@@ -152,25 +152,7 @@ public class ConditionalExpressionsPanel extends Composite {
     parenCancelButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        if (unbalancedParenPanel != null) {
-          switch (unbalancedParenPanel.getParenBalancingMode()) {
-          case ConditionalExpressionPanel.JUST_ADDED_LEFT_PAREN:
-            unbalancedParenPanel.decreaseLeftParensWithUpdate();
-            break;
-          case ConditionalExpressionPanel.JUST_ADDED_RIGHT_PAREN:
-            unbalancedParenPanel.decreaseRightParensWithUpdate();
-            break;
-          case ConditionalExpressionPanel.JUST_DELETED_LEFT_PAREN:
-            unbalancedParenPanel.increaseLeftParensWithUpdate();
-            break;
-          case ConditionalExpressionPanel.JUST_DELETED_RIGHT_PAREN:
-            unbalancedParenPanel.increaseRightParensWithUpdate();
-            break;
-          default:
-            break;
-          }
-        }
-        restoreOverallNormalMode();
+        restorePreviousParenState();
       }
     });
   }
@@ -198,7 +180,15 @@ public class ConditionalExpressionsPanel extends Composite {
   public void updateExpressionUsingListPanel(ConditionalExpressionPanel conditionalExpressionPanel) {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
+    updateConditionalModelAndText(constructConditionalExpression());
+  }
+
+  private String constructConditionalExpression() {
     String expression = Joiner.on(" ").join(conditionalExpressions);
+    return expression;
+  }
+
+  private void updateConditionalModelAndText(String expression) {
     updateInputModelExpression(expression);
     updateTextDisplayExpression(expression);
   }
@@ -370,6 +360,74 @@ public class ConditionalExpressionsPanel extends Composite {
     unbalancedParenPanel.setParenBalancingMode(ConditionalExpressionPanel.NEUTRAL_PAREN_MODE);
     unbalancedParenPanel = null;
     removeParenCancelButton();
+  }
+  
+  protected void updateConditionalsForInput(InputDAO input) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.updateConditionalsForInput(input);
+    }
+  }
+  
+  protected void invalidateConditionalsForInput(InputDAO input) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.invalidateConditionalsForInput(input);
+    }
+  }
+  
+  protected void deleteConditionalsForInput(InputDAO input) {
+    List<ConditionalExpressionPanel> panelsToDelete = new ArrayList<ConditionalExpressionPanel>();
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      if (panel.conditionalIsForInput(input)) {
+        panelsToDelete.add(panel);
+      }
+    }
+    for (ConditionalExpressionPanel panelToDelete : panelsToDelete) {
+      deleteConditionPanel(panelToDelete);
+    }
+  }
+  
+  protected void deleteConditionPanel(ConditionalExpressionPanel sender) {
+//    if (conditionPanels.size() == 1) {
+//      return;
+//    }
+    if (sender.equals(unbalancedParenPanel)) {
+      restorePreviousParenState();
+    }
+    removeConditionPanelFromLists(sender);
+    if (conditionPanels.size() == 0) {
+      createLonePanel();
+      updateConditionalModelAndText("");
+    } else {
+      conditionPanels.get(0).removePrecedingOpWithUpdate();
+    }
+  }
+
+  protected void removeConditionPanelFromLists(ConditionalExpressionPanel sender) {
+    conditionalExpressions.remove(conditionPanels.indexOf(sender));
+    conditionPanels.remove(sender);
+    conditionalListPanel.remove(sender);
+  }
+
+  protected void restorePreviousParenState() {
+    if (unbalancedParenPanel != null) {
+      switch (unbalancedParenPanel.getParenBalancingMode()) {
+      case ConditionalExpressionPanel.JUST_ADDED_LEFT_PAREN:
+        unbalancedParenPanel.decreaseLeftParensWithUpdate();
+        break;
+      case ConditionalExpressionPanel.JUST_ADDED_RIGHT_PAREN:
+        unbalancedParenPanel.decreaseRightParensWithUpdate();
+        break;
+      case ConditionalExpressionPanel.JUST_DELETED_LEFT_PAREN:
+        unbalancedParenPanel.increaseLeftParensWithUpdate();
+        break;
+      case ConditionalExpressionPanel.JUST_DELETED_RIGHT_PAREN:
+        unbalancedParenPanel.increaseRightParensWithUpdate();
+        break;
+      default:
+        break;
+      }
+    }
+    restoreOverallNormalMode();
   }
 
 }

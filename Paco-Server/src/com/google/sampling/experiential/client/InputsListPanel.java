@@ -120,6 +120,13 @@ public class InputsListPanel extends Composite {
     inputsPanelsList.remove(inputsPanel);
     mainPanel.remove(inputsPanel);
     updateExperimentInputs();
+    deleteAllConditionalsForInput(inputsPanel.getInput());
+  }
+  
+  private void deleteAllConditionalsForInput(InputDAO input) {
+    for (InputsPanel panel : inputsPanelsList) {
+      panel.deleteConditionalsForInput(input);
+    }
   }
 
   // Visible for testing
@@ -318,6 +325,32 @@ public class InputsListPanel extends Composite {
       }
     }
     return varNameInputs;
+  }
+  
+  protected void updateConditionals(InputsPanel sender) {
+    InputDAO input = sender.getInput();
+    boolean isAfterPanel = false;
+    for (InputsPanel panel : inputsPanelsList) {
+      if (isAfterPanel) {
+        panel.updateConditionalsForInput(input);
+      }
+      if (panel.equals(sender)) {
+        isAfterPanel = true;
+      }
+    }
+  }
+  
+  protected void invalidatePertinentConditionals(InputsPanel sender) {
+    InputDAO input = sender.getInput();
+    boolean isAfterPanel = false;
+    for (InputsPanel panel : inputsPanelsList) {
+      if (isAfterPanel) {
+        panel.invalidateConditionalsForInput(input);
+      }
+      if (panel.equals(sender)) {
+        isAfterPanel = true;
+      }
+    }
   }
 
 }

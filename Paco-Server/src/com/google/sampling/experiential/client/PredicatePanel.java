@@ -34,6 +34,8 @@ public class PredicatePanel extends Composite {
   }
 
   public void configureForInput(InputDAO input) {
+    Integer oldValue = getValueAsInt();
+    String oldText = getSelectedText();
     mainPanel.clear();
     predicateListBox.clear();
     responseType = input.getResponseType();
@@ -41,24 +43,37 @@ public class PredicatePanel extends Composite {
       for (Integer i = 1; i <= input.getLikertSteps(); ++i) {
         predicateListBox.addItem(i.toString(), i.toString());
       }
-      predicateListBox.setSelectedIndex(0);
+      setListBoxSelectedIndex(oldValue, false);
       mainPanel.add(predicateListBox);
     } else if (responseType.equals(InputDAO.LIST)) {
       for (Integer i = 1; i <= input.getListChoices().length; ++i) {
         predicateListBox.addItem(input.getListChoices()[i - 1], i.toString());
       }
-      predicateListBox.setSelectedIndex(0);
+      restoreListSelectedItem(oldText);
       mainPanel.add(predicateListBox);
     } else if (responseType.equals(InputDAO.LIKERT_SMILEYS)) {
       for (Integer i = 1; i <= 5; ++i) {
         predicateListBox.addItem(i.toString(), i.toString());
       }
-      predicateListBox.setSelectedIndex(0);
+      setListBoxSelectedIndex(oldValue, false);
       mainPanel.add(predicateListBox);
     } else if (responseTypeRequiresTextBox()) {
-      predicateTextBox.setValue("0", true);
+      predicateTextBox.setValue(oldValue.toString(), true);
       mainPanel.add(predicateTextBox);
     }
+  }
+  
+  // TODO: this will have strange behavior if there are two list
+  // items with the same text.
+  private void restoreListSelectedItem(String oldText) {
+    int selectedIndex = 0;
+    for (int i = 0; i < predicateListBox.getItemCount(); ++i) {
+      if (predicateListBox.getItemText(i).equals(oldText)) {
+        selectedIndex = i;
+        break;
+      }
+    }
+    predicateListBox.setSelectedIndex(selectedIndex);
   }
 
   public void setEnabled(boolean isEnabled) {
@@ -67,12 +82,43 @@ public class PredicatePanel extends Composite {
   }
 
   public String getValue() {
+    if (responseType == null) {
+      return null;
+    }
     if (responseTypeRequiresListBox()) {
       return predicateListBox.getValue(predicateListBox.getSelectedIndex());
     } else if (responseTypeRequiresTextBox()) {
       return predicateTextBox.getValue();
     }
-    return "";
+    return null;
+  }
+  
+  public int getValueAsInt() {
+    String value = getValue();
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException nfe) {
+      // Note: value being null causes NumberFormatException
+      return 0;
+    }
+  }
+  
+  private String getSelectedText() {
+    if (responseType == null) {
+      return null;
+    }
+    if (responseTypeRequiresListBox()) {
+      return predicateListBox.getItemText(predicateListBox.getSelectedIndex());
+    }
+    return null;
+  }
+  
+  public int getTextBoxIntValue() {
+    try {
+      return Integer.parseInt(predicateTextBox.getValue());
+    } catch (NumberFormatException nfe) {
+      return 0;
+    }
   }
   
   public void setValue(Integer value) {
@@ -80,7 +126,7 @@ public class PredicatePanel extends Composite {
       throw new IllegalArgumentException("Predicate value cannot be null.");
     }
     if (responseTypeRequiresListBox()) {
-      setListBoxSelectedIndex(value);
+      setListBoxSelectedIndex(value, true);
     } else if (responseTypeRequiresTextBox()) {
       predicateTextBox.setValue(value.toString());
     }
@@ -95,13 +141,16 @@ public class PredicatePanel extends Composite {
         || responseType.equals(InputDAO.LIKERT_SMILEYS);
   }
 
-  private void setListBoxSelectedIndex(Integer value) {
+  private void setListBoxSelectedIndex(Integer value, boolean shouldInvalidateSelection) {
     // Note: error-checking is done this way because ListBox objects do not throw
     // exceptions when given an illegal index.
     int selectedIndex = value - 1;
-    if (valueIsOutOfBounds(selectedIndex)) {
+    boolean valueIsOutOfBounds = valueIsOutOfBounds(selectedIndex);
+    if (valueIsOutOfBounds && shouldInvalidateSelection) {
       invalidateSelection();
-    } else {
+    } else if (valueIsOutOfBounds) {
+      predicateListBox.setSelectedIndex(0);
+    } else if (!valueIsOutOfBounds) {
       predicateListBox.setSelectedIndex(selectedIndex);
     }
   }

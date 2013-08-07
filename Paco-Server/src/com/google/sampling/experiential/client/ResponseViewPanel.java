@@ -146,11 +146,14 @@ public class ResponseViewPanel extends Composite {
 
           String rightSideLabel = rightSideText.getValue();
           input.setRightSideLabel(rightSideLabel);
+          updateAllConditionals();
         } catch (NumberFormatException e) {
 //          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
           handleLikertStepsError();
+          invalidatePertinentConditionals();
         } catch (IllegalArgumentException e) {
           handleLikertStepsError();
+          invalidatePertinentConditionals();
         }
       }
 
@@ -202,5 +205,13 @@ public class ResponseViewPanel extends Composite {
 
   public void removeFirstListChoiceError(String message) {
     parent.removeFirstListChoiceError(message);
+  }
+  
+  protected void updateAllConditionals() {
+    parent.updateAllConditionals();
+  }
+  
+  protected void invalidatePertinentConditionals() {
+    parent.invalidatePertinentConditionals();
   }
 }
