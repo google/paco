@@ -216,12 +216,11 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   }
 }
 
-- (NSArray*)eventsUptoMaxNumber:(NSUInteger)maxNum {
+- (NSArray*)allPendingEvents {
   @synchronized(self) {
     [self fetchPendingEventsIfNecessary];
     
-    int num = MIN(maxNum, [self.pendingEvents count]);
-    NSArray* result = [self.pendingEvents subarrayWithRange:NSMakeRange(0, num)];
+    NSArray* result = [NSArray arrayWithArray:self.pendingEvents];
     return result;
   }  
 }

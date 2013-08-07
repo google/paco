@@ -77,13 +77,16 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 - (void)uploadEvents {
   @synchronized(self) {
-    NSArray* pendingEvents = [self.delegate eventsUptoMaxNumber:kMaxNumOfEventsToUpload];
+    NSArray* pendingEvents = [self.delegate allPendingEvents];
     NSAssert([pendingEvents count] > 0, @"there should be pending events!");
     
     self.isWorking = YES;
     if ([[PacoClient sharedInstance].reachability isReachable]) {
       [self stopObserveReachability];
-      [self submitEvents:pendingEvents];
+      
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self submitAllPendingEvents:pendingEvents];
+      });
     }else {
       [self startObserveReachability];
     }
@@ -105,49 +108,67 @@ static int const kMaxNumOfEventsToUpload = 50;
   return NO;
 }
 
-- (void)submitEvents:(NSArray*)pendingEvents {
-  NSAssert([pendingEvents count] > 0, @"pendingEvents should have at least one element!");
+- (void)submitAllPendingEvents:(NSArray*)allPendingEvents {
+  int totalNumOfEvents = [allPendingEvents count];
+  int start = 0;
+  int size = MIN(totalNumOfEvents, kMaxNumOfEventsToUpload);
   
-  void(^completionBlock)(NSArray*, NSError*) = ^(NSArray* successEventIndexes, NSError* error){
-    //Since this block is fired on main thread, send it to a background thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSAssert([successEventIndexes count] <= [pendingEvents count],
-             @"successEventIndexes count is not correct!");
+  __block int numOfFinishedEvents = 0;
+
+  while (size > 0) {
+    NSRange range = NSMakeRange(start, size);
+    NSArray* events = [allPendingEvents subarrayWithRange:range];
+    NSAssert([events count] > 0, @"events should have at least one element!");
     
-      if (error == nil) {
-        if ([successEventIndexes count] < [pendingEvents count]) {
-          NSLog(@"[Error]%d events uploaded, but %d events failed!",
-                [successEventIndexes count], [pendingEvents count] - [successEventIndexes count]);
-        } else {
-          NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
+    void(^finalBlock)(NSArray*, NSError*) = ^(NSArray* successEventIndexes, NSError* error){
+      //Since this block is fired on main thread, send it to a background thread
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSAssert([successEventIndexes count] <= [events count],
+                 @"successEventIndexes count is not correct!");
+        
+        //If the error is not nil and is an offline error, we will wait until internet is online
+        //and refetch all pending events and try to re-submit them again 
+        if (![self isOfflineError:error]) {
+          numOfFinishedEvents += [events count];
         }
         
-        [self.delegate markEventsComplete:pendingEvents];
-        
-        if (![self.delegate hasPendingEvents]) {
-          NSLog(@"All pending events uploaded!");
-          [self stopUploading];
-        } else {
-          NSLog(@"Continue uploading...");
-          [self uploadEvents];
-        }
-      } else {
-        if ([self isOfflineError:error]) {
-          [self startObserveReachability];
-        } else {
-          //If any other error happened, stop uploading
-          //authentication error, server 500 error, client 400 error, etc.
-          [self stopUploading];
+        if (error == nil) {
+          if ([successEventIndexes count] < [events count]) {
+            NSLog(@"[Error]%d events uploaded, but %d events failed!",
+                  [successEventIndexes count], [events count] - [successEventIndexes count]);
+          } else {
+            NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
+          }
           
-          NSLog(@"Failed to upload %d events! Error: %@", [pendingEvents count], [error description]);
-          NSLog(@"Stop uploading because of error!");
+          NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
+          for (NSNumber* indexNum in successEventIndexes) {
+            [successEvents addObject:[events objectAtIndex:[indexNum intValue]]];
+          }
+          [self.delegate markEventsComplete:successEvents];          
+        } else {
+          if ([self isOfflineError:error]) {
+            [self startObserveReachability];
+          } else {
+            //authentication error, server 500 error, client 400 error, etc.
+            NSLog(@"Failed to upload %d events! Error: %@", [events count], [error description]);
+          }
         }
-      }
-    });
-  };
-  
-  [[PacoClient sharedInstance].service submitEventList:pendingEvents
-                                   withCompletionBlock:completionBlock];
+        
+        if (numOfFinishedEvents == totalNumOfEvents) {
+          NSLog(@"Finished uploading!");
+          [self stopUploading];
+        }
+        
+      });
+    };
+    
+    [[PacoClient sharedInstance].service submitEventList:events
+                                     withCompletionBlock:finalBlock];
+    
+    start += size;
+    size = MIN(totalNumOfEvents - start, kMaxNumOfEventsToUpload);
+  }
+
 }
 
 
