@@ -101,7 +101,8 @@ public class ExperimentPublishingPanel extends Composite {
                                                                                  + myConstants.clickToCloseCustomFeedbackEditor()
                                                                                  + "</b>");
 
-    customFeedbackPanel.setHeader(closedHeaderWidget);
+    customFeedbackPanel.setHeader(openHeaderWidget);
+    customFeedbackPanel.setOpen(true);
     customFeedbackPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
       @Override
       public void onOpen(OpenEvent<DisclosurePanel> event) {
@@ -185,7 +186,8 @@ public class ExperimentPublishingPanel extends Composite {
                                                                                  + myConstants.clickToClosePublishedEditor()
                                                                                  + "</b>");
 
-    publishedUsersPanel.setHeader(closedHeaderWidget);
+    publishedUsersPanel.setHeader(openHeaderWidget);
+    publishedUsersPanel.setOpen(true);
     publishedUsersPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
       @Override
       public void onOpen(OpenEvent<DisclosurePanel> event) {
@@ -203,10 +205,10 @@ public class ExperimentPublishingPanel extends Composite {
     Label instructionLabel = new Label(myConstants.publishedEditorPrompt());
     userContentPanel.add(instructionLabel);
 
-    publishedUserList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA);
+    publishedUserList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA,
+                                                 myConstants.publishedUsersListIsInvalid());
     publishedUserList.setCharacterWidth(100);
     publishedUserList.setHeight("100");
-    publishedUserList.setMessage(myConstants.publishedUsersListIsInvalid());
     publishedUserList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {

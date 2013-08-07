@@ -72,7 +72,6 @@ public class ExperimentDescriptionPanel extends Composite {
 
     PanelPair titlePanelPair = createTitlePanel();
     titlePanel = (MouseOverTextBoxBase) titlePanelPair.valueHolder;
-    titlePanel.setMessage(myConstants.titleIsRequired());
     titlePanel.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -140,7 +139,7 @@ public class ExperimentDescriptionPanel extends Composite {
 //  }
 
   private PanelPair createTitlePanel() {
-    return createFormLine("* " + myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
+    return createTitleFormLine("* " + myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
   }
 
   private PanelPair createIdPanel() {
@@ -196,7 +195,8 @@ public class ExperimentDescriptionPanel extends Composite {
     Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);
 
-    adminList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA);
+    adminList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA,
+                                         myConstants.adminsListIsInvalid());
     adminList.setCharacterWidth(100);
     adminList.setHeight("100");
     String[] adminStrArray = experiment.getAdmins();
@@ -210,7 +210,6 @@ public class ExperimentDescriptionPanel extends Composite {
     adminList.setText(toCSVString(admins));
     adminContentPanel.add(adminList);
     adminPanel.setContent(adminContentPanel);
-    adminList.setMessage(myConstants.adminsListIsInvalid());
     adminList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
@@ -254,12 +253,13 @@ public class ExperimentDescriptionPanel extends Composite {
     return durationPanel;
   }
 
-  private PanelPair createFormLine(String key, String value, String labelStyleName) {
+  private PanelPair createTitleFormLine(String key, String value, String labelStyleName) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName(labelStyleName == null ? "keyLabel" : labelStyleName);
-    MouseOverTextBoxBase valueBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    MouseOverTextBoxBase valueBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                                             myConstants.titleIsRequired());
     if (value != null) {
       valueBox.setText(value);
     }

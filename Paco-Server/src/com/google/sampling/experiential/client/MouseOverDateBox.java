@@ -25,28 +25,21 @@ import com.google.gwt.user.datepicker.client.DateBox.Format;
 
 public class MouseOverDateBox extends Composite implements MouseOutHandler, MouseOverHandler, FocusHandler {
   
-  private FlowPanel mainPanel;
   private DateBox dateBox;
-  private HTML mouseOverText;
+  private String message;
   private boolean mouseOverIsEnabled;
 
-  public MouseOverDateBox() {
+  public MouseOverDateBox(String message) {
+    this.message = message;
+    
     FocusPanel container = new FocusPanel();
     container.addMouseOverHandler(this);
     container.addMouseOutHandler(this);
-    
-    mainPanel = new FlowPanel();
-    container.add(mainPanel);
+    initWidget(container);
     
     dateBox = new DateBox();
     dateBox.addHandler(this, FocusEvent.getType());
-    mainPanel.add(dateBox);
-    
-    mouseOverText = new HTML();
-    mainPanel.add(mouseOverText);
-//    mouseOverText.setStyleName("ctb-control");
-    mouseOverText.setVisible(false);
-    initWidget(container);
+    container.add(dateBox);
   }
 
   public void enableMouseOver() {
@@ -60,7 +53,7 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
   private void setShouldShowMouseOver(boolean mouseOverIsEnabled) {
     this.mouseOverIsEnabled = mouseOverIsEnabled;
     if (!mouseOverIsEnabled) {
-      mouseOverText.setVisible(false);
+      disableMouseOverText();
     }
   }
   
@@ -81,11 +74,11 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
   }
   
   public void setMessage(String message) {
-    mouseOverText.setText(message);
+    this.message = message;
   }
   
   public String getMessage() {
-    return mouseOverText.getText();
+    return message;
   }
   
   public void addStyleName(String style) {
@@ -103,20 +96,28 @@ public class MouseOverDateBox extends Composite implements MouseOutHandler, Mous
   @Override
   public void onMouseOver(MouseOverEvent event) {
     if (mouseOverIsEnabled) {
-      mouseOverText.setVisible(true);
+      enableMouseOverText();
     }
   }
 
   @Override
   public void onMouseOut(MouseOutEvent event) {
     if (mouseOverIsEnabled) {
-      mouseOverText.setVisible(false);
+      disableMouseOverText();
     }
   }
 
   @Override
   public void onFocus(FocusEvent event) {
-    mouseOverText.setVisible(false);
+    disableMouseOverText();
+  }
+  
+  private void enableMouseOverText() {
+    dateBox.setTitle(message);
+  }
+  
+  private void disableMouseOverText() {
+    dateBox.setTitle("");
   }
 
 }

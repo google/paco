@@ -119,7 +119,8 @@ public class ResponseViewPanel extends Composite {
     outer.setStyleName("left");
     mainPanel.add(outer);
     outer.add(GWTUtil.createLabel("Number of steps in scale"));
-    stepsText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    stepsText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                         myConstants.likertStepsMustBeValid());
     outer.add(stepsText);
 
     outer.add(GWTUtil.createLabel("Left side label"));
@@ -169,7 +170,6 @@ public class ResponseViewPanel extends Composite {
         parent.addLikertStepsError(stepsText.getMessage());
       }
     };
-    stepsText.setMessage(myConstants.likertStepsMustBeValid());
     stepsText.addChangeHandler(handler);
     leftSideText.addChangeHandler(handler);
     rightSideText.addChangeHandler(handler);

@@ -91,11 +91,11 @@ public class ConditionalExpressionsPanel extends Composite {
     conditionalExpressionLabel.setStyleName("keyLabel");
     textEntryPanel.add(conditionalExpressionLabel);
 
-    conditionDisplayTextBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    conditionDisplayTextBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                                       myConstants.conditionalExpressionIsInvalid());
     conditionDisplayTextBox.setVisibleLength(60);
     updateTextDisplayExpression(input.getConditionExpression());
     conditionDisplayTextBox.addMouseDownHandler(parent);
-    conditionDisplayTextBox.setMessage(myConstants.conditionalExpressionIsInvalid());
     conditionDisplayTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {

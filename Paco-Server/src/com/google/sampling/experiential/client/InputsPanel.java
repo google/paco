@@ -343,14 +343,13 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     nameLabel.setStyleName("keyLabel");
     varNamePanel.add(nameLabel);
 
-    varNameText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    varNameText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                           myConstants.varNameSyntaxError());
     varNameText.setWidth("75px");
     if (input.getName() != null) {
       varNameText.setText(input.getName());
     }
     varNamePanel.add(varNameText);
-
-    varNameText.setMessage(myConstants.varNameSyntaxError());
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {

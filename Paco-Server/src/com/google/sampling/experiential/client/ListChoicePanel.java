@@ -65,9 +65,9 @@ public class ListChoicePanel extends Composite {
     horizontalPanel.add(lblTime);
     lblTime.setWidth("57px");
 
-    textField = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    textField = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                         parent.getListChoiceErrorMessage());
     horizontalPanel.add(textField);
-    textField.setMessage(parent.getListChoiceErrorMessage());
     textField.addValueChangeHandler(new ValueChangeHandler<String>() {
       public void onValueChange(ValueChangeEvent<String> event) {
         setInputListChoiceAndHighlight();

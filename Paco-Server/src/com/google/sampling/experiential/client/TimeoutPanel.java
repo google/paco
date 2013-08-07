@@ -31,7 +31,8 @@ public class TimeoutPanel extends Composite {
     timeoutLabel.setStyleName("gwt-Label-Header");
     mainPanel.add(timeoutLabel);
     
-    textBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    textBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                       myConstants.timeoutMustBeValid());
     textBox.setWidth("5em");
     textBox.setMaxLength(5);
     mainPanel.add(textBox);
@@ -42,7 +43,6 @@ public class TimeoutPanel extends Composite {
     minutesLabel.setStyleName("paco-small");
     mainPanel.add(minutesLabel);
     
-    textBox.setMessage(myConstants.timeoutMustBeValid());
     textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
