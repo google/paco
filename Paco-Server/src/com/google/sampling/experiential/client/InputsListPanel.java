@@ -60,6 +60,7 @@ public class InputsListPanel extends Composite {
   private LinkedList<InputsPanel> inputsPanelsWithVarNameErrors;
   private LinkedList<InputsPanel> inputsPanelsWithListChoiceErrors;
   private LinkedList<InputsPanel> inputsPanelsWithLikertScaleErrors;
+  private LinkedList<InputsPanel> inputsPanelsWithConditionalErrors;
 
   // Visible for testing.
   protected LinkedList<InputsPanel> inputsPanelsList;
@@ -92,6 +93,7 @@ public class InputsListPanel extends Composite {
     inputsPanelsWithVarNameErrors = new LinkedList<InputsPanel>();
     inputsPanelsWithListChoiceErrors = new LinkedList<InputsPanel>();
     inputsPanelsWithLikertScaleErrors = new LinkedList<InputsPanel> ();
+    inputsPanelsWithConditionalErrors = new LinkedList<InputsPanel>();
     createInputsPanels(experiment);
 
     createDragController();
@@ -206,6 +208,22 @@ public class InputsListPanel extends Composite {
     }
     if (!inputsPanelsWithLikertScaleErrors.contains(panel)) {
       inputsPanelsWithLikertScaleErrors.add(panel);
+    }
+  }
+  
+  public void removeConditionalErrorMessage(InputsPanel panel, String message) {
+    inputsPanelsWithConditionalErrors.remove(panel);
+    if (inputsPanelsWithConditionalErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
+    }
+  }
+  
+  public void addConditionalErrorMessage(InputsPanel panel, String message) {
+    if (inputsPanelsWithConditionalErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
+    }
+    if (!inputsPanelsWithConditionalErrors.contains(panel)) {
+      inputsPanelsWithConditionalErrors.add(panel);
     }
   }
 

@@ -399,6 +399,14 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   public void addFirstListChoiceError(String message) {
     parent.addFirstListChoiceErrorMessage(this, message);
   }
+  
+  public void removeConditionalError(String message) {
+    parent.removeConditionalErrorMessage(this, message);
+  }
+  
+  public void addConditionalError(String message) {
+    parent.addConditionalErrorMessage(this, message);
+  }
 
   /*
    * Applying InputsPanel to a widget as a MouseDown handler gives the widget

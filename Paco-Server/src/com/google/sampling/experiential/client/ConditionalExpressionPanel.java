@@ -45,6 +45,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private Label rightParenDisplayLabel;
   private ParenthesesManagementPanel leftParenManagementPanel;
   private ParenthesesManagementPanel rightParenManagementPanel;
+  private Button deleteButton;
 
   private boolean isValid;
   private int numLeftParens;
@@ -270,7 +271,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   private void createDeleteButton() {
-    Button deleteButton = new Button("-");
+    deleteButton = new Button("-");
     deleteButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
@@ -278,6 +279,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       }
     });
     mainPanel.add(deleteButton);
+  }
+  
+  private void ensureDeleteButtonOnlyAvailableWhenParensBalanced() {
+    deleteButton.setEnabled(numLeftParens == numRightParens);
   }
 
   private void setInitialLeftParens(int numLeftParens) {
@@ -460,11 +465,13 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private void increaseNumLeftParens() {
     ++numLeftParens;
+    ensureDeleteButtonOnlyAvailableWhenParensBalanced();
     leftParenDisplayLabel.setText(new String(new char[numLeftParens]).replace("\0", "("));
   }
 
   private void decreaseNumLeftParens() {
     numLeftParens = (numLeftParens - 1 >= 0) ? numLeftParens - 1 : 0;
+    ensureDeleteButtonOnlyAvailableWhenParensBalanced();
     leftParenDisplayLabel.setText(new String(new char[numLeftParens]).replace("\0", "("));
   }
 
@@ -482,11 +489,13 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private void increaseNumRightParens() {
     ++numRightParens;
+    ensureDeleteButtonOnlyAvailableWhenParensBalanced();
     rightParenDisplayLabel.setText(new String(new char[numRightParens]).replace("\0", ")"));
   }
 
   private void decreaseNumRightParens() {
     numRightParens = (numRightParens - 1 >= 0) ? numRightParens - 1 : 0;
+    ensureDeleteButtonOnlyAvailableWhenParensBalanced();
     rightParenDisplayLabel.setText(new String(new char[numRightParens]).replace("\0", ")"));
   }
 
@@ -612,6 +621,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     return !operatorListBox.getValue(operatorListBox.getSelectedIndex())
         .equals(ConditionalExpressionsPanel.OPS[ConditionalExpressionsPanel.NO_OP]);
   }
+  
 
   @Override
   public void onChange(ChangeEvent event) {
