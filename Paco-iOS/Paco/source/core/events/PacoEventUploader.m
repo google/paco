@@ -135,18 +135,12 @@ static int const kMaxNumOfEventsToUpload = 50;
         if ([self isOfflineError:error]) {
           [self startObserveReachability];
         } else {
+          //If any other error happened, stop uploading
+          //authentication error, server 500 error, client 400 error, etc.
           [self stopUploading];
           
           NSLog(@"Failed to upload %d events! Error: %@", [pendingEvents count], [error description]);
           NSLog(@"Stop uploading because of error!");
-          
-          //TODO: other proper error handling
-          
-          //authentication error
-          
-          //server 500 error
-          
-          //client 400 error
         }
       }
     });
