@@ -3,32 +3,29 @@ package com.google.sampling.experiential.server;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.google.common.collect.Lists;
+import org.joda.time.DateTimeZone;
+
 import com.google.paco.shared.model.ExperimentDAO;
 
 abstract class ExperimentServletHandler {
 
   public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
+  protected String email;
+  protected DateTimeZone timezone;
 
-  protected List<ExperimentDAO> getExperimentsAvailableToUser(String email, String tz) {
-    List<ExperimentDAO> joinableExperiments = getJoinableExperiments(tz);
-    List<ExperimentDAO> availableExperiments = null;
-    if (joinableExperiments == null) {
-      availableExperiments = Lists.newArrayList();        
-    } else {
-      availableExperiments = ExperimentRetriever.getSortedExperimentsAvailableToUser(joinableExperiments, email);        
-    }
-    ExperimentRetriever.removeSensitiveFields(availableExperiments);
-    return availableExperiments;
+  public ExperimentServletHandler(String email, DateTimeZone timezone2) {
+    this.email = email;
+    this.timezone = timezone2;
   }
 
-  private List<ExperimentDAO> getJoinableExperiments(String tz) {
-    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-    List<ExperimentDAO> experiments = cacheHelper.getJoinableExperiments(tz);
-    log.info("joinable experiments " + ((experiments != null) ? Integer.toString(experiments.size()) : "none"));
-    return experiments;
+  public String performLoad() {
+    return jsonify(getAllExperimentsAvailableToUser());
   }
-  
-  public abstract String performLoad();
+
+  protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
+    return ExperimentCacheHelper.getInstance().getJoinableExperiments(email, timezone);
+  }
+
+  protected abstract String jsonify(List<ExperimentDAO> availableExperiments);
 
 }
