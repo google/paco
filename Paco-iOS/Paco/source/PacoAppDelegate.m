@@ -22,6 +22,7 @@
 #import "PacoMainViewController.h"
 #import "PacoQuestionScreenViewController.h"
 #import "PacoScheduler.h"
+#import "PacoEventManager.h"
 
 @implementation PacoAppDelegate
 
@@ -76,6 +77,7 @@
   } else {
     NSLog(@"FAILED TO SAVE TO FILE");
   }
+  [[PacoEventManager sharedInstance] saveDataToFile];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

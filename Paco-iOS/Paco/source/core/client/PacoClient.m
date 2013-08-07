@@ -22,6 +22,9 @@
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoEvent.h"
+#import "Reachability.h"
+#import "PacoEventManager.h"
+#import "PacoEventUploader.h"
 
 
 static NSString* const kUserEmail = @"PacoClient.userEmail";
@@ -64,6 +67,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) PacoModel *model;
 @property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
 @property (nonatomic, retain, readwrite) PacoService *service;
+@property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) NSString* userEmail;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
@@ -89,9 +93,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     self.location = nil;//[[PacoLocation alloc] init];
     self.scheduler = [[PacoScheduler alloc] init];
     self.service = [[PacoService alloc] init];
+    _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
+    // Start the notifier, which will cause the reachability object to retain itself!
+    [_reachability startNotifier];
+
     self.model = [[PacoModel alloc] init];
     self.prefetchState = [[PacoPrefetchState alloc] init];
-    
     
     if (SERVER_DOMAIN_FLAG == 0) {//production
       self.serverDomain = @"https://quantifiedself.appspot.com";
@@ -165,6 +172,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       
                                       // Fetch the experiment definitions and the events of joined experiments.
                                       [self prefetch];
+                                      
+                                      [self uploadPendingEventsInBackground];
+                                      
                                       completionHandler(nil);
                                     } else {
                                       completionHandler(error);
@@ -191,6 +201,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
       }
     }];
   }
+}
+
+- (void)uploadPendingEventsInBackground {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [[PacoEventManager sharedInstance].uploader startUploading];
+  });
 }
 
 - (BOOL)prefetchedDefinitions
@@ -268,7 +284,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 
 #pragma mark stop an experiment
-- (void)deleteLocalExperiment:(PacoExperiment*)experiment
+- (void)deleteExperimentFromCache:(PacoExperiment*)experiment
 {
   //remove experiment from local cache
   [self.model deleteExperiment:experiment];
@@ -276,25 +292,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   //TODO: ymz: clear all scheduled notifications and anything else
 }
 
-
-- (void)stopExperiment:(PacoExperiment*)experiment
-       completionBlock:(void (^)(NSError*))completionBlock
-{
-  PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
-  [self.service submitEvent:event withCompletionHandler:^(NSError* error) {
-    if (error) {
-      if (completionBlock) {
-        completionBlock(error);
-      }      
-      return;
-    }
-    
-    [self deleteLocalExperiment:experiment];
-    if (completionBlock) {
-      completionBlock(nil);
-    }
-  }];
-}
 
 
 
