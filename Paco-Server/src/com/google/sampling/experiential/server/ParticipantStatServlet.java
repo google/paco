@@ -48,7 +48,7 @@ public class ParticipantStatServlet extends HttpServlet {
         final boolean alpha = req.getParameter("alpha") != null;
         Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
-        DateTimeZone timeZoneForClient = EventServlet.getTimeZoneForClient(req);
+        DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),
                                                                     timeZoneForClient, 0, 20000);
         Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();

@@ -15,7 +15,10 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public class SignalingMechanism {
 
   private static final int DEFAULT_TIMEOUT_MINUTES = 59;
+  private static final Integer DEFAULT_MINIMUM_BUFFER = 59;
+  
   protected Integer timeout;
+  protected Integer minimumBuffer;
 
   public Integer getTimeout() {
     if (timeout == null) {
@@ -36,6 +39,17 @@ public class SignalingMechanism {
   @JsonIgnore
   public String getType() {
     return "";
+  }
+
+  public Integer getMinimumBuffer() {
+    if (minimumBuffer == null) {
+      return DEFAULT_MINIMUM_BUFFER;
+    }
+    return minimumBuffer;
+  }
+
+  public void setMinimumBuffer(Integer minimumBuffer) {
+    this.minimumBuffer = minimumBuffer;
   }
 
 

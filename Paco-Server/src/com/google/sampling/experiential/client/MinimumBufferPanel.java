@@ -10,28 +10,23 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 
-public class TimeoutPanel extends Composite {
+public class MinimumBufferPanel extends Composite {
 
   private SignalingMechanismDAO signalingMechanism;
-  private SignalMechanismChooserPanel ancestorSignalPanel;
   private HorizontalPanel mainPanel;
-  
-  // Visible for testing
-  protected MouseOverTextBoxBase textBox;
 
-  public TimeoutPanel(final SignalingMechanismDAO schedule, SignalMechanismChooserPanel ancestor) {
+  public MinimumBufferPanel(final SignalingMechanismDAO signalingMechanism) {
     MyConstants myConstants = GWT.create(MyConstants.class);
-    this.signalingMechanism = schedule;
-    this.ancestorSignalPanel = ancestor;
+    this.signalingMechanism = signalingMechanism;
     mainPanel = new HorizontalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
         
-    Label timeoutLabel = new Label(myConstants.timeout() +":");
-    timeoutLabel.setStyleName("gwt-Label-Header");
-    mainPanel.add(timeoutLabel);
+    Label minimumBufferLabel = new Label(myConstants.minimumBuffer() +":");
+    minimumBufferLabel.setStyleName("gwt-Label-Header");
+    mainPanel.add(minimumBufferLabel);
     
-    textBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
+    final TextBox textBox = new TextBox();
     textBox.setWidth("5em");
     textBox.setMaxLength(5);
     mainPanel.add(textBox);
@@ -42,36 +37,26 @@ public class TimeoutPanel extends Composite {
     minutesLabel.setStyleName("paco-small");
     mainPanel.add(minutesLabel);
     
-    textBox.setMessage(myConstants.timeoutMustBeValid());
-    textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+    textBox.addValueChangeHandler(new ValueChangeHandler() {
       @Override
-      public void onValueChange(ValueChangeEvent<String> arg0) {
+      public void onValueChange(ValueChangeEvent arg0) {
         String text = textBox.getText();
+        
         try {
-          int timeoutMinutes = Integer.parseInt(text);
-          schedule.setTimeout(timeoutMinutes);
-          ExperimentCreationPanel.setPanelHighlight(textBox, true);
-          textBox.disableMouseOver();
-          removeTimeoutError();
+          int minBufferMinutes = Integer.parseInt(text);
+          signalingMechanism.setMinimumBuffer(minBufferMinutes);
         } catch (NumberFormatException nfe) {
-          handleTimeoutError();
-        } catch (IllegalArgumentException e) {
-          handleTimeoutError();
+          
         }
-      }
-      
-      private void handleTimeoutError() {
-        ExperimentCreationPanel.setPanelHighlight(textBox, false);
-        addTimeoutError();
-        textBox.enableMouseOver();
+        
       }
     });
     
   }
 
   private String getTimeout() {
-    if (signalingMechanism.getTimeout() != null) {
-      return signalingMechanism.getTimeout().toString();
+    if (signalingMechanism.getMinimumBuffer() != null) {
+      return signalingMechanism.getMinimumBuffer().toString();
     } else {
       if (signalingMechanism instanceof SignalScheduleDAO) {
         if (((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {
@@ -82,15 +67,8 @@ public class TimeoutPanel extends Composite {
       } else {
         return SignalingMechanismDAO.TRIGGER_SIGNAL_TIMEOUT;
       }
-    } 
-  }
-  
-  public void removeTimeoutError() {
-    ancestorSignalPanel.removeTimeoutErrorMessage(textBox.getMessage());
-  }
-  
-  public void addTimeoutError() {
-    ancestorSignalPanel.addTimeoutErrorMessage(textBox.getMessage());
+    }
+    
   }
 
 }

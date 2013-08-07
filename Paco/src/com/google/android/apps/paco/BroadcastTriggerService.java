@@ -51,12 +51,29 @@ public class BroadcastTriggerService extends Service {
   protected void notifyExperimentsThatCare(DateTime time, int triggerEvent, String sourceIdentifier) {
     NotificationCreator notificationCreator = NotificationCreator.create(this);
     ExperimentProviderUtil eu = new ExperimentProviderUtil(this);
+    DateTime now = new DateTime();
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
-      if (experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)) {
+      if (!experiment.isOver(now)
+          && experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)
+          && !recentlyTriggered(experiment.getServerId(),
+                                experiment.getSignalingMechanisms().get(0).getMinimumBuffer())) {
+        setRecentlyTriggered(now, experiment.getServerId());
         notificationCreator.createNotificationsForTrigger(experiment, time, triggerEvent, sourceIdentifier);
       }
     }
+  }
+
+  private void setRecentlyTriggered(DateTime now, long experimentId) {
+    UserPreferences prefs = new UserPreferences(getApplicationContext());
+    prefs.setRecentlyTriggeredTime(experimentId, now);
+    
+  }
+
+  private boolean recentlyTriggered(long experimentId, Integer minimumBufferInMinutes) {
+    UserPreferences prefs = new UserPreferences(getApplicationContext());
+    DateTime recentlyTriggered = prefs.getRecentlyTriggeredTime(experimentId);
+    return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBufferInMinutes).isAfterNow();
   }
 
   

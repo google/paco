@@ -89,6 +89,8 @@ public class UserPreferences {
 
   public static final String PREFERENCE_KEY = "url-content-manager";
 
+  private static final String EXPERIMENT_TRIGGERED_KEY = null;
+
   public UserPreferences(Context context) {
     this.context = context;
   }
@@ -252,6 +254,18 @@ public class UserPreferences {
   
   public void setPacoBarkRingtoneInstalled() {
     getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
+  }
+
+  public DateTime getRecentlyTriggeredTime(long experimentId) {
+    String storedTime = getAppPrefs().getString(EXPERIMENT_TRIGGERED_KEY + "_" + experimentId, null);
+    if (storedTime == null) {
+      return null;
+    }
+    return TimeUtil.parseDateTime(storedTime);
+  }
+  
+  public void setRecentlyTriggeredTime(long experimentId, DateTime time) {
+    getAppPrefs().edit().putString(EXPERIMENT_TRIGGERED_KEY + "_" + experimentId, TimeUtil.formatDateTime(time)).commit();
   }
 
 }

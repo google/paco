@@ -37,7 +37,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -64,7 +64,7 @@ public class EndOfDayExperimentExecutorPanel extends AbstractExperimentExecutorP
   private List<EndOfDayInputGroupPanel> endOfDayPanelsList;
   
   public EndOfDayExperimentExecutorPanel(ExperimentListener experimentListener, 
-                                         MapServiceAsync mapService, 
+                                         PacoServiceAsync mapService, 
                                          ExperimentDAO experiment, 
                                          List<EventDAO> dailyEventList, 
                                          Map<Date, EventDAO> eventList, ExperimentDAO referredExperiment) {

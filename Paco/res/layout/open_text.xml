@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:orientation="horizontal" >
 
-        <MultiAutoCompleteTextView
+        <AutoCompleteTextView
             android:id="@+id/open_text_answer"
             android:layout_width="0dp"
             android:layout_weight="1"

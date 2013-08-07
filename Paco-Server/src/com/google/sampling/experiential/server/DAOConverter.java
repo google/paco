@@ -93,8 +93,6 @@ public class DAOConverter {
     userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
     
     Integer version = experiment.getVersion();
-
-    
     
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
@@ -117,7 +115,7 @@ public class DAOConverter {
 
   private static TriggerDAO createTriggerDAO(Trigger trigger) {
     return new TriggerDAO(trigger.getId().getId(), trigger.getEventCode(), trigger.getSourceIdentifier(), 
-                          trigger.getDelay(), trigger.getTimeout());
+                          trigger.getDelay(), trigger.getTimeout(), trigger.getMinimumBuffer());
   }
 
   /**
@@ -129,7 +127,7 @@ public class DAOConverter {
             schedule.getDayOfMonth(), schedule.getEsmEndHour(), schedule.getEsmFrequency(),
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
             schedule.getRepeatRate(), toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(),
-            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout());
+            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer());
   }
 
   public static FeedbackDAO createDAO(Feedback feedback) {
@@ -223,7 +221,7 @@ public class DAOConverter {
     Trigger trigger = new Trigger(key, signalingMechanismDAO.getId(),
                                                  signalingMechanismDAO.getEventCode(),
                                                  signalingMechanismDAO.getSourceIdentifier(),
-                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout());
+                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout(), signalingMechanismDAO.getMinimumBuffer());
                                                  return trigger; 
   }
 
@@ -251,7 +249,7 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()), 
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(), 
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(), 
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer());
     return schedule;
   }
 

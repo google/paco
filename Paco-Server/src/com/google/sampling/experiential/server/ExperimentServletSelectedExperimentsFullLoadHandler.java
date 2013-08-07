@@ -1,7 +1,9 @@
 package com.google.sampling.experiential.server;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+
+import org.joda.time.DateTimeZone;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -10,45 +12,39 @@ import com.google.sampling.experiential.datastore.JsonConverter;
 
 public class ExperimentServletSelectedExperimentsFullLoadHandler extends ExperimentServletHandler {
 
-  private String email;
-  private String tz;
   private String selectedExperimentsParam;
-  
-  public ExperimentServletSelectedExperimentsFullLoadHandler(String email, String tz, 
+
+  public ExperimentServletSelectedExperimentsFullLoadHandler(String email, DateTimeZone timezone,
                                                              String selectedExperimentsParam) {
-    this.email = email;
-    this.tz = tz;
+    super(email, timezone);
     this.selectedExperimentsParam = selectedExperimentsParam;
   }
-  
+
   @Override
-  public String performLoad() {
-    List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(email, tz);
-    HashMap<Long, Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
-    return loadSelectedExperiments(experimentIds, availableExperiments);
-  }
-  
-  private String loadSelectedExperiments(HashMap<Long,Long> experimentIds, List<ExperimentDAO> availableExperiments) {
-    List<ExperimentDAO> experiments = Lists.newArrayList();
-    for (ExperimentDAO experiment : availableExperiments) {
-      if (experimentIds.containsKey(experiment.getId())) {
-        experiments.add(experiment);
-      }
+  protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
+    List<Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      return Collections.EMPTY_LIST;
     }
-    if (experiments.isEmpty()) {
-      log.severe("Experiment id's " + experimentIds + " are all invalid.  No experiments were fetched from server.");
-      return "[]";
-    }
-    return JsonConverter.jsonify(experiments);
+    return getFullExperimentsById(experimentIds, email, timezone);
   }
-  
-  private HashMap<Long,Long> parseExperimentIds(String expStr) {
-    HashMap<Long,Long> experimentIds = new HashMap<Long, Long>();
+
+  protected List<ExperimentDAO> getFullExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
+    return ExperimentCacheHelper.getInstance().getExperimentsById(experimentIds, email, timezone);
+  }
+
+  @Override
+  protected String jsonify(List<ExperimentDAO> availableExperiments) {
+    return JsonConverter.jsonify(availableExperiments);
+  }
+
+  private List<Long> parseExperimentIds(String expStr) {
+    List<Long> experimentIds = Lists.newArrayList();
     Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
     for (String id : strIds) {
       Long experimentId = extractExperimentId(id);
       if (!experimentId.equals(new Long(-1))) {
-        experimentIds.put(experimentId, null);
+        experimentIds.add(experimentId);
       }
     }
     return experimentIds;
@@ -56,10 +52,9 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
 
   private Long extractExperimentId(String expStr) {
     try {
-      Long experimentId = Long.parseLong(expStr, 10);
-      return experimentId;
+      return Long.parseLong(expStr, 10);
     } catch (NumberFormatException e) {
-      log.severe("Invalid experiment id " + expStr + " sent to server.");
+      log.info("Invalid experiment id " + expStr + " sent to server.");
       return new Long(-1);
     }
   }
