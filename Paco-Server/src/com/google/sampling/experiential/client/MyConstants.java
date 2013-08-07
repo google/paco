@@ -515,4 +515,7 @@ public interface MyConstants extends Constants {
   
   @DefaultStringValue("Click to close condition editing menus")
   String clickToCloseConditionEditor();
+  
+  @DefaultStringValue("Conditional expressions must contain only valid symbols and must have balanced parentheses.")
+  String conditionalExpressionIsInvalid();
 }

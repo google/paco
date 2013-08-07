@@ -276,22 +276,26 @@ public class InputsPanel extends Composite implements MouseDownHandler {
         input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
         // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
-        updateAllConditionals();
+        updateAllConditionalConfigurations();
       }
     });
     responseTypeListBox.addMouseDownHandler(this);
   }
   
-  protected void updateAllConditionals() {
-    parent.updateConditionals(this);
+  protected void updateAllConditionalConfigurations() {
+    parent.updateConditionalConfigurations(this);
+  }
+  
+  protected void updateAllConditionalsForRename() {
+    parent.updateConditionalsForRename(this);
   }
   
   protected void invalidatePertinentConditionals() {
     parent.invalidatePertinentConditionals(this);
   }
   
-  protected void updateConditionalsForInput(InputDAO input) {
-    conditionalPanel.updateConditionalsForInput(input);
+  protected void updateConditionalConfigurationForInput(InputDAO input) {
+    conditionalPanel.updateConditionalConfigurationForInput(input);
   }
   
   protected void invalidateConditionalsForInput(InputDAO input) {
@@ -300,6 +304,14 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   
   protected void deleteConditionalsForInput(InputDAO input) {
     conditionalPanel.deleteConditionalsForInput(input);
+  }
+  
+  protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    conditionalPanel.updateConditionalsForOrdering(precedingDaos);
+  }
+  
+  protected void updateConditionalsForRename(InputDAO input) {
+    conditionalPanel.updateConditionalsForRename(input);
   }
 
   private void createInputTextColumn() {
@@ -351,10 +363,12 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   // Visible for testing
   protected void changeVarNameWithValidationAndHighlight(String varName) {
     try {    
+      // TODO: incorporate a check for input name uniqueness.
       input.setName(varName);
       ExperimentCreationPanel.setPanelHighlight(varNameText, true);
       varNameText.disableMouseOver();
       removeVarNameErrorMessage();
+      updateAllConditionalsForRename();
     } catch (IllegalArgumentException e) {
       ExperimentCreationPanel.setPanelHighlight(varNameText, false);
       varNameText.enableMouseOver();
@@ -384,6 +398,14 @@ public class InputsPanel extends Composite implements MouseDownHandler {
 
   public void addFirstListChoiceError(String message) {
     parent.addFirstListChoiceErrorMessage(this, message);
+  }
+  
+  public void removeConditionalError(String message) {
+    parent.removeConditionalErrorMessage(this, message);
+  }
+  
+  public void addConditionalError(String message) {
+    parent.addConditionalErrorMessage(this, message);
   }
 
   /*

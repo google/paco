@@ -139,6 +139,15 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
     }
   }
   
+  /**
+   * Note: this affects only objects initialized with type TEXT_BOX.
+   */
+  public void setVisibleLength(int length) {
+    if (textBox instanceof TextBox) {
+      ((TextBox) textBox).setVisibleLength(length);
+    }
+  }
+  
   public void addValueChangeHandler(ValueChangeHandler<String> handler) {
     textBox.addValueChangeHandler(handler);
   }
