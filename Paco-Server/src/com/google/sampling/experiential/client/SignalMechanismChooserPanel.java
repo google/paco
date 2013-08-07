@@ -112,6 +112,7 @@ public class SignalMechanismChooserPanel extends Composite {
   }
   
   private Label createSignalGroupHeader() {
+    // Groups are numbered starting from 0, but user sees the numbering as starting from 1.
     String titleText = myConstants.signalGroup() + " " + (signalGroupNum + 1);
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");

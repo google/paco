@@ -396,7 +396,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   private String prependSignalGroupToErrorMessage(String errorMessage, Integer signalGroupNum) {
-    return myConstants.signalGroup() + " " + signalGroupNum + ": " + errorMessage;
+    return myConstants.signalGroup() + " " + (signalGroupNum +  1) + ": " + errorMessage;
   }
   
   private String getErrorMessages() {

@@ -6,6 +6,8 @@ import com.google.common.base.Preconditions;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -47,6 +49,7 @@ public class ExperimentCreationContentPanel extends Composite {
     scrollPanel = new ScrollPanel(scrollInner);
     scrollPanel.setSize("900px", "600px");
     mainPanel.add(scrollPanel);
+    scrollPanel.setStyleName("paco-Input");
     addShowingViews(showingViews);
   }
   
