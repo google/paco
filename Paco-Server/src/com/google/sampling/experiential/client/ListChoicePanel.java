@@ -102,6 +102,7 @@ public class ListChoicePanel extends Composite {
       ensureListChoicesErrorNotFired();
       textField.disableMouseOver();
     } catch (IllegalArgumentException e) {
+      invalidatePertienentConditionals();
       ExperimentCreationPanel.setPanelHighlight(textField, false);
       textField.enableMouseOver();
       fireListChoicesError();
@@ -138,6 +139,10 @@ public class ListChoicePanel extends Composite {
   
   private boolean isFirstPanel() {
     return parent.hasNoChildren();
+  }
+  
+  private void invalidatePertienentConditionals() {
+    parent.invalidatePertienentConditionals();
   }
 
 }

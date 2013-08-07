@@ -276,9 +276,30 @@ public class InputsPanel extends Composite implements MouseDownHandler {
         input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
         // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        updateAllConditionals();
       }
     });
     responseTypeListBox.addMouseDownHandler(this);
+  }
+  
+  protected void updateAllConditionals() {
+    parent.updateConditionals(this);
+  }
+  
+  protected void invalidatePertinentConditionals() {
+    parent.invalidatePertinentConditionals(this);
+  }
+  
+  protected void updateConditionalsForInput(InputDAO input) {
+    conditionalPanel.updateConditionalsForInput(input);
+  }
+  
+  protected void invalidateConditionalsForInput(InputDAO input) {
+    conditionalPanel.invalidateConditionalsForInput(input);
+  }
+  
+  protected void deleteConditionalsForInput(InputDAO input) {
+    conditionalPanel.deleteConditionalsForInput(input);
   }
 
   private void createInputTextColumn() {

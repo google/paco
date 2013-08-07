@@ -125,15 +125,17 @@ public class ListChoicesPanel extends Composite {
       newTimes[i] = choicePanelsList.get(i).getChoice();
     }
     input.setListChoices(newTimes);
+    updateAllConditionals();
   }
 
   public void updateChoice(ListChoicePanel choicePanel) throws IllegalArgumentException {
     int index = choicePanelsList.indexOf(choicePanel);
     input.setListChoiceAtIndex(index, choicePanel.getChoice());
+    updateAllConditionals();
   }
   
   public void checkListChoicesAreNotEmptyAndHighlight() {
-      choicePanelsList.get(0).setInputListChoiceAndHighlight();
+    choicePanelsList.get(0).setInputListChoiceAndHighlight();
   }
   
   public void ensureListChoicesErrorNotFired() {
@@ -162,6 +164,14 @@ public class ListChoicesPanel extends Composite {
   
   protected boolean hasNoChildren() {
     return choicePanelsList.isEmpty();
+  }
+  
+  private void updateAllConditionals() {
+    parent.updateAllConditionals();
+  }
+  
+  protected void invalidatePertienentConditionals() {
+    parent.invalidatePertinentConditionals();
   }
 
 }

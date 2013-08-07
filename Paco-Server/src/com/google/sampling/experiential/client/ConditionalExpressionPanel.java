@@ -6,9 +6,12 @@ import com.google.common.base.Joiner;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -18,7 +21,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.InputDAO;
 
 public class ConditionalExpressionPanel extends Composite implements ChangeHandler {
-  
+
   public static final int NEUTRAL_PAREN_MODE = 0;
   public static final int JUST_ADDED_LEFT_PAREN = 1;
   public static final int JUST_DELETED_LEFT_PAREN = 2;
@@ -32,6 +35,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private HorizontalPanel mainPanel;
   private ListBox operatorListBox;
+  private HorizontalPanel operatorPanel;
   private TextBox varNameText;
   private ListBox comparatorListBox;
   private PredicatePanel predicatePanel;
@@ -45,6 +49,8 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private int numLeftParens;
   private int numRightParens;
   private int parenBalancingMode;
+  
+  private InputDAO input;
 
   public ConditionalExpressionPanel(ConditionalExpressionsPanel parent, 
                                     MouseDownHandler precedenceMouseDownHandler,
@@ -68,13 +74,14 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     createRightParenDisplayPanel();
     createRightParenManagementPanel();
     createAddNextListBox();
+    createDeleteButton();
 
     setExpressionValidity(false);
     numLeftParens = 0;
     numRightParens = 0;
     parenBalancingMode = NEUTRAL_PAREN_MODE;
   }
-  
+
   public ConditionalExpressionPanel(ConditionalExpressionsPanel parent, 
                                     MouseDownHandler precedenceMouseDownHandler,
                                     int initialOp, String inputName, int comparator, int predicate,
@@ -96,6 +103,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   protected void addConditionalPanel(int conditionalOp) {
     parent.addConditionalPanel(this, conditionalOp);
+  }
+
+  private void deleteThis() {
+    parent.deleteConditionPanel(this);
   }
 
   protected void updateExpression() {
@@ -121,6 +132,8 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   private void createOperatorArea(int conditionalOp) {
+    operatorPanel = new HorizontalPanel();
+    mainPanel.add(operatorPanel);
     operatorListBox = new ListBox();
     if (conditionalOp == ConditionalExpressionsPanel.NO_OP) {
       configureInvalidOperatorListBox();
@@ -133,7 +146,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     // Add label instead of box.
     Label blankLabel = new Label();
     blankLabel.setWidth("5em");
-    mainPanel.add(blankLabel);
+    operatorPanel.add(blankLabel);
 
     // Configure list box for sake of value.
     operatorListBox.addItem("", ConditionalExpressionsPanel.OPS[ConditionalExpressionsPanel.NO_OP]);
@@ -151,9 +164,9 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     operatorListBox.addChangeHandler(this);
     // Index is off-by-one from constant since this menu has no no-op option.
     setOperatorListBoxSelectedIndex(conditionalOp - 1);
-    mainPanel.add(operatorListBox);
+    operatorPanel.add(operatorListBox);
   }
-  
+
   private void setOperatorListBoxSelectedIndex(Integer selectedIndex) {
     setListBoxSelectedIndex(selectedIndex, operatorListBox);
   }
@@ -191,22 +204,22 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     mainPanel.add(comparatorListBox);
   }
 
-  private void configureComparatorListBoxForInput(InputDAO input) {
+  private void configureComparatorListBoxForInput() {
     String listExtra = ConditionalExpressionsPanel.COMPARATORS[6];
     int lastListBoxIndex = comparatorListBox.getItemCount() - 1;
     String lastListBoxItem = comparatorListBox.getValue(lastListBoxIndex);
     if (input.getResponseType().equals(InputDAO.LIST) && !lastListBoxItem.equals(listExtra)) {
       comparatorListBox.addItem(myConstants.contains(), listExtra);
-    } else if (lastListBoxItem.equals(listExtra)) {
+    } else if (!input.getResponseType().equals(InputDAO.LIST) && lastListBoxItem.equals(listExtra)) {
       comparatorListBox.removeItem(lastListBoxIndex);
     }
   }
-  
+
   private void setComparatorListBoxSelectedIndex(Integer value) {
     setListBoxSelectedIndex(value, comparatorListBox);
   }
 
-  private boolean inputCannotBeConditionalized(InputDAO input) {
+  private boolean inputCannotBeConditionalized() {
     return input.getResponseType().equals(InputDAO.OPEN_TEXT) 
         || input.getResponseType().equals(InputDAO.LOCATION)
         || input.getResponseType().equals(InputDAO.PHOTO);
@@ -216,7 +229,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     this.isValid = isValid;
     setConfigurablePanelsEnabled(isValid);
   }
-  
+
   private void setConfigurablePanelsEnabled(boolean isEnabled) {
     comparatorListBox.setEnabled(isEnabled);
     predicatePanel.setEnabled(isEnabled);
@@ -224,7 +237,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     leftParenManagementPanel.setEnabled(isEnabled);
     rightParenManagementPanel.setEnabled(isEnabled);
   }
-  
+
   private void setInitialEntryPanelsEnabled(boolean isEnabled) {
     varNameText.setEnabled(isEnabled);
     operatorListBox.setEnabled(isEnabled);
@@ -254,20 +267,30 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     });
     mainPanel.add(addNextListBox);
   }
-  
+
+  private void createDeleteButton() {
+    Button deleteButton = new Button("-");
+    deleteButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+        deleteThis();
+      }
+    });
+    mainPanel.add(deleteButton);
+  }
 
   private void setInitialLeftParens(int numLeftParens) {
     for (int i = 0; i < numLeftParens; ++i) {
       increaseNumLeftParens();
     }
   }
-  
+
   private void setInitialRightParens(int numRightParens) {
     for (int j = 0; j < numRightParens; ++j) {
       increaseNumRightParens();
     }
   }
-  
+
   protected void enableParenIncreaseBalancingMode(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT) {
       increaseLeftParensWithUpdate();
@@ -283,11 +306,11 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private void enableOverallAddRightParenMode() {
     parent.enableAddRightParenMode(this);
   }
-  
+
   private void enableOverallAddLeftParenMode() {
     parent.enableAddLeftParenMode(this);
   }
-  
+
   protected void enableParenDecreaseBalancingMode(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT && !(numLeftParens == 0)) {
       decreaseLeftParensWithUpdate();
@@ -303,11 +326,11 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private void enableOverallDeleteRightParenMode() {
     parent.enableDeleteRightParenMode(this);
   }
-  
+
   private void enableOverallDeleteLeftParenMode() {
     parent.enableDeleteLeftParenMode(this);
   }
-  
+
   protected void disableParenIncreaseBalancingMode(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT) {
       increaseLeftParensWithUpdate();
@@ -317,7 +340,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       restoreOverallNormalParenMode();
     }
   }
-  
+
   protected void disableParenDecreaseBalancingMode(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT) {
       decreaseLeftParensWithUpdate();
@@ -327,45 +350,45 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       restoreOverallNormalParenMode();
     }
   }
-  
+
   public void restoreOverallNormalParenMode() {
     parent.restoreOverallNormalMode();
   }
-  
+
   protected void setParenBalancingMode(int balancingMode) {
     this.parenBalancingMode = balancingMode;
   }
-  
+
   protected int getParenBalancingMode() {
     return parenBalancingMode;
   }
-  
+
   private void createLeftParenDisplayPanel() {
     leftParenDisplayLabel = new Label();
     leftParenDisplayLabel.setWidth("5em");
     mainPanel.add(leftParenDisplayLabel);
   }
-  
+
   private void createLeftParenManagementPanel() {
     leftParenManagementPanel = new ParenthesesManagementPanel(ParenthesesManagementPanel.LEFT, 
-                                                    this, precedenceMouseDownHandler);
+                                                              this, precedenceMouseDownHandler);
     mainPanel.add(leftParenManagementPanel);   
   }
-  
+
   public void enableAddRightParenMode() {
     if (isValid) {
       setAllPanelsEnabled(false);
       rightParenManagementPanel.enableAddMode();
     }
   }
-  
+
   public void enableAddLeftParenMode() {
     if (isValid) {
       setAllPanelsEnabled(false);
       leftParenManagementPanel.enableAddMode();
     }
   }
-  
+
   public void enableDeleteRightParenMode() {
     if (isValid) {
       setAllPanelsEnabled(false);
@@ -375,7 +398,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       }
     }
   }
-  
+
   public void enableDeleteLeftParenMode() {
     if (isValid) {
       setAllPanelsEnabled(false);
@@ -384,7 +407,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       }
     }
   }
-  
+
   public void enableNormalMode() {
     if (isValid) {
       rightParenManagementPanel.restoreDefaultMode();
@@ -392,12 +415,12 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       setAllPanelsEnabled(true);
     }
   }
-  
+
   private void setAllPanelsEnabled(boolean isEnabled) {
     setConfigurablePanelsEnabled(isEnabled);
     setInitialEntryPanelsEnabled(isEnabled);
   }
-  
+
   protected void increaseParens(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT) {
       increaseLeftParensWithUpdate();
@@ -415,7 +438,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     increaseNumRightParens();
     updateExpression();
   }
-  
+
   protected void decreaseParens(ParenthesesManagementPanel panel) {
     if (panel.getType() == ParenthesesManagementPanel.LEFT) {
       decreaseLeftParensWithUpdate();
@@ -428,39 +451,39 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     decreaseNumLeftParens();
     updateExpression();
   }
-  
+
   protected void decreaseRightParensWithUpdate() {
     decreaseNumRightParens();
     updateExpression();
   }
-  
+
   private void increaseNumLeftParens() {
     ++numLeftParens;
     leftParenDisplayLabel.setText(new String(new char[numLeftParens]).replace("\0", "("));
   }
-  
+
   private void decreaseNumLeftParens() {
     numLeftParens = (numLeftParens - 1 >= 0) ? numLeftParens - 1 : 0;
     leftParenDisplayLabel.setText(new String(new char[numLeftParens]).replace("\0", "("));
   }
-  
+
   private void createRightParenDisplayPanel() {
     rightParenDisplayLabel = new Label();
     rightParenDisplayLabel.setWidth("5em");
     mainPanel.add(rightParenDisplayLabel);
   }
-  
+
   private void createRightParenManagementPanel() {
     rightParenManagementPanel = new ParenthesesManagementPanel(ParenthesesManagementPanel.RIGHT, 
-                                                     this, precedenceMouseDownHandler);
+                                                               this, precedenceMouseDownHandler);
     mainPanel.add(rightParenManagementPanel);
   }
-  
+
   private void increaseNumRightParens() {
     ++numRightParens;
     rightParenDisplayLabel.setText(new String(new char[numRightParens]).replace("\0", ")"));
   }
-  
+
   private void decreaseNumRightParens() {
     numRightParens = (numRightParens - 1 >= 0) ? numRightParens - 1 : 0;
     rightParenDisplayLabel.setText(new String(new char[numRightParens]).replace("\0", ")"));
@@ -468,15 +491,24 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private void configurePanelForInput(String inputName) {
     List<InputDAO> inputs = getPrecedingInputsWithVarName(inputName);
-    if (inputs != null && inputs.size() == 1 && !inputCannotBeConditionalized(inputs.get(0))) {
-      predicatePanel.configureForInput(inputs.get(0));
-      configureComparatorListBoxForInput(inputs.get(0));
-      setExpressionValidity(true);
-    } else {
+    if (inputs == null || inputs.size() != 1) {
       setExpressionValidity(false);
+      return;
+    }
+    input = inputs.get(0);
+    if (inputCannotBeConditionalized()) {
+      setExpressionValidity(false);
+    } else {
+      configureSubPanelsForInput();
+      setExpressionValidity(true);
     }
   }
-  
+
+  protected void configureSubPanelsForInput() {
+    configureComparatorListBoxForInput();
+    predicatePanel.configureForInput(input);
+  }
+
   private void setListBoxSelectedIndex(Integer value, ListBox listBox) {
     // Note: error-checking is done this way because ListBox objects do not throw
     // exceptions when given an illegal index.
@@ -486,11 +518,73 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
       listBox.setSelectedIndex(value);
     }
   }
-  
+
   private boolean valueIsNullOrOutOfBounds(Integer value, ListBox listBox) {
     return value == null || value < 0 || value >= listBox.getItemCount();
   }
- 
+
+  protected void updateConditionalsForInput(InputDAO changedInput) {
+    if (conditionalIsForInput(changedInput))  {
+      if (inputCannotBeConditionalized()) {
+        setExpressionValidity(false);
+      } else {
+        configureSubPanelsForInput();
+        setExpressionValidity(true);
+      }
+      updateExpression();
+    }
+  }
+
+  protected void invalidateConditionalsForInput(InputDAO changedInput) {
+    if (conditionalIsForInput(changedInput)) {
+      invalidateConditional();
+    }
+  }
+  
+  private void invalidateConditional() {
+    setExpressionValidity(false);
+    updateExpression();
+  }
+  
+  protected void deleteConditionalsForInput(InputDAO deletedInput) {
+    if (conditionalIsForInput(deletedInput)) {
+      deleteThis();
+    }
+  }
+
+  protected boolean conditionalIsForInput(InputDAO changedInput) {
+    if (input == null) {
+      return false;
+    }
+    return input.equals(changedInput);
+  }
+  
+  protected boolean conditionalIsForInputInList(List<InputDAO> inputs) {
+    if (input == null) {
+      return false;
+    }
+    return inputs.contains(input);
+  }
+
+  protected void removePrecedingOpWithUpdate() {
+    if (operatorListBoxHasOp()) {
+      resetOperatorPanel();
+      configureInvalidOperatorListBox();
+    }
+    updateExpression();
+  }
+
+  private void resetOperatorPanel() {
+    mainPanel.remove(operatorListBox);
+    operatorPanel.clear();
+    operatorListBox.clear();
+  }
+
+  private boolean operatorListBoxHasOp() {
+    return !operatorListBox.getValue(operatorListBox.getSelectedIndex())
+        .equals(ConditionalExpressionsPanel.OPS[ConditionalExpressionsPanel.NO_OP]);
+  }
+
   @Override
   public void onChange(ChangeEvent event) {
     updateExpression();
