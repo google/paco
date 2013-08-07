@@ -19,6 +19,7 @@
 package com.google.sampling.experiential.client;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -59,6 +60,7 @@ public class InputsListPanel extends Composite {
   private LinkedList<InputsPanel> inputsPanelsWithVarNameErrors;
   private LinkedList<InputsPanel> inputsPanelsWithListChoiceErrors;
   private LinkedList<InputsPanel> inputsPanelsWithLikertScaleErrors;
+  private LinkedList<InputsPanel> inputsPanelsWithConditionalErrors;
 
   // Visible for testing.
   protected LinkedList<InputsPanel> inputsPanelsList;
@@ -91,6 +93,7 @@ public class InputsListPanel extends Composite {
     inputsPanelsWithVarNameErrors = new LinkedList<InputsPanel>();
     inputsPanelsWithListChoiceErrors = new LinkedList<InputsPanel>();
     inputsPanelsWithLikertScaleErrors = new LinkedList<InputsPanel> ();
+    inputsPanelsWithConditionalErrors = new LinkedList<InputsPanel>();
     createInputsPanels(experiment);
 
     createDragController();
@@ -207,6 +210,22 @@ public class InputsListPanel extends Composite {
       inputsPanelsWithLikertScaleErrors.add(panel);
     }
   }
+  
+  public void removeConditionalErrorMessage(InputsPanel panel, String message) {
+    inputsPanelsWithConditionalErrors.remove(panel);
+    if (inputsPanelsWithConditionalErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
+    }
+  }
+  
+  public void addConditionalErrorMessage(InputsPanel panel, String message) {
+    if (inputsPanelsWithConditionalErrors.isEmpty()) {
+      fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
+    }
+    if (!inputsPanelsWithConditionalErrors.contains(panel)) {
+      inputsPanelsWithConditionalErrors.add(panel);
+    }
+  }
 
   private void createInputsPanels(ExperimentDAO experiment) {
     inputsPanelsList = new LinkedList<InputsPanel>();
@@ -261,6 +280,14 @@ public class InputsListPanel extends Composite {
     }
     experiment.setInputs(newInputs);
   }
+  
+  private void updateAllConditionalsForOrdering() {
+    List<InputDAO> precedingDaos = new ArrayList<InputDAO>();
+    for (InputsPanel panel : inputsPanelsList) {
+      panel.updateConditionalsForOrdering(precedingDaos);
+      precedingDaos.add(panel.getInput());
+    }  
+  }
 
   /**
    * Drag handler to update inputs order after they have been rearranged.
@@ -271,6 +298,7 @@ public class InputsListPanel extends Composite {
     public void onDragEnd(DragEndEvent event) { 
         updateInputPanelsList();
         updateExperimentInputs();
+        updateAllConditionalsForOrdering();
     }
 
     @Override
@@ -327,12 +355,25 @@ public class InputsListPanel extends Composite {
     return varNameInputs;
   }
   
-  protected void updateConditionals(InputsPanel sender) {
+  protected void updateConditionalConfigurations(InputsPanel sender) {
     InputDAO input = sender.getInput();
     boolean isAfterPanel = false;
     for (InputsPanel panel : inputsPanelsList) {
       if (isAfterPanel) {
-        panel.updateConditionalsForInput(input);
+        panel.updateConditionalConfigurationForInput(input);
+      }
+      if (panel.equals(sender)) {
+        isAfterPanel = true;
+      }
+    }
+  }
+  
+  protected void updateConditionalsForRename(InputsPanel sender) {
+    InputDAO input = sender.getInput();
+    boolean isAfterPanel = false;
+    for (InputsPanel panel : inputsPanelsList) {
+      if (isAfterPanel) {
+        panel.updateConditionalsForRename(input);
       }
       if (panel.equals(sender)) {
         isAfterPanel = true;

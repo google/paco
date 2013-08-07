@@ -55,7 +55,7 @@ public class ConditionalExpressionsPanel extends Composite {
   private HorizontalPanel textEntryPanel;
   private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
-  private TextBox conditionDisplayTextBox;
+  private MouseOverTextBoxBase conditionDisplayTextBox;
   private Button parenCancelButton;
 
   private InputDAO input;
@@ -91,10 +91,11 @@ public class ConditionalExpressionsPanel extends Composite {
     conditionalExpressionLabel.setStyleName("keyLabel");
     textEntryPanel.add(conditionalExpressionLabel);
 
-    conditionDisplayTextBox = new TextBox();
+    conditionDisplayTextBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX);
     conditionDisplayTextBox.setVisibleLength(60);
     updateTextDisplayExpression(input.getConditionExpression());
     conditionDisplayTextBox.addMouseDownHandler(parent);
+    conditionDisplayTextBox.setMessage(myConstants.conditionalExpressionIsInvalid());
     conditionDisplayTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
@@ -178,9 +179,13 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   public void updateExpressionUsingListPanel(ConditionalExpressionPanel conditionalExpressionPanel) {
+    updatePanelExpression(conditionalExpressionPanel);
+    updateConditionalModelAndText(constructConditionalExpression());
+  }
+
+  private void updatePanelExpression(ConditionalExpressionPanel conditionalExpressionPanel) {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
-    updateConditionalModelAndText(constructConditionalExpression());
   }
 
   private String constructConditionalExpression() {
@@ -212,10 +217,16 @@ public class ConditionalExpressionsPanel extends Composite {
 
     // TODO: callbacks to ExperimentCreationPanel when there are errors.
     // TODO: check for unbalanced parentheses errors.
-    if (expression == null || expression.isEmpty() || !expression.matches(OVERALL_CONDITIONAL_REGEX)) {
+    if (expression == null || expression.isEmpty()) {
+      createLonePanel();
+      return;
+    } else if (!expression.matches(OVERALL_CONDITIONAL_REGEX) || !parensAreBalanced(expression)) {
+      indicateConditionalError();
       createLonePanel();
       return;
     }
+    
+    ensureConditionalErrorNotFired();
 
     RegExp pattern = RegExp.compile(SINGLE_CONDITIONAL_REGEX, "g");
     MatchResult result = null;
@@ -232,6 +243,25 @@ public class ConditionalExpressionsPanel extends Composite {
                                          getNumParens(leftParens), getNumParens(rightParens));
       addConditionalPanelToLists(repPanel);
     }
+  }
+
+  private void ensureConditionalErrorNotFired() {
+    ExperimentCreationPanel.setPanelHighlight(conditionDisplayTextBox, true);
+    conditionDisplayTextBox.disableMouseOver();
+    parent.removeConditionalError(conditionDisplayTextBox.getMessage());
+  }
+
+  private void indicateConditionalError() {
+    ExperimentCreationPanel.setPanelHighlight(conditionDisplayTextBox, false);
+    conditionDisplayTextBox.enableMouseOver();
+    parent.addConditionalError(conditionDisplayTextBox.getMessage());
+  }
+  
+  // TODO: looping is more efficient.
+  private boolean parensAreBalanced(String expression) {
+    String noLeftParens = expression.replace("(", "");
+    String noRightParens = expression.replace(")", "");
+    return noLeftParens.length() == noRightParens.length();
   }
 
   private int getNumParens(String parenString) {
@@ -362,9 +392,9 @@ public class ConditionalExpressionsPanel extends Composite {
     removeParenCancelButton();
   }
   
-  protected void updateConditionalsForInput(InputDAO input) {
+  protected void updateConditionalConfigurationForInput(InputDAO input) {
     for (ConditionalExpressionPanel panel : conditionPanels) {
-      panel.updateConditionalsForInput(input);
+      panel.updateConditionalConfigurationForInput(input);
     }
   }
   
@@ -384,6 +414,22 @@ public class ConditionalExpressionsPanel extends Composite {
     for (ConditionalExpressionPanel panelToDelete : panelsToDelete) {
       deleteConditionPanel(panelToDelete);
     }
+  }
+  
+  protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.updateConditionalsForOrdering(precedingDaos);
+      updatePanelExpression(panel);
+    }
+    updateConditionalModelAndText(constructConditionalExpression());
+  }
+  
+  protected void updateConditionalsForRename(InputDAO input) {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      panel.updateConditionalsForRename(input);
+      updatePanelExpression(panel);
+    }
+    updateConditionalModelAndText(constructConditionalExpression());
   }
   
   protected void deleteConditionPanel(ConditionalExpressionPanel sender) {
