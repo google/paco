@@ -411,16 +411,16 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
   
-  @DefaultStringValue("Experiment Description")
+  @DefaultStringValue("Description")
   String experimentDescriptionButtonText();
   
-  @DefaultStringValue("Experiment Schedule")
+  @DefaultStringValue("Schedule")
   String experimentScheduleButtonText();
   
-  @DefaultStringValue("Experiment Inputs")
+  @DefaultStringValue("Inputs List")
   String experimentInputsButtonText();
   
-  @DefaultStringValue("Experiment Publishing")
+  @DefaultStringValue("Publishing")
   String experimentPublishingButtonText();
   
   @DefaultStringValue("Signal Groups")
@@ -438,7 +438,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Experiment Publishing")
   String experimentPublishing();
   
-  @DefaultStringValue("Scheduling Signaling")
+  @DefaultStringValue("Scheduled Signaling")
   String scheduledSignaling();
   
   @DefaultStringValue("Triggered Signaling")

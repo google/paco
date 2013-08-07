@@ -81,11 +81,15 @@ public class InputsListPanel extends Composite {
     rootPanel.setSize("100%", "100%");
     initWidget(rootPanel);
 
+    // Holds header
+    VerticalPanel headerPanel = new VerticalPanel();
+    headerPanel.add(createSignalGroupHeader());
+    headerPanel.add(createInputsHeader());
+    rootPanel.add(headerPanel);
+    
     // Holds content.
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
-    mainPanel.add(createSignalGroupHeader());
-    mainPanel.add(createInputsHeader());
     rootPanel.add(mainPanel);
 
     inputsPanelsWithVarNameErrors = new LinkedList<InputsPanel>();
@@ -101,7 +105,7 @@ public class InputsListPanel extends Composite {
   }
   
   private Label createSignalGroupHeader() {
-    String titleText = myConstants.signalGroup() + " " + signalGroupNum;
+    String titleText = myConstants.signalGroup() + " " + (signalGroupNum + 1);
     Label lblExperimentSchedule = new Label(titleText);
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;

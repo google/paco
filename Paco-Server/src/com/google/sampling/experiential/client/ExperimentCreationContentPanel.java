@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
@@ -24,6 +25,8 @@ public class ExperimentCreationContentPanel extends Composite {
 
   private VerticalPanel mainPanel;
   private HorizontalPanel buttonPanel;
+  private ScrollPanel scrollPanel;
+  private VerticalPanel scrollInner;
   private Widget showingView;
   
   private Widget addNewSignalGroupButton;
@@ -36,15 +39,21 @@ public class ExperimentCreationContentPanel extends Composite {
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
+    mainPanel.setSpacing(10);
     this.listener = listener;
-    addShowingViews(showingViews);
     createButtonPanel();
+    
+    scrollInner = new VerticalPanel();
+    scrollPanel = new ScrollPanel(scrollInner);
+    scrollPanel.setSize("900px", "600px");
+    mainPanel.add(scrollPanel);
+    addShowingViews(showingViews);
   }
   
   public void changeShowingView(Composite view, int buttonPanelId) {
     // The view should be a child of this panel and should not be
     // the button panel.
-    if (view.getParent() != null && view.getParent().equals(mainPanel)
+    if (view.getParent() != null && view.getParent().equals(scrollInner)
         && !view.equals(buttonPanel)) {
       showingView.setVisible(false);
       showingView = view;
@@ -76,19 +85,16 @@ public class ExperimentCreationContentPanel extends Composite {
     }
   }
   
-  // TODO: this is inefficient.
   public void addContentView(Composite view) {
-    mainPanel.remove(buttonPanel);
-    mainPanel.add(view);
+    scrollInner.add(view);
     view.setVisible(false);
-    mainPanel.add(buttonPanel);
   }
 
   private void addShowingViews(List<Composite> showingViews) {
     // By default, the first widget added is visible.
     boolean isFirstWidget = true;
     for (Widget widget : showingViews) {
-      mainPanel.add(widget);
+      scrollInner.add(widget);
       widget.setVisible(isFirstWidget);
       if (isFirstWidget) {
         isFirstWidget = false;
