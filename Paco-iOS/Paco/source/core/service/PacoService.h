@@ -32,6 +32,6 @@
           withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
 // Batch submit a list of events
-- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSError*))completionBlock;
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
 @end

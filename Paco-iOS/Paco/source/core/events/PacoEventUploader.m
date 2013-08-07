@@ -106,14 +106,24 @@ static int const kMaxNumOfEventsToUpload = 50;
 }
 
 - (void)submitEvents:(NSArray*)pendingEvents {
-  void(^completionBlock)(NSError*) = ^(NSError* error){
+  NSAssert([pendingEvents count] > 0, @"pendingEvents should have at least one element!");
+  
+  void(^completionBlock)(NSArray*, NSError*) = ^(NSArray* successEventIndexes, NSError* error){
     //Since this block is fired on main thread, send it to a background thread
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      NSAssert([successEventIndexes count] <= [pendingEvents count],
+             @"successEventIndexes count is not correct!");
+    
       if (error == nil) {
-        NSLog(@"%d events successfully uploaded!", [pendingEvents count]);
+        if ([successEventIndexes count] < [pendingEvents count]) {
+          NSLog(@"[Error]%d events uploaded, but %d events failed!",
+                [successEventIndexes count], [pendingEvents count] - [successEventIndexes count]);
+        } else {
+          NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
+        }
         
-        [self.delegate markEventsComplete:pendingEvents];        
-                
+        [self.delegate markEventsComplete:pendingEvents];
+        
         if (![self.delegate hasPendingEvents]) {
           NSLog(@"All pending events uploaded!");
           [self stopUploading];

@@ -105,7 +105,7 @@
 }
 
 
-- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSError*))completionBlock {
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([eventList count] > 0, @"eventList should have more than one item!");
   
   // Setup our request.
@@ -140,8 +140,20 @@
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
                NSLog(@"JOIN RESPONSE = %@", jsonData);
+
+               NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
+               NSMutableArray* successEventIndexes = [NSMutableArray array];
+               for (id output in jsonData) {
+                 NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
+                 if ([output objectForKey:@"errorMessage"] == nil) {
+                   NSNumber* eventIndex = [output objectForKey:@"eventId"];
+                   NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
+                   [successEventIndexes addObject:eventIndex];
+                 }
+               }
+               
                if (completionBlock) {
-                 completionBlock(error);
+                 completionBlock(successEventIndexes, error);
                }
              }];
 }
