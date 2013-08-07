@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -28,23 +28,29 @@ import com.google.paco.shared.model.ExperimentDAO;
  * * The client side stub for the RPC service.
  */
 @RemoteServiceRelativePath("maps")
-public interface MapService extends RemoteService {
-  List<EventDAO> map();
+public interface PacoService extends RemoteService {
+  List<EventDAO> eventsForUser();
 
-  List<EventDAO> mapWithTags(String tags);
+  List<EventDAO> eventSearch(String tags);
 
   void saveEvent(String who, String scheduledTime, String responseTime, String experimentId,
                  Map<String, String> kvPairs, Integer experimentVersion, boolean shared);
-  
+
   void saveExperiment(ExperimentDAO experiment);
-  
+
   Boolean deleteExperiment(ExperimentDAO experiment);
-  
-  List<ExperimentDAO> getExperimentsAvailableToUser();
-  
-  ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
-  
+
+  boolean joinExperiment(Long id);
+
+  List<ExperimentDAO> getAllJoinableExperiments(String tz);
+
+  List<ExperimentDAO> getMyJoinableExperiments(String tz);
+
   List<ExperimentDAO> getUsersJoinedExperiments();
+
+  List<ExperimentDAO> getUsersAdministeredExperiments();
+
+  ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser);
 
   void saveEvent(EventDAO event);
 
@@ -53,8 +59,4 @@ public interface MapService extends RemoteService {
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
 
   Map<Date, EventDAO> getEndOfDayEvents(String queryText);
-
-  List<ExperimentDAO> getUsersAdministeredExperiments();
-
-  boolean joinExperiment(Long id);
 }

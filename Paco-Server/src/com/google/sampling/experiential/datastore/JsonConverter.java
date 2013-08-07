@@ -7,6 +7,9 @@ import java.util.logging.Logger;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonSubTypes.Type;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -18,20 +21,19 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonSubTypes.Type;
-
 public class JsonConverter {
 
   public static final Logger log = Logger.getLogger(JsonConverter.class.getName());
 
   /**
    * @param experiments
-   * @param printWriter 
+   * @param printWriter
    * @return
    */
   public static String jsonify(List<ExperimentDAO> experiments) {
+    if (experiments == null || experiments.isEmpty()) {
+      return "[]";
+    }
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
@@ -43,9 +45,9 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
-    return null; 
+    return null;
   }
-  
+
   public static String shortJsonify(List<ExperimentDAO> experiments) {
     ObjectMapper mapper = new ObjectMapper();
     List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
@@ -59,21 +61,21 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
-    return null; 
+    return null;
   }
-  
+
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
     List<ExperimentDAOCore> shortExperiments = new ArrayList<ExperimentDAOCore>();
     for (ExperimentDAO experiment : experiments) {
       shortExperiments.add(experimentDAOCoreFromExperimentDAO(experiment));
     }
     return shortExperiments;
-    
+
   }
-  
+
   private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
-                                 experiment.getInformedConsentForm(), experiment.getCreator(), 
+                                 experiment.getInformedConsentForm(), experiment.getCreator(),
                                  experiment.getFixedDuration(),
                                  experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate());
   }
@@ -90,7 +92,7 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
-    return null; 
+    return null;
   }
 
   public static List<ExperimentDAO> fromEntitiesJson(String experimentJson) {
@@ -107,7 +109,7 @@ public class JsonConverter {
     }
     return null;
   }
-  
+
   public static ExperimentDAO fromSingleEntityJson(String experimentJson) {
     ObjectMapper mapper = getObjectMapper();
     try {
@@ -129,20 +131,20 @@ public class JsonConverter {
     mapper.getDeserializationConfig().addMixInAnnotations(SignalingMechanismDAO.class, SignalingMechanismDAOMixIn.class);
     return mapper;
   }
-  
-  
-  @JsonTypeInfo(  
-                use = JsonTypeInfo.Id.NAME,  
-                include = JsonTypeInfo.As.PROPERTY,  
-                property = "type")  
-            @JsonSubTypes({  
-                @Type(value = SignalScheduleDAO.class, name = "signalSchedule"),  
-                @Type(value = TriggerDAO.class, name = "trigger") })  
+
+
+  @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "type")
+            @JsonSubTypes({
+                @Type(value = SignalScheduleDAO.class, name = "signalSchedule"),
+                @Type(value = TriggerDAO.class, name = "trigger") })
   private class SignalingMechanismDAOMixIn
   {
     // Nothing to be done here. This class exists for the sake of its annotations.
   }
-  
+
 }
 
 

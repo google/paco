@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.jdo.Transaction;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -44,27 +42,24 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gwt.libideas.logging.shared.Log;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.sampling.experiential.datastore.ExperimentVersionEntity;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.TimeUtil;
+import com.google.sampling.experiential.shared.PacoService;
 
 
 /*
  * * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class MapServiceImpl extends RemoteServiceServlet implements MapService {
+public class PacoServiceImpl extends RemoteServiceServlet implements PacoService {
 
-  public List<EventDAO> map() {
+  public List<EventDAO> eventsForUser() {
     List<Event> result = EventRetriever.getInstance().getEvents(getWho());
     return EventRetriever.convertEventsToDAOs(result);
   }
@@ -79,52 +74,56 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     return null;
   }
-  
-  public List<EventDAO> mapWithTags(String tags) {
+
+  public List<EventDAO> eventSearch(String tags) {
     return getEventsForQuery(tags);
   }
 
   private List<EventDAO> getEventsForQuery(String tags) {
     List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse(tags);
-    List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(), 
-        EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
+    List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(),
+        TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
     return EventRetriever.convertEventsToDAOs(result);
   }
 
-  public void saveEvent(String who, 
-      String scheduledTime, 
-      String responseTime, 
+  public void saveEvent(String who,
+      String scheduledTime,
+      String responseTime,
       String experimentId,
       Map<String, String> kvPairs,
       Integer experimentVersion,
       boolean shared) {
-    
+
     Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
     Date responseTimeDate = responseTime != null ? parseDateString(responseTime) : null;
     Date whenDate = new Date();
     // TODO (Once all data has been cleaned up, just send the kvPairs, and change the constructor)
     Set<What> whats = parseWhats(kvPairs);
-    User loggedInWho = getWhoFromLogin();    
-    if (loggedInWho == null || (who != null && !who.isEmpty() 
+    User loggedInWho = getWhoFromLogin();
+    if (loggedInWho == null || (who != null && !who.isEmpty()
         && !loggedInWho.getEmail().toLowerCase().equals(who.toLowerCase()))) {
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
-    
-    
+
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
-    
+
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
     }
-    
+
     if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail().toLowerCase())) {
-      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");
     }
-    
-    
+
     try {
       String tz = null;
-      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform", 
+      DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
+      if (timeZoneForClient != null) {
+        tz = timeZoneForClient.getID();
+      }
+
+      // TODO fix this to just pass timezone all the way through
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
           "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
@@ -136,7 +135,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     // is it possible to forge host headers?
     //    return EventServlet.DEV_HOST.equals(getHostFromRequest());
   }
-  
+
   private User getWhoFromLogin() {
     UserService userService = UserServiceFactory.getUserService();
     return userService.getCurrentUser();
@@ -151,7 +150,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
     return whats;
   }
- 
+
   private Date parseDateString(String when) {
     SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
     Date whenDate;
@@ -165,109 +164,21 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
 
   @Override
   public void saveExperiment(ExperimentDAO experimentDAO) {
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Experiment experiment = null;
-    if (experimentDAO.getId() != null) {
-      experiment = retrieveExperimentForDAO(experimentDAO, pm);
-    } else {
-      experiment = new Experiment();
-      experiment.setVersion(1);
-    }
-    
-    if (experiment.getId() != null) {
-      User loggedInUser = getWhoFromLogin();
-      String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
-      if (!(experiment.getCreator().equals(loggedInUser) || 
-            experiment.getAdmins().contains(loggedInUserEmail))) {
-        // TODO (Bobevans): return a signal here that they are no longer allowed to edit this
-        // experiment;
-        return;
-      }
-      incrementExperimentVersionNumber(experimentDAO, experiment);
-
-      JDOHelper.makeDirty(experiment, "inputs");
-      JDOHelper.makeDirty(experiment, "feedback");
-      JDOHelper.makeDirty(experiment, "schedule");
-      
-      
-    }
-    DAOConverter.fromExperimentDAO(experimentDAO, experiment, getWhoFromLogin());
-    
-    Transaction tx = null;
-    boolean committed = false;
-    try {
-      tx = pm.currentTransaction();
-      tx.begin();    
-      pm.makePersistent(experiment);      
-      tx.commit();
-      committed  = true;
-    } finally {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      pm.close();
-    }
-    
-    if (committed) {
-      ExperimentVersionEntity.saveExperimentAsEntity(experiment);
-      ExperimentCacheHelper.getInstance().clearCache();      
-      addAnyNewPeopleToTheWhitelist(experiment);
-    }
-  }
-
-  private void addAnyNewPeopleToTheWhitelist(Experiment experiment) {
-    ArrayList<String> publishedUsers = experiment.getPublishedUsers();
-    publishedUsers.addAll(experiment.getAdmins());
-    new DBWhitelist().addAllUsers(publishedUsers);
-  }
-
-  private void incrementExperimentVersionNumber(ExperimentDAO experimentDAO, Experiment experiment) {
-    Integer existingExperimentVersion = experiment.getVersion();
-    if (existingExperimentVersion != null && existingExperimentVersion > experimentDAO.getVersion()) {
-      throw new IllegalStateException("Experiment has already been edited!");
-    } else {
-      experiment.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
-    }
-  }
-
-  private Experiment retrieveExperimentForDAO(ExperimentDAO experimentDAO, PersistenceManager pm) {
-    Experiment experiment;
-    ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
-    jdoQuery.addFilters("id == idParam");
-    jdoQuery.declareParameters("Long idParam");
-    jdoQuery.addParameterObjects(experimentDAO.getId());
-    @SuppressWarnings("unchecked")
-    List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(
-        jdoQuery.getParameters());
-    experiment = experiments.get(0);
-    return experiment;
+    User loggedInUser = getWhoFromLogin();
+    ExperimentRetriever.getInstance().saveExperiment(experimentDAO, loggedInUser);
   }
 
   public Boolean deleteExperiment(ExperimentDAO experimentDAO) {
     System.out.println("Delete called for " + experimentDAO.getId());
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-    
-      if (experimentDAO.getId() != null) {
-        Experiment experiment = retrieveExperimentForDAO(experimentDAO, pm);
-        pm.deletePersistent(experiment);
-        ExperimentCacheHelper.getInstance().clearCache();
-        return Boolean.TRUE;
-      } else {
-        return Boolean.FALSE;
-      }
-    } finally {
-      if (pm != null) {
-        pm.close();
-      }
-    }
+    User loggedInUser = getWhoFromLogin();
+    String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
+    return ExperimentRetriever.getInstance().deleteExperiment(experimentDAO, loggedInUserEmail);
   }
 
   public List<ExperimentDAO> getUsersAdministeredExperiments() {
     User user = getWhoFromLogin();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    
+
     PersistenceManager pm = null;
     try {
       pm = PMF.get().getPersistenceManager();
@@ -275,7 +186,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       q.setFilter("admins == whoParam");
       q.declareParameters("String whoParam");
       List<Experiment> experiments = (List<Experiment>) q.execute(user.getEmail().toLowerCase());
-      if (experiments != null) {      
+      if (experiments != null) {
         for (Experiment experiment : experiments) {
           experimentDAOs.add(DAOConverter.createDAO(experiment));
         }
@@ -285,45 +196,45 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         pm.close();
       }
     }
-    return experimentDAOs;    
+    return experimentDAOs;
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
     ExperimentStatsDAO stats = new ExperimentStatsDAO();
-    
+
     String queryString = "";
     if (justUser) {
       queryString = "who="+getWho()+":";
     }
     List<EventDAO> events = getEventsForQuery(queryString + "experimentId="+experimentId);
-    
-    if (!justUser) {      
+
+    if (!justUser) {
       HashSet<EventDAO> uniqueEvents = new HashSet<EventDAO>();
       for (EventDAO eventDAO : events) {
         if (eventDAO.isJoinEvent()) {
           uniqueEvents.add(eventDAO);
         }
       }
-      
+
       EventDAO[] arr = new EventDAO[uniqueEvents.size()];
       EventDAO[] joinedForExperiment = uniqueEvents.toArray(arr);
       stats.setJoinedEventsList(joinedForExperiment);
     }
     getDailyResponseRateFor(experimentId, events, stats, justUser);
-    return stats;    
+    return stats;
   }
 
   /**
    * @param experimentId
-   * @param justUser 
+   * @param justUser
    * @return
    */
-  private void getDailyResponseRateFor(Long experimentId, List<EventDAO> events, 
-                                       ExperimentStatsDAO accum, 
+  private void getDailyResponseRateFor(Long experimentId, List<EventDAO> events,
+                                       ExperimentStatsDAO accum,
       boolean justUser) {
     Map<DateMidnight, DateStat> dateStatsMap = Maps.newHashMap();
     Map<DateMidnight, Set<String>> sevenDayMap = Maps.newHashMap();
-    
+
     int missedSignals = 0;
     long totalMillisToRespond = 0;
     for(EventDAO event : events) {
@@ -340,7 +251,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         date = event.getWhen();
       }
       DateMidnight dateMidnight = new DateMidnight(date);
-      
+
       // Daily response count
       DateStat currentStat = dateStatsMap.get(dateMidnight);
       if (currentStat == null) {
@@ -351,7 +262,7 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         List<Double> values = currentStat.getValues();
         values.set(0, values.get(0) + 1);
       }
-      
+
       // 7 day counts
       DateMidnight beginningOfWeekDateMidnight = getBeginningOfWeek(dateMidnight);
       Set<String> current7Day = sevenDayMap.get(beginningOfWeekDateMidnight);
@@ -375,17 +286,17 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       dateStat.addValue(new Double(count));
       sevenDayDateStats.add(dateStat);
       dateStat.computeStats();
-    }    
+    }
     Collections.sort(sevenDayDateStats);
-    
+
     DateStat[] dsArray = new DateStat[dateStats.size()];
     accum.setDailyResponseRate(dateStats.toArray(dsArray));
     dsArray = new DateStat[sevenDayDateStats.size()];
     accum.setSevenDayDateStats(sevenDayDateStats.toArray(dsArray));
-    
+
     String responseRateStr = "0%";
     int respondedSignals = events.size() - missedSignals;
-    if (events.size() > 0) {      
+    if (events.size() > 0) {
       float responseRate = ((float)respondedSignals / (float)events.size()) * 100;
       responseRateStr = Float.toString(responseRate) + "%";
     }
@@ -408,10 +319,9 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   }
 
   public List<ExperimentDAO> getUsersJoinedExperiments() {
-      List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" +
-          getWhoFromLogin().getEmail().toLowerCase());
-      List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(), 
-          EventServlet.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
+      List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + getWhoFromLogin().getEmail().toLowerCase());
+      List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(),
+          TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
       Set<Long> experimentIds = Sets.newHashSet();
       for(Event event : events) {
         if (event.getExperimentId() == null) {
@@ -423,28 +333,28 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
       if (experimentIds.size() == 0) {
         return experimentDAOs;
       }
-      
+
       ArrayList<Long> idList = Lists.newArrayList(experimentIds);
       System.out.println("Found " + experimentIds.size() +" unique experiments where joined.");
       System.out.println(Joiner.on(",").join(idList));
-      
-      
+
+
       PersistenceManager pm = null;
       try {
         pm = PMF.get().getPersistenceManager();
         Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
 
-        
-        List<Experiment> experiments = (List<Experiment>) q.execute(idList); 
+
+        List<Experiment> experiments = (List<Experiment>) q.execute(idList);
         System.out.println("Got back " + experiments.size() + " experiments");
-        if (experiments != null) {      
+        if (experiments != null) {
           for (Experiment experiment : experiments) {
             experimentDAOs.add(DAOConverter.createDAO(experiment));
             idList.remove(experiment.getId().longValue());
           }
         }
         for (Long id : idList) {
-          experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "", 
+          experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "",
               null, null, null, null, null, null, null, null, null, null, null, null, null, null));
         }
       } finally {
@@ -453,8 +363,8 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
         }
       }
       return experimentDAOs;
-  }     
-  
+  }
+
   private List<String> getIds(Set<String> experimentsForAdmin) {
     List<String> ids = Lists.newArrayList();
     for(String experimentId : experimentsForAdmin) {
@@ -471,7 +381,6 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
 
     if (event == null) {
-      Log.info("Null event object sent");
       return;
     }
     String who = event.getWho();
@@ -491,23 +400,23 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     Date responseTimeDate = event.getResponseTime();
     Date whenDate = new Date();
     Set<What> whats = parseWhats(event.getWhat());
-        
-    
+
+
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
-    
+
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
     }
-    
+
     if (!experiment.isWhoAllowedToPostToExperiment(loggedInWho.getEmail())) {
-      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");
     }
-    
-    
+
+
     try {
       String tz = event.getTimezone();
       String experimentName = experiment.getTitle();
-      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform", 
+      EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
           "1", whats, event.isShared(), Long.toString(experimentId), experimentName, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
@@ -527,24 +436,26 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
   public void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId) {
     ExperimentRetriever.getInstance().setReferredExperiment(referringExperimentId, referencedExperimentId);
     ExperimentCacheHelper.getInstance().clearCache();
-    
+
   }
 
   @Override
   public Map<Date, EventDAO> getEndOfDayEvents(String queryText) {
-    List<EventDAO> events = mapWithTags(queryText);    
+    List<EventDAO> events = eventSearch(queryText);
     Map<Date, EventDAO> eventsByDateMap = new EndOfDayEventProcessor().breakEventDAOsIntoDailyPingResponses(events);
     return eventsByDateMap;
   }
 
   @Override
-  public List<ExperimentDAO> getExperimentsAvailableToUser() {
-    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-    List<ExperimentDAO> joinableExperiments = cacheHelper.getJoinableExperiments(null);
-    List<ExperimentDAO> availableExperiments = ExperimentRetriever.filterExperimentsUnavailableToUser(joinableExperiments, getWho());        
-    ExperimentRetriever.removeSensitiveFields(availableExperiments);
-    return availableExperiments;
+  public List<ExperimentDAO> getAllJoinableExperiments(String tz) {
+    return ExperimentCacheHelper.getInstance().getJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
   }
+
+  @Override
+  public List<ExperimentDAO> getMyJoinableExperiments(String tz) {
+    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+  }
+
 
   @Override
   public boolean joinExperiment(Long experimentId) {
@@ -554,44 +465,41 @@ public class MapServiceImpl extends RemoteServiceServlet implements MapService {
     }
 
     if (experimentId == null) {
-      throw new IllegalArgumentException("Must supply experiment Id");      
+      throw new IllegalArgumentException("Must supply experiment Id");
     }
-    
+
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
-    
+
     if (experiment == null) {
       throw new IllegalArgumentException("Unknown experiment!");
     }
-    
+
     String lowerCase = loggedInWho.getEmail().toLowerCase();
     if (!experiment.isWhoAllowedToPostToExperiment(lowerCase)) {
-      throw new IllegalArgumentException("This user is not allowed to post to this experiment");      
+      throw new IllegalArgumentException("This user is not allowed to post to this experiment");
     }
-    
-    
+
     try {
-      
       String tz = null;
-      DateTimeZone dtz = DateTimeZone.forID(tz);
-      String timezoneStr = null;
-      if (dtz != null) {
-        timezoneStr = dtz.toString();
+      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
+      if (timezone != null) {
+        tz = timezone.toString();
       }
-      Date responseTimeDate; 
-      if (dtz != null) {
-        responseTimeDate = new DateTime().withZone(dtz).toDate();
+      Date responseTimeDate;
+      if (tz != null) {
+        responseTimeDate = new DateTime().withZone(timezone).toDate();
       } else {
         responseTimeDate = new Date();
       }
-      
+
       String experimentName = experiment.getTitle();
       Set<What> whats = Sets.newHashSet();
       whats.add(new What("joined", "true"));
       whats.add(new What("schedule", experiment.getSchedule().toString()));
-      
-      EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform", 
-          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, timezoneStr);
-      
+
+      EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform",
+          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz);
+
       // create entry in table with user Id, experimentId, joinDate
 
       return true;

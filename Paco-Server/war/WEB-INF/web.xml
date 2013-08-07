@@ -99,7 +99,7 @@
   <!-- Servlets -->
   <servlet>
     <servlet-name>mapServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MapServiceImpl</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.PacoServiceImpl</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>eventServlet</servlet-name>

@@ -1,36 +1,47 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.google.appengine.api.users.User;
+import org.joda.time.DateTimeZone;
+
+import com.google.common.base.Strings;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
 
 public class ExperimentServletAllExperimentsFullLoadHandler extends ExperimentServletHandler {
-  
-  private String userId;
-  private String email;
-  private String tz;
 
-  public ExperimentServletAllExperimentsFullLoadHandler(String userId, String email, String tz) {
+  private String userId;
+  private ExperimentCacheHelper cacheHelper;
+  private String experimentsJson;
+
+  public ExperimentServletAllExperimentsFullLoadHandler(String userId, String email, DateTimeZone timezone) {
+    super(email, timezone);
     this.userId = userId;
-    this.email = email;
-    this.tz = tz;
+    cacheHelper = ExperimentCacheHelper.getInstance();
   }
-  
+
   @Override
-  public String performLoad() {
-    ExperimentCacheHelper cacheHelper = ExperimentCacheHelper.getInstance();
-    String experimentsJson = cacheHelper.getExperimentsJsonForUser(userId);
-    if (experimentsJson != null) {
-      log.info("Got cached experiment json for " + email);
-    } else {
-      log.info("No cached experiment json for " + email);
-      List<ExperimentDAO> availableExperiments = getExperimentsAvailableToUser(email, tz);
-      experimentsJson = JsonConverter.jsonify(availableExperiments);
-      cacheHelper.putExperimentJsonForUser(userId, experimentsJson); 
-    } 
+  protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
+    experimentsJson = cacheHelper.getExperimentsJsonForUser(userId);
+    if (experimentsJson == null) {
+      return super.getAllExperimentsAvailableToUser();
+    }
+    return Collections.EMPTY_LIST;
+  }
+
+  @Override
+  protected String jsonify(List<ExperimentDAO> availableExperiments) {
+    if (!Strings.isNullOrEmpty(experimentsJson)) {
+      return experimentsJson;
+    }
+    experimentsJson = JsonConverter.jsonify(availableExperiments);
+    if (!availableExperiments.isEmpty()) {
+      cacheHelper.putExperimentJsonForUser(userId, experimentsJson);
+    }
     return experimentsJson;
   }
+
+
 
 }
