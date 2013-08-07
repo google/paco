@@ -9,40 +9,40 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Cancel")
   String cancel();
-  
+
   @DefaultStringValue("Next")
   String next();
-  
+
   @DefaultStringValue("Previous")
   String previous();
-  
+
   @DefaultStringValue("OK")
   String ok();
 
   @DefaultStringValue("Success!")
   String success();
-    
+
   @DefaultStringValue("Failure")
   String failure();
-  
+
   @DefaultStringValue("Failed to login.")
   String failedToLogin();
-  
+
   @DefaultStringValue("Failure to join experiment.")
   String failureToJoinExperiment();
-  
+
   @DefaultStringValue("Something went wrong in saving to the server.")
   String saveToServerFailure();
-  
+
   @DefaultStringValue("Error message")
   String errorMessage();
-  
+
   @DefaultStringValue("Error deleting experiment.")
   String errorDeletingExperiment();
-  
+
   @DefaultStringValue("Could not retrieve charts.")
   String couldNotRetrieveCharts();
-  
+
   @DefaultStringValue("No results for your query.")
   String noResultsForQuery();
 
@@ -64,44 +64,44 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Responses")
   String responses();
-  
+
   @DefaultStringValue("Respond")
   String respond();
-  
+
   @DefaultStringValue("Login")
   String login();
-  
+
   @DefaultStringValue("Logout")
   String logout();
-  
+
   @DefaultStringValue("Help")
   String help();
-  
+
   @DefaultStringValue("Get Android App")
   String getAndroid();
-  
+
   @DefaultStringValue("Administer Experiments")
   String administerExperiments();
-  
+
   @DefaultStringValue("Experiments You Joined")
   String joinedExperiments();
-  
+
   @DefaultStringValue("User Guide")
   String userGuide();
-  
+
   @DefaultStringValue("Show All")
   String showAll();
-  
+
   @DefaultStringValue("Create New")
   String createNew();
-  
+
   @DefaultStringValue("Create New Experiment")
   String createNewExperiment();
 
 
   @DefaultStringValue("About")
   String about();
-  
+
   @DefaultStringValue("View Data")
   String viewData();
 
@@ -110,7 +110,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Stats")
   String stats();
- 
+
   @DefaultStringValue("CSV")
   String csv();
 
@@ -119,7 +119,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Welcome to the Daily Information Needs Study")
   String welcomeDIN();
-  
+
   @DefaultStringValue("Paco Experiment Dashboard")
   String pacoPageTitle();
 
@@ -143,7 +143,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Days")
   String repeatTypeDays();
-  
+
   @DefaultStringValue("Weeks")
   String repeatTypeWeeks();
 
@@ -153,7 +153,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Months")
   String repeatTypeMonths();
 
-    
+
 
 
   @DefaultStringValue("Signal Time (s)")
@@ -185,22 +185,22 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("S")
   String sundayInitial();
-  
+
   @DefaultStringValue("M")
   String mondayInitial();
-  
+
   @DefaultStringValue("T")
   String tuesdayInitial();
-  
+
   @DefaultStringValue("W")
   String wednesdayInitial();
-  
+
   @DefaultStringValue("T")
   String thursdayInitial();
-  
+
   @DefaultStringValue("SF")
   String fridayInitial();
-  
+
   @DefaultStringValue("S")
   String satdayInitial();
 
@@ -242,14 +242,14 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Unhide")
   String unHide();
-  
+
   @DefaultStringValue("Hide")
   String hide();
 
   @DefaultStringValue("Purge")
   String purge();
-  
-  @DefaultStringValue("Are you sure you want to delete this experiment definition? " 
+
+  @DefaultStringValue("Are you sure you want to delete this experiment definition? "
             + "Perhaps you want to unpublish it to hide it from new users?")
   String areYouSureYouWantToDelete();
 
@@ -285,7 +285,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Description")
   String experimentDescriptionNoPrompt();
-  
+
   @DefaultStringValue("Creator")
   String experimentCreator();
 
@@ -372,7 +372,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Signal Schedule")
   String signalSchedule();
-  
+
   @DefaultStringValue("Signaling")
   String signaling();
 
@@ -387,7 +387,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Join Experiment")
   String joinExperiment();
-  
+
   @DefaultStringValue("ID")
   String experimentId();
 
@@ -402,7 +402,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("This is a triggered experiment. No schedule to configure.")
   String triggeredExperimentNotScheduled();
-  
+
 
 
   @DefaultStringValue("")
@@ -410,117 +410,114 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
-  
+
   @DefaultStringValue("Description")
   String experimentDescriptionButtonText();
-  
+
   @DefaultStringValue("Schedule")
   String experimentScheduleButtonText();
-  
+
   @DefaultStringValue("Inputs List")
   String experimentInputsButtonText();
-  
+
   @DefaultStringValue("Publishing")
   String experimentPublishingButtonText();
-  
+
   @DefaultStringValue("Signal Groups")
   String signalGroups();
-  
+
   @DefaultStringValue("Signal Group")
   String signalGroup();
-  
+
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
-  
+
   @DefaultStringValue("Experiment Schedule")
   String experimentSchedule();
-  
+
   @DefaultStringValue("Experiment Publishing")
   String experimentPublishing();
-  
+
   @DefaultStringValue("Scheduled Signaling")
   String scheduledSignaling();
-  
+
   @DefaultStringValue("Triggered Signaling")
   String triggeredSignaling();
-  
+
   @DefaultStringValue("Add Signal Group")
   String newSignalGroupButtonText();
-  
+
   @DefaultStringValue("Save Experiment")
   String saveExperiment();
 
   @DefaultStringValue("Please fix the following before submitting your experiment:")
   String experimentCreationError();
-  
+
   @DefaultStringValue("Some required fields need to be completed.")
   String needToCompleteRequiredFields();
-  
+
   @DefaultStringValue("End date cannot be before start date.")
   String startEndDateError();
-  
+
   @DefaultStringValue("Email address list may be invalid.")
   String emailAddressesError();
-  
+
   @DefaultStringValue("Input names are required, and must start with a letter and contain only letters and numbers.")
   String varNameSyntaxError();
-  
+
   @DefaultStringValue("Experiment title is required.")
   String titleIsRequired();
-  
+
   @DefaultStringValue("Admins list is invalid.")
   String adminsListIsInvalid();
-  
+
   @DefaultStringValue("Published users list is invalid.")
   String publishedUsersListIsInvalid();
-  
+
   @DefaultStringValue("First list choice cannot be empty.")
   String firstListChoiceCannotBeEmpty();
-  
+
   @DefaultStringValue("Likert steps must be a valid nonnegative number.")
   String likertStepsMustBeValid();
-  
+
   @DefaultStringValue("Timeout must be a valid nonnegative number.")
   String timeoutMustBeValid();
-  
+
   @DefaultStringValue("AND")
   String AND();
-  
+
   @DefaultStringValue("OR")
   String OR();
-  
+
   @DefaultStringValue("equals")
   String equals();
-  
+
   @DefaultStringValue("not equals")
   String notEquals();
-  
+
   @DefaultStringValue("greater than")
   String greaterThan();
-  
+
   @DefaultStringValue("greater than or equals")
   String greaterThanOrEquals();
-  
+
   @DefaultStringValue("less than")
   String lessThan();
-  
+
   @DefaultStringValue("less than or equals")
   String lessThanOrEquals();
-  
+
   @DefaultStringValue("contains")
   String contains();
-  
+
   @DefaultStringValue("Click to use menus to edit condition")
   String clickToEditCondition();
-  
+
   @DefaultStringValue("Click to close condition editing menus")
   String clickToCloseConditionEditor();
-  
-<<<<<<< HEAD
+
   @DefaultStringValue("Conditional expressions must contain only valid symbols and must have balanced parentheses.")
   String conditionalExpressionIsInvalid();
-=======
   @DefaultStringValue("Minimum time between signals")
   String minimumBuffer();
->>>>>>> release-v77
 }
