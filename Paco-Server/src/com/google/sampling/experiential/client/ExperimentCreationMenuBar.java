@@ -66,7 +66,9 @@ public class ExperimentCreationMenuBar extends Composite {
       @Override
       public void onSelection(SelectionEvent<TreeItem> event) {
         TreeItem selectedButton = event.getSelectedItem();
-        if (selectedButton.equals(showDescriptionItem)) {
+        if (selectedButton.equals(signalGroupsRootTree)) {
+          return;
+        } else if (selectedButton.equals(showDescriptionItem)) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_DESCRIPTION_CODE, 0);
         } else if (selectedButton.equals(showPublishingItem)) {
           fireExperimentCreationCode(ExperimentCreationListener.SHOW_PUBLISHING_CODE, 0);
@@ -131,14 +133,15 @@ public class ExperimentCreationMenuBar extends Composite {
   }
   
   private void createSignalGroup() {
-    int groupNum = signalGroupsRootTree.getChildCount() - 1;
-    TreeItem signalGroup = new TreeItem(myConstants.signalGroup() + " " + groupNum);
+    int newGroupDisplayNum = signalGroupsRootTree.getChildCount();
+    TreeItem signalGroup = new TreeItem(myConstants.signalGroup() + " " + newGroupDisplayNum);
     TreeItem showSchedule = new TreeItem(myConstants.experimentScheduleButtonText());
     TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
     signalGroup.addItem(showSchedule);
     signalGroup.addItem(showInputs);
     signalGroup.setState(true); // Input group is open by default.
-    signalGroupsRootTree.insertItem(groupNum, signalGroup); // Insert in front of "Add Signal Group" item.
+    // Insert in front of "Add Signal Group" item.
+    signalGroupsRootTree.insertItem(newGroupDisplayNum - 1, signalGroup);
     ++numSignalGroups;
   }
   
@@ -163,7 +166,8 @@ public class ExperimentCreationMenuBar extends Composite {
   }
 
   private boolean selectedItemIsSpecificSignalGroupHeader(TreeItem selectedButton) {
-    return selectedButton.getParentItem().equals(signalGroupsRootTree);
+    return selectedButton.getParentItem() != null && 
+        selectedButton.getParentItem().equals(signalGroupsRootTree);
   }
 
   private void fireExperimentCreationCode(int code, Integer groupNum) {
