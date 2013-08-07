@@ -33,8 +33,11 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBoxBase;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -124,10 +127,13 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     
     publishingPanel = createPublishingPanel();
 
+    VerticalPanel viewPanel = new VerticalPanel();
+    mainPanel.add(viewPanel);
+    
     contentPanel = createContentPanel();
-    mainPanel.add(contentPanel);
+    viewPanel.add(contentPanel);
 
-    createButtonPanel();
+    createButtonPanel(viewPanel);
     
     // Entry view is description panel.
     showPanel(descriptionPanel);
@@ -182,12 +188,12 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     contentPanel.changeShowingView(showingPanel, buttonPanelId);
   }
 
-  private void createButtonPanel() {
+  private void createButtonPanel(Panel parent) {
     HorizontalPanel buttonPanel = new HorizontalPanel();
     buttonPanel.add(createSubmitButton(experiment));
     buttonPanel.add(createCancelButton());
-    mainPanel.add(buttonPanel);
-    buttonPanel.setStyleName("floating-Panel");
+    parent.add(buttonPanel);
+    buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
   }
 
   // Visible for testing
@@ -390,12 +396,12 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   private String prependSignalGroupToErrorMessage(String errorMessage, Integer signalGroupNum) {
-    return myConstants.signalGroup() + " " + signalGroupNum + ": " + errorMessage;
+    return myConstants.signalGroup() + " " + (signalGroupNum +  1) + ": " + errorMessage;
   }
   
   private String getErrorMessages() {
     Collections.sort(errorMessagesAccumulated, String.CASE_INSENSITIVE_ORDER);
-    return myConstants.experimentCreationError() + "\n" + 
+    return myConstants.experimentCreationError() + "\n\n" + 
         Joiner.on("\n").join(errorMessagesAccumulated);
   }
 
