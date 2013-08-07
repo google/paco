@@ -203,10 +203,10 @@ public class ExperimentPublishingPanel extends Composite {
     Label instructionLabel = new Label(myConstants.publishedEditorPrompt());
     userContentPanel.add(instructionLabel);
 
-    publishedUserList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA);
+    publishedUserList = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_AREA,
+                                                 myConstants.publishedUsersListIsInvalid());
     publishedUserList.setCharacterWidth(100);
     publishedUserList.setHeight("100");
-    publishedUserList.setMessage(myConstants.publishedUsersListIsInvalid());
     publishedUserList.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {

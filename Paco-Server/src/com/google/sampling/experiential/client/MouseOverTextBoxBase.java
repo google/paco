@@ -18,7 +18,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
@@ -27,21 +26,20 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   
   public static final int TEXT_AREA = 0;
   public static final int TEXT_BOX = 1;
-
-  private FlowPanel mainPanel;
-  private HTML mouseOverText;
+  
+  private String message;
   private boolean shouldShowMouseOver;
   
   // Visible for testing
   protected TextBoxBase textBox;
   
-  public MouseOverTextBoxBase(int type) {
+  public MouseOverTextBoxBase(int type, String message) {
+    this.message = message;
+    
     FocusPanel container = new FocusPanel();
     container.addMouseOverHandler(this);
     container.addMouseOutHandler(this);
-    
-    mainPanel = new FlowPanel();
-    container.add(mainPanel);
+    initWidget(container);
     
     if (type == TEXT_AREA) {
       textBox = new TextArea();
@@ -49,13 +47,7 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
       textBox = new TextBox();
     }
     textBox.addFocusHandler(this);
-    mainPanel.add(textBox);
-    
-    mouseOverText = new HTML();
-    mainPanel.add(mouseOverText);
-//    mouseOverText.setStyleName("ctb-control");
-    mouseOverText.setVisible(false);
-    initWidget(container);
+    container.add(textBox);
   }
 
   public void enableMouseOver() {
@@ -69,7 +61,7 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   private void setShouldShowMouseOver(boolean shouldShowMouseOver) {
     this.shouldShowMouseOver = shouldShowMouseOver;
     if (!shouldShowMouseOver) {
-      mouseOverText.setVisible(false);
+      disableMouseOverText();
     }
   }
 
@@ -98,11 +90,11 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   }
   
   public void setMessage(String message) {
-    mouseOverText.setText(message);
+    this.message = message;
   }
   
   public String getMessage() {
-    return mouseOverText.getText();
+    return message;
   }
   
   public void addStyleName(String style) {
@@ -163,19 +155,27 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   @Override
   public void onMouseOver(MouseOverEvent event) {
     if (shouldShowMouseOver) {
-      mouseOverText.setVisible(true);
+      enableMouseOverText();
     }
   }
 
   @Override
   public void onMouseOut(MouseOutEvent event) {
     if (shouldShowMouseOver) {
-      mouseOverText.setVisible(false);
+      disableMouseOverText();
     }
   }
   
   @Override
   public void onFocus(FocusEvent event) {
-    mouseOverText.setVisible(false);
+    disableMouseOverText();
+  }
+  
+  private void enableMouseOverText() {
+    textBox.setTitle(message);
+  }
+  
+  private void disableMouseOverText() {
+    textBox.setTitle("");
   }
 }

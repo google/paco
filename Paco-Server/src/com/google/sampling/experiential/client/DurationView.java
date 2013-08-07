@@ -138,11 +138,10 @@ public class DurationView extends Composite {
 
     VerticalPanel endPanel = new VerticalPanel();
     datePanel.add(endPanel);
-    endBox = new MouseOverDateBox();
+    endBox = new MouseOverDateBox(myConstants.startEndDateError());
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     endBox.setValue(FORMATTER.parse(endDate));
     experiment.setEndDate(endDate);
-    endBox.setMessage(myConstants.startEndDateError());
     endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
