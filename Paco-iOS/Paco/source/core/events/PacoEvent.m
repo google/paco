@@ -85,6 +85,52 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   return event;
 }
 
+
+- (NSString*)description {
+  NSString* responseStr = @"[";
+  int numOfResponse = [self.responses count];
+  int index = 0;
+  for (NSDictionary* responseDict in self.responses) {
+    responseStr = [responseStr stringByAppendingString:@"{"];
+    NSAssert([responseDict isKindOfClass:[NSDictionary class]], @"responseDict should be a dictionary!");
+    
+    int numOfKeyValue = [[responseDict allKeys] count];
+    int temp = 0;
+    for (NSString* key in responseDict) {
+      responseStr = [responseStr stringByAppendingString:key];
+      responseStr = [responseStr stringByAppendingString:@":"];
+      responseStr = [responseStr stringByAppendingString:[[responseDict objectForKey:key] description]];
+      temp++;
+      if (temp < numOfKeyValue) {
+        responseStr = [responseStr stringByAppendingString:@","];
+      }
+    }
+    responseStr = [responseStr stringByAppendingString:@"}"];
+    
+    index++;
+    if (index < numOfResponse) {
+      responseStr = [responseStr stringByAppendingString:@", "];
+    }
+  }
+  responseStr = [responseStr stringByAppendingString:@"]"];
+  
+  NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+  [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+  NSString* formattedTime = [dateFormatter stringFromDate:self.responseTime];
+  return [NSString stringWithFormat:@"<%@, %p: id=%@,name=%@,version=%d,responseTime=%@,"
+                                      "who=%@,when=%@,response=\r%@>",
+                                     NSStringFromClass([self class]),
+                                     self,
+                                     self.experimentId,
+                                     self.experimentName,
+                                     self.experimentVersion,
+                                     formattedTime,
+                                     self.who,
+                                     self.when,
+                                     responseStr];
+}
+
+
 - (id)generateJsonObject {
   NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
   [dictionary setObject:self.experimentId forKey:kPacoEventKeyExperimentId];

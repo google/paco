@@ -31,16 +31,7 @@
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
           withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
-// Join an Experiment
-- (void)joinExperiment:(PacoExperimentDefinition *)experiment
-              schedule:(PacoExperimentSchedule *)schedule
-     completionHandler:(void (^)(PacoEvent *, NSError *))completionHandler;
+// Batch submit a list of events
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
-// Submit an event to the server.
-- (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler;
-
-// Submit question answers to the server.
-- (void)submitSurveyForDefinition:(PacoExperimentDefinition *)definition
-                       withInputs:(NSArray*)visibleInputs
-                completionHandler:(void (^)(NSError *))completionHandler;
 @end

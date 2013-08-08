@@ -22,6 +22,7 @@
 @class PacoService;
 @class PacoExperiment;
 @class PacoExperimentDefinition;
+@class Reachability;
 
 //production server: 0
 //local server: 1
@@ -34,6 +35,7 @@
 @property (nonatomic, retain, readonly) PacoLocation *location;
 @property (nonatomic, retain, readonly) PacoModel *model;
 @property (nonatomic, retain, readonly) PacoScheduler *scheduler;
+@property (nonatomic, strong, readonly) Reachability* reachability;
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
 
@@ -60,7 +62,6 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
-- (void)stopExperiment:(PacoExperiment*)experiment
-       completionBlock:(void (^)(NSError*))completionBlock;
+- (void)deleteExperimentFromCache:(PacoExperiment*)experiment;
 
 @end

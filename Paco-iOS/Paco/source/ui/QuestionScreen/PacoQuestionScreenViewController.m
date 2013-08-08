@@ -27,6 +27,8 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
 #import "PacoAlertView.h"
+#import "PacoEvent.h"
+#import "PacoEventManager.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -62,28 +64,24 @@ NSString *kCellIdQuestion = @"question";
                       otherButtonTitles:nil] show];
     return;
   }
-    
-  [[PacoClient sharedInstance].service submitSurveyForDefinition:self.experiment.definition
-                                                      withInputs:self.visibleInputs
-                                               completionHandler:^(NSError *error) {
-                                     NSString* title = @"Nice";
-                                     NSString* message = @"Your survey was successfully submitted!";
-                                     
-                                     if (error != nil) {
-                                       title = @"Oops";
-                                       message = @"Something went wrong, please try again later.";
-                                     }
-                                     
-                                     [PacoAlertView showAlertWithTitle:title
-                                                               message:message
-                                                          dismissBlock:^(NSInteger buttonIndex) {
-                                                            if (error == nil) {
-                                                              [self.navigationController popViewControllerAnimated:YES];
-                                                            }
-                                                          }
-                                                     cancelButtonTitle:@"OK"
-                                                     otherButtonTitles:nil];
-                                   }];
+  
+  //create a survey event and save it to cache
+  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:self.experiment.definition
+                                                    withInputs:self.visibleInputs];
+  [[PacoEventManager sharedInstance] saveEvent:surveyEvent];
+  
+  //clear all inputs' submitted responseObject for the definition 
+  [self.experiment.definition clearInputs];
+  
+  NSString* title = @"Nice";
+  NSString* message = @"Your survey was successfully submitted!";  
+  [PacoAlertView showAlertWithTitle:title
+                            message:message
+                       dismissBlock:^(NSInteger buttonIndex) {
+                           [self.navigationController popViewControllerAnimated:YES];
+                       }
+                  cancelButtonTitle:@"OK"
+                  otherButtonTitles:nil];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
