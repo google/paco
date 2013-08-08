@@ -104,7 +104,7 @@ public class EventServlet extends HttpServlet {
     for (String who : whos) {
       mappingOutput.append(who);
       mappingOutput.append(",");
-      mappingOutput.append(Event.getAnonymousId(who));
+      mappingOutput.append(Event.getAnonymousId(who + Event.SALT));
       mappingOutput.append("\n");
     }
     resp.setContentType("text/csv;charset=UTF-8");
