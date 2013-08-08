@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -19,21 +19,20 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * 
+ *
  * Dumb data object for passing the experiment definition to the GWT client.
- * 
+ *
  * We use this because GWt serialization won't serialize a JDO nucleus object.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   /**
-   * 
+   *
    */
 
   public static final int SCHEDULED_SIGNALING = 1;
@@ -103,7 +102,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   }
 
   /**
-   * 
+   *
    */
   public ExperimentDAO() {
     super();
@@ -111,6 +110,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.feedback = new FeedbackDAO[0];
     this.admins = new String[0];
     this.publishedUsers = new String[0];
+    this.signalingMechanisms = new SignalingMechanismDAO[0];
   }
 
   public Boolean getQuestionsChange() {
