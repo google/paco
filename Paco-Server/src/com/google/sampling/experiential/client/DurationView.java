@@ -91,13 +91,14 @@ public class DurationView extends Composite {
     this.startDate = experiment.getStartDate() != null ? experiment.getStartDate() : todayString;
     this.endDate = experiment.getEndDate() != null ? experiment.getEndDate() : tomorrowString;
     initWidget(mainPanel);
-    init();
+    initPanel();
+    setInitialDurationOnExperiment(); // Ensure model has some initial values.
   }
 
   /**
    * 
    */
-  private void init() {
+  private void initPanel() {
     VerticalPanel outer = new VerticalPanel();
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
@@ -177,6 +178,18 @@ public class DurationView extends Composite {
     radio1.addClickHandler(selectionListener);
     radio2.addClickHandler(selectionListener);
     mainPanel.add(outer);
+  }
+  
+  private void setInitialDurationOnExperiment() {
+    experiment.setFixedDuration(fixedDuration);
+    if (experiment.getFixedDuration()) {
+      setDurationViewStartDate(startBox.getValue());
+      setDurationViewEndDateAndHighlight(endBox.getValue());
+    } else {
+      experiment.setStartDate(null);
+      experiment.setEndDate(null);
+    }
+    
   }
   
   private void setDurationViewStartDate(Date newStartDate) {

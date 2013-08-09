@@ -81,9 +81,9 @@ public class ExperimentPublishingPanel extends Composite {
     Label feedbackLabel = new Label(myConstants.customFeedback());
     feedbackPanel.add(feedbackLabel);
     mainPanel.add(feedbackPanel);
-
     createCustomFeedbackDisclosurePanel();
     mainPanel.add(customFeedbackPanel);
+    setFeedbackOn(experiment); // Set initial feedback value for experiment.
     return feedbackPanel;
   }
 
@@ -161,7 +161,7 @@ public class ExperimentPublishingPanel extends Composite {
     publishCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        setIsPublishedOn(experiment);   
+        setIsPublishedOnExperiment();   
       }
     });
     publishingPanel.add(publishCheckBox);
@@ -170,6 +170,11 @@ public class ExperimentPublishingPanel extends Composite {
     mainPanel.add(publishingPanel);
 
     createPublishedUsersDisclosurePanel(experiment);
+    
+    // Set initial published values for experiment.
+    setIsPublishedOnExperiment();
+    setExperimentPublishedUsersAndHighlight(publishedUserList.getValue());
+    
     mainPanel.add(publishedUsersPanel);
   }
 
@@ -224,7 +229,7 @@ public class ExperimentPublishingPanel extends Composite {
     publishedUsersPanel.setContent(userContentPanel);
   }
 
-  private void setIsPublishedOn(ExperimentDAO experiment) {
+  private void setIsPublishedOnExperiment() {
     experiment.setPublished(publishCheckBox.getValue());
   }
   
