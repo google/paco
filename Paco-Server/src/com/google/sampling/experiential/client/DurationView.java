@@ -91,13 +91,14 @@ public class DurationView extends Composite {
     this.startDate = experiment.getStartDate() != null ? experiment.getStartDate() : todayString;
     this.endDate = experiment.getEndDate() != null ? experiment.getEndDate() : tomorrowString;
     initWidget(mainPanel);
-    init();
+    initPanel();
+    setDurationOnExperiment(); // Ensure model has some initial values.
   }
 
   /**
    * 
    */
-  private void init() {
+  private void initPanel() {
     VerticalPanel outer = new VerticalPanel();
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
@@ -167,9 +168,9 @@ public class DurationView extends Composite {
       public void onClick(ClickEvent event) {
         Widget sender = (RadioButton) event.getSource();
         if (sender.equals(radio1)) {
-          setDatePanelFixedDuration(false);
+          updateDatePanelAndModelForFixedDuration(false);
         } else {
-          setDatePanelFixedDuration(true);
+          updateDatePanelAndModelForFixedDuration(true);
         }
       }
     };
@@ -179,8 +180,26 @@ public class DurationView extends Composite {
     mainPanel.add(outer);
   }
   
+  private void updateDatePanelAndModelForFixedDuration(boolean isFixedDuration) {
+    setDatePanelFixedDuration(isFixedDuration);
+    setDurationOnExperiment();
+  }
+  
+  private void setDurationOnExperiment() {
+    experiment.setFixedDuration(fixedDuration);
+    if (experiment.getFixedDuration()) {
+      setDurationViewStartDate(startBox.getValue());
+      setDurationViewEndDateAndHighlight(endBox.getValue());
+    } else {
+      experiment.setStartDate(null);
+      experiment.setEndDate(null);
+      ensureStartEndDateErrorNotFired();
+    }
+  }
+  
   private void setDurationViewStartDate(Date newStartDate) {
-    Date oldStartDate = FORMATTER.parse(experiment.getStartDate());
+    Date oldStartDate = experiment.getStartDate() != null ? FORMATTER.parse(experiment.getStartDate())
+                                                          : null;
     Date dateBoxEndDate = endBox.getValue();
     experiment.setStartDate(FORMATTER.format(newStartDate));
     ensureEndDateValidBasedOnNewStartDate(oldStartDate, newStartDate, dateBoxEndDate);
@@ -188,16 +207,24 @@ public class DurationView extends Composite {
 
   private void ensureEndDateValidBasedOnNewStartDate(Date oldStartDate, Date newStartDate,
                                                      Date dateBoxEndDate) {
-    if (oldStartDate.after(dateBoxEndDate) && !newStartDate.after(dateBoxEndDate)) {
+    if (newStartDate.after((dateBoxEndDate))) {
+      if (oldStartDate == null) {
+        // Case: experiment was previously ongoing duration. Set end date to day after start date.
+        Date newEndDate = new Date(newStartDate.getTime() 
+                                   + TimeUtil.MILLIS_IN_A_DAY + TimeUtil.EXTRA_MILLIS_OFFSET);
+        endBox.setValue(newEndDate, true);
+      } else if (!oldStartDate.after(dateBoxEndDate)) {
+        // Case: user moves previously valid start date to being after end date. 
+        // Solution: move end date forward the same amount start date was moved forward.
+        long startEndMillisOffset = dateBoxEndDate.getTime() - oldStartDate.getTime();
+        Date newEndDate = new Date(newStartDate.getTime() + startEndMillisOffset);
+        endBox.setValue(newEndDate, true);
+      }
+    } else if (oldStartDate != null && oldStartDate.after(dateBoxEndDate) 
+        && !newStartDate.after(dateBoxEndDate)) {
       // Case: user fixes start date being after end date by moving start date earlier.
       // Result: mark end date as valid.
       setDurationViewEndDateAndHighlight(dateBoxEndDate);
-    } else if (newStartDate.after(dateBoxEndDate) && !oldStartDate.after(dateBoxEndDate)) { 
-      // Case: user moves previously valid start date to being after end date. 
-      // Solution: move end date forward the same amount start date was moved forward.
-      long startEndMillisOffset = dateBoxEndDate.getTime() - oldStartDate.getTime();
-      Date newEndDate = new Date(newStartDate.getTime() + startEndMillisOffset);
-      endBox.setValue(newEndDate, true);
     }
   }
 
@@ -223,14 +250,8 @@ public class DurationView extends Composite {
   }
 
   private void setDatePanelFixedDuration(boolean isFixedDuration) {
+    this.fixedDuration = isFixedDuration;
     datePanel.setVisible(isFixedDuration);
-    experiment.setFixedDuration(isFixedDuration);
-    if (isFixedDuration) {
-      // Fire error-checking events for end date.
-      setDurationViewEndDateAndHighlight(endBox.getValue());
-    } else {
-      ensureStartEndDateErrorNotFired();
-    }
   }
 
   public boolean isFixedDuration() {
@@ -241,7 +262,7 @@ public class DurationView extends Composite {
   protected void setFixedDuration(boolean isFixedDuration) {
     radio1.setValue(!isFixedDuration);
     radio2.setValue(isFixedDuration);
-    setDatePanelFixedDuration(isFixedDuration);
+    updateDatePanelAndModelForFixedDuration(isFixedDuration);
   }
 
   public String getStartDate() {
