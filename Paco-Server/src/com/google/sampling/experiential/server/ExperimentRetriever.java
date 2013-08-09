@@ -110,7 +110,9 @@ public class ExperimentRetriever {
   // Also, defaultFetchGroup was causing errors. TODO: Revisit this in the future.
   private void triggerLoadingOfMemberObjects(Experiment experiment) {
     List<Feedback> feedback = experiment.getFeedback();
-    feedback.get(0);
+    if (feedback.size() > 0) {
+      feedback.get(0);
+    }
     List<Input> inputs = experiment.getInputs();
     inputs.get(0);
     SignalSchedule schedule = experiment.getSchedule();
