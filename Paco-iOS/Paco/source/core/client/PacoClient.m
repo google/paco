@@ -24,7 +24,6 @@
 #import "PacoEvent.h"
 #import "Reachability.h"
 #import "PacoEventManager.h"
-#import "PacoEventUploader.h"
 
 
 static NSString* const kUserEmail = @"PacoClient.userEmail";
@@ -65,6 +64,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
 @property (nonatomic, retain, readwrite) PacoModel *model;
+@property (nonatomic, strong, readwrite) PacoEventManager* eventManager;
 @property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
 @property (nonatomic, retain, readwrite) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
@@ -98,6 +98,9 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     [_reachability startNotifier];
 
     self.model = [[PacoModel alloc] init];
+    
+    _eventManager = [PacoEventManager defaultManager];
+    
     self.prefetchState = [[PacoPrefetchState alloc] init];
     
     if (SERVER_DOMAIN_FLAG == 0) {//production
@@ -205,7 +208,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)uploadPendingEventsInBackground {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [[PacoEventManager sharedInstance].uploader startUploading];
+    [self.eventManager startUploadingEvents];
   });
 }
 
@@ -291,8 +294,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   
   //TODO: ymz: clear all scheduled notifications and anything else
 }
-
-
 
 
 @end

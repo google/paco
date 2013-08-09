@@ -34,15 +34,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 @implementation PacoEventManager
 
-+ (PacoEventManager*)sharedInstance {
-  static PacoEventManager* manager = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    manager = [[PacoEventManager alloc] init];
-  });
-  return manager;
-}
-
 - (id)init {
   self = [super init];
   if (self) {
@@ -50,6 +41,11 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   }
   return self;
 }
+
++ (PacoEventManager*)defaultManager {
+  return [[PacoEventManager alloc] init];
+}
+
 
 #pragma mark Private methods
 - (NSString*)documentPathForFile:(NSString*)fileName {
@@ -269,12 +265,38 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   [self.pendingEvents addObject:event];
   
   //submit this event to server
-  [[PacoEventManager sharedInstance].uploader startUploading];
+  [self startUploadingEvents];
+}
+
+- (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
+                       withSchedule:(PacoExperimentSchedule*)schedule {
+  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
+  [self saveEvent:joinEvent];
+}
+
+//YMZ:TODO: should we remove all the events for a stopped experiment?
+- (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
+  PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
+  [self saveEvent:event];
+}
+
+- (void)saveSurveyEventWithDefinition:(PacoExperimentDefinition*)definition
+                            andInputs:(NSArray*)visibleInputs {
+  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
+                                                    withInputs:visibleInputs];
+  [self saveEvent:surveyEvent];
 }
 
 - (void)saveDataToFile {
   [self savePendingEventsToFile];
   [self saveAllEventsToFile];
+}
+
+- (void)startUploadingEvents {
+  [self.uploader startUploading];
+}
+- (void)stopUploadingEvents {
+  [self.uploader stopUploading];
 }
 
 

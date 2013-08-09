@@ -154,16 +154,14 @@
 }
 
 - (void)stopExperiment {
+  [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
+  
   //delete the experiment from local cache and update UI
   [[PacoClient sharedInstance] deleteExperimentFromCache:self.selectedExperiment];
+
   PacoTableView* tableView = (PacoTableView*)self.view;
   tableView.data = [PacoClient sharedInstance].model.experimentInstances;
 
-  //create a stop event and save it to cache through PacoEventManager
-  PacoEvent* event = [PacoEvent stopEventForExperiment:self.selectedExperiment];
-  //YMZ:TODO: should we remove all the events for a stopped experiment?
-  [[PacoEventManager sharedInstance] saveEvent:event];
-  
   NSString* title = @"Success";
   NSString* message = @"The experiment was stopped.";
   [PacoAlertView showAlertWithTitle:title

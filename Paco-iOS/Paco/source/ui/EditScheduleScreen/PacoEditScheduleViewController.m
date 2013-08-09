@@ -62,15 +62,14 @@
 }
 
 - (void)onJoin {
-  //create a join event and save it to cache
-  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:self.experiment withSchedule:nil];
-  [[PacoEventManager sharedInstance] saveEvent:joinEvent];  
+  [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
+                                                           withSchedule:nil];
   
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [[PacoClient sharedInstance].model
                                 addExperimentInstance:self.experiment
                                 schedule:self.experiment.schedule
-                                events:[NSArray arrayWithObject:joinEvent]];
+                                events:nil]; //TODO: events will be removed from this method
   
   //start scheduling notifications for this joined experiment
   [[PacoClient sharedInstance].scheduler registerScheduleWithOS:experiment];

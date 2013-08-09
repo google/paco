@@ -65,11 +65,9 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  //create a survey event and save it to cache
-  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:self.experiment.definition
-                                                    withInputs:self.visibleInputs];
-  [[PacoEventManager sharedInstance] saveEvent:surveyEvent];
-  
+  [[PacoClient sharedInstance].eventManager saveSurveyEventWithDefinition:self.experiment.definition
+                                                                andInputs:self.visibleInputs];
+
   //clear all inputs' submitted responseObject for the definition 
   [self.experiment.definition clearInputs];
   

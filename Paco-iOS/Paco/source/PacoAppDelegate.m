@@ -77,7 +77,7 @@
   } else {
     NSLog(@"FAILED TO SAVE TO FILE");
   }
-  [[PacoEventManager sharedInstance] saveDataToFile];
+  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

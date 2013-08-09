@@ -17,6 +17,9 @@
 
 @class PacoEvent;
 @class PacoEventUploader;
+@class PacoExperimentDefinition;
+@class PacoExperimentSchedule;
+@class PacoExperiment;
 
 //YMZ:TODO: fully testing
 //YMZ:TODO: thread safe
@@ -25,14 +28,20 @@
 //YMZ:TODO: error handling of file operation
 @interface PacoEventManager : NSObject
 
-
-@property(atomic, strong, readonly) PacoEventUploader* uploader;
-
-+ (PacoEventManager*)sharedInstance;
++ (PacoEventManager*)defaultManager;
 
 - (void)saveEvent:(PacoEvent*)event;
 
 - (void)saveDataToFile;
 
+- (void)startUploadingEvents;
+- (void)stopUploadingEvents;
+
+
+- (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
+                       withSchedule:(PacoExperimentSchedule*)schedule;
+- (void)saveStopEventWithExperiment:(PacoExperiment*)experiment;
+- (void)saveSurveyEventWithDefinition:(PacoExperimentDefinition*)definition
+                            andInputs:(NSArray*)visibleInputs;
 
 @end

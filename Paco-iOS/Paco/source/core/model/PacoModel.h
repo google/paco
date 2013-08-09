@@ -36,6 +36,11 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
+
+//YMZ:TODO: need refactoring
+//a. events should be removed from this method, since we store events to a different file
+//b. make a better method name
+//c. change method: - (BOOL)haveJoined
 - (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
                                  schedule:(PacoExperimentSchedule *)schedule
                                    events:(NSArray *)events;
