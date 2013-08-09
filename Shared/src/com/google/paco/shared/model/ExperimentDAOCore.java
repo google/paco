@@ -3,7 +3,6 @@ package com.google.paco.shared.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.google.paco.shared.DateTimeFormat;
 
 public class ExperimentDAOCore implements Serializable {
 
