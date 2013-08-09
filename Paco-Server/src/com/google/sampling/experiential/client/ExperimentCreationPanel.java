@@ -81,7 +81,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   
   // Visible for testing
   protected ExperimentDescriptionPanel descriptionPanel;
-  protected List<SignalMechanismChooserPanel> signalPanels;
+  protected List<SignalMechanismChooserListPanel> signalPanels;
   protected List<InputsListPanel> inputsListPanels;
   protected ExperimentPublishingPanel publishingPanel;
   
@@ -115,7 +115,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     descriptionPanel = createDescriptionPanel();
    
     numSignalGroups = 0;
-    signalPanels = new ArrayList<SignalMechanismChooserPanel>();
+    signalPanels = new ArrayList<SignalMechanismChooserListPanel>();
     signalPanels.add(createSignalMechanismPanel(numSignalGroups));
     inputsListPanels = new ArrayList<InputsListPanel>();
     inputsListPanels.add(createInputsListPanel(numSignalGroups));
@@ -149,17 +149,17 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     return new ExperimentDescriptionPanel(experiment, loginInfo, this);
   }
 
-  private SignalMechanismChooserPanel createSignalMechanismPanel(int groupNum) {
-    // TODO: Change to reflect new data model
+  // TODO (SignalGroups): Change to reflect new data model. Perhaps pass in signal group instead of experiment.
+  private SignalMechanismChooserListPanel createSignalMechanismPanel(int groupNum) {
     if (groupNum == 0) {
-      return new SignalMechanismChooserPanel(experiment, groupNum, this);
+      return new SignalMechanismChooserListPanel(experiment, groupNum, this);
     } else {
-      return new SignalMechanismChooserPanel(new ExperimentDAO(), groupNum, this);
+      return new SignalMechanismChooserListPanel(new ExperimentDAO(), groupNum, this);
     }
   }
 
+  // TODO (SignalGroups): Change to reflect new data model. Perhaps pass in signal group instead of experiment.
   private InputsListPanel createInputsListPanel(int groupNum) {
-    // TODO: Change to reflect new data model
     InputsListPanel inputsListPanel;
     if (groupNum == 0) {
       inputsListPanel = new InputsListPanel(experiment, groupNum, this);
@@ -291,7 +291,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // TODO: update the data model as well
     // For now, the panel is associated with a random experiment.
     // Later, each panel will be associated with a particular signal group.
-    SignalMechanismChooserPanel signalPanel = createSignalMechanismPanel(numSignalGroups);
+    SignalMechanismChooserListPanel signalPanel = createSignalMechanismPanel(numSignalGroups);
     signalPanels.add(signalPanel);
     contentPanel.addContentView(signalPanel);
     
@@ -495,7 +495,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
   
   // Visible for testing
-  protected SignalMechanismChooserPanel getSignalPanelForSignalGroup(int groupNum) {
+  protected SignalMechanismChooserListPanel getSignalPanelForSignalGroup(int groupNum) {
     return signalPanels.get(groupNum);
   }
   
