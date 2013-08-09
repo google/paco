@@ -124,7 +124,7 @@ public class ExperimentDAOCore implements Serializable {
   private void setEndDateWithValidation(String endDate) {
     Date startDateAsDate = getFormattedDate(startDate, DATE_FORMAT);
     Date endDateAsDate = getFormattedDate(endDate, DATE_FORMAT);
-    if (endDateAsDate.before(startDateAsDate)) {
+    if (startDateAsDate == null || endDateAsDate.before(startDateAsDate)) {
       throw new IllegalArgumentException("End date cannot be before start date.");
     }
     this.endDate = endDate;
