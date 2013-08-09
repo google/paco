@@ -45,22 +45,7 @@ public class ExperimentRetriever {
         List<Experiment> experiments = (List<Experiment>) q.execute(Long.valueOf(experimentId));
         if (experiments.size() == 1) {
           Experiment experiment = experiments.get(0);
-          // load related piecs before we close the Persistence Manager.
-          // TODO eager load the experiment's object graph
-          // we now need to actually access related objects for them to get loaded.
-          // Also, defaultFetchGroup was causing errors. TODO: Revisit this in the future.
-          List<Feedback> feedback = experiment.getFeedback();
-          feedback.get(0);
-          List<Input> inputs = experiment.getInputs();
-          inputs.get(0);
-          SignalSchedule schedule = experiment.getSchedule();
-          Trigger trigger = experiment.getTrigger();
-          if (schedule != null) {
-            schedule.getId();
-          }
-          if (trigger != null) {
-            trigger.getId();
-          }
+          triggerLoadingOfMemberObjects(experiment);
           return experiment;
         } else if (experiments.size() > 1) {
           String message = "There are multiple experiments for this id: " + experimentId;
@@ -79,6 +64,49 @@ public class ExperimentRetriever {
     }
     return null;
   }
+  
+  public List<Experiment> getExperimentsFor(List<Long> experimentIds) {
+    List<Experiment> resultingExperiments = Lists.newArrayList();
+    PersistenceManager pm = null;
+    try {
+      if (experimentIds != null && !experimentIds.isEmpty()) {
+        pm = PMF.get().getPersistenceManager();
+        javax.jdo.Query q = pm.newQuery(Experiment.class,
+                ":p.contains(id)");
+        List<Experiment> experiments = (List<Experiment>) q.execute(experimentIds);
+        
+        for (Experiment experiment : experiments) {
+          triggerLoadingOfMemberObjects(experiment);
+          resultingExperiments.add(experiment);          
+        }
+      }
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+    return resultingExperiments;
+  }
+
+  // load related piecs before we close the Persistence Manager.
+  // TODO eager load the experiment's object graph
+  // we now need to actually access related objects for them to get loaded.
+  // Also, defaultFetchGroup was causing errors. TODO: Revisit this in the future.
+  private void triggerLoadingOfMemberObjects(Experiment experiment) {
+    List<Feedback> feedback = experiment.getFeedback();
+    feedback.get(0);
+    List<Input> inputs = experiment.getInputs();
+    inputs.get(0);
+    SignalSchedule schedule = experiment.getSchedule();
+    Trigger trigger = experiment.getTrigger();
+    if (schedule != null) {
+      schedule.getId();
+    }
+    if (trigger != null) {
+      trigger.getId();
+    }
+  }
+
 
   public Experiment getReferredExperiment(Long referringExperimentId) {
     PersistenceManager pm = null;
