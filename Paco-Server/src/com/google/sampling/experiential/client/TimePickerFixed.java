@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -50,12 +50,12 @@ import com.google.gwt.widgetideas.client.ValueSpinner;
 import com.google.gwt.widgetideas.client.ValueSpinner.ValueSpinnerResources;
 
 /**
- * 
- * This is a copy of package com.google.gwt.gen2.picker.client; 
- * that fixes a bug in which the time editing events do not actually get fired. 
- * See bug report: 
+ *
+ * This is a copy of package com.google.gwt.gen2.picker.client;
+ * that fixes a bug in which the time editing events do not actually get fired.
+ * See bug report:
  * http://code.google.com/p/google-web-toolkit-incubator/issues/detail?id=267
- * 
+ *
  * @author Bob Evans
  *
  */
