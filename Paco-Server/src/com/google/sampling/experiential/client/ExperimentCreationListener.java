@@ -4,9 +4,6 @@ package com.google.sampling.experiential.client;
 /**
  * A narrow interface for the actions available to navigate
  * through the experiment creation process.
- * 
- * @author Priya Donti
- *
  */
 public interface ExperimentCreationListener {
   public static final int SHOW_DESCRIPTION_CODE = 1;

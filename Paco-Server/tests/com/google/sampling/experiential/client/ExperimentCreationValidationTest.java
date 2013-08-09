@@ -507,7 +507,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   public void testTimeoutPanelDisallowsNonNumericInput() {
     createValidExperimentCreationPanel();
-    SignalMechanismChooserPanel ancestor = experimentCreationPanel.signalPanels.get(0);
+    SignalMechanismChooserPanel ancestor = experimentCreationPanel.signalPanels.get(0).chooserPanels.get(0);
     TimeoutPanel panel = new TimeoutPanel(experiment.getSchedule(), ancestor);
     panel.textBox.setValue(NAME_WITHOUT_SPACES, true);
     assertFalse(experimentCreationPanel.canSubmit());
