@@ -23,6 +23,8 @@
 		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
 		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
 		363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211517AF88BB007DE3CE /* PacoEventUploader.m */; };
+		363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
+		363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */; };
 		364DDB321756A8760035F18F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 364DDB311756A8760035F18F /* Default-568h@2x.png */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
@@ -175,6 +177,10 @@
 		363E211217AF8420007DE3CE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		363E211417AF88BA007DE3CE /* PacoEventUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventUploader.h; sourceTree = "<group>"; };
 		363E211517AF88BB007DE3CE /* PacoEventUploader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventUploader.m; sourceTree = "<group>"; };
+		363E211817B5B13F007DE3CE /* PacoExpressionExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExpressionExecutor.h; sourceTree = "<group>"; };
+		363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExpressionExecutor.m; sourceTree = "<group>"; };
+		363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoInputEvaluator.h; sourceTree = "<group>"; };
+		363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInputEvaluator.m; sourceTree = "<group>"; };
 		364DDB311756A8760035F18F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
@@ -455,6 +461,17 @@
 			path = reachability;
 			sourceTree = "<group>";
 		};
+		363E211717B5B068007DE3CE /* conditional */ = {
+			isa = PBXGroup;
+			children = (
+				363E211817B5B13F007DE3CE /* PacoExpressionExecutor.h */,
+				363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */,
+				363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */,
+				363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */,
+			);
+			path = conditional;
+			sourceTree = "<group>";
+		};
 		36B8EB0017568DAF004CF035 /* source */ = {
 			isa = PBXGroup;
 			children = (
@@ -476,6 +493,7 @@
 				36B8EB0517568DAF004CF035 /* client */,
 				36B8EB0817568DAF004CF035 /* location */,
 				36B8EB0B17568DAF004CF035 /* model */,
+				363E211717B5B068007DE3CE /* conditional */,
 				363E210517AACFF1007DE3CE /* events */,
 				36B8EB0E17568DAF004CF035 /* scheduling */,
 				36B8EB1117568DAF004CF035 /* service */,
@@ -1138,6 +1156,8 @@
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
 				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
 				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
+				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
+				363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
