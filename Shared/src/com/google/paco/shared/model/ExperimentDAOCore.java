@@ -114,7 +114,11 @@ public class ExperimentDAOCore implements Serializable {
   }
   
   public void setEndDate(String endDate) {
-    setEndDateWithValidation(endDate);
+    if (endDate == null) { // For ongoing experiments.
+      this.endDate = endDate;
+    } else {
+      setEndDateWithValidation(endDate);
+    }
   }
   
   private void setEndDateWithValidation(String endDate) {
