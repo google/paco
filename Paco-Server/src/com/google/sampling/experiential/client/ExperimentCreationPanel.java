@@ -197,7 +197,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
       showExperimentSchedule(0); // Show first group's schedule.
-    } else if (showingPanel instanceof SignalMechanismChooserPanel) {
+    } else if (showingPanel instanceof SignalMechanismChooserListPanel) {
       int groupNum = signalPanels.indexOf(showingPanel);
       showExperimentInputs(groupNum);
     } else if (showingPanel instanceof InputsListPanel) {
@@ -217,7 +217,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
       showExperimentPublishing();
-    } else if (showingPanel instanceof SignalMechanismChooserPanel) {
+    } else if (showingPanel instanceof SignalMechanismChooserListPanel) {
       int groupNum = signalPanels.indexOf(showingPanel);
       if (isFirstInputGroup(groupNum)) {
         showExperimentDescription();
