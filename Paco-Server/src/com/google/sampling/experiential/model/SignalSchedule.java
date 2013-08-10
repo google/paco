@@ -89,6 +89,9 @@ public class SignalSchedule {
   @Persistent
   private Integer timeout;
 
+  @Persistent
+  private Integer minimumBuffer;
+
   /**
    * @param id
    * @param scheduleType
@@ -103,11 +106,12 @@ public class SignalSchedule {
    * @param byDayOfMonth
    * @param dayOfMonth
    * @param esmWeekends TODO
+   * @param minimumBuffer 
    */
   public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency, 
       Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times, 
       Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth, 
-      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout) {
+      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, SignalSchedule.class.getSimpleName(), id);
@@ -126,6 +130,7 @@ public class SignalSchedule {
     this.dayOfMonth = dayOfMonth;
     this.userEditable = userEditable;
     this.timeout = timeout;
+    this.minimumBuffer = minimumBuffer;
   }
 
   public Key getId() {
@@ -332,6 +337,14 @@ public class SignalSchedule {
 
   private void comma(StringBuilder buf) {
     buf.append(",");
+  }
+
+  public Integer getMinimumBuffer() {
+    return minimumBuffer;
+  }
+
+  public void setMinimumBuffer(Integer minimumBuffer) {
+    this.minimumBuffer = minimumBuffer;
   }
 
 

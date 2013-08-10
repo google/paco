@@ -71,7 +71,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.DAY_OF_MONTH + " INTEGER, "
         + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
         + SignalScheduleColumns.USER_EDITABLE + " INTEGER, "
-        + SignalScheduleColumns.TIME_OUT + " INTEGER "
+        + SignalScheduleColumns.TIME_OUT + " INTEGER, "
+        + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
         + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
@@ -187,7 +188,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
                                   ExperimentColumns.END_DATE, ExperimentColumns._ID);
       insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs, 
-                                  ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
+                                  ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);      
+    }
+    if (oldVersion <= 14) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER"
+              + ";");      
     }
   }
 

@@ -26,15 +26,15 @@ import org.joda.time.format.ISODateTimeFormat;
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
+  
   static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
-  private static DateTimeFormatter dateTimeFormatter =
-      DateTimeFormat.forPattern(DATETIME_FORMAT);
+  private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
+  
   static final String DATE_FORMAT = "yyyy/MM/dd";
-  private static DateTimeFormatter dateFormatter = 
-      DateTimeFormat.forPattern(DATE_FORMAT);
+  private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
+  
   static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
-  private static DateTimeFormatter dateZoneFormatter = 
-      DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
+  private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
   private TimeUtil() {
     super();
@@ -51,6 +51,10 @@ public class TimeUtil {
   
   public static String formatDateTime(DateTime dateTime) {
     return dateTime.toString(dateTimeFormatter);
+  }
+  
+  public static DateTime parseDateTime(String dateTimeStr) {
+    return dateTimeFormatter.parseDateTime(dateTimeStr);
   }
 
   public static String formatDate(long dateTimeMillis) {

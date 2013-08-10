@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -59,13 +59,13 @@ import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoService;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 
 /**
  * Default Entry point into the GWT application.
  * Checks login. Renders Joined Experiments view by default.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -79,8 +79,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
   private List<ExperimentDAO> experiments;
-  
-  private MapServiceAsync mapService = GWT.create(MapService.class);
+  private PacoServiceAsync pacoService = GWT.create(PacoService.class);
 
   private LoginInfo loginInfo = null;
   private Anchor signInLink = new Anchor("Login");
@@ -104,11 +103,11 @@ public class Main implements EntryPoint, ExperimentListener {
     signInLink = new Anchor(myConstants.login());
     signOutLink = new Anchor(myConstants.signInAsOtherUser());
 
-    
+
     if (Document.get() != null) {
       Document.get().setTitle(myConstants.pacoPageTitle());
     }
-    
+
     checkLoginStatusAndLoadPage();
   }
 
@@ -120,7 +119,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       public void onSuccess(LoginInfo result) {
-        loginInfo = result; 
+        loginInfo = result;
         if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
 //          ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
 //          loadLibraries.add(LoadLibrary.ADSENSE);
@@ -129,13 +128,13 @@ public class Main implements EntryPoint, ExperimentListener {
 //          loadLibraries.add(LoadLibrary.PANORAMIO);
 //          loadLibraries.add(LoadLibrary.PLACES);
 //          loadLibraries.add(LoadLibrary.WEATHER);
-//          
+//
 //          LoadApi.go(new Runnable() {
 //            public void run() {
               loginPanel.setVisible(false);
               createHomePage();
               signOutLink.setHref(loginInfo.getLogoutUrl());
-              
+
         } else {
           loadLogin();
         }
@@ -146,15 +145,15 @@ public class Main implements EntryPoint, ExperimentListener {
   private void loadLogin() {
     loginPanel.setStyleName("front_page");
     HTML index2Html = null;
-    
+
     index2Html = new HomePageLocaleHelper().getLocalizedResource();
-    
+
     signInLink.setHref(loginInfo.getLoginUrl());
     signInLink.setStyleName("paco-Login");
     signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    
+
     loginPanel.add(signInLink);
-    
+
     loginPanel.setVisible(true);
     if (loginInfo.isLoggedIn() && !loginInfo.isWhitelisted()) {
       Window.alert(myConstants.notWhiteListed());
@@ -173,11 +172,11 @@ public class Main implements EntryPoint, ExperimentListener {
     protected HTML getEnVersion() {
       return new HTML(resources.indexHtml().getText());
     }
-  
+
     protected HTML getJaVersion() {
       return new HTML(resources.indexHtml_ja().getText());
     }
-    
+
     protected HTML getFiVersion() {
       return new HTML(resources.helpHtml_ja().getText());
     }
@@ -229,7 +228,7 @@ public class Main implements EntryPoint, ExperimentListener {
     //contentPanel.setSize("550px", "325px");
     rootPanel.add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
     loadJoinedExperiments();
-    
+
     createCallbackForGviz();
   }
 
@@ -242,7 +241,7 @@ public class Main implements EntryPoint, ExperimentListener {
     statusLabel.setVisible(false);
 
     menuPanel.add(statusLabel);
-  } 
+  }
 
   private HorizontalPanel createMenuBar() {
     HorizontalPanel menuPanel = new HorizontalPanel();
@@ -255,12 +254,12 @@ public class Main implements EntryPoint, ExperimentListener {
     menuPanel.add(rootMenuAndGreetingBar);
     MenuBar rootMenuBar = new MenuBar(false);
     rootMenuAndGreetingBar.add(rootMenuBar);
-    
+
     Label greeting = new Label(myMessages.hello(loginInfo.getEmailAddress()));
     greeting.setStyleName("paco-Name-Greeting");
     //greeting.setSize("200px", "20px");
     rootMenuAndGreetingBar.add(greeting);
-    
+
 
     MenuBar joinedSubMenuBar = new MenuBar(true);
     MenuItem joinedMenuItem = new MenuItem(myConstants.joinedExperiments(), false, joinedSubMenuBar);
@@ -326,7 +325,7 @@ public class Main implements EntryPoint, ExperimentListener {
     });
     aboutMenuItem.setEnabled(false);
     helpMenuBar.addItem(aboutMenuItem);
-    
+
     // logout
 
     MenuItem mntmLogout = new MenuItem(myConstants.logout(), false, new Command() {
@@ -343,7 +342,7 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   /**
-   * 
+   *
    */
   protected void showAndroidDownloadPage() {
     contentPanel.clear();
@@ -354,12 +353,12 @@ public class Main implements EntryPoint, ExperimentListener {
     HTML barCodeLabel = new HTML(myConstants.downloadAppStep1a());
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
- 
+
     HTML barCodeLabel2 = new HTML(myConstants.downloadAppStep2a());
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
-    
+
     HTML downloadLink = new HTML(myMessages.downloadAppStep2b("http://play.google.com/store/apps/details?id=com.pacoapp.paco"));
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
@@ -465,9 +464,9 @@ public class Main implements EntryPoint, ExperimentListener {
 
           @Override
           public int compare(ExperimentDAO arg0, ExperimentDAO arg1) {
-            return arg0.getTitle().toLowerCase().compareTo(arg1.getTitle().toLowerCase());            
+            return arg0.getTitle().toLowerCase().compareTo(arg1.getTitle().toLowerCase());
           }
-          
+
         });
         experiments = result;
         addRowsToTable(createExperimentRows(joinedExperimentsView, experiments, findExperimentsView));
@@ -476,11 +475,11 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     };
     if (findExperimentsView) {
-      mapService.getExperimentsAvailableToUser(callback);
+      pacoService.getAllJoinableExperiments(TimeUtil.getTimezone(), callback);
     } else if (joinedExperimentsView) {
-      mapService.getUsersJoinedExperiments(callback);
+      pacoService.getUsersJoinedExperiments(callback);
     } else {
-      mapService.getUsersAdministeredExperiments(callback);
+      pacoService.getUsersAdministeredExperiments(callback);
     }
   }
 
@@ -548,7 +547,7 @@ public class Main implements EntryPoint, ExperimentListener {
           dataQuery = ":who=" + loginInfo.getEmailAddress();
         }
         Window.open("/events?q='experimentId=" + experiment.getId() + dataQuery + "'", "_blank", "");
-        break;   
+        break;
       case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
         toggleExperimentList(true);
@@ -556,23 +555,23 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE:
         contentPanel.clear();
         toggleExperimentList(true);
-        break;    
+        break;
       case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
         contentPanel.clear();
         toggleExperimentList(false);
         showExperimentExecutorPanel(experiment, joined);
-        break;   
+        break;
       case ExperimentListener.SHOW_QR_CODE:
         String experimentId = "0000"+Long.toString(experiment.getId());
         Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=" +
         		"L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
                     "_blank","");
-        break;   
+        break;
       case ExperimentListener.SHOW_REF_CODE:
         contentPanel.clear();
         showExperimentReferencePanel(experiment);
-        break;   
-      case ExperimentListener.INDIVIDUAL_STATS_CODE:        
+        break;
+      case ExperimentListener.INDIVIDUAL_STATS_CODE:
         Window.open("/participantStats?experimentId=" + experiment.getId(),
                     "_blank","");
         break;
@@ -589,7 +588,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void joinExperiment(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
 
-    mapService.joinExperiment(experiment.getId(), new AsyncCallback<Boolean>() {
+    pacoService.joinExperiment(experiment.getId(), new AsyncCallback<Boolean>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -610,7 +609,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     });
 
-    
+
   }
 
   private void toggleExperimentList(boolean enable) {
@@ -631,7 +630,7 @@ public class Main implements EntryPoint, ExperimentListener {
       referenceDialogPanel.add(label);
       final TextBox id = new TextBox();
       referenceDialogPanel.add(id);
-      
+
       HorizontalPanel buttonPanel = new HorizontalPanel();
       referenceDialogPanel.add(buttonPanel);
       Button ok = new Button(myConstants.ok());
@@ -648,19 +647,19 @@ public class Main implements EntryPoint, ExperimentListener {
 
               @Override
               public void onFailure(Throwable caught) {
-                Window.alert("Could not make reference between experiments. " + caught.getMessage());                
+                Window.alert("Could not make reference between experiments. " + caught.getMessage());
               }
 
               @Override
               public void onSuccess(Void result) {
-                Window.alert(myConstants.success());                
+                Window.alert(myConstants.success());
               }
-              
+
             };
-            mapService.setReferencedExperiment(referringExperimentId, referencedExperimentId, callback);
+            pacoService.setReferencedExperiment(referringExperimentId, referencedExperimentId, callback);
           }
           ExperimentReferenceDialog.this.hide();
-          
+
         }
       });
       Button cancel = new Button(myConstants.cancel());
@@ -670,16 +669,16 @@ public class Main implements EntryPoint, ExperimentListener {
         @Override
         public void onClick(ClickEvent event) {
           ExperimentReferenceDialog.this.hide();
-          
+
         }
       });
-      
+
 
       setWidget(referenceDialogPanel);
     }
-    
+
   }
-  
+
   private void showExperimentReferencePanel(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
     ExperimentReferenceDialog experimentReferenceDialog = new ExperimentReferenceDialog(experiment.getId());
@@ -689,12 +688,12 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
-    
+
     experiment.getSignalingMechanisms()[0].setId(null);
     experiment.setPublished(false);
     experiment.setPublishedUsers(new String[]{});
     experiment.setAdmins(new String[]{});
-    
+
     for(InputDAO input : experiment.getInputs()) {
       input.setId(null);
     }
@@ -707,7 +706,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void saveToServer(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -732,7 +731,7 @@ public class Main implements EntryPoint, ExperimentListener {
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -768,7 +767,7 @@ public class Main implements EntryPoint, ExperimentListener {
    */
   private void deleteExperimentDefinition(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
-    mapService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
+    pacoService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
 
       @Override
       public void onFailure(Throwable caught) {
@@ -820,7 +819,7 @@ public class Main implements EntryPoint, ExperimentListener {
     if (joined) {
       queryText += ":who=" + loginInfo.getEmailAddress().toLowerCase();
     }
-    mapService.mapWithTags(queryText, callback);
+    pacoService.eventSearch(queryText, callback);
     // for each question in the experiment
     // print the title of the experiment
     // lookup the question in the events list,
@@ -832,7 +831,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void showExperimentExecutorPanel(final ExperimentDAO experiment, final boolean joined) {
     statusLabel.setVisible(true);
-    
+
     AsyncCallback<ExperimentDAO> referencedCheckCallback = new AsyncCallback<ExperimentDAO>() {
 
       @Override
@@ -852,13 +851,13 @@ public class Main implements EntryPoint, ExperimentListener {
         }
       }
     };
-    mapService.referencedExperiment(experiment.getId(), referencedCheckCallback);
+    pacoService.referencedExperiment(experiment.getId(), referencedCheckCallback);
 
   }
 
   protected void showReferredExperimentExecutor(final ExperimentDAO experiment, final ExperimentDAO referencedExperiment) {
     statusLabel.setVisible(true);
-    
+
     // TODO rewrite this with two futures that join() before calling the EndofDayExecutor.
     AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
 
@@ -887,7 +886,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
           @Override
           public void onSuccess(Map<Date, EventDAO> eodEventList) {
-            AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, mapService, 
+            AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, pacoService,
                                                                                      experiment, referencedEventList, eodEventList, referencedExperiment);
             contentPanel.add(ep);
             statusLabel.setVisible(false);
@@ -895,17 +894,17 @@ public class Main implements EntryPoint, ExperimentListener {
         };
 
         String queryText = "experimentId=" + experiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
-        mapService.getEndOfDayEvents(queryText, referringCallback);
+        pacoService.getEndOfDayEvents(queryText, referringCallback);
       }
     };
     String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
-    mapService.mapWithTags(queryText, callback);
-    
+    pacoService.eventSearch(queryText, callback);
+
   }
 
   protected void showRegularExperimentEntry(ExperimentDAO experiment, boolean joined) {
     statusLabel.setVisible(true);
-    AbstractExperimentExecutorPanel ep = new ExperimentExecutorPanel(this, mapService, experiment);
+    AbstractExperimentExecutorPanel ep = new ExperimentExecutorPanel(this, pacoService, experiment);
     contentPanel.add(ep);
     statusLabel.setVisible(false);
   }
@@ -914,7 +913,7 @@ public class Main implements EntryPoint, ExperimentListener {
     statusLabel.setVisible(true);
     if (findView) {
       ExperimentJoinPanel ep = new ExperimentJoinPanel(experiment, loginInfo, this);
-      contentPanel.add(ep);      
+      contentPanel.add(ep);
     } else if (!joined) {
       ExperimentDetailPanel ep = new ExperimentDetailPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
@@ -922,7 +921,7 @@ public class Main implements EntryPoint, ExperimentListener {
       ExperimentCreationPanel ep = new ExperimentCreationPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
     }
-    
+
     statusLabel.setVisible(false);
   }
 
@@ -945,7 +944,7 @@ public class Main implements EntryPoint, ExperimentListener {
       }
     };
     // TODO (bobevans) move this to the server
-    mapService.statsForExperiment(experiment.getId(), joined, callback);
+    pacoService.statsForExperiment(experiment.getId(), joined, callback);
 
 
   }

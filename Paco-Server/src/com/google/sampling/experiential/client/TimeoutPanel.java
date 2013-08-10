@@ -73,10 +73,14 @@ public class TimeoutPanel extends Composite {
     if (signalingMechanism.getTimeout() != null) {
       return signalingMechanism.getTimeout().toString();
     } else {
-      if (signalingMechanism instanceof SignalScheduleDAO && ((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {
-        return "59";
+      if (signalingMechanism instanceof SignalScheduleDAO) {
+        if (((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {
+          return SignalingMechanismDAO.ESM_SIGNAL_TIMEOUT;
+        } else {
+          return SignalingMechanismDAO.FIXED_SCHEDULE_TIMEOUT;
+        }
       } else {
-        return "479";
+        return SignalingMechanismDAO.TRIGGER_SIGNAL_TIMEOUT;
       }
     } 
   }

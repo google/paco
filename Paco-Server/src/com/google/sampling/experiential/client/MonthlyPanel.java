@@ -145,7 +145,6 @@ public class MonthlyPanel extends Composite {
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule, ancestor);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-
   }
 
   private ListBox createNthDayListBox(final SignalScheduleDAO schedule, 

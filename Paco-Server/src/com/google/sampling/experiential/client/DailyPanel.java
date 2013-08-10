@@ -53,7 +53,7 @@ public class DailyPanel extends Composite {
     
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule, ancestor);
     verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
+    timeoutPanel.setWidth("286px");    
   }
 
 }

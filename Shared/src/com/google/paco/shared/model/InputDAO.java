@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -22,10 +22,10 @@ package com.google.paco.shared.model;
 import java.io.Serializable;
 
 /**
- * 
+ *
  * Dumb data object for passing the experiment definition to the
- * GWT client. 
- * 
+ * GWT client.
+ *
  * We use this because GWt serialization won't serialize a JDO nucleus object.
  * @author Bob Evans
  *
@@ -33,11 +33,11 @@ import java.io.Serializable;
 public class InputDAO implements Serializable {
 
   /**
-   * 
+   *
    */
   public static final String QUESTION = "question";
   public static final String LIKERT = "likert";
-  public static final String LIKERT_SMILEYS = "likert_smileys";  
+  public static final String LIKERT_SMILEYS = "likert_smileys";
   public static final String OPEN_TEXT = "open text";
   public static final String LIST = "list";
   public static final String NUMBER = "number";
@@ -45,11 +45,11 @@ public class InputDAO implements Serializable {
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
-  
-  public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER, 
+
+  public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
     LOCATION, PHOTO, SOUND, ACTIVITY};
 
-  private Long id; 
+  private Long id;
   private String questionType;
   private String text;
   private Boolean mandatory;
@@ -63,10 +63,10 @@ public class InputDAO implements Serializable {
   private String conditionExpression;
   private String[] listChoices;
   private Boolean multiselect;
-  
+
   public static final Integer DEFAULT_LIKERT_STEPS = 5;
-  
-  public static final String NAME_REGEX = "[a-zA-Z][a-zA-Z0-9]*";
+
+  public static final String NAME_REGEX = "[a-zA-Z][a-zA-Z0-9_-]*";
 
   /**
    * @param id
@@ -82,8 +82,8 @@ public class InputDAO implements Serializable {
    * @param questionType2
    * @param nextInputId
    */
-  public InputDAO(Long id, String name, String questionType, String responseType, String text, 
-      Boolean mandatory, Long scheduleDate, Integer likertSteps, Boolean conditional, 
+  public InputDAO(Long id, String name, String questionType, String responseType, String text,
+      Boolean mandatory, Long scheduleDate, Integer likertSteps, Boolean conditional,
       String conditionExpr, String leftSideLabel, String rightSideLabel, String[] listChoices,
       Boolean multiselect) {
     this.id = id;
@@ -108,12 +108,12 @@ public class InputDAO implements Serializable {
    * @param value
    */
   public InputDAO(Long id, String name, Long scheduledDate, String text) {
-    this(id, name, QUESTION, LIKERT, text, false, scheduledDate, null, false, null, null, 
-        null, null, null);    
+    this(id, name, QUESTION, LIKERT, text, false, scheduledDate, null, false, null, null,
+        null, null, null);
   }
 
   public InputDAO() {}
-  
+
   public Long getId() {
     return id;
   }
@@ -157,7 +157,7 @@ public class InputDAO implements Serializable {
   public String getResponseType() {
     return responseType;
   }
-  
+
   public void setResponseType(String type) {
     this.responseType = type;
   }
@@ -169,7 +169,7 @@ public class InputDAO implements Serializable {
   public void setLikertSteps(Integer steps) {
     setLikertStepsWithValidation(steps);
   }
-  
+
   private void setLikertStepsWithValidation(Integer steps) {
     if (steps <= 0) {
       throw new IllegalArgumentException("Likert steps must be positive.");
@@ -183,7 +183,7 @@ public class InputDAO implements Serializable {
   public String getName() {
     return name;
   }
-  
+
   public void setName(String name) {
     if (name == null) {
       throw new IllegalArgumentException("Input name cannot be null.");
@@ -191,14 +191,14 @@ public class InputDAO implements Serializable {
     name.trim();
     setNameWithValidation(name);
   }
-  
+
   private void setNameWithValidation(String name) {
     if (!varNameIsValid(name)) {
       throw new IllegalArgumentException("Input name cannot be empty or contain spaces.");
     }
     this.name = name;
   }
-  
+
   private boolean varNameIsValid(String name) {
     return name.matches(NAME_REGEX);
   }
@@ -238,11 +238,11 @@ public class InputDAO implements Serializable {
   public String[] getListChoices() {
     return listChoices;
   }
-  
+
   public void setListChoiceAtIndex(int index, String listChoice) {
     setListChoiceAtIndexWithValidation(index, listChoice);
   }
-  
+
   private void setListChoiceAtIndexWithValidation(int index, String listChoice) {
     if (index == 0 & listChoice.equals("")) {
       throw new IllegalArgumentException("First list choice cannot be empty.");
@@ -265,5 +265,5 @@ public class InputDAO implements Serializable {
   public void setMultiselect(Boolean multiselect) {
     this.multiselect = multiselect;
   }
-  
+
 }

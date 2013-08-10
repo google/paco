@@ -1,16 +1,14 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Date;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class ExperimentDAOCore implements Serializable {
 
   public static final String DATE_FORMAT = "yyyy/MM/dd";
   protected static final String DEFAULT_STRING = "";
-  
+
   protected String title;
   protected String description;
   protected String informedConsentForm;
@@ -22,7 +20,7 @@ public class ExperimentDAOCore implements Serializable {
   protected Long id;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String email, Boolean fixedDuration, 
+                           String email, Boolean fixedDuration,
                            String startDate, String endDate, String joinDate) {
     super();
     this.id = id;
@@ -35,9 +33,9 @@ public class ExperimentDAOCore implements Serializable {
     this.endDate = endDate;
     this.joinDate = joinDate;
   }
-  
+
   /**
-   * 
+   *
    */
   public ExperimentDAOCore() {
     super();
@@ -49,22 +47,22 @@ public class ExperimentDAOCore implements Serializable {
   public String getTitle() {
     return title;
   }
-  
+
   public void setTitle(String title) {
     setTitleWithValidation(title);
   }
-  
+
   private void setTitleWithValidation(String title) {
     if (!isTitleValid(title)) {
       throw new IllegalArgumentException("Title cannot be empty.");
     }
     this.title = title;
   }
-  
+
   public boolean isTitleValid() {
     return isTitleValid(title);
   }
-  
+
   private boolean isTitleValid(String title) {
     return !title.equals("");
   }
@@ -112,7 +110,7 @@ public class ExperimentDAOCore implements Serializable {
   public String getEndDate() {
     return endDate;
   }
-  
+
   public void setEndDate(String endDate) {
     if (endDate == null) { // For ongoing experiments.
       this.endDate = endDate;
@@ -120,7 +118,7 @@ public class ExperimentDAOCore implements Serializable {
       setEndDateWithValidation(endDate);
     }
   }
-  
+
   private void setEndDateWithValidation(String endDate) {
     Date startDateAsDate = getFormattedDate(startDate, DATE_FORMAT);
     Date endDateAsDate = getFormattedDate(endDate, DATE_FORMAT);
@@ -129,7 +127,7 @@ public class ExperimentDAOCore implements Serializable {
     }
     this.endDate = endDate;
   }
-  
+
   private Date getFormattedDate(String inputDateStr, String dateFormat) {
     if (inputDateStr == null) {
       return null;
@@ -137,7 +135,7 @@ public class ExperimentDAOCore implements Serializable {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.parse(inputDateStr);
   }
-  
+
   public String getJoinDate() {
     return joinDate;
   }

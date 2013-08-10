@@ -2,11 +2,11 @@ package com.google.sampling.experiential.client;
 
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 
 public class ExperimentExecutorPanel extends AbstractExperimentExecutorPanel {
 
-  public ExperimentExecutorPanel(ExperimentListener listener, MapServiceAsync mapService, ExperimentDAO experiment) {
+  public ExperimentExecutorPanel(ExperimentListener listener, PacoServiceAsync mapService, ExperimentDAO experiment) {
     super(listener, experiment,mapService);
     createLayout();
   }
