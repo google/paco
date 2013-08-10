@@ -40,14 +40,14 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoService;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class PostEvent implements EntryPoint {
 
   private VerticalPanel whatPanel;
-  private MapServiceAsync mapService = GWT.create(MapService.class);
+  private PacoServiceAsync mapService = GWT.create(PacoService.class);
   private VerticalPanel formPanel;
   private HashMap<String, Widget> fieldToWidgetMap;
   private int keyValueCounter = 0;

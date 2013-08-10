@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.Output;
 
 public abstract class AbstractExperimentExecutorPanel extends Composite {
@@ -27,14 +27,14 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
   protected VerticalPanel mainPanel;
   protected ExperimentDAO experiment;
   protected List<InputExecutorPanel> inputsPanelsList;
-  protected MapServiceAsync mapService;
+  protected PacoServiceAsync mapService;
   protected ExperimentListener experimentListener;
   protected MyConstants myConstants;
   protected MyMessages myMessages;
 
 
   public AbstractExperimentExecutorPanel(ExperimentListener experimentListener, 
-                                         ExperimentDAO experiment, MapServiceAsync mapService) {
+                                         ExperimentDAO experiment, PacoServiceAsync mapService) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 

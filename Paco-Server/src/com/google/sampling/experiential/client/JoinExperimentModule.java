@@ -18,8 +18,8 @@ import com.google.sampling.experiential.server.Whitelist;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoService;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.WhitelistService;
 import com.google.sampling.experiential.shared.WhitelistServiceAsync;
 
@@ -34,7 +34,7 @@ public class JoinExperimentModule implements EntryPoint {
   private VerticalPanel experimentPanel;
   
   private WhitelistServiceAsync whitelistService = GWT.create(WhitelistService.class);
-  private MapServiceAsync mapService = GWT.create(MapService.class);
+  private PacoServiceAsync mapService = GWT.create(PacoService.class);
   LoginInfo loginInfo = null;
   private Anchor signInLink = new Anchor("Login");
   private Anchor signOutLink = new Anchor("Logout");
@@ -88,7 +88,7 @@ public class JoinExperimentModule implements EntryPoint {
 
 
   private void createHomePage() {
-    mapService = GWT.create(MapService.class);
+    mapService = GWT.create(PacoService.class);
 
     RootPanel rootPanel = RootPanel.get();
 
@@ -108,7 +108,7 @@ public class JoinExperimentModule implements EntryPoint {
   
   }
   
-  MapServiceAsync getMapService() {
+  PacoServiceAsync getMapService() {
     return mapService;
   }
  

@@ -57,8 +57,8 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoService;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -92,7 +92,7 @@ public class PacoEventServer implements EntryPoint {
   private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
 
 
-  private MapServiceAsync mapService = GWT.create(MapService.class);
+  private PacoServiceAsync mapService = GWT.create(PacoService.class);
   // private MapWidget map;
   List<EventDAO> eventList;
   // private ScrollPanel visualizationPanel;
@@ -429,7 +429,7 @@ public class PacoEventServer implements EntryPoint {
     if (indexOfHisto != -1) {
       queryText = queryText.replace(":histo", "");
     }
-    mapService.mapWithTags(queryText, callback);
+    mapService.eventSearch(queryText, callback);
     log("called server");
 
 

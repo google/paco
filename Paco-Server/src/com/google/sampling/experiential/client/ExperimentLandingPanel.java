@@ -38,7 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
@@ -60,7 +60,7 @@ public class ExperimentLandingPanel extends Composite {
   private FlexTable buttonTable;
 
   private VerticalPanel contentPanel;
-  private MapServiceAsync mapService;
+  private PacoServiceAsync mapService;
 
   protected ExperimentDAO experiment;
 
@@ -190,7 +190,7 @@ public class ExperimentLandingPanel extends Composite {
       }
     };
     String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress();
-    mapService.mapWithTags(queryText, callback);
+    mapService.eventSearch(queryText, callback);
     
   }
 

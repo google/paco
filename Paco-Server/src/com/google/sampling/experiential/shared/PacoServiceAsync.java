@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -26,14 +26,14 @@ import com.google.paco.shared.model.ExperimentDAO;
 /*
  * * The async counterpart of <code>MeetingService</code>.
  */
-public interface MapServiceAsync {
-  void map(AsyncCallback<List<EventDAO>> callback);
+public interface PacoServiceAsync {
+  void eventsForUser(AsyncCallback<List<EventDAO>> callback);
 
-  void mapWithTags(String tags, AsyncCallback<List<EventDAO>> callback);
+  void eventSearch(String tags, AsyncCallback<List<EventDAO>> callback);
 
-  void saveEvent(String who, 
-      String scheduledTime, 
-      String responseTime, 
+  void saveEvent(String who,
+      String scheduledTime,
+      String responseTime,
       String experimentId,
       Map<String, String> kvPairs,
       Integer experimentVersion,
@@ -44,13 +44,21 @@ public interface MapServiceAsync {
    * @param description
    * @param kvPairs
    * @param questionsCanChange
-   * @param feedbackText 
-   * @param feedbackType 
+   * @param feedbackText
+   * @param feedbackType
    * @param asyncCallback
    */
   void saveExperiment(ExperimentDAO experiment, AsyncCallback<Void> asyncCallback);
 
-  void getExperimentsAvailableToUser(AsyncCallback<List<ExperimentDAO>> callback);
+  void getAllJoinableExperiments(String tz, AsyncCallback<List<ExperimentDAO>> callback);
+
+  void getMyJoinableExperiments(String tz, AsyncCallback<List<ExperimentDAO>> callback);
+
+  void getUsersJoinedExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+
+  void getUsersAdministeredExperiments(AsyncCallback<List<ExperimentDAO>> callback);
+
+  void joinExperiment(Long id, AsyncCallback<Boolean> asyncCallback);
 
   /**
    * @param experiment
@@ -62,8 +70,6 @@ public interface MapServiceAsync {
    * @param callback
    */
   void statsForExperiment(Long id, boolean justUser, AsyncCallback<ExperimentStatsDAO> callback);
-  
-  void getUsersJoinedExperiments(AsyncCallback<List<ExperimentDAO>> callback);
 
   void saveEvent(EventDAO event, AsyncCallback<Void> asyncCallback);
 
@@ -73,8 +79,5 @@ public interface MapServiceAsync {
 
   void getEndOfDayEvents(String queryText, AsyncCallback<Map<Date, EventDAO>> referringCallback);
 
-  void getUsersAdministeredExperiments(AsyncCallback<List<ExperimentDAO>> callback);
-
-  void joinExperiment(Long id, AsyncCallback<Boolean> asyncCallback);
 
 }

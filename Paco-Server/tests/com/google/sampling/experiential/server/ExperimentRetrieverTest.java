@@ -13,19 +13,19 @@ import com.google.sampling.experiential.model.Experiment;
 
 public class ExperimentRetrieverTest extends TestCase {
 
-  
+
   private final String email = "bobevans@google.com";
   private final String authDomain = "unused_auth_domain";
-  
+
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-  private MapServiceImpl mapService;
-  
+  private PacoServiceImpl pacoService;
+
   public void setUp() {
     helper.setUp();
-    mapService = new MapServiceImpl();
-    logInEnvironment();    
+    pacoService = new PacoServiceImpl();
+    logInEnvironment();
   }
-  
+
   private void logInEnvironment() {
     helper.setEnvIsLoggedIn(true);
     helper.setEnvEmail(email);
@@ -35,14 +35,14 @@ public class ExperimentRetrieverTest extends TestCase {
   private void createAndSaveExperiment(String experimentJson) {
     ExperimentDAO testExperiment = JsonConverter.fromSingleEntityJson(experimentJson);
     testExperiment.setId(null);
-    saveToServer(testExperiment);    
-  }
-  
-  private void saveToServer(ExperimentDAO experiment) {
-    mapService.saveExperiment(experiment);
+    saveToServer(testExperiment);
   }
 
-  
+  private void saveToServer(ExperimentDAO experiment) {
+    pacoService.saveExperiment(experiment);
+  }
+
+
   public void testRetrieveMatchingExperimentsOneExperimentId() {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
@@ -51,7 +51,7 @@ public class ExperimentRetrieverTest extends TestCase {
     assertTrue(experiments.size() == 1);
     assertEquals(experiments.get(0).getId(), experimentList.get(0));
   }
-  
+
   public void testRetrieveMatchingExperimentsTwoExperimentIds() {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
