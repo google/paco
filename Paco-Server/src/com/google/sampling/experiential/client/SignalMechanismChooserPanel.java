@@ -24,7 +24,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
@@ -36,33 +35,28 @@ import com.google.paco.shared.model.TriggerDAO;
  * 
  */
 public class SignalMechanismChooserPanel extends Composite {
-  
+
   public static final int SCHEDULED_SIGNALING_INDEX = 0;
   public static final int TRIGGERED_SIGNALING_INDEX = 1;
 
-  private ExperimentDAO experiment; 
-  private int signalGroupNum;
-  private ExperimentCreationListener listener;
-  
+  private SignalMechanismChooserListPanel parent;
+  private SignalingMechanismDAO signalingMechanism; 
+
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private HorizontalPanel choicePanel;
   private VerticalPanel mainPanel;
-  
+
   protected ListBox signalingMechanismChoices;
 
-  public SignalMechanismChooserPanel(ExperimentDAO experiment, int signalGroupNum,
-                                     ExperimentCreationListener listener) {
+  public SignalMechanismChooserPanel(SignalingMechanismDAO signalingMechanism,
+                                     SignalMechanismChooserListPanel parent) {
     myConstants = GWT.create(MyConstants.class);
-    this.experiment = experiment;  
-    this.signalGroupNum = signalGroupNum;
-    this.listener = listener;
+    this.parent = parent;
+    this.signalingMechanism = signalingMechanism;  
 
     rootPanel = new VerticalPanel();
     initWidget(rootPanel);
-    
-    rootPanel.add(createSignalGroupHeader());
-    rootPanel.add(createScheduleHeader());
 
     choicePanel = new HorizontalPanel();
     rootPanel.add(choicePanel);
@@ -78,18 +72,10 @@ public class SignalMechanismChooserPanel extends Composite {
 
     choicePanel.add(signalingMechanismChoices);
 
-    if (signalGroupNum != 0 ||  // TODO: for now high input group numbers have no meaning. Will change with signal groups.
-        experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
-      SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
-      signalingMechanisms[0] = new SignalScheduleDAO();
-      experiment.setSignalingMechanisms(signalingMechanisms);
-    } else {
-      SignalingMechanismDAO signalingMechanism = experiment.getSignalingMechanisms()[0];
-      if (signalingMechanism instanceof SignalScheduleDAO) {
-        signalingMechanismChoices.setItemSelected(SCHEDULED_SIGNALING_INDEX, true);
-      } else if (signalingMechanism instanceof TriggerDAO) {
-        signalingMechanismChoices.setItemSelected(TRIGGERED_SIGNALING_INDEX, true);
-      }
+    if (signalingMechanism instanceof SignalScheduleDAO) {
+      signalingMechanismChoices.setItemSelected(SCHEDULED_SIGNALING_INDEX, true);
+    } else if (signalingMechanism instanceof TriggerDAO) {
+      signalingMechanismChoices.setItemSelected(TRIGGERED_SIGNALING_INDEX, true);
     }
 
     updatePanel();
@@ -104,36 +90,17 @@ public class SignalMechanismChooserPanel extends Composite {
     });
   }
 
-  private Label createScheduleHeader() {
-    String titleText = myConstants.experimentSchedule();
-    Label lblExperimentSchedule = new Label(titleText);
-    lblExperimentSchedule.setStyleName("paco-HTML-Large");
-    return lblExperimentSchedule;
-  }
-  
-  private Label createSignalGroupHeader() {
-    // Groups are numbered starting from 0, but user sees the numbering as starting from 1.
-    String titleText = myConstants.signalGroup() + " " + (signalGroupNum + 1);
-    Label lblExperimentSchedule = new Label(titleText);
-    lblExperimentSchedule.setStyleName("paco-HTML-Large");
-    return lblExperimentSchedule;
-  }
-
   private void respondToListSelection(int index) {
-    SignalingMechanismDAO signalingMechanism = null;
     if (index == SCHEDULED_SIGNALING_INDEX) {
       signalingMechanism = new SignalScheduleDAO();
     } else {
       signalingMechanism = new TriggerDAO();
     }
-
-    SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[] { signalingMechanism };
-    experiment.setSignalingMechanisms(signalingMechanisms);
+    updateExperimentModel();
     updatePanel();
   }
 
   private void updatePanel() {
-    SignalingMechanismDAO signalingMechanism = experiment.getSignalingMechanisms()[0];
     mainPanel.clear();
     if (signalingMechanism instanceof SignalScheduleDAO) {
       mainPanel.add(createSchedulePanel());
@@ -143,23 +110,27 @@ public class SignalMechanismChooserPanel extends Composite {
   }
 
   private SchedulePanel createSchedulePanel() {
-    return new SchedulePanel((SignalScheduleDAO) experiment.getSignalingMechanisms()[0], this);
+    return new SchedulePanel((SignalScheduleDAO) signalingMechanism, this);
   }
 
   private TriggerPanel createTriggerPanel() {
-    return new TriggerPanel((TriggerDAO) experiment.getSignalingMechanisms()[0], this);
+    return new TriggerPanel((TriggerDAO) signalingMechanism, this);
   }
 
   public void addTimeoutErrorMessage(String message) {
-    fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
+    parent.addTimeoutErrorMessage(this, message);
   }
-  
+
   public void removeTimeoutErrorMessage(String message) {
-    fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
+    parent.removeTimeoutErrorMessage(this, message);
   }
-  
-  public void fireExperimentCode(int code, String message) {
-    listener.eventFired(code, signalGroupNum, message);
+
+  private void updateExperimentModel() {
+    parent.updateExperimentSignalingMechanism(this, signalingMechanism);
+  }
+
+  public SignalingMechanismDAO getSignalingMechanism() {
+    return signalingMechanism;
   }
 
 }
