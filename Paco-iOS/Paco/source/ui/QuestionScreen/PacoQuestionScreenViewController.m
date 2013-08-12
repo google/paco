@@ -40,6 +40,34 @@ NSString *kCellIdQuestion = @"question";
 
 @implementation PacoQuestionScreenViewController
 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
+    self.navigationItem.hidesBackButton = NO;
+    self.navigationItem.rightBarButtonItem =
+    [[UIBarButtonItem alloc] initWithTitle:@"Submit"
+                                     style:UIBarButtonItemStyleDone
+                                    target:self
+                                    action:@selector(onDone)];
+  }
+  return self;
+}
+
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  
+  PacoTableView *table = [[PacoTableView alloc] initWithFrame:CGRectZero];
+  table.delegate = self;
+  table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+  [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
+  table.backgroundColor = [PacoColor pacoLightBlue];
+  self.view = table;
+  [self reloadTable];
+}
+
+
 //validate all the inputs until we find the first invalid input
 - (NSError*)validateInputs {
   NSError* error = nil;
@@ -82,41 +110,6 @@ NSString *kCellIdQuestion = @"question";
                   otherButtonTitles:nil];
 }
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-  if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
-    self.navigationItem.hidesBackButton = NO;
-    self.navigationItem.rightBarButtonItem =
-        [[UIBarButtonItem alloc] initWithTitle:@"Submit"
-                                         style:UIBarButtonItemStyleDone
-                                        target:self
-                                        action:@selector(onDone)];
-  }
-  return self;
-}
-
-- (NSArray *)boxInputs:(NSArray *)inputs {
-  NSMutableArray *boxed = [NSMutableArray array];
-  for (id input in inputs) {
-    NSArray *boxedInput = [NSArray arrayWithObjects:kCellIdQuestion, input, nil];
-    [boxed addObject:boxedInput];
-  }
-  return boxed;
-}
-
-- (void)viewDidLoad {
-  [super viewDidLoad];
-
-  PacoTableView *table = [[PacoTableView alloc] initWithFrame:CGRectZero];
-  table.delegate = self;
-  table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
-  [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
-//  table.data = [self boxInputs:self.experiment.definition.inputs];
-  table.backgroundColor = [PacoColor pacoLightBlue];
-  self.view = table;
-  [self reloadTable];
-}
 
 #pragma mark - PacoTableViewDelegate
 
@@ -141,26 +134,35 @@ NSString *kCellIdQuestion = @"question";
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
 
 }
-/*
-- (NSArray *)parseExpression:(NSString *)expr {
-  NSArray *ops = [NSArray arrayWithObjects:
-                      @">=",
-                      @"<=",
-                      @"==",
-                      @"!=",
-                      @">",
-                      @"<",
-                      @"=",
-                      nil];
-  for (NSString *op in ops) {
-    NSArray *exprArray = [expr componentsSeparatedByString:op];
-    if (exprArray.count == 3) {
-      return exprArray;
+
+- (NSArray *)boxInputs:(NSArray *)inputs {
+  NSMutableArray *boxed = [NSMutableArray array];
+  for (id input in inputs) {
+    NSArray *boxedInput = [NSArray arrayWithObjects:kCellIdQuestion, input, nil];
+    [boxed addObject:boxedInput];
+  }
+  return boxed;
+}
+
+- (void)reloadTable {
+  NSMutableArray *questions = [NSMutableArray array];
+  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
+    if (!question.conditional) {
+      [questions addObject:question];
+    } else {
+      BOOL conditionsSatified = [self checkConditions:question];
+      if (conditionsSatified) {
+        [questions addObject:question];
+      }
     }
   }
-  return nil;
+  
+  self.visibleInputs = questions;
+  PacoTableView *table = (PacoTableView *)self.view;
+  table.data = [self boxInputs:questions];
 }
-*/
+
+
 - (PacoExperimentInput *)questionByName:(NSString *)name {
   for (PacoExperimentInput *question in self.experiment.definition.inputs) {
     if ([question.name isEqualToString:name]) {
@@ -233,26 +235,8 @@ NSString *kCellIdQuestion = @"question";
   return satisfiesCondition;
 }
 
-- (void)reloadTable {
-  NSMutableArray *questions = [NSMutableArray array];
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if (!question.conditional) {
-      [questions addObject:question];
-    } else {
-      BOOL conditionsSatified = [self checkConditions:question];
-      if (conditionsSatified) {
-        [questions addObject:question];
-      }
-    }
-  }
-  
-  self.visibleInputs = questions;
-  PacoTableView *table = (PacoTableView *)self.view;
-  table.data = [self boxInputs:questions];
-}
 
 #pragma mark - UITableViewDataSource
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
   return [self.experiment.definition.inputs count];
 }
