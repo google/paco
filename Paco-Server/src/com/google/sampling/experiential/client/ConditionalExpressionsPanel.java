@@ -55,15 +55,17 @@ public class ConditionalExpressionsPanel extends Composite {
   private HorizontalPanel textEntryPanel;
   private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
-  private MouseOverTextBoxBase conditionDisplayTextBox;
   private Button parenCancelButton;
 
   private InputDAO input;
   private InputsPanel parent;
 
-  private List<ConditionalExpressionPanel> conditionPanels;
   private List<String> conditionalExpressions;
   private ConditionalExpressionPanel unbalancedParenPanel;
+  
+  // Visible for testing
+  protected MouseOverTextBoxBase conditionDisplayTextBox;
+  protected List<ConditionalExpressionPanel> conditionPanels;
 
   public ConditionalExpressionsPanel(InputDAO input, InputsPanel parent) {
     super();

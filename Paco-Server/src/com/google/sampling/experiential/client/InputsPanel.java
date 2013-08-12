@@ -60,7 +60,6 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   private VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
-  private ConditionalExpressionsPanel conditionalPanel;
   private VerticalPanel inputPromptTextPanel;
   private VerticalPanel varNamePanel;
   private CheckBox requiredBox;
@@ -73,6 +72,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   protected TextBox inputPromptText;
   protected ResponseViewPanel responseView;
   protected ListBox responseTypeListBox;
+  protected ConditionalExpressionsPanel conditionalPanel;
 
   public InputsPanel(InputsListPanel parent, InputDAO input) {
     this.input = input;
