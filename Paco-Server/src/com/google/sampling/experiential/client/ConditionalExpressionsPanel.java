@@ -55,15 +55,17 @@ public class ConditionalExpressionsPanel extends Composite {
   private HorizontalPanel textEntryPanel;
   private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
-  private MouseOverTextBoxBase conditionDisplayTextBox;
   private Button parenCancelButton;
 
   private InputDAO input;
   private InputsPanel parent;
 
-  private List<ConditionalExpressionPanel> conditionPanels;
   private List<String> conditionalExpressions;
   private ConditionalExpressionPanel unbalancedParenPanel;
+  
+  // Visible for testing
+  protected MouseOverTextBoxBase conditionDisplayTextBox;
+  protected List<ConditionalExpressionPanel> conditionPanels;
 
   public ConditionalExpressionsPanel(InputDAO input, InputsPanel parent) {
     super();
@@ -220,7 +222,7 @@ public class ConditionalExpressionsPanel extends Composite {
     if (expression == null || expression.isEmpty()) {
       createLonePanel();
       return;
-    } else if (!expression.matches(OVERALL_CONDITIONAL_REGEX) || !parensAreBalanced(expression)) {
+    } else if (!expressionIsValid(expression)) {
       indicateConditionalError();
       createLonePanel();
       return;
@@ -243,6 +245,11 @@ public class ConditionalExpressionsPanel extends Composite {
                                          getNumParens(leftParens), getNumParens(rightParens));
       addConditionalPanelToLists(repPanel);
     }
+  }
+
+  // Visible for testing
+  protected boolean expressionIsValid(String expression) {
+    return expression.matches(OVERALL_CONDITIONAL_REGEX) && parensAreBalanced(expression);
   }
 
   private void ensureConditionalErrorNotFired() {
