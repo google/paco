@@ -206,28 +206,7 @@ NSString *kCellIdQuestion = @"question";
   }
 
   // Prepare the value for the left hand side of the expression.
-  int iValueLHS = 0;
-  if ([dependantQuestion.questionType isEqualToString:@"question"]) {
-    if ([dependantQuestion.responseType isEqualToString:@"likert_smileys"]) {
-      assert(dependantQuestion.responseObject  == nil || [dependantQuestion.responseObject isKindOfClass:[NSNumber class]]);
-      iValueLHS = [dependantQuestion.responseObject intValue] + 1;
-    } else if ([dependantQuestion.responseType isEqualToString:@"likert"]) {
-      assert(dependantQuestion.responseObject  == nil || [dependantQuestion.responseObject isKindOfClass:[NSNumber class]]);
-      iValueLHS = [dependantQuestion.responseObject intValue] + 1;
-    } else if ([dependantQuestion.responseType isEqualToString:@"open text"]) {
-      iValueLHS = dependantQuestion.responseObject ? 1 : 0;
-    } else if ([dependantQuestion.responseType isEqualToString:@"list"]) {
-      assert(dependantQuestion.responseObject  == nil || [dependantQuestion.responseObject isKindOfClass:[NSNumber class]]);
-      iValueLHS = [dependantQuestion.responseObject intValue] + 1;
-    } else if ([dependantQuestion.responseType isEqualToString:@"number"]) {
-      assert(dependantQuestion.responseObject  == nil || [dependantQuestion.responseObject isKindOfClass:[NSNumber class]]);
-      iValueLHS = [dependantQuestion.responseObject intValue];
-    } else if ([dependantQuestion.responseType isEqualToString:@"location"]) {
-      iValueLHS = dependantQuestion.responseObject ? 1 : 0;
-    } else if ([dependantQuestion.responseType isEqualToString:@"photo"]) {
-      iValueLHS = dependantQuestion.responseObject ? 1 : 0;
-    }
-  }
+  int iValueLHS = [dependantQuestion intValueOfAnswer];
   
   // Prepare the value for the right hand side of the expression.
   int iValueRHS = [value intValue];

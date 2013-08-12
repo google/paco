@@ -132,4 +132,57 @@
           self.text, nil];
 }
 
+static int kInvalidDefaultAnswer = 0;
+static int kValidDefaultAnswer = 1;
+- (int)intValueOfAnswer {
+  int answer = kInvalidDefaultAnswer;
+  
+  if (![self.questionType isEqualToString:@"question"]) {
+    NSLog(@"[ERROR]input's questionType is not equal to question!");
+    return answer;
+  }
+  if (self.responseObject == nil) {
+    return answer;
+  }
+    
+  NSString* answerType = self.responseType;
+  id answerObj = self.responseObject;
+  
+  if ([answerType isEqualToString:@"likert_smileys"]) {
+    NSAssert([answerObj isKindOfClass:[NSNumber class]],
+             @"The answer to likert_smileys should be a number!");
+    answer = [answerObj intValue] + 1;
+    
+  } else if ([answerType isEqualToString:@"likert"]) {
+    NSAssert([answerObj isKindOfClass:[NSNumber class]],
+             @"The answer to likert should be a number!");
+    answer = [answerObj intValue] + 1;
+    
+  } else if ([answerType isEqualToString:@"open text"]) { //YMZ:TODO: need to confirm this
+    NSAssert([answerObj isKindOfClass:[NSString class]],
+             @"The answer to open text should be a string!");
+    answer = kValidDefaultAnswer;
+    
+  } else if ([answerType isEqualToString:@"list"]) { //YMZ:TODO: this should be an array
+    NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to list should be a number!");
+    answer = [answerObj intValue] + 1;
+    
+  } else if ([answerType isEqualToString:@"number"]) {
+    NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to number should be a number!");
+    NSAssert([answerObj intValue] >= 0, @"The answer to number should be larger and equal to 0!");
+    answer = [answerObj intValue];
+    
+  } else if ([answerType isEqualToString:@"location"]) { //YMZ:TODO: need to confirm this
+    answer = kValidDefaultAnswer;
+    
+  } else if ([answerType isEqualToString:@"photo"]) { //YMZ:TODO: need to confirm this
+    answer = kValidDefaultAnswer;
+    
+  } else {
+    NSAssert1(NO, @"[ERROR]answer type %@ is not implemented!", answerType);
+  }
+
+  return answer;
+}
+
 @end

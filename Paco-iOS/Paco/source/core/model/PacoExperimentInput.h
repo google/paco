@@ -40,4 +40,6 @@
 + (NSArray *)parseExpression:(NSString *)expr;
 
 - (NSString*)stringForListChoices;
+- (int)intValueOfAnswer;
+
 @end
