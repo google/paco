@@ -115,6 +115,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     parent.updateExpressionUsingListPanel(this);
   }
 
+  // Visible for testing
   protected String constructExpression() {
     String expression = "";
     if (isValid) {
