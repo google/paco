@@ -25,6 +25,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   public static final String INVALID_OP_SYNTAX_CONDITIONAL = VALID_NAME_1 + " > 3 &&& " + 
       VALID_NAME_2 + " == 5";
   public static final String INVALID_VARNAME_CONDITIONAL = "1q > 3";
+  public static final String INVALID_UNBALANCED_PARENS_CONDITIONAL = "((q1 > 3) && q2 == 5";
   
   private InputDAO thirdInput;
   private ConditionalExpressionsPanel thirdExpressionsPanel;
@@ -43,28 +44,16 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     thirdExpressionsPanel = 
         creationPanel.inputsListPanels.get(0).inputsPanelsList.get(2).conditionalPanel;
   }
-
-  private ExperimentDAO createExperimentWithThreeInputs() {
-    ExperimentDAO experiment = new ExperimentDAO();
-    InputDAO input1 = new InputDAO(null, VALID_NAME_1, null, null);
-    input1.setResponseType(InputDAO.LIKERT);
-    InputDAO input2 = new InputDAO(null, VALID_NAME_2, null, null);
-    input2.setResponseType(InputDAO.LIKERT);
-    InputDAO input3 = new InputDAO(null, VALID_NAME_3, null, null);
-    input3.setResponseType(InputDAO.LIKERT);
-    experiment.setInputs(new InputDAO[]{input1, input2, input3});
-    return experiment;
-  }
   
   public void testConditionalRegex() {
-    final String conditionalRegex = ConditionalExpressionsPanel.OVERALL_CONDITIONAL_REGEX;
-    assertTrue(VALID_SIMPLE_CONDITIONAL.matches(conditionalRegex));
-    assertTrue(VALID_SPACEY_CONDITIONAL.matches(conditionalRegex));
-    assertTrue(VALID_COMPOUND_CONDITIONAL.matches(conditionalRegex));
-    assertTrue(VALID_PAREN_CONDITIONAL.matches(conditionalRegex));
-    assertFalse(INVALID_COMP_CONDITIONAL.matches(conditionalRegex));
-    assertFalse(INVALID_OP_SYNTAX_CONDITIONAL.matches(conditionalRegex));
-    assertFalse(INVALID_VARNAME_CONDITIONAL.matches(conditionalRegex));
+    assertTrue(thirdExpressionsPanel.expressionIsValid(VALID_SIMPLE_CONDITIONAL));
+    assertTrue(thirdExpressionsPanel.expressionIsValid(VALID_SPACEY_CONDITIONAL));
+    assertTrue(thirdExpressionsPanel.expressionIsValid(VALID_COMPOUND_CONDITIONAL));
+    assertTrue(thirdExpressionsPanel.expressionIsValid(VALID_PAREN_CONDITIONAL));
+    assertFalse(thirdExpressionsPanel.expressionIsValid(INVALID_COMP_CONDITIONAL));
+    assertFalse(thirdExpressionsPanel.expressionIsValid(INVALID_OP_SYNTAX_CONDITIONAL));
+    assertFalse(thirdExpressionsPanel.expressionIsValid(INVALID_VARNAME_CONDITIONAL));
+    assertFalse(thirdExpressionsPanel.expressionIsValid(INVALID_UNBALANCED_PARENS_CONDITIONAL));
   }
   
   public void testSimpleTextUpdatesModelAndMenu() {
@@ -81,6 +70,18 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testParenTextUpdatesModelAndMenu() {
     assertTextUpdatesModelAndMenu(VALID_PAREN_CONDITIONAL);
+  }
+  
+  private ExperimentDAO createExperimentWithThreeInputs() {
+    ExperimentDAO experiment = new ExperimentDAO();
+    InputDAO input1 = new InputDAO(null, VALID_NAME_1, null, null);
+    input1.setResponseType(InputDAO.LIKERT);
+    InputDAO input2 = new InputDAO(null, VALID_NAME_2, null, null);
+    input2.setResponseType(InputDAO.LIKERT);
+    InputDAO input3 = new InputDAO(null, VALID_NAME_3, null, null);
+    input3.setResponseType(InputDAO.LIKERT);
+    experiment.setInputs(new InputDAO[]{input1, input2, input3});
+    return experiment;
   }
   
   private void assertTextUpdatesModelAndMenu(String conditionalText) {
