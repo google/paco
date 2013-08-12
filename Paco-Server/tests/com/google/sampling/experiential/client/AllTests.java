@@ -30,7 +30,9 @@ public class AllTests extends TestCase {
        com.google.sampling.experiential.client.ExperimentCreationModelUpdateTest.class,
        com.google.sampling.experiential.client.ExperimentCreationValidationTest.class,
        com.google.sampling.experiential.client.ExperimentCreationNavigationTest.class,
-       com.google.sampling.experiential.client.InputsListPanelTest.class
+       com.google.sampling.experiential.client.InputsListPanelTest.class,
+       com.google.sampling.experiential.client.ExperimentCreationDurationViewTest.class,
+       com.google.sampling.experiential.client.ExperimentCreationModelValidationTest.class
     };
     return new TestSuite(tests);
   }
