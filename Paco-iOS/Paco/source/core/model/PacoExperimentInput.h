@@ -15,6 +15,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum {
+  ResponseEnumTypeLikertSmileys,
+  ResponseEnumTypeLikert,
+  ResponseEnumTypeOpenText,
+  ResponseEnumTypeList,
+  ResponseEnumTypeNumber,
+  ResponseEnumTypeLocation,
+  ResponseEnumTypePhoto,
+  ResponseEnumTypeInvalid
+} ResponseEnumType;
+
 // ExperimentInput is basically something like a question, or measure of some input like a location or photo.
 @interface PacoExperimentInput : NSObject
 
@@ -30,6 +41,7 @@
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *questionType;  // 'question'/ (text question or sensor input)
 @property (nonatomic, copy) NSString *responseType;  // 'likert', 'list', open text, etc.
+@property (nonatomic, assign) ResponseEnumType responseEnumType;  
 @property (nonatomic, copy) NSString *rightSideLabel;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, retain) id jsonObject;
@@ -41,5 +53,6 @@
 
 - (NSString*)stringForListChoices;
 - (int)intValueOfAnswer;
+- (id)payloadObject;
 
 @end
