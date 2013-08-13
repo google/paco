@@ -9,8 +9,6 @@ import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
-// TODO: split this file.
-
 public class ExperimentCreationValidationTest extends GWTTestCase { 
 
   private static final String INVALID_EMAIL_STRING = "donti@google.com\nyimingzhang@google.com\nrbe5000@gmail.com";
@@ -26,7 +24,6 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   private ExperimentCreationPanel experimentCreationPanel;
 
-  private LoginInfo loginInfo;
   private ExperimentDAO experiment;
 
   public String getModuleName() {
@@ -34,7 +31,6 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   protected void gwtSetUp() {
-    loginInfo = CreationTestUtil.createLoginInfo();
     experiment = CreationTestUtil.createValidOngoingExperiment();
   }
 
@@ -248,6 +244,6 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   private void createExperimentCreationPanel(ExperimentDAO experiment) {
-    experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment, loginInfo);
+    experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment);
   }
 }

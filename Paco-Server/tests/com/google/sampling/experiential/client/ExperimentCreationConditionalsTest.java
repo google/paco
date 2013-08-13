@@ -33,8 +33,10 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   public static final String INVALID_VARNAME_CONDITIONAL = "1q > 3";
   public static final String INVALID_UNBALANCED_PARENS_CONDITIONAL = "((q1 > 3) && q2 == 5";
   
-  private InputDAO thirdInput;
   private ConditionalExpressionsPanel thirdExpressionsPanel;
+  private ExperimentCreationPanel experimentCreationPanel;
+  private ExperimentDAO experiment;
+  private InputDAO thirdInput;
 
   @Override
   public String getModuleName() {
@@ -42,13 +44,11 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   }
   
   public void gwtSetUp() {
-    LoginInfo loginInfo = CreationTestUtil.createLoginInfo();
-    ExperimentDAO experiment = createExperimentWithThreeInputs();
-    ExperimentCreationPanel creationPanel = 
-        CreationTestUtil.createExperimentCreationPanel(experiment, loginInfo);
+    experiment = createExperimentWithThreeInputs();
+    experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment);
     thirdInput = experiment.getInputs()[2];
     thirdExpressionsPanel = 
-        creationPanel.inputsListPanels.get(0).inputsPanelsList.get(2).conditionalPanel;
+        experimentCreationPanel.inputsListPanels.get(0).inputsPanelsList.get(2).conditionalPanel;
   }
   
   public void testConditionalRegex() {
@@ -80,7 +80,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testSimpleMenuUpdatesModelAndText() {
     ConditionalExpressionPanel panel = thirdExpressionsPanel.conditionPanels.get(0);
-    setPanelAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
     String menuExpression = 
         replaceWhitespace(VALID_NAME_1 + getOpStr(GREATER_THAN) + VALID_PREDICATE);
     assertEquals(menuExpression, getTrimmedMenuExpression());
@@ -90,10 +90,10 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testCompoundMenuUpdatesModelAndText() {
     ConditionalExpressionPanel firstPanel = thirdExpressionsPanel.conditionPanels.get(0);
-    setPanelAttributesWithEventsFired(firstPanel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(firstPanel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
     String op = addNextWithOp(firstPanel, ConditionalExpressionsPanel.AND_OP);
     ConditionalExpressionPanel secondPanel = thirdExpressionsPanel.conditionPanels.get(1);
-    setPanelAttributesWithEventsFired(secondPanel, VALID_NAME_2, EQUALS, VALID_PREDICATE_2);
+    setMenuAttributesWithEventsFired(secondPanel, VALID_NAME_2, EQUALS, VALID_PREDICATE_2);
     String menuExpression = 
         replaceWhitespace(VALID_NAME_1 + getOpStr(GREATER_THAN) + VALID_PREDICATE + op 
                           + VALID_NAME_2 + getOpStr(EQUALS) + VALID_PREDICATE_2);
@@ -104,7 +104,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testParenMenuUpdatesModelAndText() {
     ConditionalExpressionPanel panel = thirdExpressionsPanel.conditionPanels.get(0);
-    setPanelAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
     panel.increaseLeftParensWithUpdate();
     panel.increaseRightParensWithUpdate();
     String menuExpression = 
@@ -114,14 +114,50 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     assertEquals(menuExpression, getTrimmedTextDisplayExpression());
   }
   
+  public void testGoodConditionalSubmits() {
+    thirdExpressionsPanel.conditionDisplayTextBox.setValue(VALID_PAREN_CONDITIONAL, true);
+    assertTrue(experimentCreationPanel.canSubmit());
+  }
+  
+  public void testBadConditionalDoesNotSubmit() {
+    thirdExpressionsPanel.conditionDisplayTextBox.setValue(INVALID_COMP_CONDITIONAL, true);
+    assertFalse(experimentCreationPanel.canSubmit());
+  }
+  
+  public void testFixingOneBadConditionalItemDoesNotAllowOtherBadConditionalItem() {
+    experiment.setInputs(new InputDAO[] {createInput(InputDAO.LIKERT, VALID_NAME_1),
+                                         createInput(InputDAO.LIKERT, VALID_NAME_2),
+                                         createInput(InputDAO.LIKERT, VALID_NAME_3)});
+    experimentCreationPanel = createExperimentCreationPanel(experiment);
+
+    // Get inputs panels' conditional text fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase secondInputConditionalText = 
+        secondInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+
+    // Set invalid conditional text for both. Fire events.
+    secondInputConditionalText.setValue(INVALID_COMP_CONDITIONAL, true);
+    thirdInputConditionalText.setValue(INVALID_VARNAME_CONDITIONAL, true);
+    assertFalse(experimentCreationPanel.canSubmit());
+
+    // Set valid conditional for first input. Fire events.
+    secondInputConditionalText.setValue(VALID_COMPOUND_CONDITIONAL, true);
+    assertFalse(experimentCreationPanel.canSubmit());
+
+    // Set valid conditional for second input. Fire events.
+    thirdInputConditionalText.setValue(VALID_SIMPLE_CONDITIONAL, true);
+    assertTrue(experimentCreationPanel.canSubmit());
+  }
+  
   private ExperimentDAO createExperimentWithThreeInputs() {
-    ExperimentDAO experiment = new ExperimentDAO();
-    InputDAO input1 = new InputDAO(null, VALID_NAME_1, null, null);
-    input1.setResponseType(InputDAO.LIKERT);
-    InputDAO input2 = new InputDAO(null, VALID_NAME_2, null, null);
-    input2.setResponseType(InputDAO.LIKERT);
-    InputDAO input3 = new InputDAO(null, VALID_NAME_3, null, null);
-    input3.setResponseType(InputDAO.LIKERT);
+    ExperimentDAO experiment = CreationTestUtil.createValidOngoingExperiment();
+    InputDAO input1 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_1);
+    InputDAO input2 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_2);
+    InputDAO input3 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_3);
     experiment.setInputs(new InputDAO[]{input1, input2, input3});
     return experiment;
   }
@@ -133,7 +169,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     assertEquals(textDisplay, getTrimmedMenuExpression());
   }
   
-  private void setPanelAttributesWithEventsFired(ConditionalExpressionPanel panel,
+  private void setMenuAttributesWithEventsFired(ConditionalExpressionPanel panel,
                                                  String name, int comparator, int value) {
     panel.varNameText.setValue(name, true);
     setComparatorWithFiringEvents(panel, comparator);
@@ -174,5 +210,13 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   private String replaceWhitespace(String spacey) {
     return spacey.replaceAll("\\s*", "");
   } 
+  
+  private InputDAO createInput(String type, String name) {
+    return CreationTestUtil.createInput(type, name);
+  }
+  
+  private ExperimentCreationPanel createExperimentCreationPanel(ExperimentDAO experiment) {
+    return CreationTestUtil.createExperimentCreationPanel(experiment);
+  }
 
 }

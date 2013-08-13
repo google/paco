@@ -15,7 +15,6 @@ public class ExperimentCreationDurationViewTest extends GWTTestCase {
   
   private ExperimentCreationPanel experimentCreationPanel;
 
-  private LoginInfo loginInfo;
   private ExperimentDAO experiment;
   
   public String getModuleName() {
@@ -23,7 +22,6 @@ public class ExperimentCreationDurationViewTest extends GWTTestCase {
   }
 
   protected void gwtSetUp() {
-    loginInfo = CreationTestUtil.createLoginInfo();
     experiment = CreationTestUtil.createValidOngoingExperiment();
   }
   
@@ -155,7 +153,7 @@ public class ExperimentCreationDurationViewTest extends GWTTestCase {
   }
   
   private void createValidExperimentCreationPanel() {
-    experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment, loginInfo);
+    experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment);
   }
 
 
