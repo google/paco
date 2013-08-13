@@ -18,6 +18,12 @@
 @class PacoExperiment;
 @class PacoExperimentInput;
 
+/* 
+ NOTE: The evaluation of conditions assumes:
+ - The conditianl relationship is linear, the dependency input should always be in the position 
+   before other questions it decides
+ **/
+
 @interface PacoInputEvaluator : NSObject
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
 @property(nonatomic, strong, readonly) NSArray* visibleInputs;

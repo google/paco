@@ -24,6 +24,10 @@
 
 @property(nonatomic, strong) PacoExperiment* experiment;
 @property(nonatomic, strong) NSArray* visibleInputs;
+// key: "inputName", value: inputValue
+@property(nonatomic, strong) NSMutableDictionary* inputValueDict;
+// key: "inputName", value: NSPredicate object
+@property(nonatomic, strong) NSDictionary* expressionDict;
 
 @end
 
@@ -33,6 +37,8 @@
   self = [super init];
   if (self) {
     _experiment = experiment;
+    _inputValueDict =
+        [NSMutableDictionary dictionaryWithCapacity:[_experiment.definition.inputs count]];
     NSAssert(_experiment.definition != nil, @"definition should not be nil!");
     [self tagQuestionsForDependencies];
   }
@@ -45,7 +51,7 @@
 
 - (void)tagQuestionsForDependencies {
   for (PacoExperimentInput *input in self.experiment.definition.inputs) {
-    input.isADependencyForOthers = NO;
+    input.isADependencyForOthers = NO;    
   }
   for (PacoExperimentInput *input in self.experiment.definition.inputs) {
     if (input.conditional) {
@@ -61,6 +67,7 @@
   }
 }
 
+
 //validate all the inputs until we find the first invalid input
 - (NSError*)validateVisibleInputs {
   NSError* error = nil;
@@ -75,97 +82,105 @@
   return error;
 }
 
-- (NSArray*)evaluateAllInputs {
-  NSMutableArray *questions = [NSMutableArray array];
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if (!question.conditional) {
-      [questions addObject:question];
-    } else {
-      BOOL conditionsSatified = [self checkConditions:question];
-      if (conditionsSatified) {
-        [questions addObject:question];
-      }
+//run time: 2 * N
+- (void)buildExpressionDictionaryIfNecessary {
+  //build expression dictionary lazily
+  if (self.expressionDict != nil) {
+    return;
+  }
+  
+  //run time: N
+  NSMutableArray* variableNameList = [NSMutableArray array];
+  for (PacoExperimentInput* input in self.experiment.definition.inputs) {
+    NSAssert([input.name length] > 0, @"input name should non empty!");
+    [variableNameList addObject:input.name];
+  }
+  
+  //run time: N
+  NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+  for (PacoExperimentInput* input in self.experiment.definition.inputs) {
+    if (!input.conditional) {
+      continue;
+    }
+    NSString* rawExpression = input.conditionalExpression;
+    //we should be able to handle bad data on server safely
+    if (0 == [rawExpression length]) { 
+      NSLog(@"Error: expression should not be empty!");
+      continue;
+    }
+    
+    NSPredicate* predicate = [PacoExpressionExecutor predicateWithRawExpression:rawExpression
+                                                           withVariableNameList:variableNameList];
+    if (predicate == nil) {
+      NSLog(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
+            input.name, rawExpression);
+    }else {
+      [dict setObject:predicate forKey:input.name];
     }
   }
   
+  self.expressionDict = dict;
+  NSLog(@"Finished building expression dict: \n %@", [self.expressionDict description]);
+}
+
+//run time: 2 * N
+- (NSArray*)evaluateAllInputs {
+  [self buildExpressionDictionaryIfNecessary];
+  
+  //run time: N
+  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
+    if (question.responseObject != nil) {
+      [self.inputValueDict setObject:[NSNumber numberWithInt:[question intValueOfAnswer]]
+                              forKey:question.name];
+    } else {
+      [self.inputValueDict setObject:[NSNull null] forKey:question.name];
+    }
+  }
+
+  //run time: N
+  NSMutableArray *questions = [NSMutableArray array];
+  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
+    BOOL visible =  [self evaluateSingleInput:question];
+    if (visible) {
+      [questions addObject:question];
+    } else {
+      //for the invisible inputs, their values are not valid to use for evaluating anymore, even if
+      //their responseObject is not nil, so we should mark their values to be null 
+      [self.inputValueDict setObject:[NSNull null] forKey:question.name];
+    }
+  }
   self.visibleInputs = questions;
   return self.visibleInputs;
 }
 
-
-- (PacoExperimentInput *)questionByName:(NSString *)name {
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if ([question.name isEqualToString:name]) {
-      return question;
-    }
+//In case of any possible error, we return YES so that those inputs can at least show up
+- (BOOL)evaluateSingleInput:(PacoExperimentInput*)input{
+  if (!input.conditional) {
+    return YES;
   }
-  return nil;
-}
-
-
-- (BOOL)checkConditions:(PacoExperimentInput *)question {
-  if (!question.conditional) {
+  NSPredicate* predicate = [self.expressionDict objectForKey:input.name];
+  if (predicate == nil) {
+    NSLog(@"[ERROR]No predicate to evaluate inputName: %@", input.name);
     return YES;
   }
   
-  if ([question.conditionalExpression length] == 0) {
-    return NO;
+  BOOL satisfied = NO;
+  @try {
+    satisfied = [predicate evaluateWithObject:nil substitutionVariables:self.inputValueDict];    
   }
-  NSArray *expr = [PacoExpressionExecutor parseExpression:question.conditionalExpression];
-  NSString *questionName = [expr objectAtIndex:0];
-  questionName = [questionName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSString *op = [expr objectAtIndex:1];
-  op = [op stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSString *value = [expr objectAtIndex:2];
-  value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  
-  PacoExperimentInput *dependantQuestion = [self questionByName:questionName];
-  
-  // Apparently we can't find the parent question, so no use for this one.
-  if (dependantQuestion == nil) {
-    return NO;
+  @catch (NSException *exception) {
+    satisfied = YES;
+    NSLog(@"[ERROR]%@", [exception description]);
   }
-  
-  // If the parent isn't answered yet, then hide this question.
-  if (dependantQuestion.responseObject == nil) {
-    return NO;
+  @finally {
+    if (satisfied) {
+      NSLog(@"[Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
+    }else {
+      NSLog(@"[NOT Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
+    }
+    return satisfied;
   }
-  
-  // If the dependent question is conditional, make sure it passes it's conditions
-  // before proceeding to check the current ones.
-  BOOL parentConditionalsPass = [self checkConditions:dependantQuestion];
-  if (!parentConditionalsPass) {
-    return NO;
-  }
-  
-  // Prepare the value for the left hand side of the expression.
-  int iValueLHS = [dependantQuestion intValueOfAnswer];
-  
-  // Prepare the value for the right hand side of the expression.
-  int iValueRHS = [value intValue];
-  
-  // Evaluate the expression.
-  BOOL satisfiesCondition = NO;
-  if ([op isEqualToString:@">="]) {
-    satisfiesCondition = iValueLHS >= iValueRHS;
-  } else if ([op isEqualToString:@"<="]) {
-    satisfiesCondition = iValueLHS <= iValueRHS;
-  } else if ([op isEqualToString:@"=="]) {
-    satisfiesCondition = iValueLHS == iValueRHS;
-  } else if ([op isEqualToString:@"!="]) {
-    satisfiesCondition = iValueLHS != iValueRHS;
-  } else if ([op isEqualToString:@">"]) {
-    satisfiesCondition = iValueLHS > iValueRHS;
-  } else if ([op isEqualToString:@"<"]) {
-    satisfiesCondition = iValueLHS < iValueRHS;
-  } else if ([op isEqualToString:@"="]) {
-    satisfiesCondition = iValueLHS == iValueRHS;
-  } else {
-    NSLog(@"Invalid operation [%@]", op);
-  }
-  return satisfiesCondition;
 }
-
 
 
 
