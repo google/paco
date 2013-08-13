@@ -19,6 +19,6 @@
 
 @interface PacoQuestionScreenViewController : UIViewController
 
-@property (nonatomic, retain, readwrite) PacoExperiment *experiment;
+- (id)initWithExperiment:(PacoExperiment*)experiment;
 
 @end

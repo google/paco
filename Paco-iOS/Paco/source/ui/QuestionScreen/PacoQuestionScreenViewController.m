@@ -29,18 +29,21 @@
 #import "PacoAlertView.h"
 #import "PacoEvent.h"
 #import "PacoEventManager.h"
+#import "PacoInputEvaluator.h"
 
 NSString *kCellIdQuestion = @"question";
 
 @interface PacoQuestionScreenViewController () <PacoTableViewDelegate>
 
-@property(nonatomic, strong) NSArray* visibleInputs;
+@property(nonatomic, strong) PacoInputEvaluator* evaluator;
 
 @end
 
 @implementation PacoQuestionScreenViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (id)initWithNibName:(NSString *)nibNameOrNil
+               bundle:(NSBundle *)nibBundleOrNil
+        andExperiment:(PacoExperiment*)experiment {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
@@ -50,8 +53,13 @@ NSString *kCellIdQuestion = @"question";
                                      style:UIBarButtonItemStyleDone
                                     target:self
                                     action:@selector(onDone)];
+    _evaluator = [PacoInputEvaluator evaluatorWithExperiment:experiment];
   }
   return self;
+}
+
+- (id)initWithExperiment:(PacoExperiment*)experiment {
+  return [self initWithNibName:nil bundle:nil andExperiment:experiment];
 }
 
 
@@ -67,23 +75,8 @@ NSString *kCellIdQuestion = @"question";
   [self reloadTable];
 }
 
-
-//validate all the inputs until we find the first invalid input
-- (NSError*)validateInputs {
-  NSError* error = nil;
-  for (PacoExperimentInput* input in self.visibleInputs) {
-    if (input.mandatory && input.responseObject == nil) {
-      error = [NSError errorWithDomain:@"com.paco.userinput"
-                                  code:-1
-                              userInfo:@{NSLocalizedDescriptionKey : input.text}];
-      break;
-    }
-  }
-  return error;
-}
-
 - (void)onDone {
-  NSError* error = [self validateInputs];
+  NSError* error = [self.evaluator validateVisibleInputs];
   if (error) {
     [[[UIAlertView alloc] initWithTitle:@"Required Answer Missing:"
                                 message:error.localizedDescription
@@ -93,11 +86,12 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  [[PacoClient sharedInstance].eventManager saveSurveyEventWithDefinition:self.experiment.definition
-                                                                andInputs:self.visibleInputs];
+  [[PacoClient sharedInstance].eventManager
+      saveSurveyEventWithDefinition:self.evaluator.experiment.definition
+                          andInputs:self.evaluator.visibleInputs];
 
   //clear all inputs' submitted responseObject for the definition 
-  [self.experiment.definition clearInputs];
+  [self.evaluator.experiment.definition clearInputs];
   
   NSString* title = @"Nice";
   NSString* message = @"Your survey was successfully submitted!";  
@@ -145,115 +139,30 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)reloadTable {
-  NSMutableArray *questions = [NSMutableArray array];
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if (!question.conditional) {
-      [questions addObject:question];
-    } else {
-      BOOL conditionsSatified = [self checkConditions:question];
-      if (conditionsSatified) {
-        [questions addObject:question];
-      }
-    }
-  }
-  
-  self.visibleInputs = questions;
   PacoTableView *table = (PacoTableView *)self.view;
-  table.data = [self boxInputs:questions];
+  table.data = [self boxInputs:[self.evaluator evaluateAllInputs]];
 }
 
-
-- (PacoExperimentInput *)questionByName:(NSString *)name {
-  for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if ([question.name isEqualToString:name]) {
-      return question;
-    }
-  }
-  return nil;
-}
-
-- (BOOL)checkConditions:(PacoExperimentInput *)question {
-  if (!question.conditional) {
-    return YES;
-  }
-
-  if ([question.conditionalExpression length] == 0) {
-    return NO;
-  }
-  NSArray *expr = [PacoExperimentInput parseExpression:question.conditionalExpression];
-  NSString *questionName = [expr objectAtIndex:0];
-  questionName = [questionName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSString *op = [expr objectAtIndex:1];
-  op = [op stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  NSString *value = [expr objectAtIndex:2];
-  value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-  
-  PacoExperimentInput *dependantQuestion = [self questionByName:questionName];
-
-  // Apparently we can't find the parent question, so no use for this one.
-  if (dependantQuestion == nil) {
-    return NO;
-  }
-
-  // If the parent isn't answered yet, then hide this question.
-  if (dependantQuestion.responseObject == nil) {
-    return NO;
-  }
-
-  // If the dependent question is conditional, make sure it passes it's conditions
-  // before proceeding to check the current ones.
-  BOOL parentConditionalsPass = [self checkConditions:dependantQuestion];
-  if (!parentConditionalsPass) {
-    return NO;
-  }
-
-  // Prepare the value for the left hand side of the expression.
-  int iValueLHS = [dependantQuestion intValueOfAnswer];
-  
-  // Prepare the value for the right hand side of the expression.
-  int iValueRHS = [value intValue];
-
-  // Evaluate the expression.
-  BOOL satisfiesCondition = NO;
-  if ([op isEqualToString:@">="]) {
-    satisfiesCondition = iValueLHS >= iValueRHS;
-  } else if ([op isEqualToString:@"<="]) {
-    satisfiesCondition = iValueLHS <= iValueRHS;
-  } else if ([op isEqualToString:@"=="]) {
-    satisfiesCondition = iValueLHS == iValueRHS;
-  } else if ([op isEqualToString:@"!="]) {
-    satisfiesCondition = iValueLHS != iValueRHS;
-  } else if ([op isEqualToString:@">"]) {
-    satisfiesCondition = iValueLHS > iValueRHS;
-  } else if ([op isEqualToString:@"<"]) {
-    satisfiesCondition = iValueLHS < iValueRHS;
-  } else if ([op isEqualToString:@"="]) {
-    satisfiesCondition = iValueLHS == iValueRHS;
-  } else {
-    NSLog(@"Invalid operation [%@]", op);
-  }
-  return satisfiesCondition;
-}
 
 
 #pragma mark - UITableViewDataSource
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return [self.experiment.definition.inputs count];
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  PacoExperimentInput *question = [self.experiment.definition.inputs objectAtIndex:indexPath.row];
-  PacoQuestionView *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdQuestion];
-  if (!cell) {
-    cell = [[PacoQuestionView alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCellIdQuestion];
-  }
-  cell.question = question;
-  return cell;
-}
-
+//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+//  return [self.experiment.definition.inputs count];
+//}
+//
+//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+//  PacoExperimentInput *question = [self.experiment.definition.inputs objectAtIndex:indexPath.row];
+//  PacoQuestionView *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdQuestion];
+//  if (!cell) {
+//    cell = [[PacoQuestionView alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCellIdQuestion];
+//  }
+//  cell.question = question;
+//  return cell;
+//}
+//
 #pragma mark - UITableViewDelegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-}
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+//}
 
 @end

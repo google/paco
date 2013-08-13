@@ -15,7 +15,16 @@
 
 
 #import <Foundation/Foundation.h>
+@class PacoExperiment;
+@class PacoExperimentInput;
 
 @interface PacoInputEvaluator : NSObject
+@property(nonatomic, strong, readonly) PacoExperiment* experiment;
+@property(nonatomic, strong, readonly) NSArray* visibleInputs;
+
++ (PacoInputEvaluator*)evaluatorWithExperiment:(PacoExperiment*)experiment;
+- (NSError*)validateVisibleInputs;
+- (NSArray*)evaluateAllInputs;
+
 
 @end
