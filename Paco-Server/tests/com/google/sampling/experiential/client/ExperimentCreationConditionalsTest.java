@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.base.Joiner;
@@ -327,6 +328,95 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemText(0), LIST_CHOICE_2);
   }
   
+  public void testDraggingFromBeforeToBeforeDependentInputDoesNotInvalidateConditional() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_0 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    ConditionalExpressionPanel thirdInputFirstExpressionPanel = getFirstExpressionPanel(thirdInputsPanel);
+    assertTrue(thirdInputFirstExpressionPanel.isValid());
+    
+    // "Move" first inputs panel.
+    reorderPanels(secondInputsPanel, firstInputsPanel, thirdInputsPanel, firstInputsListPanel);
+    
+    // Ensure first list choice panel is still valid.
+    assertTrue(thirdInputFirstExpressionPanel.isValid());
+  }
+  
+  public void testDraggingFromBeforeToAfterDependentInputInvalidatesConditional() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_0 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    ConditionalExpressionPanel thirdInputFirstExpressionPanel = getFirstExpressionPanel(thirdInputsPanel);
+    assertTrue(thirdInputFirstExpressionPanel.isValid());
+    
+    // "Move" first inputs panel.
+    reorderPanels(secondInputsPanel, thirdInputsPanel, firstInputsPanel, firstInputsListPanel);
+    
+    // Ensure first list choice panel is now invalid.
+    assertFalse(thirdInputFirstExpressionPanel.isValid());
+  }
+  
+  public void testDraggingFromAfterToBeforeDependentInputValidatesConditional() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase firstInputConditionalText = 
+        firstInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for first panel based on third input. Fire events.
+    firstInputConditionalText.setValue(VALID_NAME_2 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    ConditionalExpressionPanel firstInputFirstExpressionPanel = getFirstExpressionPanel(firstInputsPanel);
+    assertFalse(firstInputFirstExpressionPanel.isValid());
+    
+    // "Move" third inputs panel.
+    reorderPanels(secondInputsPanel, thirdInputsPanel, firstInputsPanel, firstInputsListPanel);
+    
+    // Ensure first list choice panel is now valid.
+    assertTrue(firstInputFirstExpressionPanel.isValid());
+  }
+  
+  public void testDraggingFromAfterToAfterDependentInputDoesNotValidateConditional() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase firstInputConditionalText = 
+        firstInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for first panel based on third input. Fire events.
+    firstInputConditionalText.setValue(VALID_NAME_2 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    // Ensure first list choice panel is invalid.
+    ConditionalExpressionPanel firstInputFirstExpressionPanel = getFirstExpressionPanel(firstInputsPanel);
+    assertFalse(firstInputFirstExpressionPanel.isValid());
+    
+    // "Move" third inputs panel.
+    reorderPanels(firstInputsPanel, thirdInputsPanel, secondInputsPanel, firstInputsListPanel);
+    
+    // Ensure first list choice panel is still invalid.
+    assertFalse(firstInputFirstExpressionPanel.isValid());
+  }
+  
   private ExperimentDAO createExperimentWithNumberLikertLikertsmileys() {
     ExperimentDAO experiment = CreationTestUtil.createValidOngoingExperiment();
     InputDAO input1 = CreationTestUtil.createInput(InputDAO.NUMBER, VALID_NAME_0);
@@ -401,8 +491,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
         firstInputsListPanel.inputsPanelsList.get(changedTypeInputIndex);
     InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
     ListBox changingInputResponseType = changingInputsPanel.responseTypeListBox;
-    ConditionalExpressionPanel thirdInputFirstConditionPanel = 
-        thirdInputsPanel.conditionalPanel.conditionPanels.get(0);
+    ConditionalExpressionPanel thirdInputFirstConditionPanel = getFirstExpressionPanel(thirdInputsPanel);
     
     // Set conditional text for third panel based on changing input. Fire events.
     String changingInputName = VALID_NAME_PREFIX + changedTypeInputIndex ;
@@ -425,6 +514,23 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
       }
     }
     return index;
+  }
+  
+  private ConditionalExpressionPanel getFirstExpressionPanel(InputsPanel firstInputsPanel) {
+    ConditionalExpressionPanel firstInputFirstExpressionPanel =
+        firstInputsPanel.conditionalPanel.conditionPanels.get(0);
+    return firstInputFirstExpressionPanel;
+  }
+  
+  private void reorderPanels(InputsPanel panel1, InputsPanel panel2, InputsPanel panel3, 
+                             InputsListPanel listPanel) {
+    LinkedList<InputsPanel> newOrder = new LinkedList<InputsPanel>();
+    newOrder.add(panel1);
+    newOrder.add(panel2);
+    newOrder.add(panel3);
+    listPanel.inputsPanelsList = newOrder;
+    // The method called upon the end of input dragging.
+    listPanel.updateModelInputsAndConditionals();
   }
 
 }
