@@ -134,7 +134,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-dnd-r1057.jar"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/GWT (4)"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.5.0"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-incubator.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

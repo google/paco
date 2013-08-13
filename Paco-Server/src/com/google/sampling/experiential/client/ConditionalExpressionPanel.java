@@ -37,10 +37,6 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private HorizontalPanel mainPanel;
   private ListBox operatorListBox;
   private HorizontalPanel operatorPanel;
-  private TextBox varNameText;
-  private ListBox comparatorListBox;
-  private PredicatePanel predicatePanel;
-  private ListBox addNextListBox;
   private Label leftParenDisplayLabel;
   private Label rightParenDisplayLabel;
   private ParenthesesManagementPanel leftParenManagementPanel;
@@ -53,6 +49,12 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private int parenBalancingMode;
   
   private InputDAO configuredInput;
+  
+  // Visible for testing
+  protected TextBox varNameText;
+  protected ListBox comparatorListBox;
+  protected PredicatePanel predicatePanel;
+  protected ListBox addNextListBox;
 
   public ConditionalExpressionPanel(ConditionalExpressionsPanel parent, 
                                     MouseDownHandler precedenceMouseDownHandler,
@@ -115,6 +117,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     parent.updateExpressionUsingListPanel(this);
   }
 
+  // Visible for testing
   protected String constructExpression() {
     String expression = "";
     if (isValid) {
