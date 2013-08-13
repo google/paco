@@ -7,9 +7,9 @@ import com.google.common.base.Joiner;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.shared.LoginInfo;
 
 public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
@@ -17,21 +17,28 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   private static final int VALID_PREDICATE_2 = 5;
   private static final int EQUALS = 0;
   private static final int GREATER_THAN = 2;
+  public static final String VALID_NAME_PREFIX = "q";
+  public static final String VALID_NAME_0 = "q0";
   public static final String VALID_NAME_1 = "q1";
   public static final String VALID_NAME_2 = "q2";
-  public static final String VALID_NAME_3 = "q3";
+  public static final String VALID_NAME_EXTRA = "unique";
   
-  public static final String VALID_SIMPLE_CONDITIONAL = VALID_NAME_1 + " > 3";
-  public static final String VALID_SPACEY_CONDITIONAL = "  " + VALID_NAME_1 + " > 3  ";
+  public static final String VALID_SIMPLE_CONDITIONAL = VALID_NAME_0 + " > 3";
+  public static final String VALID_SPACEY_CONDITIONAL = "  " + VALID_NAME_0 + " > 3  ";
   public static final String VALID_COMPOUND_CONDITIONAL = 
-      VALID_NAME_1 + " > 3 && "+ VALID_NAME_2 + " == 5";
-  public static final String VALID_PAREN_CONDITIONAL = VALID_NAME_1 + ">3 && (" +
-      VALID_NAME_1 + "!=4 || " + VALID_NAME_2 + "==1)";
-  public static final String INVALID_COMP_CONDITIONAL = VALID_NAME_1 + " ? 3";
-  public static final String INVALID_OP_SYNTAX_CONDITIONAL = VALID_NAME_1 + " > 3 &&& " + 
-      VALID_NAME_2 + " == 5";
+      VALID_NAME_0 + " > 3 && "+ VALID_NAME_1 + " == 5";
+  public static final String VALID_PAREN_CONDITIONAL = VALID_NAME_0 + ">3 && (" +
+      VALID_NAME_0 + "!=4 || " + VALID_NAME_1 + "==1)";
+  public static final String INVALID_COMP_CONDITIONAL = VALID_NAME_0 + " ? 3";
+  public static final String INVALID_OP_SYNTAX_CONDITIONAL = VALID_NAME_0 + " > 3 &&& " + 
+      VALID_NAME_1 + " == 5";
   public static final String INVALID_VARNAME_CONDITIONAL = "1q > 3";
   public static final String INVALID_UNBALANCED_PARENS_CONDITIONAL = "((q1 > 3) && q2 == 5";
+  private static final String VALID_SIMPLE_CONDITIONAL_TAIL = " > 3";
+  
+  public static final Integer NON_DEFAULT_LIKERT_STEPS = 8;
+  public static final String LIST_CHOICE_1 = "hello";
+  public static final String LIST_CHOICE_2 = "goodbye";
   
   private ConditionalExpressionsPanel thirdExpressionsPanel;
   private ExperimentCreationPanel experimentCreationPanel;
@@ -44,7 +51,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   }
   
   public void gwtSetUp() {
-    experiment = createExperimentWithThreeInputs();
+    experiment = createExperimentWithNumberLikertLikertsmileys();
     experimentCreationPanel = CreationTestUtil.createExperimentCreationPanel(experiment);
     thirdInput = experiment.getInputs()[2];
     thirdExpressionsPanel = 
@@ -80,9 +87,9 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testSimpleMenuUpdatesModelAndText() {
     ConditionalExpressionPanel panel = thirdExpressionsPanel.conditionPanels.get(0);
-    setMenuAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(panel, VALID_NAME_0, GREATER_THAN, VALID_PREDICATE);
     String menuExpression = 
-        replaceWhitespace(VALID_NAME_1 + getOpStr(GREATER_THAN) + VALID_PREDICATE);
+        replaceWhitespace(VALID_NAME_0 + getOpStr(GREATER_THAN) + VALID_PREDICATE);
     assertEquals(menuExpression, getTrimmedMenuExpression());
     assertEquals(menuExpression, getTrimmedInputExpression());
     assertEquals(menuExpression, getTrimmedTextDisplayExpression());
@@ -90,13 +97,13 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testCompoundMenuUpdatesModelAndText() {
     ConditionalExpressionPanel firstPanel = thirdExpressionsPanel.conditionPanels.get(0);
-    setMenuAttributesWithEventsFired(firstPanel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(firstPanel, VALID_NAME_0, GREATER_THAN, VALID_PREDICATE);
     String op = addNextWithOp(firstPanel, ConditionalExpressionsPanel.AND_OP);
     ConditionalExpressionPanel secondPanel = thirdExpressionsPanel.conditionPanels.get(1);
-    setMenuAttributesWithEventsFired(secondPanel, VALID_NAME_2, EQUALS, VALID_PREDICATE_2);
+    setMenuAttributesWithEventsFired(secondPanel, VALID_NAME_1, EQUALS, VALID_PREDICATE_2);
     String menuExpression = 
-        replaceWhitespace(VALID_NAME_1 + getOpStr(GREATER_THAN) + VALID_PREDICATE + op 
-                          + VALID_NAME_2 + getOpStr(EQUALS) + VALID_PREDICATE_2);
+        replaceWhitespace(VALID_NAME_0 + getOpStr(GREATER_THAN) + VALID_PREDICATE + op 
+                          + VALID_NAME_1 + getOpStr(EQUALS) + VALID_PREDICATE_2);
     assertEquals(menuExpression, getTrimmedMenuExpression());
     assertEquals(menuExpression, getTrimmedInputExpression());
     assertEquals(menuExpression, getTrimmedTextDisplayExpression());
@@ -104,11 +111,11 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   public void testParenMenuUpdatesModelAndText() {
     ConditionalExpressionPanel panel = thirdExpressionsPanel.conditionPanels.get(0);
-    setMenuAttributesWithEventsFired(panel, VALID_NAME_1, GREATER_THAN, VALID_PREDICATE);
+    setMenuAttributesWithEventsFired(panel, VALID_NAME_0, GREATER_THAN, VALID_PREDICATE);
     panel.increaseLeftParensWithUpdate();
     panel.increaseRightParensWithUpdate();
     String menuExpression = 
-        replaceWhitespace("(" + VALID_NAME_1 + getOpStr(GREATER_THAN) + VALID_PREDICATE + ")");
+        replaceWhitespace("(" + VALID_NAME_0 + getOpStr(GREATER_THAN) + VALID_PREDICATE + ")");
     assertEquals(menuExpression, getTrimmedMenuExpression());
     assertEquals(menuExpression, getTrimmedInputExpression());
     assertEquals(menuExpression, getTrimmedTextDisplayExpression());
@@ -125,9 +132,9 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   }
   
   public void testFixingOneBadConditionalItemDoesNotAllowOtherBadConditionalItem() {
-    experiment.setInputs(new InputDAO[] {createInput(InputDAO.LIKERT, VALID_NAME_1),
-                                         createInput(InputDAO.LIKERT, VALID_NAME_2),
-                                         createInput(InputDAO.LIKERT, VALID_NAME_3)});
+    experiment.setInputs(new InputDAO[] {createInput(InputDAO.LIKERT, VALID_NAME_0),
+                                         createInput(InputDAO.LIKERT, VALID_NAME_1),
+                                         createInput(InputDAO.LIKERT, VALID_NAME_2)});
     experimentCreationPanel = createExperimentCreationPanel(experiment);
 
     // Get inputs panels' conditional text fields.
@@ -153,11 +160,178 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     assertTrue(experimentCreationPanel.canSubmit());
   }
   
-  private ExperimentDAO createExperimentWithThreeInputs() {
+  public void testInputRenameRenamesRelatedConditionals() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase firstInputNameText = firstInputsPanel.varNameText;
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_0 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    // Rename first input to a valid name. Fire events.
+    firstInputNameText.setValue(VALID_NAME_EXTRA, true);
+    
+    // Check that third input now conditionalizes based on new first input name, not old.
+    String newConditional = replaceWhitespace(VALID_NAME_EXTRA + VALID_SIMPLE_CONDITIONAL_TAIL);
+    assertEquals(getTrimmedTextDisplayExpression(), newConditional);
+    assertEquals(getTrimmedInputExpression(), newConditional);
+    assertFalse(newConditional.contains(VALID_NAME_0));
+  }
+  
+  public void testInputResponseTypeChangeToLikertUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.LIKERT);
+    
+    // Check the proper changes happened.
+    assertTrue(conditionPanel.isValid());
+    assertTrue(conditionPanel.predicatePanel.responseTypeRequiresListBox());
+    assertEquals(conditionPanel.predicatePanel.predicateListBox.getItemCount(),
+                 InputDAO.DEFAULT_LIKERT_STEPS.intValue());
+  }
+  
+  public void testInputResponseTypeChangeToLikertSmileysUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.LIKERT_SMILEYS);
+    
+    // Check the proper changes happened.
+    assertTrue(conditionPanel.isValid());
+    assertTrue(conditionPanel.predicatePanel.responseTypeRequiresListBox());
+    assertEquals(conditionPanel.predicatePanel.predicateListBox.getItemCount(),
+                 InputDAO.DEFAULT_LIKERT_STEPS.intValue());
+  }
+  
+  public void testInputResponseTypeChangeToListUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.LIST);
+    
+    // Check the proper changes happened.
+    assertTrue(conditionPanel.isValid());
+    assertTrue(conditionPanel.predicatePanel.responseTypeRequiresListBox());
+    // No list items (besides the default empty item) have been added yet.
+    assertEquals(conditionPanel.predicatePanel.predicateListBox.getItemCount(), 1);
+  }
+
+  public void testInputResponseTypeChangeToNumberUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.NUMBER);
+    
+    // Check the proper changes happened.
+    assertTrue(conditionPanel.isValid());
+    assertTrue(conditionPanel.predicatePanel.responseTypeRequiresTextBox());
+    assertTrue(conditionPanel.predicatePanel.predicateTextBox != null);
+  }
+
+  public void testInputResponseTypeChangeToLocationUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.LOCATION);
+    
+    // Check the proper changes happened.
+    assertFalse(conditionPanel.isValid());
+  }
+
+  public void testInputResponseTypeChangeToPhotoUpdatesConditionalMenu() {
+    ConditionalExpressionPanel conditionPanel = 
+        setConditionThenChangeResponseType(0, InputDAO.PHOTO);
+    
+    // Check the proper changes happened.
+    assertFalse(conditionPanel.isValid());
+  }
+  
+  public void testLikertStepsChangeUpdatesConditionalMenu() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase secondInputLikertStepsText = secondInputsPanel.responseView.stepsText;
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_1 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    // Check that third input predicate panel has correct number of options.
+    PredicatePanel thirdInputFirstPredicatePanel = 
+        thirdInputsPanel.conditionalPanel.conditionPanels.get(0).predicatePanel;
+    assertTrue(thirdInputFirstPredicatePanel.predicateListBox != null);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 
+                 InputDAO.DEFAULT_LIKERT_STEPS.intValue());
+    
+    // Change likert steps number.
+    secondInputLikertStepsText.setValue(NON_DEFAULT_LIKERT_STEPS.toString(), true);
+    
+    // Check that third input predicate panel has correct number of options.
+    assertTrue(thirdInputFirstPredicatePanel.predicateListBox != null);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 
+                 NON_DEFAULT_LIKERT_STEPS.intValue());
+  }
+  
+  public void testAddingSubtractingListOptionsUpdatesConditionalMenu() {
+    // Change second input to list type.
+    setConditionThenChangeResponseType(1, InputDAO.LIST);
+    
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    ListChoicesPanel secondInputListChoicesPanel = secondInputsPanel.responseView.listChoicesPanel;
+    ListChoicePanel listChoicePanel = secondInputListChoicesPanel.choicePanelsList.get(0);
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_1 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    // Add a list option.
+    PredicatePanel thirdInputFirstPredicatePanel = 
+        thirdInputsPanel.conditionalPanel.conditionPanels.get(0).predicatePanel;
+    listChoicePanel.addChoicePanel();
+    assertTrue(thirdInputFirstPredicatePanel.predicateListBox != null);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 2);
+    
+    // Delete a list option.
+    listChoicePanel.deleteThis();
+    assertTrue(thirdInputFirstPredicatePanel.predicateListBox != null);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 1);
+  }
+  
+  public void testRenamingListOptionsUpdatesConditionalMenu() {
+    // Change second input to list type.
+    setConditionThenChangeResponseType(1, InputDAO.LIST);
+    
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    ListChoicesPanel secondInputListChoicesPanel = secondInputsPanel.responseView.listChoicesPanel;
+    ListChoicePanel listChoicePanel = secondInputListChoicesPanel.choicePanelsList.get(0);
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional text for third panel based on first input. Fire events.
+    thirdInputConditionalText.setValue(VALID_NAME_1 + VALID_SIMPLE_CONDITIONAL_TAIL, true);
+    
+    // Change first list choice text.
+    PredicatePanel thirdInputFirstPredicatePanel = 
+        thirdInputsPanel.conditionalPanel.conditionPanels.get(0).predicatePanel;
+    listChoicePanel.setChoice(LIST_CHOICE_1, true);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 1);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemText(0), LIST_CHOICE_1);
+    
+    // Again change first list choice text.
+    listChoicePanel.setChoice(LIST_CHOICE_2, true);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemCount(), 1);
+    assertEquals(thirdInputFirstPredicatePanel.predicateListBox.getItemText(0), LIST_CHOICE_2);
+  }
+  
+  private ExperimentDAO createExperimentWithNumberLikertLikertsmileys() {
     ExperimentDAO experiment = CreationTestUtil.createValidOngoingExperiment();
-    InputDAO input1 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_1);
-    InputDAO input2 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_2);
-    InputDAO input3 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_3);
+    InputDAO input1 = CreationTestUtil.createInput(InputDAO.NUMBER, VALID_NAME_0);
+    InputDAO input2 = CreationTestUtil.createInput(InputDAO.LIKERT, VALID_NAME_1);
+    InputDAO input3 = CreationTestUtil.createInput(InputDAO.LIKERT_SMILEYS, VALID_NAME_2);
     experiment.setInputs(new InputDAO[]{input1, input2, input3});
     return experiment;
   }
@@ -172,13 +346,13 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   private void setMenuAttributesWithEventsFired(ConditionalExpressionPanel panel,
                                                  String name, int comparator, int value) {
     panel.varNameText.setValue(name, true);
-    setComparatorWithFiringEvents(panel, comparator);
+    setSelectedIndexWithFiringEvents(panel.comparatorListBox, comparator);
     panel.predicatePanel.setValue(value, true);
   }
   
-  private void setComparatorWithFiringEvents(ConditionalExpressionPanel panel, int operator) {
-    panel.comparatorListBox.setSelectedIndex(operator);
-    ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.comparatorListBox);
+  private void setSelectedIndexWithFiringEvents(ListBox listBox, int index) {
+    listBox.setSelectedIndex(index);
+    ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(),listBox);
   }
   
   private String getOpStr(int opIndex) {
@@ -217,6 +391,40 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   
   private ExperimentCreationPanel createExperimentCreationPanel(ExperimentDAO experiment) {
     return CreationTestUtil.createExperimentCreationPanel(experiment);
+  }
+  
+  private ConditionalExpressionPanel setConditionThenChangeResponseType(int changedTypeInputIndex,
+                                                                        String responseTypeChangeTo) {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel changingInputsPanel = 
+        firstInputsListPanel.inputsPanelsList.get(changedTypeInputIndex);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    ListBox changingInputResponseType = changingInputsPanel.responseTypeListBox;
+    ConditionalExpressionPanel thirdInputFirstConditionPanel = 
+        thirdInputsPanel.conditionalPanel.conditionPanels.get(0);
+    
+    // Set conditional text for third panel based on changing input. Fire events.
+    String changingInputName = VALID_NAME_PREFIX + changedTypeInputIndex ;
+    thirdInputFirstConditionPanel.varNameText.setValue(changingInputName, true);
+    
+    // Change third input type.
+    setSelectedIndexWithFiringEvents(changingInputResponseType, 
+                                     getResponseTypeIndex(responseTypeChangeTo));
+    
+    // Return the Conditional Expression Panel to check.
+    return thirdInputFirstConditionPanel;
+  }
+  
+  private int getResponseTypeIndex(String responseType) {
+    int index = -1;
+    for (int i = 0; i < InputDAO.RESPONSE_TYPES.length; ++i) {
+      if (InputDAO.RESPONSE_TYPES[i].equals(responseType)) {
+        index = i;
+        break;
+      }
+    }
+    return index;
   }
 
 }

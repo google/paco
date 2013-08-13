@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.InputDAO;
 
-public class ConditionalExpressionPanel extends Composite implements ChangeHandler {
+public class ConditionalExpressionPanel extends Composite implements ChangeHandler, ValueChangeHandler<String> {
 
   public static final int NEUTRAL_PAREN_MODE = 0;
   public static final int JUST_ADDED_LEFT_PAREN = 1;
@@ -628,6 +628,11 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   @Override
   public void onChange(ChangeEvent event) {
+    updateExpression();
+  }
+  
+  @Override
+  public void onValueChange(ValueChangeEvent<String> event) {
     updateExpression();
   }
 

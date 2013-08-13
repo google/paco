@@ -125,7 +125,8 @@ public class ListChoicePanel extends Composite {
     parent.addChoice(this);
   }
 
-  private void deleteThis() {
+  // Visible for testing.
+  protected void deleteThis() {
     parent.deleteChoice(this);
   }
 
@@ -134,7 +135,11 @@ public class ListChoicePanel extends Composite {
   }
 
   public void setChoice(String choice) {
-    textField.setText(choice);
+    setChoice(choice, false);
+  }
+  
+  public void setChoice(String choice, boolean fireEvents) {
+    textField.setValue(choice, fireEvents);
   }
   
   private boolean isFirstPanel() {
