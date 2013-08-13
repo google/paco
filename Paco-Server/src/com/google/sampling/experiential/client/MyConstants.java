@@ -415,7 +415,7 @@ public interface MyConstants extends Constants {
   String experimentDescriptionButtonText();
 
   @DefaultStringValue("Schedule")
-  String experimentScheduleButtonText();
+  String schedule();
 
   @DefaultStringValue("Inputs List")
   String experimentInputsButtonText();

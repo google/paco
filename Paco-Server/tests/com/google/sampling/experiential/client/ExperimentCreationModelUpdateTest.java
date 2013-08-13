@@ -108,15 +108,15 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
   }
   
   public void testScheduledSignalingSavedOnExperiment() {
-    SignalMechanismChooserPanel panel = experimentCreationPanel.signalPanels.get(0);
+    SignalMechanismChooserPanel panel = experimentCreationPanel.signalPanels.get(0).chooserPanels.get(0);
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.SCHEDULED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
     assertTrue(savedExperiment.getSignalingMechanisms()[0] instanceof SignalScheduleDAO);
   }
-  
+
   public void testTriggeredSignalingSavedOnExperiment() {
-    SignalMechanismChooserPanel panel = experimentCreationPanel.signalPanels.get(0);
+    SignalMechanismChooserPanel panel = experimentCreationPanel.signalPanels.get(0).chooserPanels.get(0);
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.TRIGGERED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
