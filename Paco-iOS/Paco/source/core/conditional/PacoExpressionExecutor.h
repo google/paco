@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 
 @interface PacoExpressionExecutor : NSObject
++ (NSArray *)parseExpression:(NSString *)expr;
+
 + (NSPredicate*)predicateWithRawExpression:(NSString*)rawExpression
                       withVariableNameList:(NSArray*)variableNameList;
 @end

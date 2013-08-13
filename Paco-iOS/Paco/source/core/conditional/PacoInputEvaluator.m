@@ -18,6 +18,7 @@
 #import "PacoExperimentInput.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
+#import "PacoExpressionExecutor.h"
 
 @interface PacoInputEvaluator ()
 
@@ -32,12 +33,32 @@
   self = [super init];
   if (self) {
     _experiment = experiment;
+    NSAssert(_experiment.definition != nil, @"definition should not be nil!");
+    [self tagQuestionsForDependencies];
   }
   return self;
 }
 
 + (PacoInputEvaluator*)evaluatorWithExperiment:(PacoExperiment*)experiment {
   return [[PacoInputEvaluator alloc] initWithExperiment:experiment];
+}
+
+- (void)tagQuestionsForDependencies {
+  for (PacoExperimentInput *input in self.experiment.definition.inputs) {
+    input.isADependencyForOthers = NO;
+  }
+  for (PacoExperimentInput *input in self.experiment.definition.inputs) {
+    if (input.conditional) {
+      NSArray *expr = [PacoExpressionExecutor parseExpression:input.conditionalExpression];
+      NSString *dependency = [expr objectAtIndex:0];
+      for (PacoExperimentInput *input2 in self.experiment.definition.inputs) {
+        if ([input2.name isEqualToString:dependency]) {
+          input2.isADependencyForOthers = YES;
+          break;
+        }
+      }
+    }
+  }
 }
 
 //validate all the inputs until we find the first invalid input
@@ -90,7 +111,7 @@
   if ([question.conditionalExpression length] == 0) {
     return NO;
   }
-  NSArray *expr = [PacoExperimentInput parseExpression:question.conditionalExpression];
+  NSArray *expr = [PacoExpressionExecutor parseExpression:question.conditionalExpression];
   NSString *questionName = [expr objectAtIndex:0];
   questionName = [questionName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
   NSString *op = [expr objectAtIndex:1];

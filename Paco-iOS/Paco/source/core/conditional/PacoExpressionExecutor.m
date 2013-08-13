@@ -18,6 +18,30 @@
 
 @implementation PacoExpressionExecutor
 
++ (NSArray *)parseExpression:(NSString *)expr {
+  NSArray *ops = [NSArray arrayWithObjects:
+                  @">=",
+                  @"<=",
+                  @"==",
+                  @"!=",
+                  @">",
+                  @"<",
+                  @"=",
+                  nil];
+  for (NSString *op in ops) {
+    NSArray *exprArray = [expr componentsSeparatedByString:op];
+    if (exprArray.count == 2) {
+      NSString *dep = [exprArray objectAtIndex:0];
+      dep = [dep stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      NSString *value = [exprArray objectAtIndex:1];
+      value = [value stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      return [NSArray arrayWithObjects:dep, op, value, nil];
+    }
+  }
+  return nil;
+}
+
+
 //Inputs: "a > 1 && b == 2 || c == a", [a, b, c]
 //Output: "$a > 1 && $b == 2 || $c == $a"
 + (NSString*)applyDollarSignForRawExpression:(NSString*)expression

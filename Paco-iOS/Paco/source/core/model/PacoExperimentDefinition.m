@@ -100,25 +100,6 @@
           nil];
 }
 
-- (void)tagQuestionsForDependencies {  
-  for (PacoExperimentInput *input in self.inputs) {
-    input.isADependencyForOthers = NO;
-  }
-  for (PacoExperimentInput *input in self.inputs) {
-    if (input.conditional) {
-      NSArray *expr = [PacoExperimentInput parseExpression:input.conditionalExpression];
-      NSString *dependency = [expr objectAtIndex:0];
-      //NSString *op = [expr objectAtIndex:1];
-      //NSString *value = [expr objectAtIndex:2];
-      for (PacoExperimentInput *input2 in self.inputs) {
-        if ([input2.name isEqualToString:dependency]) {
-          input2.isADependencyForOthers = YES;
-          break;
-        }
-      }
-    }
-  }
-}
 
 - (void)clearInputs {
   for (PacoExperimentInput *input in self.inputs) {
