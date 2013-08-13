@@ -1,5 +1,7 @@
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -122,13 +124,20 @@ public class PredicatePanel extends Composite {
   }
   
   public void setValue(Integer value) {
+    setValue(value, false);
+  }
+  
+  public void setValue(Integer value, boolean fireEvents) {
     if (value == null) {
       throw new IllegalArgumentException("Predicate value cannot be null.");
     }
     if (responseTypeRequiresListBox()) {
       setListBoxSelectedIndex(value, true);
+      if (fireEvents) {
+        ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), predicateListBox);
+      }
     } else if (responseTypeRequiresTextBox()) {
-      predicateTextBox.setValue(value.toString());
+      predicateTextBox.setValue(value.toString(), fireEvents);
     }
   }
 
