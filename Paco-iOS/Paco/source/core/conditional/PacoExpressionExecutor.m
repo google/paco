@@ -42,10 +42,12 @@
 }
 
 
-//Inputs: "a > 1 && b == 2 || c == a", [a, b, c]
-//Output: "$a > 1 && $b == 2 || $c == $a"
-+ (NSString*)applyDollarSignForRawExpression:(NSString*)expression
-                         withVariableNameList:(NSArray*)variableNameList {
+/*     "a > 1 && b == 2 || c == a", [a, b, c]
+ *  ==>"$a > 1 && $b == 2 || $c == $a"
+ **/
++ (void)applyDollarSignForRawExpression:(NSString*)expression
+               withVariableNameList:(NSArray*)variableNameList
+                          withBlock:(void(^)(NSString*, NSArray*))block {
   CFStringRef expressionRef = (__bridge CFStringRef)expression;
   CFLocaleRef locale = CFLocaleCopyCurrent();
   CFStringTokenizerRef tokenizer =
@@ -71,32 +73,42 @@
   }
   CFRelease(tokenizer);
   CFRelease(locale);
-    
+  
   NSString* newExpression = [expression copy];
+  NSMutableArray* dependencyVariables = [NSMutableArray array];
   for (NSString* variableName in variableNameList) {
     if ([tokenList containsObject:variableName]) {
+      [dependencyVariables addObject:variableName];
+
       NSString* replacement = [NSString stringWithFormat:@"$%@", variableName];
       newExpression = [newExpression stringByReplacingOccurrencesOfString:variableName
-                                                 withString:replacement];
+                                                               withString:replacement];
     }
   }
-  return newExpression;
+  block(newExpression, dependencyVariables);
 }
 
-+ (NSPredicate*)predicateWithRawExpression:(NSString*)rawExpression
-                       withVariableNameList:(NSArray*)variableNameList {
-  NSString* expression = [PacoExpressionExecutor applyDollarSignForRawExpression:rawExpression
-                                           withVariableNameList:variableNameList];
-  NSPredicate* pred = nil;
-  @try {
-    pred = [NSPredicate predicateWithFormat:expression];
-  }
-  @catch (NSException *exception) {
-    NSLog(@"Failed to create predicate from string: %@", expression);
-    return nil;
-  }
-  return pred;
++ (void)predicateWithRawExpression:(NSString*)rawExpression
+              withVariableNameList:(NSArray*)variableNameList
+                          andBlock:(PredicateBlock)completionBlock {
+  void(^block)(NSString*, NSArray*) = ^(NSString *newExpression, NSArray *dependencyVariables) {
+    NSPredicate* pred = nil;
+    @try {
+      pred = [NSPredicate predicateWithFormat:newExpression];
+    }
+    @catch (NSException *exception) {
+      NSLog(@"Failed to create predicate from string: %@", newExpression);
+      completionBlock(nil, dependencyVariables);
+      return;
+    }
+    completionBlock(pred, dependencyVariables);
+  };
+  
+  [PacoExpressionExecutor applyDollarSignForRawExpression:rawExpression
+                                     withVariableNameList:variableNameList
+                                                withBlock:block];
 }
+
 
 
 @end

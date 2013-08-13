@@ -16,9 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void(^PredicateBlock)(NSPredicate* predicate, NSArray* dependencyVariables);
+
 @interface PacoExpressionExecutor : NSObject
 + (NSArray *)parseExpression:(NSString *)expr;
 
-+ (NSPredicate*)predicateWithRawExpression:(NSString*)rawExpression
-                      withVariableNameList:(NSArray*)variableNameList;
++ (void)predicateWithRawExpression:(NSString*)rawExpression
+                      withVariableNameList:(NSArray*)variableNameList
+                                  andBlock:(PredicateBlock)completionBlock;
 @end

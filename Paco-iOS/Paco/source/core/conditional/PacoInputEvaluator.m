@@ -28,6 +28,8 @@
 @property(nonatomic, strong) NSMutableDictionary* inputValueDict;
 // key: "inputName", value: NSPredicate object
 @property(nonatomic, strong) NSDictionary* expressionDict;
+// key: "inputName", value: PacoExperimentInput object
+@property(nonatomic, strong) NSDictionary* indexDict;
 
 @end
 
@@ -40,31 +42,14 @@
     _inputValueDict =
         [NSMutableDictionary dictionaryWithCapacity:[_experiment.definition.inputs count]];
     NSAssert(_experiment.definition != nil, @"definition should not be nil!");
-    [self tagQuestionsForDependencies];
+    
+    [self buildIndex];
   }
   return self;
 }
 
 + (PacoInputEvaluator*)evaluatorWithExperiment:(PacoExperiment*)experiment {
   return [[PacoInputEvaluator alloc] initWithExperiment:experiment];
-}
-
-- (void)tagQuestionsForDependencies {
-  for (PacoExperimentInput *input in self.experiment.definition.inputs) {
-    input.isADependencyForOthers = NO;    
-  }
-  for (PacoExperimentInput *input in self.experiment.definition.inputs) {
-    if (input.conditional) {
-      NSArray *expr = [PacoExpressionExecutor parseExpression:input.conditionalExpression];
-      NSString *dependency = [expr objectAtIndex:0];
-      for (PacoExperimentInput *input2 in self.experiment.definition.inputs) {
-        if ([input2.name isEqualToString:dependency]) {
-          input2.isADependencyForOthers = YES;
-          break;
-        }
-      }
-    }
-  }
 }
 
 
@@ -80,6 +65,25 @@
     }
   }
   return error;
+}
+
+//run time: N
+- (void)buildIndex {
+  NSMutableDictionary* dict =
+      [NSMutableDictionary dictionaryWithCapacity:[self.experiment.definition.inputs count]];
+  for (PacoExperimentInput* input in self.experiment.definition.inputs) {
+    NSAssert([input.name length] > 0, @"input name should not be empty!");
+    [dict setObject:input forKey:input.name];
+  }
+  self.indexDict = dict;
+}
+
+- (void)tagInputsAsDependency:(NSArray*)inputNameList {
+  for (NSString* name in inputNameList) {
+    PacoExperimentInput* input = [self.indexDict objectForKey:name];
+    NSAssert(input != nil, @"input should not be nil!");
+    input.isADependencyForOthers = YES;
+  }
 }
 
 //run time: 2 * N
@@ -109,14 +113,19 @@
       continue;
     }
     
-    NSPredicate* predicate = [PacoExpressionExecutor predicateWithRawExpression:rawExpression
-                                                           withVariableNameList:variableNameList];
-    if (predicate == nil) {
-      NSLog(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
-            input.name, rawExpression);
-    }else {
-      [dict setObject:predicate forKey:input.name];
-    }
+    void(^completionBlock)(NSPredicate*, NSArray*) =
+        ^(NSPredicate* predicate, NSArray* dependencyVariables){
+          if (predicate == nil) {
+            NSLog(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
+                  input.name, rawExpression);
+          }else {
+            [dict setObject:predicate forKey:input.name];
+          }
+          [self tagInputsAsDependency:dependencyVariables];
+        };
+    [PacoExpressionExecutor predicateWithRawExpression:rawExpression
+                                  withVariableNameList:variableNameList
+                                              andBlock:completionBlock];
   }
   
   self.expressionDict = dict;
