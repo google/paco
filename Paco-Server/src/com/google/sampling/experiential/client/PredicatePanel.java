@@ -12,11 +12,13 @@ import com.google.paco.shared.model.InputDAO;
 public class PredicatePanel extends Composite {
 
   private HorizontalPanel mainPanel;
-  private ListBox predicateListBox;
-  private TextBox predicateTextBox;
 
   private String responseType;
   private ConditionalExpressionPanel parent;
+  
+  // Visible for testing
+  protected ListBox predicateListBox;
+  protected TextBox predicateTextBox;
 
   public PredicatePanel(MouseDownHandler precedenceMouseDownHandler, ConditionalExpressionPanel parent) {
     this.parent = parent;
@@ -30,7 +32,7 @@ public class PredicatePanel extends Composite {
 
     predicateTextBox = new TextBox();
     predicateTextBox.addMouseDownHandler(precedenceMouseDownHandler);
-    predicateTextBox.addChangeHandler(parent);
+    predicateTextBox.addValueChangeHandler(parent);
 
     mainPanel.add(predicateListBox);
   }
@@ -60,7 +62,8 @@ public class PredicatePanel extends Composite {
       setListBoxSelectedIndex(oldValue, false);
       mainPanel.add(predicateListBox);
     } else if (responseTypeRequiresTextBox()) {
-      predicateTextBox.setValue(oldValue.toString(), true);
+      // Do not fire events since some other panel is configuring this one.
+      predicateTextBox.setValue(oldValue.toString(), false);
       mainPanel.add(predicateTextBox);
     }
   }
@@ -141,11 +144,13 @@ public class PredicatePanel extends Composite {
     }
   }
 
-  private boolean responseTypeRequiresTextBox() {
+  // Visible for testing
+  protected boolean responseTypeRequiresTextBox() {
     return responseType.equals(InputDAO.NUMBER);
   }
   
-  private boolean responseTypeRequiresListBox() {
+  // Visible for testing
+  protected boolean responseTypeRequiresListBox() {
     return responseType.equals(InputDAO.LIKERT) || responseType.equals(InputDAO.LIST)
         || responseType.equals(InputDAO.LIKERT_SMILEYS);
   }
