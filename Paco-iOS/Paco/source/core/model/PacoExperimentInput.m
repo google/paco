@@ -93,6 +93,24 @@
   return choices;
 }
 
+- (id)valueFromListForValidation {
+  if (ResponseEnumTypeList != self.responseEnumType) {
+    return nil;
+  }
+  
+  NSArray* choices = [self choicesForList];
+  if (self.multiSelect) {
+    return choices;
+  } else {
+    if ([choices count] > 0) {
+      NSAssert([choices count] == 1, @"choices should have only one element!");
+      return [choices objectAtIndex:0];
+    } else {
+      return nil;
+    }
+  }
+}
+
 - (NSArray*)choicesForList {
   if (ResponseEnumTypeList != self.responseEnumType) {
     return nil;
@@ -185,7 +203,7 @@
       
     case ResponseEnumTypeList: 
       NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to list should be a number!");
-      value = [self choicesForList];
+      value = [self valueFromListForValidation];
       break;
       
     case ResponseEnumTypeNumber:
