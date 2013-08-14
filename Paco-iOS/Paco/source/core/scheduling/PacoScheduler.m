@@ -173,7 +173,6 @@
             experimentAlertBody:(NSString*) experimentAlertBody {
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   
-  notification.fireDate = experimentFireDate;
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = experimentAlertBody;
   notification.soundName = @"deepbark_trial.mp3";
@@ -181,8 +180,8 @@
 
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   [userInfo setObject:experimentInstanceId forKey:@"experimentInstanceId"];
-  [userInfo setObject:notification.fireDate forKey:@"experimentFireDate"];
-  [userInfo setObject:experimentFireDate forKey:@"experimentTimeOutDate"];
+  [userInfo setObject:experimentFireDate forKey:@"experimentFireDate"];
+  [userInfo setObject:experimentTimeOutDate forKey:@"experimentTimeOutDate"];
   if (experimentEsmSchedule) {
     [userInfo setObject:experimentEsmSchedule forKey:@"experimentEsmSchedule"];
   }
@@ -190,14 +189,15 @@
   // this logic is for when we're loading notifications from a file that should have fired
   // in the past: we want them to fire right away (so they show up in Notification Center),
   // but by setting the hasFired object in userInfo object we make sure that the UI doesn't show them
-  if (([notification.fireDate timeIntervalSinceNow] <= 0)) {
+  if (([experimentFireDate timeIntervalSinceNow] <= 0)) {
+    notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5];
     [userInfo setObject:@"true" forKey:@"experimentHasFired"];
-    notification.userInfo = userInfo;
-      [[UIApplication sharedApplication] presentLocalNotificationNow:notification];
   } else {
+    notification.fireDate = experimentFireDate;
     [userInfo setObject:@"false" forKey:@"experimentHasFired"];
-      [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
+  notification.userInfo = userInfo;
+ [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   
   // now that it's scheduled we need to start bookkeeping it
   UILocalNotification* notificationObject = [self getiOSLocalNotification:experimentInstanceId fireDate:notification.fireDate];
