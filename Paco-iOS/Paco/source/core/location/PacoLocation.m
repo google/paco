@@ -37,10 +37,6 @@ NSTimer* LocationTimer;
     
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
-
-    // clear the history of Local Notifications as soon as the App is launched
-    // this code won't happen if we bring the App from the background
-    [[UIApplication sharedApplication] cancelAllLocalNotifications];
     
     dispatch_async(dispatch_get_main_queue(), ^{
       LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
