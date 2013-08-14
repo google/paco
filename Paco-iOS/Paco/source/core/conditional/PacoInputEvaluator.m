@@ -179,9 +179,9 @@
   }
   @finally {
     if (satisfied) {
-      NSLog(@"[Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
+      //NSLog(@"[Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
     }else {
-      NSLog(@"[NOT Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
+      //NSLog(@"[NOT Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);
     }
     return satisfied;
   }

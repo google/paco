@@ -19,7 +19,6 @@
 typedef void(^PredicateBlock)(NSPredicate* predicate, NSArray* dependencyVariables);
 
 @interface PacoExpressionExecutor : NSObject
-+ (NSArray *)parseExpression:(NSString *)expr;
 
 + (void)predicateWithRawExpression:(NSString*)rawExpression
                       withVariableNameList:(NSArray*)variableNameList
