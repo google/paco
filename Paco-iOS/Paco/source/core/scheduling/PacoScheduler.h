@@ -19,36 +19,37 @@
 
 @class PacoExperiment;
 
+@protocol PacoSchedulerDelegate
+@required
+- (void)handleEventTimeOut:(NSString*) experimentInstanceId
+        experimentFireDate:(NSDate*) experimentFireId;
+@end
+
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
 // experiment schedule is used to decide when to fire local notifications.  The
 // local notification system can have at most 64 scheduled notifications per
 // app. This means that there is a limit in how many experiments can be
 // scheduled at once.
-//
-// The scheduler will create 3 local notifications for the experiment.  Each
-// time the user opens the app with one of the notifications then the event
-// is re-scheduled.  If the user fails to open 3 notifications in a row then
-// the event will not be rescheduled until the next time they open the app.
 @interface PacoScheduler : NSObject
 
-// Creates 3 UILocalNotifications per experiment.
-//- (void)registerScheduleWithOS:(PacoExperiment *)experiment;
-//- (void)registerSchedulesWithOS:(NSArray *)experiments;
+@property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
 
-// Call from your app delegate to handle the local notification that the app
-// was opened with.
-- (void)handleLocalNotification:(UILocalNotification *)notification;
+- (void)handleEvent:(UILocalNotification *)notification
+        experiments:(NSArray*) experiments;
 
-// Cancel all scheduled notifications for this experiment.
-- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId;
+// call this when joining an experiment
+-(void)addEvent:(PacoExperiment*) experiment
+    experiments:(NSArray*) experiments;
 
-// Cancel all notifications that have expired (= have fired, and reached the timeout)
-// Return a Paco
-- (void)cancelExpirediOSLocalNotifications: (NSArray *)experiments;
+// call this when leaving an experiment
+-(void)removeEvent:(PacoExperiment*) experiment
+       experiments:(NSArray*) experiments;
 
 // see which Notifications have expired, and schedule new ones
-- (void)updateiOSNotifications: (NSArray *)experiments;
+-(void)update:(NSArray *)experiments;
 
-@property(atomic, readwrite, retain) UILocalNotification* myLocalNotification;
+// call this when the application goes to InActive to make sure
+// we can persist the notifications state
+-(bool)writeEventsToFile;
 
 @end

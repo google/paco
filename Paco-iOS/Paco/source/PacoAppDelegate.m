@@ -31,20 +31,25 @@
 // this method will fire if the App is in UIApplicationStateActive state, not UIApplicationStateBackground
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   if (notification) {
-    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-    
-    [JCNotificationCenter
-     enqueueNotificationWithTitle:@""
-     message:notification.alertBody
-     tapHandler:^{
-       NSLog(@"Received tap on notification banner!");
-       [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-       NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-       PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-       PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-       questions.experiment = experiment;
-       [self.viewController.navigationController pushViewController:questions animated:YES];
-     }];
+    // only show the notification if it hasn't fired before!
+    // this is necessary for notifications that we fire immediately after launch to fill Notification Center
+    NSString* experimentHasFired = [notification.userInfo objectForKey:@"experimentHasFired"];
+    if (experimentHasFired && [experimentHasFired caseInsensitiveCompare:@"false"]) {
+      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+      
+      [JCNotificationCenter
+       enqueueNotificationWithTitle:@""
+       message:notification.alertBody
+       tapHandler:^{
+         NSLog(@"Received tap on notification banner!");
+         [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
+         NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+         PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+         PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+         questions.experiment = experiment;
+         [self.viewController.navigationController pushViewController:questions animated:YES];
+       }];
+    }
   }
 }
 
@@ -73,7 +78,7 @@
   //YMZ:TODO: the following piece of code should happen after user is successfully logged in?
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
-    [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+    [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
     NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
     assert(experiment);
@@ -86,6 +91,7 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application {
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
+  success = success && [[PacoClient sharedInstance].scheduler writeEventsToFile];
   if (success) {
     NSLog(@"SUCCESSFULLY SAVED TO FILE");
   } else {

@@ -53,7 +53,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
-@interface PacoClient () <PacoLocationDelegate>
+@interface PacoClient () <PacoLocationDelegate, PacoSchedulerDelegate>
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
 @property (nonatomic, retain, readwrite) PacoModel *model;
@@ -85,7 +85,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
         self.model = [[PacoModel alloc] init];
         self.prefetchState = [[PacoPrefetchState alloc] init];
         
-        
         if (SERVER_DOMAIN_FLAG == 0) {//production
             self.serverDomain = @"https://quantifiedself.appspot.com";
         }else{//localserver
@@ -101,7 +100,12 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 }
 
 - (void)timerUpdated {
-  [self.scheduler updateiOSNotifications:self.model.experimentInstances];
+  [self.scheduler update:self.model.experimentInstances];
+}
+
+- (void)handleEventTimeOut:(NSString*) experimentInstanceId
+        experimentFireDate:(NSDate*) experimentFireId {
+//TODO: Implement this method to call the server and let it know about the missed signal
 }
 
 //YMZ: TODO: we need to store user email and address inside keychain

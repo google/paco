@@ -66,13 +66,13 @@
     if (error == nil) {
       self.isJoinSuccessful = YES;
       
-//      PacoExperiment *experiment =
+      PacoExperiment *experiment =
       [[PacoClient sharedInstance].model
        addExperimentInstance:self.experiment
        schedule:self.experiment.schedule
        events:[NSArray arrayWithObject:event]];
       
-      [[PacoClient sharedInstance].scheduler updateiOSNotifications:[PacoClient sharedInstance].model.experimentInstances];
+      [[PacoClient sharedInstance].scheduler addEvent:experiment experiments:[PacoClient sharedInstance].model.experimentInstances];
     }else{
       title = @"Sorry";
       message = @"Something went wrong, please try again later.";
