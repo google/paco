@@ -138,12 +138,8 @@
   
   //run time: N
   for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    if (question.responseObject != nil) {
-      [self.inputValueDict setObject:[NSNumber numberWithInt:[question intValueOfAnswer]]
-                              forKey:question.name];
-    } else {
-      [self.inputValueDict setObject:[NSNull null] forKey:question.name];
-    }
+    [self.inputValueDict setObject:[question valueForValidation]
+                            forKey:question.name];
   }
 
   //run time: N

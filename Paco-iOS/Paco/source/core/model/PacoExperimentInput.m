@@ -93,14 +93,22 @@
   return choices;
 }
 
+- (NSArray*)choicesForList {
+  if (ResponseEnumTypeList != self.responseEnumType) {
+    return nil;
+  }
+  
+  int sizeOfList = [self.listChoices count];
+  NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
+                                                   sizeOfList:sizeOfList];
+  return choices;
+}
+
 - (NSString*)stringForListChoices {
   if (![self.responseType isEqualToString:@"list"]) {
     return nil;
   }
-  int sizeOfList = [self.listChoices count];
-  NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
-                                                   sizeOfList:sizeOfList];
-  
+  NSArray* choices = [self choicesForList];
   NSAssert(!(!self.multiSelect && [choices count] > 1), @"Radio list should not have more than one selection!");
   if (0 == [choices count]) {
     return @"";
@@ -142,17 +150,16 @@
           self.text, nil];
 }
 
-static int kInvalidDefaultAnswer = 0;
-static int kValidDefaultAnswer = 1;
-- (int)intValueOfAnswer {
-  int answer = kInvalidDefaultAnswer;
-  
+
+- (id)valueForValidation {
+  //default value is null
+  id value = [NSNull null];
   if (![self.questionType isEqualToString:@"question"]) {
     NSLog(@"[ERROR]input's questionType is not equal to question!");
-    return answer;
+    return value;
   }
   if (self.responseObject == nil) {
-    return answer;
+    return value;
   }
     
   ResponseEnumType answerType = self.responseEnumType;
@@ -161,45 +168,46 @@ static int kValidDefaultAnswer = 1;
     case ResponseEnumTypeLikertSmileys:
       NSAssert([answerObj isKindOfClass:[NSNumber class]],
                @"The answer to likert_smileys should be a number!");
-      answer = [answerObj intValue] + 1;
+      value = [NSNumber numberWithInt:([answerObj intValue] + 1)];
       break;
       
     case ResponseEnumTypeLikert:
       NSAssert([answerObj isKindOfClass:[NSNumber class]],
                @"The answer to likert should be a number!");
-      answer = [answerObj intValue] + 1;
+      value = [NSNumber numberWithInt:([answerObj intValue] + 1)];
       break;
       
     case ResponseEnumTypeOpenText:  //YMZ:TODO: need to confirm this
       NSAssert([answerObj isKindOfClass:[NSString class]],
                @"The answer to open text should be a string!");
-      answer = kValidDefaultAnswer;
+      value = answerObj;
       break;
       
-    case ResponseEnumTypeList: //YMZ:TODO: this should be an array
+    case ResponseEnumTypeList: 
       NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to list should be a number!");
-      answer = [answerObj intValue] + 1;
+      value = [self choicesForList];
       break;
       
     case ResponseEnumTypeNumber:
       NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to number should be a number!");
       NSAssert([answerObj intValue] >= 0, @"The answer to number should be larger and equal to 0!");
-      answer = [answerObj intValue];
+      value = answerObj;
       break;
       
     case ResponseEnumTypeLocation: //YMZ:TODO: need to confirm this
-      answer = kValidDefaultAnswer;
       break;
       
     case ResponseEnumTypePhoto: //YMZ:TODO: need to confirm this
-      answer = kValidDefaultAnswer;
       break;
       
     default:
       NSAssert(NO, @"Invalid response enum type!");
       break;
   }
-  return answer;
+  if (value == nil) {
+    value = [NSNull null];
+  }
+  return value;
 }
 
 + (NSString*)locationInfoFromResponse:(id)responseObject {

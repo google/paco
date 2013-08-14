@@ -51,7 +51,7 @@ typedef enum {
 + (id)pacoExperimentInputFromJSON:(id)jsonObject;
 
 - (NSString*)stringForListChoices;
-- (int)intValueOfAnswer;
+- (id)valueForValidation;
 - (id)payloadObject;
 
 @end
