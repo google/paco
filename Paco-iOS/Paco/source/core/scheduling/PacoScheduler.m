@@ -55,7 +55,9 @@
     [saveDict setValue:[notification.userInfo objectForKey:@"experimentFireDate"] forKey:@"experimentFireDate"];
     [saveDict setValue:[notification.userInfo objectForKey:@"experimentTimeOutDate"] forKey:@"experimentTimeOutDate"];
     [saveDict setValue:notification.alertBody forKey:@"experimentAlertBody"];
-    [saveDict setValue:[notification.userInfo objectForKey:@"experimentEsmSchedule"] forKey:@"experimentEsmSchedule"];
+    if ([notification.userInfo objectForKey:@"experimentEsmSchedule"] != nil) {
+      [saveDict setValue:[notification.userInfo objectForKey:@"experimentEsmSchedule"] forKey:@"experimentEsmSchedule"];
+    }
     
     [notificationArray addObject:saveDict];
   }
@@ -181,8 +183,10 @@
   [userInfo setObject:experimentInstanceId forKey:@"experimentInstanceId"];
   [userInfo setObject:notification.fireDate forKey:@"experimentFireDate"];
   [userInfo setObject:experimentFireDate forKey:@"experimentTimeOutDate"];
-  [userInfo setObject:experimentEsmSchedule forKey:@"experimentEsmSchedule"];
-
+  if (experimentEsmSchedule) {
+    [userInfo setObject:experimentEsmSchedule forKey:@"experimentEsmSchedule"];
+  }
+  
   // this logic is for when we're loading notifications from a file that should have fired
   // in the past: we want them to fire right away (so they show up in Notification Center),
   // but by setting the hasFired object in userInfo object we make sure that the UI doesn't show them
