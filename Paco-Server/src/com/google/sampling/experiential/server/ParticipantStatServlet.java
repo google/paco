@@ -21,8 +21,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 
 public class ParticipantStatServlet extends HttpServlet {
 
@@ -46,7 +46,7 @@ public class ParticipantStatServlet extends HttpServlet {
         return;
       } else {
         final boolean alpha = req.getParameter("alpha") != null;
-        Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+        ExperimentDAO experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),
@@ -86,11 +86,11 @@ public class ParticipantStatServlet extends HttpServlet {
         } else {
           writer.write("<p>Sorted by lowest signaled response rate for today</p>");
           writer.write("<p><a href=\"/participantStats?alpha=true&experimentId="+ experimentId +"\">Click for alphabetically sorted</a></p>");
-            
+
         }
         writer.write("<div><span style=\"font-weight: bold;\">Number of Joined Participants: </span>");
         writer.write("<span>" + participantReports.keySet().size() +"</span></div>");
-        
+
         writer.write("<div><span style=\"font-weight: bold;\">Number of Responses: </span>");
         writer.write("<span>" + totalResponses +"</span></div>");
 
@@ -99,16 +99,16 @@ public class ParticipantStatServlet extends HttpServlet {
         writer.write("<tr style=\"font-weight: bold; text-align:left;\">");
         writer.write("<th>Who</th>" +
         		"<th>Today's Signal Response<br/>" +
-        		"% = Responded / Sent</th>" +        		
+        		"% = Responded / Sent</th>" +
         		"<th>Today's Self Reports</th>" +
-        		
+
             "<th style=\"background-color: #a9a9a9;\">Total Signaled Response<br/>" +
             "% = Responded / Sent</th>" +
             "<th>Total Self Reports</th>" +
             "<th>Total Reports<br/>(signaled + self)</th>" +
             "</tr>");
 
-        
+
         Collections.sort(participantReportValues, new Comparator<ParticipantReport>() {
           @Override
           public int compare(ParticipantReport participantReport1, ParticipantReport participantReport2) {
@@ -126,7 +126,7 @@ public class ParticipantStatServlet extends HttpServlet {
               }
             }
           }
-          
+
         });
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         for (ParticipantReport report : participantReportValues) {
@@ -134,22 +134,22 @@ public class ParticipantStatServlet extends HttpServlet {
           String who = report.getWho();
           String anonymousId = Event.getAnonymousId(who);
           writer.write("<td style=\"text-align:left;\">" + who + "</td>");
-          writer.write("<td>" + 
+          writer.write("<td>" +
               percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
-          
+
           writer.write(Integer.toString(report.getTodaysSignaledResponseCount()) + " / " +
               Integer.toString(report.getTodaysScheduledCount()) +
               "</td>");
-          
+
           writer.write("<td>" + Integer.toString(report.getTodaysSelfReportResponseCount()) + "</td>");
-          
+
           writer.write("<td style=\"background-color: #dedede;\">" + percentFormat.format(report.getSignaledResponseRate()) + " = ");
-          
+
           writer.write(Integer.toString(report.getSignaledResponseCount()) + " / " +
-              Integer.toString(report.getScheduledCount()) +              
+              Integer.toString(report.getScheduledCount()) +
               "</td>");
           writer.write("<td>" + Integer.toString(report.getSelfReportResponseCount()) + "</td>");
-          
+
           writer.write("<td>" + Integer.toString(report.getSelfReportAndSignaledResponseCount()) + "</td>");
           writer.write("</tr>");
         }

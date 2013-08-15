@@ -20,10 +20,10 @@ public class ExperimentServletHandlerTest extends TestCase {
   private static final Integer THIRD_EXPERIMENT_ID = 11;
   private static final Integer NONEXISTANT_EXPERIMENT_ID = 2;
 
-  private final String email = "bobevans@google.com";
-  private final String userId = "bobevans@google.com";
+  private final String email = "creator1@example.com";
+  private final String userId = "creator1@example.com";
   private final String authDomain = "unused_auth_domain";
-  private PacoService mapService;
+  private PacoService pacoService;
 
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(),
                                                                            new LocalMemcacheServiceTestConfig());
@@ -32,7 +32,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     super.setUp();
     helper.setUp();
     logInEnvironment();
-    mapService = new PacoServiceImpl();
+    pacoService = new PacoServiceImpl();
 
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
@@ -65,8 +65,8 @@ public class ExperimentServletHandlerTest extends TestCase {
 
     List<ExperimentDAO> shortLoadExperiments = getExperimentList(shortContent);
     List<ExperimentDAO> longLoadExperiments = getExperimentList(longContent);
-    assertEquals(shortLoadExperiments.size(), 4);
-    assertEquals(longLoadExperiments.size(), 4);
+    assertEquals(4, shortLoadExperiments.size());
+    assertEquals(4, longLoadExperiments.size());
   }
 
   public void testSelectedLoadReturningNoExperiments() {
@@ -92,15 +92,14 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   public void testSelectedLoadReturningMultipleExperiments() {
-    List<Integer> experimentIds = Arrays.asList(FIRST_EXPERIMENT_ID, SECOND_EXPERIMENT_ID,
-                                                THIRD_EXPERIMENT_ID);
+    List<Integer> experimentIds = Arrays.asList(FIRST_EXPERIMENT_ID, 5, 11);
     String param = createExperimentIdParam(experimentIds);
     ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param);
 
     String content = handler.performLoad();
     assertTrue(content != null);
     List<ExperimentDAO> experiments = getExperimentList(content);
-    assertEquals(experiments.size(), 3);
+    assertEquals(3, experiments.size());
   }
 
   public void testSelectedLoadWithListContainingNonexistantId() {
@@ -112,7 +111,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     String content = handler.performLoad();
     assertTrue(content != null);
     List<ExperimentDAO> experiments = getExperimentList(content);
-    assertEquals(experiments.size(), 2);
+    assertEquals(2, experiments.size());
   }
 
 
@@ -122,7 +121,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    mapService.saveExperiment(experiment);
+    pacoService.saveExperiment(experiment);
   }
 
   private List<ExperimentDAO> getExperimentList(String content) {

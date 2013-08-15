@@ -32,13 +32,16 @@ public class ExperimentVersionEntity {
 
   public static Key saveExperimentAsEntity(Experiment experiment) {
     ExperimentDAO experimentDAO = DAOConverter.createDAO(experiment);
+    return saveExperimentVersion(experimentDAO);
+  }
 
+  public static Key saveExperimentVersion(ExperimentDAO experimentDAO) {
     if (experimentDAO.getId() == null) {
       log.severe("Experiment must have an id to be versioned in history table.");
+      return null;
     }
 
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    //Key key = KeyFactory.createKey(EXPERIMENT_KIND, experiment.getTitle());
 
     Entity entity = new Entity(EXPERIMENT_VERSION_KIND);
     entity.setProperty(TITLE_COLUMN, experimentDAO.getTitle());
@@ -51,22 +54,19 @@ public class ExperimentVersionEntity {
     return key;
   }
 
-  public static List<Experiment> getExperiments(User loggedInUser) {
+  public static List<ExperimentDAO> getExperiments(User loggedInUser) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(EXPERIMENT_VERSION_KIND);
     QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
-    List<Experiment> experiments = Lists.newArrayList();
+    List<ExperimentDAO> experiments = Lists.newArrayList();
     for (Entity entity : result) {
       ExperimentDAO experimentDAO = JsonConverter.fromSingleEntityJson((String)entity.getProperty(DEFINITION_COLUMN));
-
-      Experiment experiment = new Experiment();
-      DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
-      experiments.add(experiment);
+      experiments.add(experimentDAO);
     }
     return experiments;
   }
 
-  public static Experiment getExperimentVersion(User loggedInUser, Long jdoExperimentId, Integer version) {
+  public static ExperimentDAO getExperimentVersion(User loggedInUser, Long jdoExperimentId, Integer version) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(EXPERIMENT_VERSION_KIND);
     query.addFilter(JDO_EXPERIMENT_ID_COLUMN, FilterOperator.EQUAL, jdoExperimentId);
@@ -76,9 +76,7 @@ public class ExperimentVersionEntity {
       return null;
     }
     ExperimentDAO experimentDAO = JsonConverter.fromSingleEntityJson((String)result.getProperty(DEFINITION_COLUMN));
-    Experiment experiment = new Experiment();
-    DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
-
-    return experiment;
+    return experimentDAO;
   }
-}
+
+  }

@@ -16,7 +16,6 @@ import com.google.common.collect.Lists;
 import com.google.paco.shared.Outcome;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
-import com.google.sampling.experiential.model.Experiment;
 
 public class ExperimentJsonUploadProcessor {
 
@@ -90,7 +89,7 @@ public class ExperimentJsonUploadProcessor {
 
     Long id = experimentDAO.getId();
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());
-    Experiment experiment = experimentRetriever.getExperiment(id);
+    ExperimentDAO experiment = experimentRetriever.getExperiment(id);
 
     if (!isUserAdminOfSystem() && experiment != null && !experiment.isWhoAllowedToPostToExperiment(userFromLogin.getEmail().toLowerCase())) {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");

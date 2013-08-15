@@ -59,4 +59,6 @@ public interface PacoService extends RemoteService {
   void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId);
 
   Map<Date, EventDAO> getEndOfDayEvents(String queryText);
+
+  List<ExperimentDAO> getExperimentsPublishedToAll(String tz);
 }

@@ -224,6 +224,7 @@ Test targets suppressed because -junit argument was not specified when running w
       debug="true" debuglevel="lines,vars,source">
       <classpath location="lib/junit-4.10.jar"/>
       <classpath refid="gwt.project.class.path"/>
+      <classpath location="${sdk.dir}/lib/testing/appengine-testing.jar" />
     </javac>
   </target>
   
@@ -238,6 +239,7 @@ Test targets suppressed because -junit argument was not specified when running w
         <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
         <pathelement location="lib/junit-4.10.jar" />
+        <pathelement location="${sdk.dir}/lib/testing/appengine-testing.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.dev" >
         <fileset dir="tests" >
@@ -260,6 +262,7 @@ Test targets suppressed because -junit argument was not specified when running w
         <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
         <pathelement location="lib/junit-4.10.jar" />
+        <pathelement location="${sdk.dir}/lib/testing/appengine-testing.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.prod" >
         <fileset dir="tests" >

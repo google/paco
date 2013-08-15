@@ -105,7 +105,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+    ExperimentDAO experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -178,25 +178,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   public List<ExperimentDAO> getUsersAdministeredExperiments() {
     User user = getWhoFromLogin();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      Query q = pm.newQuery(Experiment.class);
-      q.setFilter("admins == whoParam");
-      q.declareParameters("String whoParam");
-      List<Experiment> experiments = (List<Experiment>) q.execute(user.getEmail().toLowerCase());
-      if (experiments != null) {
-        for (Experiment experiment : experiments) {
-          experimentDAOs.add(DAOConverter.createDAO(experiment));
-        }
-      }
-    } finally {
-      if (pm != null) {
-        pm.close();
-      }
-    }
-    return experimentDAOs;
+    return ExperimentRetriever.getInstance().getAdminedExperiments(user.getEmail().toLowerCase());
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -402,7 +384,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     Set<What> whats = parseWhats(event.getWhat());
 
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
+    ExperimentDAO experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -425,11 +407,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
   @Override
   public ExperimentDAO referencedExperiment(Long referringExperimentId) {
-    Experiment experiment = ExperimentRetriever.getInstance().getReferredExperiment(referringExperimentId);
-    if (experiment != null) {
-      return DAOConverter.createDAO(experiment);
-    }
-    return null;
+    return ExperimentRetriever.getInstance().getReferredExperiment(referringExperimentId);
   }
 
   @Override
@@ -448,14 +426,20 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
   @Override
   public List<ExperimentDAO> getAllJoinableExperiments(String tz) {
-    return ExperimentCacheHelper.getInstance().getJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+    return ExperimentCacheHelper.getInstance().getNewJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),
+                                                                      TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
   }
 
   @Override
   public List<ExperimentDAO> getMyJoinableExperiments(String tz) {
-    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),
+                                                                        TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
   }
 
+  @Override
+  public List<ExperimentDAO> getExperimentsPublishedToAll(String tz) {
+    return ExperimentCacheHelper.getInstance().getExperimentsPublishedToAll(TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+  }
 
   @Override
   public boolean joinExperiment(Long experimentId) {
@@ -468,7 +452,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       throw new IllegalArgumentException("Must supply experiment Id");
     }
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
+    ExperimentDAO experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
 
     if (experiment == null) {
       throw new IllegalArgumentException("Unknown experiment!");

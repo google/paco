@@ -23,9 +23,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.paco.shared.Outcome;
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -35,7 +34,7 @@ public class EventJsonUploadProcessor {
   private static final Logger log = Logger.getLogger(EventJsonUploadProcessor.class.getName());
   private ExperimentRetriever experimentRetriever;
   private EventRetriever eventRetriever;
-  
+
   public EventJsonUploadProcessor(ExperimentRetriever experimentRetriever, EventRetriever eventRetriever) {
     this.experimentRetriever = experimentRetriever;
     this.eventRetriever = eventRetriever;
@@ -96,32 +95,32 @@ public class EventJsonUploadProcessor {
         results.add(new Outcome(i, "JSONException posting event: " + i + ". " + e.getMessage()));
       } catch (Throwable e) {
         results.add(new Outcome(i, "Exception posting event: " + i + ". " + e.getMessage()));
-      }          
+      }
     }
     return results;
   }
 
   private Outcome postEvent(JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
     Outcome outcome = new Outcome(eventId);
-    
+
     String pacoVersion = null;
     if (eventJson.has("pacoVersion")) {
       pacoVersion = eventJson.getString("pacoVersion");
     } else if (!Strings.isNullOrEmpty(pacoVersionHeader)) {
       pacoVersion = pacoVersionHeader;
     }
-    
+
     String appId = null;
     if (eventJson.has("appId")) {
       appId = eventJson.getString("appId");
-    } else if (appIdHeader != null) { 
+    } else if (appIdHeader != null) {
       appId = appIdHeader;
     } else {
       appId = "Unknown";
     }
-    
+
     Date whenDate =  new Date();
-    
+
     String experimentId = null;
     String experimentName = null;
     Integer experimentVersion = null;
@@ -134,19 +133,19 @@ public class EventJsonUploadProcessor {
     if (eventJson.has("experimentName")) {
       experimentName = eventJson.getString("experimentName");
     }
-    
+
     if (eventJson.has("experimentVersion")) {
       String experimentVersionStr= eventJson.getString("experimentVersion");
       if (!Strings.isNullOrEmpty(experimentVersionStr)) {
         try {
           experimentVersion = Integer.parseInt(experimentVersionStr);
         } catch (Exception e) {
-          
+
         }
       }
     }
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
-    Experiment experiment = experimentRetriever.getExperiment(experimentId);
+    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentId);
 
     if (experiment == null) {
       outcome.setError("No existing experiment for this event: " + eventId);
@@ -155,7 +154,7 @@ public class EventJsonUploadProcessor {
 
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
       // don't give differentiated error messages in case someone is trying to discover experiment ids
-      outcome.setError("No existing experiment for this event: " + eventId);      
+      outcome.setError("No existing experiment for this event: " + eventId);
       return outcome;
     }
 
@@ -169,7 +168,7 @@ public class EventJsonUploadProcessor {
         String name = response.getString("name");
 
         String inputId = response.getString("inputId");
-        Input input = null;
+        InputDAO input = null;
         if (experiment != null) {
           input = experiment.getInputWithId(Long.valueOf(inputId));
         }
@@ -193,7 +192,7 @@ public class EventJsonUploadProcessor {
           log.info("Response was " + answer);
           answer = answer.substring(0, 497) + "...";
         }
-        
+
         if (Strings.isNullOrEmpty(name) && (input == null || Strings.isNullOrEmpty(input.getName()))) {
           name = "unnamed_input_" + i;
           whats.add(new What(name, inputId));
@@ -219,15 +218,15 @@ public class EventJsonUploadProcessor {
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {
         scheduledTime = parseDate(df, timeStr);
         log.info("Schedule TIME check" + timeStr);
-        log.info(" = " + scheduledTime != null ? scheduledTime.toString() : "");        
+        log.info(" = " + scheduledTime != null ? scheduledTime.toString() : "");
       }
     }
 
     log.info("Sanity check: who = " + who + ", when = "
-             + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate) 
+             + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate)
              + ", what length = " + whats.size());
 
-    
+
     eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
                                            experimentName, experimentVersion, responseTime, scheduledTime, blobs);
     return outcome;

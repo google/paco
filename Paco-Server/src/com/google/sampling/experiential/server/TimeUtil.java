@@ -61,4 +61,14 @@ public class TimeUtil {
 
   }
 
+  public static String getNowInUserTzAsString(DateTimeZone timezone) {
+    return getInUserTzAsString(timezone, new DateTime());
+  }
+
+  public static String getInUserTzAsString(DateTimeZone timezone, DateTime datetime) {
+    DateTime adjustToTimezone = adjustToTimezone(timezone, datetime);
+    String nowInUserTzString = DateTimeFormat.forPattern(DATETIME_FORMAT).print(adjustToTimezone);
+    return nowInUserTzString;
+  }
+
 }

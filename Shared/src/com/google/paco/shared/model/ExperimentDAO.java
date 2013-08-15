@@ -260,4 +260,43 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.schedule = schedule;
   }
 
+  public boolean isWhoAllowedToPostToExperiment(String who) {
+    who = who.toLowerCase();
+    for (int i = 0; i < admins.length; i++) {
+      if (admins[i].equals(who)) {
+        return true;
+      }
+    }
+    if (getPublished()) {
+      String[] publishedUsers2 = getPublishedUsers();
+      if (publishedUsers2.length == 0) {
+        return true;
+      }
+      for (int i = 0; i < publishedUsers2.length; i++) {
+        if (publishedUsers2[i].equals(who)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public InputDAO getInputWithName(String name) {
+    for (int i = 0; i < inputs.length; i++) {
+      if (inputs[i].getName().equals(name)) {
+        return inputs[i];
+      }
+    }
+    return null;
+  }
+
+  public InputDAO getInputWithId(Long id) {
+    for (int i = 0; i < inputs.length; i++) {
+      if (inputs[i].getId().equals(id)) {
+        return inputs[i];
+      }
+    }
+    return null;
+  }
+
 }

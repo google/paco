@@ -65,31 +65,31 @@ public class ExperimentCacheHelper {
     }
   }
 
-  /**
-   * NOTE: About to be deprecated by getMyJoinableExperiments (below).
-   *
-   * returns all experiments that the user can join.
-   * This is the collection of experiments that either
-   * 1) the user has created,
-   * 2) the user admins,
-   * 3) that have been published explicitly to the user.
-   *
-   * @param experimentIds List of ids of experiments that the user can join
-   * @param dateTimeZone used to decide if experiments are still running.
-   * @return List of experiments that satisfy the criteria.
-   */
-  public List<ExperimentDAO> getJoinableExperiments(String loggedInEmail, DateTimeZone dateTimeZone) {
-    String experimentCacheKey = EXPERIMENT_CACHE_KEY;
-
-    List<ExperimentDAO> experimentDAOs = getCachedExperimentsByKey(experimentCacheKey);
-    if (experimentDAOs != null) {
-      return experimentDAOs;
-    }
-    experimentDAOs = experimentRetriever.getAllJoinableExperiments(loggedInEmail, dateTimeZone);
-
-    cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
-    return experimentDAOs;
-  }
+//  /**
+//   * NOTE: About to be deprecated by getMyJoinableExperiments (below).
+//   *
+//   * returns all experiments that the user can join.
+//   * This is the collection of experiments that either
+//   * 1) the user has created,
+//   * 2) the user admins,
+//   * 3) that have been published explicitly to the user.
+//   *
+//   * @param experimentIds List of ids of experiments that the user can join
+//   * @param dateTimeZone used to decide if experiments are still running.
+//   * @return List of experiments that satisfy the criteria.
+//   */
+//  public List<ExperimentDAO> getJoinableExperiments(String loggedInEmail, DateTimeZone dateTimeZone) {
+//    String experimentCacheKey = EXPERIMENT_CACHE_KEY;
+//
+//    List<ExperimentDAO> experimentDAOs = getCachedExperimentsByKey(experimentCacheKey);
+//    if (experimentDAOs != null) {
+//      return experimentDAOs;
+//    }
+//    experimentDAOs = experimentRetriever.getAllJoinableExperiments(loggedInEmail, dateTimeZone);
+//
+//    cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
+//    return experimentDAOs;
+//  }
 
   /**
    * returns all experiments that the user can join.
@@ -145,6 +145,14 @@ public class ExperimentCacheHelper {
       return (List<ExperimentDAO>) cache.get(experimentCacheKey);
     }
     return null;
+  }
+
+  public List<ExperimentDAO> getNewJoinableExperiments(String email, DateTimeZone timezone) {
+    return ExperimentRetriever.getInstance().getNewAllJoinableExperiments(email, timezone);
+  }
+
+  public List<ExperimentDAO> getExperimentsPublishedToAll(DateTimeZone timeZoneForClient) {
+    return ExperimentRetriever.getInstance().getExperimentsPublishedToAll(timeZoneForClient);
   }
 
 }

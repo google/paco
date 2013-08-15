@@ -79,5 +79,7 @@ public interface PacoServiceAsync {
 
   void getEndOfDayEvents(String queryText, AsyncCallback<Map<Date, EventDAO>> referringCallback);
 
+  void getExperimentsPublishedToAll(String tz, AsyncCallback<List<ExperimentDAO>> callback);
+
 
 }
