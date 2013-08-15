@@ -198,7 +198,10 @@ public class EsmPanel extends Composite {
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-
+    
+    MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
+    verticalPanel.add(minimumBufferPanel);
+    minimumBufferPanel.setWidth("286px");
   }
 
 }

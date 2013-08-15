@@ -29,6 +29,9 @@ public class Trigger {
   @Persistent
   private Integer timeout;
 
+  @Persistent
+  private Integer minimumBuffer;
+
   public Integer getTimeout() {
     return timeout;
   }
@@ -37,7 +40,7 @@ public class Trigger {
     this.timeout = timeout;
   }
 
-  public Trigger(Key ownerKey, Long id, Integer event, String sourceIdentifier, Long millisecondDelay, Integer timeout) {
+  public Trigger(Key ownerKey, Long id, Integer event, String sourceIdentifier, Long millisecondDelay, Integer timeout, Integer minimumBuffer) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, Trigger.class.getSimpleName(), id);
@@ -46,6 +49,7 @@ public class Trigger {
     this.sourceIdentifier = sourceIdentifier;
     this.delay = millisecondDelay;
     this.timeout = timeout;
+    this.minimumBuffer = minimumBuffer;
   }
 
   public Key getId() {
@@ -78,6 +82,14 @@ public class Trigger {
 
   public void setSourceIdentifier(String sourceIdentifier) {
     this.sourceIdentifier = sourceIdentifier;
+  }
+
+  public Integer getMinimumBuffer() {
+    return minimumBuffer;
+  }
+
+  public void setMinimumBuffer(Integer minimumBuffer) {
+    this.minimumBuffer = minimumBuffer;
   }
   
   

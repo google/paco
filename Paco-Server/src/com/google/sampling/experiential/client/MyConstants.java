@@ -421,4 +421,6 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Input names are required and cannot contain spaces.")
   String varNameUnfilledOrHasSpacesError();
   
+  @DefaultStringValue("Minimum time between signals")
+  String minimumBuffer();
 }

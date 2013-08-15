@@ -61,7 +61,7 @@
   [self authenticateRequest:request withFetcher:fetcher];
   //Set delegateQueue so that fetcher can work in a background thread
   fetcher.delegateQueue = [[NSOperationQueue alloc] init];
-
+  
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       if (error) {
@@ -104,67 +104,58 @@
   }];
 }
 
-- (void)submitEvent:(PacoEvent *)event withCompletionHandler:(void (^)(NSError *))completionHandler {
+
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  NSAssert([eventList count] > 0, @"eventList should have more than one item!");
+  
   // Setup our request.
   NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoClient sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
+  [NSMutableURLRequest requestWithURL:url
+                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                      timeoutInterval:120];
   [request setHTTPMethod:@"POST"];
-
+  
   // Serialize to JSON for the request body.
-  NSError *jsonError = nil;
-  id jsonObject = [event generateJsonObject];
+  NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
+  for (PacoEvent* event in eventList) {
+    id jsonObject = [event generateJsonObject];
+    NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
+    [body addObject:jsonObject];
+  }
   
   //YMZ:TODO: error handling here
+  NSError *jsonError = nil;
   NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:jsonObject
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&jsonError];
+  [NSJSONSerialization dataWithJSONObject:body
+                                  options:NSJSONWritingPrettyPrinted
+                                    error:&jsonError];
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]
-      forHTTPHeaderField:@"Content-Length"];
+ forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
-
+  
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
-                     NSLog(@"JOIN RESPONSE = %@", jsonData);
-      if (completionHandler) {
-        completionHandler(error);
-      }
-  }]; 
-}
+               NSLog(@"JOIN RESPONSE = %@", jsonData);
 
-- (void)submitSurveyForDefinition:(PacoExperimentDefinition *)definition
-           withInputs:(NSArray*)visibleInputs
-    completionHandler:(void (^)(NSError *))completionHandler {
-  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
-                                                    withInputs:visibleInputs];
-  [self submitEvent:surveyEvent withCompletionHandler:^(NSError *error) {
-      // If submission was successful then clear the old response objects.
-      if (!error) {
-        for (PacoExperimentInput *input in definition.inputs) {
-          input.responseObject = nil;
-        }
-      }
-      if (completionHandler) {
-        completionHandler(error);
-      }
-  }];
-}
-
-- (void)joinExperiment:(PacoExperimentDefinition *)experiment
-              schedule:(PacoExperimentSchedule *)schedule
-     completionHandler:(void (^)(PacoEvent *, NSError *))completionHandler {
-  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:experiment withSchedule:schedule];
-  [self submitEvent:joinEvent withCompletionHandler:^(NSError *error) {
-      if (completionHandler) {
-        completionHandler(joinEvent, error);
-      }
-  }];
+               NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
+               NSMutableArray* successEventIndexes = [NSMutableArray array];
+               for (id output in jsonData) {
+                 NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
+                 if ([output objectForKey:@"errorMessage"] == nil) {
+                   NSNumber* eventIndex = [output objectForKey:@"eventId"];
+                   NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
+                   [successEventIndexes addObject:eventIndex];
+                 }
+               }
+               
+               if (completionBlock) {
+                 completionBlock(successEventIndexes, error);
+               }
+             }];
 }
 
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment

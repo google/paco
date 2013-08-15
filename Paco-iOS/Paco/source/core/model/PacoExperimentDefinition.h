@@ -45,4 +45,7 @@
 - (void)tagQuestionsForDependencies;
 + (PacoExperimentDefinition *)testPacoExperimentDefinition;
 
+//clear the old response objects
+- (void)clearInputs;
+
 @end

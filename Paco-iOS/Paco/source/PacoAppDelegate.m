@@ -25,6 +25,7 @@
 #import "PacoLocation.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
+#import "PacoEventManager.h"
 
 @implementation PacoAppDelegate
 
@@ -97,6 +98,7 @@
   } else {
     NSLog(@"FAILED TO SAVE TO FILE");
   }
+  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

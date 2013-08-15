@@ -4,9 +4,15 @@ import java.io.Serializable;
 
 public abstract class SignalingMechanismDAO implements Serializable {
 
+  public static final String TRIGGER_SIGNAL_TIMEOUT = "59";
+  public static final String ESM_SIGNAL_TIMEOUT = "59";
+  public static final String FIXED_SCHEDULE_TIMEOUT = "479";
+
+
   protected String type;
   protected Integer timeout;
-
+  protected Integer minimumBuffer;
+  
   public SignalingMechanismDAO() {
     super();
   }
@@ -31,9 +37,12 @@ public abstract class SignalingMechanismDAO implements Serializable {
     this.timeout = timeout;
 
   }
-  
 
-  
-  
+  public Integer getMinimumBuffer() {
+    return minimumBuffer;
+  }
 
+  public void setMinimumBuffer(Integer minimumBuffer) {
+    this.minimumBuffer = minimumBuffer;
+  }
 }

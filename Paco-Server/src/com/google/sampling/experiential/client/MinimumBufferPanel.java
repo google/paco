@@ -10,21 +10,21 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 
-public class TimeoutPanel extends Composite {
+public class MinimumBufferPanel extends Composite {
 
   private SignalingMechanismDAO signalingMechanism;
   private HorizontalPanel mainPanel;
 
-  public TimeoutPanel(final SignalingMechanismDAO schedule) {
+  public MinimumBufferPanel(final SignalingMechanismDAO signalingMechanism) {
     MyConstants myConstants = GWT.create(MyConstants.class);
-    this.signalingMechanism = schedule;
+    this.signalingMechanism = signalingMechanism;
     mainPanel = new HorizontalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
         
-    Label timeoutLabel = new Label(myConstants.timeout() +":");
-    timeoutLabel.setStyleName("gwt-Label-Header");
-    mainPanel.add(timeoutLabel);
+    Label minimumBufferLabel = new Label(myConstants.minimumBuffer() +":");
+    minimumBufferLabel.setStyleName("gwt-Label-Header");
+    mainPanel.add(minimumBufferLabel);
     
     final TextBox textBox = new TextBox();
     textBox.setWidth("5em");
@@ -43,8 +43,8 @@ public class TimeoutPanel extends Composite {
         String text = textBox.getText();
         
         try {
-          int timeoutMinutes = Integer.parseInt(text);
-          schedule.setTimeout(timeoutMinutes);
+          int minBufferMinutes = Integer.parseInt(text);
+          signalingMechanism.setMinimumBuffer(minBufferMinutes);
         } catch (NumberFormatException nfe) {
           
         }
@@ -55,8 +55,8 @@ public class TimeoutPanel extends Composite {
   }
 
   private String getTimeout() {
-    if (signalingMechanism.getTimeout() != null) {
-      return signalingMechanism.getTimeout().toString();
+    if (signalingMechanism.getMinimumBuffer() != null) {
+      return signalingMechanism.getMinimumBuffer().toString();
     } else {
       if (signalingMechanism instanceof SignalScheduleDAO) {
         if (((SignalScheduleDAO)signalingMechanism).getScheduleType().equals(SignalScheduleDAO.ESM)) {

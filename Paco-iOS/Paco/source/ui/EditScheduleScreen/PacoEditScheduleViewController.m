@@ -23,6 +23,9 @@
 #import "PacoTableView.h"
 #import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoEventManager.h"
+#import "PacoEvent.h"
+#import "PacoEventUploader.h"
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
@@ -59,42 +62,29 @@
 }
 
 - (void)onJoin {
-  void(^finishBlock)(PacoEvent *, NSError *) = ^(PacoEvent *event, NSError *error){
-    NSString* title = @"Congratulations!";
-    NSString* message = @"You've successfully joined this experiment!";
-    
-    if (error == nil) {
-      self.isJoinSuccessful = YES;
-      
-      PacoExperiment *experiment =
-      [[PacoClient sharedInstance].model
-       addExperimentInstance:self.experiment
-       schedule:self.experiment.schedule
-       events:[NSArray arrayWithObject:event]];
-      
-      [[PacoClient sharedInstance].scheduler addEvent:experiment experiments:[PacoClient sharedInstance].model.experimentInstances];
-    }else{
-      title = @"Sorry";
-      message = @"Something went wrong, please try again later.";
-    }
-    
-    [[[UIAlertView alloc] initWithTitle:title
-                                message:message
-                               delegate:self
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
-  };
+  [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
+                                                           withSchedule:nil];
+  //create a new experiment and save it to cache
+  PacoExperiment *experiment = [[PacoClient sharedInstance].model
+                                addExperimentInstance:self.experiment
+                                schedule:self.experiment.schedule
+                                events:nil]; //TODO: events will be removed from this method
   
-  [[PacoClient sharedInstance].service joinExperiment:self.experiment
-                                             schedule:nil
-                                    completionHandler:finishBlock];
+  //start scheduling notifications for this joined experiment
+  [[PacoClient sharedInstance].scheduler addEvent:experiment experiments:[PacoClient sharedInstance].model.experimentInstances];
+
+  NSString* title = @"Congratulations!";
+  NSString* message = @"You've successfully joined this experiment!";
+  [[[UIAlertView alloc] initWithTitle:title
+                              message:message
+                             delegate:self
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil] show];
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
 {
-  if (self.isJoinSuccessful) {
-    [self.navigationController popToRootViewControllerAnimated:YES];
-  }  
+  [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 

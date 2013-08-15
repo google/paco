@@ -91,7 +91,7 @@
   NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
                                                    sizeOfList:sizeOfList];
   
-  NSAssert(!(!self.multiSelect && [choices count] > 0), @"Radio list should not have more than one selection!");  
+  NSAssert(!(!self.multiSelect && [choices count] > 1), @"Radio list should not have more than one selection!");
   if (0 == [choices count]) {
     return @"";
   }else{

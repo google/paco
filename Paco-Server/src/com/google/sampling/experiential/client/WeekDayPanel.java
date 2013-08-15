@@ -123,10 +123,6 @@ public class WeekDayPanel extends Composite {
       }
     });
     
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
-    verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
-
   }
 
   private void setSelctedCheckboxes() {
