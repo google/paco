@@ -27,14 +27,16 @@ public class ExperimentCreationMenuBar extends Composite {
   private int numSignalGroups;
 
   private ExperimentCreationListener listener;
+  private boolean isForNewExperiment;
 
-  public ExperimentCreationMenuBar(ExperimentCreationListener listener) {
+  public ExperimentCreationMenuBar(ExperimentCreationListener listener, boolean isForNewExperiment) {
     super();
     myConstants = GWT.create(MyConstants.class);
+    this.isForNewExperiment = isForNewExperiment;
+    this.listener = listener;
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
     initMenu();
-    this.listener = listener;
   }
 
   private void initMenu() {
@@ -123,7 +125,8 @@ public class ExperimentCreationMenuBar extends Composite {
   private void createMenuHeader() {
     Label labelMessage = new Label();
     labelMessage.setSize("200", "30");
-    labelMessage.setText(myConstants.experimentCreation());
+    labelMessage.setText(isForNewExperiment ? myConstants.experimentCreation() 
+                                            : myConstants.experimentUpdate());
     mainPanel.add(labelMessage);
   }
 
