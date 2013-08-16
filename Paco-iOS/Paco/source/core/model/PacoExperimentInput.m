@@ -208,7 +208,7 @@
       
     case ResponseEnumTypeNumber:
       NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to number should be a number!");
-      NSAssert([answerObj intValue] >= 0, @"The answer to number should be larger and equal to 0!");
+      NSAssert([answerObj intValue] >= 0, @"The answer to number should be larger than or equal to 0!");
       value = answerObj;
       break;
       
