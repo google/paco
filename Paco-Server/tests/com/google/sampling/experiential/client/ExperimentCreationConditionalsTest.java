@@ -25,6 +25,8 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
   public static final String VALID_NAME_EXTRA = "unique";
   
   public static final String VALID_SIMPLE_CONDITIONAL = VALID_NAME_0 + " > 3";
+  public static final String VALID_SIMPLE_CONDITIONAL_PT2 = "&& " + VALID_NAME_1 + " == 5";
+  public static final String VALID_SIMPLE_CONDITIONAL_PT3 = "|| " + VALID_NAME_2 + " != 1";
   public static final String VALID_SPACEY_CONDITIONAL = "  " + VALID_NAME_0 + " > 3  ";
   public static final String VALID_COMPOUND_CONDITIONAL = 
       VALID_NAME_0 + " > 3 && "+ VALID_NAME_1 + " == 5";
@@ -441,6 +443,22 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     // Fire events.
     thirdInputConditionalText.setValue(INVALID_LIKERT_OUT_OF_BOUNDS_CONDITIONAL, true);
     assertFalse(experimentCreationPanel.canSubmit());
+  }
+  
+  public void testConstructConditionalExpression() {
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    ConditionalExpressionsPanel conditionPanel = 
+        firstInputsListPanel.inputsPanelsList.get(0).conditionalPanel;
+    List<String> expressions = new ArrayList<String>();
+    expressions.add(VALID_SIMPLE_CONDITIONAL);
+    expressions.add(VALID_SIMPLE_CONDITIONAL_PT2);
+    expressions.add(VALID_SIMPLE_CONDITIONAL_PT3);
+    assertEquals(joinConditionalList(expressions), 
+                 replaceWhitespace(conditionPanel.constructConditionalExpression(expressions)));
+  }
+  
+  private String joinConditionalList(List<String> expressions) {
+    return replaceWhitespace(Joiner.on(" ").join(expressions));
   }
   
   private ExperimentDAO createExperimentWithNumberLikertLikertsmileys() {
