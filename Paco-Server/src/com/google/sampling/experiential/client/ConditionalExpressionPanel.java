@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.base.Joiner;
@@ -130,17 +131,27 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   // Visible for testing
   protected String constructExpression() {
-    String expression = "";
-    if (isConfigured() && isValid()) {
+    List<String> expressions = new LinkedList<String>();
+    expressions.add("");
+    boolean takeAllFields = isConfigured() && isValid();
+    // If invalid, send only parentheses.  Else, send all fields.
+    if (takeAllFields) {
       String op = operatorListBox.getValue(operatorListBox.getSelectedIndex());
-      String leftParens = new String(new char[numLeftParens]).replace("\0", "(");
+      expressions.add(op);
+    }
+    String leftParens = new String(new char[numLeftParens]).replace("\0", "(");
+    expressions.add(leftParens);
+    if (takeAllFields) {
       String varName = varNameText.getText();
       String comparator = comparatorListBox.getValue(comparatorListBox.getSelectedIndex());
       String predicate = predicatePanel.getValue();
-      String rightParens = new String(new char[numRightParens]).replace("\0", ")");
-      expression = Joiner.on(" ").join(op, leftParens, varName, comparator, predicate, rightParens);
+      expressions.add(varName);
+      expressions.add(comparator);
+      expressions.add(predicate);
     }
-    return expression;
+    String rightParens = new String(new char[numRightParens]).replace("\0", ")");
+    expressions.add(rightParens);
+    return Joiner.on(" ").join(expressions);
   }
 
   protected void invalidateSelection() {

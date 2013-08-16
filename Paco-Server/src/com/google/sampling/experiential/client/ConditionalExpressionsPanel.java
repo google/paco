@@ -40,6 +40,7 @@ public class ConditionalExpressionsPanel extends Composite {
   private static final String WHITESPACE = "\\s*";
   private static final String LEFT_PARENS = "((?:\\(*" + WHITESPACE + ")*)";
   private static final String RIGHT_PARENS = "((?:" + WHITESPACE + "\\))*)";
+  private static final String INVALID_PANEL_CONDITIONAL = "[" + LEFT_PARENS + RIGHT_PARENS + WHITESPACE + "]*";
   private static final String NO_OP_CONDITIONAL_REGEX = LEFT_PARENS + WHITESPACE + NAME_REGEX + WHITESPACE 
       + COMP_REGEX + WHITESPACE + PREDICATE_REGEX + RIGHT_PARENS;
   private static final String OP_CONDITIONAL_REGEX = OP_REGEX + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
@@ -188,10 +189,52 @@ public class ConditionalExpressionsPanel extends Composite {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
   }
-
+  
   private String constructConditionalExpression() {
-    String expression = Joiner.on(" ").join(conditionalExpressions);
-    return expression;
+    return constructConditionalExpression(conditionalExpressions);
+  }
+
+  // Visible for testing
+  protected String constructConditionalExpression(List<String> conditionalExpressions) {
+    if (conditionalExpressions == null) {
+      throw new IllegalStateException("Conditional expressions array cannot be null.");
+    }
+    // Get first valid expression.
+    String newFirstExpression = "";
+    int firstExpressionIndex = conditionalExpressions.size();
+    for (int i = 0; i < conditionalExpressions.size(); ++i) {
+      String firstExpression = conditionalExpressions.get(i);
+      if (!firstExpression.matches(INVALID_PANEL_CONDITIONAL)) {
+        newFirstExpression = firstExpression;
+        firstExpressionIndex = i;
+        break;
+      }
+    }
+    newFirstExpression = replaceOpsInFirstExpression(newFirstExpression);
+    // Get rest of conditional expressions joined.
+    return createModifiedExpression(conditionalExpressions, newFirstExpression, firstExpressionIndex);
+  }
+
+  private String replaceOpsInFirstExpression(String newFirstExpression) {
+    for (int i = 1; i < OPS.length; ++i) {
+      if (newFirstExpression.contains(OPS[i])) {
+        newFirstExpression = newFirstExpression.replaceAll(OPS[i], "");
+      }
+    }
+    return newFirstExpression;
+  }
+
+  private String createModifiedExpression(List<String> conditionalExpressions, String newFirstExpression,
+                                          int firstExpressionIndex) {
+    Joiner joiner = Joiner.on(" ");
+    List<String> precedingExpressions = conditionalExpressions.subList(0, firstExpressionIndex);
+    String precedingExpressionsString = joiner.join(precedingExpressions);
+    List<String> restOfConditionalExpressions = firstExpressionIndex == conditionalExpressions.size() 
+        ? new ArrayList<String>() 
+        : conditionalExpressions.subList(firstExpressionIndex + 1, conditionalExpressions.size());
+    String restOfConditionalExpressionsString = joiner.join(restOfConditionalExpressions);
+    return joiner.join(precedingExpressionsString, newFirstExpression, 
+                       restOfConditionalExpressionsString);
   }
 
   private void updateConditionalModelAndText(String expression) {
