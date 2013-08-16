@@ -170,7 +170,7 @@ public class InputsPanel extends Composite implements MouseDownHandler {
   }
   
   public void checkVarNameFilledWithoutSpacesAndHighlight() {
-    changeVarNameWithValidationAndHighlight(varNameText.getText());
+    changeVarNameWithValidationAndHighlight(varNameText.getText(), false);
   }
 
   private void createInputFormLine() {
@@ -353,21 +353,23 @@ public class InputsPanel extends Composite implements MouseDownHandler {
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        changeVarNameWithValidationAndHighlight(event.getValue());
+        changeVarNameWithValidationAndHighlight(event.getValue(), true);
       }
     });
     varNameText.addMouseDownHandler(this);
   }
   
   // Visible for testing
-  protected void changeVarNameWithValidationAndHighlight(String varName) {
+  protected void changeVarNameWithValidationAndHighlight(String varName, boolean shouldTriggerRenames) {
     try {    
       // TODO: incorporate a check for input name uniqueness.
       input.setName(varName);
       ExperimentCreationPanel.setPanelHighlight(varNameText, true);
       varNameText.disableMouseOver();
       removeVarNameErrorMessage();
-      updateAllConditionalsForRename();
+      if (shouldTriggerRenames) {
+        updateAllConditionalsForRename();
+      }
     } catch (IllegalArgumentException e) {
       ExperimentCreationPanel.setPanelHighlight(varNameText, false);
       varNameText.enableMouseOver();

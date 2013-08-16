@@ -18,10 +18,9 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.InputDAO;
 
-public class ConditionalExpressionPanel extends Composite implements ChangeHandler, ValueChangeHandler<String> {
+public class ConditionalExpressionPanel extends Composite implements ChangeHandler {
 
   public static final int NEUTRAL_PAREN_MODE = 0;
   public static final int JUST_ADDED_LEFT_PAREN = 1;
@@ -43,7 +42,8 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private ParenthesesManagementPanel rightParenManagementPanel;
   private Button deleteButton;
 
-  private boolean isValid;
+  private boolean isInputNameValid;
+  private boolean isPredicateValid;
   private int numLeftParens;
   private int numRightParens;
   private int parenBalancingMode;
@@ -51,7 +51,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private InputDAO configuredInput;
   
   // Visible for testing
-  protected TextBox varNameText;
+  protected MouseOverTextBoxBase varNameText;
   protected ListBox comparatorListBox;
   protected PredicatePanel predicatePanel;
   protected ListBox addNextListBox;
@@ -80,7 +80,9 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     createAddNextListBox();
     createDeleteButton();
 
-    setExpressionValidity(false);
+    setConfigurablePanelsEnabled(false); // Initially, can only the input name is editable.
+    isInputNameValid = true; // So no input name errors are fired.
+    isPredicateValid = true; // So no predicate errors are fired.
     numLeftParens = 0;
     numRightParens = 0;
     parenBalancingMode = NEUTRAL_PAREN_MODE;
@@ -93,16 +95,25 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
     this(parent, precedenceMouseDownHandler, initialOp);
     varNameText.setValue(inputName);
     configurePanelForInput(inputName);
-    if (isValid) {
+    if (isInputNameValid) {
       setComparatorListBoxSelectedIndex(comparator);
-      predicatePanel.setValue(predicate);
+      predicatePanel.setValue(predicate); 
       setInitialLeftParens(numLeftParens);
       setInitialRightParens(numRightParens);
     }
   }
-
+  
   public boolean isValid() {
-    return isValid;
+    return isInputNameValid && isPredicateValid;
+  }
+  
+  public boolean isConfigured() {
+    String varName = varNameText.getValue();
+    return !isBlank(varName);
+  }
+
+  private boolean isBlank(String varName) {
+    return varName == null || varName.isEmpty();
   }
 
   protected void addConditionalPanel(int conditionalOp) {
@@ -120,7 +131,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   // Visible for testing
   protected String constructExpression() {
     String expression = "";
-    if (isValid) {
+    if (isConfigured() && isValid()) {
       String op = operatorListBox.getValue(operatorListBox.getSelectedIndex());
       String leftParens = new String(new char[numLeftParens]).replace("\0", "(");
       String varName = varNameText.getText();
@@ -133,7 +144,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   protected void invalidateSelection() {
-    setExpressionValidity(false);
+    setInputNameValidityAndSetPanelsEnabled(false);
   }
 
   private void createOperatorArea(int conditionalOp) {
@@ -177,13 +188,19 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   private void createVarNameTextBox() {
-    varNameText = new TextBox();
+    varNameText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX, 
+                                           myConstants.inputNameConditionalError());
     varNameText.setWidth("75px"); // Same width as input var name text box.
     varNameText.addMouseDownHandler(precedenceMouseDownHandler);
     varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> event) {
-        configurePanelForInput(event.getValue());
+        if (isBlank(event.getValue())) {
+          resetConfiguredInput();
+          configurePanelForBlankVarName();
+        } else {
+          configurePanelForInput(event.getValue());
+        }
         updateExpression();
       }
     });
@@ -230,9 +247,15 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
         || configuredInput.getResponseType().equals(InputDAO.PHOTO);
   }
 
-  private void setExpressionValidity(boolean isValid) {
-    this.isValid = isValid;
+  private void setInputNameValidityAndSetPanelsEnabled(boolean isValid) {
+    this.isInputNameValid = isValid;
+    setPanelValidityHighlight(isValid);
     setConfigurablePanelsEnabled(isValid);
+  }
+
+  private void setPanelValidityHighlight(boolean isValid) {
+    ExperimentCreationPanel.setPanelHighlight(varNameText, isValid);
+    varNameText.setMouseOverEnabled(!isValid);
   }
 
   private void setConfigurablePanelsEnabled(boolean isEnabled) {
@@ -385,21 +408,21 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   public void enableAddRightParenMode() {
-    if (isValid) {
+    if (isInputNameValid) {
       setAllPanelsEnabled(false);
       rightParenManagementPanel.enableAddMode();
     }
   }
 
   public void enableAddLeftParenMode() {
-    if (isValid) {
+    if (isInputNameValid) {
       setAllPanelsEnabled(false);
       leftParenManagementPanel.enableAddMode();
     }
   }
 
   public void enableDeleteRightParenMode() {
-    if (isValid) {
+    if (isInputNameValid) {
       setAllPanelsEnabled(false);
       rightParenManagementPanel.setEnabled(false);
       if (!(numRightParens == 0)) {
@@ -409,7 +432,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   public void enableDeleteLeftParenMode() {
-    if (isValid) {
+    if (isInputNameValid) {
       setAllPanelsEnabled(false);
       if (!(numLeftParens == 0)) {
         leftParenManagementPanel.enableDeleteMode();
@@ -418,7 +441,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
 
   public void enableNormalMode() {
-    if (isValid) {
+    if (isInputNameValid) {
       rightParenManagementPanel.restoreDefaultMode();
       leftParenManagementPanel.restoreDefaultMode();
       setAllPanelsEnabled(true);
@@ -509,15 +532,15 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
 
   private void configurePanelForPrecedingInputs(List<InputDAO> inputs) {
     if (inputs == null || inputs.size() != 1) {
-      setExpressionValidity(false);
+      setInputNameValidityAndSetPanelsEnabled(false);
       return;
     }
     configuredInput = inputs.get(0);
     if (inputCannotBeConditionalized()) {
-      setExpressionValidity(false);
+      setInputNameValidityAndSetPanelsEnabled(false);
     } else {
       configureSubPanelsForInput();
-      setExpressionValidity(true);
+      setInputNameValidityAndSetPanelsEnabled(true);
     }
   }
 
@@ -529,9 +552,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   private void setListBoxSelectedIndex(Integer value, ListBox listBox) {
     // Note: error-checking is done this way because ListBox objects do not throw
     // exceptions when given an illegal index.
-    if (valueIsNullOrOutOfBounds(value, listBox)) {
-      invalidateSelection();
-    } else {
+    if (!valueIsNullOrOutOfBounds(value, listBox)) {
       listBox.setSelectedIndex(value);
     }
   }
@@ -543,10 +564,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   protected void updateConditionalConfigurationForInput(InputDAO changedInput) {
     if (conditionalIsForInput(changedInput))  {
       if (inputCannotBeConditionalized()) {
-        setExpressionValidity(false);
+        setInputNameValidityAndSetPanelsEnabled(false);
       } else {
         configureSubPanelsForInput();
-        setExpressionValidity(true);
+        setInputNameValidityAndSetPanelsEnabled(true);
       }
       updateExpression();
     }
@@ -559,7 +580,7 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
   
   private void invalidateConditional() {
-    setExpressionValidity(false);
+    setInputNameValidityAndSetPanelsEnabled(false);
     updateExpression();
   }
 
@@ -571,6 +592,10 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
   }
   
   protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    if (isBlank(varNameText.getValue())) {
+      configurePanelForBlankVarName();
+      return;
+    }
     List<InputDAO> varNameMatches = getDaosWithMatchingName(precedingDaos);
     configurePanelForPrecedingInputs(varNameMatches);
   }
@@ -625,15 +650,26 @@ public class ConditionalExpressionPanel extends Composite implements ChangeHandl
         .equals(ConditionalExpressionsPanel.OPS[ConditionalExpressionsPanel.NO_OP]);
   }
   
-
+  protected void addPredicateError() {
+    isPredicateValid = false;
+  }
+  
+  protected void removePredicateError() {
+    isPredicateValid = true;
+  }
+  
   @Override
   public void onChange(ChangeEvent event) {
     updateExpression();
   }
-  
-  @Override
-  public void onValueChange(ValueChangeEvent<String> event) {
-    updateExpression();
+
+  private void resetConfiguredInput() {
+    configuredInput = null;
+  }
+
+  private void configurePanelForBlankVarName() {
+    setPanelValidityHighlight(true);
+    setConfigurablePanelsEnabled(false);
   }
 
 }

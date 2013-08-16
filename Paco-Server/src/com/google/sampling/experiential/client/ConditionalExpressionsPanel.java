@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.InputDAO;
 
@@ -134,7 +133,6 @@ public class ConditionalExpressionsPanel extends Composite {
 
     conditionalListPanel = new VerticalPanel();
     createLonePanel();
-    updateListDisplayExpression(input.getConditionExpression());
 
     conditionalListDisclosurePanel.setContent(conditionalListPanel);
 
@@ -201,8 +199,11 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   private void updateExpressionUsingTextPanel(String expression) {
-    updateInputModelExpression(expression);
-    updateListDisplayExpression(expression);
+    boolean isValid = updateListDisplayExpression(expression);
+    // Only keep valid values in the model.
+    if (isValid) {
+      updateInputModelExpression(expression);
+    }
   }
 
   private void updateInputModelExpression(String expression) {
@@ -211,25 +212,27 @@ public class ConditionalExpressionsPanel extends Composite {
 
   private void updateTextDisplayExpression(String expression) {
     conditionDisplayTextBox.setValue(expression, false);
+    resetTextDisplayValidityForMenuUpdate();
   }
 
   // TODO: clean this up with more error-checking visible to the user.
-  private void updateListDisplayExpression(String expression) {
-    clearConditionalPanelLists();
-
+  private boolean updateListDisplayExpression(String expression) {
     // TODO: callbacks to ExperimentCreationPanel when there are errors.
     // TODO: check for unbalanced parentheses errors.
     if (expression == null || expression.isEmpty()) {
+      ensureConditionalErrorNotFired(); // An empty conditional is acceptable.
       createLonePanel();
-      return;
+      return true;
     } else if (!expressionIsValid(expression)) {
       indicateConditionalError();
-      createLonePanel();
-      return;
+      return false;
     }
     
+    // Restore clean state.
+    clearConditionalPanelLists();
     ensureConditionalErrorNotFired();
 
+    // Tokenize and create menu panels corresponding to the expression.
     RegExp pattern = RegExp.compile(SINGLE_CONDITIONAL_REGEX, "g");
     MatchResult result = null;
     while ((result = pattern.exec(expression)) != null) {
@@ -239,12 +242,34 @@ public class ConditionalExpressionsPanel extends Composite {
       String comp = result.getGroup(4);
       String val = result.getGroup(5);
       String rightParens = result.getGroup(6);
+            
       ConditionalExpressionPanel repPanel = 
           new ConditionalExpressionPanel(this, parent, getOperatorIndex(op), name, 
                                          getComparatorIndex(comp), getPredicateValue(val),
                                          getNumParens(leftParens), getNumParens(rightParens));
       addConditionalPanelToLists(repPanel);
     }
+    
+    return resetTextDisplayValidityForMenuUpdate();
+  }
+
+  private boolean resetTextDisplayValidityForMenuUpdate() {
+    boolean isValid = allPanelsAreValid();
+    if (isValid) {
+      ensureConditionalErrorNotFired();
+    } else {
+      indicateConditionalError();
+    }    
+    return isValid;
+  }
+
+  private boolean allPanelsAreValid() {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      if (panel.isConfigured() && !panel.isValid()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // Visible for testing
@@ -276,6 +301,7 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   private void createLonePanel() {
+    clearConditionalPanelLists();
     ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
     addConditionalPanelToLists(conditionalPanel);
   }
@@ -440,9 +466,6 @@ public class ConditionalExpressionsPanel extends Composite {
   }
   
   protected void deleteConditionPanel(ConditionalExpressionPanel sender) {
-//    if (conditionPanels.size() == 1) {
-//      return;
-//    }
     if (sender.equals(unbalancedParenPanel)) {
       restorePreviousParenState();
     }
