@@ -74,6 +74,7 @@ public class ConditionalExpressionsPanel extends Composite {
     this.parent = parent;
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
+    mainPanel.setStyleName("paco-Input");
     conditionPanels = new ArrayList<ConditionalExpressionPanel>();
     conditionalExpressions = new ArrayList<String>();
     createPanel();
