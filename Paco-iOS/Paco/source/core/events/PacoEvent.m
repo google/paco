@@ -229,40 +229,14 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   
   for (PacoExperimentInput *input in visibleInputs) {
     NSMutableDictionary *response = [NSMutableDictionary dictionary];
-    id responseObject = input.responseObject;
-    if (responseObject == nil) {
+    id payloadObject = [input payloadObject];
+    if (payloadObject == nil) {
       continue;
     }
     NSLog(@"INPUT RESPONSE NAME = %@", input.name);
     [response setObject:input.name forKey:@"name"];
     [response setObject:input.inputIdentifier forKey:@"inputId"];
-    if ([input.questionType isEqualToString:@"question"]) {
-      if ([input.responseType isEqualToString:@"likert_smileys"]) {
-        //result starts from 1, not 0
-        int result = [input.responseObject intValue] + 1;
-        [response setObject:[NSNumber numberWithInt:result] forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"likert"]) {
-        //result starts from 1, not 0
-        int result = [input.responseObject intValue] + 1;
-        [response setObject:[NSNumber numberWithInt:result] forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"open text"]) {
-        NSString *string = input.responseObject;
-        [response setObject:string forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"list"]) {
-        NSString* result = [input stringForListChoices];
-        NSAssert(result != nil, @"result should not be nil!");
-        [response setObject:result forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"number"]) {
-        NSNumber *number = input.responseObject;
-        [response setObject:number forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"location"]) {
-        CLLocation *location = input.responseObject;
-        NSString *locationString = [NSString stringWithFormat:@"(%f,%f)", location.coordinate.latitude, location.coordinate.longitude];
-        [response setObject:locationString forKey:@"answer"];
-      } else if ([input.responseType isEqualToString:@"photo"]) {
-        [response setObject:@"TODO:ImageUploading" forKey:@"answer"];
-      }
-    }
+    [response setObject:payloadObject forKey:@"answer"];
     [responses addObject:response];
   }
   

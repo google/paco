@@ -38,7 +38,6 @@
 @property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
-- (void)tagQuestionsForDependencies;
 
 //clear the old response objects
 - (void)clearInputs;

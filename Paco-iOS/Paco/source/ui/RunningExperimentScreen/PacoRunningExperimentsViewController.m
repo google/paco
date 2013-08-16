@@ -148,8 +148,8 @@
     return;
   }
   
-  PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-  questions.experiment = self.selectedExperiment;
+  PacoQuestionScreenViewController *questions =
+      [[PacoQuestionScreenViewController alloc] initWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 

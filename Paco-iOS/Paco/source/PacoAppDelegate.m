@@ -31,8 +31,8 @@
     [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
     NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-    questions.experiment = experiment;
+    PacoQuestionScreenViewController *questions =
+        [[PacoQuestionScreenViewController alloc] initWithExperiment:experiment];
     [self.viewController.navigationController pushViewController:questions animated:YES];
   }
 }
@@ -63,8 +63,8 @@
     NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
     assert(experiment);
-    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-    questions.experiment = experiment;
+    PacoQuestionScreenViewController *questions =
+        [[PacoQuestionScreenViewController alloc] initWithExperiment:experiment];
     [self.viewController presentViewController:questions animated:YES completion:nil];
   }
   return YES;

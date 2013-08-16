@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
 
-@class PacoExperiment;
+#import <Foundation/Foundation.h>
 
-@interface PacoQuestionScreenViewController : UIViewController
+typedef void(^PredicateBlock)(NSPredicate* predicate, NSArray* dependencyVariables);
 
-- (id)initWithExperiment:(PacoExperiment*)experiment;
+@interface PacoExpressionExecutor : NSObject
 
++ (void)predicateWithRawExpression:(NSString*)rawExpression
+                      withVariableNameList:(NSArray*)variableNameList
+                                  andBlock:(PredicateBlock)completionBlock;
 @end
