@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import android.R.anim;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,6 +31,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
+import com.pacoapp.paco.R;
 
 public class NotificationCreator {
 
@@ -47,7 +49,7 @@ public class NotificationCreator {
     return new NotificationCreator(context.getApplicationContext());
   }
 
-  public void createNotifications(long notificationId, long alarmTime) {
+  public void createNotificationsForAlarmTime(long notificationId, long alarmTime) {
     try {
       createAllNotificationsForLastMinute(alarmTime);            
     } finally {
@@ -128,6 +130,7 @@ public class NotificationCreator {
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
     event.setScheduledTime(new DateTime(notificationHolder.getAlarmTime()));
     experimentProviderUtil.insertEvent(event);
   }
@@ -138,17 +141,10 @@ public class NotificationCreator {
   }
   
   private void createNewNotificationForExperiment(Context context, TimeExperiment timeExperiment) {
-//    if (experiment.isQuestionsChange()) {
-//      experimentProviderUtil.loadInputsForExperiment(experiment);
-//    }      
-//      if (experiment.isQuestionsChange() && !experiment.hasFreshInputs()) {
-//        return;
-//      }
     DateTime time = timeExperiment.time;
     Experiment experiment = timeExperiment.experiment;
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0, experiment.getExpirationTimeInMillis());
     experimentProviderUtil.insertNotification(notificationHolder);
-
     fireNotification(context, notificationHolder, experiment);
   }
 
@@ -166,9 +162,9 @@ public class NotificationCreator {
   }
 
   private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder) {
-    int icon = R.drawable.calculator_lb16;
+    int icon = R.drawable.paco32;
 
-    Notification notification = new Notification(icon, "Time for " + experiment.getTitle(), notificationHolder.getAlarmTime()); 
+    Notification notification = new Notification(icon, context.getString(R.string.time_for_notification_title) + experiment.getTitle(), notificationHolder.getAlarmTime()); 
     
     Intent surveyIntent = new Intent(context, ExperimentExecutor.class);
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -181,14 +177,24 @@ public class NotificationCreator {
     PendingIntent notificationIntent = PendingIntent.getActivity(context, 1,
         surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);    
     notification.setLatestEventInfo(context, experiment.getTitle(),
-        "Time to participate!", notificationIntent);
+        context.getString(R.string.time_to_participate_notification_text), notificationIntent);
     notification.when = notificationHolder.getAlarmTime();
     
-    notification.defaults |= Notification.DEFAULT_SOUND;
+    
+    String ringtoneUri = new UserPreferences(context).getRingtone();
+    if (ringtoneUri == null) {
+      notification.defaults |= Notification.DEFAULT_SOUND;
+//      notification.sound = Uri.parse(android.os.Environment.getExternalStorageDirectory().getAbsolutePath() 
+//                                     + "/Android/data/" + context.getPackageName() + "/" +
+//                                     "deepbark_trial.mp3");
+    } else {
+      notification.sound = Uri.parse(ringtoneUri);
+    }
+    
     notification.defaults |= Notification.DEFAULT_VIBRATE;
     notification.defaults |= Notification.DEFAULT_LIGHTS;
     notification.flags |= Notification.FLAG_AUTO_CANCEL;
-    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       notification.flags |= Notification.FLAG_NO_CLEAR;
     }
     return notification;
@@ -217,6 +223,39 @@ public class NotificationCreator {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+  }
+
+  public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent, String sourceIdentifier) {
+    Trigger trigger = experiment.getTrigger();
+    List<NotificationHolder> notificationsForTrigger = experimentProviderUtil.getNotificationsFor(experiment.getId());
+    
+    // Approach 1 for triggers, mark old triggers notification as missed, cancel them, and install notification for new trigger. 
+    // we cannot catch the notification before the user can click it. Thus they will always get triggered twice.
+//    timeoutNotifications(notificationsForTrigger);
+
+    //  Alternate approach, ignore new trigger if there is already an active notification for this trigger
+    if (activeNotificationForTrigger(notificationsForTrigger)) {
+      return;
+    }
+
+    try {
+      Thread.sleep(trigger.getDelay());
+    } catch (InterruptedException e) {      
+    }
+    
+    timeoutNotifications(notificationsForTrigger);
+    createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment));
+  }
+
+  private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForTrigger) {
+    DateTime now = new DateTime();
+    for (NotificationHolder notificationHolder : notificationsForTrigger) {     
+      if (notificationHolder.isActive(now)) {
+        Log.d(PacoConstants.TAG, "There is already a live notification for this trigger.");
+        return true;
+      }
+    }
+    return false;
   }
   
 

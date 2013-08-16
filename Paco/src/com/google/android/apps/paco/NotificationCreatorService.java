@@ -62,8 +62,8 @@ public class NotificationCreatorService extends Service {
           }
           if (notificationId != -1) {
             notificationCreator.timeoutNotification(notificationId);
-          } else if (alarmTime != -1){
-            notificationCreator.createNotifications(notificationId, alarmTime);
+          } else if (alarmTime != -1) {
+            notificationCreator.createNotificationsForAlarmTime(notificationId, alarmTime);
           } else {
             notificationCreator.recreateActiveNotifications();
           }

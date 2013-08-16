@@ -71,13 +71,20 @@ public class AlarmStore {
       context.getContentResolver().delete(SignalProvider.CONTENT_URI, null, null);  
   }
 
-  public void deleteAllSignalsForSurvey(long experimentId) {
+  public void deleteAllSignalsForSurvey(Long experimentId) {
+    if (experimentId == null) {
+      return;
+    }
     String[] args = new String[] {Long.toString(experimentId)};
     String selection = Signal.EXPERIMENT_ID + " = ?";
     context.getContentResolver().delete(SignalProvider.CONTENT_URI, selection, args);  
   }
   
   public void deleteSignalsForPeriod(Long experimentId, Long periodStart) {
+    if (experimentId == null) {
+      return;
+    }
+
     String[] selectionArgs = new String[]{Long.toString(experimentId), 
         Long.toString(periodStart)};
     context.getContentResolver().delete(SignalProvider.CONTENT_URI, Signal.EXPERIMENT_ID + " = ? AND " + Signal.DATE + " = ?", selectionArgs);

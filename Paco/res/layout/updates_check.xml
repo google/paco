@@ -22,7 +22,7 @@
 	android:layout_height="fill_parent" android:layout_gravity="center"
 	android:orientation="vertical" android:gravity="center" >
 	    <TextView 
-			android:text="Checking for Updates..."
+			android:text="@string/checking_for_updates"
 			android:layout_width="fill_parent" 
 			android:gravity="center"
 			android:textSize="15dip"
@@ -31,7 +31,7 @@
 
 		<Button android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:layout_gravity="center"
-			android:layout_margin="5px" android:text="Install"
+			android:layout_margin="5px" android:text="@string/install"
 			android:id="@+id/InstallButton"
 			android:visibility="invisible"/>
 	

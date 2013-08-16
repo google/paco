@@ -26,9 +26,15 @@ import org.joda.time.format.ISODateTimeFormat;
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
+  
   static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
-  private static DateTimeFormatter dateTimeFormatter =
-      DateTimeFormat.forPattern(DATETIME_FORMAT);
+  private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
+  
+  static final String DATE_FORMAT = "yyyy/MM/dd";
+  private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
+  
+  static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
+  private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
   private TimeUtil() {
     super();
@@ -41,6 +47,35 @@ public class TimeUtil {
 
   public static String formatDateTime(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateTimeFormatter);
+  }
+  
+  public static String formatDateTime(DateTime dateTime) {
+    return dateTime.toString(dateTimeFormatter);
+  }
+  
+  public static DateTime parseDateTime(String dateTimeStr) {
+    return dateTimeFormatter.parseDateTime(dateTimeStr);
+  }
+
+  public static String formatDate(long dateTimeMillis) {
+    return new DateTime(dateTimeMillis).toString(dateFormatter);
+  }
+  
+  public static DateTime unformatDate(String dateStr) {
+    return dateFormatter.parseDateTime(dateStr);
+  }
+  
+  public static String formatDateWithZone(DateTime dateTime) {
+    return dateTime.toString(dateZoneFormatter);
+  }
+  
+  public static String formatDateWithZone(long dateTimeMillis) {
+    return new DateTime(dateTimeMillis).toString(dateZoneFormatter);
+  }
+  
+  public static DateTime unformatDateWithZone(String dateStr) {
+    return dateZoneFormatter.parseDateTime(dateStr);
+
   }
 
   public static DateMidnight getMondayOfWeek(DateTime now) {

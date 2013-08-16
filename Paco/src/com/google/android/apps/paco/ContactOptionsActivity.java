@@ -1,5 +1,7 @@
 package com.google.android.apps.paco;
 
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -53,7 +55,7 @@ public class ContactOptionsActivity extends Activity {
   }
 
   protected void gotoWebsite() {
-    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + (String)getText(R.string.about_weburl) +"/")));
+    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://" + (String)getText(R.string.about_weburl) +"/")));
   }
 
   protected void goToUserGroup() {

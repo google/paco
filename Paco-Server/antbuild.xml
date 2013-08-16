@@ -15,7 +15,7 @@
  ~ under the License.
  -->
  <project default="build" basedir=".">
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.5.0.1" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.7.5" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
@@ -26,6 +26,9 @@
     </fileset>
     <fileset dir="${sdk.dir}/lib">
       <include name="shared/**/*.jar" />
+    </fileset>
+    <fileset dir="../Shared/dist">
+      <include name="**/shared.jar" />
     </fileset>
   </path>
 
@@ -40,7 +43,13 @@
     </copy>
   </target>
 
-  <target name="compile" depends="copyjars"
+  <target name="build-shared">
+    <subant target="copy-shared">
+      <fileset dir=".." includes="build.xml"/>
+    </subant>
+  </target>
+
+  <target name="compile" depends="build-shared,copyjars"
       description="Compiles Java source and copies other source files to the WAR.">
     <mkdir dir="war/WEB-INF/classes" />
     <copy todir="war/WEB-INF/classes">
@@ -64,8 +73,18 @@
       description="Starts the development server.">
     <dev_appserver war="war" address="0.0.0.0">
       <options>
-          <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
-	   </options>
+        <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
+      </options>
+    </dev_appserver>
+  </target>
+
+<target name="runserver_debug" depends="build" description="Starts the development server in debug mode.">
+    <dev_appserver war="war" port="8888" address="0.0.0.0">
+      <options>
+        <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
+        <arg value="--jvm_flag=-Xdebug"/>
+        <arg value="--jvm_flag=-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9999"/>
+      </options>
     </dev_appserver>
   </target>
 
@@ -83,6 +102,22 @@
     <appcfg action="update" war="war" />
   </target>
 
+  <target name="update_backends" depends="build"
+      description="updates the backends the application to App Engine.">
+    <appcfg action="backends" war="war">
+        <options>
+        <arg value="update"/>
+      </options>
+      </appcfg>
+  </target>
+  
+  <target name="update_only_backends"
+      description="updates the backends the application to App Engine -- NO BUILD.">
+    <appcfg action="backends update" war="war">
+      </appcfg>
+  </target>
+  
+  
   <target name="update_only" 
       description="Uploads the application to App Engine - NO BUILD.">
     <appcfg action="update" war="war" />
@@ -114,12 +149,13 @@
   <property name="gwt.args" value="-style PRETTY" />
 
   <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="../tools/gwt-2.1.0" />
+  <property name="gwt.sdk" location="../tools/gwt-2.5.0" />
 
   <path id="gwt.project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>
     <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+    <fileset dir="${sdk.dir}" includes="*.jar"/>
     <!-- Add any additional non-server libs (such as JUnit) -->
     <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
   </path>
@@ -128,6 +164,7 @@
     <mkdir dir="war/WEB-INF/lib" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
     <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
+    <copy todir="war/WEB-INF/lib" file="../Shared/dist/shared.jar" />
     <!-- Add any additional server libs that need to be copied -->
   </target>
 
@@ -179,13 +216,13 @@
 
 <!--
 Test targets suppressed because -junit argument was not specified when running webAppCreator.
-
+-->
   <target name="javac.tests" depends="javac" description="Compiles test code">
-    <javac srcdir="test" includes="**" encoding="utf-8"
+    <javac srcdir="tests" includes="**" encoding="utf-8"
       source="1.5" target="1.5" nowarn="true"
       destdir="war/WEB-INF/classes"
       debug="true" debuglevel="lines,vars,source">
-      <classpath location="path_to_the_junit_jar"/>
+      <classpath location="lib/junit-4.10.jar"/>
       <classpath refid="gwt.project.class.path"/>
     </javac>
   </target>
@@ -198,12 +235,12 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
         <pathelement location="src" />
-        <pathelement location="test" />
+        <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
-        <pathelement location="path_to_the_junit_jar" />
+        <pathelement location="lib/junit-4.10.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.dev" >
-        <fileset dir="test" >
+        <fileset dir="tests" >
           <include name="**/*Test.java" />
         </fileset>
       </batchtest>
@@ -220,12 +257,12 @@ Test targets suppressed because -junit argument was not specified when running w
       <sysproperty key="java.awt.headless" value="true" />
       <classpath>
         <pathelement location="src" />
-        <pathelement location="test" />
+        <pathelement location="tests" />
         <path refid="gwt.project.class.path" />
-        <pathelement location="path_to_the_junit_jar" />
+        <pathelement location="lib/junit-4.10.jar" />
       </classpath>
       <batchtest todir="reports/htmlunit.prod" >
-        <fileset dir="test" >
+        <fileset dir="tests" >
           <include name="**/*Test.java" />
         </fileset>
       </batchtest>
@@ -236,13 +273,13 @@ Test targets suppressed because -junit argument was not specified when running w
 
   <target name="test" description="Run development and production mode tests">
     <antcall target="test.dev" />
-    <antcall target="test.prod" />
+    <!--  <antcall target="test.prod" /> -->
   </target>
--->
+
 
   <target name="hosted" depends="devmode" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
 
-  <target name="build" depends="gwtc,datanucleusenhance" description="Build this project" />
+  <target name="build" depends="copyjars,gwtc,datanucleusenhance" description="Build this project" />
 
   <target name="war" depends="build" description="Create a war file">
     <zip destfile="paco.war" basedir="war"/>

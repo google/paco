@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco.questioncondparser;
 
+import com.pacoapp.paco.R;
+
 public class Binding {
 
 	private String varName;

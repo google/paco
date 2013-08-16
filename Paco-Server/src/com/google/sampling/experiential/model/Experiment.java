@@ -18,6 +18,8 @@
 
 package com.google.sampling.experiential.model;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -37,8 +39,10 @@ import org.joda.time.DateTime;
 
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 
 /**
@@ -69,7 +73,7 @@ public class Experiment {
    */
   public Experiment(Long id, String title, String description, User creator,
       String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      Date modifyDate, Boolean published, List<String> admins) {
+      String modifyDate, Boolean published, List<String> admins) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -77,7 +81,7 @@ public class Experiment {
     this.informedConsentForm = informedConsentForm;
     this.schedule = schedule;
     this.questionsChange = questionsCanChange;
-    this.modifyDate = modifyDate;
+    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
     this.inputs = Lists.newArrayList();
     feedback = Lists.newArrayList();
     this.published = published;
@@ -94,7 +98,7 @@ public class Experiment {
    */
   public Experiment() {
   }
-
+  
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
@@ -116,7 +120,11 @@ public class Experiment {
   @Persistent(defaultFetchGroup="true")
   @Element(dependent = "true")
   private SignalSchedule schedule;
-  
+
+  @Persistent(defaultFetchGroup="true")
+  @Element(dependent = "true")
+  private Trigger trigger;
+
   @Persistent
   private Boolean fixedDuration;
   
@@ -162,6 +170,9 @@ public class Experiment {
   @Persistent
   @JsonProperty("informedConsentForm")
   private Text informedConsentFormText;
+
+  @Persistent
+  private Integer version;
 
   public Long getId() {
     return id;
@@ -212,6 +223,14 @@ public class Experiment {
   public void setSchedule(SignalSchedule schedule) {
     this.schedule = schedule;
   }
+  
+  public Trigger getTrigger() {
+    return trigger;
+  }
+  
+  public void setTrigger(Trigger trigger) {
+    this.trigger = trigger;
+  }
 
   public Boolean getFixedDuration() {
     return fixedDuration;
@@ -229,20 +248,28 @@ public class Experiment {
     this.questionsChange = questionsChange;
   }
 
-  public Date getStartDate() {
-    return startDate;
+  public String getStartDate() {
+    return getDateAsString(startDate, TimeUtil.DATE_FORMAT);
   }
 
-  public void setStartDate(Date startDate) {
-    this.startDate = startDate;
+  public void setStartDate(String startDateStr) {
+      setFormattedStartDate(startDateStr);
+  }
+  
+  private void setFormattedStartDate(String startDateStr) {
+    this.startDate = getFormattedDate(startDateStr, TimeUtil.DATE_FORMAT);
   }
 
-  public Date getEndDate() {
-    return endDate;
+  public String getEndDate() {
+    return getDateAsString(endDate, TimeUtil.DATE_FORMAT);
+  }
+  
+  public void setEndDate(String endDateStr) {
+      setFormattedEndDate(endDateStr);
   }
 
-  public void setEndDate(Date endDate) {
-    this.endDate = endDate;
+  private void setFormattedEndDate(String endDateStr) {
+    this.endDate = getFormattedDate(endDateStr, TimeUtil.DATE_FORMAT);
   }
 
   public String getHash() {
@@ -253,12 +280,20 @@ public class Experiment {
     this.hash = hash;
   }
 
-  public Date getJoinDate() {
-    return joinDate;
+  public String getJoinDate() {
+    return getJoinDateAsString();
   }
 
-  public void setJoinDate(Date joinDate) {
-    this.joinDate = joinDate;
+  private String getJoinDateAsString() {
+    return getDateAsString(joinDate, TimeUtil.DATE_WITH_ZONE_FORMAT);
+  }
+  
+  public void setJoinDate(String joinDateStr) {
+      setFormattedJoinDate(joinDateStr);
+  }
+  
+  private void setFormattedJoinDate(String joinDateStr) {
+    this.joinDate = getFormattedDate(joinDateStr, TimeUtil.DATE_WITH_ZONE_FORMAT);
   }
 
   public List<Input> getInputs() {
@@ -277,14 +312,17 @@ public class Experiment {
     this.feedback = feedback;
   }
 
-  public Date getModifyDate() {
-    return modifyDate;
+  public String getModifyDate() {
+    return getDateAsString(modifyDate, TimeUtil.DATE_FORMAT);
   }
 
-  public void setModifyDate(Date modifyDate) {
-    this.modifyDate = modifyDate;
+  public void setModifyDate(String modifyDateStr) {
+      setFormattedModifyDate(modifyDateStr);
   }
-
+  
+  private void setFormattedModifyDate(String modifyDateStr) {
+    this.modifyDate = getFormattedDate(modifyDateStr, TimeUtil.DATE_FORMAT);
+  }
   /**
    * @param published
    */
@@ -361,7 +399,7 @@ public class Experiment {
   }
 
   public Input getInputWithName(String name) {
-    if (name == null) {
+    if (Strings.isNullOrEmpty(name)) {
       return null;
     }
     for (Input input : getInputs()) {
@@ -377,16 +415,55 @@ public class Experiment {
     return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
   }
   
+  @JsonIgnore
   private DateTime getEndDateTime() {
     if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
       List<Long> times = schedule.getTimes();
       // get the latest time
       Collections.sort(times);
-      
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      return new DateMidnight(endDate)
+          .toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
     } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
-      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
+      return new DateMidnight(endDate).plusDays(1).toDateTime();
     }
   }
+  
+  private String getDateAsString(Date date, String dateFormat) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+    return formatter.format(date);
+  }
+  
+  private Date getFormattedDate(String inputDateStr, String dateFormat) {
+    if (inputDateStr == null) {
+      return null;
+    }
+    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+    try {
+      return formatter.parse(inputDateStr);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
+                                         ". Format is " + dateFormat);
+    }
+  }
+  
+  @JsonIgnore
+  public boolean isWhoAllowedToPostToExperiment(String who) {
+    who = who.toLowerCase();
+    return getAdmins().contains(who) || 
+      (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
+  }
+
+  public Integer getVersion() {
+    return this.version;
+  }
+  
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
+
+
 }

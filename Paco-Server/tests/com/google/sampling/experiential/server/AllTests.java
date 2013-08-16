@@ -18,6 +18,7 @@ package com.google.sampling.experiential.server;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Paco Server tests
@@ -25,6 +26,12 @@ import junit.framework.TestCase;
  */
 public class AllTests extends TestCase {
   public static Test suite() {
-    return new AllTestSuiteBuilder("com.google.sampling.experiential.server").build();
+    Class[] tests = new Class[] {
+      com.google.sampling.experiential.server.ExperimentCacheHelperTests.class,
+      com.google.sampling.experiential.server.EventMatcherTest.class,
+      com.google.sampling.experiential.server.QueryParserTest.class,
+      com.google.sampling.experiential.server.ExperimentServletHandlerTest.class
+    };
+    return new TestSuite(tests);
   }
 }

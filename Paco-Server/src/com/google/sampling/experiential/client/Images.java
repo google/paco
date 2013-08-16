@@ -21,6 +21,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.TextResource;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ImageBundle;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * The image bundle for Paco. 
@@ -43,5 +44,24 @@ public interface Images extends ClientBundle {
 
   @Source(value = "helptext.html")
   TextResource helpHtml();
+  
+  @Source(value = "helptext_ja.html")
+  TextResource helpHtml_ja();
+  
+  @Source(value = "helptext_fi.html")
+  TextResource helpHtml_fi();
+
+  
+  @Source(value = "index2.html")
+  TextResource indexHtml();
+  
+  @Source(value = "index2_ja.html")
+  TextResource indexHtml_ja();
+  
+  @Source(value = "index2_fi.html")
+  TextResource indexHtml_fi();
+
+
+
 } 
  

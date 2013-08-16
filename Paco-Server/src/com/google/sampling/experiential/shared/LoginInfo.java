@@ -25,6 +25,7 @@ public class LoginInfo implements Serializable {
   private String logoutUrl;
   private String emailAddress;
   private String nickname;
+  private boolean whitelisted;
 
   public boolean isLoggedIn() {
     return loggedIn;
@@ -64,5 +65,13 @@ public class LoginInfo implements Serializable {
 
   public void setNickname(String nickname) {
     this.nickname = nickname;
+  }
+
+  public void setWhitelisted(boolean b) {
+    this.whitelisted = b;
+  }
+  
+  public boolean isWhitelisted() {
+    return whitelisted;
   }
 }

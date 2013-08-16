@@ -1,80 +1,130 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.  
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
 
 
-import java.util.Date;
+import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.HasMouseDownHandlers;
+import com.google.gwt.event.dom.client.MouseDownEvent;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.datepicker.client.DateBox;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.InputDAO;
 
 /**
- *
+ * 
  * Panel for viewing/editing one Input object.
- *
+ * 
  * @author Bob Evans
- *
+ * 
  */
-public class InputsPanel extends Composite {
-
+public class InputsPanel extends Composite implements MouseDownHandler {
+  
   private InputsListPanel parent;
   private InputDAO input;
+  private DraggableAbsolutePanel draggableRootPanel;
   private VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
-  private ResponseViewPanel responseView;
-  private HorizontalPanel conditionalPanel;
-  private CheckBox conditionalBox;
   private VerticalPanel inputPromptTextPanel;
+  private VerticalPanel varNamePanel;
+  private CheckBox requiredBox;
+  private CheckBox conditionalBox;
+  
+  private MyConstants myConstants = GWT.create(MyConstants.class);
+  
+  // Visible for testing
+  protected MouseOverTextBoxBase varNameText;
+  protected TextBox inputPromptText;
+  protected ResponseViewPanel responseView;
+  protected ListBox responseTypeListBox;
+  protected ConditionalExpressionsPanel conditionalPanel;
 
   public InputsPanel(InputsListPanel parent, InputDAO input) {
     this.input = input;
     this.parent = parent;
+    createDraggableRootPanel();
+    createContentPanel();
+    createLayout();
+  }
+
+  private void createDraggableRootPanel() {
+    draggableRootPanel = new DraggableAbsolutePanel();
+    initWidget(draggableRootPanel);
+    causeDraggablePanelToRemoveFocusFromOtherWidgets();
+  }
+
+  private void causeDraggablePanelToRemoveFocusFromOtherWidgets() {
+    draggableRootPanel.getElement().setAttribute("tabindex", "-1");
+    /*
+     * Hack: root panel must steal focus because dragging cancels default events (such as blur
+     * events) on other widgets that may need to blur for their change handlers to fire. 
+     * See gwt-dnd issue:
+     * https://code.google.com/p/gwt-
+     * dnd/issues/detail?id=117&can=1&q=sensitivity
+     * &colspec=ID%20Type%20Status%20Priority%20Milestone%20Stars%20Summary
+     */
+    draggableRootPanel.addMouseDownHandler(new MouseDownHandler() {
+      public void onMouseDown(MouseDownEvent event) {
+        draggableRootPanel.getElement().focus();
+        // So the user detects nothing.
+        draggableRootPanel.getElement().blur();
+      }
+    });
+  }
+
+  private void createContentPanel() {
     mainPanel = new VerticalPanel();
+    draggableRootPanel.add(mainPanel);
     mainPanel.setSpacing(2);
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    initWidget(mainPanel);
-    mainPanel.setWidth("258px");
-
-    createLayout();
+    mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+    mainPanel.setWidth("80%");
+    mainPanel.setHeight("80%");
+    mainPanel.setStyleName("paco-Input");
   }
 
   private void createLayout() {
     createInputFormLine();
     createListMgmtButtons();
+  }
+
+  public DraggableAbsolutePanel getDraggingPanel() {
+    return draggableRootPanel;
   }
 
   private void createListMgmtButtons() {
@@ -87,13 +137,12 @@ public class InputsPanel extends Composite {
     upperLinePanel.add(deleteButton);
 
     Button addButton = new Button("+");
-    upperLinePanel.add(addButton);
-
     addButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         addInputsPanel();
       }
     });
+    upperLinePanel.add(addButton);
   }
 
   protected void addInputsPanel() {
@@ -108,7 +157,22 @@ public class InputsPanel extends Composite {
     return input;
   }
 
-  @SuppressWarnings("deprecation")
+  public String getInputTextPrompt() {
+    return input.getText();
+  }
+
+  public void checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    if (input.getResponseType().equals(InputDAO.LIST)) {
+      responseView.checkListChoicesAreNotEmptyAndHighlight();
+    } else {
+      responseView.ensureListChoicesErrorNotFired();
+    }
+  }
+  
+  public void checkVarNameFilledWithoutSpacesAndHighlight() {
+    changeVarNameWithValidationAndHighlight(varNameText.getText());
+  }
+
   private void createInputFormLine() {
     upperLinePanel = new HorizontalPanel();
     upperLinePanel.setStyleName("left");
@@ -121,49 +185,30 @@ public class InputsPanel extends Composite {
     createVarNameColumn();
     createInputTextColumn();
 
-
     createResponseViewPanel();
 
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
-
-    createScheduledDateColumn(upperLinePanel);
   }
 
   private void createResponseViewPanel() {
-    responseView = new ResponseViewPanel(input);
+    responseView = new ResponseViewPanel(input, this);
     lowerLinePanel.add(responseView);
   }
 
   private void createConditionExpressionPanel() {
-    conditionalPanel = new HorizontalPanel();
+    conditionalPanel = new ConditionalExpressionsPanel(input, this);
+    // conditionalPanel = new VerticalPanel();
     mainPanel.add(conditionalPanel);
     conditionalPanel.setVisible(conditionalBox.getValue());
-
-    Label conditionalExpressionLabel = new Label("Condition to enable this question:");
-    conditionalExpressionLabel.setStyleName("keyLabel");
-    conditionalPanel.add(conditionalExpressionLabel);
-
-    final TextBox conditionText = new TextBox();
-    conditionText.setText(input.getConditionExpression());
-    conditionalPanel.add(conditionText);
-    conditionText.addValueChangeHandler(new ValueChangeHandler() {
-      @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setConditionExpression(conditionText.getText());
-      }
-    });
-
-    conditionalPanel.add(new HTML("   <span style='font-style:italic;font-size:small;"
-        + "text-color:#888888;'>(e.g., q1name < 3)</span>"));
   }
 
   private void createConditionCheckboxColumn() {
     VerticalPanel cp = new VerticalPanel();
     upperLinePanel.add(cp);
 
-    Label conditionalLabel = new Label("Conditional:");
+    Label conditionalLabel = new Label(myConstants.conditional() + ":");
     conditionalLabel.setStyleName("keyLabel");
     cp.add(conditionalLabel);
 
@@ -173,7 +218,7 @@ public class InputsPanel extends Composite {
 
     conditionalBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
         input.setConditional(conditionalBox.getValue());
         conditionalPanel.setVisible(conditionalBox.getValue());
       }
@@ -183,16 +228,16 @@ public class InputsPanel extends Composite {
   private void createRequiredCheckBoxColumn() {
     VerticalPanel mp = new VerticalPanel();
     upperLinePanel.add(mp);
-    Label mandatoryLabel = new Label("Required:");
+    Label mandatoryLabel = new Label(myConstants.required() + ":");
     mandatoryLabel.setStyleName("keyLabel");
     mp.add(mandatoryLabel);
-    final CheckBox valueBox = new CheckBox();
-    valueBox.setValue(input.getMandatory());
-    mp.add(valueBox);
-    valueBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+    requiredBox = new CheckBox();
+    requiredBox.setValue(input.getMandatory());
+    mp.add(requiredBox);
+    requiredBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
-      public void onValueChange(ValueChangeEvent arg0) {
-        input.setMandatory(valueBox.getValue());
+      public void onValueChange(ValueChangeEvent<Boolean> arg0) {
+        input.setMandatory(requiredBox.getValue());
       }
     });
   }
@@ -200,21 +245,21 @@ public class InputsPanel extends Composite {
   private void createResponseTypeColumn() {
     VerticalPanel rp = new VerticalPanel();
     upperLinePanel.add(rp);
-    Label responseTypeLabel = new Label("Response Type:");
+    Label responseTypeLabel = new Label(myConstants.responseType() + ":");
     responseTypeLabel.setStyleName("keyLabel");
     rp.add(responseTypeLabel);
 
-    final ListBox responseType = new ListBox();
-    responseType.addItem(InputDAO.LIKERT_SMILEYS);    
-    responseType.addItem(InputDAO.LIKERT);
-    responseType.addItem(InputDAO.OPEN_TEXT);
-    responseType.addItem(InputDAO.LIST);
-    responseType.addItem(InputDAO.NUMBER);
-    responseType.addItem(InputDAO.LOCATION);
-    responseType.addItem(InputDAO.PHOTO);
-    // responseType.addItem(InputDAO.SOUND);
-    // responseType.addItem(InputDAO.ACTIVITY);
-    responseType.setVisibleItemCount(1);
+    responseTypeListBox = new ListBox();
+    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);    
+    responseTypeListBox.addItem(InputDAO.LIKERT);
+    responseTypeListBox.addItem(InputDAO.OPEN_TEXT);
+    responseTypeListBox.addItem(InputDAO.LIST);
+    responseTypeListBox.addItem(InputDAO.NUMBER);
+    responseTypeListBox.addItem(InputDAO.LOCATION);
+    responseTypeListBox.addItem(InputDAO.PHOTO);
+//    responseType.addItem(InputDAO.SOUND);
+//    responseType.addItem(InputDAO.ACTIVITY);
+    responseTypeListBox.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
     for (int i = 0; i < InputDAO.RESPONSE_TYPES.length; i++) {
       if (InputDAO.RESPONSE_TYPES[i].equals(input.getResponseType())) {
@@ -222,97 +267,170 @@ public class InputsPanel extends Composite {
         break;
       }
     }
-    responseType.setItemSelected(responseTypeSelectedIndex, true);
-    rp.add(responseType);
+    responseTypeListBox.setItemSelected(responseTypeSelectedIndex, true);
+    rp.add(responseTypeListBox);
 
-    responseType.addChangeHandler(new ChangeHandler() {
+    responseTypeListBox.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
-        input.setResponseType(responseType.getItemText(responseType.getSelectedIndex()));
+        input.setResponseType(responseTypeListBox.getItemText(responseTypeListBox.getSelectedIndex()));
         responseView.drawWidgetForInput(input);
-        inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        // inputPromptTextPanel.setVisible(!input.isInvisibleInput());
+        updateAllConditionalConfigurations();
       }
     });
+    responseTypeListBox.addMouseDownHandler(this);
+  }
+  
+  protected void updateAllConditionalConfigurations() {
+    parent.updateConditionalConfigurations(this);
+  }
+  
+  protected void updateAllConditionalsForRename() {
+    parent.updateConditionalsForRename(this);
+  }
+  
+  protected void invalidatePertinentConditionals() {
+    parent.invalidatePertinentConditionals(this);
+  }
+  
+  protected void updateConditionalConfigurationForInput(InputDAO input) {
+    conditionalPanel.updateConditionalConfigurationForInput(input);
+  }
+  
+  protected void invalidateConditionalsForInput(InputDAO input) {
+    conditionalPanel.invalidateConditionalsForInput(input);
+  }
+  
+  protected void deleteConditionalsForInput(InputDAO input) {
+    conditionalPanel.deleteConditionalsForInput(input);
+  }
+  
+  protected void updateConditionalsForOrdering(List<InputDAO> precedingDaos) {
+    conditionalPanel.updateConditionalsForOrdering(precedingDaos);
+  }
+  
+  protected void updateConditionalsForRename(InputDAO input) {
+    conditionalPanel.updateConditionalsForRename(input);
   }
 
   private void createInputTextColumn() {
     inputPromptTextPanel = new VerticalPanel();
     upperLinePanel.add(inputPromptTextPanel);
-    Label valueLabel = new Label("Text Prompt for Input:");
+    Label valueLabel = new Label(myConstants.inputPromptPrompt() + ":");
     valueLabel.setStyleName("keyLabel");
     inputPromptTextPanel.add(valueLabel);
-    final TextBox valueText = new TextBox();
-    valueText.setWidth("350px");
+    inputPromptText = new TextBox();
+    inputPromptText.setWidth("350px");
     if (input.getText() != null) {
-      valueText.setText(input.getText());
+      inputPromptText.setText(input.getText());
     }
-    inputPromptTextPanel.add(valueText);
+    inputPromptTextPanel.add(inputPromptText);
     inputPromptTextPanel.setVisible(!input.isInvisibleInput());
-    valueText.addValueChangeHandler(new ValueChangeHandler<String>() {
-
+    inputPromptText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
       public void onValueChange(ValueChangeEvent<String> arg0) {
-        input.setText(valueText.getText());
+        input.setText(inputPromptText.getText());
       }
     });
+    inputPromptText.addMouseDownHandler(this);
   }
 
   private void createVarNameColumn() {
-    VerticalPanel varNamePanel = new VerticalPanel();
+    varNamePanel = new VerticalPanel();
     upperLinePanel.add(varNamePanel);
-    Label nameLabel = new Label("Name:");
+    Label nameLabel = new Label("* " + myConstants.varName() + ":");
     nameLabel.setStyleName("keyLabel");
     varNamePanel.add(nameLabel);
 
-    final TextBox nameText = new TextBox();
-    nameText.setWidth("75px");
+    varNameText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                           myConstants.varNameSyntaxError());
+    varNameText.setWidth("75px");
     if (input.getName() != null) {
-      nameText.setText(input.getName());
+      varNameText.setText(input.getName());
     }
-    varNamePanel.add(nameText);
-
-    nameText.addChangeHandler(new ChangeHandler() {
-
+    varNamePanel.add(varNameText);
+    varNameText.addValueChangeHandler(new ValueChangeHandler<String>() {
       @Override
-      public void onChange(ChangeEvent event) {
-        input.setName(nameText.getText());
+      public void onValueChange(ValueChangeEvent<String> event) {
+        changeVarNameWithValidationAndHighlight(event.getValue());
       }
-
     });
+    varNameText.addMouseDownHandler(this);
+  }
+  
+  // Visible for testing
+  protected void changeVarNameWithValidationAndHighlight(String varName) {
+    try {    
+      // TODO: incorporate a check for input name uniqueness.
+      input.setName(varName);
+      ExperimentCreationPanel.setPanelHighlight(varNameText, true);
+      varNameText.disableMouseOver();
+      removeVarNameErrorMessage();
+      updateAllConditionalsForRename();
+    } catch (IllegalArgumentException e) {
+      ExperimentCreationPanel.setPanelHighlight(varNameText, false);
+      varNameText.enableMouseOver();
+      addVarNameErrorMessage();
+    }
+  }
+  
+  private void removeVarNameErrorMessage() {
+    parent.removeVarNameErrorMessage(this, varNameText.getMessage());
+  }
+  
+  private void addVarNameErrorMessage() {
+    parent.addVarNameErrorMessage(this, varNameText.getMessage());
+  }
+  
+  public void removeLikertStepsError(String message) {
+    parent.removeLikertScaleErrorMessage(this, message);
+  }
+  
+  public void addLikertStepsError(String message) {
+    parent.addLikertScaleErrorMessage(this, message);
+  }
+  
+  public void removeFirstListChoiceError(String message) {
+    parent.removeFirstListChoiceErrorMessage(this, message);
   }
 
-  private void createScheduledDateColumn(final HorizontalPanel upperLine) {
-    Date scheduledDate;
-    if (input.getScheduleDate() != null) {
-      scheduledDate = new Date(input.getScheduleDate());
-    } else {
-      scheduledDate = new Date();
-      input.setScheduleDate(scheduledDate.getTime());
-    }
-
-    VerticalPanel kp = new VerticalPanel();
-    upperLine.add(kp);
-    DateBox scheduleDatePicker = null;
-    Label datePickerLabel = new Label("Specific Date:");
-    // datePickerLabel.setWordWrap(true);
-    datePickerLabel.setWidth("80px");
-    datePickerLabel.setStyleName("keyLabel");
-    kp.add(datePickerLabel);
-
-    scheduleDatePicker = new DateBox();
-    scheduleDatePicker.setWidth("80px");
-    scheduleDatePicker.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-    scheduleDatePicker.setValue(scheduledDate);
-    kp.add(scheduleDatePicker);
-    scheduleDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-
-      @Override
-      public void onValueChange(ValueChangeEvent<Date> arg0) {
-        input.setScheduleDate(arg0.getValue().getTime());
-      }
-
-    });
+  public void addFirstListChoiceError(String message) {
+    parent.addFirstListChoiceErrorMessage(this, message);
+  }
+  
+  public void removeConditionalError(String message) {
+    parent.removeConditionalErrorMessage(this, message);
+  }
+  
+  public void addConditionalError(String message) {
+    parent.addConditionalErrorMessage(this, message);
   }
 
+  /*
+   * Applying InputsPanel to a widget as a MouseDown handler gives the widget
+   * precedence for and exclusive access to its mouse down events (e.g. clicking
+   * a text field widget should allow text entry rather than enabling dragging
+   * via a MouseDownEvent on the widget's parent panel). Do not use for widgets
+   * with a ClickHandler.
+   */
+  @Override
+  public void onMouseDown(MouseDownEvent event) {
+    event.stopPropagation();
+  }
+
+  // TODO: perhaps create generic mix-in class to allow most panel types to be
+  // draggable.
+  private class DraggableAbsolutePanel extends AbsolutePanel implements HasMouseDownHandlers {
+
+    @Override
+    public HandlerRegistration addMouseDownHandler(MouseDownHandler handler) {
+      return addDomHandler(handler, MouseDownEvent.getType());
+    }
+  }
+  
+  public List<InputDAO> getPrecedingInputsWithVarName(String varName) {
+    return parent.getPrecedingInputsWithVarName(varName, input);
+  }
 
 }

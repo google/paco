@@ -23,17 +23,14 @@ import org.joda.time.DateTime;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.LiveFolders;
 import android.text.TextUtils;
-import android.util.Log;
 
 
 /**
@@ -44,18 +41,17 @@ public class ExperimentProvider extends ContentProvider {
 
   static final String TAG = "ExperimentProvider";
 
-  private static final String DATABASE_NAME = "experiments.db";
-  private static final int DATABASE_VERSION = 10;
+  static final String DATABASE_NAME = "experiments.db";
+  static final int DATABASE_VERSION = 15;
   
-  private static final String EXPERIMENTS_TABLE_NAME = "experiments";
-  private static final String SCHEDULES_TABLE_NAME = "schedules";
+  static final String EXPERIMENTS_TABLE_NAME = "experiments";
+  static final String SCHEDULES_TABLE_NAME = "schedules";
 
-  private static final String INPUTS_TABLE_NAME = "inputs";
-  private static final String EVENTS_TABLE_NAME = "events";
-  private static final String OUTPUTS_TABLE_NAME = "outputs";
-  private static final String FEEDBACK_TABLE_NAME = "feedback";
-  private static final String NOTIFICATION_TABLE_NAME = "notifications";
-
+  static final String INPUTS_TABLE_NAME = "inputs";
+  static final String EVENTS_TABLE_NAME = "events";
+  static final String OUTPUTS_TABLE_NAME = "outputs";
+  static final String FEEDBACK_TABLE_NAME = "feedback";
+  static final String NOTIFICATION_TABLE_NAME = "notifications";
   
   private static HashMap<String, String> liveFolderProjectionMap;
 
@@ -84,144 +80,6 @@ public class ExperimentProvider extends ContentProvider {
   private static final int SCHEDULE_DATATYPE = 16;
   private static final int SCHEDULE_ITEM_DATATYPE = 17;
   
-  /**
-   * This class helps open, create, and upgrade the database file.
-   */
-  private static class DatabaseHelper extends SQLiteOpenHelper {
-
-//	private InputStream sqlInput;
-
-	DatabaseHelper(Context context/*, InputStream in*/) {
-	  super(context, DATABASE_NAME, null, DATABASE_VERSION);
-//	  this.sqlInput = in;
-	}
-
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-	  db.execSQL("CREATE TABLE " + EXPERIMENTS_TABLE_NAME + " ("
-        + ExperimentColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-        + ExperimentColumns.SERVER_ID + " INTEGER,"
-        + ExperimentColumns.TITLE + " TEXT, "
-        + ExperimentColumns.DESCRIPTION + " TEXT, "
-        + ExperimentColumns.CREATOR + " TEXT, "
-        + ExperimentColumns.INFORMED_CONSENT + " TEXT, "
-        + ExperimentColumns.HASH + " TEXT, "
-//        + ExperimentColumns.SCHEDULE_TYPE + " TEXT, "
-        + ExperimentColumns.FIXED_DURATION + " INTEGER, "		  
-        + ExperimentColumns.START_DATE + " INTEGER, "
-        + ExperimentColumns.END_DATE + " INTEGER, "
-//        + ExperimentColumns.DEFAULT_TIME + " INTEGER, "
-//        + ExperimentColumns.ESM_FREQUENCY + " INTEGER, "
-//        + ExperimentColumns.ESM_PERIOD + " INTEGER, "
-        + ExperimentColumns.JOIN_DATE + " INTEGER, "
-        + ExperimentColumns.QUESTIONS_CHANGE + " INTEGER, "
-        + ExperimentColumns.ICON + " BLOB "
-        + ");");
-	  db.execSQL("CREATE TABLE " + SCHEDULES_TABLE_NAME + " ("
-          + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
-          + SignalScheduleColumns.SERVER_ID + " INTEGER, "
-          + SignalScheduleColumns.EXPERIMENT_ID + " INTEGER, "          
-          + SignalScheduleColumns.SCHEDULE_TYPE + " INTEGER, "
-          + SignalScheduleColumns.ESM_FREQUENCY + " INTEGER, "
-          + SignalScheduleColumns.ESM_PERIOD + " INTEGER, "
-          + SignalScheduleColumns.ESM_START_HOUR + " INTEGER, "
-          + SignalScheduleColumns.ESM_END_HOUR + " INTEGER, "
-          + SignalScheduleColumns.ESM_WEEKENDS + " INTEGER, "
-          + SignalScheduleColumns.TIMES_CSV + " TEXT, "
-          + SignalScheduleColumns.REPEAT_RATE + " INTEGER, "
-          + SignalScheduleColumns.WEEKDAYS_SCHEDULED + " INTEGER, "
-          + SignalScheduleColumns.NTH_OF_MONTH + " INTEGER, "
-          + SignalScheduleColumns.BY_DAY_OF_MONTH + " INTEGER, "
-          + SignalScheduleColumns.DAY_OF_MONTH + " INTEGER, "
-          + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
-          + SignalScheduleColumns.USER_EDITABLE + " INTEGER "
-          + ");");
-      db.execSQL("CREATE TABLE " + INPUTS_TABLE_NAME + " ("
-          + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
-          + InputColumns.EXPERIMENT_ID + " INTEGER, "
-          + InputColumns.SERVER_ID + " INTEGER, "
-          + InputColumns.NAME + " TEXT,"
-          + InputColumns.TEXT + " TEXT,"
-          + InputColumns.MANDATORY + " INTEGER,"
-          + InputColumns.SCHEDULED_DATE + " INTEGER,"
-          + InputColumns.QUESTION_TYPE + " INTEGER,"
-          + InputColumns.RESPONSE_TYPE + " INTEGER,"
-          + InputColumns.LIKERT_STEPS + " INTEGER,"
-          + InputColumns.LEFT_SIDE_LABEL + " TEXT,"
-          + InputColumns.RIGHT_SIDE_LABEL + " TEXT,"
-          + InputColumns.LIST_CHOICES_JSON + " TEXT,"
-          + InputColumns.CONDITIONAL + " INTEGER,"
-          + InputColumns.CONDITIONAL_EXPRESSION + " TEXT,"
-          + InputColumns.MULTISELECT + " INTEGER"
-          + ");");
-      db.execSQL("CREATE TABLE " + EVENTS_TABLE_NAME + " ("
-          + EventColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
-          + EventColumns.EXPERIMENT_ID + " INTEGER, "
-          + EventColumns.EXPERIMENT_SERVER_ID + " INTEGER, "
-          + EventColumns.EXPERIMENT_NAME + " TEXT, "
-          + EventColumns.SCHEDULE_TIME + " INTEGER, "
-          + EventColumns.RESPONSE_TIME + " INTEGER,"
-          + EventColumns.UPLOADED + " INTEGER"
-          + ");");
-      db.execSQL("CREATE TABLE " + OUTPUTS_TABLE_NAME + " ("
-          + OutputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-          + OutputColumns.EVENT_ID + " INTEGER, "
-          + OutputColumns.INPUT_SERVER_ID + " INTEGER, "          
-          + OutputColumns.NAME + " TEXT,"
-          + OutputColumns.ANSWER + " TEXT"
-          + ");");
-      db.execSQL("CREATE TABLE " + FEEDBACK_TABLE_NAME + " ("
-          + FeedbackColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
-          + FeedbackColumns.EXPERIMENT_ID + " INTEGER, "
-          + FeedbackColumns.SERVER_ID + " INTEGER, "
-          + FeedbackColumns.FEEDBACK_TYPE + " TEXT,"
-          + FeedbackColumns.TEXT + " TEXT"
-          + ");");
-      
-      db.execSQL("CREATE TABLE " + NOTIFICATION_TABLE_NAME + " ("
-          + NotificationHolderColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "         
-          + NotificationHolderColumns.ALARM_TIME + " INTEGER, "
-          + NotificationHolderColumns.EXPERIMENT_ID + " INTEGER, "
-          + NotificationHolderColumns.NOTICE_COUNT + " INTEGER, "
-          + NotificationHolderColumns.TIMEOUT_MILLIS + " INTEGER"
-          + ");");
-
-//	  insertValues(db);	  
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-	  Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-		  + newVersion + ".");
-	  
-	  if (oldVersion <= 8) {
-      db.execSQL("ALTER TABLE " + INPUTS_TABLE_NAME + " ADD "
-          + InputColumns.MULTISELECT + " INTEGER default 0"
-          + ";");
-	  }  
-	  
-	  if (oldVersion <= 9) {
-	    db.execSQL("ALTER TABLE " + SCHEDULES_TABLE_NAME + " ADD "
-          + SignalScheduleColumns.USER_EDITABLE + " INTEGER default 1"
-          + ";");
-	  }
-      
-	 }
-	
-//	public void insertValues(SQLiteDatabase db) {
-//	  String CurLine = "";
-//	  InputStreamReader converter = new InputStreamReader(sqlInput);
-//	  BufferedReader in = new BufferedReader(converter);
-//	  try {
-//		while ((CurLine = in.readLine()) != null) {
-//		  db.execSQL(CurLine);
-//		}
-//	  } catch (IOException e) {
-//		Log.e(TAG, "error reading insert values");
-//	  }
-//	}
-  }
-
   private SQLiteDatabase db;
   private final UriMatcher uriMatcher;
 

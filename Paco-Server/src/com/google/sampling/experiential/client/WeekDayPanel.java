@@ -16,12 +16,14 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel that allows selection of days of week to schedule an experiment.
@@ -43,11 +45,14 @@ public class WeekDayPanel extends Composite {
   private SignalScheduleDAO schedule;
 
   public WeekDayPanel(boolean multiSelect, SignalScheduleDAO schedule) {
+    MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     this.multiSelect = multiSelect;
+    VerticalPanel verticalPanel = new VerticalPanel();
     Grid grid = new Grid(2, 7);
     grid.setSize("102px", "49px");
-    initWidget(grid);
+    initWidget(verticalPanel);
+    verticalPanel.add(grid);
 
     checkBoxSun = new CheckBox("");
     grid.setWidget(0, 0, checkBoxSun);
@@ -64,13 +69,13 @@ public class WeekDayPanel extends Composite {
     checkBoxSat = new CheckBox("");
     grid.setWidget(0, 6, checkBoxSat);
 
-    grid.setText(1, 0, "S");
-    grid.setText(1, 1, "M");
-    grid.setText(1, 2, "T");
-    grid.setText(1, 3, "W");
-    grid.setText(1, 4, "T");
-    grid.setText(1, 5, "F");
-    grid.setText(1, 6, "S");
+    grid.setText(1, 0, myConstants.sundayInitial());
+    grid.setText(1, 1, myConstants.mondayInitial());
+    grid.setText(1, 2, myConstants.tuesdayInitial());
+    grid.setText(1, 3, myConstants.wednesdayInitial());
+    grid.setText(1, 4, myConstants.thursdayInitial());
+    grid.setText(1, 5, myConstants.fridayInitial());
+    grid.setText(1, 6, myConstants.satdayInitial());
     checkBoxes = new CheckBox[7];
     checkBoxes[0] = checkBoxSun;
     checkBoxes[1] = checkBoxMon;

@@ -14,43 +14,64 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:gravity="center|top"
-	android:layout_gravity="center|top" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center|top"
+    android:gravity="center|top"
+    android:orientation="vertical" >
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical" 
-		android:gravity="center|top"
-		android:layout_gravity="center|top" 
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:layout_weight="1"
+        android:gravity="center|top"
+        android:orientation="vertical" >
 
-		<TextView android:text="Your Current Experiments" android:id="@+id/ExperimentListTitle"
-			android:gravity="center|top" android:layout_gravity="center|top"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:background="@drawable/list_header_background"
-			android:textColor="#ffffff" />
-		<ListView android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:id="@+id/find_experiments_list"
-			android:layout_gravity="center|top" />
-	</LinearLayout>
-	<LinearLayout
-		android:orientation="vertical" 
-		android:gravity="center|top"
-		android:layout_gravity="center|top" 
-		android:layout_width="fill_parent"
-		android:layout_height="50dip"
-		android:layout_weight="0"
-		>
-		<Button android:text="Refresh Experiments List From Server" android:id="@+id/RefreshExperimentsButton2"
-			android:layout_width="fill_parent" android:layout_height="50dip"
-			android:layout_gravity="center" />
-	</LinearLayout>
+        <TextView
+            android:id="@+id/ExperimentListTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@drawable/list_header_background"
+            android:gravity="center|top"
+            android:text="@string/your_current_experiments"
+            android:textColor="#ffffff" />
+        
+        <TextView
+            android:id="@+id/ExperimentRefreshTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@drawable/list_header_background"
+            android:gravity="center|top"
+            android:text="@string/last_refreshed"
+            android:textColor="#ffffff" />
 
+        <ListView
+            android:id="@+id/find_experiments_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center|top" />
+    </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:layout_gravity="center|top"
+        android:layout_weight="0"
+        android:gravity="center|top"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/RefreshExperimentsButton2"
+            android:layout_width="fill_parent"
+            android:layout_height="50dip"
+            android:layout_gravity="center"
+            android:text="@string/refresh_experiments_list_from_server" />
+    </LinearLayout>
 
 </LinearLayout>

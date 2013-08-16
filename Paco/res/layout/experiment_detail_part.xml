@@ -31,48 +31,58 @@
 				android:layout_height="wrap_content" android:orientation="vertical"
 				android:layout_gravity="left">
 				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:text="Description:"
+					android:layout_height="wrap_content" android:text="@string/description"
 					android:textStyle="bold" android:textSize="16dip" android:gravity="left"
 					android:layout_gravity="left"></TextView>
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:textSize="16dip"
-					android:id="@+id/description" android:text="description" />
+					android:id="@+id/description" android:text="@string/description" />
 
 			</LinearLayout>
 			<LinearLayout android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:orientation="horizontal"
-				android:layout_gravity="left">
-				<LinearLayout android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:orientation="vertical"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:layout_gravity="left">
+
+                <LinearLayout
+                    android:id="@+id/scheduleDisplayPanel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:orientation="vertical" >
+
+                    <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:textStyle="bold"
+                        android:text="@string/schedule" android:layout_gravity="left"></TextView>
+                    <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="@string/schedule"
+                        android:id="@+id/schedule" android:layout_gravity="left"></TextView>
+                </LinearLayout>
+                
+	            <LinearLayout android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:orientation="horizontal"
 					android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="Schedule: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="schedule"
-						android:id="@+id/schedule" android:layout_gravity="left"></TextView>
+					<LinearLayout android:layout_width="wrap_content"
+						android:id="@+id/startDatePanel" android:layout_height="wrap_content"
+						android:orientation="vertical" android:layout_gravity="left">
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textStyle="bold"
+							android:text="@string/start_date" android:layout_gravity="left"></TextView>
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:text="@string/start_date"
+							android:id="@+id/startDate" android:layout_gravity="left"></TextView>
+					</LinearLayout>
+					<LinearLayout android:layout_width="wrap_content"
+						android:id="@+id/endDatePanel" android:layout_height="wrap_content"
+						android:orientation="vertical" android:layout_gravity="left">
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:textStyle="bold"
+							android:text="@string/end_date" android:layout_gravity="left"></TextView>
+						<TextView android:layout_width="wrap_content"
+							android:layout_height="wrap_content" android:text="@string/end_date"
+							android:id="@+id/endDate" android:layout_gravity="left"></TextView>
+					</LinearLayout>
 				</LinearLayout>
-				<LinearLayout android:layout_width="wrap_content"
-					android:id="@+id/startDatePanel" android:layout_height="wrap_content"
-					android:orientation="vertical" android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="Start Date: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="starts"
-						android:id="@+id/startDate" android:layout_gravity="left"></TextView>
-				</LinearLayout>
-				<LinearLayout android:layout_width="wrap_content"
-					android:id="@+id/endDatePanel" android:layout_height="wrap_content"
-					android:orientation="vertical" android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="End Date: " android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="end"
-						android:id="@+id/endDate" android:layout_gravity="left"></TextView>
-				</LinearLayout>
-			</LinearLayout>
+			</LinearLayout>	
 			<LinearLayout android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:orientation="horizontal"
 				android:layout_gravity="left">
@@ -83,9 +93,9 @@
 					android:layout_gravity="left">
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="ESM Frequency: " android:layout_gravity="left"></TextView>
+						android:text="@string/esm_frequency" android:layout_gravity="left"></TextView>
 					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="end"
+						android:layout_height="wrap_content" android:text=""
 						android:id="@+id/esm_frequency" android:layout_gravity="left"></TextView>
 				</LinearLayout>
 				<LinearLayout android:layout_width="wrap_content"
@@ -94,9 +104,9 @@
 					android:layout_gravity="left">
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="Scheduled Time: " android:layout_gravity="left"></TextView>
+						android:text="@string/scheduled_time" android:layout_gravity="left"></TextView>
 					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="end"
+						android:layout_height="wrap_content" android:text=""
 						android:id="@+id/time" android:layout_gravity="left"></TextView>
 				</LinearLayout>
 
@@ -105,11 +115,11 @@
 					android:layout_height="wrap_content" android:orientation="vertical"
 					android:layout_gravity="left">
 					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text="Creator: "
+						android:layout_height="wrap_content" android:text="@string/creator"
 						android:textStyle="bold" android:layout_gravity="left" />
 					<TextView android:layout_width="wrap_content"
 						android:layout_height="wrap_content" android:id="@+id/creator"
-						android:text="creator" android:layout_gravity="left" />
+						android:text="" android:layout_gravity="left" />
 				</LinearLayout>
 			</LinearLayout>
 <!--		</LinearLayout>-->

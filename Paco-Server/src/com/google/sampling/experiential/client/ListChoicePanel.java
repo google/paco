@@ -20,6 +20,7 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseDownHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -37,15 +38,17 @@ import com.google.gwt.user.client.ui.TextBox;
  *
  */
 public class ListChoicePanel extends Composite {
-
+  
   private ListChoicesPanel parent;
   private HorizontalPanel horizontalPanel;
-  private TextBox textField;
+  
+  // Visible for testing
+  protected MouseOverTextBoxBase textField;
 
   /**
    * @param listChoicesPanel
    */
-  public ListChoicePanel(ListChoicesPanel listChoicesPanel) {
+  public ListChoicePanel(ListChoicesPanel listChoicesPanel, MouseDownHandler textFieldMouseDownHandler) {
     this.parent = listChoicesPanel;
     horizontalPanel = new HorizontalPanel();
     horizontalPanel.setSpacing(2);
@@ -53,18 +56,24 @@ public class ListChoicePanel extends Composite {
     initWidget(horizontalPanel);
     horizontalPanel.setWidth("258px");
 
-    Label lblTime = new Label("Choice: ");
+    String choiceLabel = "Choice: ";
+    if (isFirstPanel()) {
+      choiceLabel = "* " + choiceLabel;
+    }
+    Label lblTime = new Label(choiceLabel);
     lblTime.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblTime);
-    lblTime.setWidth("45px");
+    lblTime.setWidth("57px");
 
-    textField = new TextBox();
+    textField = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                         parent.getListChoiceErrorMessage());
     horizontalPanel.add(textField);
-    textField.addValueChangeHandler(new ValueChangeHandler() {
-      public void onValueChange(ValueChangeEvent event) {
-        updateChoice();
+    textField.addValueChangeHandler(new ValueChangeHandler<String>() {
+      public void onValueChange(ValueChangeEvent<String> event) {
+        setInputListChoiceAndHighlight();
       }
     });
+    textField.addMouseDownHandler(textFieldMouseDownHandler);
 
     Button btnDelete = new Button("-");
     btnDelete.addClickHandler(new ClickHandler() {
@@ -85,8 +94,30 @@ public class ListChoicePanel extends Composite {
 
     });
   }
+  
+  public void setInputListChoiceAndHighlight() {
+    try {
+      updateChoice();
+      ExperimentCreationPanel.setPanelHighlight(textField, true);
+      ensureListChoicesErrorNotFired();
+      textField.disableMouseOver();
+    } catch (IllegalArgumentException e) {
+      invalidatePertienentConditionals();
+      ExperimentCreationPanel.setPanelHighlight(textField, false);
+      textField.enableMouseOver();
+      fireListChoicesError();
+    }
+  }
 
-  protected void updateChoice() {
+  private void fireListChoicesError() {
+    parent.addFirstListChoiceError();
+  }
+  
+  public void ensureListChoicesErrorNotFired() {
+    parent.removeFirstListChoiceError();
+  }
+
+  protected void updateChoice() throws IllegalArgumentException {
     parent.updateChoice(this);
   }
 
@@ -94,21 +125,29 @@ public class ListChoicePanel extends Composite {
     parent.addChoice(this);
   }
 
-  private void deleteThis() {
+  // Visible for testing.
+  protected void deleteThis() {
     parent.deleteChoice(this);
   }
 
-  /**
-   * @return
-   */
   public String getChoice() {
     return textField.getText();
   }
 
   public void setChoice(String choice) {
-    textField.setText(choice);
+    setChoice(choice, false);
   }
-
-
+  
+  public void setChoice(String choice, boolean fireEvents) {
+    textField.setValue(choice, fireEvents);
+  }
+  
+  private boolean isFirstPanel() {
+    return parent.hasNoChildren();
+  }
+  
+  private void invalidatePertienentConditionals() {
+    parent.invalidatePertienentConditionals();
+  }
 
 }

@@ -41,11 +41,15 @@ public class SignalScheduleColumns implements BaseColumns {
   public static final String DAY_OF_MONTH  = "day_of_month";
   public static final String BEGIN_DATE  = "begin_date";
   public static final String USER_EDITABLE = "user_editable";
+  public static final String TIME_OUT = "timeout";
+  public static final String MINIMUM_BUFFER = "minimum_buffer";
   
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.schedule";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.schedule";
   
   public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/schedules");
+  
+  
 
   
   

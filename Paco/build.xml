@@ -83,5 +83,25 @@
 
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+    
+    <!--  override the signjar task to deal with jdk1.7 changes in jarsign tool. Note this requires ant 1.8.3 or better. -->
+<!--    <signjar
+                    sigalg="MD5withRSA"
+                    digestalg="SHA1"
+                    jar="${out.packaged.file}"
+                    signedjar="${out.unaligned.file}"
+                    keystore="${key.store}"
+                    storepass="${key.store.password}"
+                    alias="${key.alias}"
+                    keypass="${key.alias.password}"
+                    verbose="${verbose}" />
+-->
 
+  <target name="build-shared">
+    <subant target="copy-shared">
+      <fileset dir=".." includes="build.xml"/>
+    </subant>
+  </target>
+
+    <target name="-setup" depends="build-shared,android_rules.-setup,-check-env"></target>
 </project>

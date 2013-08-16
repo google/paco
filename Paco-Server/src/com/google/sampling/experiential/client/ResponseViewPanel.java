@@ -18,14 +18,16 @@
 
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.InputDAO;
 
 
 /**
@@ -36,15 +38,23 @@ import com.google.sampling.experiential.shared.InputDAO;
  */
 @SuppressWarnings("deprecation")
 public class ResponseViewPanel extends Composite {
-
+  private MyConstants myConstants;
+  
   private HorizontalPanel mainPanel;
   private InputDAO input;
-  private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
+  
+  private InputsPanel parent;
+  
+  // Visible for testing
+  protected ListChoicesPanel listChoicesPanel;
+  protected MouseOverTextBoxBase stepsText;
 
-  public ResponseViewPanel(InputDAO input) {
+  public ResponseViewPanel(InputDAO input, InputsPanel parent) {
     super();
+    myConstants = GWT.create(MyConstants.class);
+    this.parent = parent;
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
     drawWidgetForInput(input);
@@ -53,6 +63,12 @@ public class ResponseViewPanel extends Composite {
   public void drawWidgetForInput(InputDAO input) {
     this.input = input;
     mainPanel.clear();
+    
+    // Note: since response view panel content is re-drawn each time response type
+    // is changed, we need only remove errors and do not need to check the
+    // re-drawn panels for errors.
+    removeResponseTypeErrors();
+    
     String responseType = input.getResponseType();
     if (responseType == null  || responseType.equals(InputDAO.LIKERT_SMILEYS)
         || responseType.equals(InputDAO.OPEN_TEXT)) {
@@ -71,11 +87,33 @@ public class ResponseViewPanel extends Composite {
     line.setStyleName("left");
   }
 
+  private void removeResponseTypeErrors() {
+    if (stepsText != null) {
+      parent.removeLikertStepsError(stepsText.getMessage());
+    } 
+    if (listChoicesPanel != null) {
+      parent.removeFirstListChoiceError(listChoicesPanel.getListChoiceErrorMessage());
+    }
+  }
+
   private void drawListPanel() {
-    ListChoicesPanel outer = new ListChoicesPanel(input);
-    outer.setStyleName("left");
-    mainPanel.add(outer);
-    // outer.add(new HTML("List responses not implemented yet!"));
+    listChoicesPanel = new ListChoicesPanel(input, parent, this);
+    listChoicesPanel.setStyleName("left");
+    mainPanel.add(listChoicesPanel);
+  }
+  
+  public void checkListChoicesAreNotEmptyAndHighlight() {
+    listChoicesPanel.checkListChoicesAreNotEmptyAndHighlight();
+  }
+  
+  public void ensureListChoicesErrorNotFired() {
+    if (listChoicesPanel != null) {
+      listChoicesPanel.ensureListChoicesErrorNotFired();
+    }
+  }
+  
+  public ListChoicesPanel getListChoicesPanel() {
+    return listChoicesPanel;
   }
 
   private void drawLikertStepsPanel() {
@@ -83,7 +121,8 @@ public class ResponseViewPanel extends Composite {
     outer.setStyleName("left");
     mainPanel.add(outer);
     outer.add(GWTUtil.createLabel("Number of steps in scale"));
-    stepsText = new TextBox();
+    stepsText = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX,
+                                         myConstants.likertStepsMustBeValid());
     outer.add(stepsText);
 
     outer.add(GWTUtil.createLabel("Left side label"));
@@ -93,9 +132,9 @@ public class ResponseViewPanel extends Composite {
     rightSideText = new TextBox();
     outer.add(rightSideText);
     setLikertValueInWidget();
-    ChangeHandler handler = new ChangeHandler() {
+    ValueChangeHandler<String> handler = new ValueChangeHandler<String>() {
       @Override
-      public void onChange(ChangeEvent event) {
+      public void onValueChange(ValueChangeEvent<String> event) {
         getLikertStepsFromText();
       }
 
@@ -103,24 +142,49 @@ public class ResponseViewPanel extends Composite {
         try {
           Integer steps = Integer.valueOf(stepsText.getValue());
           input.setLikertSteps(steps);
+          removeLikertStepsError();
 
           String leftSideLabel = leftSideText.getValue();
           input.setLeftSideLabel(leftSideLabel);
 
           String rightSideLabel = rightSideText.getValue();
           input.setRightSideLabel(rightSideLabel);
+          updateAllConditionals();
         } catch (NumberFormatException e) {
-          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+//          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+          handleLikertStepsError();
+          invalidatePertinentConditionals();
+        } catch (IllegalArgumentException e) {
+          handleLikertStepsError();
+          invalidatePertinentConditionals();
         }
       }
+
+      private void removeLikertStepsError() {
+        ExperimentCreationPanel.setPanelHighlight(stepsText, true);
+        stepsText.disableMouseOver();
+        parent.removeLikertStepsError(stepsText.getMessage());
+      }
+
+      private void handleLikertStepsError() {
+        ExperimentCreationPanel.setPanelHighlight(stepsText, false);
+        stepsText.enableMouseOver();
+        parent.addLikertStepsError(stepsText.getMessage());
+      }
     };
-    stepsText.addChangeHandler(handler);
-    leftSideText.addChangeHandler(handler);
-    rightSideText.addChangeHandler(handler);
+    stepsText.addValueChangeHandler(handler);
+    leftSideText.addValueChangeHandler(handler);
+    rightSideText.addValueChangeHandler(handler);
+    
+    // Let InputsPanel handle mouse down events due to InputsPanel draggability.
+    stepsText.addMouseDownHandler(parent);
+    leftSideText.addMouseDownHandler(parent);
+    rightSideText.addMouseDownHandler(parent);
   }
 
   private void setLikertValueInWidget() {
     if (input.getLikertSteps() == null) {
+      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
       stepsText.setValue(Integer.toString(InputDAO.DEFAULT_LIKERT_STEPS));
     } else {
       stepsText.setValue(Integer.toString(input.getLikertSteps()));
@@ -135,5 +199,21 @@ public class ResponseViewPanel extends Composite {
 
   public InputDAO getInput() {
     return input;
+  }
+
+  public void addFirstListChoiceError(String message) {
+    parent.addFirstListChoiceError(message);
+  }
+
+  public void removeFirstListChoiceError(String message) {
+    parent.removeFirstListChoiceError(message);
+  }
+  
+  protected void updateAllConditionals() {
+    parent.updateAllConditionalConfigurations();
+  }
+  
+  protected void invalidatePertinentConditionals() {
+    parent.invalidatePertinentConditionals();
   }
 }
