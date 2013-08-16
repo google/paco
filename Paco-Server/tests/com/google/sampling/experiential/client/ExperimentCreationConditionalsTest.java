@@ -35,6 +35,7 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
       VALID_NAME_1 + " == 5";
   public static final String INVALID_VARNAME_CONDITIONAL = "1q > 3";
   public static final String INVALID_UNBALANCED_PARENS_CONDITIONAL = "((q1 > 3) && q2 == 5";
+  public static final String INVALID_LIKERT_OUT_OF_BOUNDS_CONDITIONAL = VALID_NAME_2 + " > 19";
   private static final String VALID_SIMPLE_CONDITIONAL_TAIL = " > 3";
   
   public static final Integer NON_DEFAULT_LIKERT_STEPS = 8;
@@ -153,11 +154,11 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     assertFalse(experimentCreationPanel.canSubmit());
 
     // Set valid conditional for first input. Fire events.
-    secondInputConditionalText.setValue(VALID_COMPOUND_CONDITIONAL, true);
+    secondInputConditionalText.setValue(VALID_SIMPLE_CONDITIONAL, true);
     assertFalse(experimentCreationPanel.canSubmit());
 
     // Set valid conditional for second input. Fire events.
-    thirdInputConditionalText.setValue(VALID_SIMPLE_CONDITIONAL, true);
+    thirdInputConditionalText.setValue(VALID_COMPOUND_CONDITIONAL, true);
     assertTrue(experimentCreationPanel.canSubmit());
   }
   
@@ -415,6 +416,31 @@ public class ExperimentCreationConditionalsTest extends GWTTestCase {
     
     // Ensure first list choice panel is still invalid.
     assertFalse(firstInputFirstExpressionPanel.isValid());
+  }
+  
+  public void testEnteringTextConditionalWithInvalidInputNameDoesNotSubmit() {
+    // Get inputs panels and pertinent fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel secondInputsPanel = firstInputsListPanel.inputsPanelsList.get(1);
+    MouseOverTextBoxBase secondInputConditionalText = 
+        secondInputsPanel.conditionalPanel.conditionDisplayTextBox;
+
+    // Set conditional for second input based on second and third input (disallowed).
+    secondInputConditionalText.setValue(VALID_COMPOUND_CONDITIONAL, true);
+    assertFalse(experimentCreationPanel.canSubmit());
+  }
+  
+  public void testEnteringTextConditionalWithOutOfBoundsPredicateDoesNotSubmit() {
+    // Get inputs panels' conditional text fields.
+    InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
+    InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
+    MouseOverTextBoxBase thirdInputConditionalText = 
+        thirdInputsPanel.conditionalPanel.conditionDisplayTextBox;
+    
+    // Set conditional with valid syntax but out-of-bounds predicate for third input. 
+    // Fire events.
+    thirdInputConditionalText.setValue(INVALID_LIKERT_OUT_OF_BOUNDS_CONDITIONAL, true);
+    assertFalse(experimentCreationPanel.canSubmit());
   }
   
   private ExperimentDAO createExperimentWithNumberLikertLikertsmileys() {
