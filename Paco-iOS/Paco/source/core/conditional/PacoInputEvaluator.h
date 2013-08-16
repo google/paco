@@ -13,12 +13,24 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
 
+#import <Foundation/Foundation.h>
 @class PacoExperiment;
+@class PacoExperimentInput;
 
-@interface PacoQuestionScreenViewController : UIViewController
+/* 
+ NOTE: The evaluation of conditions assumes:
+ - The conditianl relationship is linear, the dependency input should always be in the position 
+   before other questions it decides
+ **/
 
-- (id)initWithExperiment:(PacoExperiment*)experiment;
+@interface PacoInputEvaluator : NSObject
+@property(nonatomic, strong, readonly) PacoExperiment* experiment;
+@property(nonatomic, strong, readonly) NSArray* visibleInputs;
+
++ (PacoInputEvaluator*)evaluatorWithExperiment:(PacoExperiment*)experiment;
+- (NSError*)validateVisibleInputs;
+- (NSArray*)evaluateAllInputs;
+
 
 @end
