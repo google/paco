@@ -74,13 +74,16 @@
 
 - (void)updateUIWithError:(NSError*)error
 {
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  if (error) {
-    tableView.data = [NSArray array];
-    [PacoAlertView showGeneralErrorAlert];
-  }else{
-    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
-  }
+  //send UI update to main thread to avoid potential crash
+  dispatch_async(dispatch_get_main_queue(), ^{
+    PacoTableView* tableView = (PacoTableView*)self.view;
+    if (error) {
+      tableView.data = [NSArray array];
+      [PacoAlertView showGeneralErrorAlert];
+    }else{
+      tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+    }
+  });
 }
 
 
