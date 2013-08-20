@@ -165,7 +165,7 @@
       [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
            [PacoClient sharedInstance].serverDomain,
            experiment.experimentId,
-           [PacoClient sharedInstance].userEmail];//self.authenticator.auth.userEmail];
+           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request =

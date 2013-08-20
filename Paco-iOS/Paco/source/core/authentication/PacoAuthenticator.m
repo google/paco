@@ -22,6 +22,11 @@
 #import "GTMOAuth2ViewControllerTouch.h"
 #import "PacoClient.h"
 
+
+NSString* const kUserEmail = @"PacoAuthenticator.userEmail";
+NSString* const kUserPassword = @"PacoAuthenticator.userPassword";
+
+
 typedef void (^PacoAuthenticationBlock)(NSError *);
 
 @interface PacoAuthenticator () <GoogleClientLoginDelegate>
@@ -31,9 +36,61 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 @property(nonatomic, readwrite, copy) PacoAuthenticationBlock completionHandler;
 @property(nonatomic, readwrite, copy) NSString *cookie;
 @property(nonatomic, readwrite, assign) BOOL userLoggedIn;
+
+@property(nonatomic, readwrite, strong) NSString* accountEmail;
+@property(nonatomic, readwrite, strong) NSString* accountPassword;
+
+
 @end
 
 @implementation PacoAuthenticator
+
+#pragma mark - log in status
+- (BOOL)isUserAccountStored
+{
+  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
+  NSString* pwd = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
+  if ([email length] > 0 && [pwd length] > 0) {
+    return YES;
+  }
+  return NO;
+}
+
+- (void)storeAccount {
+  NSAssert([self.accountEmail length] > 0 && [self.accountPassword length] > 0,
+           @"There isn't any valid user account to stored!");
+  [[NSUserDefaults standardUserDefaults] setObject:self.accountEmail forKey:kUserEmail];
+  [[NSUserDefaults standardUserDefaults] setObject:self.accountPassword forKey:kUserPassword];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)deleteAccount {
+  self.accountEmail = nil;
+  self.accountPassword = nil;
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserEmail];
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserPassword];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)isLoggedIn
+{
+  //YMZ:TODO:
+  return self.userLoggedIn;
+}
+
+- (NSString*)userEmail {
+  if (self.accountEmail == nil) {
+    self.accountEmail = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail]; 
+  }
+  return self.accountEmail;
+}
+
+- (NSString*)userPassword {
+  if (self.accountPassword == nil) {
+    self.accountPassword = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
+  }
+  return self.accountPassword;
+}
 
 
 #pragma mark - ClientLogin
@@ -41,6 +98,8 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 - (void)authenticateWithClientLogin:(NSString *)email
                            password:(NSString *)password
                   completionHandler:(void (^)(NSError *))completionHandler {
+  self.accountEmail = email;
+  self.accountPassword = password;
   self.completionHandler = completionHandler;
   _appEngineAuth = [[GoogleAppEngineAuth alloc] initWithDelegate:self
                                                        andAppURL:[NSURL URLWithString:[PacoClient sharedInstance].serverDomain]];
@@ -122,13 +181,6 @@ Deep Linking:	Enabled
 }
 
 
-- (BOOL)isLoggedIn
-{
-  //YMZ:TODO:
-  return self.userLoggedIn;
-}
-
-
 #pragma mark - GoogleClientLoginDelegate
 
 -(void)authSucceeded:(NSString *)authKey {
@@ -136,6 +188,9 @@ Deep Linking:	Enabled
   self.userLoggedIn = YES;
   
   self.cookie = [NSString stringWithFormat:@"SACSID=%@", authKey];
+  
+  [self storeAccount];
+
   if (self.completionHandler) {
     self.completionHandler(nil);
   }
@@ -145,6 +200,8 @@ Deep Linking:	Enabled
   NSLog(@"PACO CLIENT LOGIN AUTH FAILED [%@]", error);
   self.userLoggedIn = NO;
   
+  [self deleteAccount];
+  
   if (self.completionHandler) {
     self.completionHandler([NSError errorWithDomain:error code:-1 userInfo:nil]);
   }
@@ -152,6 +209,8 @@ Deep Linking:	Enabled
 
 -(void)authCaptchaTestNeededFor:(NSString *)captchaToken withCaptchaURL:(NSURL *)captchaURL {
   NSLog(@"PACO CLIENT LOGIN AUTH CAPTCHA TEST NEEDED FOR %@ %@", captchaToken, captchaURL);
+  self.userLoggedIn = NO;
+  [self deleteAccount];
   if (self.completionHandler) {
     self.completionHandler([NSError errorWithDomain:@"NEEDS CAPTCHA" code:-1 userInfo:nil]);
   }

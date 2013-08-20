@@ -15,6 +15,10 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString* const kUserEmail;
+extern NSString* const kUserPassword;
+
+
 @class GTMOAuth2Authentication;
 
 @interface PacoAuthenticator : NSObject
@@ -30,6 +34,10 @@
 
 - (BOOL)isLoggedIn;
 
+- (BOOL)isUserAccountStored;
+
+- (NSString*)userEmail;
+- (NSString*)userPassword;
 
 @end
 

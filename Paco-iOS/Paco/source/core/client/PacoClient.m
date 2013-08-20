@@ -26,8 +26,6 @@
 #import "PacoEventManager.h"
 
 
-static NSString* const kUserEmail = @"PacoClient.userEmail";
-static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -69,7 +67,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
-@property (nonatomic, retain, readwrite) NSString* userEmail;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
 
 - (void)prefetch;
@@ -118,37 +115,24 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   return [self.authenticator isLoggedIn];
 }
 
-
-//YMZ: TODO: we need to store user email and address inside keychain
-//However, if we migrate to OAuth2, it looks like GTMOAuth2ViewControllerTouch
-//already handles keychain storage
-- (BOOL)isUserAccountStored
-{
-  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
-  NSString* pwd = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
-  if ([email length] > 0 && [pwd length] > 0) {
-    return YES;
-  }
-  return NO;
+- (BOOL)isUserAccountStored {
+  return [self.authenticator isUserAccountStored];
 }
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId {
   return [self.model isExperimentJoined:definitionId];
 }
 
-- (void)storeEmail:(NSString*)email password:(NSString*)password
-{
-  NSAssert([email length] > 0 && [password length] > 0, @"There isn't any valid user account to stored!");
-  [[NSUserDefaults standardUserDefaults] setObject:email forKey:kUserEmail];
-  [[NSUserDefaults standardUserDefaults] setObject:password forKey:kUserPassword];
+- (NSString*)userEmail {
+  return [self.authenticator userEmail];
 }
 
 - (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler
 {
-  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
+  NSString* email = [self.authenticator userEmail];
   NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
   
-  NSString* password = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
+  NSString* password = [self.authenticator userPassword];
   NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
   
   [self loginWithClientLogin:email password:password completionHandler:completionHandler];
@@ -158,7 +142,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn] && [self.userEmail isEqualToString:email]) {
+  if ([self.authenticator isLoggedIn] && [[self userEmail] isEqualToString:email]) {
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -169,10 +153,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                     if (!error) {
                                       // Authorize the service.
                                       self.service.authenticator = self.authenticator;
-                                      self.userEmail = email;
-                                      
-                                      [self storeEmail:email password:password];
-                                      
+                                                                            
                                       // Fetch the experiment definitions and the events of joined experiments.
                                       [self prefetch];
                                       
