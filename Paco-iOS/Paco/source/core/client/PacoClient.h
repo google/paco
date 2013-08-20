@@ -49,10 +49,6 @@
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
-- (void)loginWithClientLogin:(NSString *)email
-                    password:(NSString *)password
-           completionHandler:(void (^)(NSError *))completionHandler;
-
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
