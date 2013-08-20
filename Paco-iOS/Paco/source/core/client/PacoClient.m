@@ -167,30 +167,26 @@
     return;
   }
   
-  if ([self isUserAccountStored]) {
-    NSString* email = [self.authenticator userEmail];
-    NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
-    
-    NSString* password = [self.authenticator userPassword];
-    NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
-
-    
-    [self loginWithClientLogin:email password:password completionHandler:^(NSError* error) {
-      //YMZ:TODO: proper error handling: offline, 500, 400, authentication error
-      if (error) {
-        [self showLoginScreenWithCompletionBlock:block];
-      }else{
-        if (block != nil) {
-          block(nil);
-        }
-      }
-    }];
-  }else{
+  if (![self isUserAccountStored]) {
     [self showLoginScreenWithCompletionBlock:block];
+    return;
   }
   
-  
-  
+  NSString* email = [self.authenticator userEmail];
+  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
+  NSString* password = [self.authenticator userPassword];
+  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
+
+  [self loginWithClientLogin:email password:password completionHandler:^(NSError* error) {
+    //YMZ:TODO: proper error handling: offline, 500, 400, authentication error
+    if (error) {
+      [self showLoginScreenWithCompletionBlock:block];
+    }else{
+      if (block != nil) {
+        block(nil);
+      }
+    }
+  }];
   // Attempt a PACO login.
   /*
    [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
@@ -208,27 +204,22 @@
    */
 }
 
-
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  if ([self isLoggedIn] && [[self userEmail] isEqualToString:email]) {
-    if (completionHandler != nil) {
-      completionHandler(nil);
-    }
-  }else{
-    [self.authenticator authenticateWithClientLogin:email//@"paco.test.gv@gmail.com"
-                                           password:password//@"qwertylkjhgf"
-                                  completionHandler:^(NSError *error) {
-                                    if (!error) {
-                                      [self startWorkingAfterLogIn];
-                                      completionHandler(nil);
-                                    } else {
-                                      completionHandler(error);
-                                    }
-                                  }];    
-  }
+  NSAssert(![self isLoggedIn], @"user should not be logged in!");
+  [self.authenticator authenticateWithClientLogin:email
+                                         password:password
+                                completionHandler:^(NSError *error) {
+                                  if (!error) {
+                                    [self startWorkingAfterLogIn];
+                                    completionHandler(nil);
+                                  } else {
+                                    completionHandler(error);
+                                  }
+                                }];    
 }
+
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
   if ([self isLoggedIn]) {
