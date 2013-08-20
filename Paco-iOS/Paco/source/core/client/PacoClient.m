@@ -24,7 +24,7 @@
 #import "PacoEvent.h"
 #import "Reachability.h"
 #import "PacoEventManager.h"
-
+#import "PacoAppDelegate.h"
 
 
 @interface PacoPrefetchState : NSObject
@@ -125,6 +125,59 @@
 
 - (NSString*)userEmail {
   return [self.authenticator userEmail];
+}
+
+
+#pragma mark bring up login flow if necessary
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
+{
+  PacoLoginScreenViewController *loginViewController =
+      [PacoLoginScreenViewController controllerWithCompletionBlock:block];
+  
+  UINavigationController* navi = (UINavigationController*)
+      ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
+  [navi presentViewController:loginViewController animated:YES completion:nil];
+}
+
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
+  if ([self isLoggedIn]) {
+    if (block) {
+      block(nil);
+    }
+    return;
+  }
+  
+  if ([self isUserAccountStored]) {
+    [self loginWithCompletionHandler:^(NSError* error) {
+      if (error) {
+        [self showLoginScreenWithCompletionBlock:block];
+      }else{
+        if (block != nil) {
+          block(nil);
+        }
+      }
+    }];
+  }else{
+    [self showLoginScreenWithCompletionBlock:block];
+  }
+  
+  
+  
+  // Attempt a PACO login.
+  /*
+   [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
+   if (!error) {
+   NSLog(@"PACO LOGIN SUCCESS!");
+   
+   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+   if (notification) {
+   [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
+   }
+   } else {
+   NSLog(@"PACO LOGIN FAILURE! %@", error);
+   }
+   }];
+   */
 }
 
 - (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler

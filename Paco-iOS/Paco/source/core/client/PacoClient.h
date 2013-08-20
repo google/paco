@@ -14,6 +14,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "PacoLoginScreenViewController.h"
 
 @class PacoAuthenticator;
 @class PacoLocation;
@@ -44,17 +45,15 @@
 
 + (PacoClient *)sharedInstance;
 
-- (BOOL)isLoggedIn;
 - (NSString*)userEmail;
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
-- (BOOL)isUserAccountStored;
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler;
-- (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler;
 
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 
