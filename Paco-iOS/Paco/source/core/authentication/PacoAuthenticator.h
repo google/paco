@@ -34,6 +34,8 @@ extern NSString* const kUserPassword;
 
 - (BOOL)isLoggedIn;
 
+- (BOOL)setupWithCookie;
+
 - (BOOL)isUserAccountStored;
 
 - (NSString*)userEmail;

@@ -74,9 +74,31 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 - (BOOL)isLoggedIn
 {
-  //YMZ:TODO:
   return self.userLoggedIn;
 }
+
+- (BOOL)setupWithCookie {
+  NSURL* url = [NSURL URLWithString:[PacoClient sharedInstance].serverDomain];
+  NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+  if (0 == [cookies count]) {
+    return NO;
+  }
+  NSHTTPCookie* cookie = [cookies objectAtIndex:0];
+  NSDate* expireDate = cookie.expiresDate;
+  if (expireDate == nil) {
+    return NO;
+  }
+  NSTimeInterval interval = [expireDate timeIntervalSinceNow];
+  if (interval > 0) {
+    self.userLoggedIn = YES;
+    self.cookie = cookie.value;
+  } else {
+    self.userLoggedIn = NO;
+    self.cookie = nil;
+  }
+  return self.userLoggedIn;
+}
+
 
 - (NSString*)userEmail {
   if (self.accountEmail == nil) {

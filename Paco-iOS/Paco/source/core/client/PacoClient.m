@@ -139,6 +139,16 @@
   [navi presentViewController:loginViewController animated:YES completion:nil];
 }
 
+- (void)startWorkingAfterLogIn {
+  // Authorize the service.
+  self.service.authenticator = self.authenticator;
+  
+  // Fetch the experiment definitions and the events of joined experiments.
+  [self prefetch];
+  
+  [self uploadPendingEventsInBackground];
+}
+
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
   if ([self isLoggedIn]) {
     if (block) {
@@ -147,8 +157,26 @@
     return;
   }
   
+  if ([self.authenticator setupWithCookie]) {
+    NSLog(@"Valid cookie detected, no need to log in!");
+    [self startWorkingAfterLogIn];
+    
+    if (block != nil) {
+      block(nil);
+    }
+    return;
+  }
+  
   if ([self isUserAccountStored]) {
-    [self loginWithCompletionHandler:^(NSError* error) {
+    NSString* email = [self.authenticator userEmail];
+    NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
+    
+    NSString* password = [self.authenticator userPassword];
+    NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
+
+    
+    [self loginWithClientLogin:email password:password completionHandler:^(NSError* error) {
+      //YMZ:TODO: proper error handling: offline, 500, 400, authentication error
       if (error) {
         [self showLoginScreenWithCompletionBlock:block];
       }else{
@@ -180,22 +208,11 @@
    */
 }
 
-- (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler
-{
-  NSString* email = [self.authenticator userEmail];
-  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
-  
-  NSString* password = [self.authenticator userPassword];
-  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
-  
-  [self loginWithClientLogin:email password:password completionHandler:completionHandler];
-}
-
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn] && [[self userEmail] isEqualToString:email]) {
+  if ([self isLoggedIn] && [[self userEmail] isEqualToString:email]) {
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -204,14 +221,7 @@
                                            password:password//@"qwertylkjhgf"
                                   completionHandler:^(NSError *error) {
                                     if (!error) {
-                                      // Authorize the service.
-                                      self.service.authenticator = self.authenticator;
-                                                                            
-                                      // Fetch the experiment definitions and the events of joined experiments.
-                                      [self prefetch];
-                                      
-                                      [self uploadPendingEventsInBackground];
-                                      
+                                      [self startWorkingAfterLogIn];
                                       completionHandler(nil);
                                     } else {
                                       completionHandler(error);
@@ -221,7 +231,7 @@
 }
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn]) {
+  if ([self isLoggedIn]) {
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -239,6 +249,7 @@
     }];
   }
 }
+
 
 - (void)uploadPendingEventsInBackground {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
