@@ -15,8 +15,6 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const kUserEmail;
-extern NSString* const kUserPassword;
 
 
 @class GTMOAuth2Authentication;

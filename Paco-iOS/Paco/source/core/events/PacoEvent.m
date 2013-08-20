@@ -164,7 +164,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
                         withSchedule:(PacoExperimentSchedule*)schedule {
   // Setup an event for joining the experiement.
   PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = [PacoClient sharedInstance].userEmail;
+  event.who = [[PacoClient sharedInstance] userEmail];
   event.experimentId = definition.experimentId;
   event.experimentVersion = definition.experimentVersion;
   event.experimentName = definition.title;
@@ -198,7 +198,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
 {
   //create an event for stopping the experiement.
   PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = [PacoClient sharedInstance].userEmail;
+  event.who = [[PacoClient sharedInstance] userEmail];
   event.experimentId = experiment.definition.experimentId;
   event.experimentName = experiment.definition.title;
   event.experimentVersion = experiment.definition.experimentVersion;
@@ -219,7 +219,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   NSAssert(visibleInputs != nil, @"visibleInputs should not be nil!");
   
   PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = [PacoClient sharedInstance].userEmail;
+  event.who = [[PacoClient sharedInstance] userEmail];
   event.experimentId = definition.experimentId;
   event.experimentName = definition.title;
   event.experimentVersion = definition.experimentVersion;

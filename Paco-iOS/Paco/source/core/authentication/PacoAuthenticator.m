@@ -21,10 +21,10 @@
 #import "GTMOAuth2SignIn.h"
 #import "GTMOAuth2ViewControllerTouch.h"
 #import "PacoClient.h"
+#import "SSKeychain.h"
 
 
-NSString* const kUserEmail = @"PacoAuthenticator.userEmail";
-NSString* const kUserPassword = @"PacoAuthenticator.userPassword";
+NSString* const kPacoService = @"com.google.paco";
 
 
 typedef void (^PacoAuthenticationBlock)(NSError *);
@@ -46,10 +46,20 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 @implementation PacoAuthenticator
 
 #pragma mark - log in status
-- (BOOL)isUserAccountStored
-{
-  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
-  NSString* pwd = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
+- (NSString*)fetchUserEmailFromKeyChain {
+  NSArray* accounts = [SSKeychain accountsForService:kPacoService];
+  if (0 == [accounts count]) {
+    return nil;
+  }
+  NSAssert([accounts count] == 1, @"should only have one account!");
+  NSDictionary* accountDict = [accounts objectAtIndex:0];
+  NSString* email = [accountDict objectForKey:kSSKeychainAccountKey];
+  return email;
+}
+
+- (BOOL)isUserAccountStored {
+  NSString* email = [self fetchUserEmailFromKeyChain];
+  NSString* pwd = [SSKeychain passwordForService:kPacoService account:email];
   if ([email length] > 0 && [pwd length] > 0) {
     return YES;
   }
@@ -59,17 +69,22 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 - (void)storeAccount {
   NSAssert([self.accountEmail length] > 0 && [self.accountPassword length] > 0,
            @"There isn't any valid user account to stored!");
-  [[NSUserDefaults standardUserDefaults] setObject:self.accountEmail forKey:kUserEmail];
-  [[NSUserDefaults standardUserDefaults] setObject:self.accountPassword forKey:kUserPassword];
-  [[NSUserDefaults standardUserDefaults] synchronize];
+  
+  BOOL success = [SSKeychain setPassword:self.accountPassword
+                              forService:kPacoService
+                                 account:self.accountEmail];
+  if (!success) {
+    NSLog(@"[ERROR] Failed to store account in keychain!");
+  }
 }
 
 - (void)deleteAccount {
+  BOOL success = [SSKeychain deletePasswordForService:kPacoService account:self.accountEmail];
+  if (!success) {
+    NSLog(@"[ERROR] Failed to delete password and account in keychain!");
+  }
   self.accountEmail = nil;
-  self.accountPassword = nil;
-  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserEmail];
-  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kUserPassword];
-  [[NSUserDefaults standardUserDefaults] synchronize];
+  self.accountPassword = nil;  
 }
 
 - (BOOL)isLoggedIn
@@ -102,14 +117,14 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 - (NSString*)userEmail {
   if (self.accountEmail == nil) {
-    self.accountEmail = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail]; 
+    self.accountEmail = [self fetchUserEmailFromKeyChain];
   }
   return self.accountEmail;
 }
 
 - (NSString*)userPassword {
   if (self.accountPassword == nil) {
-    self.accountPassword = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
+    self.accountPassword = [SSKeychain passwordForService:kPacoService account:[self userEmail]];
   }
   return self.accountPassword;
 }
