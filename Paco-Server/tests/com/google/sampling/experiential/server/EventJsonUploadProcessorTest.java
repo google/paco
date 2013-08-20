@@ -1,11 +1,10 @@
 package com.google.sampling.experiential.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import junit.framework.TestCase;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -18,7 +17,7 @@ import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 
-public class EventJsonUploadProcessorTest {
+public class EventJsonUploadProcessorTest extends TestCase {
 
   private static final String who = "steve@bad_rapper_names.com";
   private EventRetriever noOpEventRetriever;

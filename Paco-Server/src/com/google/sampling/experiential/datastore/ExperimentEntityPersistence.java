@@ -144,7 +144,7 @@ public class ExperimentEntityPersistence {
     if (existingExperimentVersion != null && existingExperimentVersion > experimentDAO.getVersion()) {
       throw new IllegalStateException("Experiment has already been edited!");
     } else {
-      existingExperimentDAO.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
+      experimentDAO.setVersion(existingExperimentVersion != null ? existingExperimentVersion + 1 : 1);
     }
   }
 
