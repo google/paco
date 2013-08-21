@@ -37,6 +37,20 @@
 
 @implementation PacoPrefetchState
 
+
+- (BOOL)succeedToLoadDefinitions {
+  return self.finishLoadingDefinitions && self.errorLoadingDefinitions == nil;
+}
+
+
+- (BOOL)succeedToLoadExperiments {
+  return self.finishLoadingExperiments && self.errorLoadingExperiments == nil;
+}
+
+- (BOOL)succeedToLoadAll {
+  return [self succeedToLoadDefinitions] && [self succeedToLoadExperiments];
+}
+
 - (void)reset
 {
   self.finishLoadingDefinitions = NO;
@@ -312,8 +326,9 @@
 
 //TODO: ymz: need to send this to background
 - (void)prefetch {
-  [self.prefetchState reset];
-  
+  if ([self.prefetchState succeedToLoadAll]) {
+    return;
+  }
   // Load the experiment definitions.  
   BOOL success = [self.model loadExperimentDefinitionsFromFile];
   if (success) {
