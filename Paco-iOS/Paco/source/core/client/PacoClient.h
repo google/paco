@@ -48,6 +48,12 @@
 - (NSString*)userEmail;
 - (BOOL)isLoggedIn;
 
+//call this method when we get authentication error
+//1. Set isLoggedIn to NO
+//2. delete cookie and account in keychain
+//3. pop up the log-in dialog to ask user re-logIn
+- (void)invalidateUserAccount;
+
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;

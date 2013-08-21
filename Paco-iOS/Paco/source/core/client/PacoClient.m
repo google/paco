@@ -131,16 +131,22 @@
   return [self.authenticator userEmail];
 }
 
+- (void)invalidateUserAccount {
+  [self.authenticator invalidateCurrentAccount];
+  [self showLoginScreenWithCompletionBlock:nil];
+}
+
 
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
-  PacoLoginScreenViewController *loginViewController =
-      [PacoLoginScreenViewController controllerWithCompletionBlock:block];
-  
   UINavigationController* navi = (UINavigationController*)
       ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
-  [navi presentViewController:loginViewController animated:YES completion:nil];
+  if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
+    PacoLoginScreenViewController *loginViewController =
+        [PacoLoginScreenViewController controllerWithCompletionBlock:block];
+    [navi presentViewController:loginViewController animated:YES completion:nil];
+  }  
 }
 
 - (void)startWorkingAfterLogIn {

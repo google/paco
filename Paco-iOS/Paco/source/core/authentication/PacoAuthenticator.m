@@ -169,6 +169,26 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 
 #pragma mark - ClientLogin
+- (void)deleteCookie {  
+  self.cookie = nil;
+  
+  NSURL* url = [NSURL URLWithString:[PacoClient sharedInstance].serverDomain];
+  NSArray* cookies =
+      [NSArray arrayWithArray:[[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]];
+  if (0 == [cookies count]) {
+    return;
+  }
+  for (NSHTTPCookie* cookie in cookies) {
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
+  }
+}
+
+- (void)invalidateCurrentAccount {
+  self.userLoggedIn = NO;
+  [self deleteCookie];
+  [self deleteAccount];
+}
+
 - (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock {
   NSAssert(!self.userLoggedIn, @"user should not be logged in!");
   NSAssert([self isUserAccountStored], @"user should have stored user name and password!");

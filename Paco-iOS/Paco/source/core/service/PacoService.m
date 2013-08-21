@@ -73,11 +73,10 @@
       if ([data length]) {
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
-          //char* bla = malloc([data length] + 1);
-          //memset(bla,0,[data length] + 1);
-          //memcpy(bla, [data bytes], [data length]);
-          NSLog(@"JSON PARSE ERROR = %@\n", jsonError);//, bla);
+          NSLog(@"JSON PARSE ERROR = %@\n", jsonError);
           NSLog(@"PROBABLY AN AUTH ERROR");
+          
+          [[PacoClient sharedInstance] invalidateUserAccount];
         }
       }
       if (completionHandler) {

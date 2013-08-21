@@ -41,5 +41,6 @@
 - (NSString*)userEmail;
 - (NSString*)userPassword;
 
+- (void)invalidateCurrentAccount;
 @end
 
