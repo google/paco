@@ -24,6 +24,8 @@
 @property(nonatomic, readonly, retain) GTMOAuth2Authentication *auth;
 @property(nonatomic, readonly, copy) NSString *cookie;
 
+
+- (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock;
 - (void)authenticateWithClientLogin:(NSString *)email
                            password:(NSString *)password
                   completionHandler:(void (^)(NSError *))completionHandler;

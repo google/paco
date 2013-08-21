@@ -169,6 +169,21 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 
 #pragma mark - ClientLogin
+- (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock {
+  NSAssert(!self.userLoggedIn, @"user should not be logged in!");
+  NSAssert([self isUserAccountStored], @"user should have stored user name and password!");
+  NSAssert(self.cookie == nil, @"no cookie set up!");
+  
+  NSString* email = [self userEmail];
+  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
+  NSString* password = [self userPassword];
+  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
+  [self authenticateWithClientLogin:email
+                           password:password
+                  completionHandler:completionBlock];
+}
+
+
 
 - (void)authenticateWithClientLogin:(NSString *)email
                            password:(NSString *)password

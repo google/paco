@@ -140,18 +140,18 @@
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
                NSLog(@"JOIN RESPONSE = %@", jsonData);
-
-               NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
                NSMutableArray* successEventIndexes = [NSMutableArray array];
-               for (id output in jsonData) {
-                 NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
-                 if ([output objectForKey:@"errorMessage"] == nil) {
-                   NSNumber* eventIndex = [output objectForKey:@"eventId"];
-                   NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
-                   [successEventIndexes addObject:eventIndex];
+               if (error == nil) {
+                 NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
+                 for (id output in jsonData) {
+                   NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
+                   if ([output objectForKey:@"errorMessage"] == nil) {
+                     NSNumber* eventIndex = [output objectForKey:@"eventId"];
+                     NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
+                     [successEventIndexes addObject:eventIndex];
+                   }
                  }
-               }
-               
+               }                
                if (completionBlock) {
                  completionBlock(successEventIndexes, error);
                }

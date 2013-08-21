@@ -168,6 +168,11 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 #pragma mark Public API
 - (void)startUploading {
+  //if user is not logged in yet, wait until log in finishes
+  if (![[PacoClient sharedInstance] isLoggedIn]) {
+    return;
+  }
+
   @synchronized(self) {
     if (self.isWorking) {
       return;
@@ -176,6 +181,7 @@ static int const kMaxNumOfEventsToUpload = 50;
     if (![self.delegate hasPendingEvents]) {
       return;
     }
+    
     [self uploadEvents];
   }
 }

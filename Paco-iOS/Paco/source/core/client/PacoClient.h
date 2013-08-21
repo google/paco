@@ -46,6 +46,7 @@
 + (PacoClient *)sharedInstance;
 
 - (NSString*)userEmail;
+- (BOOL)isLoggedIn;
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 

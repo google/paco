@@ -27,9 +27,6 @@
 // Load all experiement definitions from the server.
 - (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
-// Load the events for the user for a given experiment
-- (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
-          withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
 
 // Batch submit a list of events
 - (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;

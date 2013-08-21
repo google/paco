@@ -25,7 +25,7 @@
 #import "Reachability.h"
 #import "PacoEventManager.h"
 #import "PacoAppDelegate.h"
-
+#import "NSError+Paco.h"
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -109,6 +109,10 @@
   return self;
 }
 
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark Public methods
 - (BOOL)isLoggedIn
 {
@@ -149,6 +153,57 @@
   [self uploadPendingEventsInBackground];
 }
 
+
+- (void)reachabilityChanged:(NSNotification*)notification {
+  Reachability* reach = (Reachability*)[notification object];
+  if ([reach isReachable]) {      
+    [self.authenticator reAuthenticateWithBlock:^(NSError* error) {
+      [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+      if (error == nil) {
+        // Authorize the service.
+        self.service.authenticator = self.authenticator;
+        [self uploadPendingEventsInBackground];
+      } else {
+        NSLog(@"[ERROR]: failed to re-authenticate user!!!");
+        [self showLoginScreenWithCompletionBlock:nil];
+      }
+    }];
+    
+    NSLog(@"[Reachable]: Online Now!");
+  }else {
+    NSLog(@"[Reachable]: Offline Now!");
+  }
+}
+
+- (void)reAuthenticateUserWithBlock:(LoginCompletionBlock)block {
+  //If there is an account stored, and the internet is offline, then we should allow user to use
+  //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
+  //we will re-authenticate user
+  if (!self.reachability.isReachable) {
+    [self prefetch];
+    if (block != nil) {
+      block(nil);
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(reachabilityChanged:)
+                                                 name:kReachabilityChangedNotification
+                                               object:nil];
+  } else {
+    [self.authenticator reAuthenticateWithBlock:^(NSError* error) {
+      if (error == nil) {
+        [self startWorkingAfterLogIn];
+        if (block != nil) {
+          block(nil);
+        }
+      } else {
+        [self showLoginScreenWithCompletionBlock:block];
+      }
+    }];
+  }
+}
+
+
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
   if ([self isLoggedIn]) {
     if (block) {
@@ -169,40 +224,11 @@
   
   if (![self isUserAccountStored]) {
     [self showLoginScreenWithCompletionBlock:block];
-    return;
+  } else {
+    [self reAuthenticateUserWithBlock:block];
   }
-  
-  NSString* email = [self.authenticator userEmail];
-  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
-  NSString* password = [self.authenticator userPassword];
-  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
-
-  [self loginWithClientLogin:email password:password completionHandler:^(NSError* error) {
-    //YMZ:TODO: proper error handling: offline, 500, 400, authentication error
-    if (error) {
-      [self showLoginScreenWithCompletionBlock:block];
-    }else{
-      if (block != nil) {
-        block(nil);
-      }
-    }
-  }];
-  // Attempt a PACO login.
-  /*
-   [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
-   if (!error) {
-   NSLog(@"PACO LOGIN SUCCESS!");
-   
-   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-   if (notification) {
-   [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-   }
-   } else {
-   NSLog(@"PACO LOGIN FAILURE! %@", error);
-   }
-   }];
-   */
 }
+
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
