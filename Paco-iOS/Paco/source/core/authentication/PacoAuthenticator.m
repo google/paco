@@ -45,6 +45,24 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 @implementation PacoAuthenticator
 
+- (id)init {
+  self = [super init];
+  if (self) {
+    [self clearKeyChainIfFirstLaunch];
+  }
+  return self;
+}
+
+- (void)clearKeyChainIfFirstLaunch {
+  NSString* launchedKey = [NSString stringWithFormat:@"%@.launched", kPacoService];
+  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+  if (value == nil) { //first launch
+    [self deleteAccount];
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+  }
+}
+
 #pragma mark - log in status
 - (NSString*)fetchUserEmailFromKeyChain {
   NSArray* accounts = [SSKeychain accountsForService:kPacoService];
@@ -78,13 +96,28 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   }
 }
 
-- (void)deleteAccount {
-  BOOL success = [SSKeychain deletePasswordForService:kPacoService account:self.accountEmail];
-  if (!success) {
-    NSLog(@"[ERROR] Failed to delete password and account in keychain!");
+- (BOOL)hasAccountInKeyChain {
+  NSArray* accounts = [SSKeychain accountsForService:kPacoService];
+  return [accounts count] > 0;
+}
+
+- (void)deleteAllAccountsFromKeyChain {
+  NSArray* accounts = [NSArray arrayWithArray:[SSKeychain accountsForService:kPacoService]];
+  for (NSDictionary* accountDict in accounts) {
+    NSString* email = [accountDict objectForKey:kSSKeychainAccountKey];
+    BOOL success = [SSKeychain deletePasswordForService:kPacoService account:email];
+    if (!success) {
+      NSLog(@"[ERROR] Failed to delete password and account in keychain!");
+    }
   }
+}
+
+- (void)deleteAccount {
   self.accountEmail = nil;
-  self.accountPassword = nil;  
+  self.accountPassword = nil;
+  if ([self hasAccountInKeyChain]) {
+    [self deleteAllAccountsFromKeyChain];
+  }
 }
 
 - (BOOL)isLoggedIn
