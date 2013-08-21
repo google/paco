@@ -137,10 +137,15 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
     return NO;
   }
   NSTimeInterval interval = [expireDate timeIntervalSinceNow];
-  if (interval > 0) {
+  NSTimeInterval THIRTY_MINUTES_INTERVAL = 30*60;
+  //If cookie expires in more than 30 minutes, we consider it a valid cookie;
+  //otherwise, we need to re-login user to get a new cookie.
+  //We use 30 minutes here just to be safe, since user would quit our app in less than 30 minutes
+  if (interval > THIRTY_MINUTES_INTERVAL) {
     self.userLoggedIn = YES;
     self.cookie = cookie.value;
   } else {
+    NSLog(@"Cookie will expire soon, need to re-logIn user...");
     self.userLoggedIn = NO;
     self.cookie = nil;
   }
