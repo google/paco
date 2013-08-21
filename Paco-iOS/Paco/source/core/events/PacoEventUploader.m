@@ -17,6 +17,7 @@
 #import "Reachability.h"
 #import "PacoClient.h"
 #import "PacoService.h"
+#import "NSError+Paco.h"
 
 static int const kMaxNumOfEventsToUpload = 50;
 
@@ -96,16 +97,9 @@ static int const kMaxNumOfEventsToUpload = 50;
 - (BOOL)isOfflineError:(NSError*)error {
   if (error == nil) {
     return NO;
+  } else {
+    return [error isOfflineError];
   }
-
-  if ([error.domain isEqualToString:NSURLErrorDomain]) {
-    NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-    if ([underlyingError.domain isEqualToString:(NSString*)kCFErrorDomainCFNetwork] &&
-        underlyingError.code == NSURLErrorNotConnectedToInternet) {
-      return YES;
-    }
-  }
-  return NO;
 }
 
 - (void)submitAllPendingEvents:(NSArray*)allPendingEvents {
