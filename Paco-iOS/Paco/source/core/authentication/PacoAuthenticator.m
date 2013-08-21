@@ -307,11 +307,9 @@ Deep Linking:	Enabled
 }
 
 -(void)authFailed:(NSString *)error {
-  NSLog(@"PACO CLIENT LOGIN AUTH FAILED [%@]", error);
+  NSLog(@"PACO CLIENT LOGIN AUTH FAILED [%@]", error);  
   self.userLoggedIn = NO;
-  
-  [self deleteAccount];
-  
+    
   if (self.completionHandler) {
     self.completionHandler([NSError errorWithDomain:error code:-1 userInfo:nil]);
   }
