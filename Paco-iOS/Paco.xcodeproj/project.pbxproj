@@ -19,6 +19,7 @@
 		3197721B163F265C000AC06B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721A163F265B000AC06B /* Security.framework */; };
 		3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721C163F2672000AC06B /* SystemConfiguration.framework */; };
 		31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */; };
+		36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		363E210817AAD028007DE3CE /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210717AAD028007DE3CE /* PacoEvent.m */; };
 		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
 		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
@@ -155,6 +156,69 @@
 			remoteGlobalIDString = 319771C3163F0733000AC06B;
 			remoteInfo = Paco;
 		};
+		36000C2117C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DC2EF5B0486A6940098B216;
+			remoteInfo = ParseKit;
+		};
+		36000C2317C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3F8A48D175817DF00056188;
+			remoteInfo = PEGKit;
+		};
+		36000C2517C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3D9753216E7F36700D55EAB;
+			remoteInfo = libParseKit;
+		};
+		36000C2717C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3FDC5830FFC4BFC00F1F797;
+			remoteInfo = libParseKitMobile;
+		};
+		36000C2917C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D37D8DC61571A4F700CDB822;
+			remoteInfo = ParseKitTests;
+		};
+		36000C2B17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D33494100E2963FD00406085;
+			remoteInfo = DemoApp;
+		};
+		36000C2D17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D34185040E520D3F0081B0DC;
+			remoteInfo = DebugApp;
+		};
+		36000C2F17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D338302F171C923700CCE513;
+			remoteInfo = ParserGenApp;
+		};
+		36000C3517C6B0A800A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D3FDC5820FFC4BFC00F1F797;
+			remoteInfo = libParseKitMobile;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -170,6 +234,7 @@
 		3197721A163F265B000AC06B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		3197721C163F2672000AC06B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ParseKit.xcodeproj; path = ParseKit/ParseKit.xcodeproj; sourceTree = "<group>"; };
 		363E210617AAD028007DE3CE /* PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvent.h; sourceTree = "<group>"; };
 		363E210717AAD028007DE3CE /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
 		363E210917AAD05B007DE3CE /* PacoEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManager.h; sourceTree = "<group>"; };
@@ -370,6 +435,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */,
 				31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */,
 				3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */,
 				3129004016DAA4C7008FF617 /* CoreLocation.framework in Frameworks */,
@@ -403,6 +469,7 @@
 				36B8EC1217568E33004CF035 /* vendor */,
 				319771C7163F0733000AC06B /* Frameworks */,
 				319771C5163F0733000AC06B /* Products */,
+				36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -440,6 +507,21 @@
 				36B8EB9417568E29004CF035 /* resources */,
 			);
 			path = Paco;
+			sourceTree = "<group>";
+		};
+		36000C1617C6AEA900A8A9E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				36000C2217C6AEA900A8A9E7 /* ParseKit.framework */,
+				36000C2417C6AEA900A8A9E7 /* PEGKit.framework */,
+				36000C2617C6AEA900A8A9E7 /* libParseKit.a */,
+				36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */,
+				36000C2A17C6AEA900A8A9E7 /* ParseKitTests.octest */,
+				36000C2C17C6AEA900A8A9E7 /* DemoApp.app */,
+				36000C2E17C6AEA900A8A9E7 /* DebugApp.app */,
+				36000C3017C6AEA900A8A9E7 /* ParserGenApp.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		363E210517AACFF1007DE3CE /* events */ = {
@@ -948,6 +1030,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */,
 			);
 			name = Paco;
 			productName = Paco;
@@ -989,10 +1072,17 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				English,
 			);
 			mainGroup = 319771B9163F0733000AC06B;
 			productRefGroup = 319771C5163F0733000AC06B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 36000C1617C6AEA900A8A9E7 /* Products */;
+					ProjectRef = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				319771C3163F0733000AC06B /* Paco */,
@@ -1000,6 +1090,65 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		36000C2217C6AEA900A8A9E7 /* ParseKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ParseKit.framework;
+			remoteRef = 36000C2117C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2417C6AEA900A8A9E7 /* PEGKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = PEGKit.framework;
+			remoteRef = 36000C2317C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2617C6AEA900A8A9E7 /* libParseKit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libParseKit.a;
+			remoteRef = 36000C2517C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libParseKitMobile.a;
+			remoteRef = 36000C2717C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2A17C6AEA900A8A9E7 /* ParseKitTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ParseKitTests.octest;
+			remoteRef = 36000C2917C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2C17C6AEA900A8A9E7 /* DemoApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = DemoApp.app;
+			remoteRef = 36000C2B17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2E17C6AEA900A8A9E7 /* DebugApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = DebugApp.app;
+			remoteRef = 36000C2D17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C3017C6AEA900A8A9E7 /* ParserGenApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = ParserGenApp.app;
+			remoteRef = 36000C2F17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		319771C2163F0733000AC06B /* Resources */ = {
@@ -1183,6 +1332,11 @@
 			target = 319771C3163F0733000AC06B /* Paco */;
 			targetProxy = 319771F3163F0733000AC06B /* PBXContainerItemProxy */;
 		};
+		36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libParseKitMobile;
+			targetProxy = 36000C3517C6B0A800A8A9E7 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1244,11 +1398,13 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PROVISIONING_PROFILE = "E13D63F2-EE00-4C5C-96A5-3FE32CF6EEBA";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "E13D63F2-EE00-4C5C-96A5-3FE32CF6EEBA";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
 			};
 			name = Debug;
 		};
@@ -1268,12 +1424,14 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "E13D63F2-EE00-4C5C-96A5-3FE32CF6EEBA";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "E13D63F2-EE00-4C5C-96A5-3FE32CF6EEBA";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
