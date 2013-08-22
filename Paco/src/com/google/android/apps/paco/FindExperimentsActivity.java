@@ -68,6 +68,7 @@ public class FindExperimentsActivity extends FragmentActivity {
   public UserPreferences userPrefs;
   protected AvailableExperimentsListAdapter adapter;
   private List<Experiment> experiments;
+  private ProgressDialogFragment newFragment;
 
   private static DownloadShortExperimentsTask experimentDownloadTask;
 
@@ -198,11 +199,7 @@ public class FindExperimentsActivity extends FragmentActivity {
       @Override
       public void done(String resultCode) {
         //dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        FragmentManager ft = getSupportFragmentManager();
-        DialogFragment prev = (DialogFragment)getSupportFragmentManager().findFragmentByTag("dialog");
-        if (prev != null) {
-          prev.dismiss();
-        }
+        dismissAnyDialog();
         String contentAsString = experimentDownloadTask.getContentAsString();
         if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
           updateDownloadedExperiments(contentAsString);
@@ -213,11 +210,27 @@ public class FindExperimentsActivity extends FragmentActivity {
           showFailureDialog(resultCode);
         }
       }
+
     };
     showDialogById(REFRESHING_EXPERIMENTS_DIALOG_ID);
     experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
     experimentDownloadTask.execute();
   }
+
+  private void dismissAnyDialog() {
+    if (newFragment != null) {
+      newFragment = null;
+      FragmentManager ft = getSupportFragmentManager();
+      DialogFragment prev = (DialogFragment)getSupportFragmentManager().findFragmentByTag("dialog");
+      if (prev != null && prev.isResumed()) {
+        prev.dismissAllowingStateLoss();
+      }
+    }
+  }
+
+
+
+
 
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
@@ -260,11 +273,12 @@ public class FindExperimentsActivity extends FragmentActivity {
     ft.addToBackStack(null);
 
     // Create and show the dialog.
-    DialogFragment newFragment = ProgressDialogFragment.newInstance(id);
+    newFragment = ProgressDialogFragment.newInstance(id);
     newFragment.show(ft, "dialog");
 //    ft.commit();
-
   }
+
+
 
   private void showFailureDialog(String status) {
     if (status.equals(DownloadHelper.CONTENT_ERROR) ||
@@ -314,5 +328,22 @@ public class FindExperimentsActivity extends FragmentActivity {
     }
 
   }
+
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+//    if (newFragment != null) {
+//      outState.putInt("dialog_id", newFragment.getDialogTypeId());
+//    }
+    dismissAnyDialog();
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+  }
+
+
 
 }

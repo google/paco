@@ -11,6 +11,7 @@ import com.pacoapp.paco.R;
 
 public class ProgressDialogFragment extends DialogFragment {
   int mNum;
+  private int dialogTypeId;
 
   static ProgressDialogFragment newInstance(int id) {
       ProgressDialogFragment f = new ProgressDialogFragment();
@@ -29,7 +30,6 @@ public class ProgressDialogFragment extends DialogFragment {
       this.setCancelable(true);
       int style = DialogFragment.STYLE_NORMAL, theme = 0;
       setStyle(style,theme);
-
   }
 
 //  @Override
@@ -57,6 +57,7 @@ public class ProgressDialogFragment extends DialogFragment {
     super.onCreateDialog(savedInstanceState);
     Bundle bundle = getArguments();
     int id = bundle.getInt("dialog_id");
+    setDialogTypeId(id);
     Dialog dialog = null;
     switch (id) {
       case FindExperimentsActivity.REFRESHING_EXPERIMENTS_DIALOG_ID: {
@@ -78,6 +79,10 @@ public class ProgressDialogFragment extends DialogFragment {
     return dialog;
   }
 
+
+  private void setDialogTypeId(int id) {
+    this.dialogTypeId = id;
+  }
 
   private ProgressDialog getRefreshJoinedDialog() {
     ProgressDialog pd = new ProgressDialog(getActivity());
@@ -118,6 +123,11 @@ public class ProgressDialogFragment extends DialogFragment {
                     });
     return noNetworkBldr.create();
   }
+
+  public int getDialogTypeId() {
+    return dialogTypeId;
+  }
+
 
 
 }
