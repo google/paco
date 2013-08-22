@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,17 +21,16 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 
-import com.pacoapp.paco.R;
-
 import android.accounts.Account;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import com.pacoapp.paco.R;
 
 /**
  * A place for storing various preferences of the user.
  * Backed by Android shared preferences currently.
- * 
+ *
  *
  */
 public class UserPreferences {
@@ -41,10 +40,10 @@ public class UserPreferences {
   private static final String LAST_PHOTO_ADDRESS = "LAST_PHOTO_ADDRESS";
 
   public static final String SIGNALLING_PREFERENCES = "PREFS_PAGING_HOURS";
-  
+
 //  public static final String START_HOUR_PREFERENCE_KEY = "start_hour";
 //  public static final String END_HOUR_PREFERENCE_KEY = "end_hour";
-//  
+//
 //  public static final int DEFAULT_START_HOUR = 8;
 //  public static final int DEFAULT_END_HOUR = 22;
 
@@ -54,21 +53,21 @@ public class UserPreferences {
 
 
   private static final String APP_PREFERENCES = "app_prefs";
-  
+
   public static final String FIND_EXPERIMENTS = "FIND_EXPERIMENTS";
-  
+
   public static final String JOINED_EXPERIMENTS = "JOINED_EXPERIMENTS";
 
-  private static final int FIND_LIST_REFRESH_TIMEOUT = 299990; //10 millis less than 5 min
+  private static final int FIND_LIST_REFRESH_TIMEOUT = 599990; //10 millis less than 5 min
 
   private static final String FIND_LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
-  
+
   private static final int JOIN_LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
 
   private static final String JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY = "join_list_refresh";
 
   private static final String NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY = "next_server_communication_refresh";
-  
+
   private static final String SELECTED_ACCOUNT_KEY = "selected_account";
 
   private static final String SELECTED_ACCOUNT_PREF = "selected_account_pref";
@@ -79,7 +78,7 @@ public class UserPreferences {
 
   private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
 
-  
+
   private SharedPreferences signallingPrefs;
   private Context context;
 
@@ -94,21 +93,21 @@ public class UserPreferences {
   public UserPreferences(Context context) {
     this.context = context;
   }
-  
+
   SharedPreferences getSignallingPrefs() {
     if (signallingPrefs == null) {
       signallingPrefs = context.getSharedPreferences(SIGNALLING_PREFERENCES, Context.MODE_PRIVATE);
     }
     return signallingPrefs;
   }
-  
+
 //  public int getStartHour() {
-//    return getSignallingPrefs().getInt(START_HOUR_PREFERENCE_KEY, 
+//    return getSignallingPrefs().getInt(START_HOUR_PREFERENCE_KEY,
 //        DEFAULT_START_HOUR);
 //  }
-  
+
 //  public int getEndHour() {
-//    return getSignallingPrefs().getInt(END_HOUR_PREFERENCE_KEY, 
+//    return getSignallingPrefs().getInt(END_HOUR_PREFERENCE_KEY,
 //        DEFAULT_END_HOUR);
 //  }
 
@@ -124,40 +123,40 @@ public class UserPreferences {
   public String getServerAddress() {
     return getServerAddressPref().getString(SERVER_ADDRESS_KEY, (String)context.getText(R.string.server));
   }
-  
+
   SharedPreferences getAppPrefs() {
     if (appPrefs == null) {
       appPrefs = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
     }
     return appPrefs;
   }
-  
+
   public boolean isAvailableExperimentsListStale() {
     return isExperimentListStale(FIND_EXPERIMENTS);
   }
-  
+
   public boolean isJoinedExperimentsListStale() {
     return isExperimentListStale(JOINED_EXPERIMENTS);
   }
-  
+
   private boolean isExperimentListStale(String refreshType) {
     if (refreshType.equals(FIND_EXPERIMENTS)) {
-      return (new Date().getTime() - getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, 
+      return (new Date().getTime() - getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY,
           0l)) >= FIND_LIST_REFRESH_TIMEOUT;
     } else {
-      return (new Date().getTime() - getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, 
+      return (new Date().getTime() - getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY,
           0l)) >= JOIN_LIST_REFRESH_TIMEOUT;
     }
   }
-  
+
   public void setAvailableExperimentListRefreshTime(Long updateTime) {
     setExperimentListRefreshTime(updateTime, FIND_EXPERIMENTS);
   }
-  
+
   public void setJoinedExperimentListRefreshTime(Long updateTime) {
     setExperimentListRefreshTime(updateTime, JOINED_EXPERIMENTS);
   }
-  
+
   private void setExperimentListRefreshTime(Long updateTime, String refreshType) {
     if (refreshType.equals(FIND_EXPERIMENTS)) {
       getAppPrefs().edit().putLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
@@ -165,15 +164,15 @@ public class UserPreferences {
       getAppPrefs().edit().putLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
     }
   }
-  
+
   public DateTime getAvailableExperimentListRefreshTime() {
     return getExperimentListRefreshTime(FIND_EXPERIMENTS);
   }
-  
+
   public DateTime getJoinedExperimentListRefreshTime() {
     return getExperimentListRefreshTime(JOINED_EXPERIMENTS);
   }
-  
+
   private DateTime getExperimentListRefreshTime(String refreshType) {
     Long lastRefresh;
     if (refreshType.equals(FIND_EXPERIMENTS)) {
@@ -197,34 +196,34 @@ public class UserPreferences {
     SharedPreferences pref = getPhotoAddressPref();
     pref.edit().clear().commit();
   }
-  
+
   private SharedPreferences getPhotoAddressPref() {
     SharedPreferences pref = context.getSharedPreferences(PHOTO_ADDRESS, Context.MODE_PRIVATE);
     return pref;
   }
-  
+
   public String getPhotoAddress() {
     SharedPreferences pref = getPhotoAddressPref();
     return pref.getString(LAST_PHOTO_ADDRESS, null);
   }
 
   public long getNextServerCommunicationServiceAlarmTime() {
-    return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());    
+    return getAppPrefs().getLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, new DateTime().minusHours(12).getMillis());
   }
-  
+
   public void setNextServerCommunicationServiceAlarmTime(Long updateTime) {
     getAppPrefs().edit().putLong(NEXT_SERVER_COMM_REFRESH_PREFERENCE_KEY, updateTime).commit();
   }
 
   public void saveSelectedAccount(String name) {
     SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
-    prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();    
+    prefs.edit().putString(SELECTED_ACCOUNT_KEY, name).commit();
     deleteAccountCookie();
   }
 
   private void deleteAccountCookie() {
     SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
-    preferences.edit().remove(COOKIE_PREFERENCE_KEY).commit();    
+    preferences.edit().remove(COOKIE_PREFERENCE_KEY).commit();
   }
 
   public void saveSelectedAccount(Account account) {
@@ -235,15 +234,15 @@ public class UserPreferences {
     SharedPreferences prefs = context.getSharedPreferences(SELECTED_ACCOUNT_PREF, Context.MODE_PRIVATE);
     return prefs.getString(SELECTED_ACCOUNT_KEY, null);
   }
-  
+
   public void setRingtone(String ringtoneUri) {
-    getAppPrefs().edit().putString(RINGTONE_KEY, ringtoneUri).commit();    
+    getAppPrefs().edit().putString(RINGTONE_KEY, ringtoneUri).commit();
   }
-  
+
   public String getRingtone() {
     return getAppPrefs().getString(RINGTONE_KEY, null);
   }
-  
+
   public boolean clearRingtone() {
     return getAppPrefs().edit().clear().commit();
   }
@@ -251,7 +250,7 @@ public class UserPreferences {
   public boolean hasInstalledPacoBarkRingtone() {
     return getAppPrefs().getBoolean(RINGTONE_INSTALLED_KEY, false);
   }
-  
+
   public void setPacoBarkRingtoneInstalled() {
     getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
   }
@@ -263,7 +262,7 @@ public class UserPreferences {
     }
     return TimeUtil.parseDateTime(storedTime);
   }
-  
+
   public void setRecentlyTriggeredTime(long experimentId, DateTime time) {
     getAppPrefs().edit().putString(EXPERIMENT_TRIGGERED_KEY + "_" + experimentId, TimeUtil.formatDateTime(time)).commit();
   }
