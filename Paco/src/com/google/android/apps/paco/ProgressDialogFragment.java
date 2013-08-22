@@ -60,11 +60,11 @@ public class ProgressDialogFragment extends DialogFragment {
     Dialog dialog = null;
     switch (id) {
       case FindExperimentsActivity.REFRESHING_EXPERIMENTS_DIALOG_ID: {
-          dialog = getRefreshJoinedDialog();
-          break;
+        dialog = getRefreshJoinedDialog();
+        break;
       } case DownloadHelper.INVALID_DATA_ERROR: {
-          dialog = getUnableToJoinDialog(getString(R.string.invalid_data));
-          break;
+        dialog = getUnableToJoinDialog(getString(R.string.invalid_data));
+        break;
       } case DownloadHelper.SERVER_ERROR: {
         dialog = getUnableToJoinDialog(getString(R.string.dialog_dismiss));
         break;
@@ -77,6 +77,7 @@ public class ProgressDialogFragment extends DialogFragment {
     }
     return dialog;
   }
+
 
   private ProgressDialog getRefreshJoinedDialog() {
     ProgressDialog pd = new ProgressDialog(getActivity());

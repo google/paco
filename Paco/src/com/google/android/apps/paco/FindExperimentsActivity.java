@@ -36,6 +36,7 @@ import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -183,7 +184,11 @@ public class FindExperimentsActivity extends FragmentActivity {
   }
 
   void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    try {
+      startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    } catch (Exception e) {
+
+    }
   }
 
 
@@ -193,13 +198,11 @@ public class FindExperimentsActivity extends FragmentActivity {
       @Override
       public void done(String resultCode) {
         //dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentManager ft = getSupportFragmentManager();
         DialogFragment prev = (DialogFragment)getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
           prev.dismiss();
-          ft.remove(prev);
         }
-        ft.commit();
         String contentAsString = experimentDownloadTask.getContentAsString();
         if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
           updateDownloadedExperiments(contentAsString);
