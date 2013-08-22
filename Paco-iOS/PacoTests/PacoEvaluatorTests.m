@@ -79,7 +79,34 @@
    }];
 }
 
+- (void)testList {
+  NSString* exp = @" a >9 ||list  ==  1";
+  NSDictionary* variableDict = @{@"a" : @NO, @"list":@YES};
+  [PacoExpressionExecutor
+   processRawExpression:exp
+   withVariableDictionary:variableDict
+   andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
+     STAssertEqualObjects(finalExpression, @"$a > 9 || $list contains 1", @"failed to process == for list!");
+     STAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
+     STAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
+     STAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
+   }];
+}
 
+- (void)testList2 {
+  NSString* exp = @" a >9 &&list  !=b";
+  NSDictionary* variableDict = @{@"a" : @NO, @"list":@YES};
+  [PacoExpressionExecutor
+   processRawExpression:exp
+   withVariableDictionary:variableDict
+   andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
+     STAssertEqualObjects(finalExpression, @"$a > 9 && not $list contains b", @"failed to process != for list!");
+     STAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
+     STAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
+     STAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
+   }];
+  
+}
 
 
 
@@ -192,6 +219,25 @@
      STAssertFalse(satisfied, @"Equals shouldn't work");
    }];
 }
+
+- (void)testListNotEquals {
+  NSString* exp1 = @"list != 1";
+  NSDictionary* variableDict = @{@"list" : @YES};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @[@1, @3]};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"Equals shouldn't work");
+     
+     dict = @{@"list" : @[@2]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"Equals shouldn't work");
+   }];
+}
+
 
 
 
