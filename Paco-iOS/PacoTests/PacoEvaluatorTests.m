@@ -61,6 +61,96 @@
    }];
 }
 
+- (void)testContains {
+  NSString* exp1 = @"a contains 1";
+  NSArray* variableNames = @[@"a"];
+  [PacoExpressionExecutor
+   applyDollarSignForRawExpression:exp1
+   withVariableNameList:variableNames
+   withBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
+     STAssertEqualObjects(finalExpression, @"$a contains 1", @"failed to parse contains!");
+     STAssertEqualObjects(dependencyVariables, variableNames, @"dependency not detected correctly!");
+   }];
+}
+
+- (void)testListContains {
+  NSString* exp1 = @"list contains 1";
+  NSArray* variableNames = @[@"list"];
+  
+  [PacoExpressionExecutor
+      predicateWithRawExpression:exp1
+      withVariableNameList:variableNames
+      andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+      NSDictionary* dict = @{@"list" : @[@2, @3]};
+      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+      STAssertFalse(satisfied, @"contains doesn't work");
+      dict = @{@"list" : @[@1, @3]};
+      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+      STAssertTrue(satisfied, @"contains doesn't work");
+  }];  
+}
+
+- (void)testListNotContains {
+  NSString* exp1 = @"!(list contains 1)";
+  NSArray* variableNames = @[@"list"];
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableNameList:variableNames
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @[@2, @3]};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     dict = @{@"list" : @[@1, @3]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     dict = @{@"list" : @[@3, @1, @4]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+ }];
+}
+
+- (void)testListNotContains2 {
+  NSString* exp1 = @"not list contains 1";
+  NSArray* variableNames = @[@"list"];
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableNameList:variableNames
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @[@2, @3]};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     dict = @{@"list" : @[@1, @3]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     dict = @{@"list" : @[@3, @1, @4]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+   }];
+}
+
+- (void)testListEquals {
+  NSString* exp1 = @"list == 1";
+  NSArray* variableNames = @[@"list"];
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableNameList:variableNames
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @[@1, @3]};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"Equals shouldn't work");
+
+     dict = @{@"list" : @[@1]};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"Equals shouldn't work");
+   }];
+}
+
+
+
+
 
 
 @end
