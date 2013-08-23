@@ -26,6 +26,8 @@
 #import "PacoEventManager.h"
 
 
+#define ADD_TEST_DEFINITION 0
+
 static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";
 
@@ -248,6 +250,10 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 #pragma mark Private methods
 - (void)definitionsLoadedWithError:(NSError*)error
 {
+  if (ADD_TEST_DEFINITION) {
+    // for testing purposes let's load a sample experiment
+    [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];    
+  }
   self.prefetchState.finishLoadingDefinitions = YES;
   self.prefetchState.errorLoadingDefinitions = error;
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
@@ -260,10 +266,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {
       [self definitionsLoadedWithError:nil];
-      
-      // for testing purposes let's load a sample experiment
-      [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
-      
       [self prefetchExperimentsWithBlock:completionBlock];
       return;
     }
@@ -282,9 +284,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
       // Convert the JSON response into an object model.
       [self.model applyDefinitionJSON:experiments];
       [self definitionsLoadedWithError:nil];
-      
-      // for testing purposes let's load a sample experiment
-      [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
       
       [self prefetchExperimentsWithBlock:completionBlock];
     }];
