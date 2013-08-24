@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -22,8 +22,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.pacoapp.paco.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -37,8 +35,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.pacoapp.paco.R;
+
 public class ExperimentDetailActivity extends Activity {
-  
+
+  public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
+
+
   private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
 
 
@@ -51,19 +54,23 @@ public class ExperimentDetailActivity extends Activity {
   private UserPreferences userPrefs;
   private ProgressDialog p;
   private boolean showingJoinedExperiments;
-  
+
+
+  private boolean useMyExperimentsDiskFile;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
 	setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
     uri = intent.getData();
+    useMyExperimentsDiskFile = intent.getExtras() != null ? intent.getExtras().getBoolean(ID_FROM_MY_EXPERIMENTS_FILE) : false;
     showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     userPrefs = new UserPreferences(this);
-    
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    
-    
+
+
     if (uri.getLastPathSegment().startsWith("0000")) {
       String realServerId = uri.getLastPathSegment().substring(4);
       List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(realServerId));
@@ -75,19 +82,19 @@ public class ExperimentDetailActivity extends Activity {
       if (showingJoinedExperiments) {
         experiment = experimentProviderUtil.getExperiment(uri);
       } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+        experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
         uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
       }
     }
-    
+
     if (experiment == null) {
       new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
-        
+
         public void onClick(DialogInterface dialog, int which) {
-          refreshList();          
+          refreshList();
         }
       }).show();
-      
+
     } else {
       showExperiment();
     }
@@ -96,14 +103,14 @@ public class ExperimentDetailActivity extends Activity {
   @Override
   protected Dialog onCreateDialog(int id) {
     if (id == REFRESHING_EXPERIMENTS_DIALOG_ID) {
-      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh), 
-                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
+      ProgressDialog loadingDialog = ProgressDialog.show(this, getString(R.string.experiment_refresh),
+                                                         getString(R.string.checking_server_for_new_and_updated_experiment_definitions),
                                                          true, true);
       return loadingDialog;
     }
     return super.onCreateDialog(id);
   }
-  
+
 
   private void showExperiment() {
     joinButton = (Button)findViewById(R.id.JoinExperimentButton);
@@ -125,10 +132,10 @@ public class ExperimentDetailActivity extends Activity {
 //      String triggerDetails = Trigger.getNameForCode(trigger.getEventCode());
 //      ((TextView) findViewById(R.id.schedule)).setText(triggerDetails);
 //    }
-    
+
     // Hide the schedule panel for now (a short experiment load comes with no schedule info).
     findViewById(R.id.scheduleDisplayPanel).setVisibility(View.GONE);
-    
+
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
     if (experiment.isFixedDuration()) {
@@ -144,21 +151,21 @@ public class ExperimentDetailActivity extends Activity {
     ((TextView)findViewById(R.id.startDate)).setText(startDate);
     ((TextView)findViewById(R.id.endDate)).setText(endDate);
 
-//    String esm_frequency = schedule != null && schedule.getEsmFrequency() != null 
-//      ? schedule.getEsmFrequency().toString() 
+//    String esm_frequency = schedule != null && schedule.getEsmFrequency() != null
+//      ? schedule.getEsmFrequency().toString()
 //      : null;
 //    if (schedule != null && schedule.getScheduleType() == SignalSchedule.ESM && esm_frequency != null && esm_frequency.length() > 0) {
-//      findViewById(R.id.esmPanel).setVisibility(View.VISIBLE); 
+//      findViewById(R.id.esmPanel).setVisibility(View.VISIBLE);
 //      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + getString(SignalSchedule.ESM_PERIODS_NAMES[schedule.getEsmPeriodInDays()]));
 //    }
 //    // TODO (bobevans): Update to show all the new shceduling types in a succinct readonly way
 //    if (isJoinedExperiment()) {
-//      findViewById(R.id.timePanel).setVisibility(View.VISIBLE); 
+//      findViewById(R.id.timePanel).setVisibility(View.VISIBLE);
 //      ((TextView)findViewById(R.id.time)).setText(toCommaSeparatedString(schedule != null ? schedule.getTimes() : null));
 //    }
-    
+
     if (!isJoinedExperiment()) {
-      joinButton.setOnClickListener(new OnClickListener() {    	 
+      joinButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           List<Experiment> potentialJoinedExperiment = experimentProviderUtil.getExperimentsByServerId(experiment.getServerId());
           boolean alreadyJoined = false;
@@ -202,13 +209,14 @@ public class ExperimentDetailActivity extends Activity {
           Intent intent = new Intent(ExperimentDetailActivity.this, InformedConsentActivity.class);
           intent.setAction(Intent.ACTION_EDIT);
           intent.setData(uri);
+          intent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, useMyExperimentsDiskFile);
           startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
         }
       });
     }
   }
 
-  
+
   private String toCommaSeparatedString(List<Long> times) {
     if (times == null) {
       return "";
@@ -243,13 +251,13 @@ public class ExperimentDetailActivity extends Activity {
     return experiment.getJoinDate() != null;
   }
 
-  
+
   protected void refreshList() {
-    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
+    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
 
       @Override
-      public void done(String unusedResult) {          
-          experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)));
+      public void done(String unusedResult) {
+          experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)), useMyExperimentsDiskFile);
           dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
           if (experiment != null) {
             uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
@@ -257,17 +265,17 @@ public class ExperimentDetailActivity extends Activity {
           } else {
             ExperimentDetailActivity.this.finish();
           }
-          
+
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     new DownloadShortExperimentsTask(this, listener, userPrefs).execute();
 
   }
-  
 
-    
 
-  
+
+
+
 }
 

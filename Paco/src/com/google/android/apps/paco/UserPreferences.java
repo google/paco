@@ -56,11 +56,15 @@ public class UserPreferences {
 
   public static final String FIND_EXPERIMENTS = "FIND_EXPERIMENTS";
 
+  private static final String FIND_MY_EXPERIMENTS = "FIND_MY_EXPERIMENTS";
+
   public static final String JOINED_EXPERIMENTS = "JOINED_EXPERIMENTS";
 
   private static final int FIND_LIST_REFRESH_TIMEOUT = 599990; //10 millis less than 5 min
 
   private static final String FIND_LAST_LIST_REFRESH_PREFERENCE_KEY = "list_refresh";
+
+  private static final String FIND_MY_LAST_LIST_REFRESH_PREFERENCE_KEY = "my_list_refresh";
 
   private static final int JOIN_LIST_REFRESH_TIMEOUT = 86399990; //10 millis less than 24 hrs
 
@@ -89,6 +93,8 @@ public class UserPreferences {
   public static final String PREFERENCE_KEY = "url-content-manager";
 
   private static final String EXPERIMENT_TRIGGERED_KEY = null;
+
+
 
   public UserPreferences(Context context) {
     this.context = context;
@@ -135,6 +141,11 @@ public class UserPreferences {
     return isExperimentListStale(FIND_EXPERIMENTS);
   }
 
+  public boolean isMyExperimentsListStale() {
+    return isExperimentListStale(FIND_MY_EXPERIMENTS);
+  }
+
+
   public boolean isJoinedExperimentsListStale() {
     return isExperimentListStale(JOINED_EXPERIMENTS);
   }
@@ -143,10 +154,17 @@ public class UserPreferences {
     if (refreshType.equals(FIND_EXPERIMENTS)) {
       return (new Date().getTime() - getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY,
           0l)) >= FIND_LIST_REFRESH_TIMEOUT;
+    } else if (refreshType.equals(FIND_MY_EXPERIMENTS)) {
+      return (new Date().getTime() - getAppPrefs().getLong(FIND_MY_LAST_LIST_REFRESH_PREFERENCE_KEY,
+                                                           0l)) >= FIND_LIST_REFRESH_TIMEOUT;
     } else {
       return (new Date().getTime() - getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY,
           0l)) >= JOIN_LIST_REFRESH_TIMEOUT;
     }
+  }
+
+  public void setMyExperimentListRefreshTime(Long updateTime) {
+    setExperimentListRefreshTime(updateTime, FIND_MY_EXPERIMENTS);
   }
 
   public void setAvailableExperimentListRefreshTime(Long updateTime) {
@@ -160,9 +178,15 @@ public class UserPreferences {
   private void setExperimentListRefreshTime(Long updateTime, String refreshType) {
     if (refreshType.equals(FIND_EXPERIMENTS)) {
       getAppPrefs().edit().putLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
+    } else if (refreshType.equals(FIND_MY_EXPERIMENTS))  {
+      getAppPrefs().edit().putLong(FIND_MY_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
     } else {
       getAppPrefs().edit().putLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, updateTime).commit();
     }
+  }
+
+  public DateTime getMyExperimentListRefreshTime() {
+    return getExperimentListRefreshTime(FIND_MY_EXPERIMENTS);
   }
 
   public DateTime getAvailableExperimentListRefreshTime() {
@@ -177,6 +201,8 @@ public class UserPreferences {
     Long lastRefresh;
     if (refreshType.equals(FIND_EXPERIMENTS)) {
       lastRefresh = getAppPrefs().getLong(FIND_LAST_LIST_REFRESH_PREFERENCE_KEY, -1);
+    } else if (refreshType.equals(FIND_MY_EXPERIMENTS)) {
+      lastRefresh = getAppPrefs().getLong(FIND_MY_LAST_LIST_REFRESH_PREFERENCE_KEY, -1);
     } else {
       lastRefresh = getAppPrefs().getLong(JOIN_LAST_LIST_REFRESH_PREFERENCE_KEY, -1);
     }

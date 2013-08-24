@@ -19,14 +19,14 @@ package com.google.android.apps.paco;
 import android.content.Context;
 import android.os.AsyncTask;
 
-class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
+class DownloadMyExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadExperimentsTaskListener listener;
   private String contentAsString;
 
   @SuppressWarnings("unchecked")
-  public DownloadShortExperimentsTask(Context activity,
+  public DownloadMyExperimentsTask(Context activity,
                                  DownloadExperimentsTaskListener listener,
                                  UserPreferences userPrefs) {
     enclosingContext = activity;
@@ -36,7 +36,7 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
 
   protected String doInBackground(Void... params) {
     DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs);
-    String errorCode = downloadHelper.downloadAvailableExperiments();
+    String errorCode = downloadHelper.downloadMyExperiments();
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;
   }

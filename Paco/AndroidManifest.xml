@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="90"
-    android:versionName="2.0.90" >
+    android:versionCode="91"
+    android:versionName="2.0.91" >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
@@ -54,6 +54,11 @@
 
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.google.android.apps.paco.FindMyExperimentsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.google.android.apps.paco.RunningExperimentsActivity"
@@ -239,6 +244,10 @@
 
         <service android:name="com.google.android.apps.paco.BroadcastTriggerService" />
 
+        <activity
+            android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
+            android:label="@string/title_activity_find_my_or_all_experiments_chooser" >
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" >

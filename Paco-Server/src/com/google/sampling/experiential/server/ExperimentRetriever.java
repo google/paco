@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.jdo.JDOHelper;
@@ -18,6 +19,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
@@ -388,13 +390,13 @@ public class ExperimentRetriever {
       pm = PMF.get().getPersistenceManager();
       @SuppressWarnings("unchecked")
       List<Experiment> experiments = getExperimentsAdministeredBy(email, pm);
+      Set<Experiment> experimentSet = Sets.newHashSet(experiments);
+
       List<Experiment> experimentsPublishedToMe = getExperimentsPublishedTo(email, pm);
-      for (Experiment experiment : experimentsPublishedToMe) {
-        if (!experiments.contains(experiment)) {
-          experiments.add(experiment);
-        }
-      }
-      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+
+      experimentSet.addAll(experimentsPublishedToMe);
+      List<Experiment> totalSetAsList = Lists.newArrayList(experimentSet);
+      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(totalSetAsList);
 //      markEndOfDayExperiments(pm, experiments);
       removeSensitiveFields(experimentDAOs);
       sortExperiments(experimentDAOs);
