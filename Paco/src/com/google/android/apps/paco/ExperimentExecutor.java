@@ -576,6 +576,10 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     if (resultCode == RESULT_OK) {
       if (requestCode == RESULT_SPEECH) {
         handleSpeechRecognitionActivityResult(resultCode, data);
+      } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE) {
+        for (InputLayout inputLayout : inputs) {
+          inputLayout.cameraPictureTaken(requestCode);
+        }
       } else {
         Uri selectedImage = data.getData();
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
@@ -591,6 +595,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
           inputLayout.galleryPicturePicked(filePath, requestCode);
         }
       }
+
     }
   }
 

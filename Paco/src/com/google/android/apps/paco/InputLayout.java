@@ -62,9 +62,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+  public static final int CAMERA_REQUEST_CODE = 10000001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
   private Input input;
@@ -83,6 +85,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private AutoCompleteTextView openTextView;
   private AutocompleteDictionary autocompleteDatabase;
   private int requestCode;
+  private ImageView photoView;
   private static int code = 1200;
 
 
@@ -291,6 +294,30 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return b;
   }
 
+  private Bitmap decodeFileAndScaleToThumb(File f) {
+    Bitmap b = null;
+    try {
+      // Decode image size
+      BitmapFactory.Options o = new BitmapFactory.Options();
+      o.inJustDecodeBounds = true;
+      BitmapFactory.decodeStream(new FileInputStream(f), null, o);
+      int scale = 1;
+      if (o.outHeight > 100 || o.outWidth > 100) {
+        int longestDimension = Math.max(o.outHeight, o.outWidth);
+        scale = (int) Math.pow(2,  (int) Math.round(Math.log(100 / (double)longestDimension) / Math.log(0.5)));
+      }
+
+      // Decode with inSampleSize
+      BitmapFactory.Options o2 = new BitmapFactory.Options();
+      o2.inSampleSize = scale;
+      b = BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+    } catch (FileNotFoundException e) {
+      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG);
+    }
+    return b;
+  }
+
+
   private String getLocationValue() {
     if (location != null) {
       double latitude = location.getLatitude();
@@ -419,7 +446,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     View photoInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.photo_input, this, true);
     Button cameraButton = (Button) findViewById(R.id.CameraButton);
-    ImageView photoView = (ImageView) findViewById(R.id.CameraPreviewImage);
+    photoView = (ImageView) findViewById(R.id.CameraPreviewImage);
     if (file != null) {
       photoView.setImageBitmap(decodeFile(file));
     }
@@ -462,9 +489,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   void galleryPicturePicked(String filepath, int requestCode) {
-    if (this.requestCode == requestCode) {
+    if (this.requestCode == requestCode && !Strings.isNullOrEmpty(filepath)) {
       file = new File(filepath);
-    }
+      photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
+    } else if (Strings.isNullOrEmpty(filepath)) {
+      file = null;
+    } // otherwise leave as it was previously
   }
 
 
@@ -473,8 +503,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
       String dateString = createTimeStamp();
       file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+      requestCode = code++;
       i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-      ((Activity) getContext()).startActivity(i);
+      ((Activity) getContext()).startActivityForResult(i, CAMERA_REQUEST_CODE + requestCode);
     } catch (Exception e) {
       e.printStackTrace();
       new AlertDialog.Builder(getContext()).setCancelable(true).setTitle(R.string.cannot_open_camera_warning)
@@ -911,6 +942,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
     }
     ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
+  }
+
+  public void cameraPictureTaken(int requestCode) {
+    if (this.requestCode == requestCode - CAMERA_REQUEST_CODE) {
+      photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
+    }
   }
 
 }
