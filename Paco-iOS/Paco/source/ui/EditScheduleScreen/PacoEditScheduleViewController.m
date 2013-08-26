@@ -64,6 +64,7 @@
 - (void)onJoin {
   [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
                                                            withSchedule:nil];
+    
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [[PacoClient sharedInstance].model
                                 addExperimentInstance:self.experiment
@@ -72,6 +73,8 @@
   
   //start scheduling notifications for this joined experiment
   [[PacoClient sharedInstance].scheduler addEvent:experiment experiments:[PacoClient sharedInstance].model.experimentInstances];
+  
+  [[PacoClient sharedInstance] startLocationTimerIfNeeded];
 
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";

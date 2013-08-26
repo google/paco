@@ -163,6 +163,7 @@
     }
   }
   
+  NSAssert(experimentFireDate != nil, @"experimentFireDate should NOT be nil!");
   [self registeriOSNotification:experiment.instanceId experimentFireDate:experimentFireDate experimentTimeOutDate:experimentTimeOutDate experimentEsmSchedule:scheduleDates experimentAlertBody:[NSString stringWithFormat:@"Paco experiment %@ at %@.", experiment.instanceId, [self getTimeZoneFormattedDateString:experimentFireDate]]];
 }
 

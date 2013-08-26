@@ -155,6 +155,15 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   [self loginWithClientLogin:email password:password completionHandler:completionHandler];
 }
 
+- (void)startLocationTimerIfNeeded {
+  // if we have experiments, then initialize PacoLocation which starts a timer
+  // (no use to use energy heavy location if no experiment exists)
+  if (self.model.experimentInstances.count > 0 && self.location == nil) {
+    NSLog(@"Location Manager starts working!");
+    self.location = [[PacoLocation alloc] init];
+    self.location.delegate = self;
+  }
+}
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -178,9 +187,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
                                       [self prefetchInBackgroundWithBlock:^{
                                         // let's handle setting up the notifications after that thread completes
                                         NSLog(@"Paco loginWithClientLogin experiments load has completed.");
-                                        // 
-                                        self.location = [[PacoLocation alloc] init];
-                                        self.location.delegate = self;
+                                        [self startLocationTimerIfNeeded];
                                       }];
                                       
                                       [self uploadPendingEventsInBackground];
@@ -206,11 +213,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
         [self prefetchInBackgroundWithBlock:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
-          // if we have experiments, then initialize PacoLocation (no use to use energy heavy location if no experiment exists)
-          if (self.model.experimentInstances.count > 0) {
-            self.location = [[PacoLocation alloc] init];
-            self.location.delegate = self;
-          }
+          [self startLocationTimerIfNeeded];
         }];
         completionHandler(nil);
       } else {
