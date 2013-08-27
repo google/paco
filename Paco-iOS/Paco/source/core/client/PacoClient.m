@@ -255,7 +255,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 {
   if (ADD_TEST_DEFINITION) {
     // for testing purposes let's load a sample experiment
-    [self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];    
+    //[self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
+    [self.model addExperimentDefinition:[PacoExperimentDefinition testDefinitionWithId:@"999999999"]];
   }
   self.prefetchState.finishLoadingDefinitions = YES;
   self.prefetchState.errorLoadingDefinitions = error;

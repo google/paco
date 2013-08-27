@@ -120,6 +120,21 @@
   }
 }
 
+- (void)clearInputs {
+  for (PacoExperimentInput *input in self.inputs) {
+    input.responseObject = nil;
+  }
+}
+
+#pragma mark TEST code
++ (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId {
+  NSString* path = [NSString stringWithFormat:@"Test_%@", definitionId];
+  NSDictionary* definitionDict =
+      [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:path ofType:@"plist"]];
+  return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
+}
+
+
 + (PacoExperimentDefinition*)testPacoExperimentDefinition {
   int timeOutMinutes = 2;
   
@@ -135,9 +150,5 @@
   return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonObj];
 }
 
-- (void)clearInputs {
-  for (PacoExperimentInput *input in self.inputs) {
-    input.responseObject = nil;
-  }
-}
+
 @end

@@ -363,7 +363,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 #pragma mark Experiment Definition operations
 - (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
   NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
-  [definitions addObject:experimentDefinition];
+  [definitions insertObject:experimentDefinition atIndex:0];
   
   self.experimentDefinitions = [NSArray arrayWithArray:definitions];
 }

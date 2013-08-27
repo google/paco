@@ -43,9 +43,12 @@
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (void)tagQuestionsForDependencies;
-+ (PacoExperimentDefinition *)testPacoExperimentDefinition;
 
 //clear the old response objects
 - (void)clearInputs;
+
+//TEST debug code
++ (PacoExperimentDefinition *)testPacoExperimentDefinition;
++ (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId;
 
 @end
