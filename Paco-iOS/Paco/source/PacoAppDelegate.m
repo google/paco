@@ -65,8 +65,10 @@
   // Stir!
   arc4random_stir();
   
-  // Clear all Application Badges
-  application.applicationIconBadgeNumber = 0;
+  //YMZ:TODO: set the badge number to 0 may clear all notifications in the tray
+  //http://stackoverflow.com/questions/7773584/can-i-programmatically-clear-my-apps-notifications-from-the-ios-5-notification
+  // Clear all Application Badges  
+//  application.applicationIconBadgeNumber = 0;
   
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
