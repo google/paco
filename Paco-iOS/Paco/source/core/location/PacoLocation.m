@@ -16,6 +16,8 @@
 #import "PacoLocation.h"
 
 #import <CoreLocation/CoreLocation.h>
+#import "PacoDate.h"
+
 
 NSTimer* LocationTimer;
 
@@ -51,7 +53,7 @@ NSTimer* LocationTimer;
 }
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
-  NSLog(@"Paco LocationTimer fired @ %@", [LocationTimer fireDate]);
+  NSLog(@"Paco LocationTimer fired @ %@", [PacoDate pacoStringForDate:[LocationTimer fireDate]]);
 
   // Notify our PacoClient that our timer fired
   if ([self.delegate respondsToSelector:@selector(timerUpdated)]) {
