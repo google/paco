@@ -62,9 +62,11 @@
 }
 
 - (void)onJoin {
-  [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
-                                                           withSchedule:nil];
-    
+  if (!ADD_TEST_DEFINITION) {
+    [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
+                                                             withSchedule:nil];
+  }
+  
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [[PacoClient sharedInstance].model
                                 addExperimentInstance:self.experiment

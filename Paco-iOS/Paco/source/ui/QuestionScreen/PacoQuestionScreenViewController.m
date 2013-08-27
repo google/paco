@@ -65,8 +65,11 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  [[PacoClient sharedInstance].eventManager saveSurveyEventWithDefinition:self.experiment.definition
-                                                                andInputs:self.visibleInputs];
+  
+  if (!ADD_TEST_DEFINITION) {
+    [[PacoClient sharedInstance].eventManager saveSurveyEventWithDefinition:self.experiment.definition
+                                                                  andInputs:self.visibleInputs];
+  }
 
   //clear all inputs' submitted responseObject for the definition 
   [self.experiment.definition clearInputs];

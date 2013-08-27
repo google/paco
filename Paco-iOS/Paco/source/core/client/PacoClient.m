@@ -26,7 +26,6 @@
 #import "PacoEventManager.h"
 
 
-#define ADD_TEST_DEFINITION 0
 
 static NSString* const kUserEmail = @"PacoClient.userEmail";
 static NSString* const kUserPassword = @"PacoClient.userPassword";

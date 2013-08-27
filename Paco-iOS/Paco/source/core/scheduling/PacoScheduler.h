@@ -17,6 +17,9 @@
 
 #import "PacoModel.h"
 
+
+extern NSString* const kExperimentHasFiredKey;
+
 @class PacoExperiment;
 
 @protocol PacoSchedulerDelegate

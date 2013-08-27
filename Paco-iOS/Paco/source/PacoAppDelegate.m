@@ -31,11 +31,16 @@
 
 // this method will fire if the App is in UIApplicationStateActive state, not UIApplicationStateBackground
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
+  //TODO: if this is called when application is in background, we shouldn't show the notification itself again,
+  //we should go ahead and show the question view directly.
+  
+  NSLog(@"==========  Application didReceiveLocalNotification  ==========");
+  
   if (notification) {
     // only show the notification if it hasn't fired before!
     // this is necessary for notifications that we fire immediately after launch to fill Notification Center
-    NSString* experimentHasFired = [notification.userInfo objectForKey:@"experimentHasFired"];
-    if (experimentHasFired && [experimentHasFired caseInsensitiveCompare:@"false"]) {
+    NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
+    if (experimentHasFired != nil && ![experimentHasFired boolValue]) {
       [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
       
       [JCNotificationCenter
@@ -55,6 +60,8 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+  NSLog(@"==========  Application didFinishLaunchingWithOptions  ==========");
+
   // Stir!
   arc4random_stir();
   
@@ -90,7 +97,13 @@
   return YES;
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+  NSLog(@"==========  Application applicationDidBecomeActive  ==========");
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application {
+  NSLog(@"==========  Application applicationWillResignActive  ==========");
+
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
   success = success && [[PacoClient sharedInstance].scheduler writeEventsToFile];
   if (success) {
@@ -102,6 +115,8 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+  NSLog(@"==========  Application applicationWillTerminate  ==========");
+  
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
   if (success) {
     NSLog(@"SUCCESSFULLY SAVED TO FILE");
@@ -111,17 +126,18 @@
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
+  NSLog(@"==========  Application applicationDidEnterBackground  ==========");
   if ([PacoClient sharedInstance].location != nil) {
     [[PacoClient sharedInstance].location enableLocationTimer];
   }
-  NSLog(@"Paco is going to enter the background");
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+  NSLog(@"==========  Application applicationWillEnterForeground  ==========");
+
   if ([PacoClient sharedInstance].location != nil) {
     [[PacoClient sharedInstance].location disableLocationTimer];
   }
-  NSLog(@"Paco is going to enter the foreground");
 }
 
 @end

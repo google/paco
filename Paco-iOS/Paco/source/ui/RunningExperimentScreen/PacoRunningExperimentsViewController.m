@@ -154,7 +154,9 @@
 }
 
 - (void)stopExperiment {
-  [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
+  if (!ADD_TEST_DEFINITION) {
+    [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
+  }
   
   //delete the experiment from local cache and update UI
   [[PacoClient sharedInstance] deleteExperimentFromCache:self.selectedExperiment];

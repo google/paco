@@ -21,6 +21,8 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 
+NSString* const kExperimentHasFiredKey = @"experimentHasFired";
+
 @interface PacoScheduler ()
 @property (retain, readwrite) NSMutableDictionary* iOSLocalNotifications;
 @end
@@ -88,7 +90,11 @@
     if (([experimentTimeOutDate timeIntervalSinceNow] <= 0)) {
       [_delegate handleEventTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
     } else {
-      [self registeriOSNotification:experimentInstanceId experimentFireDate:experimentFireDate experimentTimeOutDate:experimentTimeOutDate experimentEsmSchedule:experimentEsmSchedule experimentAlertBody:experimentAlertBody];
+      [self registeriOSNotification:experimentInstanceId
+                 experimentFireDate:experimentFireDate
+              experimentTimeOutDate:experimentTimeOutDate
+              experimentEsmSchedule:experimentEsmSchedule
+                experimentAlertBody:experimentAlertBody];
     }
   }
 }
@@ -192,10 +198,10 @@
   // but by setting the hasFired object in userInfo object we make sure that the UI doesn't show them
   if (([experimentFireDate timeIntervalSinceNow] <= 0)) {
     notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5];
-    [userInfo setObject:@"true" forKey:@"experimentHasFired"];
+    [userInfo setObject:[NSNumber numberWithBool:YES] forKey:kExperimentHasFiredKey];
   } else {
     notification.fireDate = experimentFireDate;
-    [userInfo setObject:@"false" forKey:@"experimentHasFired"];
+    [userInfo setObject:[NSNumber numberWithBool:NO] forKey:kExperimentHasFiredKey];
   }
   notification.userInfo = userInfo;
  [[UIApplication sharedApplication] scheduleLocalNotification:notification];

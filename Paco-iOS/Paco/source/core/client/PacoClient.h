@@ -25,6 +25,9 @@
 @class Reachability;
 @class PacoEventManager;
 
+#define ADD_TEST_DEFINITION 0
+
+
 //production server: 0
 //local server: 1
 #define SERVER_DOMAIN_FLAG 0

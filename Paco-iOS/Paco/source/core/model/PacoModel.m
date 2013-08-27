@@ -99,7 +99,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     return;
   }
   
-  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
+//  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectInstances = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];
@@ -201,7 +201,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   }
 
 
-  NSLog(@"WRItiNG DEFINITION JSON to FILE \n%@", json);
+//  NSLog(@"WRItiNG DEFINITION JSON to FILE \n%@", json);
 //  return [json writeToFile:fileName atomically:NO];
   return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
 }
@@ -225,7 +225,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     NSLog(@"ERROR serializing to JSON %@", jsonError);
   }
 
-  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
+//  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
   //return [json writeToFile:fileName atomically:NO];
   return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
 }
