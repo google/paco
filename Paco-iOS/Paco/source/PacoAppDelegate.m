@@ -40,6 +40,9 @@
   //if this is called when application is in background, we should show the question view directly.
   if (state == UIApplicationStateInactive) {
     NSLog(@"UIApplicationStateInactive");
+    //YMZ:TODO: need to figure out how to tell different launches from the notification tray or banner and
+    //from unlocking the screen when seeing a notification. If it's a launch from unclocking the screen,
+    //we don't want to show the survey.
     [self showSurveyForNotification:notification];
   } else if (state == UIApplicationStateActive) {
     NSLog(@"UIApplicationStateActive");
@@ -98,19 +101,11 @@
   [self.window makeKeyAndVisible];
   
   
-  //YMZ:TODO: the following piece of code should happen after user is successfully logged in?
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    NSLog(@"%@", [notification description]);
-
-    [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
-    NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-    assert(experiment);
-    PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-    questions.experiment = experiment;
-    [self.viewController presentViewController:questions animated:YES completion:nil];
+    NSLog(@"Detail: %@", [notification description]);
+    [self presentForegroundNotification:notification];
   } else {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
