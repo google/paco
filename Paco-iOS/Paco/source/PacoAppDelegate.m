@@ -29,23 +29,34 @@
 
 @implementation PacoAppDelegate
 
-// this method will fire if the App is in UIApplicationStateActive state, not UIApplicationStateBackground
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-  //TODO: if this is called when application is in background, we shouldn't show the notification itself again,
-  //we should go ahead and show the question view directly.
-  
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
+  NSLog(@"Detail: %@", [notification description]);
   if (notification == nil) {
     return;
   }
   
   UIApplicationState state = [application applicationState];
+  //if this is called when application is in background, we should show the question view directly.
   if (state == UIApplicationStateInactive) {
     NSLog(@"UIApplicationStateInactive");
+    [self showSurveyForNotification:notification];
   } else if (state == UIApplicationStateActive) {
     NSLog(@"UIApplicationStateActive");
-  }  
-  
+    [self presentForegroundNotification:notification];
+  }
+}
+
+- (void)showSurveyForNotification:(UILocalNotification*)notification {
+  NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+  NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
+  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+  PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+  questions.experiment = experiment;
+  [self.viewController.navigationController pushViewController:questions animated:YES];
+}
+
+- (void)presentForegroundNotification:(UILocalNotification*)notification {
   // only show the notification if it hasn't fired before!
   // this is necessary for notifications that we fire immediately after launch to fill Notification Center
   NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
@@ -58,11 +69,7 @@
      tapHandler:^{
        NSLog(@"Received tap on notification banner!");
        [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
-       NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-       PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-       PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-       questions.experiment = experiment;
-       [self.viewController.navigationController pushViewController:questions animated:YES];
+       [self showSurveyForNotification:notification];
      }];
   }
 }
