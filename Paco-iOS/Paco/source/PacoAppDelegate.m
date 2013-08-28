@@ -35,33 +35,39 @@
   //we should go ahead and show the question view directly.
   
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
+  if (notification == nil) {
+    return;
+  }
   
-  if (notification) {
-    // only show the notification if it hasn't fired before!
-    // this is necessary for notifications that we fire immediately after launch to fill Notification Center
-    NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
-    if (experimentHasFired != nil && ![experimentHasFired boolValue]) {
-      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-      
-      [JCNotificationCenter
-       enqueueNotificationWithTitle:@""
-       message:notification.alertBody
-       tapHandler:^{
-         NSLog(@"Received tap on notification banner!");
-         [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
-         NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-         PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-         PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-         questions.experiment = experiment;
-         [self.viewController.navigationController pushViewController:questions animated:YES];
-       }];
-    }
+  UIApplicationState state = [application applicationState];
+  if (state == UIApplicationStateInactive) {
+    NSLog(@"UIApplicationStateInactive");
+  } else if (state == UIApplicationStateActive) {
+    NSLog(@"UIApplicationStateActive");
+  }  
+  
+  // only show the notification if it hasn't fired before!
+  // this is necessary for notifications that we fire immediately after launch to fill Notification Center
+  NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
+  if (experimentHasFired != nil && ![experimentHasFired boolValue]) {
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+    
+    [JCNotificationCenter
+     enqueueNotificationWithTitle:@""
+     message:notification.alertBody
+     tapHandler:^{
+       NSLog(@"Received tap on notification banner!");
+       [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
+       NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+       PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+       PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+       questions.experiment = experiment;
+       [self.viewController.navigationController pushViewController:questions animated:YES];
+     }];
   }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  NSLog(@"==========  Application didFinishLaunchingWithOptions  ==========");
-
   // Stir!
   arc4random_stir();
   
@@ -88,6 +94,9 @@
   //YMZ:TODO: the following piece of code should happen after user is successfully logged in?
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
+    NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
+    NSLog(@"%@", [notification description]);
+
     [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
     NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
@@ -95,6 +104,8 @@
     PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
     questions.experiment = experiment;
     [self.viewController presentViewController:questions animated:YES completion:nil];
+  } else {
+    NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
   return YES;
 }

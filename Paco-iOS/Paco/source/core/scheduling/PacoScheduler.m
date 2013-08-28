@@ -36,9 +36,12 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     _iOSLocalNotifications = [[NSMutableDictionary alloc] init];
 
     // After a reboot or restart of our application we clear all notifications
+    NSLog(@"Cancel All LocalNotifications!");
     [self cancelAlliOSLocalNotifications];
     // Load notifications from the plist
+    
     NSMutableArray* notificationArray = [self readScheduleFromFile];
+    NSLog(@"Reschedule %d LocalNotifications from file!", [notificationArray count]);
     // Reschedule the ones that have already fired
     [self rescheduleLocalNotifications:notificationArray];
   }
@@ -170,7 +173,14 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   }
   
   NSAssert(experimentFireDate != nil, @"experimentFireDate should NOT be nil!");
-  [self registeriOSNotification:experiment.instanceId experimentFireDate:experimentFireDate experimentTimeOutDate:experimentTimeOutDate experimentEsmSchedule:scheduleDates experimentAlertBody:[NSString stringWithFormat:@"Paco experiment %@ at %@.", experiment.instanceId, [self getTimeZoneFormattedDateString:experimentFireDate]]];
+  NSString* alertBody = [NSString stringWithFormat:@"Paco experiment %@ at %@.",
+                         experiment.instanceId,
+                         [self getTimeZoneFormattedDateString:experimentFireDate]];
+  [self registeriOSNotification:experiment.instanceId
+             experimentFireDate:experimentFireDate
+          experimentTimeOutDate:experimentTimeOutDate
+          experimentEsmSchedule:scheduleDates
+            experimentAlertBody:alertBody];
 }
 
 - (void)registeriOSNotification:(NSString*) experimentInstanceId
@@ -197,13 +207,17 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   // in the past: we want them to fire right away (so they show up in Notification Center),
   // but by setting the hasFired object in userInfo object we make sure that the UI doesn't show them
   if (([experimentFireDate timeIntervalSinceNow] <= 0)) {
-    notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5];
+    NSLog(@"Notification scheduled in 5 seconds!!!");
+    notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5]; 
     [userInfo setObject:[NSNumber numberWithBool:YES] forKey:kExperimentHasFiredKey];
   } else {
     notification.fireDate = experimentFireDate;
     [userInfo setObject:[NSNumber numberWithBool:NO] forKey:kExperimentHasFiredKey];
   }
   notification.userInfo = userInfo;
+  NSLog(@"Notification Scheduled for %@ at %@",
+        experimentInstanceId, [PacoDate pacoStringForDate:notification.fireDate]);
+  NSLog(@"Detail: %@", [notification description]);
  [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   
   // now that it's scheduled we need to start bookkeeping it
@@ -252,8 +266,11 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   for (PacoExperiment *experiment in experiments) {
     if ([self getiOSLocalNotifications:experiment.instanceId].count == 0) {
       // ok, so no notification exists, so schedule one
-      NSLog(@"Paco registering iOS notification for %@", experiment.instanceId);
+      NSLog(@"Registering iOS notification for %@", experiment.instanceId);
       [self registeriOSNotificationForExperiment:experiment];
+    } else {
+      NSLog(@"Skip registering iOS notification for %@, since it has a notification scheduled.",
+            experiment.instanceId);
     }
   }
 }
