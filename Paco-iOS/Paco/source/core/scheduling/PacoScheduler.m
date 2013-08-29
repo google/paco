@@ -135,8 +135,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   NSLog(@"Paco handling an iOS notification = %@", notification.userInfo);
   
   // make sure to decrement the Application Badge Number
-  UIApplication *application = [UIApplication sharedApplication];
-  application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
+//  UIApplication *application = [UIApplication sharedApplication];
+//  application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
   
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
@@ -193,7 +193,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = experimentAlertBody;
   notification.soundName = @"deepbark_trial.mp3";
-  notification.applicationIconBadgeNumber += 1;
+//  notification.applicationIconBadgeNumber += 1;
 
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   [userInfo setObject:experimentInstanceId forKey:@"experimentInstanceId"];
