@@ -151,6 +151,11 @@
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block
 {
+  if (SKIP_LOG_IN) {
+    [[PacoClient sharedInstance] loginWithCompletionHandler:nil];
+    return;
+  }
+  
   if ([[PacoClient sharedInstance] isLoggedIn]) {
     if (block) {
       block(nil);

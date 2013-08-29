@@ -145,6 +145,13 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler
 {
+  if (SKIP_LOG_IN) {
+    [self prefetchInBackgroundWithBlock:^{
+      [self startLocationTimerIfNeeded];
+    }];
+    return;
+  }
+  
   NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
   NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
   
@@ -266,6 +273,13 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [self.prefetchState reset];
     // Load the experiment definitions.
+    
+    if (SKIP_LOG_IN) {
+      [self definitionsLoadedWithError:nil];
+      [self prefetchExperimentsWithBlock:completionBlock];
+      return;      
+    }
+    
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {
       [self definitionsLoadedWithError:nil];
