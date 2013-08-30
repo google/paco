@@ -41,8 +41,7 @@ extern NSString* const kExperimentHasFiredKey;
         experiments:(NSArray*) experiments;
 
 // call this when joining an experiment
--(void)addEvent:(PacoExperiment*) experiment
-    experiments:(NSArray*) experiments;
+-(void)startSchedulingForExperiment:(PacoExperiment*)experiment;
 
 // call this when leaving an experiment
 -(void)removeEvent:(PacoExperiment*) experiment

@@ -103,10 +103,28 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 }
 
 #pragma mark Public Methods
--(void)addEvent:(PacoExperiment*) experiment
-    experiments:(NSArray*) experiments {
-  [self update:experiments];
+-(void)startSchedulingForExperiment:(PacoExperiment*)experiment {
+  //check schedule notifications
+  NSArray* scheduledArr = [self getiOSLocalNotifications:experiment.instanceId];
+  NSAssert([scheduledArr count] == 0, @"There should be 0 notfications scheduled!");
+  
+  //check cached notifications
+  BOOL hasScheduledNotification = NO;
+  for(NSString* notificationHash in self.iOSLocalNotifications) {
+    UILocalNotification* notification = [self.iOSLocalNotifications objectForKey:notificationHash];
+    NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+    NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
+    if ([experimentInstanceId isEqualToString:experiment.instanceId]) {
+      hasScheduledNotification = YES;
+      break;
+    }
+  }
+  NSAssert(!hasScheduledNotification, @"shouldn't have any scheduled notifications!");
+  
+  NSLog(@"Start scheduling notifications for newly joined experiment: %@", experiment.instanceId);
+  [self registeriOSNotificationForExperiment:experiment];
 }
+
 
 -(void)removeEvent:(PacoExperiment*) experiment
             experiments:(NSArray*) experiments {

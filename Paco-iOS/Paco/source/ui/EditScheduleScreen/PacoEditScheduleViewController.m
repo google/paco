@@ -74,7 +74,7 @@
                                 events:nil]; //TODO: events will be removed from this method
   
   //start scheduling notifications for this joined experiment
-  [[PacoClient sharedInstance].scheduler addEvent:experiment experiments:[PacoClient sharedInstance].model.experimentInstances];
+  [[PacoClient sharedInstance].scheduler startSchedulingForExperiment:experiment];
   
   [[PacoClient sharedInstance] startLocationTimerIfNeeded];
 
