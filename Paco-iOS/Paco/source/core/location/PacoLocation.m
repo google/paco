@@ -97,6 +97,7 @@ NSTimer* LocationTimer;
            fromLocation:(CLLocation *)oldLocation {
   
   //CLLocationCoordinate2D coord = newLocation.coordinate;
+  NSLog(@"[LocationManager] Location updated!");
   
   self.location = newLocation;
   self.numUpdates = self.numUpdates + 1;
@@ -117,7 +118,7 @@ NSTimer* LocationTimer;
  */
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
-  NSLog(@"Unable to start location manager. Error:%@", [error description]);
+  NSLog(@"[LocationManager] Failed to update location, error:%@", [error description]);
 }
 
 #if 0
@@ -133,7 +134,7 @@ NSTimer* LocationTimer;
  */
 - (void)locationManager:(CLLocationManager *)manager
 didUpdateLocations:(NSArray *)locations __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) {
-  NSLog(@"Event: Low Energy didUpdateLocations");
+  NSLog(@"[LocationManager] Low Energy didUpdateLocations");
 }
 
 /*
