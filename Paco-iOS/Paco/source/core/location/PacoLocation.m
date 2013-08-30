@@ -39,15 +39,11 @@ NSTimer* LocationTimer;
     
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-      NSLog(@"***********  PacoLocation is allocated, timer starts working! ***********");
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
-                                                       target:self
-                                                     selector:@selector(LocationTimerHandler:)
-                                                     userInfo:nil
-                                                      repeats:YES];
-    });
+    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
+                                                     target:self
+                                                   selector:@selector(LocationTimerHandler:)
+                                                   userInfo:nil
+                                                    repeats:YES];
   }
   
   return self;
