@@ -71,7 +71,7 @@
      message:notification.alertBody
      tapHandler:^{
        NSLog(@"Received tap on notification banner!");
-       [[PacoClient sharedInstance].scheduler handleEvent:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
+       [[PacoClient sharedInstance].scheduler handleNotification:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
        [self showSurveyForNotification:notification];
      }];
   }
@@ -120,7 +120,7 @@
   NSLog(@"==========  Application applicationWillResignActive  ==========");
 
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
-  success = success && [[PacoClient sharedInstance].scheduler writeEventsToFile];
+  success = success && [[PacoClient sharedInstance].scheduler saveNotificationsToFile];
   if (success) {
     NSLog(@"SUCCESSFULLY SAVED TO FILE");
   } else {

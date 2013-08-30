@@ -48,7 +48,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   return self;
 }
 
--(bool) writeEventsToFile {
+- (BOOL)saveNotificationsToFile {
   NSMutableArray* notificationArray = [[NSMutableArray alloc] init];
   NSDictionary* iosLocalNotifications = [_iOSLocalNotifications copy];
   
@@ -91,7 +91,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     
     // if this notification has already timed out, we should let the deligate know so he can notify the server
     if (([experimentTimeOutDate timeIntervalSinceNow] <= 0)) {
-      [_delegate handleEventTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
+      [_delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
     } else {
       [self registeriOSNotification:experimentInstanceId
                  experimentFireDate:experimentFireDate
@@ -126,8 +126,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 }
 
 
--(void)removeEvent:(PacoExperiment*) experiment
-            experiments:(NSArray*) experiments {
+- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment {
   NSDictionary* iosLocalNotifications = [_iOSLocalNotifications copy];
   
   for(NSString* notificationHash in iosLocalNotifications) {
@@ -148,8 +147,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   [self registerUpcomingiOSNotifications:experiments];
 }
 
-- (void)handleEvent:(UILocalNotification *)notification
-         experiments:(NSArray*) experiments {
+- (void)handleNotification:(UILocalNotification *)notification
+               experiments:(NSArray*) experiments {
   NSLog(@"Paco handling an iOS notification = %@", notification.userInfo);
   
   // make sure to decrement the Application Badge Number
@@ -163,7 +162,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     experiment.schedule.esmSchedule = esmSchedule;
   }
   
-  [self removeEvent:experiment experiments:experiments];
+  [self stopSchedulingForExperiment:experiment];
   [self registerUpcomingiOSNotifications:experiments];
 }
 
@@ -308,7 +307,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       // the firedate + timeout falls before now, so the notification has expired and should be deleted
       [_iOSLocalNotifications removeObjectForKey:notificationHash];
       // Let the server know about this Missed Responses/Signals
-      [_delegate handleEventTimeOut:experimentInstanceId experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
+      [_delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
     }
   }
 }

@@ -115,8 +115,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   [self.scheduler update:self.model.experimentInstances];
 }
 
-- (void)handleEventTimeOut:(NSString*) experimentInstanceId
-        experimentFireDate:(NSDate*) experimentFireId {
+- (void)handleNotificationTimeOut:(NSString*) experimentInstanceId
+               experimentFireDate:(NSDate*) experimentFireId {
 //TODO: Implement this method to call the server and let it know about the missed signal
 }
 

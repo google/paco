@@ -24,8 +24,8 @@ extern NSString* const kExperimentHasFiredKey;
 
 @protocol PacoSchedulerDelegate
 @required
-- (void)handleEventTimeOut:(NSString*) experimentInstanceId
-        experimentFireDate:(NSDate*) experimentFireId;
+- (void)handleNotificationTimeOut:(NSString*) experimentInstanceId
+               experimentFireDate:(NSDate*) experimentFireId;
 @end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
@@ -37,21 +37,20 @@ extern NSString* const kExperimentHasFiredKey;
 
 @property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
 
-- (void)handleEvent:(UILocalNotification *)notification
-        experiments:(NSArray*) experiments;
+- (void)handleNotification:(UILocalNotification *)notification
+               experiments:(NSArray*) experiments;
 
 // call this when joining an experiment
 -(void)startSchedulingForExperiment:(PacoExperiment*)experiment;
 
 // call this when leaving an experiment
--(void)removeEvent:(PacoExperiment*) experiment
-       experiments:(NSArray*) experiments;
+- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
 
 // see which Notifications have expired, and schedule new ones
 -(void)update:(NSArray *)experiments;
 
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state
--(bool)writeEventsToFile;
+- (BOOL)saveNotificationsToFile;
 
 @end
