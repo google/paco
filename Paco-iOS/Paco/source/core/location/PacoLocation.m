@@ -41,6 +41,7 @@ NSTimer* LocationTimer;
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+      NSLog(@"***********  PacoLocation is allocated, timer starts working! ***********");
       LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
@@ -50,6 +51,13 @@ NSTimer* LocationTimer;
   }
   
   return self;
+}
+
+- (void)dealloc {
+  NSLog(@"***********  PacoLocation is deallocated, timer stops working! ***********");
+  [LocationTimer invalidate];
+  LocationTimer = nil;
+  [self disableLocationTimer];
 }
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
