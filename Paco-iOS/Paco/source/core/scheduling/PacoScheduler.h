@@ -35,7 +35,7 @@ extern NSString* const kExperimentHasFiredKey;
 // scheduled at once.
 @interface PacoScheduler : NSObject
 
-@property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate;
 
 - (void)handleNotification:(UILocalNotification *)notification
                experiments:(NSArray*) experiments;

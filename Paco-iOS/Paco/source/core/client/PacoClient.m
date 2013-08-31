@@ -85,7 +85,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   if (self) {
     self.authenticator = [[PacoAuthenticator alloc] init];
     self.location = nil;//[[PacoLocation alloc] init];
-    self.scheduler = [[PacoScheduler alloc] init];
+    self.scheduler = [PacoScheduler schedulerWithDelegate:self];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
     // Start the notifier, which will cause the reachability object to retain itself!

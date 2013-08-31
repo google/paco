@@ -24,7 +24,8 @@
 NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 
 @interface PacoScheduler ()
-@property (retain, readwrite) NSMutableDictionary* iOSLocalNotifications;
+@property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
+@property (atomic, retain, readwrite) NSMutableDictionary* iOSLocalNotifications;
 @end
 
 @implementation PacoScheduler
@@ -48,9 +49,15 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   return self;
 }
 
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate {
+  PacoScheduler* scheduler = [[PacoScheduler alloc] init];
+  scheduler.delegate = delegate;
+  return scheduler;
+}
+
 - (BOOL)saveNotificationsToFile {
   NSMutableArray* notificationArray = [[NSMutableArray alloc] init];
-  NSDictionary* iosLocalNotifications = [_iOSLocalNotifications copy];
+  NSDictionary* iosLocalNotifications = [self.iOSLocalNotifications copy];
   
   for(NSString* notificationHash in iosLocalNotifications) {
     UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
@@ -91,7 +98,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     
     // if this notification has already timed out, we should let the deligate know so he can notify the server
     if (([experimentTimeOutDate timeIntervalSinceNow] <= 0)) {
-      [_delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
+      [self.delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
     } else {
       [self registeriOSNotification:experimentInstanceId
                  experimentFireDate:experimentFireDate
@@ -127,7 +134,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 
 
 - (void)stopSchedulingForExperiment:(PacoExperiment*)experiment {
-  NSDictionary* iosLocalNotifications = [_iOSLocalNotifications copy];
+  NSDictionary* iosLocalNotifications = [self.iOSLocalNotifications copy];
   
   for(NSString* notificationHash in iosLocalNotifications) {
     UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
@@ -137,7 +144,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       NSLog(@"Paco removing iOS notification for %@", experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       // the firedate + timeout falls before now, so the notification has expired and should be deleted
-      [_iOSLocalNotifications removeObjectForKey:notificationHash];
+      [self.iOSLocalNotifications removeObjectForKey:notificationHash];
     }
   }
 }
@@ -241,7 +248,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   UILocalNotification* notificationObject = [self getiOSLocalNotification:experimentInstanceId fireDate:notification.fireDate];
   NSString* notificationKey = [NSString stringWithFormat:@"%@%.0f", experimentInstanceId, [notification.fireDate timeIntervalSince1970]];
   NSAssert(notificationObject != nil, @"notification shouldn't be nil");
-  [_iOSLocalNotifications setObject:notificationObject forKey:notificationKey];
+  [self.iOSLocalNotifications setObject:notificationObject forKey:notificationKey];
 }
 
 - (NSString*)getTimeZoneFormattedDateString:(NSDate*)date {
@@ -294,7 +301,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 
 // This will clear iOS Local Notifications that have fired from Notification Center and notify the deligate that they've timed out
 - (void)cancelExpirediOSLocalNotifications: (NSArray *)experiments {
-  NSDictionary* iosLocalNotifications = [_iOSLocalNotifications copy];
+  NSDictionary* iosLocalNotifications = [self.iOSLocalNotifications copy];
   
   for(NSString* notificationHash in iosLocalNotifications) {
     UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
@@ -305,9 +312,9 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       NSLog(@"Paco cancelling iOS notification for %@", experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       // the firedate + timeout falls before now, so the notification has expired and should be deleted
-      [_iOSLocalNotifications removeObjectForKey:notificationHash];
+      [self.iOSLocalNotifications removeObjectForKey:notificationHash];
       // Let the server know about this Missed Responses/Signals
-      [_delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
+      [self.delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
     }
   }
 }
