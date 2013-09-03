@@ -60,8 +60,8 @@
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-  PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-  questions.experiment = experiment;
+  PacoQuestionScreenViewController *questions =
+      [[PacoQuestionScreenViewController alloc] initWithExperiment:experiment];
   [self.viewController.navigationController pushViewController:questions animated:YES];
 }
 

@@ -23,6 +23,12 @@
 #import "PacoTitleView.h"
 
 
+@interface PacoClient ()
+- (void)loginWithClientLogin:(NSString *)email
+                    password:(NSString *)password
+           completionHandler:(void (^)(NSError *))completionHandler;
+@end
+
 
 @interface PacoLoginScreenViewController () <UITextFieldDelegate>
 

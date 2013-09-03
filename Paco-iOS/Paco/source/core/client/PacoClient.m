@@ -24,11 +24,8 @@
 #import "PacoEvent.h"
 #import "Reachability.h"
 #import "PacoEventManager.h"
-
-
-
-static NSString* const kUserEmail = @"PacoClient.userEmail";
-static NSString* const kUserPassword = @"PacoClient.userPassword";
+#import "PacoAppDelegate.h"
+#import "NSError+Paco.h"
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -39,6 +36,21 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @end
 
 @implementation PacoPrefetchState
+
+
+- (BOOL)succeedToLoadDefinitions {
+  return self.finishLoadingDefinitions && self.errorLoadingDefinitions == nil;
+}
+
+
+- (BOOL)succeedToLoadExperiments {
+  return self.finishLoadingExperiments && self.errorLoadingExperiments == nil;
+}
+
+- (BOOL)succeedToLoadAll {
+  return [self succeedToLoadDefinitions] && [self succeedToLoadExperiments];
+}
+
 - (void)reset
 {
   self.finishLoadingDefinitions = NO;
@@ -65,7 +77,6 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 @property (nonatomic, retain, readwrite) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
-@property (nonatomic, retain, readwrite) NSString* userEmail;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
 @end
 
@@ -106,6 +117,10 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
   return self;
 }
 
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 #pragma mark Public methods
 - (BOOL)isLoggedIn {
   return [self.authenticator isLoggedIn];
@@ -120,30 +135,26 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 //TODO: Implement this method to call the server and let it know about the missed signal
 }
 
-//YMZ: TODO: we need to store user email and address inside keychain
-//However, if we migrate to OAuth2, it looks like GTMOAuth2ViewControllerTouch
-//already handles keychain storage
 - (BOOL)isUserAccountStored {
-  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
-  NSString* pwd = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
-  if ([email length] > 0 && [pwd length] > 0) {
-    return YES;
-  }
-  return NO;
+  return [self.authenticator isUserAccountStored];
 }
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId {
   return [self.model isExperimentJoined:definitionId];
 }
 
-- (void)storeEmail:(NSString*)email password:(NSString*)password
-{
-  NSAssert([email length] > 0 && [password length] > 0, @"There isn't any valid user account to stored!");
-  [[NSUserDefaults standardUserDefaults] setObject:email forKey:kUserEmail];
-  [[NSUserDefaults standardUserDefaults] setObject:password forKey:kUserPassword];
+- (NSString*)userEmail {
+  return [self.authenticator userEmail];
 }
 
-- (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler
+- (void)invalidateUserAccount {
+  [self.authenticator invalidateCurrentAccount];
+  [self showLoginScreenWithCompletionBlock:nil];
+}
+
+
+#pragma mark bring up login flow if necessary
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
   if (SKIP_LOG_IN) {
     [self prefetchInBackgroundWithBlock:^{
@@ -152,13 +163,113 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     return;
   }
   
-  NSString* email = [[NSUserDefaults standardUserDefaults] objectForKey:kUserEmail];
-  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
+  UINavigationController* navi = (UINavigationController*)
+      ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
+  if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
+    PacoLoginScreenViewController *loginViewController =
+        [PacoLoginScreenViewController controllerWithCompletionBlock:block];
+    [navi presentViewController:loginViewController animated:YES completion:nil];
+  }  
+}
+
+- (void)startWorkingAfterLogIn {
+  // Authorize the service.
+  self.service.authenticator = self.authenticator;
   
-  NSString* password = [[NSUserDefaults standardUserDefaults] objectForKey:kUserPassword];
-  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
+  // Fetch the experiment definitions and the events of joined experiments.
+  [self prefetchInBackgroundWithBlock:^{
+    [self startLocationTimerIfNeeded];
+  }];
   
-  [self loginWithClientLogin:email password:password completionHandler:completionHandler];
+  [self uploadPendingEventsInBackground];
+}
+
+
+- (void)reachabilityChanged:(NSNotification*)notification {
+  Reachability* reach = (Reachability*)[notification object];
+  if ([reach isReachable]) {      
+    [self.authenticator reAuthenticateWithBlock:^(NSError* error) {
+      [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+      if (error == nil) {
+        // Authorize the service.
+        self.service.authenticator = self.authenticator;
+        [self uploadPendingEventsInBackground];
+      } else {
+        NSLog(@"[ERROR]: failed to re-authenticate user!!!");
+        [self showLoginScreenWithCompletionBlock:nil];
+      }
+    }];
+    
+    NSLog(@"[Reachable]: Online Now!");
+  }else {
+    NSLog(@"[Reachable]: Offline Now!");
+  }
+}
+
+- (void)reAuthenticateUserWithBlock:(LoginCompletionBlock)block {
+  //If there is an account stored, and the internet is offline, then we should allow user to use
+  //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
+  //we will re-authenticate user
+  if (!self.reachability.isReachable) {
+    [self prefetchInBackgroundWithBlock:^{
+      [self startLocationTimerIfNeeded];
+    }];
+    if (block != nil) {
+      block(nil);
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(reachabilityChanged:)
+                                                 name:kReachabilityChangedNotification
+                                               object:nil];
+  } else {
+    [self.authenticator reAuthenticateWithBlock:^(NSError* error) {
+      if (error == nil) {
+        [self startWorkingAfterLogIn];
+        if (block != nil) {
+          block(nil);
+        }
+      } else {
+        [self showLoginScreenWithCompletionBlock:block];
+      }
+    }];
+  }
+}
+
+
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
+  if (SKIP_LOG_IN) {
+    [self startWorkingAfterLogIn];
+    if (block != nil) {
+      block(nil);
+    }
+    return;
+  }
+  
+  
+  if ([self isLoggedIn]) {
+    if (block) {
+      block(nil);
+    }
+    return;
+  }
+
+  
+  if ([self.authenticator setupWithCookie]) {
+    NSLog(@"Valid cookie detected, no need to log in!");
+    [self startWorkingAfterLogIn];
+    
+    if (block != nil) {
+      block(nil);
+    }
+    return;
+  }
+  
+  if (![self isUserAccountStored]) {
+    [self showLoginScreenWithCompletionBlock:block];
+  } else {
+    [self reAuthenticateUserWithBlock:block];
+  }
 }
 
 - (void)startLocationTimerIfNeeded {
@@ -178,39 +289,22 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
            completionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn] && [self.userEmail isEqualToString:email]) {
-    if (completionHandler != nil) {
-      completionHandler(nil);
-    }
-  }else{
-    [self.authenticator authenticateWithClientLogin:email//@"paco.test.gv@gmail.com"
-                                           password:password//@"qwertylkjhgf"
-                                  completionHandler:^(NSError *error) {
-                                    if (!error) {
-                                      // Authorize the service.
-                                      self.service.authenticator = self.authenticator;
-                                      self.userEmail = email;
-                                      
-                                      [self storeEmail:email password:password];
-                                      
-                                      // Fetch the experiment definitions and the events of joined experiments.
-                                      [self prefetchInBackgroundWithBlock:^{
-                                        // let's handle setting up the notifications after that thread completes
-                                        NSLog(@"Paco loginWithClientLogin experiments load has completed.");
-                                        [self startLocationTimerIfNeeded];
-                                      }];
-                                      
-                                      [self uploadPendingEventsInBackground];
-                                      completionHandler(nil);
-                                    } else {
-                                      completionHandler(error);
-                                    }
-                                  }];    
-  }
+  NSAssert(![self isLoggedIn], @"user should not be logged in!");
+  [self.authenticator authenticateWithClientLogin:email
+                                         password:password
+                                completionHandler:^(NSError *error) {
+                                  if (!error) {
+                                    [self startWorkingAfterLogIn];
+                                    completionHandler(nil);
+                                  } else {
+                                    completionHandler(error);
+                                  }
+                                }];    
 }
 
+
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
-  if ([self.authenticator isLoggedIn]) {
+  if ([self isLoggedIn]) {
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -232,6 +326,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
     }];
   }
 }
+
 
 - (void)uploadPendingEventsInBackground {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -275,15 +370,20 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 
 - (void)prefetchInBackgroundWithBlock:(void (^)(void))completionBlock {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if ([self.prefetchState succeedToLoadAll]) {
+      return;
+    }
+
     [self.prefetchState reset];
     // Load the experiment definitions.
     
     if (SKIP_LOG_IN) {
       [self definitionsLoadedWithError:nil];
       [self prefetchExperimentsWithBlock:completionBlock];
-      return;      
+      return;
     }
-    
+
+    // Load the experiment definitions.
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {
       [self definitionsLoadedWithError:nil];
@@ -308,9 +408,7 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
       
       [self prefetchExperimentsWithBlock:completionBlock];
     }];
-
   });
-
 }
 
 

@@ -79,7 +79,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   for (id jsonExperiment in jsonExperiments) {
     PacoExperimentDefinition *experimentDefinition =
         [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonExperiment];
-    [experimentDefinition tagQuestionsForDependencies];
     assert(experimentDefinition);
     [definitions addObject:experimentDefinition];
     //PacoExperiment *experiment = [[PacoExperiment alloc] init];

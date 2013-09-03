@@ -73,11 +73,10 @@
       if ([data length]) {
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
-          //char* bla = malloc([data length] + 1);
-          //memset(bla,0,[data length] + 1);
-          //memcpy(bla, [data bytes], [data length]);
-          NSLog(@"JSON PARSE ERROR = %@\n", jsonError);//, bla);
+          NSLog(@"JSON PARSE ERROR = %@\n", jsonError);
           NSLog(@"PROBABLY AN AUTH ERROR");
+          
+          [[PacoClient sharedInstance] invalidateUserAccount];
         }
       }
       if (completionHandler) {
@@ -140,18 +139,18 @@
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
                NSLog(@"JOIN RESPONSE = %@", jsonData);
-
-               NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
                NSMutableArray* successEventIndexes = [NSMutableArray array];
-               for (id output in jsonData) {
-                 NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
-                 if ([output objectForKey:@"errorMessage"] == nil) {
-                   NSNumber* eventIndex = [output objectForKey:@"eventId"];
-                   NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
-                   [successEventIndexes addObject:eventIndex];
+               if (error == nil) {
+                 NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
+                 for (id output in jsonData) {
+                   NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
+                   if ([output objectForKey:@"errorMessage"] == nil) {
+                     NSNumber* eventIndex = [output objectForKey:@"eventId"];
+                     NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
+                     [successEventIndexes addObject:eventIndex];
+                   }
                  }
-               }
-               
+               }                
                if (completionBlock) {
                  completionBlock(successEventIndexes, error);
                }
@@ -165,7 +164,7 @@
       [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
            [PacoClient sharedInstance].serverDomain,
            experiment.experimentId,
-           [PacoClient sharedInstance].userEmail];//self.authenticator.auth.userEmail];
+           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request =

@@ -74,13 +74,16 @@
 
 - (void)updateUIWithError:(NSError*)error
 {
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  if (error) {
-    tableView.data = [NSArray array];
-    [PacoAlertView showGeneralErrorAlert];
-  }else{
-    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
-  }
+  //send UI update to main thread to avoid potential crash
+  dispatch_async(dispatch_get_main_queue(), ^{
+    PacoTableView* tableView = (PacoTableView*)self.view;
+    if (error) {
+      tableView.data = [NSArray array];
+      [PacoAlertView showGeneralErrorAlert];
+    }else{
+      tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+    }
+  });
 }
 
 
@@ -148,8 +151,8 @@
     return;
   }
   
-  PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-  questions.experiment = self.selectedExperiment;
+  PacoQuestionScreenViewController *questions =
+      [[PacoQuestionScreenViewController alloc] initWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 

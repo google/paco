@@ -236,7 +236,7 @@ static const int kInvalidIndex = -1;
   [self addSubview:self.questionText];
   [self.questionText sizeToFit];
 
-  if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
+  if (self.question.responseEnumType == ResponseEnumTypeLikertSmileys) {
     // Smiley Buttons
     NSMutableArray *buttons = [NSMutableArray array];
     for (int i = 1; i <= 5; ++i) {
@@ -254,7 +254,7 @@ static const int kInvalidIndex = -1;
     } else {
       [self selectSmiley:kInvalidIndex];
     }
-  } else if ([self.question.responseType isEqualToString:@"likert"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
     // Number Steps
     NSMutableArray *buttons = [NSMutableArray array];
     for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
@@ -272,7 +272,7 @@ static const int kInvalidIndex = -1;
     } else {
       [self selectNumberButton:kInvalidIndex];
     }
-  } else if ([self.question.responseType isEqualToString:@"open text"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     // Open Text Field
     self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
     self.textField.placeholder = @"<type response here>";
@@ -287,7 +287,7 @@ static const int kInvalidIndex = -1;
       }
       self.textField.text = self.question.responseObject;
     }
-  } else if ([self.question.responseType isEqualToString:@"list"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // TODO: radio list UI implementation
     // TODO: modify checkboxes to be vertical
     NSString* listIdentifier = @"question_list";
@@ -306,7 +306,7 @@ static const int kInvalidIndex = -1;
     if (self.question.responseObject) {
       checkboxes.bitFlags = self.question.responseObject;
     }
-  } else if ([self.question.responseType isEqualToString:@"number"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
     slider.format = @"%d";
     if (self.question.responseObject) {
@@ -320,7 +320,7 @@ static const int kInvalidIndex = -1;
     self.numberSlider = slider;
     [self addSubview:slider];
 
-  } else if ([self.question.responseType isEqualToString:@"location"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
       self.questionText.text = @"Attaching your location ...";
       [self.questionText sizeToFit];
@@ -335,7 +335,7 @@ static const int kInvalidIndex = -1;
       self.map.mapType = MKMapTypeHybrid;// MKMapTypeStandard,MKMapTypeSatellite,MKMapTypeHybrid
     }
     [self addSubview:self.map];
-  } else if ([self.question.responseType isEqualToString:@"photo"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
       self.questionText.text = @"Attach a photo.";
       [self.questionText sizeToFit];
@@ -406,20 +406,20 @@ static const int kInvalidIndex = -1;
     return [NSNumber numberWithInt:140 + (textSize.height)];
   }
   
-  if ([question.responseType isEqualToString:@"likert_smileys"]) {
+  if (question.responseEnumType == ResponseEnumTypeLikertSmileys) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
-  } else if ([question.responseType isEqualToString:@"likert"]) {
+  } else if (question.responseEnumType == ResponseEnumTypeLikert) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
-  } else if ([question.responseType isEqualToString:@"open text"]) {
-  } else if ([question.responseType isEqualToString:@"list"]) {
+  } else if (question.responseEnumType == ResponseEnumTypeOpenText) {
+  } else if (question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
     int numChoices = question.listChoices.count;
     return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
-  } else if ([question.responseType isEqualToString:@"number"]) {
+  } else if (question.responseEnumType == ResponseEnumTypeNumber) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
-  } else if ([question.responseType isEqualToString:@"location"]) {
+  } else if (question.responseEnumType == ResponseEnumTypeLocation) {
     return [NSNumber numberWithInt:300 + (textSize.height)];
-  } else if ([question.responseType isEqualToString:@"photo"]) {
+  } else if (question.responseEnumType == ResponseEnumTypePhoto) {
     return [NSNumber numberWithInt:300 + (textSize.height)];
   }
 
@@ -444,7 +444,7 @@ static const int kInvalidIndex = -1;
     return;
   }
 
-  if ([self.question.responseType isEqualToString:@"likert_smileys"]) {
+  if (self.question.responseEnumType == ResponseEnumTypeLikertSmileys) {
     int numSmileys = self.smileysButtons.count;
     CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
     NSArray *smileys = [PacoLayout splitRectHorizontally:bounds numSections:numSmileys];
@@ -455,7 +455,7 @@ static const int kInvalidIndex = -1;
       CGRect rect = [valueRect CGRectValue];
       button.frame = rect;
     }
-  } else if ([self.question.responseType isEqualToString:@"likert"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
     int numValues = self.numberButtons.count;
     CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
     NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
@@ -466,10 +466,10 @@ static const int kInvalidIndex = -1;
       CGRect rect = [valueRect CGRectValue];
       button.frame = rect;
     }
-  } else if ([self.question.responseType isEqualToString:@"open text"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
     self.textField.frame = bounds;
-  } else if ([self.question.responseType isEqualToString:@"list"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
     self.checkboxes.frame = bounds;
@@ -478,15 +478,15 @@ static const int kInvalidIndex = -1;
 //      for (int i = 0; i < numChoices; ++i) {
 //
 //      }
-  } else if ([self.question.responseType isEqualToString:@"number"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
     self.numberSlider.frame = bounds;
-  } else if ([self.question.responseType isEqualToString:@"location"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
     self.map.frame = bounds;
-  } else if ([self.question.responseType isEqualToString:@"photo"]) {
+  } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     CGRect segmentControlFrame = CGRectMake(self.questionText.frame.origin.x + textsize.width + 20,
                                             self.questionText.frame.origin.y + 5,
                                             self.photoSegmentControl.frame.size.width,

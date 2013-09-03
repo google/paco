@@ -14,6 +14,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "PacoLoginScreenViewController.h"
 
 @class PacoAuthenticator;
 @class PacoLocation;
@@ -51,21 +52,21 @@
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
 
-//YMZ: the following needs to be removed after we migrate to OAuth2
-@property (nonatomic, retain, readonly) NSString* userEmail;
 
 + (PacoClient *)sharedInstance;
 
+- (NSString*)userEmail;
 - (BOOL)isLoggedIn;
+
+//call this method when we get authentication error
+//1. Set isLoggedIn to NO
+//2. delete cookie and account in keychain
+//3. pop up the log-in dialog to ask user re-logIn
+- (void)invalidateUserAccount;
 
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
-- (BOOL)isUserAccountStored;
-- (void)loginWithClientLogin:(NSString *)email
-                    password:(NSString *)password
-           completionHandler:(void (^)(NSError *))completionHandler;
-- (void)loginWithCompletionHandler:(void (^)(NSError *))completionHandler;
-
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 

@@ -77,17 +77,20 @@
 
 - (void)updateUIWithError:(NSError*)error
 {
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  if (error) {
-    tableView.data = [NSArray array];
-    [[[UIAlertView alloc] initWithTitle:@"Sorry"
-                                message:@"Something went wrong, please try again later."
-                               delegate:nil
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
-  }else{
-    tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
-  }
+  //send UI update to main thread to avoid potential crash
+  dispatch_async(dispatch_get_main_queue(), ^{
+    PacoTableView* tableView = (PacoTableView*)self.view;
+    if (error) {
+      tableView.data = [NSArray array];
+      [[[UIAlertView alloc] initWithTitle:@"Sorry"
+                                  message:@"Something went wrong, please try again later."
+                                 delegate:nil
+                        cancelButtonTitle:@"OK"
+                        otherButtonTitles:nil] show];
+    }else{
+      tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+    }
+  });
 }
 
 - (void)definitionsUpdate:(NSNotification*)notification
