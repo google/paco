@@ -15,56 +15,78 @@
 
 
 #import "PacoExpressionExecutor.h"
+#import "ParseKit.h"
 
 @implementation PacoExpressionExecutor
-/*     "a > 1 && b == 2 || c == a", [a, b, c]
- *  ==>"$a > 1 && $b == 2 || $c == $a"
- **/
-+ (void)applyDollarSignForRawExpression:(NSString*)expression
-               withVariableNameList:(NSArray*)variableNameList
-                          withBlock:(void(^)(NSString*, NSArray*))block {
-  CFStringRef expressionRef = (__bridge CFStringRef)expression;
-  CFLocaleRef locale = CFLocaleCopyCurrent();
-  CFStringTokenizerRef tokenizer =
-      CFStringTokenizerCreate(kCFAllocatorDefault,
-                              expressionRef,
-                              CFRangeMake(0, CFStringGetLength(expressionRef)),
-                              kCFStringTokenizerUnitWord,
-                              locale);
+
+
++ (PKTokenizer*)tokenizer {
+  static PKTokenizer* pacoTokenizer = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    pacoTokenizer = [PKTokenizer tokenizer];
+    [pacoTokenizer.symbolState add:@"=="];
+    [pacoTokenizer.symbolState add:@"&&"];
+    [pacoTokenizer.symbolState add:@"||"];
+    [pacoTokenizer.symbolState add:@"!="];
+  });
+  return pacoTokenizer;
+}
+
++ (NSArray*)tokenize:(NSString*)input {
+  PKTokenizer* tokenizer = [PacoExpressionExecutor tokenizer];
+  tokenizer.string = input;
   
   NSMutableArray* tokenList = [NSMutableArray array];
-  CFStringTokenizerTokenType tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer);
-  while(kCFStringTokenizerTokenNone != tokenType) {
-    CFRange tokenRange = CFStringTokenizerGetCurrentTokenRange(tokenizer);
-    CFStringRef tokenValue = CFStringCreateWithSubstring(kCFAllocatorDefault,
-                                                         expressionRef,
-                                                         tokenRange);
-    
-    NSString* tokenStr = (__bridge NSString*)tokenValue;
-    [tokenList addObject:tokenStr];
-    CFRelease(tokenValue);
-    
-    tokenType = CFStringTokenizerAdvanceToNextToken(tokenizer);
+  PKToken* token = [tokenizer nextToken];  
+  while(token != [PKToken EOFToken]) {
+    [tokenList addObject:token.stringValue];
+    token = [tokenizer nextToken];
   }
-  CFRelease(tokenizer);
-  CFRelease(locale);
-  
-  NSString* newExpression = [expression copy];
-  NSMutableArray* dependencyVariables = [NSMutableArray array];
-  for (NSString* variableName in variableNameList) {
-    if ([tokenList containsObject:variableName]) {
-      [dependencyVariables addObject:variableName];
+  return tokenList;
+}
 
-      NSString* replacement = [NSString stringWithFormat:@"$%@", variableName];
-      newExpression = [newExpression stringByReplacingOccurrencesOfString:variableName
-                                                               withString:replacement];
+
++ (void)processRawExpression:(NSString*)expression
+      withVariableDictionary:(NSDictionary*)variableDict
+                    andBlock:(void(^)(NSString*, NSArray*))block {
+  NSArray* tokenList = [PacoExpressionExecutor tokenize:expression];
+  NSMutableArray* dependencyVariables = [NSMutableArray array];
+  
+  NSMutableArray* processedTokens = [NSMutableArray arrayWithArray:tokenList];
+  for (int index=0; index < [tokenList count]; index++) {
+    NSString* token = [tokenList objectAtIndex:index];
+    NSNumber* value = [variableDict objectForKey:token];
+    if (value == nil) { //not a variable
+      continue;
     }
+    
+    if (![dependencyVariables containsObject:token]) {
+      [dependencyVariables addObject:token];
+    }
+    NSAssert([value isKindOfClass:[NSNumber class]], @"value should be a number!");
+    
+    NSString* newToken = [NSString stringWithFormat:@"$%@", token];
+    int nextIndex = index + 1;
+    if ([value boolValue] &&  nextIndex < [tokenList count]) {//variable is a list
+      NSString* nextToken = [tokenList objectAtIndex:nextIndex];
+      if ([nextToken isEqualToString:@"=="] || [nextToken isEqualToString:@"!="]) {
+        [processedTokens replaceObjectAtIndex:nextIndex withObject:@"contains"];
+        if ([nextToken isEqualToString:@"!="]) {
+          newToken = [NSString stringWithFormat:@"not %@", newToken];
+        }
+      }
+    }
+    [processedTokens replaceObjectAtIndex:index
+                               withObject:newToken];
   }
+  NSString* newExpression = [processedTokens componentsJoinedByString:@" "];
   block(newExpression, dependencyVariables);
 }
 
+
 + (void)predicateWithRawExpression:(NSString*)rawExpression
-              withVariableNameList:(NSArray*)variableNameList
+            withVariableDictionary:(NSDictionary*)variableDict
                           andBlock:(PredicateBlock)completionBlock {
   void(^block)(NSString*, NSArray*) = ^(NSString *newExpression, NSArray *dependencyVariables) {
     NSPredicate* pred = nil;
@@ -79,10 +101,11 @@
     completionBlock(pred, dependencyVariables);
   };
   
-  [PacoExpressionExecutor applyDollarSignForRawExpression:rawExpression
-                                     withVariableNameList:variableNameList
-                                                withBlock:block];
+  [PacoExpressionExecutor processRawExpression:rawExpression
+                        withVariableDictionary:variableDict
+                                      andBlock:block];
 }
+
 
 
 

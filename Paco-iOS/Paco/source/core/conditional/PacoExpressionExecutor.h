@@ -20,7 +20,14 @@ typedef void(^PredicateBlock)(NSPredicate* predicate, NSArray* dependencyVariabl
 
 @interface PacoExpressionExecutor : NSObject
 
+/*
+ rawExpression : "a contains 1 && b > 7"
+ variableDict: {"a":YES, "b":NO}
+ YES: variable is a list, NO: variable is not a list
+ **/
 + (void)predicateWithRawExpression:(NSString*)rawExpression
-                      withVariableNameList:(NSArray*)variableNameList
-                                  andBlock:(PredicateBlock)completionBlock;
+            withVariableDictionary:(NSDictionary*)variableDict
+                          andBlock:(PredicateBlock)completionBlock;
+
+
 @end
