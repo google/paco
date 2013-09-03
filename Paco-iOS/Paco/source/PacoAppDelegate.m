@@ -60,8 +60,10 @@
   //If there is a question view popped up, dismiss it and show a new question view 
   UINavigationController* navi = self.viewController.navigationController;
   UIViewController* survey = (PacoQuestionScreenViewController*)navi.visibleViewController;
+  BOOL animated = YES;
   if ([survey isKindOfClass:[PacoQuestionScreenViewController class]]) {
-    [navi popViewControllerAnimated:survey];
+    animated = NO;
+    [navi popViewControllerAnimated:animated];
   }
   
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
@@ -69,7 +71,7 @@
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
       [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
-  [navi pushViewController:questions animated:YES];
+  [navi pushViewController:questions animated:animated];
 }
 
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
