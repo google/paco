@@ -147,6 +147,17 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       [self.iOSLocalNotifications removeObjectForKey:notificationHash];
     }
   }
+  //Just in case, remove any notificaiton that still exists in OS system
+  NSArray* scheduledArr =
+      [NSArray arrayWithArray:[[UIApplication sharedApplication] scheduledLocalNotifications]];
+  for (UILocalNotification* noti in scheduledArr) {
+    NSString* experimentInstanceId = [noti.userInfo objectForKey:@"experimentInstanceId"];
+    NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
+    if ([experimentInstanceId isEqualToString:experiment.instanceId]) {
+      NSAssert(NO, @"There shouldn't be notification existing!");
+      [[UIApplication sharedApplication] cancelLocalNotification:noti];
+    }
+  }
 }
 
 -(void)update:(NSArray *)experiments {

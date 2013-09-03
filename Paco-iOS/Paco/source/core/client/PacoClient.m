@@ -337,8 +337,8 @@ static NSString* const kUserPassword = @"PacoClient.userPassword";
 {
   //remove experiment from local cache
   [self.model deleteExperimentInstance:experiment];
-  
-  //TODO: ymz: clear all scheduled notifications and anything else
+  //clear all scheduled notifications and notifications in the tray
+  [self.scheduler stopSchedulingForExperiment:experiment];
 }
 
 
