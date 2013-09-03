@@ -15,6 +15,8 @@
 
 #import <Foundation/Foundation.h>
 
+
+
 @class GTMOAuth2Authentication;
 
 @interface PacoAuthenticator : NSObject
@@ -22,6 +24,8 @@
 @property(nonatomic, readonly, retain) GTMOAuth2Authentication *auth;
 @property(nonatomic, readonly, copy) NSString *cookie;
 
+
+- (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock;
 - (void)authenticateWithClientLogin:(NSString *)email
                            password:(NSString *)password
                   completionHandler:(void (^)(NSError *))completionHandler;
@@ -30,6 +34,13 @@
 
 - (BOOL)isLoggedIn;
 
+- (BOOL)setupWithCookie;
 
+- (BOOL)isUserAccountStored;
+
+- (NSString*)userEmail;
+- (NSString*)userPassword;
+
+- (void)invalidateCurrentAccount;
 @end
 

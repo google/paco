@@ -12,23 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #import <Foundation/Foundation.h>
 
-@class PacoAuthenticator;
-@class PacoEvent;
-@class PacoExperimentDefinition;
-@class PacoExperimentSchedule;
+@interface NSError (Paco)
 
-@interface PacoService : NSObject
-
-@property (nonatomic, retain) PacoAuthenticator *authenticator;
-
-// Load all experiement definitions from the server.
-- (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
-
-
-// Batch submit a list of events
-- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
+- (BOOL)isOfflineError;
 
 @end
