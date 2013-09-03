@@ -36,6 +36,12 @@
     return;
   }
   
+  NSDate* experimentTimeOutDate =[notification.userInfo valueForKey:@"experimentTimeOutDate"];
+  if (experimentTimeOutDate != nil && [experimentTimeOutDate timeIntervalSinceNow] <= 0) {
+    NSLog(@"Warning: A time out notification was received!");
+    return;
+  }
+  
   UIApplicationState state = [application applicationState];
   //if this is called when application is in background, we should show the question view directly.
   if (state == UIApplicationStateInactive) {
