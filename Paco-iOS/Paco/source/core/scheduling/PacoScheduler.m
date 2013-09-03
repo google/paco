@@ -313,15 +313,60 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   }
 }
 
+
+- (void)clearOldNotificationsFromTray:(NSMutableDictionary*)firedNotificationsInTrayDict {
+  for (NSString* experimentInstanceId in firedNotificationsInTrayDict) {
+    NSMutableArray* notificationsFired = [firedNotificationsInTrayDict objectForKey:experimentInstanceId];
+    //If there is only one fired notification in the tray for the same experiment, we don't need
+    //to clear anything
+    if ([notificationsFired count] <= 1) {
+      continue;
+    }
+    
+    //experiment has more than one notification that fired and thus are currently showing up in the tray,
+    //so we need to cancel old notifications and only leave the latest fired one in the tray    
+    [notificationsFired sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+      NSAssert([obj1 isKindOfClass:[NSArray class]] && [obj2 isKindOfClass:[NSArray class]],
+               @"obj1 and obj2 should be NSArray!");
+      UILocalNotification* notificationObject1 = [(NSArray*)obj1 objectAtIndex:1];
+      UILocalNotification* notificationObject2 = [(NSArray*)obj2 objectAtIndex:1];
+      NSAssert([notificationObject1 isKindOfClass:[UILocalNotification class]] &&
+               [notificationObject2 isKindOfClass:[UILocalNotification class]],
+               @"notificationObject1 and notificationObject2 should be UILocalNotification!");
+      
+      NSDate* fireDate1 = [notificationObject1.userInfo objectForKey:@"experimentFireDate"];
+      NSDate* fireDate2 = [notificationObject2.userInfo objectForKey:@"experimentFireDate"];
+      NSAssert(fireDate1 != nil && fireDate2 != nil, @"fireDate1 and fireDate2 should be valid!");
+      return [fireDate1 compare:fireDate2];
+    }];
+  
+    NSLog(@"There are %d fired notifications in the tray for %@",[notificationsFired count],experimentInstanceId);
+    for (int index=0; index < [notificationsFired count]-1; index++) {
+      NSArray* notificationObjectArr = [notificationsFired objectAtIndex:index];
+      
+      NSString* notificationHash = [notificationObjectArr objectAtIndex:0];
+      UILocalNotification* notification = [notificationObjectArr objectAtIndex:1];
+      NSLog(@"Paco clearing 1 fired iOS notification from tray for %@", experimentInstanceId);
+      [[UIApplication sharedApplication] cancelLocalNotification:notification];
+      [self.iOSLocalNotifications removeObjectForKey:notificationHash];
+      [self.delegate handleNotificationTimeOut:experimentInstanceId
+                            experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
+    }
+  }
+
+}
+
 // This will clear iOS Local Notifications that have fired from Notification Center and notify the deligate that they've timed out
 - (void)cancelExpirediOSLocalNotifications: (NSArray *)experiments {
   NSDictionary* iosLocalNotifications = [self.iOSLocalNotifications copy];
+  NSMutableDictionary* firedNotificationsInTrayDict = [NSMutableDictionary dictionary];
   
   for(NSString* notificationHash in iosLocalNotifications) {
     UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
     NSDate* timeOutDate = [notification.userInfo objectForKey:@"experimentTimeOutDate"];
     NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     
+    //clear time out notification
     if ([timeOutDate timeIntervalSinceNow] < 0) {
       NSLog(@"Paco cancelling iOS notification for %@", experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
@@ -330,6 +375,20 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       // Let the server know about this Missed Responses/Signals
       [self.delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
     }
+
+    NSDate* fireDate = [notification.userInfo objectForKey:@"experimentFireDate"];
+    NSAssert(fireDate != nil, @"fireDate should not be nil!");
+    NSTimeInterval intervalSinceFiredDate = [fireDate timeIntervalSinceNow];
+    if (intervalSinceFiredDate <= 0) {
+      NSMutableArray* firedNotifications = [firedNotificationsInTrayDict objectForKey:experimentInstanceId];
+      if (firedNotifications == nil) {
+        firedNotifications = [NSMutableArray array];
+      }
+      [firedNotifications addObject:@[notificationHash, notification]];
+      [firedNotificationsInTrayDict setObject:firedNotifications forKey:experimentInstanceId];
+    }
   }
+  
+  [self clearOldNotificationsFromTray:firedNotificationsInTrayDict];
 }
 @end
