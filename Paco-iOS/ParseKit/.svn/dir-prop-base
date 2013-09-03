@@ -1,0 +1,20 @@
+K 10
+svn:ignore
+V 6
+build
+
+K 13
+svn:mergeinfo
+V 462
+/branches/branch-dev-actions:806-935
+/branches/branch-dev-merge-static:1031-1099
+/branches/branch-dev-new-factory-2:400-646
+/branches/branch-dev-okuda-int:1166-1247
+/branches/branch-dev-okuda-remove:1245-1248
+/branches/branch-dev-self-hosting:936-1021
+/branches/branch-dev-semantic-predicates:1022-1030
+/branches/branch-dev-speculate:748-804
+/branches/branch-dev-templates:680-746
+/branches/branch-number-prefix:315-340
+/branches/branch-remove-at-start:1384-1417
+END
