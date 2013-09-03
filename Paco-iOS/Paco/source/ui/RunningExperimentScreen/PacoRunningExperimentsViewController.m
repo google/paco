@@ -152,7 +152,7 @@
   }
   
   PacoQuestionScreenViewController *questions =
-      [[PacoQuestionScreenViewController alloc] initWithExperiment:self.selectedExperiment];
+      [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 

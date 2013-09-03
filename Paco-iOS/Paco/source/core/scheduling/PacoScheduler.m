@@ -173,6 +173,9 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 //  UIApplication *application = [UIApplication sharedApplication];
 //  application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
   
+  //Since this notification is responded successfully, cancelling it will clear it from the notification tray
+  [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   NSArray *esmSchedule = [notification.userInfo objectForKey:@"esmSchedule"];

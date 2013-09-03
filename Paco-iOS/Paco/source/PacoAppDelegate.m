@@ -68,7 +68,7 @@
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
-      [[PacoQuestionScreenViewController alloc] initWithExperiment:experiment];
+      [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
   [navi pushViewController:questions animated:YES];
 }
 
@@ -84,7 +84,6 @@
      message:notification.alertBody
      tapHandler:^{
        NSLog(@"Received tap on notification banner!");
-       [[PacoClient sharedInstance].scheduler handleNotification:notification experiments:[[PacoClient sharedInstance].model experimentInstances]];
        [self showSurveyForNotification:notification];
      }];
   }
