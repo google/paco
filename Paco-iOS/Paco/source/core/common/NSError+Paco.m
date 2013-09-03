@@ -13,22 +13,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "NSError+Paco.h"
 
-@class PacoAuthenticator;
-@class PacoEvent;
-@class PacoExperimentDefinition;
-@class PacoExperimentSchedule;
+@implementation NSError (Paco)
 
-@interface PacoService : NSObject
+- (BOOL)isOfflineError {
+  if ([self.domain isEqualToString:NSURLErrorDomain]) {
+    NSError* underlyingError = [self.userInfo objectForKey:NSUnderlyingErrorKey];
+    if ([underlyingError.domain isEqualToString:(NSString*)kCFErrorDomainCFNetwork] &&
+        underlyingError.code == NSURLErrorNotConnectedToInternet) {
+      return YES;
+    }
+  }
+  return NO;
+}
 
-@property (nonatomic, retain) PacoAuthenticator *authenticator;
-
-// Load all experiement definitions from the server.
-- (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
-
-
-// Batch submit a list of events
-- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
 @end

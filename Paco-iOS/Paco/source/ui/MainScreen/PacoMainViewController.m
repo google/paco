@@ -95,7 +95,7 @@
 
   [view setNeedsLayout];
   
-  [self loginWithCompletionBlock:^(NSError *error) {
+  [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
     NSString* title = @"Nice";
     NSString* message = @"You are logged in successfully!";
     if (error) {
@@ -140,56 +140,8 @@
 - (void)onSendFeedback {
 }
 
-#pragma mark bring up login flow if necessary
-- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
-{
-  PacoLoginScreenViewController *loginViewController = [PacoLoginScreenViewController controllerWithCompletionBlock:block];
-  [self.navigationController presentViewController:loginViewController animated:YES completion:nil];
-}
 
 
-
-- (void)loginWithCompletionBlock:(LoginCompletionBlock)block
-{
-  if ([[PacoClient sharedInstance] isLoggedIn]) {
-    if (block) {
-      block(nil);
-    }
-    return;
-  }
-  
-  if ([[PacoClient sharedInstance] isUserAccountStored]) {
-    [[PacoClient sharedInstance] loginWithCompletionHandler:^(NSError* error) {
-      if (error) {
-        [self showLoginScreenWithCompletionBlock:block];
-      }else{
-        if (block != nil) {
-          block(nil);
-        }
-      }
-    }];
-  }else{
-    [self showLoginScreenWithCompletionBlock:block];
-  }
-  
-  
-  
-  // Attempt a PACO login.
-  /*
-   [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:^(NSError *error) {
-   if (!error) {
-   NSLog(@"PACO LOGIN SUCCESS!");
-   
-   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-   if (notification) {
-   [[PacoClient sharedInstance].scheduler handleLocalNotification:notification];
-   }
-   } else {
-   NSLog(@"PACO LOGIN FAILURE! %@", error);
-   }
-   }];
-   */
-}
 
 
 @end
