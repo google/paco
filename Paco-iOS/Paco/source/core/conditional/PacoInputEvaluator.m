@@ -94,10 +94,11 @@
   }
   
   //run time: N
-  NSMutableArray* variableNameList = [NSMutableArray array];
+  NSMutableDictionary* variableDict = [NSMutableDictionary dictionary];
   for (PacoExperimentInput* input in self.experiment.definition.inputs) {
     NSAssert([input.name length] > 0, @"input name should non empty!");
-    [variableNameList addObject:input.name];
+    BOOL isList = (input.responseEnumType == ResponseEnumTypeList);
+    [variableDict setObject:[NSNumber numberWithBool:isList] forKey:input.name];
   }
   
   //run time: N
@@ -124,7 +125,7 @@
           [self tagInputsAsDependency:dependencyVariables];
         };
     [PacoExpressionExecutor predicateWithRawExpression:rawExpression
-                                  withVariableNameList:variableNameList
+                                withVariableDictionary:variableDict
                                               andBlock:completionBlock];
   }
   
