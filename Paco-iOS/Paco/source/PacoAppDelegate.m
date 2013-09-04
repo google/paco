@@ -63,7 +63,7 @@
   BOOL animated = YES;
   if ([survey isKindOfClass:[PacoQuestionScreenViewController class]]) {
     animated = NO;
-    [navi popViewControllerAnimated:animated];
+    [navi popToRootViewControllerAnimated:animated];
   }
   
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
