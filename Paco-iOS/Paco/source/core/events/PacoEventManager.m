@@ -280,10 +280,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   [self saveEvent:event];
 }
 
-- (void)saveSurveyEventWithDefinition:(PacoExperimentDefinition*)definition
-                            andInputs:(NSArray*)visibleInputs {
-  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
-                                                    withInputs:visibleInputs];
+- (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
+                                andInputs:(NSArray*)visibleInputs {
+  PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
+                                                        withInputs:visibleInputs];
   [self saveEvent:surveyEvent];
 }
 

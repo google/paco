@@ -214,8 +214,8 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   return event;
 }
 
-+ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition
-                            withInputs:(NSArray*)visibleInputs {
++ (PacoEvent*)selfReportEventForDefinition:(PacoExperimentDefinition*)definition
+                                withInputs:(NSArray*)visibleInputs {
   NSAssert(visibleInputs != nil, @"visibleInputs should not be nil!");
   
   PacoEvent *event = [PacoEvent pacoEventForIOS];
@@ -224,6 +224,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.experimentName = definition.title;
   event.experimentVersion = definition.experimentVersion;
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+  event.scheduledTime = nil;
   
   NSMutableArray *responses = [NSMutableArray array];
   

@@ -99,8 +99,8 @@ NSString *kCellIdQuestion = @"question";
     
   if (!ADD_TEST_DEFINITION) {
     [[PacoClient sharedInstance].eventManager
-     saveSurveyEventWithDefinition:self.evaluator.experiment.definition
-     andInputs:self.evaluator.visibleInputs];
+        saveSelfReportEventWithDefinition:self.evaluator.experiment.definition
+                                andInputs:self.evaluator.visibleInputs];
   }
   
   if (self.notification) {

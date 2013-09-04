@@ -42,8 +42,8 @@
 + (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment;
 + (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition
                         withSchedule:(PacoExperimentSchedule*)schedule;
-+ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition
-                            withInputs:(NSArray*)visibleInputs;
++ (PacoEvent*)selfReportEventForDefinition:(PacoExperimentDefinition*)definition
+                                withInputs:(NSArray*)visibleInputs;
 
 
 @end

@@ -41,7 +41,7 @@
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule;
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment;
-- (void)saveSurveyEventWithDefinition:(PacoExperimentDefinition*)definition
-                            andInputs:(NSArray*)visibleInputs;
+- (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
+                                andInputs:(NSArray*)visibleInputs;
 
 @end
