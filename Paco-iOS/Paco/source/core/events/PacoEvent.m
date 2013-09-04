@@ -271,9 +271,6 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.experimentVersion = definition.experimentVersion;
   event.responseTime = nil;
   event.scheduledTime = scheduledTime;
-
-  //TODO: test http request result without inputid
-  //TODO: ?responses
   return event;
 }
 

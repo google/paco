@@ -21,6 +21,7 @@
 #import "PacoScheduler.h"
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoExperiment.h"
 #import "PacoEvent.h"
 #import "Reachability.h"
 #import "PacoEventManager.h"
@@ -130,9 +131,11 @@
   [self.scheduler update:self.model.experimentInstances];
 }
 
-- (void)handleNotificationTimeOut:(NSString*) experimentInstanceId
-               experimentFireDate:(NSDate*) experimentFireId {
-//TODO: Implement this method to call the server and let it know about the missed signal
+- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
+               experimentFireDate:(NSDate*)scheduledTime {
+  PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
+  NSAssert(definition != nil, @"definition should not be nil!");
+  [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
 }
 
 - (BOOL)isUserAccountStored {

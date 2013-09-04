@@ -43,5 +43,10 @@
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment;
 - (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
                                 andInputs:(NSArray*)visibleInputs;
+- (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
+                                   withInputs:(NSArray*)inputs
+                             andScheduledTime:(NSDate*)scheduledTime;
+- (void)saveSurveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                         withScheduledTime:(NSDate*)scheduledTime;
 
 @end
