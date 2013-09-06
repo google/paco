@@ -279,13 +279,8 @@
   // if we have experiments, then initialize PacoLocation which starts a timer
   // (no use to use energy heavy location if no experiment exists)
   if (self.model.experimentInstances.count > 0 && self.location == nil) {
-    //NOTE: both NSTimer and CLLocationManager need to be initialized in the main thread to work correctly
-    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-    dispatch_async(dispatch_get_main_queue(), ^{
-      NSLog(@"***********  PacoLocation is allocated, timer starts working! ***********");
-      self.location = [[PacoLocation alloc] init];
-      self.location.delegate = self;      
-    });
+    self.location = [[PacoLocation alloc] init];
+    self.location.delegate = self;      
   }
 }
 

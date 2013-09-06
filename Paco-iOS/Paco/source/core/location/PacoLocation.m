@@ -33,17 +33,23 @@ NSTimer* LocationTimer;
 - (id)init {
   self = [super init];
   if (self) {
+    //NOTE: both NSTimer and CLLocationManager need to be initialized in the main thread to work correctly
+    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
+    //However, initializing CLLocationManager on the main thread will disable the backgrounding in 17-20 minutes
+    //after user quits Paco.
     self.manager = [[CLLocationManager alloc] init];
     self.manager.delegate = self;
-    self.numUpdates = 0;
-    
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
-    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
-                                                     target:self
-                                                   selector:@selector(LocationTimerHandler:)
-                                                   userInfo:nil
-                                                    repeats:YES];
+        
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSLog(@"***********  PacoLocation is allocated, timer starts working! ***********");
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
+                                                       target:self
+                                                     selector:@selector(LocationTimerHandler:)
+                                                     userInfo:nil
+                                                      repeats:YES];
+    });
   }
   
   return self;
