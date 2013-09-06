@@ -21,6 +21,7 @@
 		36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		36000C3817C6B34000A8A9E7 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C3717C6B34000A8A9E7 /* libicucore.dylib */; };
 		36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */ = {isa = PBXBuildFile; fileRef = 36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */; };
+		361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 361AB05517DA77000053C313 /* PacoNotificationManager.m */; };
 		363E210817AAD028007DE3CE /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210717AAD028007DE3CE /* PacoEvent.m */; };
 		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
 		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
@@ -255,6 +256,8 @@
 		36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ParseKit.xcodeproj; path = ParseKit/ParseKit.xcodeproj; sourceTree = "<group>"; };
 		36000C3717C6B34000A8A9E7 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Test_999999999.plist; sourceTree = "<group>"; };
+		361AB05417DA77000053C313 /* PacoNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoNotificationManager.h; sourceTree = "<group>"; };
+		361AB05517DA77000053C313 /* PacoNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManager.m; sourceTree = "<group>"; };
 		363E210617AAD028007DE3CE /* PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvent.h; sourceTree = "<group>"; };
 		363E210717AAD028007DE3CE /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
 		363E210917AAD05B007DE3CE /* PacoEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManager.h; sourceTree = "<group>"; };
@@ -712,6 +715,8 @@
 			children = (
 				36B8EB0F17568DAF004CF035 /* PacoScheduler.h */,
 				36B8EB1017568DAF004CF035 /* PacoScheduler.m */,
+				361AB05417DA77000053C313 /* PacoNotificationManager.h */,
+				361AB05517DA77000053C313 /* PacoNotificationManager.m */,
 			);
 			path = scheduling;
 			sourceTree = "<group>";
@@ -1435,6 +1440,7 @@
 				36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */,
 				36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */,
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
+				361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
