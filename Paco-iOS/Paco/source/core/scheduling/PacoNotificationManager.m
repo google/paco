@@ -16,7 +16,7 @@
 #import "PacoNotificationManager.h"
 
 @interface PacoNotificationManager ()
-@property (atomic, retain, readwrite) NSMutableDictionary* iOSLocalNotifications;
+@property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
 @end
 
 @implementation PacoNotificationManager
@@ -24,13 +24,13 @@
 - (id)init {
   self = [super init];
   if (self) {
-    _iOSLocalNotifications = [[NSMutableDictionary alloc] init];
+    _notificationDict = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
 
 - (NSDictionary*)copyOfNotificationDictionary {
-  return [self.iOSLocalNotifications copy];
+  return [self.notificationDict copy];
 }
 
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey {
@@ -38,19 +38,19 @@
   NSAssert(hashKey.length > 0, @"hashKey should be valid!");
   
   BOOL success = NO;
-  if ([self.iOSLocalNotifications objectForKey:hashKey] == nil) {
+  if ([self.notificationDict objectForKey:hashKey] == nil) {
     success = YES;
   }
-  [self.iOSLocalNotifications setObject:notification forKey:hashKey];
+  [self.notificationDict setObject:notification forKey:hashKey];
   return success;
 }
 
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey {
   NSAssert(hashKey.length > 0, @"hashKey should be valid!");
-  if ([self.iOSLocalNotifications objectForKey:hashKey] == nil) {
+  if ([self.notificationDict objectForKey:hashKey] == nil) {
     return NO;
   } else {
-    [self.iOSLocalNotifications removeObjectForKey:hashKey];
+    [self.notificationDict removeObjectForKey:hashKey];
     return YES;
   }
 }
@@ -59,8 +59,8 @@
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   //check cached notifications
   BOOL hasScheduledNotification = NO;
-  for(NSString* notificationHash in self.iOSLocalNotifications) {
-    UILocalNotification* notification = [self.iOSLocalNotifications objectForKey:notificationHash];
+  for(NSString* notificationHash in self.notificationDict) {
+    UILocalNotification* notification = [self.notificationDict objectForKey:notificationHash];
     NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
     NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
     if ([experimentInstanceId isEqualToString:instanceIdToCheck]) {
@@ -81,10 +81,10 @@
 
 - (BOOL)saveNotificationsToFile {
   NSMutableArray* notificationArray = [[NSMutableArray alloc] init];
-  NSDictionary* iosLocalNotifications = [self.iOSLocalNotifications copy];
+  NSDictionary* notificationDict = [self copyOfNotificationDictionary];
   
-  for(NSString* notificationHash in iosLocalNotifications) {
-    UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
+  for(NSString* notificationHash in notificationDict) {
+    UILocalNotification* notification = [notificationDict objectForKey:notificationHash];
     
     NSMutableDictionary *saveDict = [NSMutableDictionary dictionary];
     [saveDict setValue:[notification.userInfo objectForKey:@"experimentInstanceId"] forKey:@"experimentInstanceId"];
