@@ -79,7 +79,7 @@
     if (schedule.scheduleType == kPacoScheduleTypeESM) {
       schedule.timeout = 59;
     } else {
-      schedule.timeout = 470;
+      schedule.timeout = 479;
     }
   }
   
