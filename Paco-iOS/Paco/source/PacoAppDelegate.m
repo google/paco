@@ -57,21 +57,16 @@
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
-  //If there is a question view popped up, dismiss it and show a new question view 
+  //If there is any view popped up, dismiss it and show a question view 
   UINavigationController* navi = self.viewController.navigationController;
-  UIViewController* survey = (PacoQuestionScreenViewController*)navi.visibleViewController;
-  BOOL animated = YES;
-  if ([survey isKindOfClass:[PacoQuestionScreenViewController class]]) {
-    animated = NO;
-    [navi popToRootViewControllerAnimated:animated];
-  }
+  [navi popToRootViewControllerAnimated:NO];
   
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
       [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
-  [navi pushViewController:questions animated:animated];
+  [navi pushViewController:questions animated:NO];
 }
 
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
