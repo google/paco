@@ -29,7 +29,7 @@
 @property (nonatomic, copy, readonly) CLLocation *location;
 
 - (void)updateLocation;
-- (void)enableLocationTimer;
-- (void)disableLocationTimer;
+- (void)enableLocationService;
+- (void)disableLocationService;
 
 @end

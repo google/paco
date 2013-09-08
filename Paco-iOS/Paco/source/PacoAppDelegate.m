@@ -158,7 +158,7 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
   NSLog(@"==========  Application applicationDidEnterBackground  ==========");
   if ([PacoClient sharedInstance].location != nil) {
-    [[PacoClient sharedInstance].location enableLocationTimer];
+    [[PacoClient sharedInstance].location enableLocationService];
   }
 }
 
@@ -166,7 +166,7 @@
   NSLog(@"==========  Application applicationWillEnterForeground  ==========");
 
   if ([PacoClient sharedInstance].location != nil) {
-    [[PacoClient sharedInstance].location disableLocationTimer];
+    [[PacoClient sharedInstance].location disableLocationService];
   }
 }
 

@@ -59,7 +59,7 @@ NSTimer* LocationTimer;
   NSLog(@"***********  PacoLocation is deallocated, timer stops working! ***********");
   [LocationTimer invalidate];
   LocationTimer = nil;
-  [self disableLocationTimer];
+  [self disableLocationService];
 }
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
@@ -71,13 +71,13 @@ NSTimer* LocationTimer;
   }
 }
 
-- (void)enableLocationTimer {
-  NSLog(@"Paco background LocationTimer got enabled");
+- (void)enableLocationService {
+  NSLog(@"Paco background Location Service got enabled");
   [self.manager startUpdatingLocation];
 }
 
-- (void)disableLocationTimer {
-  NSLog(@"Paco background LocationTimer got disabled");
+- (void)disableLocationService {
+  NSLog(@"Paco background Location Service got disabled");
   [self.manager stopUpdatingLocation];
 }
 
