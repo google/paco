@@ -315,11 +315,14 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       
       NSString* notificationHash = [notificationObjectArr objectAtIndex:0];
       UILocalNotification* notification = [notificationObjectArr objectAtIndex:1];
-      NSLog(@"Paco clearing 1 fired iOS notification from tray for %@", experimentInstanceId);
+      
+      NSDate* firedDate = [notification.userInfo objectForKey:@"experimentFireDate"];
+      NSLog(@"Paco clearing 1 iOS notification fired at %@ from tray for %@",
+            [PacoDate pacoStringForDate:firedDate], experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       [self.notificationManager deleteNotificationWithHashKey:notificationHash];
       [self.delegate handleNotificationTimeOut:experimentInstanceId
-                            experimentFireDate:[notification.userInfo objectForKey:@"experimentFireDate"]];
+                            experimentFireDate:firedDate];
     }
   }
 

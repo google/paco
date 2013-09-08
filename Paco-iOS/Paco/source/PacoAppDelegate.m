@@ -143,9 +143,15 @@
   
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
   if (success) {
-    NSLog(@"SUCCESSFULLY SAVED TO FILE");
+    NSLog(@"Successfully saved model!");
   } else {
-    NSLog(@"FAILED TO SAVE TO FILE");
+    NSLog(@"Failed to save model!");
+  }
+  success = [[PacoClient sharedInstance].scheduler saveNotificationsToFile];
+  if (success) {
+    NSLog(@"Successfully saved notifications!");
+  } else {
+    NSLog(@"Failed to save notifications!");
   }
 }
 
