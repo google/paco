@@ -29,6 +29,8 @@
 #import "NSError+Paco.h"
 #import "PacoDate.h"
 
+static NSTimeInterval kInitialTimerInterval = 5.0;
+
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
 @property(atomic, readwrite, strong) NSError* errorLoadingDefinitions;
@@ -128,21 +130,6 @@
   return [self.authenticator isLoggedIn];
 }
 
-- (void)timerUpdated {
-  [self.scheduler update:self.model.experimentInstances];
-}
-
-- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
-               experimentFireDate:(NSDate*)scheduledTime {
-  if (!ADD_TEST_DEFINITION) {
-    NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
-          experimentInstanceId, [PacoDate pacoStringForDate:scheduledTime]);
-    PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
-    NSAssert(definition != nil, @"definition should not be nil!");
-    [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
-  }
-}
-
 - (BOOL)isUserAccountStored {
   return [self.authenticator isUserAccountStored];
 }
@@ -160,6 +147,40 @@
   [self showLoginScreenWithCompletionBlock:nil];
 }
 
+#pragma mark PacoLocationDelegate
+- (void)timerUpdated {
+  [self.scheduler update:self.model.experimentInstances];
+}
+
+
+#pragma mark PacoSchedulerDelegate
+- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
+               experimentFireDate:(NSDate*)scheduledTime {
+  if (!ADD_TEST_DEFINITION) {
+    NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
+          experimentInstanceId, [PacoDate pacoStringForDate:scheduledTime]);
+    PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
+    NSAssert(definition != nil, @"definition should not be nil!");
+    [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
+  }
+}
+
+- (void)updateTimerInterval:(NSTimeInterval)newInterval {
+  if (self.model.experimentInstances.count > 0) {
+    NSAssert(newInterval > 0, @"newInterval should be larger than 0!");
+    if (self.location == nil) {
+      self.location = [[PacoLocation alloc] initWithTimerInterval:newInterval];
+      self.location.delegate = self;
+    } else {
+      [self.location resetTimerInterval:newInterval];
+    }
+  } else {
+    if (self.location != nil) {
+      NSAssert(newInterval == 0, @"newInterval should be 0!");
+      [self.location removeTimerAndStopLocationService];
+    }
+  }
+}
 
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
@@ -281,12 +302,7 @@
 }
 
 - (void)startLocationTimerIfNeeded {
-  // if we have experiments, then initialize PacoLocation which starts a timer
-  // (no use to use energy heavy location if no experiment exists)
-  if (self.model.experimentInstances.count > 0 && self.location == nil) {
-    self.location = [[PacoLocation alloc] init];
-    self.location.delegate = self;      
-  }
+  [self updateTimerInterval:kInitialTimerInterval];
 }
 
 - (void)loginWithClientLogin:(NSString *)email

@@ -76,7 +76,6 @@
   //start scheduling notifications for this joined experiment
   [[PacoClient sharedInstance].scheduler startSchedulingForExperiment:experiment];
   
-  [[PacoClient sharedInstance] startLocationTimerIfNeeded];
 
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";
