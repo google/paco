@@ -17,7 +17,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.gwt.thirdparty.guava.common.collect.Sets;
+import com.google.common.collect.Sets;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
@@ -223,8 +223,33 @@ public class ExperimentRetriever {
   }
 
   public List<ExperimentDAO> getMyJoinableExperiments(String email, DateTimeZone dateTimeZone) {
+//<<<<<<< HEAD
     List<ExperimentDAO> admined = ExperimentEntityPersistence.getExperimentsAdministeredBy(email);
     List<ExperimentDAO> publishedTo = ExperimentEntityPersistence.getExperimentsPublishedTo(email);
+//=======
+//    PersistenceManager pm = null;
+//    try {
+//      pm = PMF.get().getPersistenceManager();
+//      @SuppressWarnings("unchecked")
+//      List<Experiment> experiments = getExperimentsAdministeredBy(email, pm);
+//      Set<Experiment> experimentSet = Sets.newHashSet(experiments);
+//
+//      List<Experiment> experimentsPublishedToMe = getExperimentsPublishedTo(email, pm);
+//
+//      experimentSet.addAll(experimentsPublishedToMe);
+//      List<Experiment> totalSetAsList = Lists.newArrayList(experimentSet);
+//      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(totalSetAsList);
+////      markEndOfDayExperiments(pm, experiments);
+//      removeSensitiveFields(experimentDAOs);
+//      sortExperiments(experimentDAOs);
+//      return filterFinishedAndDeletedExperiments(dateTimeZone, experimentDAOs);
+//    } finally {
+//      if (pm != null) {
+//        pm.close();
+//      }
+//    }
+//  }
+//>>>>>>> develop
 
     HashSet<ExperimentDAO> both = Sets.newHashSet(admined);
     both.addAll(publishedTo);

@@ -35,6 +35,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
     Key key = ExperimentEntityPersistence.saveExperiment(experiment, adminUser);
 
     ExperimentDAO retrievedExperiment = ExperimentEntityPersistence.getExperimentById(key.getId());
@@ -47,6 +48,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser);
 
     List<ExperimentDAO> experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser);
@@ -59,6 +61,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
 
     String publishedUser = PUB_MAN_EXAMPLE_COM;
     String[] publishedUsers = new String[] {publishedUser};
@@ -87,6 +90,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser);
 
     List<ExperimentDAO> experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser);
@@ -103,6 +107,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser1);
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser1);
 
     List<ExperimentDAO> experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser1);
@@ -114,7 +119,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser1);
 
     experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser1);
-    assertEquals(0, experiments.size());
+    assertEquals(1, experiments.size());
 
     experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser2);
     assertEquals(1, experiments.size());
@@ -127,6 +132,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser1);
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser1);
 
     List<ExperimentDAO> experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser1);
@@ -138,7 +144,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentEntityPersistence.saveExperiment(experiment, adminUser2);
 
     experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser1);
-    assertEquals(0, experiments.size());
+    assertEquals(1, experiments.size());
 
     experiments = ExperimentEntityPersistence.getExperimentsAdministeredBy(adminUser2);
     assertEquals(1, experiments.size());
@@ -154,6 +160,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
     Key key = ExperimentEntityPersistence.saveExperiment(experiment, adminUser);
 
     ExperimentDAO retrievedExperiment = ExperimentEntityPersistence.getExperimentById(key.getId());
@@ -191,6 +198,7 @@ public class ExperimentEntityPersistenceTest extends TestCase {
     ExperimentDAO experiment = new ExperimentDAO();
     experiment.setTitle(EXPERIMENT_TITLE);
     experiment.setAdmins(admins);
+    experiment.setCreator(adminUser);
     experiment.setPublished(true);
     experiment.setPublishedUsers(new String[0]);
     Key key = ExperimentEntityPersistence.saveExperiment(experiment, adminUser);

@@ -55,7 +55,7 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class FindExperimentsActivity extends FragmentActivity {
+public class FindMyExperimentsActivity extends FragmentActivity {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
@@ -70,7 +70,7 @@ public class FindExperimentsActivity extends FragmentActivity {
   private List<Experiment> experiments;
   private ProgressDialogFragment newFragment;
 
-  private static DownloadShortExperimentsTask experimentDownloadTask;
+  private static DownloadMyExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -117,8 +117,9 @@ public class FindExperimentsActivity extends FragmentActivity {
           // the user. The have clicked on one, so return it now.
           setResult(RESULT_OK, new Intent().setData(uri));
         } else {
-          Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
+          Intent experimentIntent = new Intent(FindMyExperimentsActivity.this, ExperimentDetailActivity.class);
           experimentIntent.setData(uri);
+          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
           startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
         }
       }
@@ -137,7 +138,7 @@ public class FindExperimentsActivity extends FragmentActivity {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
     } else {
-      if (userPrefs.isAvailableExperimentsListStale()) {
+      if (userPrefs.isMyExperimentsListStale()) {
         refreshList();
       }
     }
@@ -178,9 +179,9 @@ public class FindExperimentsActivity extends FragmentActivity {
   }
 
   private void saveRefreshTime() {
-    userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
+    userPrefs.setMyExperimentListRefreshTime(new Date().getTime());
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
+    DateTime lastRefresh = userPrefs.getMyExperimentListRefreshTime();
     String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
     listHeader.setText(header);
   }
@@ -199,7 +200,6 @@ public class FindExperimentsActivity extends FragmentActivity {
 
       @Override
       public void done(String resultCode) {
-        //dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
         dismissAnyDialog();
         String contentAsString = experimentDownloadTask.getContentAsString();
         if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
@@ -214,7 +214,7 @@ public class FindExperimentsActivity extends FragmentActivity {
 
     };
     showDialogById(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
+    experimentDownloadTask = new DownloadMyExperimentsTask(this, listener, userPrefs);
     experimentDownloadTask.execute();
   }
 
@@ -241,7 +241,7 @@ public class FindExperimentsActivity extends FragmentActivity {
 
   private void saveDownloadedExperiments(String contentAsString) {
     try {
-      experimentProviderUtil.saveExperimentsToDisk(contentAsString);
+      experimentProviderUtil.saveMyExperimentsToDisk(contentAsString);
     } catch (JsonParseException e) {
       showFailureDialog(DownloadHelper.CONTENT_ERROR);
     } catch (JsonMappingException e) {
@@ -255,8 +255,8 @@ public class FindExperimentsActivity extends FragmentActivity {
 
   // Visible for testing
   public void reloadAdapter() {
-    experiments = experimentProviderUtil.loadExperimentsFromDisk(false);
-    adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this,
+    experiments = experimentProviderUtil.loadMyExperimentsFromDisk();
+    adapter = new AvailableExperimentsListAdapter(FindMyExperimentsActivity.this,
                                                   R.id.find_experiments_list,
                                                   experiments);
     list.setAdapter(adapter);

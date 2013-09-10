@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -141,7 +141,7 @@ public class ExperimentScheduleActivity extends Activity {
   public void setActivityProperties(Experiment experiment, ExperimentProviderUtil experimentProviderUtil) {
     this.experiment = experiment;
     this.experimentProviderUtil = experimentProviderUtil;
-    
+
     // TODO: Uncomment this to do true instrumentation testing.
     // setUpSchedulingLayout();
   }
@@ -155,7 +155,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private Boolean userCannotConfirmSchedule() {
     if (experiment.getSchedule() != null) {
-      return experiment.getSchedule().getUserEditable() != null 
+      return experiment.getSchedule().getUserEditable() != null
           && experiment.getSchedule().getUserEditable() == Boolean.FALSE;
     }
     return false;
@@ -531,7 +531,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   // Visible for testing
   public void scheduleExperiment() {
-    saveExperimentRegistration();    
+    saveExperimentRegistration();
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     if (uri != null) {
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));

@@ -29,7 +29,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   private ExperimentRetriever noThenYesExperimentRetriever;
 
   @Before
-  public void setup() {
+  public void setUp() {
     noOpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,

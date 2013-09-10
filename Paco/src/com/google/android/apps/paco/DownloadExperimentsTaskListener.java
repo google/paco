@@ -1,6 +1,6 @@
 package com.google.android.apps.paco;
 
-public interface DownloadShortExperimentsTaskListener {
+public interface DownloadExperimentsTaskListener {
 
   void done(String resultCode);
 
