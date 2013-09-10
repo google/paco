@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -25,8 +25,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-import com.pacoapp.paco.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -47,8 +45,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
+import com.pacoapp.paco.R;
+
 /**
- * 
+ *
  */
 public class ExperimentManagerActivity extends Activity {
 
@@ -63,19 +63,19 @@ public class ExperimentManagerActivity extends Activity {
   private static final int ACCOUNT_CHOOSER_ITEM = 7;
   private static final int RINGTONE_CHOOSER_ITEM = 8;
   private static final int SEND_LOG_ITEM = 9;
-  
+
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
-  
-  
-  
+
+
+
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
-  
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     installPacoBarkRingtone();
-    
+
  // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
     Experiment experiment = getExperimentFromIntent();
@@ -91,7 +91,7 @@ public class ExperimentManagerActivity extends Activity {
     Eula.showEula(this);
     setContentView(R.layout.experiment_manager_main);
     currentExperimentsButton = (ImageButton) findViewById(R.id.CurrentExperimentsBtn);
-    
+
     currentExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         Intent intent = new Intent(ExperimentManagerActivity.this,
@@ -100,15 +100,15 @@ public class ExperimentManagerActivity extends Activity {
         startActivity(intent);
       }
     });
-    
+
     ImageButton findExperimentsButton = (ImageButton) findViewById(R.id.FindExperimentsBtn);
     findExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         startActivity(new Intent(ExperimentManagerActivity.this,
-            FindExperimentsActivity.class));
+            FindMyOrAllExperimentsChooserActivity.class));
       }
     });
-    
+
     ImageButton exploreDataButton = (ImageButton) findViewById(R.id.ExploreDataBtn);
     exploreDataButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
@@ -116,15 +116,15 @@ public class ExperimentManagerActivity extends Activity {
           ExploreDataActivity.class));
       }
     });
-    
-    ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);    
+
+    ImageButton createExperimentsButton = (ImageButton) findViewById(R.id.CreateExperimentBtn);
     createExperimentsButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         String homepageAddr = getResources().getString(R.string.about_weburl);
-        
+
         Resources res = getResources();
         String formattedMessage = String.format(res.getString(R.string.create_experiment_instructions), homepageAddr);
-            
+
         new AlertDialog.Builder(v.getContext())
             .setMessage(formattedMessage)
         		.setTitle(R.string.create_experiment_title)
@@ -134,35 +134,35 @@ public class ExperimentManagerActivity extends Activity {
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
           }
-          
+
         }).create().show();
-      }     
+      }
       });
 
-        
+
     ImageButton feedbackButton = (ImageButton)findViewById(R.id.FeedbackButton);
     feedbackButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         startActivity(new Intent(ExperimentManagerActivity.this,
                 ContactOptionsActivity.class));
-        
+
       }
     });
-    
+
     ImageButton helpButton = (ImageButton)findViewById(R.id.HelpButton);
     helpButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         startActivity(new Intent(ExperimentManagerActivity.this,
                 HelpActivity.class));
-        
+
       }
     });
 
-    
-  }  
+
+  }
 
   private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();    
+    Uri uri = getIntent().getData();
     if (uri == null) {
       return null;
     }
@@ -173,7 +173,7 @@ public class ExperimentManagerActivity extends Activity {
   protected void onResume() {
     super.onResume();
     //login(loginHelper);
-    currentExperimentsButton.setEnabled(hasRegisteredExperiments());    
+    currentExperimentsButton.setEnabled(hasRegisteredExperiments());
   }
 
   private boolean hasRegisteredExperiments() {
@@ -195,7 +195,7 @@ public class ExperimentManagerActivity extends Activity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-    case ABOUT_PACO_ITEM:      
+    case ABOUT_PACO_ITEM:
       launchPaco();
       return true;
     case DEBUG_ITEM:
@@ -216,7 +216,7 @@ public class ExperimentManagerActivity extends Activity {
     case SEND_LOG_ITEM:
       launchLogSender();
       return true;
-      
+
     default:
       return false;
     }
@@ -253,7 +253,7 @@ public class ExperimentManagerActivity extends Activity {
 
   private void launchRingtoneChooser() {
     UserPreferences userPreferences = new UserPreferences(this);
-    String uri = userPreferences.getRingtone();    
+    String uri = userPreferences.getRingtone();
     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
@@ -261,11 +261,11 @@ public class ExperimentManagerActivity extends Activity {
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
     if (uri != null) {
       intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uri));
-    } 
+    }
     else {
       intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
     }
-    
+
     startActivityForResult(intent, RINGTONE_REQUESTCODE);
   }
 
@@ -299,10 +299,10 @@ public class ExperimentManagerActivity extends Activity {
       if (newUri != null) {
         userPreferences.setRingtone(newUri.toString());
         userPreferences.setPacoBarkRingtoneInstalled();
-      } 
+      }
     }
-    
-          
+
+
   }
 
   private File copyRingtoneFromAssetsToSdCard()  {
@@ -310,12 +310,12 @@ public class ExperimentManagerActivity extends Activity {
     OutputStream fos = null;
     try {
       fis = getAssets().open(BARK_RINGTONE_FILENAME);
-    
+
       if (fis == null) {
         return null;
       }
 
-      File path = new File(android.os.Environment.getExternalStorageDirectory().getAbsolutePath() 
+      File path = new File(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
                            + "/Android/data/" + getPackageName() + "/");
       if (!path.exists()) {
         path.mkdirs();
@@ -385,12 +385,12 @@ public class ExperimentManagerActivity extends Activity {
 
   private void launchUpdateCheck() {
     Intent debugIntent = new Intent("com.google.android.apps.paco.UPDATE");
-    startActivityForResult(debugIntent, CHECK_UPDATE_REQUEST_CODE);    
+    startActivityForResult(debugIntent, CHECK_UPDATE_REQUEST_CODE);
   }
-  
+
   private void launchAccountChooser() {
     Intent intent = new Intent(this, com.google.android.apps.paco.AccountChooser.class);
-    startActivity(intent);    
+    startActivity(intent);
   }
 
   @Override
@@ -405,9 +405,9 @@ public class ExperimentManagerActivity extends Activity {
       } else {
         new UserPreferences(this).clearRingtone();
       }
-      
+
     }
   }
 
-  
+
 }

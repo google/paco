@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,9 +62,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+  public static final int CAMERA_REQUEST_CODE = 10000001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
   private Input input;
@@ -77,12 +78,15 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   // Choices that have been selected on a multiselect list.
   private List<Integer> checkedChoices = new ArrayList<Integer>();
-  
+
   private final int IMAGE_MAX_SIZE = 600;
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
   private AutoCompleteTextView openTextView;
   private AutocompleteDictionary autocompleteDatabase;
+  private int requestCode;
+  private ImageView photoView;
+  private static int code = 1200;
 
 
 
@@ -100,7 +104,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   public View getComponentWithValue() {
     return componentWithValue;
   }
-  
+
   public void setComponentWithValue(View componentWithValue) {
     this.componentWithValue = componentWithValue;
   }
@@ -157,7 +161,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   /**
    * TODO (bobevans) make this handle other types as well
-   * 
+   *
    * @return
    */
   public Object getValue() {
@@ -181,7 +185,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     }
     return null;
   }
-  
+
   public String getValueAsString() {
     if (!isVisible()) {
       return null;
@@ -290,6 +294,30 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return b;
   }
 
+  private Bitmap decodeFileAndScaleToThumb(File f) {
+    Bitmap b = null;
+    try {
+      // Decode image size
+      BitmapFactory.Options o = new BitmapFactory.Options();
+      o.inJustDecodeBounds = true;
+      BitmapFactory.decodeStream(new FileInputStream(f), null, o);
+      int scale = 1;
+      if (o.outHeight > 100 || o.outWidth > 100) {
+        int longestDimension = Math.max(o.outHeight, o.outWidth);
+        scale = (int) Math.pow(2,  (int) Math.round(Math.log(100 / (double)longestDimension) / Math.log(0.5)));
+      }
+
+      // Decode with inSampleSize
+      BitmapFactory.Options o2 = new BitmapFactory.Options();
+      o2.inSampleSize = scale;
+      b = BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+    } catch (FileNotFoundException e) {
+      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG);
+    }
+    return b;
+  }
+
+
   private String getLocationValue() {
     if (location != null) {
       double latitude = location.getLatitude();
@@ -353,12 +381,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private List<Integer> getMultiSelectListValue() {
     List<Integer> list = new ArrayList<Integer>();
-    for (Integer choice : checkedChoices) {      
+    for (Integer choice : checkedChoices) {
       list.add(choice + 1);
     }
     return list;
   }
-  
+
   private String getMultiSelectListValueAsString() {
     if (checkedChoices.isEmpty()) {
       return null;
@@ -386,7 +414,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String text = ((EditText) componentWithValue).getText().toString();
     if (text != null && text.length() > 0) {
       return Integer.parseInt(text);
-    } 
+    }
     return null;
   }
 
@@ -418,36 +446,74 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     View photoInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.photo_input, this, true);
     Button cameraButton = (Button) findViewById(R.id.CameraButton);
-    ImageView photoView = (ImageView) findViewById(R.id.CameraPreviewImage);
+    photoView = (ImageView) findViewById(R.id.CameraPreviewImage);
     if (file != null) {
       photoView.setImageBitmap(decodeFile(file));
     }
     cameraButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View v) {
-        try {
-          startCameraForResult();
-        } catch (IOException e) {
-          e.printStackTrace();
-          new AlertDialog.Builder(getContext()).setCancelable(true).setTitle(R.string.cannot_open_camera_warning)
-              .setMessage("Error: \n" + e.getMessage()).setNegativeButton(R.string.ok, null).create().show();
-        }
+        renderCameraOrGalleryChooser();
       }
     });
     return photoInputView;
   }
 
-  private void startCameraForResult() throws IOException {
-    Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
-    String dateString = createTimeStamp();
-//    file = File.createTempFile("image" + dateString, ".png");
-    file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-    
-    // ((Activity)getContext()).startActivityForResult(i, 25);
-    ((Activity) getContext()).startActivity(i);
+  private void renderCameraOrGalleryChooser() {
+    String title = getContext().getString(R.string.please_choose_the_source_of_your_image);
+    Dialog chooserDialog = new AlertDialog.Builder(getContext()).setTitle(title)
+            .setNegativeButton(getContext().getString(R.string.camera), new Dialog.OnClickListener() {
 
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                startCameraForResult();
+              }
+            })
+            .setPositiveButton(getContext().getString(R.string.gallery), new Dialog.OnClickListener() {
+
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                startGalleryPicker();
+
+              }
+
+            }).create();
+    chooserDialog.show();
   }
-  
+
+  private void startGalleryPicker() {
+    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+    photoPickerIntent.setType("image/*");
+    requestCode = code++;
+    ExperimentExecutor activity = (ExperimentExecutor)getContext();
+    activity.startActivityForResult(photoPickerIntent, requestCode);
+  }
+
+  void galleryPicturePicked(String filepath, int requestCode) {
+    if (this.requestCode == requestCode && !Strings.isNullOrEmpty(filepath)) {
+      file = new File(filepath);
+      photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
+    } else if (Strings.isNullOrEmpty(filepath)) {
+      file = null;
+    } // otherwise leave as it was previously
+  }
+
+
+  private void startCameraForResult() {
+    try {
+      Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
+      String dateString = createTimeStamp();
+      file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+      requestCode = code++;
+      i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+      ((Activity) getContext()).startActivityForResult(i, CAMERA_REQUEST_CODE + requestCode);
+    } catch (Exception e) {
+      e.printStackTrace();
+      new AlertDialog.Builder(getContext()).setCancelable(true).setTitle(R.string.cannot_open_camera_warning)
+          .setMessage("Error: \n" + e.getMessage()).setNegativeButton(R.string.ok, null).create().show();
+    }
+  }
+
+
   public static final int MEDIA_TYPE_IMAGE = 1;
   public static final int MEDIA_TYPE_VIDEO = 2;
   /** Create a file Uri for saving an image or video */
@@ -580,9 +646,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
         if (isChecked)
-          checkedChoices.add(new Integer(which));          
+          checkedChoices.add(new Integer(which));
         else
-          checkedChoices.remove(new Integer(which));       
+          checkedChoices.remove(new Integer(which));
       }
     };
 
@@ -599,7 +665,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     input.getListChoices().toArray(listChoices);
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
-      
+
       @Override
       public void onClick(DialogInterface dialog, int which) {
         dialog.dismiss();
@@ -652,7 +718,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       public void onItemSelected(AdapterView<?> arg0, View v, int index, long id) {
         if (!setupClickHasHappened) {
           setupClickHasHappened = true;
-        } else if (index != 0) {              // Option has been selected. 
+        } else if (index != 0) {              // Option has been selected.
           listHasBeenSelected = true;
         } else {
           listHasBeenSelected = false;
@@ -691,8 +757,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       public void onCheckedChanged(RadioGroup group, int checkedId) {
         notifyChangeListeners();
       }
-      
-      
+
+
 
     });
     // turn off labels on middle buttons.
@@ -764,10 +830,10 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     });
     final ImageButton micButton = (ImageButton) findViewById(R.id.micButton);
     micButton.setOnClickListener(new OnClickListener() {
-      
+
       @Override
       public void onClick(View v) {
-        launchSpeechRecognizer();        
+        launchSpeechRecognizer();
       }
     });
     return openTextView;
@@ -776,7 +842,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private void ensureAutoCompleteDatabase() {
     if (autocompleteDatabase == null) {
       autocompleteDatabase = new PersistentAutocompleteDictionary(getContext());
-    }    
+    }
   }
 
   private void launchSpeechRecognizer() {
@@ -841,7 +907,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       break;
     default:
       //nothing is selected;
-      // TODO (bobevans), deal with validation of mandatory inputs 
+      // TODO (bobevans), deal with validation of mandatory inputs
       value = -1;
     }
     return value;
@@ -859,7 +925,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       public void onCheckedChanged(RadioGroup group, int checkedId) {
         notifyChangeListeners();
       }
-      
+
     });
     return findViewById;
   }
@@ -868,14 +934,20 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   public void speechRetrieved(List<String> text) {
     String message = openTextView.getText().toString();
     if (text.size() >= 1) {
-      String bestPhrase = text.get(0);      
+      String bestPhrase = text.get(0);
       message += bestPhrase;
       openTextView.setText(message);
       autocompleteDatabase.updateAutoCompleteDatabase(bestPhrase);
     } else {
       Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
-    }    
+    }
     ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
+  }
+
+  public void cameraPictureTaken(int requestCode) {
+    if (this.requestCode == requestCode - CAMERA_REQUEST_CODE) {
+      photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
+    }
   }
 
 }

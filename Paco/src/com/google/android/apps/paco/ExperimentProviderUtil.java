@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,17 +17,13 @@
 package com.google.android.apps.paco;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -37,20 +33,17 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 import android.util.Log;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 public class ExperimentProviderUtil {
 
@@ -58,9 +51,10 @@ public class ExperimentProviderUtil {
   private ContentResolver contentResolver;
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String FILENAME = "experiments";
-  
+  private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-  
+
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -69,19 +63,19 @@ public class ExperimentProviderUtil {
 
   public List<Experiment> getExperiments() {
     return findExperimentsBy(null, ExperimentColumns.CONTENT_URI);
-    
+
   }
 
   public List<Experiment> getJoinedExperiments() {
-    return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);    
+    return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
   }
-  
-  public List<Long> getJoinedExperimentServerIds() {    
-    List<Experiment> joinedExperiments = getJoinedExperiments();    
+
+  public List<Long> getJoinedExperimentServerIds() {
+    List<Experiment> joinedExperiments = getJoinedExperiments();
     List<Experiment> stillRunningExperiments = Lists.newArrayList();
     DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
-    for (Experiment experiment : joinedExperiments) {      
-      String endDate = experiment.getEndDate();      
+    for (Experiment experiment : joinedExperiments) {
+      String endDate = experiment.getEndDate();
       if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || endDateFormatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
         stillRunningExperiments.add(experiment);
       }
@@ -98,7 +92,7 @@ public class ExperimentProviderUtil {
     return findExperimentBy(null, uri);
   }
 
-  
+
   public Experiment getExperiment(long id) {
     String select = ExperimentColumns._ID + "=" + id;
     return findExperimentBy(select, ExperimentColumns.CONTENT_URI);
@@ -110,7 +104,7 @@ public class ExperimentProviderUtil {
   }
 
   public Uri insertExperiment(Experiment experiment) {
-    return contentResolver.insert(ExperimentColumns.CONTENT_URI, 
+    return contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
   }
 
@@ -133,38 +127,38 @@ public class ExperimentProviderUtil {
 //    loadFeedbackForExperiment(experiment);
 //    loadScheduleForExperiment(experiment);
 //    experiment.unsetId();
-    
-    Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI, 
+
+    Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
-    
+
     long rowId = Long.parseLong(uri.getLastPathSegment());
-    
+
     experiment.setId(rowId);
     SignalSchedule schedule = experiment.getSchedule();
     if (schedule != null) {
       schedule.setExperimentId(rowId);
       schedule.setBeginDate(getJoinDateMillis(experiment));
       insertSchedule(schedule);
-    } 
-    
+    }
+
     for (Input input : experiment.getInputs()) {
 //      input.setId(null);
       input.setExperimentId(rowId);
-      insertInput(input);      
+      insertInput(input);
     }
     for (Feedback feedback : experiment.getFeedback()) {
 //      feedback.setId(null);
       feedback.setExperimentId(rowId);
-      insertFeedback(feedback);      
+      insertFeedback(feedback);
     }
 
     return uri;
   }
-  
+
   private Long getJoinDateMillis(Experiment experiment) {
     return TimeUtil.unformatDateWithZone(experiment.getJoinDate()).getMillis();
   }
-  
+
   // For testing
   public Uri insertFullJoinedExperiment(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
     Experiment experiment = getSingleExperimentFromJson(contentAsString);
@@ -189,7 +183,7 @@ public class ExperimentProviderUtil {
       cursor = contentResolver.query(SignalScheduleColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
-        return createSchedule(cursor);    
+        return createSchedule(cursor);
       }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
@@ -198,47 +192,47 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return null;   
+    return null;
   }
 
   public void deleteExperiment(long experimentId) {
     Experiment experiment = getExperiment(experimentId);
     if (experiment != null) {
       String[] selectionArgs = new String[] {Long.toString(experimentId)};
-      contentResolver.delete(ExperimentColumns.CONTENT_URI, 
-          "_id = ?", 
+      contentResolver.delete(ExperimentColumns.CONTENT_URI,
+          "_id = ?",
           selectionArgs);
     }
   }
-  
+
   public void updateExistingExperiments(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
     List<Experiment> experimentList = getExperimentsFromJson(contentAsString);
     updateExistingExperiments(experimentList);
   }
-  
+
   /**
    * Used when refreshing experiment list from the server.
    * If the experiment server id is already in the database,
    * then update it, otherwise, add it.
    * @param experiments
    */
-  public void updateExistingExperiments(List<Experiment> experiments) {    
+  public void updateExistingExperiments(List<Experiment> experiments) {
     for (Experiment experiment : experiments) {
       //Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
       if (existingList.size() == 0) {
         continue;
       }
-      for (Experiment existingExperiment : existingList) {    
+      for (Experiment existingExperiment : existingList) {
         long startTime = System.currentTimeMillis();
-        deleteAllInputsForExperiment(existingExperiment.getId());            
+        deleteAllInputsForExperiment(existingExperiment.getId());
         existingExperiment.setInputs(experiment.getInputs());
         deleteAllFeedbackForExperiment(existingExperiment.getId());
         existingExperiment.setFeedback(experiment.getFeedback());
         SignalSchedule schedule = experiment.getSchedule();
         if (schedule != null) {
           schedule.setExperimentId(existingExperiment.getId());
-          existingExperiment.setSchedule(schedule);      
+          existingExperiment.setSchedule(schedule);
           List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
           signalingMechanisms.add(schedule);
           existingExperiment.setSignalingMechanisms(signalingMechanisms);
@@ -252,13 +246,13 @@ public class ExperimentProviderUtil {
         insertFeedbackForJoinedExperiment(existingExperiment);
         copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
         updateJoinedExperiment(existingExperiment);
-        Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));          
+        Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
       }
-       
-    }  
+
+    }
   }
 
-  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {    
+  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {
     existingExperiment.setCreator(experiment.getCreator());
     existingExperiment.setVersion(experiment.getVersion());
     existingExperiment.setDescription(experiment.getDescription());
@@ -280,23 +274,23 @@ public class ExperimentProviderUtil {
   }
 
   private int deleteScheduleForExperiment(Long id) {
-    return contentResolver.delete(SignalScheduleColumns.CONTENT_URI, 
+    return contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
         SignalScheduleColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   private int deleteAllFeedbackForExperiment(Long id) {
-    return contentResolver.delete(FeedbackColumns.CONTENT_URI, 
+    return contentResolver.delete(FeedbackColumns.CONTENT_URI,
         FeedbackColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   private int deleteAllInputsForExperiment(Long id) {
-    return contentResolver.delete(InputColumns.CONTENT_URI, 
+    return contentResolver.delete(InputColumns.CONTENT_URI,
           InputColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   public void updateJoinedExperiment(Experiment experiment) {
     int count = contentResolver.update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-        createContentValues(experiment), 
+        createContentValues(experiment),
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
     SignalSchedule schedule = experiment.getSchedule();
@@ -313,12 +307,12 @@ public class ExperimentProviderUtil {
   }
 
   public void deleteAllJoinedExperiments() {
-    // TODO first select all joined_experiments ids. 
+    // TODO first select all joined_experiments ids.
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
           new String[] { ExperimentColumns._ID },
-          ExperimentColumns.JOIN_DATE + " IS NOT NULL ", 
+          ExperimentColumns.JOIN_DATE + " IS NOT NULL ",
           null, null);
       if (cursor != null) {
         StringBuilder idsStringBuilder = new StringBuilder();
@@ -333,7 +327,7 @@ public class ExperimentProviderUtil {
         String idsString = idsStringBuilder.toString();
         contentResolver.delete(
             ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, null, null);
-        // TODO delete all from child tables where experiment_ids match 
+        // TODO delete all from child tables where experiment_ids match
         contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
             InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
         contentResolver.delete(InputColumns.CONTENT_URI,
@@ -346,9 +340,9 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    
+
   }
-  
+
   private Experiment findExperimentBy(String select, Uri contentUri) {
     Cursor cursor = null;
     try {
@@ -368,9 +362,9 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return null;   
+    return null;
   }
-  
+
   private List<Experiment> findExperimentsBy(String select, Uri contentUri) {
     List<Experiment> experiments = new ArrayList<Experiment>();
     Cursor cursor = null;
@@ -391,7 +385,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return experiments;   
+    return experiments;
   }
 
 
@@ -412,70 +406,70 @@ public class ExperimentProviderUtil {
     int iconIndex = cursor.getColumnIndex(ExperimentColumns.ICON);
     int webRecommendedIndex = cursor.getColumnIndex(ExperimentColumns.WEB_RECOMMENDED);
     int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
-    
+
     Experiment experiment = new Experiment();
-    
+
     if (!cursor.isNull(idIndex)) {
       experiment.setId(cursor.getLong(idIndex));
     }
-    
+
     if (!cursor.isNull(serverIdIndex)) {
       experiment.setServerId(cursor.getLong(serverIdIndex));
     }
-    
+
     if (!cursor.isNull(titleIndex)) {
       experiment.setTitle(cursor.getString(titleIndex));
     }
-    
+
     if (!cursor.isNull(versionIndex)) {
       experiment.setVersion(cursor.getInt(versionIndex));
     }
-    
+
     if (!cursor.isNull(descIndex)) {
       experiment.setDescription(cursor.getString(descIndex));
     }
-    
+
     if (!cursor.isNull(creatorIndex)) {
       experiment.setCreator(cursor.getString(creatorIndex));
     }
-    
+
     if (!cursor.isNull(icIndex)) {
       experiment.setInformedConsentForm(cursor.getString(icIndex));
     }
-    
+
     if (!cursor.isNull(hashIndex)) {
       experiment.setHash(cursor.getString(hashIndex));
     }
-    
+
     if (!cursor.isNull(fixedDurationIndex)) {
       experiment.setFixedDuration(cursor.getLong(fixedDurationIndex) == 1);
     }
-    
+
     if (!cursor.isNull(startDateIndex)) {
       experiment.setStartDate(cursor.getString(startDateIndex));
     }
-    
+
     if (!cursor.isNull(endDateIndex)) {
       experiment.setEndDate(cursor.getString(endDateIndex));
     }
-    
+
     if (!cursor.isNull(joinDateIndex)) {
       // TODO (bobevans) add the timezone from the user. The default is probably fine for now.
       experiment.setJoinDate(cursor.getString(joinDateIndex));
     }
-    
+
     if (!cursor.isNull(questionsChangeIndex)) {
       experiment.setQuestionsChange(cursor.getLong(questionsChangeIndex) == 1);
     }
-    
+
     if (!cursor.isNull(iconIndex)) {
       experiment.setIcon(cursor.getBlob(iconIndex));
     }
-    
+
     if (!cursor.isNull(webRecommendedIndex)) {
       experiment.setWebRecommended(cursor.getLong(webRecommendedIndex) == 1);
     }
-    
+
     if (!cursor.isNull(jsonIndex)) {
       String jsonOfExperiment = cursor.getString(jsonIndex);
       experiment.setJson(jsonOfExperiment);
@@ -488,7 +482,7 @@ public class ExperimentProviderUtil {
           experiment.setTrigger(trigger);
           experiment.setSignalingMechanisms(signalingMechanisms);
         }
-        
+
       } catch (JsonParseException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -503,7 +497,7 @@ public class ExperimentProviderUtil {
 
     return experiment;
   }
-  
+
   private ContentValues createContentValues(Experiment experiment) {
     ContentValues values = new ContentValues();
     // Values id < 0 indicate no id is available:
@@ -531,7 +525,7 @@ public class ExperimentProviderUtil {
     if (experiment.getHash() != null) {
       values.put(ExperimentColumns.HASH, experiment.getHash() );
     }
-    
+
     values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
 
     if (experiment.getStartDate() != null) {
@@ -551,7 +545,7 @@ public class ExperimentProviderUtil {
     }
 
     values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
-    
+
     String json = experiment.getJson();
     if (json == null || json.length() == 0) {
       json = getJson(experiment);
@@ -568,7 +562,7 @@ public class ExperimentProviderUtil {
     }
     return experimentJsons;
   }
-  
+
   public String getJson(Experiment experiment) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
@@ -590,9 +584,9 @@ public class ExperimentProviderUtil {
     String select = InputColumns.EXPERIMENT_ID + " = " + experiment.getId();
     experiment.setInputs(findInputsBy(select));
   }
-  
+
   public void loadEventsForExperiment(Experiment experiment) {
-    List<Event> eventSingleEntryList = findEventsBy(EventColumns.EXPERIMENT_ID + "=" + experiment.getId(), 
+    List<Event> eventSingleEntryList = findEventsBy(EventColumns.EXPERIMENT_ID + "=" + experiment.getId(),
         EventColumns._ID +" DESC");
     experiment.setEvents(eventSingleEntryList);
   }
@@ -611,9 +605,9 @@ public class ExperimentProviderUtil {
     String select = InputColumns._ID + "=" + id;
     return findInputBy(select);
   }
-  
+
   public Uri insertInput(Input input) {
-    return contentResolver.insert(InputColumns.CONTENT_URI, 
+    return contentResolver.insert(InputColumns.CONTENT_URI,
         createContentValues(input));
   }
 
@@ -621,24 +615,24 @@ public class ExperimentProviderUtil {
     Input input = getInput(inputId);
     if (input != null) {
       String[] selectionArgs = new String[] {Long.toString(inputId)};
-      contentResolver.delete(InputColumns.CONTENT_URI, 
-          "_id = ?", 
+      contentResolver.delete(InputColumns.CONTENT_URI,
+          "_id = ?",
           selectionArgs);
     }
   }
-  
+
   public void updateInput(Input input) {
     contentResolver.update(InputColumns.CONTENT_URI,
         createContentValues(input), "_id=" + input.getId(), null);
   }
-  
+
   private Input findInputBy(String select) {
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(InputColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
-        return createInput(cursor);    
+        return createInput(cursor);
       }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
@@ -647,9 +641,9 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return null;   
+    return null;
   }
-  
+
   private List<Input> findInputsBy(String select) {
     List<Input> inputs = new ArrayList<Input>();
     Cursor cursor = null;
@@ -659,8 +653,8 @@ public class ExperimentProviderUtil {
       if (cursor != null) {
         while (cursor.moveToNext()) {
           inputs.add(createInput(cursor));
-        }            
-      }      
+        }
+      }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
     } finally {
@@ -668,7 +662,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return inputs;   
+    return inputs;
   }
 
 
@@ -689,21 +683,21 @@ public class ExperimentProviderUtil {
     int conditionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL);
     int conditionExpressionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL_EXPRESSION);
     int multiselectIndex = cursor.getColumnIndex(InputColumns.MULTISELECT);
-    
+
     Input input = new Input();
-    
+
     if (!cursor.isNull(idIndex)) {
       input.setId(cursor.getLong(idIndex));
     }
-    
+
     if (!cursor.isNull(serverIdIndex)) {
       input.setServerId(cursor.getLong(serverIdIndex));
     }
-    
+
     if (!cursor.isNull(experimentIndex)) {
       input.setExperimentId(cursor.getLong(experimentIndex));
     }
-    
+
     if (!cursor.isNull(nameIndex)) {
       input.setName(cursor.getString(nameIndex));
     }
@@ -711,23 +705,23 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(quesstionTypeIndex)) {
       input.setQuestionType(cursor.getString(quesstionTypeIndex));
     }
-    
+
     if (!cursor.isNull(responseTypeIndex)) {
       input.setResponseType(cursor.getString(responseTypeIndex));
     }
-    
+
     if (!cursor.isNull(scheduledDateIndex)) {
       input.setScheduleDateFromLong(cursor.getLong(scheduledDateIndex));
     }
-    
+
     if (!cursor.isNull(mandatoryIndex)) {
       input.setMandatory(cursor.getInt(mandatoryIndex) == 1);
     }
-    
+
     if (!cursor.isNull(textIndex)) {
       input.setText(cursor.getString(textIndex));
     }
-    
+
     if (!cursor.isNull(likertStepsIndex)) {
       input.setLikertSteps(cursor.getInt(likertStepsIndex));
     }
@@ -737,7 +731,7 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(rightSideLabelIndex)) {
       input.setRightSideLabel(cursor.getString(rightSideLabelIndex));
     }
-    
+
     List<String> listChoices = null;
     if (!cursor.isNull(listChoiceIndex)) {
       String jsonChoices = cursor.getString(listChoiceIndex);
@@ -757,7 +751,7 @@ public class ExperimentProviderUtil {
       listChoices = new ArrayList<String>();
     }
     input.setListChoices(listChoices);
-    
+
     if (!cursor.isNull(conditionIndex)) {
       input.setConditional(cursor.getInt(conditionIndex) == 1);
     }
@@ -769,7 +763,7 @@ public class ExperimentProviderUtil {
     }
     return input;
   }
-  
+
   private ContentValues createContentValues(Input input) {
     ContentValues values = new ContentValues();
     // Values id < 0 indicate no id is available:
@@ -797,7 +791,7 @@ public class ExperimentProviderUtil {
       values.put(InputColumns.SCHEDULED_DATE, input.getScheduleDate().getTime());
     }
     values.put(InputColumns.MANDATORY, input.isMandatory() ? 1 : 0);
-    
+
     if (input.getText() != null) {
       values.put(InputColumns.TEXT, input.getText() );
     }
@@ -811,7 +805,7 @@ public class ExperimentProviderUtil {
       values.put(InputColumns.RIGHT_SIDE_LABEL, input.getRightSideLabel());
     }
     List<String> choices = input.getListChoices();
-    
+
     if (choices != null && choices.size() > 0) {
       for (int i=0; i < choices.size(); i++) {
         String jsonChoices = null;
@@ -824,12 +818,12 @@ public class ExperimentProviderUtil {
         } catch (IOException e) {
           e.printStackTrace();
         }
-        if (jsonChoices != null) { 
+        if (jsonChoices != null) {
           values.put(InputColumns.LIST_CHOICES_JSON, jsonChoices);
         }
       }
     }
-    
+
     if (input.getConditional() != null) {
       values.put(InputColumns.CONDITIONAL, input.getConditional());
     }
@@ -846,7 +840,7 @@ public class ExperimentProviderUtil {
     String select = FeedbackColumns.EXPERIMENT_ID + " = " + experiment.getId();
     experiment.setFeeback(findFeedbackBy(select));
   }
-  
+
   public void insertFeedbackForJoinedExperiment(Experiment experiment) {
     List<Feedback> feedback = experiment.getFeedback();
     for (Feedback feedbackItem : feedback) {
@@ -860,9 +854,9 @@ public class ExperimentProviderUtil {
     String select = FeedbackColumns._ID + "=" + id;
     return findFeedbackItemBy(select);
   }
-  
+
   public Uri insertFeedback(Feedback feedback) {
-    return contentResolver.insert(FeedbackColumns.CONTENT_URI, 
+    return contentResolver.insert(FeedbackColumns.CONTENT_URI,
         createContentValues(feedback));
   }
 
@@ -870,24 +864,24 @@ public class ExperimentProviderUtil {
     Feedback feedback = getFeedbackItem(feedbackId);
     if (feedback != null) {
       String[] selectionArgs = new String[] {Long.toString(feedbackId)};
-      contentResolver.delete(FeedbackColumns.CONTENT_URI, 
-          "_id = ?", 
+      contentResolver.delete(FeedbackColumns.CONTENT_URI,
+          "_id = ?",
           selectionArgs);
     }
   }
-  
+
   public void updateFeedback(Feedback feedback) {
     contentResolver.update(FeedbackColumns.CONTENT_URI,
         createContentValues(feedback), "_id=" + feedback.getId(), null);
   }
-  
+
   private Feedback findFeedbackItemBy(String select) {
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
-        return createFeedback(cursor);    
+        return createFeedback(cursor);
       }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
@@ -896,9 +890,9 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return null;   
+    return null;
   }
-  
+
   private List<Feedback> findFeedbackBy(String select) {
     List<Feedback> feedback = new ArrayList<Feedback>();
     Cursor cursor = null;
@@ -908,8 +902,8 @@ public class ExperimentProviderUtil {
       if (cursor != null) {
         while (cursor.moveToNext()) {
           feedback.add(createFeedback(cursor));
-        }            
-      }      
+        }
+      }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
     } finally {
@@ -917,7 +911,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return feedback;   
+    return feedback;
   }
 
 
@@ -927,17 +921,17 @@ public class ExperimentProviderUtil {
     int experimentIndex = cursor.getColumnIndex(FeedbackColumns.EXPERIMENT_ID);
     int feedbackTypeIndex = cursor.getColumnIndex(FeedbackColumns.FEEDBACK_TYPE);
     int textIndex = cursor.getColumnIndex(FeedbackColumns.TEXT);
-    
+
     Feedback input = new Feedback();
-    
+
     if (!cursor.isNull(idIndex)) {
       input.setId(cursor.getLong(idIndex));
     }
-    
+
     if (!cursor.isNull(serverIdIndex)) {
       input.setServerId(cursor.getLong(serverIdIndex));
     }
-    
+
     if (!cursor.isNull(experimentIndex)) {
       input.setExperimentId(cursor.getLong(experimentIndex));
     }
@@ -949,7 +943,7 @@ public class ExperimentProviderUtil {
     }
     return input;
   }
-  
+
   private ContentValues createContentValues(Feedback feedback) {
     ContentValues values = new ContentValues();
 
@@ -967,12 +961,12 @@ public class ExperimentProviderUtil {
     }
     if (feedback.getText() != null) {
       values.put(FeedbackColumns.TEXT, feedback.getText() );
-    }  
+    }
     return values;
   }
 
   public Uri insertEvent(Event event) {
-    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, 
+    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI,
         createContentValues(event));
     long rowId = Long.parseLong(uri.getLastPathSegment());
     event.setId(rowId);
@@ -988,9 +982,9 @@ public class ExperimentProviderUtil {
     int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
     int experimentIndex = cursor.getColumnIndex(SignalScheduleColumns.EXPERIMENT_ID);
     int scheduleTypeIndex = cursor.getColumnIndex(SignalScheduleColumns.SCHEDULE_TYPE);
-    int timesCSVIndex = cursor.getColumnIndex(SignalScheduleColumns.TIMES_CSV); 
-    int esmFrequencyIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_FREQUENCY); 
-    int esmPeriodIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_PERIOD); 
+    int timesCSVIndex = cursor.getColumnIndex(SignalScheduleColumns.TIMES_CSV);
+    int esmFrequencyIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_FREQUENCY);
+    int esmPeriodIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_PERIOD);
 
     int esmStartIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_START_HOUR);
     int esmEndIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_END_HOUR);
@@ -1005,17 +999,17 @@ public class ExperimentProviderUtil {
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
     int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
     int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
-    
-    SignalSchedule schedule = new SignalSchedule();    
+
+    SignalSchedule schedule = new SignalSchedule();
     if (!cursor.isNull(idIndex)) {
       schedule.setId(cursor.getLong(idIndex));
-    }    
+    }
     if (!cursor.isNull(serverIdIndex)) {
       schedule.setServerId(cursor.getLong(serverIdIndex));
-    }    
+    }
     if (!cursor.isNull(experimentIndex)) {
       schedule.setExperimentId(cursor.getLong(experimentIndex));
-    }        
+    }
     if (!cursor.isNull(scheduleTypeIndex)) {
       schedule.setScheduleType(cursor.getInt(scheduleTypeIndex));
     }
@@ -1073,7 +1067,7 @@ public class ExperimentProviderUtil {
 
     return schedule;
   }
-  
+
 
   private ContentValues createContentValues(SignalSchedule schedule) {
     ContentValues values = new ContentValues();
@@ -1090,88 +1084,88 @@ public class ExperimentProviderUtil {
       values.put(SignalScheduleColumns.BY_DAY_OF_MONTH, schedule.getByDayOfMonth());
     }
     if (schedule.getScheduleType() != null) {
-      values.put(SignalScheduleColumns.SCHEDULE_TYPE, schedule.getScheduleType()); 
+      values.put(SignalScheduleColumns.SCHEDULE_TYPE, schedule.getScheduleType());
     }
     if (schedule.getEsmFrequency() != null) {
-      values.put(SignalScheduleColumns.ESM_FREQUENCY, schedule.getEsmFrequency()); 
+      values.put(SignalScheduleColumns.ESM_FREQUENCY, schedule.getEsmFrequency());
     }
     if (schedule.getEsmPeriodInDays() != null) {
-      values.put(SignalScheduleColumns.ESM_PERIOD, schedule.getEsmPeriodInDays()); 
+      values.put(SignalScheduleColumns.ESM_PERIOD, schedule.getEsmPeriodInDays());
     }
     if (schedule.getEsmStartHour() != null) {
-      values.put(SignalScheduleColumns.ESM_START_HOUR, schedule.getEsmStartHour()); 
+      values.put(SignalScheduleColumns.ESM_START_HOUR, schedule.getEsmStartHour());
     }
     if (schedule.getEsmEndHour() != null) {
-      values.put(SignalScheduleColumns.ESM_END_HOUR, schedule.getEsmEndHour()); 
+      values.put(SignalScheduleColumns.ESM_END_HOUR, schedule.getEsmEndHour());
     }
     if (schedule.getEsmWeekends() != null) {
-      values.put(SignalScheduleColumns.ESM_WEEKENDS, schedule.getEsmWeekends() == Boolean.TRUE ? 1 : 0); 
+      values.put(SignalScheduleColumns.ESM_WEEKENDS, schedule.getEsmWeekends() == Boolean.TRUE ? 1 : 0);
     }
     if (schedule.getUserEditable() != null) {
-      values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0); 
+      values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0);
     }
     if (schedule.getTimeout() != null) {
-      values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout()); 
+      values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout());
     }
-    
+
     if (schedule.getMinimumBuffer() != null) {
-      values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer()); 
+      values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer());
     }
 
     StringBuilder buf = new StringBuilder();
     boolean first = true;
     for (Long time : schedule.getTimes()) {
       if (!first) {
-        buf.append(",");        
+        buf.append(",");
       } else {
         first = false;
       }
       buf.append(time);
     }
     values.put(SignalScheduleColumns.TIMES_CSV, buf.toString());
-    
+
     if (schedule.getRepeatRate() != null) {
-      values.put(SignalScheduleColumns.REPEAT_RATE, schedule.getRepeatRate()); 
+      values.put(SignalScheduleColumns.REPEAT_RATE, schedule.getRepeatRate());
     }
-    
+
     if (schedule.getWeekDaysScheduled() != null) {
-      values.put(SignalScheduleColumns.WEEKDAYS_SCHEDULED, schedule.getWeekDaysScheduled()); 
+      values.put(SignalScheduleColumns.WEEKDAYS_SCHEDULED, schedule.getWeekDaysScheduled());
     }
-    
+
     if (schedule.getNthOfMonth() != null) {
-      values.put(SignalScheduleColumns.NTH_OF_MONTH, schedule.getNthOfMonth()); 
+      values.put(SignalScheduleColumns.NTH_OF_MONTH, schedule.getNthOfMonth());
     }
-    
+
     if (schedule.getByDayOfMonth() != null) {
-      values.put(SignalScheduleColumns.BY_DAY_OF_MONTH, schedule.getByDayOfMonth() == Boolean.TRUE ? 1 : 0); 
+      values.put(SignalScheduleColumns.BY_DAY_OF_MONTH, schedule.getByDayOfMonth() == Boolean.TRUE ? 1 : 0);
     }
-    
+
     if (schedule.getDayOfMonth() != null) {
-      values.put(SignalScheduleColumns.DAY_OF_MONTH, schedule.getDayOfMonth()); 
+      values.put(SignalScheduleColumns.DAY_OF_MONTH, schedule.getDayOfMonth());
     }
     if (schedule.getBeginDate() != null) {
-      values.put(SignalScheduleColumns.BEGIN_DATE, schedule.getBeginDate()); 
+      values.put(SignalScheduleColumns.BEGIN_DATE, schedule.getBeginDate());
     }
     return values;
   }
-  
+
   public void deleteSchedule(long scheduleId) {
     Input input = getInput(scheduleId);
     if (input != null) {
       String[] selectionArgs = new String[] {Long.toString(scheduleId)};
-      contentResolver.delete(SignalScheduleColumns.CONTENT_URI, 
-          "_id = ?", 
+      contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
+          "_id = ?",
           selectionArgs);
     }
   }
-  
+
   public void updateSchedule(SignalSchedule schedule) {
     contentResolver.update(SignalScheduleColumns.CONTENT_URI,
         createContentValues(schedule), "_id=" + schedule.getId(), null);
   }
-  
+
   public Uri insertSchedule(SignalSchedule schedule) {
-    return contentResolver.insert(SignalScheduleColumns.CONTENT_URI, 
+    return contentResolver.insert(SignalScheduleColumns.CONTENT_URI,
         createContentValues(schedule));
   }
 
@@ -1208,7 +1202,7 @@ public class ExperimentProviderUtil {
   }
 
   private Uri insertResponse(Output response) {
-    return contentResolver.insert(OutputColumns.CONTENT_URI, 
+    return contentResolver.insert(OutputColumns.CONTENT_URI,
         createContentValues(response));
   }
 
@@ -1250,7 +1244,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return null;   
+    return null;
   }
 
   private List<Event> findEventsBy(String select, String sortOrder) {
@@ -1274,7 +1268,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return events;   
+    return events;
   }
 
   private List<Output> findResponsesFor(Event event) {
@@ -1282,15 +1276,15 @@ public class ExperimentProviderUtil {
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(OutputColumns.CONTENT_URI,
-          null, 
-          OutputColumns.EVENT_ID + "=" + event.getId(), 
-          null, 
+          null,
+          OutputColumns.EVENT_ID + "=" + event.getId(),
+          null,
           OutputColumns.INPUT_SERVER_ID + " ASC"); // TODO (bobevans) module the conditional questions, this ordering should be OK to get questions in order.
       if (cursor != null) {
         while (cursor.moveToNext()) {
           responses.add(createResponse(cursor));
-        }            
-      }      
+        }
+      }
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
     } finally {
@@ -1310,17 +1304,17 @@ public class ExperimentProviderUtil {
     int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
     int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
     int uploadedIndex = cursor.getColumnIndex(EventColumns.UPLOADED);
-    
+
     Event input = new Event();
-    
+
     if (!cursor.isNull(idIndex)) {
       input.setId(cursor.getLong(idIndex));
     }
-    
+
     if (!cursor.isNull(experimentIdIndex)) {
       input.setExperimentId(cursor.getLong(experimentIdIndex));
     }
-    
+
     if (!cursor.isNull(experimentServerIdIndex)) {
       input.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
     }
@@ -1349,17 +1343,17 @@ public class ExperimentProviderUtil {
     int inputServeridIndex = cursor.getColumnIndex(OutputColumns.INPUT_SERVER_ID);
     int answerIndex = cursor.getColumnIndex(OutputColumns.ANSWER);
     int nameIndex = cursor.getColumnIndex(OutputColumns.NAME);
-    
+
     Output input = new Output();
-    
+
     if (!cursor.isNull(idIndex)) {
       input.setId(cursor.getLong(idIndex));
     }
-    
+
     if (!cursor.isNull(eventIdIndex)) {
       input.setEventId(cursor.getLong(eventIdIndex));
     }
-    
+
     if (!cursor.isNull(inputServeridIndex)) {
       input.setInputServerId(cursor.getLong(inputServeridIndex));
     }
@@ -1394,12 +1388,12 @@ public class ExperimentProviderUtil {
   }
 
   public void deleteAllUnJoinedExperiments() {
-    
+
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(ExperimentColumns.CONTENT_URI,
           new String[] { ExperimentColumns._ID },
-          ExperimentColumns.JOIN_DATE + " IS NULL ", 
+          ExperimentColumns.JOIN_DATE + " IS NULL ",
           null, null);
       if (cursor != null) {
         StringBuilder idsStringBuilder = new StringBuilder();
@@ -1414,7 +1408,7 @@ public class ExperimentProviderUtil {
         String idsString = idsStringBuilder.toString();
         contentResolver.delete(
             ExperimentColumns.CONTENT_URI, ExperimentColumns._ID + " in (" + idsString + ")", null);
-        // TODO delete all from child tables where experiment_ids match 
+        // TODO delete all from child tables where experiment_ids match
         contentResolver.delete(InputColumns.CONTENT_URI,
             InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
         contentResolver.delete(FeedbackColumns.CONTENT_URI,
@@ -1425,7 +1419,7 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    
+
   }
 
   public NotificationHolder getNotificationFor(long experimentId) {
@@ -1433,7 +1427,7 @@ public class ExperimentProviderUtil {
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
         null, selectionClause, selectionArgs, null);
       if (cursor.moveToFirst()) {
         return createNotification(cursor);
@@ -1452,7 +1446,7 @@ public class ExperimentProviderUtil {
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
         null, selectionClause, selectionArgs, null);
       while (cursor.moveToNext()) {
         holders.add(createNotification(cursor));
@@ -1465,16 +1459,16 @@ public class ExperimentProviderUtil {
     return holders;
   }
 
-  
+
   private NotificationHolder createNotification(Cursor cursor) {
     int idIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns._ID);
     int experimentIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.EXPERIMENT_ID);
     int alarmIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ALARM_TIME);
     int noticeCountIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.NOTICE_COUNT);
     int timeoutMillisIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.TIMEOUT_MILLIS);
-        
+
     NotificationHolder notification = new NotificationHolder();
-    
+
     if (!cursor.isNull(idIndex)) {
       notification.setId(cursor.getLong(idIndex));
     }
@@ -1482,7 +1476,7 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(experimentIdIndex)) {
       notification.setExperimentId(cursor.getLong(experimentIdIndex));
     }
-    
+
     if (!cursor.isNull(alarmIdIndex)) {
       notification.setAlarmTime(cursor.getLong(alarmIdIndex));
     }
@@ -1497,19 +1491,19 @@ public class ExperimentProviderUtil {
   }
 
   public Uri insertNotification(NotificationHolder notification) {
-    Uri uri = contentResolver.insert(NotificationHolderColumns.CONTENT_URI, 
+    Uri uri = contentResolver.insert(NotificationHolderColumns.CONTENT_URI,
         createContentValues(notification));
     long rowId = Long.parseLong(uri.getLastPathSegment());
     notification.setId(rowId);
     return uri;
   }
-  
+
   public NotificationHolder getNotificationById(long notificationId) {
     String[] selectionArgs = new String[] {Long.toString(notificationId)};
     String selectionClause = NotificationHolderColumns._ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
         null, selectionClause, selectionArgs, null);
       if (cursor.moveToFirst()) {
         return createNotification(cursor);
@@ -1524,14 +1518,14 @@ public class ExperimentProviderUtil {
 
   public void deleteNotification(long notificationId) {
     NotificationHolder holder = getNotificationById(notificationId);
-    deleteNotification(holder);   
+    deleteNotification(holder);
   }
 
   private void deleteNotification(NotificationHolder holder) {
     if (holder != null) {
-      String[] selectionArgs = new String[] {Long.toString(holder.getId())};    
+      String[] selectionArgs = new String[] {Long.toString(holder.getId())};
       String selectionClause = NotificationHolderColumns._ID + " = ?";
-      contentResolver.delete(NotificationHolderColumns.CONTENT_URI, 
+      contentResolver.delete(NotificationHolderColumns.CONTENT_URI,
           selectionClause, selectionArgs);
     }
   }
@@ -1543,17 +1537,17 @@ public class ExperimentProviderUtil {
 
     String[] selectionArgs = new String[] {Long.toString(experimentId)};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
-    return contentResolver.delete(NotificationHolderColumns.CONTENT_URI, 
-        selectionClause, 
+    return contentResolver.delete(NotificationHolderColumns.CONTENT_URI,
+        selectionClause,
         selectionArgs);
   }
-  
+
   public int updateNotification(NotificationHolder notification) {
     String[] selectionArgs = new String[] {Long.toString(notification.getId())};
     String selectionClause = NotificationHolderColumns._ID +" = ?";
-    
+
     return contentResolver.update(NotificationHolderColumns.CONTENT_URI,
-        createContentValues(notification), 
+        createContentValues(notification),
         selectionClause, selectionArgs);
   }
 
@@ -1564,7 +1558,7 @@ public class ExperimentProviderUtil {
       values.put(NotificationHolderColumns._ID, notification.getId());
     }
     if (notification.getAlarmTime() != null) {
-      values.put(NotificationHolderColumns.ALARM_TIME, notification.getAlarmTime() );  
+      values.put(NotificationHolderColumns.ALARM_TIME, notification.getAlarmTime() );
     }
     if (notification.getExperimentId() != null) {
       values.put(NotificationHolderColumns.EXPERIMENT_ID, notification.getExperimentId());
@@ -1575,19 +1569,19 @@ public class ExperimentProviderUtil {
     if (notification.getTimeoutMillis() != null) {
       values.put(NotificationHolderColumns.TIMEOUT_MILLIS, notification.getTimeoutMillis());
     }
-    
+
     return values;
   }
 
   public List<NotificationHolder> getNotificationsStillActive(DateTime now) {
     List<NotificationHolder> notifs = new ArrayList<NotificationHolder>();
-    
+
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
         null, null, null, null);
       while (cursor.moveToNext()) {
-        
+
         NotificationHolder notif = createNotification(cursor);
         if (notif.isActive(now)) {
           notifs.add(notif);
@@ -1602,12 +1596,12 @@ public class ExperimentProviderUtil {
   }
 
   public List<NotificationHolder> getAllNotifications() {
-    List<NotificationHolder> notifs = new ArrayList<NotificationHolder>();    
+    List<NotificationHolder> notifs = new ArrayList<NotificationHolder>();
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI, 
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
         null, null, null, null);
-      while (cursor.moveToNext()) {        
+      while (cursor.moveToNext()) {
         notifs.add(createNotification(cursor));
       }
     } finally {
@@ -1618,18 +1612,42 @@ public class ExperimentProviderUtil {
     return notifs;
   }
 
+
+  public void saveMyExperimentsToDisk(String contentAsString) throws IOException {
+    FileOutputStream fos = context.openFileOutput(MY_EXPERIMENTS_FILENAME, Context.MODE_PRIVATE);
+    fos.write(contentAsString.getBytes());
+    fos.close();
+  }
+
+  public List<Experiment> loadMyExperimentsFromDisk() {
+    List<Experiment> experiments = null;
+    try {
+      experiments = createObjectsFromJsonStream(context.openFileInput(MY_EXPERIMENTS_FILENAME));
+    } catch (IOException e) {
+      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
+    }
+    return ensureExperiments(experiments);
+  }
+
+
   public void saveExperimentsToDisk(String contentAsString) throws IOException {
     FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
     fos.write(contentAsString.getBytes());
     fos.close();
   }
 
-  public List<Experiment> loadExperimentsFromDisk() {
+  public List<Experiment> loadExperimentsFromDisk(boolean myExperimentsFile) {
+    String filename = null;
+    if (myExperimentsFile) {
+      filename = MY_EXPERIMENTS_FILENAME;
+    } else {
+      filename = FILENAME;
+    }
     List<Experiment> experiments = null;
     try {
-      experiments = createObjectsFromJsonStream(context.openFileInput(FILENAME));
+      experiments = createObjectsFromJsonStream(context.openFileInput(filename));
     } catch (IOException e) {
-      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");      
+      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
     }
     return ensureExperiments(experiments);
   }
@@ -1656,7 +1674,7 @@ public class ExperimentProviderUtil {
   public boolean hasJoinedExperiments() {
     Cursor query = null;
     try {
-      query = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+      query = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
             new String[] {ExperimentColumns._ID}, null, null, null);
       return query.moveToFirst();
     } finally {
@@ -1691,13 +1709,13 @@ public class ExperimentProviderUtil {
     }
   }
 
-  public Experiment getExperimentFromDisk(Uri uri) {
+  public Experiment getExperimentFromDisk(Uri uri, boolean myExperimentsFile) {
     Long experimentServerId = new Long(uri.getLastPathSegment());
-    return getExperimentFromDisk(experimentServerId);
+    return getExperimentFromDisk(experimentServerId, myExperimentsFile);
   }
 
-  public Experiment getExperimentFromDisk(Long experimentServerId) {
-    List<Experiment> experiments= loadExperimentsFromDisk();
+  public Experiment getExperimentFromDisk(Long experimentServerId, boolean myExperimentsFile) {
+    List<Experiment> experiments= loadExperimentsFromDisk(myExperimentsFile);
     for (Experiment experiment : experiments) {
       if (experiment.getServerId().equals(experimentServerId)) {
         return experiment;
@@ -1711,7 +1729,7 @@ public class ExperimentProviderUtil {
     mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     return mapper.readValue(contentAsString, new TypeReference<List<Experiment>>() {});
   }
-  
+
   public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);

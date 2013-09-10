@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,9 +24,6 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Preconditions;
-import com.pacoapp.paco.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,6 +38,9 @@ import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.common.base.Preconditions;
+import com.pacoapp.paco.R;
 
 public class InformedConsentActivity extends Activity {
 
@@ -59,13 +59,16 @@ public class InformedConsentActivity extends Activity {
     setContentView(R.layout.informed_consent);
     final Intent intent = getIntent();
     uri = intent.getData();
+
+    boolean myExperiments = intent.getExtras() != null ? intent.getExtras().getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE) : false;
+
     if (uri != null) {
       showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
       experimentProviderUtil = new ExperimentProviderUtil(this);
       if (showingJoinedExperiments) {
         experiment = experimentProviderUtil.getExperiment(uri);
       } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+        experiment = experimentProviderUtil.getExperimentFromDisk(uri, myExperiments);
       }
       if (experiment == null) {
         Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
@@ -127,7 +130,7 @@ public class InformedConsentActivity extends Activity {
       showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
 
       List<Long> experimentServerIds = Arrays.asList(experiment.getServerId());
-      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this), 
+      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this),
                                                                experimentServerIds);
       experimentDownloadTask.execute();
     }
@@ -228,7 +231,7 @@ public class InformedConsentActivity extends Activity {
 
   private ProgressDialog getRefreshJoinedDialog() {
     return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                               getString(R.string.retrieving_your_joined_experiment_from_the_server), 
+                               getString(R.string.retrieving_your_joined_experiment_from_the_server),
                                true, true);
   }
 
@@ -273,7 +276,7 @@ public class InformedConsentActivity extends Activity {
       showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
     } else {
       showDialog(DownloadHelper.SERVER_ERROR, null);
-    }      
+    }
   }
 
   private String getTodayAsStringWithZone() {
