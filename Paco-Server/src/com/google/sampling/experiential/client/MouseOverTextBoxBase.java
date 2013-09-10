@@ -26,6 +26,7 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
   
   public static final int TEXT_AREA = 0;
   public static final int TEXT_BOX = 1;
+  public static final String DEFAULT_TEXT = "";
   
   private String message;
   private boolean shouldShowMouseOver;
@@ -47,18 +48,19 @@ public class MouseOverTextBoxBase extends Composite implements MouseOverHandler,
       textBox = new TextBox();
     }
     textBox.addFocusHandler(this);
+    textBox.setValue(DEFAULT_TEXT);
     container.add(textBox);
   }
 
   public void enableMouseOver() {
-    setShouldShowMouseOver(true);
+    setMouseOverEnabled(true);
   }
   
   public void disableMouseOver() {
-    setShouldShowMouseOver(false);
+    setMouseOverEnabled(false);
   }
   
-  private void setShouldShowMouseOver(boolean shouldShowMouseOver) {
+  protected void setMouseOverEnabled(boolean shouldShowMouseOver) {
     this.shouldShowMouseOver = shouldShowMouseOver;
     if (!shouldShowMouseOver) {
       disableMouseOverText();

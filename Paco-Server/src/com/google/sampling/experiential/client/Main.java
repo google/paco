@@ -213,7 +213,7 @@ public class Main implements EntryPoint, ExperimentListener {
     horizontalPanel.add(leftSidePanel);
     experimentPanel.setStyleName("paco-experimentPanel");
     experimentPanel.setSpacing(2);
-    experimentPanel.setVisible(false);
+    hideExperimentPanel();
     experimentPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
 
     flexTable = new FlexTable();
@@ -346,7 +346,7 @@ public class Main implements EntryPoint, ExperimentListener {
    */
   protected void showAndroidDownloadPage() {
     contentPanel.clear();
-    experimentPanel.setVisible(false);
+    hideExperimentPanel();
     setContentTitle(myConstants.downloadAppTitle());
     VerticalPanel dl = new VerticalPanel();
 
@@ -398,7 +398,7 @@ public class Main implements EntryPoint, ExperimentListener {
   protected void createNewExperiment() {
     setContentTitle(myConstants.createNewExperiment());
     contentPanel.clear();
-    experimentPanel.setVisible(false);
+    hideExperimentPanel();
     ExperimentDAO experiment = new ExperimentDAO();
     showExperimentDetailPanel(experiment, true, false);
   }
@@ -406,13 +406,13 @@ public class Main implements EntryPoint, ExperimentListener {
   protected void launchAbout() {
     setContentTitle(myConstants.about() + " PACO");
     contentPanel.clear();
-    experimentPanel.setVisible(false);
+    hideExperimentPanel();
   }
 
   protected void launchHelp() {
     setContentTitle(myConstants.help());
     contentPanel.clear();
-    experimentPanel.setVisible(false);
+    hideExperimentPanel();
     HelpPage hp = new HelpPage(this);
     contentPanel.add(hp);
   }
@@ -515,6 +515,7 @@ public class Main implements EntryPoint, ExperimentListener {
         saveToServer(experiment);
         break;
       case ExperimentListener.CANCELED:
+        unhideExperimentPanel();
         contentPanel.clear();
         break;
       case ExperimentListener.SOFT_DELETE_CODE:
@@ -920,9 +921,18 @@ public class Main implements EntryPoint, ExperimentListener {
     } else {
       ExperimentCreationPanel ep = new ExperimentCreationPanel(experiment, loginInfo, this);
       contentPanel.add(ep);
+      hideExperimentPanel();
     }
 
     statusLabel.setVisible(false);
+  }
+
+  private void hideExperimentPanel() {
+    experimentPanel.setVisible(false);
+  }
+  
+  private void unhideExperimentPanel() {
+    experimentPanel.setVisible(true);
   }
 
   private void showStatsPanel(final ExperimentDAO experiment, final boolean joined) {
