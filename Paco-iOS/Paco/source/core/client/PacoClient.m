@@ -412,7 +412,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
       return;
     }
     
-    [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
+    [self.service loadMyFullDefinitionListWithBlock:^(NSArray *experiments, NSError *error) {
       if (error) {
         NSLog(@"Failed to prefetch definitions: %@", [error description]);
         [self definitionsLoadedWithError:error];
