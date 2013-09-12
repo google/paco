@@ -204,6 +204,11 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   NSString* alertBody = [NSString stringWithFormat:@"Paco experiment %@ at %@.",
                          experiment.instanceId,
                          [self getTimeZoneFormattedDateString:experimentFireDate]];
+  if (DEBUG) {
+    alertBody = [NSString stringWithFormat:@"[%@]%@",
+                 experiment.instanceId, [PacoDate debugStringForDate:experimentFireDate]];
+  }
+  
   [self registeriOSNotification:experiment.instanceId
              experimentFireDate:experimentFireDate
           experimentTimeOutDate:experimentTimeOutDate
@@ -238,6 +243,10 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     NSLog(@"Notification scheduled in 5 seconds!!!");
     notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5]; 
     [userInfo setObject:[NSNumber numberWithBool:YES] forKey:kExperimentHasFiredKey];
+    
+    if (DEBUG) {
+      notification.alertBody = [NSString stringWithFormat:@"[Rescheduled]%@", experimentAlertBody];
+    }
   } else {
     notification.fireDate = experimentFireDate;
     [userInfo setObject:[NSNumber numberWithBool:NO] forKey:kExperimentHasFiredKey];

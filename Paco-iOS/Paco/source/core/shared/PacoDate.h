@@ -20,6 +20,7 @@
 @interface PacoDate : NSObject
 + (NSString *)pacoStringForDate:(NSDate *)date;
 + (NSDate *)pacoDateForString:(NSString *)dateStr;
++ (NSString*)debugStringForDate:(NSDate*)date;
 
 + (int)dayIndexOfDate:(NSDate *)date;
 + (int)weekdayIndexOfDate:(NSDate *)date;

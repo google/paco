@@ -45,6 +45,27 @@
 }
 
 
+/*
+ * 12:33:22-0700, Sep 12, 2013 
+ */
++ (NSDateFormatter*)debugDateFormatter {
+  static NSDateFormatter* debugDateFormatter = nil;
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    debugDateFormatter = [[NSDateFormatter alloc] init];
+    [debugDateFormatter setDateFormat:@"HH:mm:ssZZZ, MMM dd, YYYY"];
+    [debugDateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+  });
+  
+  return debugDateFormatter;
+}
+
++ (NSString*)debugStringForDate:(NSDate*)date {
+  return [[PacoDate debugDateFormatter] stringFromDate:date];
+}
+
+
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSUInteger day = [calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSYearCalendarUnit forDate:date];
