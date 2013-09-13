@@ -34,7 +34,9 @@
           self.scheduleId, @"id",
           [NSNumber numberWithInt:self.nthOfMonth], @"nthOfMonth",
           [NSNumber numberWithInt:self.repeatPeriod], @"repeatRate",
+          
           [NSNumber numberWithInt:self.timeout], @"timeout",
+          [NSNumber numberWithInt:self.minimumBuffer], @"minimumBuffer",
           [NSNumber numberWithInt:self.scheduleType], @"scheduleType",
           self.times, @"times",
           [NSNumber numberWithBool:self.userEditable], @"userEditable",
@@ -65,6 +67,14 @@
   schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
   schedule.timeout = [[scheduleMembers objectForKey:@"timeout"] intValue];
+  
+  NSNumber* minimumBufferNum = [scheduleMembers objectForKey:@"minimumBuffer"];
+  if (minimumBufferNum != nil) {
+    schedule.minimumBuffer = [minimumBufferNum intValue];
+  } else {
+    schedule.minimumBuffer = 59; //default
+  }
+  
   schedule.times = [scheduleMembers objectForKey:@"times"];
   schedule.times = [schedule.times sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     NSDate *lhs = obj1;
@@ -104,6 +114,7 @@
           @"scheduleType=%d "
           @"times=%@ "
           @"timeout=%d "
+          @"minimumBuffer=%d "
           @"weekDaysScheduled=%d >",
           self,
           self.byDayOfMonth,
@@ -121,6 +132,7 @@
           self.scheduleType,
           self.times,
           self.timeout,
+          self.minimumBuffer,
           self.weekDaysScheduled,
           nil];
 }
@@ -185,6 +197,7 @@
   return string;
 }
 
+//YMZ:TODO: examine if we need to add timeout and minimumBuffer
 - (NSString *)jsonString {
   NSMutableString *json = [NSMutableString stringWithString:@"{"];
   
