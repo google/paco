@@ -417,6 +417,10 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Schedule")
   String schedule();
 
+  @DefaultStringValue("Duration")
+  String signalGroupDuration();
+
+
   @DefaultStringValue("Inputs List")
   String experimentInputsButtonText();
 
@@ -431,7 +435,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Experiment Creation")
   String experimentCreation();
-  
+
   @DefaultStringValue("Experiment Update")
   String experimentUpdate();
 
@@ -521,13 +525,22 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Conditional expressions must contain only valid symbols, have balanced parentheses, refer to valid inputs, and have in-range predicate values.")
   String conditionalExpressionIsInvalid();
-  
+
   @DefaultStringValue("Minimum time between signals")
   String minimumBuffer();
-  
+
   @DefaultStringValue("Predicate values must be nonnegative integer values in range for the listed input.")
   String predicateError();
-  
+
   @DefaultStringValue("Input names must refer to inputs before this input, and cannot refer to nonexistant inputs.")
   String inputNameConditionalError();
+
+  @DefaultStringValue("Feedback")
+  String experimentFeedbackButtonText();
+
+  @DefaultStringValue("Feedback")
+  String feedbackHeader();
+
+  @DefaultStringValue("Duration")
+  String durationHeader();
 }

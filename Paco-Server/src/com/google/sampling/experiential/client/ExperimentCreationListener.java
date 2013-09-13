@@ -16,6 +16,8 @@ public interface ExperimentCreationListener {
   public static final int PREVIOUS = 8;
   public static final int REMOVE_ERROR = 9;
   public static final int ADD_ERROR = 10;
+  public static final int SHOW_DURATION_CODE = 11;
+  public static final int SHOW_FEEDBACK_CODE = 12;
 
   void eventFired(int creationCode, Integer signalGroupNumber, String message);
 }

@@ -19,6 +19,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.datastore.ExperimentEntityPersistence;
@@ -276,21 +277,35 @@ public class ExperimentRetriever {
   // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
   // This is the reason we are doing this here instead of on the dao class where it belongs.
   public boolean isOver(ExperimentDAO experiment, DateTime nowInUserTimezone) {
-    return experiment.getFixedDuration() != null && experiment.getFixedDuration()
-           && getEndDateTime(experiment).isBefore(nowInUserTimezone);
+    return experiment.isFixedDuration() && getEndDateTime(experiment).isBefore(nowInUserTimezone);
   }
 
   private DateTime getEndDateTime(ExperimentDAO experiment) {
-    SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
-    if (signalingMechanismDAO instanceof SignalScheduleDAO
+    SignalGroupDAO[] signalGroups = experiment.getSignalGroups();
+    DateTime lastTimeInExperiment = null;
+    for (SignalGroupDAO signalGroupDAO : signalGroups) {
+      DateTime endDateInSignalingMechanism = null;
+      for (SignalingMechanismDAO signalingMechanismDAO : signalGroupDAO.getSignalingMechanisms()) {
+        if (signalingMechanismDAO instanceof SignalScheduleDAO
             && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
-      Arrays.sort(times);
-      DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
-    } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).plusDays(1).toDateTime();
+          Long[] times = ((SignalScheduleDAO) signalingMechanismDAO).getTimes();
+          Arrays.sort(times);
+          DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
+
+          endDateInSignalingMechanism = com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(signalGroupDAO.getEndDate())
+                                                                                 .toDateTime()
+                                                                                 .withMillisOfDay(lastTimeForDay.getMillisOfDay());
+
+        } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
+          endDateInSignalingMechanism = com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(signalGroupDAO.getEndDate())
+                                                                                 .plusDays(1).toDateTime();
+        }
+        if (endDateInSignalingMechanism != null && endDateInSignalingMechanism.isAfter(lastTimeInExperiment)) {
+          lastTimeInExperiment = endDateInSignalingMechanism;
+        }
+      }
     }
+    return lastTimeInExperiment;
   }
 
   public List<ExperimentDAO> getAdminedExperiments(String userLoggedInEmail) {

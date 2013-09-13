@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
@@ -180,8 +181,12 @@ public class HtmlBlobWriter {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
       List<String> inputKeys = Lists.newArrayList();
-      for (InputDAO item : experiment.getInputs()) {
-        inputKeys.add(item.getName());
+      SignalGroupDAO[] signalGroups = experiment.getSignalGroups();
+      for (SignalGroupDAO signalGroupDAO : signalGroups) {
+        InputDAO[] inputs = signalGroupDAO.getInputs();
+        for (InputDAO item : inputs) {
+          inputKeys.add(item.getName());
+        }
       }
 
       StringBuilder out = new StringBuilder();
@@ -254,8 +259,12 @@ public class HtmlBlobWriter {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
       List<String> inputKeys = Lists.newArrayList();
-      for (InputDAO item : experiment.getInputs()) {
-        inputKeys.add(item.getName());
+      SignalGroupDAO[] signalGroups = experiment.getSignalGroups();
+      for (SignalGroupDAO signalGroupDAO : signalGroups) {
+        InputDAO[] inputs = signalGroupDAO.getInputs();
+        for (InputDAO item : inputs) {
+          inputKeys.add(item.getName());
+        }
       }
 
       StringBuilder out = new StringBuilder();
@@ -282,11 +291,14 @@ public class HtmlBlobWriter {
           who = Event.getAnonymousId(who);
         }
         out.append("<td>").append(who).append("</td>");
-
-        for (InputDAO input : experiment.getInputs()) {
-          out.append("<td>");
-          out.append(getValueAsDisplayString(event, input.getName()));
-          out.append("</td>");
+        signalGroups = experiment.getSignalGroups();
+        for (SignalGroupDAO signalGroupDAO : signalGroups) {
+          InputDAO[] inputs = signalGroupDAO.getInputs();
+          for (InputDAO input : inputs) {
+            out.append("<td>");
+            out.append(getValueAsDisplayString(event, input.getName()));
+            out.append("</td>");
+          }
         }
 
         List<String> keysCopy = Lists.newArrayList(event.getWhat().keySet());

@@ -13,54 +13,54 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 
 
 public class SignalMechanismChooserListPanel extends Composite {
-  
-  private ExperimentDAO experiment; 
+
+  private SignalGroupDAO signalGroupDAO;
   private int signalGroupNum;
   private ExperimentCreationListener listener;
-  
+
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private Tree tree;
-  
+
   private List<SignalMechanismChooserPanel> chooserPanelsWithTimeoutErrors;
-  
+
   // Visible for testing
-  protected List<SignalMechanismChooserPanel> chooserPanels; 
-  
-  public SignalMechanismChooserListPanel(ExperimentDAO experiment, int signalGroupNum,
+  protected List<SignalMechanismChooserPanel> chooserPanels;
+
+  public SignalMechanismChooserListPanel(SignalGroupDAO signalGroup, int signalGroupNum,
                                      ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
-    this.experiment = experiment;  
+    this.signalGroupDAO = signalGroup;
     this.signalGroupNum = signalGroupNum;
     this.listener = listener;
 
     rootPanel = new VerticalPanel();
     initWidget(rootPanel);
-    
+
     rootPanel.add(createSignalGroupHeader());
     rootPanel.add(createScheduleHeader());
-    
+
     tree = new Tree();
     rootPanel.add(tree);
-    
+
     if (signalGroupNum != 0 ||
-        experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
+        signalGroup.getSignalingMechanisms() == null || signalGroup.getSignalingMechanisms().length == 0) {
       SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
       signalingMechanisms[0] = createEmptySignalingMechanism();
-      experiment.setSignalingMechanisms(signalingMechanisms);
+      signalGroup.setSignalingMechanisms(signalingMechanisms);
     }
-    
+
     chooserPanels = new ArrayList<SignalMechanismChooserPanel>();
-    for (SignalingMechanismDAO signalingMechanism : experiment.getSignalingMechanisms()) {
+    for (SignalingMechanismDAO signalingMechanism : signalGroup.getSignalingMechanisms()) {
       addSignalPanelForExistingMechanism(signalingMechanism);
     }
-    
+
     chooserPanelsWithTimeoutErrors = new ArrayList<SignalMechanismChooserPanel>();
   }
 
@@ -70,7 +70,7 @@ public class SignalMechanismChooserListPanel extends Composite {
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;
   }
-  
+
   private Label createSignalGroupHeader() {
     // Groups are numbered starting from 0, but user sees the numbering as starting from 1.
     String titleText = myConstants.signalGroup() + " " + (signalGroupNum + 1);
@@ -99,7 +99,7 @@ public class SignalMechanismChooserListPanel extends Composite {
     createListMgmtButtons(headerPanel);
     return headerPanel;
   }
-  
+
   private void createListMgmtButtons(final HorizontalPanel headerPanel) {
     Button deleteButton = new Button("-");
     deleteButton.addClickHandler(new ClickHandler() {
@@ -119,7 +119,7 @@ public class SignalMechanismChooserListPanel extends Composite {
     });
     headerPanel.add(addButton);
   }
-  
+
   private int getHeaderPanelTreeItemIndex(HorizontalPanel headerPanel) {
     int index = tree.getItemCount() - 1;
     for (int i = 0; i < tree.getItemCount(); ++i) {
@@ -130,56 +130,56 @@ public class SignalMechanismChooserListPanel extends Composite {
     }
     return index;
   }
-  
-  protected void updateExperimentSignalingMechanism(SignalMechanismChooserPanel panel, 
+
+  protected void updateExperimentSignalingMechanism(SignalMechanismChooserPanel panel,
                                           SignalingMechanismDAO signalingMechanism) {
     int index = chooserPanels.indexOf(panel);
-    experiment.getSignalingMechanisms()[index] = signalingMechanism;
+    signalGroupDAO.getSignalingMechanisms()[index] = signalingMechanism;
   }
-  
+
   protected void addSignalingMechanism(int senderIndex) {
-    SignalMechanismChooserPanel newChooserPanel = 
+    SignalMechanismChooserPanel newChooserPanel =
         new SignalMechanismChooserPanel(createEmptySignalingMechanism(), this);
-    chooserPanels.add(senderIndex + 1, newChooserPanel);   
+    chooserPanels.add(senderIndex + 1, newChooserPanel);
     updateExperimentSignalingMechanisms();
     addChooserPanelToTree(newChooserPanel, senderIndex + 1);
   }
-  
+
   public void deleteSignalingMechanism(int index) {
     if (chooserPanels.size() == 1) {
       return;
     }
-    
+
     chooserPanels.remove(index);
     updateExperimentSignalingMechanisms();
-    
+
     tree.removeItem(tree.getItem(index));
   }
-  
+
   // TODO this is not very efficient.
   private void updateExperimentSignalingMechanisms() {
     SignalingMechanismDAO[] newSignalingMechanisms = new SignalingMechanismDAO[chooserPanels.size()];
     for (int i = 0; i < chooserPanels.size(); i++) {
       newSignalingMechanisms[i] = chooserPanels.get(i).getSignalingMechanism();
     }
-    experiment.setSignalingMechanisms(newSignalingMechanisms);
+    signalGroupDAO.setSignalingMechanisms(newSignalingMechanisms);
   }
-  
-  private void addChooserPanelToTree(SignalMechanismChooserPanel panel, int widgetIndex) { 
+
+  private void addChooserPanelToTree(SignalMechanismChooserPanel panel, int widgetIndex) {
     tree.insertItem(widgetIndex, createSignalMechanismTreeItem(panel));
   }
-  
+
   private SignalingMechanismDAO createEmptySignalingMechanism() {
     return new SignalScheduleDAO();
   }
-  
+
   protected void removeTimeoutErrorMessage(SignalMechanismChooserPanel panel, String message) {
     chooserPanelsWithTimeoutErrors.remove(panel);
     if (chooserPanelsWithTimeoutErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
-  
+
   protected void addTimeoutErrorMessage(SignalMechanismChooserPanel panel, String message) {
     if (chooserPanelsWithTimeoutErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
@@ -188,7 +188,7 @@ public class SignalMechanismChooserListPanel extends Composite {
       chooserPanelsWithTimeoutErrors.add(panel);
     }
   }
-  
+
   public void fireExperimentCode(int code, String message) {
     listener.eventFired(code, signalGroupNum, message);
   }

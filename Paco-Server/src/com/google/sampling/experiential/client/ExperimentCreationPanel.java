@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 /**
@@ -43,15 +44,15 @@ import com.google.sampling.experiential.shared.LoginInfo;
  * basis of creation and editing of experiments. Delegates specific parts of
  * experiment definition to sub panels. Handles communication with subpanels
  * about state of edits.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 public class ExperimentCreationPanel extends Composite implements ExperimentCreationListener {
-  
+
   /* Note: a valid email address, by our definition, contains:
    *  A user name at least one character long. Valid characters are alphanumeric
-   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+), 
+   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+),
    *    and period (.). The user name cannot start with a period or a plus,
    *    and there cannot be two periods in a row.
    *  A domain name that follows the same restrictions as a user name, except that it
@@ -61,7 +62,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
    * The overall form of the email address must be username@domain.TLD
    * Please update this documentation if changing the email regex below.
    */
-  public static final String EMAIL_REGEX = 
+  public static final String EMAIL_REGEX =
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
       //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
 
@@ -78,13 +79,16 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private ExperimentCreationMenuBar leftMenuBar;
   private ExperimentCreationContentPanel contentPanel;
   private Composite showingPanel;
-  
+
   // Visible for testing
   protected ExperimentDescriptionPanel descriptionPanel;
   protected List<SignalMechanismChooserListPanel> signalPanels;
   protected List<InputsListPanel> inputsListPanels;
+  protected List<FeedbackPanel> feedbackPanels;
+  protected List<DurationView> durationPanels;
+
   protected ExperimentPublishingPanel publishingPanel;
-  
+
   private int numSignalGroups;
 
   private List<String> errorMessagesAccumulated;
@@ -107,38 +111,51 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
 
     leftMenuBar = createLeftMenuBar(experiment);
     mainPanel.add(leftMenuBar);
-    
+
     // Experiment validation error messages
     errorMessagesAccumulated = new ArrayList<String>();
 
     // The panels to be displayed in the content panel.
     descriptionPanel = createDescriptionPanel();
-   
+
     numSignalGroups = 0;
+    SignalGroupDAO signalGroup = new SignalGroupDAO();
+
+    durationPanels = new ArrayList<DurationView>();
+    DurationView durationPanel = createDurationPanel(signalGroup, numSignalGroups);
+    durationPanels.add(durationPanel);
+
+
     signalPanels = new ArrayList<SignalMechanismChooserListPanel>();
-    signalPanels.add(createSignalMechanismPanel(numSignalGroups));
+    signalPanels.add(createSignalMechanismPanel(signalGroup, numSignalGroups));
+
     inputsListPanels = new ArrayList<InputsListPanel>();
-    inputsListPanels.add(createInputsListPanel(numSignalGroups));
+    inputsListPanels.add(createInputsListPanel(signalGroup, numSignalGroups));
+
+    feedbackPanels = new ArrayList<FeedbackPanel>();
+    feedbackPanels.add(createFeedbackPanel(signalGroup, numSignalGroups));
+
     ++numSignalGroups;
-    
+
     publishingPanel = createPublishingPanel();
 
     VerticalPanel viewPanel = new VerticalPanel();
     mainPanel.add(viewPanel);
-    
+
     contentPanel = createContentPanel();
-    
+
     createButtonPanel(viewPanel, contentPanel.getButtonPanel());
-    
+
     viewPanel.add(contentPanel);
-    
+
     // Entry view is description panel.
     showPanel(descriptionPanel);
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL, null);
   }
 
   private ExperimentCreationContentPanel createContentPanel() {
-    List<Composite> panels = Arrays.asList(descriptionPanel, signalPanels.get(0), inputsListPanels.get(0), publishingPanel);
+    List<Composite> panels = Arrays.asList(descriptionPanel, durationPanels.get(0), signalPanels.get(0),
+                                           inputsListPanels.get(0), feedbackPanels.get(0), publishingPanel);
     return new ExperimentCreationContentPanel(this, panels);
   }
 
@@ -151,24 +168,28 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
 
   // TODO (SignalGroups): Change to reflect new data model. Perhaps pass in signal group instead of experiment.
-  private SignalMechanismChooserListPanel createSignalMechanismPanel(int groupNum) {
-    if (groupNum == 0) {
-      return new SignalMechanismChooserListPanel(experiment, groupNum, this);
-    } else {
-      return new SignalMechanismChooserListPanel(new ExperimentDAO(), groupNum, this);
-    }
+  private SignalMechanismChooserListPanel createSignalMechanismPanel(SignalGroupDAO signalGroup, int groupNum) {
+    return new SignalMechanismChooserListPanel(signalGroup, groupNum, this);
   }
 
   // TODO (SignalGroups): Change to reflect new data model. Perhaps pass in signal group instead of experiment.
-  private InputsListPanel createInputsListPanel(int groupNum) {
-    InputsListPanel inputsListPanel;
-    if (groupNum == 0) {
-      inputsListPanel = new InputsListPanel(experiment, groupNum, this);
-    } else {
-      inputsListPanel = new InputsListPanel(new ExperimentDAO(), groupNum, this);
-    }
+  private InputsListPanel createInputsListPanel(SignalGroupDAO signalGroup, int groupNum) {
+    InputsListPanel inputsListPanel = new InputsListPanel(signalGroup, groupNum, this);
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
+  }
+
+  private FeedbackPanel createFeedbackPanel(SignalGroupDAO signalGroup, int groupNum) {
+    FeedbackPanel feedbackPanel = new FeedbackPanel(signalGroup, groupNum, this);
+    feedbackPanel.setStyleName("left");
+    return feedbackPanel;
+  }
+
+
+  private DurationView createDurationPanel(SignalGroupDAO signalGroup, int groupNum) {
+    DurationView durationView = new DurationView(signalGroup, groupNum, this);
+    durationView.setStyleName("left");
+    return durationView;
   }
 
   private ExperimentPublishingPanel createPublishingPanel() {
@@ -179,7 +200,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   protected void showPanel(Composite panel) {
     showPanel(panel, ExperimentCreationContentPanel.NO_EXTRA_BUTTON);
   }
-  
+
   private void showPanel(Composite panel, Integer buttonPanelId) {
     showingPanel = panel;
     contentPanel.changeShowingView(showingPanel, buttonPanelId);
@@ -189,13 +210,13 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     HorizontalPanel masterButtonPanel = new HorizontalPanel();
     parent.add(masterButtonPanel);
     masterButtonPanel.setWidth("100%");
-    
+
     HorizontalPanel submitButtonPanel = new HorizontalPanel();
     submitButtonPanel.add(createSubmitButton(experiment));
     submitButtonPanel.add(createCancelButton());
     submitButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
     masterButtonPanel.add(submitButtonPanel);
-    
+
     navigationButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
     masterButtonPanel.add(navigationButtonPanel);
   }
@@ -204,16 +225,22 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   protected void progressView() {
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
-      showExperimentSchedule(0); // Show first group's schedule.
+      showExperimentDuration(0); // Show first group's schedule.
+    } else if (showingPanel instanceof DurationView) {
+      int groupNum = durationPanels.indexOf(showingPanel);
+      showExperimentSchedule(groupNum);
     } else if (showingPanel instanceof SignalMechanismChooserListPanel) {
       int groupNum = signalPanels.indexOf(showingPanel);
       showExperimentInputs(groupNum);
     } else if (showingPanel instanceof InputsListPanel) {
       int groupNum = inputsListPanels.indexOf(showingPanel);
-      if (isLastInputGroup(groupNum)) {
+      showExperimentFeedback(groupNum);
+    } else if (showingPanel instanceof FeedbackPanel) {
+      int groupNum = feedbackPanels.indexOf(showingPanel);
+      if (isLastGroup(groupNum)) {
         showExperimentPublishing();
       } else {
-        showExperimentSchedule(groupNum + 1); // Show next group's schedule.
+        showExperimentDuration(groupNum + 1);
       }
     } else {
       showExperimentDescription();
@@ -225,24 +252,35 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     // Change content view and the highlight on the left menu bar.
     if (showingPanel.equals(descriptionPanel)) {
       showExperimentPublishing();
-    } else if (showingPanel instanceof SignalMechanismChooserListPanel) {
-      int groupNum = signalPanels.indexOf(showingPanel);
-      if (isFirstInputGroup(groupNum)) {
+    } else if (showingPanel instanceof DurationView) {
+      int groupNum = durationPanels.indexOf(showingPanel);
+      if (isFirstGroup(groupNum)) {
         showExperimentDescription();
       } else {
-        showExperimentInputs(groupNum - 1); // Show previous group's inputs
+        showExperimentFeedback(groupNum - 1); // Show previous group's inputs
       }
+    } else if (showingPanel instanceof SignalMechanismChooserListPanel) {
+      int groupNum = signalPanels.indexOf(showingPanel);
+      showExperimentDuration(groupNum);
     } else if (showingPanel instanceof InputsListPanel) {
       int groupNum = inputsListPanels.indexOf(showingPanel);
       showExperimentSchedule(groupNum);
-    } else {
-      showExperimentInputs(numSignalGroups - 1); // Show last group's inputs
+    } else if (showingPanel instanceof FeedbackPanel) {
+      int groupNum = feedbackPanels.indexOf(showingPanel);
+      showExperimentInputs(groupNum);
+    }  else {
+      showExperimentFeedback(numSignalGroups - 1);
     }
   }
 
   private void showExperimentDescription() {
     showExperimentDescriptionPanel();
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.DESCRIPTION_PANEL, null);
+  }
+
+  private void showExperimentDuration(int groupNum) {
+    showExperimentDurationPanel(groupNum);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.DURATION_PANEL, groupNum);
   }
 
   private void showExperimentSchedule(int groupNum) {
@@ -255,16 +293,22 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.INPUTS_PANEL, groupNum);
   }
 
+  private void showExperimentFeedback(int groupNum) {
+    showExperimentFeedbackPanel(groupNum);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.FEEDBACK_PANEL, groupNum);
+  }
+
+
   private void showExperimentPublishing() {
     showExperimentPublishingPanel();
     setLeftMenuBarHighlight(ExperimentCreationMenuBar.PUBLISHING_PANEL, null);
   }
-  
-  private boolean isLastInputGroup(int groupNum) {
+
+  private boolean isLastGroup(int groupNum) {
     return groupNum == numSignalGroups - 1;
   }
-  
-  private boolean isFirstInputGroup(int groupNum) {
+
+  private boolean isFirstGroup(int groupNum) {
     return groupNum == 0;
   }
 
@@ -272,45 +316,70 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     showPanel(descriptionPanel);
   }
 
+  private void showExperimentDurationPanel(int signalGroupNum) {
+    showPanel(durationPanels.get(signalGroupNum));
+  }
+
   private void showExperimentSchedulePanel(int signalGroupNum) {
     showPanel(signalPanels.get(signalGroupNum));
   }
 
   private void showExperimentInputsPanel(int signalGroupNum) {
+    showPanel(inputsListPanels.get(signalGroupNum));
+  }
+
+  private void showExperimentFeedbackPanel(int signalGroupNum) {
     if (signalGroupNum == numSignalGroups - 1) {
-      showPanel(inputsListPanels.get(signalGroupNum), ExperimentCreationContentPanel.ADD_SIGNAL_GROUP_BUTTON);
+      showPanel(feedbackPanels.get(signalGroupNum), ExperimentCreationContentPanel.ADD_SIGNAL_GROUP_BUTTON);
     } else {
-      showPanel(inputsListPanels.get(signalGroupNum));
+      showPanel(feedbackPanels.get(signalGroupNum));
     }
   }
+
 
   private void showExperimentPublishingPanel() {
     showPanel(publishingPanel, ExperimentCreationContentPanel.ADD_CREATE_EXPERIMENT_BUTTON);
   }
-  
+
   private void createAndDisplayNewSignalGroup() {
     createNewSignalGroup();
-    showExperimentSchedulePanel(numSignalGroups - 1);
-    setLeftMenuBarHighlight(ExperimentCreationMenuBar.SCHEDULE_PANEL, numSignalGroups - 1);
+    showExperimentDurationPanel(numSignalGroups - 1);
+    setLeftMenuBarHighlight(ExperimentCreationMenuBar.DURATION_PANEL, numSignalGroups - 1);
   }
-  
+
   // Visible for testing
   protected void createNewSignalGroup() {
-    // TODO: update the data model as well
-    // For now, the panel is associated with a random experiment.
-    // Later, each panel will be associated with a particular signal group.
-    SignalMechanismChooserListPanel signalPanel = createSignalMechanismPanel(numSignalGroups);
+    SignalGroupDAO[] signalGroups = experiment.getSignalGroups();
+    SignalGroupDAO[] newSignalGroups = new SignalGroupDAO[signalGroups.length + 1];
+    System.arraycopy(signalGroups, 0, newSignalGroups, 0, signalGroups.length);
+
+    SignalGroupDAO signalGroup = new SignalGroupDAO();
+    newSignalGroups[signalGroups.length] = signalGroup;
+
+    experiment.setSignalGroups(newSignalGroups);
+
+    DurationView durationPanel = createDurationPanel(signalGroup, numSignalGroups);
+    durationPanels.add(durationPanel);
+    contentPanel.addContentView(durationPanel);
+
+    SignalMechanismChooserListPanel signalPanel = createSignalMechanismPanel(signalGroup, numSignalGroups);
     signalPanels.add(signalPanel);
+
     contentPanel.addContentView(signalPanel);
-    
-    InputsListPanel inputsPanel = createInputsListPanel(numSignalGroups);
+
+    InputsListPanel inputsPanel = createInputsListPanel(signalGroup, numSignalGroups);
     inputsListPanels.add(inputsPanel);
     contentPanel.addContentView(inputsPanel);
-   
+
+    FeedbackPanel feedbackPanel = createFeedbackPanel(signalGroup, numSignalGroups);
+    feedbackPanels.add(feedbackPanel);
+    contentPanel.addContentView(feedbackPanel);
+
     leftMenuBar.addSignalGroup();
-    
+
     ++numSignalGroups;
   }
+
 
   private void setLeftMenuBarHighlight(int toPanelType, Integer groupNum) {
     leftMenuBar.setSelectedItem(toPanelType, groupNum);
@@ -332,13 +401,13 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     });
     return cancelButton;
   }
-  
+
   private Widget createSubmitButton(final ExperimentDAO experiment) {
 
     Button whatButton = new Button(isNewExperiment(experiment) ? myConstants.createExperiment()
                                                              : myConstants.updateExperiment());
     whatButton.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         submitEventWithValidation();
@@ -351,7 +420,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private boolean isNewExperiment(final ExperimentDAO experiment) {
     return experiment.getId() == null;
   }
-  
+
   private void submitEventWithValidation() {
     if (canSubmit()) {
       submitEvent();
@@ -368,17 +437,17 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     }
     return allValidationCriteriaAreMet();
   }
-  
+
   private boolean allValidationCriteriaAreMet() {
     return errorMessagesAccumulated.isEmpty();
   }
-  
+
   // Visible for testing
   protected InputsListPanel getInputsListPanel() {
     // TODO: update data model. This is for backwards compatibility.
     return inputsListPanels.get(0);
   }
-  
+
   // Visible for testing
   protected DurationView getDurationPanel() {
     return descriptionPanel.getDurationPanel();
@@ -390,11 +459,11 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     }
     errorMessagesAccumulated.remove(errorMessage);
   }
-  
+
   private void addErrorMessage(String errorMessage, Integer signalGroupNum) {
     if (errorMessage == null) {
       throw new IllegalArgumentException("Error message cannot be null.");
-    }   
+    }
     if (signalGroupNum != null) {
       errorMessage = prependSignalGroupToErrorMessage(errorMessage, signalGroupNum);
     }
@@ -402,14 +471,14 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
       errorMessagesAccumulated.add(errorMessage);
     }
   }
-  
+
   private String prependSignalGroupToErrorMessage(String errorMessage, Integer signalGroupNum) {
     return myConstants.signalGroup() + " " + (signalGroupNum +  1) + ": " + errorMessage;
   }
-  
+
   private String getErrorMessages() {
     Collections.sort(errorMessagesAccumulated, String.CASE_INSENSITIVE_ORDER);
-    return myConstants.experimentCreationError() + "\n\n" + 
+    return myConstants.experimentCreationError() + "\n\n" +
         Joiner.on("\n").join(errorMessagesAccumulated);
   }
 
@@ -449,7 +518,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   private void fireExperimentCode(int code) {
     for (ExperimentListener listener : listeners) {
       listener.eventFired(code, experiment, false, false);
-    }  
+    }
   }
 
   @Override
@@ -485,67 +554,73 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     case ExperimentCreationListener.ADD_ERROR:
       addErrorMessage(message, signalGroupNumber);
       break;
+    case ExperimentCreationListener.SHOW_DURATION_CODE:
+      showExperimentDurationPanel(signalGroupNumber);
+      break;
+    case ExperimentCreationListener.SHOW_FEEDBACK_CODE:
+      showExperimentFeedbackPanel(signalGroupNumber);
+      break;
     default:
       System.err.println("Unhandled code sent to experiment creation listener.");
       break;
     }
   }
-  
+
   private String formatDateAsString(Date date) {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.format(date);
   }
-  
+
   // Visible for testing
   protected ExperimentDAO getExperiment() {
     return experiment;
   }
-  
+
   // Visible for testing
   protected ExperimentDescriptionPanel getDescriptionPanel() {
     return descriptionPanel;
   }
-  
+
   // Visible for testing
   protected SignalMechanismChooserListPanel getSignalPanelForSignalGroup(int groupNum) {
     return signalPanels.get(groupNum);
   }
-  
+
   // Visible for testing
   protected InputsListPanel getInputsListPanelForSignalGroup(int groupNum) {
     return inputsListPanels.get(groupNum);
   }
-  
+
   // Visible for testing
   protected ExperimentPublishingPanel getPublishingPanel() {
     return publishingPanel;
   }
-  
+
   // Visible for testing
   protected Composite getShowingPanel() {
     return showingPanel;
   }
-  
+
   // Visible for testing
   protected void setTitleInPanel(String title) {
     descriptionPanel.setTitleInPanel(title);
   }
-  
+
   // Visible for testing
   protected void setAdminsInPanel(String commaSepEmailList) {
     descriptionPanel.setAdminsInPanel(commaSepEmailList);
   }
-  
+
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
     publishingPanel.setPublishedUsersInPanel(commaSepEmailList);
   }
-  
+
   // Visible for testing
   protected int getNumSignalGroups() {
     return numSignalGroups;
   }
-  
+
   public static void setPanelHighlight(Widget widget, boolean isValid) {
     if (isValid) {
       removeErrorHighlight(widget);
@@ -555,7 +630,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   }
 
   public static void addErrorHighlight(Widget widget) {
-    widget.addStyleName(ERROR_HIGHLIGHT);    
+    widget.addStyleName(ERROR_HIGHLIGHT);
   }
 
   public static void removeErrorHighlight(Widget widget) {

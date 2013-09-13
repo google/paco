@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,12 +17,10 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -36,6 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -45,7 +44,7 @@ import com.google.sampling.experiential.shared.LoginInfo;
  * Also used as the basis of creation and editing of experiments.
  * Delegates specific parts of experiment definition to sub panels.
  * Handles communication with subpanels about state of edits.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -53,7 +52,7 @@ public class ExperimentJoinPanel extends Composite {
 
   private ExperimentDAO experiment;
   private LoginInfo loginInfo;
-  
+
   private ArrayList<ExperimentListener> listeners;
 
   protected MyConstants myConstants;
@@ -68,7 +67,7 @@ public class ExperimentJoinPanel extends Composite {
   private Label creatorPanel;
   private TextArea descriptionPanel;
 
-  
+
   public ExperimentJoinPanel() {
     super();
   }
@@ -80,13 +79,13 @@ public class ExperimentJoinPanel extends Composite {
 
     this.experiment = experiment;
     this.loginInfo = loginInfo;
-    
+
     this.listeners = new ArrayList<ExperimentListener>();
     if (listener != null) {
       listeners.add(listener);
     }
     mainPanel = new VerticalPanel();
-    initWidget(mainPanel);    
+    initWidget(mainPanel);
     createExperimentForm();
   }
 
@@ -107,32 +106,40 @@ public class ExperimentJoinPanel extends Composite {
   private void createExperimentForm() {
     mainPanel.add(createTitlePanel(experiment));
     mainPanel.add(createCreatorPanel(experiment));
-    mainPanel.add(createDescriptionPanel(experiment));    
+    mainPanel.add(createDescriptionPanel(experiment));
     mainPanel.add(createInformedConsentPanel(experiment));
     mainPanel.add(createSectionHeader(myConstants.signaling()));
-    mainPanel.add(createDurationPanel(experiment));
-    mainPanel.add(createSchedulePanel(experiment));
+    for (SignalGroupDAO signalGroup : experiment.getSignalGroups()) {
+      mainPanel.add(createSignalGroupPanel(signalGroup));
+    }
     createButtonPanel(experiment);
+  }
+
+  private Widget createSignalGroupPanel(SignalGroupDAO signalGroup) {
+    VerticalPanel rootPanel = new VerticalPanel();
+    rootPanel.add(createDurationPanel(signalGroup));
+    rootPanel.add(createSchedulePanel(signalGroup));
+    return rootPanel;
   }
 
   /**
    * @param experiment2
    * @return
    */
-  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
-    HorizontalPanel feedbackPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
-        experiment.getFeedback().length > 0 && 
-        !defaultFeedback(experiment.getFeedback()[0]));
-    customFeedbackCheckBox.setEnabled(false);
-    feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    feedbackPanel.add(feedbackLabel);
-    mainPanel.add(feedbackPanel);
-
-    return feedbackPanel;
-  }
+//  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
+//    HorizontalPanel feedbackPanel = new HorizontalPanel();
+//    customFeedbackCheckBox = new CheckBox();
+//    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null &&
+//        experiment.getFeedback().length > 0 &&
+//        !defaultFeedback(experiment.getFeedback()[0]));
+//    customFeedbackCheckBox.setEnabled(false);
+//    feedbackPanel.add(customFeedbackCheckBox);
+//    Label feedbackLabel = new Label(myConstants.customFeedback());
+//    feedbackPanel.add(feedbackLabel);
+//    mainPanel.add(feedbackPanel);
+//
+//    return feedbackPanel;
+//  }
 
 
   /**
@@ -168,22 +175,22 @@ public class ExperimentJoinPanel extends Composite {
     return questionsPrompt;
   }
 
-  private Widget createDurationPanel(ExperimentDAO experiment) {
-    if (experiment.getFixedDuration()) {
+  private Widget createDurationPanel(SignalGroupDAO signalGroup) {
+    if (signalGroup.getFixedDuration()) {
       // TODO: change to different date format if desired
-      String startDateStr = experiment.getStartDate();
-      String endDateStr = experiment.getEndDate();
+      String startDateStr = signalGroup.getStartDate();
+      String endDateStr = signalGroup.getEndDate();
       return createFormLine(myConstants.duration(), startDateStr + "- " + endDateStr);
     } else {
       return createFormLine(myConstants.duration(), myConstants.ongoingDuration());
     }
 }
 
-  private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
-    InputsListPanel inputsListPanel = new InputsListPanel(experiment, null);
-    inputsListPanel.setStyleName("left");
-    return inputsListPanel;
-  }
+//  private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
+//    InputsListPanel inputsListPanel = new InputsListPanel(experiment, null);
+//    inputsListPanel.setStyleName("left");
+//    return inputsListPanel;
+//  }
 
   private void createButtonPanel(ExperimentDAO experiment) {
     HorizontalPanel buttonPanel = new HorizontalPanel();
@@ -202,9 +209,9 @@ public class ExperimentJoinPanel extends Composite {
     mainPanel.add(publishingPanel);
   }
 
-  private Widget createSchedulePanel(ExperimentDAO experiment) {
+  private Widget createSchedulePanel(SignalGroupDAO signalGroup) {
     HTML spacer = new HTML("&nbsp;");
-    SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
+    SignalingMechanismDAO signalingMechanismDAO = signalGroup.getSignalingMechanisms()[0];
     if (!(signalingMechanismDAO instanceof SignalScheduleDAO)) {
       return new Label(myConstants.triggeredExperimentNotScheduled());
     }
@@ -214,8 +221,8 @@ public class ExperimentJoinPanel extends Composite {
     if (scheduleType == SignalScheduleDAO.ESM) {
       panel.add(spacer);
       panel.add(new Label(", "));
-      panel.add(new Label(signalScheduleDAO.getEsmFrequency().toString() + " / " + 
-          SignalScheduleDAO.ESM_PERIODS_NAMES[signalScheduleDAO.getEsmPeriodInDays()]));      
+      panel.add(new Label(signalScheduleDAO.getEsmFrequency().toString() + " / " +
+          SignalScheduleDAO.ESM_PERIODS_NAMES[signalScheduleDAO.getEsmPeriodInDays()]));
       //panel.add(spacer);
       //panel.add(new Label(experiment.getSchedule().getEsmStartHour() + " - " + experiment.getSchedule().getEsmEndHour()));
     } else {
@@ -223,7 +230,7 @@ public class ExperimentJoinPanel extends Composite {
 //      panel.add(new Label(", "));
 //      Long[] times = experiment.getSchedule().getTimes();
 //      List<String> timeStrs = Lists.newArrayList();
-//      for (Long long1 : times) {        
+//      for (Long long1 : times) {
 //        long hour = long1 / 1000 * 60 * 60;
 //        long minute = (long1 - hour)
 //        timeStrs .add(Long.toString(hour +":" + minute));
@@ -277,7 +284,7 @@ public class ExperimentJoinPanel extends Composite {
     });
     return cancelButton;
   }
-  
+
   /**
    * @return
    */

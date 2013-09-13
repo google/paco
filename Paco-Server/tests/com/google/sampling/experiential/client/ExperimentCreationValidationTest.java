@@ -7,12 +7,12 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.shared.LoginInfo;
+import com.google.paco.shared.model.SignalGroupDAO;
 
-public class ExperimentCreationValidationTest extends GWTTestCase { 
+public class ExperimentCreationValidationTest extends GWTTestCase {
 
   private static final String INVALID_EMAIL_STRING = "donti@google.com\nyimingzhang@google.com\nrbe5000@gmail.com";
-  
+
   private static final String NAME_WITH_SPACES = "name With spaces";
   private static final String NAME_WITHOUT_SPACES = "nameWithoutSpaces";
   private static final String NAME_WITHOUT_SPACES_2 = "nameWithoutSpaces2";
@@ -58,13 +58,21 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[]{createNameInputWithoutVarName(InputDAO.LIKERT)});
+    setInputsOnExperiment(new InputDAO[]{createNameInputWithoutVarName(InputDAO.LIKERT)});
     createExperimentCreationPanel(experiment);
     assertFalse(experimentCreationPanel.canSubmit());
   }
 
+  private void setInputsOnExperiment(InputDAO[] inputDAOs) {
+    SignalGroupDAO[] signalGroups = new SignalGroupDAO[1];
+    SignalGroupDAO signalGroup = new SignalGroupDAO();
+    signalGroups[0] = signalGroup;
+    signalGroup.setInputs(inputDAOs);
+    experiment.setSignalGroups(signalGroups);
+  }
+
   public void testListWithOnlyValidInputsIsAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidListInput()});
     createExperimentCreationPanel(experiment);
@@ -72,27 +80,27 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testListWithInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createListInputWithoutFirstOption(),
                                          createValidListInput()});
     createExperimentCreationPanel(experiment);
     assertFalse(experimentCreationPanel.canSubmit());
   }
- 
-  public void testSettingBlankVarNameRejectedByDefPanel() {    
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
+
+  public void testSettingBlankVarNameRejectedByDefPanel() {
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidListInput()});
     createExperimentCreationPanel(experiment);
-    InputsPanel firstInputsPanel = 
+    InputsPanel firstInputsPanel =
         experimentCreationPanel.inputsListPanels.get(0).inputsPanelsList.get(0);
     firstInputsPanel.varNameText.setValue("", true);
     assertFalse(experimentCreationPanel.canSubmit());
   }
 
   public void testFixingOneBlankVarNameDoesNotAllowOtherBlankVarName() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidListInput()});
     createExperimentCreationPanel(experiment);
@@ -117,7 +125,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testFixingOneBlankListItemDoesNotAllowOtherBlankListItem() {
-    experiment.setInputs(new InputDAO[] {createListInputWithoutFirstOption(),
+    setInputsOnExperiment(new InputDAO[] {createListInputWithoutFirstOption(),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createListInputWithoutFirstOption()});
     createExperimentCreationPanel(experiment);
@@ -127,9 +135,9 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     InputsListPanel firstInputsListPanel = experimentCreationPanel.inputsListPanels.get(0);
     InputsPanel firstInputsPanel = firstInputsListPanel.inputsPanelsList.get(0);
     InputsPanel thirdInputsPanel = firstInputsListPanel.inputsPanelsList.get(2);
-    MouseOverTextBoxBase firstInputFirstListChoice = 
+    MouseOverTextBoxBase firstInputFirstListChoice =
         firstInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
-    MouseOverTextBoxBase thirdInputFirstListChoice = 
+    MouseOverTextBoxBase thirdInputFirstListChoice =
         thirdInputsPanel.responseView.listChoicesPanel.choicePanelsList.get(0).textField;
 
     // Set valid list choice for first list panel. Fire events.
@@ -142,7 +150,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testFixingOneBadLikertItemDoesNotAllowOtherBadLikertItem() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT),
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT),
                                          createValidNameInput(InputDAO.LOCATION),
                                          createValidNameInput(InputDAO.LIKERT)});
     createExperimentCreationPanel(experiment);
@@ -173,7 +181,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testSwitchingInputAwayFromLikertInvalidatesErrors() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT)});
+    setInputsOnExperiment(new InputDAO[] {createValidNameInput(InputDAO.LIKERT)});
     createExperimentCreationPanel(experiment);
 
     // Get inputs panel and some child widgets.
@@ -195,7 +203,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   public void testSwitchingInputAwayFromListInvalidatesErrors() {
     // Start with invalid input.
-    experiment.setInputs(new InputDAO[] {createListInputWithoutFirstOption()});
+    setInputsOnExperiment(new InputDAO[] {createListInputWithoutFirstOption()});
     createExperimentCreationPanel(experiment);
     assertFalse(experimentCreationPanel.canSubmit());
 
@@ -213,7 +221,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   public void testTimeoutPanelDisallowsNonNumericInput() {
     createValidExperimentCreationPanel();
     SignalMechanismChooserPanel ancestor = experimentCreationPanel.signalPanels.get(0).chooserPanels.get(0);
-    TimeoutPanel panel = new TimeoutPanel(experiment.getSchedule(), ancestor);
+    TimeoutPanel panel = new TimeoutPanel(experiment.getSignalGroups()[0].getSignalingMechanisms()[0], ancestor);
     panel.textBox.setValue(NAME_WITHOUT_SPACES, true);
     assertFalse(experimentCreationPanel.canSubmit());
   }
@@ -221,7 +229,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private void createValidExperimentCreationPanel() {
     createExperimentCreationPanel(experiment);
   }
-  
+
   private InputDAO createValidNameInput(String type) {
     return CreationTestUtil.createValidNameInput(type);
   }

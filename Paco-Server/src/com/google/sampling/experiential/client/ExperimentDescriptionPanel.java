@@ -6,10 +6,6 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.MouseOutEvent;
-import com.google.gwt.event.dom.client.MouseOutHandler;
-import com.google.gwt.event.dom.client.MouseOverEvent;
-import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -17,17 +13,12 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DisclosureEvent;
-import com.google.gwt.user.client.ui.DisclosureHandler;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DisclosurePanelImages;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -42,7 +33,7 @@ public class ExperimentDescriptionPanel extends Composite {
   private ExperimentCreationListener listener;
 
   private VerticalPanel formPanel;
-  
+
   // Visible for testing
   protected MouseOverTextBoxBase titlePanel;
   protected TextArea descriptionPanel;
@@ -108,11 +99,8 @@ public class ExperimentDescriptionPanel extends Composite {
       }
     });
     formPanel.add(informedConsentPanelPair.container);
-
-    durationPanel = createDurationPanel();
-    formPanel.add(durationPanel);
   }
-  
+
   private void setExperimentTitleWithValidation(String newTitle) {
     try {
       experiment.setTitle(newTitle);
@@ -125,15 +113,15 @@ public class ExperimentDescriptionPanel extends Composite {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, titlePanel.getMessage());
     }
   }
-  
+
   public void verify() {
     checkTitleIsValidAndHighlight();
   }
-  
+
   public void checkTitleIsValidAndHighlight() {
     setExperimentTitleWithValidation(titlePanel.getText());
   }
-  
+
 //  public ControlledTextBox getTitleTextPanel() {
 //    return titlePanel;
 //  }
@@ -178,19 +166,19 @@ public class ExperimentDescriptionPanel extends Composite {
                                                                                  + myConstants.clickToCloseAdministratorEditor()
                                                                                  + "</b>");
     adminPanel.setHeader(closedHeaderWidget);
-    adminPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() { 
+    adminPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
       @Override
       public void onOpen(OpenEvent<DisclosurePanel> event) {
-        adminPanel.setHeader(openHeaderWidget);    
+        adminPanel.setHeader(openHeaderWidget);
       }
     });
-    adminPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() { 
+    adminPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
       @Override
       public void onClose(CloseEvent<DisclosurePanel> event) {
         adminPanel.setHeader(closedHeaderWidget);
       }
     });
-    
+
     VerticalPanel adminContentPanel = new VerticalPanel();
     Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);
@@ -219,7 +207,7 @@ public class ExperimentDescriptionPanel extends Composite {
     });
     return adminPanel;
   }
-  
+
   private void setExperimentAdminsAndHighlight(String adminsList) {
     try {
       setAdminsOn(experiment, adminsList);
@@ -248,10 +236,6 @@ public class ExperimentDescriptionPanel extends Composite {
     experiment.setAdmins(adminStrArray);
   }
 
-  private DurationView createDurationPanel() {
-    DurationView durationPanel = new DurationView(experiment, listener);
-    return durationPanel;
-  }
 
   private PanelPair createTitleFormLine(String key, String value, String labelStyleName) {
     VerticalPanel line = new VerticalPanel();
@@ -340,21 +324,21 @@ public class ExperimentDescriptionPanel extends Composite {
       add(new HTML(html));
     }
   }
-  
+
   private void fireExperimentCode(int code, String message) {
     listener.eventFired(code, null, message);
   }
-  
+
   // Visible for testing
   protected void setTitleInPanel(String title) {
     titlePanel.setValue(title, true);
   }
-  
+
   // Visible for testing
   protected void setAdminsInPanel(String commaSepEmailList) {
     adminList.setValue(commaSepEmailList, true);
   }
-  
+
   // Visible for testing
   protected DurationView getDurationPanel() {
     return durationPanel;

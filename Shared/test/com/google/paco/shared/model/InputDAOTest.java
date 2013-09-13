@@ -1,5 +1,7 @@
 package com.google.paco.shared.model;
 
+import com.google.paco.shared.model.InputDAO;
+
 import junit.framework.TestCase;
 
 public class InputDAOTest extends TestCase {

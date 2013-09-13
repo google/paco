@@ -3,6 +3,8 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import com.google.common.base.Splitter;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
@@ -10,13 +12,11 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 
-import junit.framework.TestCase;
-
 public class ExperimentCreationModelValidationTest extends TestCase {
-  
+
   private static final String LATER_DAY = "2013/25/07";
-  private static final String EARLIER_DAY = "2013/24/07"; 
-  
+  private static final String EARLIER_DAY = "2013/24/07";
+
   private static final String VALID_EMAIL_STRING_0 = "donti@google.com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String VALID_EMAIL_STRING_1 = "donti@google.com,  yimingzhang@google.com,, rbe5000@gmail.com";
   private static final String VALID_EMAIL_STRING_2 = "donti@google.com, me@yahoo.co.uk";
@@ -25,22 +25,22 @@ public class ExperimentCreationModelValidationTest extends TestCase {
   private static final String INVALID_EMAIL_STRING_2 = "donti@google,com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String INVALID_EMAIL_STRING_3 = "donti@google, yimingzhang@google, rbe5000@gmail";
   private static final String INVALID_EMAIL_STRING_4 = "donti@google.com, yimingzhang@google.com, rbe5000@@gmail.com";
-  
+
   private static final String NAME_WITH_SPACES = "name With spaces";
   private static final String NAME_WITHOUT_SPACES = "nameWithoutSpaces";
   private static final String NAME_STARTING_WITH_NUMBER = "9apPples";
   private static final String NAME_WITH_INVALID_CHARACTERS = "rstl*&E";
-  
+
   private static final int NEG_NUM = -90;
   private static final int ZERO = 0;
   private static final int VALID_TIMEOUT = 80;
-  
+
   private ExperimentDAO experiment;
-  
+
   protected void setUp() {
     experiment = new ExperimentDAO();
   }
-  
+
   public void testExperimentModelBlocksInvalidTitle() {
     try {
       experiment.setTitle("");
@@ -49,7 +49,7 @@ public class ExperimentCreationModelValidationTest extends TestCase {
       assertTrue(true);
     }
   }
-  
+
   public void testExperimentModelCorrectlyValidatesEmailAddresses() {
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_0)));
     assertTrue(experiment.emailListIsValid(tokenize(VALID_EMAIL_STRING_1)));
@@ -60,7 +60,7 @@ public class ExperimentCreationModelValidationTest extends TestCase {
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_3)));
     assertFalse(experiment.emailListIsValid(tokenize(INVALID_EMAIL_STRING_4)));
   }
-  
+
   // Copied from ExperimentDescriptionPanel/ExperimentPublishingPanel.
   // TODO: consolidate.
   private String[] tokenize(String emailString) {
@@ -73,18 +73,18 @@ public class ExperimentCreationModelValidationTest extends TestCase {
     emailStrArray = emails.toArray(emailStrArray);
     return emailStrArray;
   }
-  
+
   public void testExperimentModelAcceptsValidFixedDuration() {
     try {
-      experiment.setFixedDuration(true);
-      experiment.setStartDate(EARLIER_DAY);
-      experiment.setEndDate(LATER_DAY);
+      experiment.getSignalGroups()[0].setFixedDuration(true);
+      experiment.getSignalGroups()[0].setStartDate(EARLIER_DAY);
+      experiment.getSignalGroups()[0].setEndDate(LATER_DAY);
       assertTrue(true);
     } catch (IllegalArgumentException e) {
       assertTrue(false);
     }
   }
-  
+
   public void testInputModelAllowsValidName() {
     InputDAO input = new InputDAO();
     try {
@@ -134,7 +134,7 @@ public class ExperimentCreationModelValidationTest extends TestCase {
       assertTrue(true);
     }
   }
-  
+
   public void testInputModelDisallowsBlankFirstListItem() {
     InputDAO input = CreationTestUtil.createValidListInput();
     try {
@@ -143,7 +143,7 @@ public class ExperimentCreationModelValidationTest extends TestCase {
     } catch (IllegalArgumentException e) {
       assertTrue(true);
     }
-  } 
+  }
 
   public void testInputModelDisallowsInvalidLikertSteps() {
     InputDAO input = CreationTestUtil.createValidListInput();
@@ -159,8 +159,8 @@ public class ExperimentCreationModelValidationTest extends TestCase {
     } catch (IllegalArgumentException e) {
       assertTrue(true);
     }
-  } 
-  
+  }
+
   public void testSignalModelAllowsValidTimeout() {
     SignalingMechanismDAO signal = new SignalScheduleDAO();
     SignalingMechanismDAO trigger = new TriggerDAO();

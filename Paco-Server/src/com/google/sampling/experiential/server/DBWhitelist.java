@@ -25,7 +25,7 @@ public class DBWhitelist extends Whitelist {
   }
 
   protected boolean isAdmin(String email) {
-    return false;
+    return true;
   }
   
   private String getUserByEmail(String email) {

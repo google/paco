@@ -16,11 +16,9 @@
  */
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package com.google.paco.shared.model;
+package com.google.paco.shared.model_old;
 
 import java.io.Serializable;
-
-
 
 /**
  *
@@ -33,19 +31,32 @@ import java.io.Serializable;
  */
 public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
+  /**
+   *
+   */
+
+  public static final int SCHEDULED_SIGNALING = 1;
+  public static final int TRIGGERED_SIGNALING = 1;
+
   // Please see ExperimentCreationPanel for documentation about valid email
   // addresses.
   public static final String EMAIL_REGEX = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                                            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
+  private Boolean questionsChange = false;
+
+  private String hash;
   private String modifyDate;
+  private InputDAO[] inputs;
+  private FeedbackDAO[] feedback;
   private Boolean published;
   private String[] admins;
   private String[] publishedUsers;
   private Boolean deleted = false;
   private Boolean webRecommended = false;
   private Integer version;
-  protected SignalGroupDAO[] signalGroups;
+  protected SignalingMechanismDAO[] signalingMechanisms;
+  protected SignalScheduleDAO schedule;
 
   /**
    * @param id
@@ -62,17 +73,26 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    *          TODO
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm, String email,
-                       SignalGroupDAO[] signalGroups, String joinDate, String modifyDate,
+                       SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange,
+                       String startDate, String endDate, String hash, String joinDate, String modifyDate,
                        Boolean published, String[] admins, String[] publishedUsers, Boolean deleted,
                        Boolean webRecommended, Integer version) {
-    super(id, title, description, informedConsentForm, email, joinDate);
+    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
     this.description = description;
     this.informedConsentForm = informedConsentForm;
     this.creator = email;
-    this.signalGroups = signalGroups;
+    this.signalingMechanisms = signalingMechanisms;
+    setScheduleForBackwardCompatibility();
+    this.fixedDuration = fixedDuration;
+    this.questionsChange = questionsChange;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.hash = hash;
     this.modifyDate = modifyDate;
+    this.inputs = new InputDAO[0];
+    this.feedback = new FeedbackDAO[0];
     this.published = published;
     this.admins = admins;
     this.publishedUsers = publishedUsers;
@@ -86,9 +106,27 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    */
   public ExperimentDAO() {
     super();
+    this.inputs = new InputDAO[0];
+    this.feedback = new FeedbackDAO[0];
     this.admins = new String[0];
     this.publishedUsers = new String[0];
-    this.signalGroups = new SignalGroupDAO[0];
+    this.signalingMechanisms = new SignalingMechanismDAO[0];
+  }
+
+  public Boolean getQuestionsChange() {
+    return questionsChange;
+  }
+
+  public void setQuestionsChange(Boolean questionsChange) {
+    this.questionsChange = questionsChange;
+  }
+
+  public String getHash() {
+    return hash;
+  }
+
+  public void setHash(String hash) {
+    this.hash = hash;
   }
 
   public String getModifyDate() {
@@ -97,6 +135,22 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   public void setModifyDate(String modifyDate) {
     this.modifyDate = modifyDate;
+  }
+
+  public void setInputs(InputDAO[] inputDAO) {
+    inputs = inputDAO;
+  }
+
+  public InputDAO[] getInputs() {
+    return inputs;
+  }
+
+  public void setFeedback(FeedbackDAO[] feedbackDAO) {
+    feedback = feedbackDAO;
+  }
+
+  public FeedbackDAO[] getFeedback() {
+    return feedback;
   }
 
   /**
@@ -180,6 +234,33 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.version = version;
   }
 
+  public SignalingMechanismDAO[] getSignalingMechanisms() {
+    return signalingMechanisms;
+  }
+
+  public void setSignalingMechanisms(SignalingMechanismDAO[] signalingMechanisms) {
+    this.signalingMechanisms = signalingMechanisms;
+    setScheduleForBackwardCompatibility();
+  }
+
+  public void setScheduleForBackwardCompatibility() {
+    if (getSignalingMechanisms() != null && getSignalingMechanisms().length > 0
+        && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
+      schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
+    } else {
+      schedule = new SignalScheduleDAO();
+      schedule.setScheduleType(SignalScheduleDAO.SELF_REPORT);
+    }
+  }
+
+  public SignalScheduleDAO getSchedule() {
+    return schedule;
+  }
+
+  public void setSchedule(SignalScheduleDAO schedule) {
+    this.schedule = schedule;
+  }
+
   public boolean isWhoAllowedToPostToExperiment(String who) {
     who = who.toLowerCase();
     for (int i = 0; i < admins.length; i++) {
@@ -201,55 +282,22 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     return false;
   }
 
-  public SignalGroupDAO[] getSignalGroups() {
-    return signalGroups;
-  }
-
-  public boolean isFixedDuration() {
-    boolean fixed = true;
-    for (SignalGroupDAO signalGroup : getSignalGroups()) {
-      if (!signalGroup.getFixedDuration()) {
-        fixed = false;
-      }
-    }
-    return fixed;
-  }
-
-  public String getCompositeSchedule() {
-    StringBuffer buf = new StringBuffer();
-    for (SignalGroupDAO signalGroup : signalGroups) {
-      buf.append(signalGroup.toString());
-    }
-    return buf.toString();
-  }
-
-  public void setSignalGroups(SignalGroupDAO[] signalGroups) {
-    this.signalGroups = signalGroups;
-  }
-
-  public InputDAO getInputWithId(Long valueOf) {
-    for (SignalGroupDAO signalGroup : signalGroups) {
-      InputDAO[] inputs = signalGroup.getInputs();
-      for (InputDAO inputDAO : inputs) {
-        if (inputDAO.getId() != null && inputDAO.getId() == valueOf) {
-          return inputDAO;
-        }
-      }
-    }
-    return null;
-  }
-
   public InputDAO getInputWithName(String name) {
-    for (SignalGroupDAO signalGroup : signalGroups) {
-      InputDAO[] inputs = signalGroup.getInputs();
-      for (InputDAO inputDAO : inputs) {
-        if (inputDAO.getName() != null && inputDAO.getName().equals(name)) {
-          return inputDAO;
-        }
+    for (int i = 0; i < inputs.length; i++) {
+      if (inputs[i].getName().equals(name)) {
+        return inputs[i];
       }
     }
     return null;
+  }
 
+  public InputDAO getInputWithId(Long id) {
+    for (int i = 0; i < inputs.length; i++) {
+      if (inputs[i].getId().equals(id)) {
+        return inputs[i];
+      }
+    }
+    return null;
   }
 
 }

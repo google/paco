@@ -52,8 +52,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -579,7 +577,7 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.JOINED_CODE:
         contentPanel.clear();
         joinExperiment(experiment);
-        break;   
+        break;
       default:
         System.err.println("Unhandled code sent to experiment listener.");
         break;
@@ -690,17 +688,17 @@ public class Main implements EntryPoint, ExperimentListener {
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
 
-    experiment.getSignalingMechanisms()[0].setId(null);
+//    experiment.getSignalingMechanisms()[0].setId(null);
     experiment.setPublished(false);
     experiment.setPublishedUsers(new String[]{});
     experiment.setAdmins(new String[]{});
 
-    for(InputDAO input : experiment.getInputs()) {
-      input.setId(null);
-    }
-    for (FeedbackDAO feedback : experiment.getFeedback()) {
-      feedback.setId(null);
-    }
+//    for(InputDAO input : experiment.getInputs()) {
+//      input.setId(null);
+//    }
+//    for (FeedbackDAO feedback : experiment.getFeedback()) {
+//      feedback.setId(null);
+//    }
   }
 
 
@@ -930,7 +928,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void hideExperimentPanel() {
     experimentPanel.setVisible(false);
   }
-  
+
   private void unhideExperimentPanel() {
     experimentPanel.setVisible(true);
   }

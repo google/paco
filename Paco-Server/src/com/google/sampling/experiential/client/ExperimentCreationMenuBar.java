@@ -12,9 +12,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class ExperimentCreationMenuBar extends Composite {
 
   public static final int DESCRIPTION_PANEL = 0;
-  public static final int SCHEDULE_PANEL = 1;
-  public static final int INPUTS_PANEL = 2;
-  public static final int PUBLISHING_PANEL = 3;
+  public static final int DURATION_PANEL = 1;
+  public static final int SCHEDULE_PANEL = 2;
+  public static final int INPUTS_PANEL = 3;
+  public static final int FEEDBACK_PANEL = 4;
+  public static final int PUBLISHING_PANEL = 5;
+
 
   private MyConstants myConstants;
 
@@ -23,7 +26,7 @@ public class ExperimentCreationMenuBar extends Composite {
   private TreeItem showDescriptionItem;
   private TreeItem signalGroupsRootTree;
   private TreeItem showPublishingItem;
-  
+
   private int numSignalGroups;
 
   private ExperimentCreationListener listener;
@@ -47,7 +50,7 @@ public class ExperimentCreationMenuBar extends Composite {
     showDescriptionItem = new TreeItem(myConstants.experimentDescriptionButtonText());
     signalGroupsRootTree = new TreeItem(myConstants.signalGroups());
     showPublishingItem = new TreeItem(myConstants.experimentPublishingButtonText());
-    
+
     numSignalGroups = 0;
     createAddSignalGroupButton();
     createSignalGroup();
@@ -57,7 +60,7 @@ public class ExperimentCreationMenuBar extends Composite {
     menuTree.addItem(showDescriptionItem);
     menuTree.addItem(signalGroupsRootTree);
     menuTree.addItem(showPublishingItem);
-    
+
     createMainMenuTreeSelectionHandler();
     mainPanel.add(menuTree);
   }
@@ -84,10 +87,14 @@ public class ExperimentCreationMenuBar extends Composite {
         } else {
           int signalGroupNum = signalGroupsRootTree.getChildIndex(selectedButton.getParentItem());
           int viewWithinSignalGroupNum = selectedButton.getParentItem().getChildIndex(selectedButton);
-          if (selectedItemIsShowSchedule(viewWithinSignalGroupNum)) {
+          if (selectedItemIsShowDuration(viewWithinSignalGroupNum)) {
+            fireExperimentCreationCode(ExperimentCreationListener.SHOW_DURATION_CODE, signalGroupNum);
+          } else if (selectedItemIsShowSchedule(viewWithinSignalGroupNum)) {
             fireExperimentCreationCode(ExperimentCreationListener.SHOW_SCHEDULE_CODE, signalGroupNum);
-          } else {
+          } else if (selectedItemIsShowInputs(viewWithinSignalGroupNum)) {
             fireExperimentCreationCode(ExperimentCreationListener.SHOW_INPUTS_CODE, signalGroupNum);
+          } else {
+            fireExperimentCreationCode(ExperimentCreationListener.SHOW_FEEDBACK_CODE, signalGroupNum);
           }
         }
       }
@@ -108,11 +115,17 @@ public class ExperimentCreationMenuBar extends Composite {
     case DESCRIPTION_PANEL:
       menuTree.setSelectedItem(showDescriptionItem, false);
       break;
+    case DURATION_PANEL:
+      menuTree.setSelectedItem(getShowDurationItem(groupNum), false);
+      break;
     case SCHEDULE_PANEL:
       menuTree.setSelectedItem(getShowScheduleItem(groupNum), false);
       break;
     case INPUTS_PANEL:
       menuTree.setSelectedItem(getShowInputsItem(groupNum), false);
+      break;
+    case FEEDBACK_PANEL:
+      menuTree.setSelectedItem(getShowFeedbackItem(groupNum), false);
       break;
     case PUBLISHING_PANEL:
       menuTree.setSelectedItem(showPublishingItem, false);
@@ -125,7 +138,7 @@ public class ExperimentCreationMenuBar extends Composite {
   private void createMenuHeader() {
     Label labelMessage = new Label();
     labelMessage.setSize("200", "30");
-    labelMessage.setText(isForNewExperiment ? myConstants.experimentCreation() 
+    labelMessage.setText(isForNewExperiment ? myConstants.experimentCreation()
                                             : myConstants.experimentUpdate());
     mainPanel.add(labelMessage);
   }
@@ -134,34 +147,58 @@ public class ExperimentCreationMenuBar extends Composite {
     TreeItem addSignalGroup = new TreeItem(myConstants.newSignalGroupButtonText());
     signalGroupsRootTree.addItem(addSignalGroup);
   }
-  
+
   private void createSignalGroup() {
     int newGroupDisplayNum = signalGroupsRootTree.getChildCount();
     TreeItem signalGroup = new TreeItem(myConstants.signalGroup() + " " + newGroupDisplayNum);
+    TreeItem showDuration = new TreeItem(myConstants.signalGroupDuration());
     TreeItem showSchedule = new TreeItem(myConstants.schedule());
     TreeItem showInputs = new TreeItem(myConstants.experimentInputsButtonText());
+    TreeItem showFeedback = new TreeItem(myConstants.experimentFeedbackButtonText());
+    signalGroup.addItem(showDuration);
     signalGroup.addItem(showSchedule);
     signalGroup.addItem(showInputs);
+    signalGroup.addItem(showFeedback);
     signalGroup.setState(true); // Input group is open by default.
     // Insert in front of "Add Signal Group" item.
     signalGroupsRootTree.insertItem(newGroupDisplayNum - 1, signalGroup);
     ++numSignalGroups;
   }
-  
+
   private TreeItem getSignalGroupHeaderItem(int groupNum) {
     return signalGroupsRootTree.getChild(groupNum);
   }
-  
-  private TreeItem getShowScheduleItem(int groupNum) {
+
+  private TreeItem getShowDurationItem(int groupNum) {
     return getSignalGroupHeaderItem(groupNum).getChild(0);
   }
 
-  private TreeItem getShowInputsItem(int groupNum) {
+  private TreeItem getShowScheduleItem(int groupNum) {
     return getSignalGroupHeaderItem(groupNum).getChild(1);
   }
-  
-  private boolean selectedItemIsShowSchedule(int viewWithinSignalGroupNum) {
+
+  private TreeItem getShowInputsItem(int groupNum) {
+    return getSignalGroupHeaderItem(groupNum).getChild(2);
+  }
+
+  private TreeItem getShowFeedbackItem(int groupNum) {
+    return getSignalGroupHeaderItem(groupNum).getChild(3);
+  }
+
+  private boolean selectedItemIsShowDuration(int viewWithinSignalGroupNum) {
     return viewWithinSignalGroupNum == 0;
+  }
+
+  private boolean selectedItemIsShowSchedule(int viewWithinSignalGroupNum) {
+    return viewWithinSignalGroupNum == 1;
+  }
+
+  private boolean selectedItemIsShowInputs(int viewWithinSignalGroupNum) {
+    return viewWithinSignalGroupNum == 2;
+  }
+
+  private boolean selectedItemIsShowFeedback(int viewWithinSignalGroupNum) {
+    return viewWithinSignalGroupNum == 3;
   }
 
   private boolean selectedItemIsAddNewSignalGroup(int signalGroupNum) {
@@ -169,7 +206,7 @@ public class ExperimentCreationMenuBar extends Composite {
   }
 
   private boolean selectedItemIsSpecificSignalGroupHeader(TreeItem selectedButton) {
-    return selectedButton.getParentItem() != null && 
+    return selectedButton.getParentItem() != null &&
         selectedButton.getParentItem().equals(signalGroupsRootTree);
   }
 

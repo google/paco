@@ -28,23 +28,23 @@ public class ExperimentCacheHelperTests extends TestCase {
     DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
 
     ExperimentDAO experiment = new ExperimentDAO();
-    experiment.setFixedDuration(true);
-    experiment.setStartDate(today.minusDays(2).toString(formatter));
+    experiment.getSignalGroups()[0].setFixedDuration(true);
+    experiment.getSignalGroups()[0].setStartDate(today.minusDays(2).toString(formatter));
     TriggerDAO triggerDAO = new TriggerDAO();
     SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
     signalingMechanisms[0] = triggerDAO;
-    experiment.setSignalingMechanisms(signalingMechanisms);
+    experiment.getSignalGroups()[0].setSignalingMechanisms(signalingMechanisms);
 
     // End date yesterday
-    experiment.setEndDate(today.minusDays(1).toString(formatter));
+    experiment.getSignalGroups()[0].setEndDate(today.minusDays(1).toString(formatter));
     assertTrue(experimentRetriever.isOver(experiment, today));
 
     // End date tomorrow
-    experiment.setEndDate(today.plusDays(1).toString(formatter));
+    experiment.getSignalGroups()[0].setEndDate(today.plusDays(1).toString(formatter));
     assertFalse(experimentRetriever.isOver(experiment, today));
 
     // End date today
-    experiment.setEndDate(today.toString(formatter));
+    experiment.getSignalGroups()[0].setEndDate(today.toString(formatter));
     assertFalse(experimentRetriever.isOver(experiment, today));
 
   }

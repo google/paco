@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -23,12 +23,13 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 
 /**
  * Container component for holding a bunch of charts.
- * 
- * 
+ *
+ *
  * @author Bob Evans
  *
  */
@@ -52,10 +53,13 @@ public class ExperimentChartsPanel extends Composite {
     lblChartsForExperiment.setStyleName("paco-HTML-Large");
     verticalPanel.add(lblChartsForExperiment);
 
-    for (InputDAO input : experiment.getInputs()) {
-      ChartPanel cp = new ChartPanel(input, eventList);
-      if (cp != null) { 
-        verticalPanel.add(cp);
+    SignalGroupDAO[] signalGroups = experiment.getSignalGroups();
+    for (SignalGroupDAO signalGroupDAO : signalGroups) {
+      for (InputDAO input : signalGroupDAO.getInputs()) {
+        ChartPanel cp = new ChartPanel(input, eventList);
+        if (cp != null) {
+          verticalPanel.add(cp);
+        }
       }
     }
 

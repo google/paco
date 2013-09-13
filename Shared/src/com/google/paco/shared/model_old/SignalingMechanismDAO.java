@@ -1,4 +1,4 @@
-package com.google.paco.shared.model;
+package com.google.paco.shared.model_old;
 
 import java.io.Serializable;
 
@@ -53,11 +53,4 @@ public abstract class SignalingMechanismDAO implements Serializable {
   public void setMinimumBuffer(Integer minimumBuffer) {
     this.minimumBuffer = minimumBuffer;
   }
-
-  @Override
-  public String toString() {
-    return getType();
-  }
-
-
 }

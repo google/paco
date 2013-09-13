@@ -1,27 +1,38 @@
-package com.google.paco.shared.model;
+package com.google.paco.shared.model_old;
 
 import java.io.Serializable;
+import java.util.Date;
+
+import com.google.paco.shared.model.DateTimeFormat;
 
 
 public class ExperimentDAOCore implements Serializable {
 
+  public static final String DATE_FORMAT = "yyyy/MM/dd";
   protected static final String DEFAULT_STRING = "";
 
   protected String title;
   protected String description;
   protected String informedConsentForm;
   protected String creator;
+  protected Boolean fixedDuration = false;
+  protected String startDate;
+  protected String endDate;
   protected String joinDate;
   protected Long id;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String email, String joinDate) {
+                           String email, Boolean fixedDuration,
+                           String startDate, String endDate, String joinDate) {
     super();
     this.id = id;
     this.title = title;
     this.description = description;
     this.informedConsentForm = informedConsentForm;
     this.creator = email;
+    this.fixedDuration = fixedDuration;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.joinDate = joinDate;
   }
 
@@ -80,6 +91,51 @@ public class ExperimentDAOCore implements Serializable {
 
   public void setCreator(String creator) {
     this.creator = creator;
+  }
+
+  public Boolean getFixedDuration() {
+    return fixedDuration;
+  }
+
+  public void setFixedDuration(Boolean fixedDuration) {
+    this.fixedDuration = fixedDuration;
+  }
+
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  public String getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(String endDate) {
+    if (endDate == null) { // For ongoing experiments.
+      this.endDate = endDate;
+    } else {
+      setEndDateWithValidation(endDate);
+    }
+  }
+
+  private void setEndDateWithValidation(String endDate) {
+    Date startDateAsDate = getFormattedDate(startDate, DATE_FORMAT);
+    Date endDateAsDate = getFormattedDate(endDate, DATE_FORMAT);
+    if (startDateAsDate == null || endDateAsDate.before(startDateAsDate)) {
+      throw new IllegalArgumentException("End date cannot be before start date.");
+    }
+    this.endDate = endDate;
+  }
+
+  private Date getFormattedDate(String inputDateStr, String dateFormat) {
+    if (inputDateStr == null) {
+      return null;
+    }
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.parse(inputDateStr);
   }
 
   public String getJoinDate() {

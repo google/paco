@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 
@@ -22,11 +23,17 @@ public class JsonConverterTest extends TestCase {
 
     SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
     signalingMechanisms[0] = null;
+
+    SignalGroupDAO[] signalGroups = new SignalGroupDAO[1];
+    SignalGroupDAO signalGroup = new SignalGroupDAO();
+    signalGroup.setSignalingMechanisms(signalingMechanisms);
+    signalGroups[0] = signalGroup;
+
+
     String[] publishedAdmins = new String[1];
     publishedAdmins[0] = "example@example.com";
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
-                                         signalingMechanisms, true, false, null , null, null,
-                                         null, null, false, publishedAdmins, publishedAdmins,
+                                         signalGroups, null , null, true, publishedAdmins, publishedAdmins,
                                          false, false, 1));
   }
 
@@ -44,7 +51,12 @@ public class JsonConverterTest extends TestCase {
 
 
     signalingMechanisms[0] = signalSchedule;
-    experiment.setSignalingMechanisms(signalingMechanisms);
+    SignalGroupDAO[] signalGroups = new SignalGroupDAO[1];
+    SignalGroupDAO signalGroup = new SignalGroupDAO();
+    signalGroup.setSignalingMechanisms(signalingMechanisms);
+    signalGroups[0] = signalGroup;
+    experiment.setSignalGroups(signalGroups);
+
 
     InputDAO[] inputs = new InputDAO[1];
     InputDAO input = new InputDAO();
@@ -53,12 +65,12 @@ public class JsonConverterTest extends TestCase {
     input.setText("Prompt");
     inputs[0] = input;
 
-    experiment.setInputs(inputs);
+    signalGroup.setInputs(inputs);
 
     String json = JsonConverter.jsonify(experiment);
     ExperimentDAO newExperiment = JsonConverter.fromSingleEntityJson(json);
-    assertEqualSchedules(experiment.getSignalingMechanisms(), newExperiment.getSignalingMechanisms());
-    assertEqualInputs(experiment.getInputs(), newExperiment.getInputs());
+    assertEqualSchedules(experiment.getSignalGroups()[0].getSignalingMechanisms(), newExperiment.getSignalGroups()[0].getSignalingMechanisms());
+    assertEqualInputs(experiment.getSignalGroups()[0].getInputs(), newExperiment.getSignalGroups()[0].getInputs());
   }
 
   private void assertEqualInputs(InputDAO[] expectedInputs, InputDAO[] actualInputs) {

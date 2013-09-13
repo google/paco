@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -28,20 +28,21 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * View for configuring the run length of an experiment.
  * Options are Ongoing, which runs forever.
  * Or, Fixed Length, which runs from a start date to an end date.
- *  
+ *
  * @author Bob Evans
  *
  */
@@ -60,7 +61,7 @@ public class DurationView extends Composite {
   private MouseOverDateBox endBox;
   private MyConstants myConstants;
 
-  private ExperimentDAO experiment;
+  private SignalGroupDAO signalGroup;
   private ExperimentCreationListener listener;
 
   /* This data member exists due to a bug in GWT 2.1.
@@ -72,39 +73,45 @@ public class DurationView extends Composite {
   private int startBoxValueChangeHandlerCounter = 0;
   private int endBoxValueChangeHandlerCounter = 0;
 
-  public DurationView(ExperimentDAO experiment, ExperimentCreationListener listener) {
+  private int groupNum;
+
+  public DurationView(SignalGroupDAO signalGroup, int groupNum, ExperimentCreationListener listener) {
     super();
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new HorizontalPanel();
 
-    this.experiment = experiment;
+    this.signalGroup = signalGroup;
+    this.groupNum = groupNum;
+
     this.listener = listener;
 
-    this.fixedDuration = experiment.getFixedDuration() != null ? experiment.getFixedDuration() : Boolean.FALSE;
+    this.fixedDuration = signalGroup.getFixedDuration() != null ? signalGroup.getFixedDuration() : Boolean.FALSE;
 
     Date today = new Date();
-    Date tomorrow = new Date(today.getTime() + TimeUtil.MILLIS_IN_A_DAY 
+    Date tomorrow = new Date(today.getTime() + TimeUtil.MILLIS_IN_A_DAY
                              + TimeUtil.EXTRA_MILLIS_OFFSET);
     String todayString = FORMATTER.format(today);
     String tomorrowString = FORMATTER.format(tomorrow);
     // TODO (bobevans): Use Calendar or the GWT time manipulation stuff
-    this.startDate = experiment.getStartDate() != null ? experiment.getStartDate() : todayString;
-    this.endDate = experiment.getEndDate() != null ? experiment.getEndDate() : tomorrowString;
+    this.startDate = signalGroup.getStartDate() != null ? signalGroup.getStartDate() : todayString;
+    this.endDate = signalGroup.getEndDate() != null ? signalGroup.getEndDate() : tomorrowString;
     initWidget(mainPanel);
     initPanel();
     setDurationOnExperiment(); // Ensure model has some initial values.
   }
 
   /**
-   * 
+   *
    */
   private void initPanel() {
     VerticalPanel outer = new VerticalPanel();
+    outer.add(createSignalGroupHeader());
+    outer.add(createTitle());
     HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(myConstants.duration() + ":");
     keyLabel.setStyleName("keyLabel");
-    outer.add(keyLabel);  
+    outer.add(keyLabel);
     radio1 = new RadioButton("duration", myConstants.ongoingDuration());
     radio2 = new RadioButton("duration", myConstants.fixedDuration());
     radio1.setValue(!fixedDuration);
@@ -120,8 +127,8 @@ public class DurationView extends Composite {
     startBox = new DateBox();
     startBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     startBox.setValue(FORMATTER.parse(startDate));
-    experiment.setStartDate(startDate);
-    startBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
+    signalGroup.setStartDate(startDate);
+    startBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
         if (startBoxValueChangeHandlerCounter % 2 == 0) {
@@ -142,8 +149,8 @@ public class DurationView extends Composite {
     endBox = new MouseOverDateBox(myConstants.startEndDateError());
     endBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat(PredefinedFormat.DATE_SHORT)));
     endBox.setValue(FORMATTER.parse(endDate));
-    experiment.setEndDate(endDate);
-    endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {  
+    signalGroup.setEndDate(endDate);
+    endBox.addValueChangeHandler(new ValueChangeHandler<Date>() {
       @Override
       public void onValueChange(ValueChangeEvent<Date> event) {
         if (endBoxValueChangeHandlerCounter % 2 == 0) {
@@ -179,29 +186,43 @@ public class DurationView extends Composite {
     radio2.addClickHandler(selectionListener);
     mainPanel.add(outer);
   }
-  
+
+  private Label createSignalGroupHeader() {
+    // Groups are numbered starting from 0, but user sees the numbering as starting from 1.
+    String titleText = myConstants.signalGroup() + " " + (groupNum + 1);
+    Label lblExperimentSchedule = new Label(titleText);
+    lblExperimentSchedule.setStyleName("paco-HTML-Large");
+    return lblExperimentSchedule;
+  }
+
+  private Widget createTitle() {
+    HTML questionsPrompt = new HTML("<h2>" + myConstants.durationHeader() + "</h2>");
+    questionsPrompt.setStyleName("keyLabel");
+    return questionsPrompt;
+  }
+
   private void updateDatePanelAndModelForFixedDuration(boolean isFixedDuration) {
     setDatePanelFixedDuration(isFixedDuration);
     setDurationOnExperiment();
   }
-  
+
   private void setDurationOnExperiment() {
-    experiment.setFixedDuration(fixedDuration);
-    if (experiment.getFixedDuration()) {
+    signalGroup.setFixedDuration(fixedDuration);
+    if (signalGroup.getFixedDuration()) {
       setDurationViewStartDate(startBox.getValue());
       setDurationViewEndDateAndHighlight(endBox.getValue());
     } else {
-      experiment.setStartDate(null);
-      experiment.setEndDate(null);
+      signalGroup.setStartDate(null);
+      signalGroup.setEndDate(null);
       ensureStartEndDateErrorNotFired();
     }
   }
-  
+
   private void setDurationViewStartDate(Date newStartDate) {
-    Date oldStartDate = experiment.getStartDate() != null ? FORMATTER.parse(experiment.getStartDate())
+    Date oldStartDate = signalGroup.getStartDate() != null ? FORMATTER.parse(signalGroup.getStartDate())
                                                           : null;
     Date dateBoxEndDate = endBox.getValue();
-    experiment.setStartDate(FORMATTER.format(newStartDate));
+    signalGroup.setStartDate(FORMATTER.format(newStartDate));
     ensureEndDateValidBasedOnNewStartDate(oldStartDate, newStartDate, dateBoxEndDate);
   }
 
@@ -210,17 +231,17 @@ public class DurationView extends Composite {
     if (newStartDate.after((dateBoxEndDate))) {
       if (oldStartDate == null) {
         // Case: experiment was previously ongoing duration. Set end date to day after start date.
-        Date newEndDate = new Date(newStartDate.getTime() 
+        Date newEndDate = new Date(newStartDate.getTime()
                                    + TimeUtil.MILLIS_IN_A_DAY + TimeUtil.EXTRA_MILLIS_OFFSET);
         endBox.setValue(newEndDate, true);
       } else if (!oldStartDate.after(dateBoxEndDate)) {
-        // Case: user moves previously valid start date to being after end date. 
+        // Case: user moves previously valid start date to being after end date.
         // Solution: move end date forward the same amount start date was moved forward.
         long startEndMillisOffset = dateBoxEndDate.getTime() - oldStartDate.getTime();
         Date newEndDate = new Date(newStartDate.getTime() + startEndMillisOffset);
         endBox.setValue(newEndDate, true);
       }
-    } else if (oldStartDate != null && oldStartDate.after(dateBoxEndDate) 
+    } else if (oldStartDate != null && oldStartDate.after(dateBoxEndDate)
         && !newStartDate.after(dateBoxEndDate)) {
       // Case: user fixes start date being after end date by moving start date earlier.
       // Result: mark end date as valid.
@@ -230,7 +251,7 @@ public class DurationView extends Composite {
 
   private void setDurationViewEndDateAndHighlight(Date date) {
     try {
-      experiment.setEndDate(FORMATTER.format(date)); 
+      signalGroup.setEndDate(FORMATTER.format(date));
       ExperimentCreationPanel.setPanelHighlight(endBox, true);
       endBox.disableMouseOver();
       ensureStartEndDateErrorNotFired();
@@ -240,11 +261,11 @@ public class DurationView extends Composite {
       fireStartEndDateError();
     }
   }
-  
+
   private void ensureStartEndDateErrorNotFired() {
     fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, endBox.getMessage());
   }
-  
+
   private void fireStartEndDateError() {
     fireExperimentCode(ExperimentCreationListener.ADD_ERROR, endBox.getMessage());
   }
@@ -286,7 +307,7 @@ public class DurationView extends Composite {
   private void fireExperimentCode(int code, String message) {
     listener.eventFired(code, null, message);
   }
-  
+
   // For testing - remove upon upgrade to GWT 2.5
   protected void ensureValueChangeEventsWillFire() {
     startBoxValueChangeHandlerCounter = 0;

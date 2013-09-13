@@ -9,35 +9,35 @@ import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.TriggerDAO;
-import com.google.sampling.experiential.shared.LoginInfo;
 
 public class ExperimentCreationModelUpdateTest extends GWTTestCase {
-  
+
   private static final String TEST_TEXT = "testText";
   private static final String TEST_EMAIL_1 = "test@test.com" ;
   private static final String TEST_EMAIL_2 = "example@example.org";
   private static final String START_DATE = "2013/07/21";
   private static final String END_DATE = "2013/07/24";
   private static final int RESPONSE_TYPE_INDEX = 3;
-  
+
   private ExperimentDAO experiment;
   private ExperimentDAO savedExperiment;
   private ExperimentCreationPanel experimentCreationPanel;
-  
+
   @Override
   public String getModuleName() {
     return "com.google.sampling.experiential.PacoEventserver";
   }
-  
+
   protected void gwtSetUp() {
     experiment = CreationTestUtil.getEmptyExperiment();
-    experimentCreationPanel = new  ExperimentCreationPanel(experiment, 
-                                                           CreationTestUtil.createLoginInfo(), 
+    experimentCreationPanel = new  ExperimentCreationPanel(experiment,
+                                                           CreationTestUtil.createLoginInfo(),
                                                            null);
   }
-  
+
   public void testEmptyExperimentSubmits() {
     submitAndGetSavedExperiment();
     assertEquals(experiment.getTitle(), savedExperiment.getTitle());
@@ -45,26 +45,29 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     assertEquals(savedExperiment.getCreator(), CreationTestUtil.EMAIL);
     assertEquals(savedExperiment.getAdmins()[0], CreationTestUtil.EMAIL);
     assertEquals(experiment.getInformedConsentForm(), savedExperiment.getInformedConsentForm());
-    assertEquals(experiment.getFixedDuration(), savedExperiment.getFixedDuration());
-    assertEquals(experiment.getSchedule(), savedExperiment.getSchedule());
-    assertEquals(experiment.getInputs(), savedExperiment.getInputs());
-    assertEquals(experiment.getFeedback(), savedExperiment.getFeedback());
     assertEquals(experiment.getPublished(), savedExperiment.getPublished());
     assertEquals(experiment.getPublishedUsers(), savedExperiment.getPublishedUsers());
+
+    SignalGroupDAO signalGroup1 = experiment.getSignalGroups()[0];
+    assertEquals(signalGroup1.getFixedDuration(), signalGroup1.getFixedDuration());
+    assertEquals(signalGroup1.getStartDate(), signalGroup1.getStartDate());
+    assertEquals(signalGroup1.getEndDate(), signalGroup1.getEndDate());
+    assertEquals(signalGroup1.getInputs(), signalGroup1.getInputs());
+    assertEquals(signalGroup1.getFeedback(), signalGroup1.getFeedback());
   }
-  
+
   public void testTitleSavedOnExperiment() {
     experimentCreationPanel.descriptionPanel.titlePanel.setValue(TEST_TEXT, true);
     submitAndGetSavedExperiment();
     assertEquals(savedExperiment.getTitle(), TEST_TEXT);
   }
-  
+
   public void testDescriptionSavedOnExperiment() {
     experimentCreationPanel.descriptionPanel.descriptionPanel.setValue(TEST_TEXT, true);
     submitAndGetSavedExperiment();
     assertEquals(savedExperiment.getDescription(), TEST_TEXT);
   }
-  
+
   public void testAdminsSavedOnExperiment() {
     String[] adminList = new String[]{TEST_EMAIL_1, TEST_EMAIL_2};
     experimentCreationPanel.descriptionPanel.adminList.setValue(Joiner.on(",").join(adminList), true);
@@ -73,19 +76,19 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     assertEquals(savedExperiment.getAdmins()[0], TEST_EMAIL_1);
     assertEquals(savedExperiment.getAdmins()[1], TEST_EMAIL_2);
   }
-  
+
   public void testInformedConsentSavedOnExperiment() {
     experimentCreationPanel.descriptionPanel.informedConsentPanel.setValue(TEST_TEXT, true);
     submitAndGetSavedExperiment();
     assertEquals(savedExperiment.getInformedConsentForm(), TEST_TEXT);
   }
-  
+
   public void testFixedDurationSavedOnExperiment() {
    experimentCreationPanel.descriptionPanel.durationPanel.setFixedDuration(true);
    submitAndGetSavedExperiment();
-   assertTrue(savedExperiment.getFixedDuration());
+   assertTrue(savedExperiment.getSignalGroups()[0].getFixedDuration());
   }
-  
+
   public void testFixedDurationWithDatesSavedOnExperiment() {
     DurationView durationPanel = experimentCreationPanel.descriptionPanel.durationPanel;
     durationPanel.setFixedDuration(true);
@@ -94,25 +97,25 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     durationPanel.ensureValueChangeEventsWillFire();  // Must be called due to GWT 2.1 bug.
     durationPanel.setEndDate(END_DATE);
     submitAndGetSavedExperiment();
-    assertTrue(savedExperiment.getFixedDuration());
-    assertEquals(savedExperiment.getStartDate(), START_DATE);
-    assertEquals(savedExperiment.getEndDate(), END_DATE);
+    assertTrue(savedExperiment.getSignalGroups()[0].getFixedDuration());
+    assertEquals(savedExperiment.getSignalGroups()[0].getStartDate(), START_DATE);
+    assertEquals(savedExperiment.getSignalGroups()[0].getEndDate(), END_DATE);
   }
-  
+
   public void testOngoingDurationSavedOnExperiment() {
     DurationView durationPanel = experimentCreationPanel.descriptionPanel.durationPanel;
     durationPanel.setFixedDuration(true);
     durationPanel.setFixedDuration(false);
     submitAndGetSavedExperiment();
-    assertFalse(savedExperiment.getFixedDuration());
+    assertFalse(savedExperiment.getSignalGroups()[0].getFixedDuration());
   }
-  
+
   public void testScheduledSignalingSavedOnExperiment() {
     SignalMechanismChooserPanel panel = experimentCreationPanel.signalPanels.get(0).chooserPanels.get(0);
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.SCHEDULED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
-    assertTrue(savedExperiment.getSignalingMechanisms()[0] instanceof SignalScheduleDAO);
+    assertTrue(savedExperiment.getSignalGroups()[0].getSignalingMechanisms()[0] instanceof SignalScheduleDAO);
   }
 
   public void testTriggeredSignalingSavedOnExperiment() {
@@ -120,9 +123,9 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     panel.signalingMechanismChoices.setSelectedIndex(SignalMechanismChooserPanel.TRIGGERED_SIGNALING_INDEX);
     ChangeEvent.fireNativeEvent(Document.get().createChangeEvent(), panel.signalingMechanismChoices);
     submitAndGetSavedExperiment();
-    assertTrue(savedExperiment.getSignalingMechanisms()[0] instanceof TriggerDAO);
+    assertTrue(savedExperiment.getSignalGroups()[0].getSignalingMechanisms()[0] instanceof TriggerDAO);
   }
-  
+
   public void testInputsSavedOnExperiment() {
     InputsListPanel panel = experimentCreationPanel.inputsListPanels.get(0);
     InputsPanel input1 = panel.inputsPanelsList.get(0);
@@ -135,49 +138,49 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     input2.varNameText.setValue(TEST_TEXT, true);
     input2.inputPromptText.setValue("", true);
     submitAndGetSavedExperiment();
-    assertEquals(savedExperiment.getInputs()[0].getName(), TEST_TEXT);
-    assertEquals(savedExperiment.getInputs()[0].getText(), TEST_TEXT);
-    assertEquals(savedExperiment.getInputs()[1].getName(), TEST_TEXT);
-    assertEquals(savedExperiment.getInputs()[1].getText(), "");
-    assertEquals(savedExperiment.getInputs()[1].getResponseType(), InputDAO.RESPONSE_TYPES[RESPONSE_TYPE_INDEX]);
+    assertEquals(savedExperiment.getSignalGroups()[0].getInputs()[0].getName(), TEST_TEXT);
+    assertEquals(savedExperiment.getSignalGroups()[0].getInputs()[0].getText(), TEST_TEXT);
+    assertEquals(savedExperiment.getSignalGroups()[0].getInputs()[1].getName(), TEST_TEXT);
+    assertEquals(savedExperiment.getSignalGroups()[0].getInputs()[1].getText(), "");
+    assertEquals(savedExperiment.getSignalGroups()[0].getInputs()[1].getResponseType(), InputDAO.RESPONSE_TYPES[RESPONSE_TYPE_INDEX]);
   }
-  
+
   public void testEmptyButEnabledCustomFeedbackSavedOnExperiment() {
-    CheckBox feedbackCheckBox = experimentCreationPanel.publishingPanel.customFeedbackCheckBox;
+    CheckBox feedbackCheckBox = experimentCreationPanel.feedbackPanels.get(0).customFeedbackCheckBox;
     feedbackCheckBox.setValue(true, true);
     submitAndGetSavedExperiment();
-    assertEquals(savedExperiment.getFeedback().length, 1);
-    assertEquals(savedExperiment.getFeedback()[0].getText(), "");
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback().length, 1);
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback()[0].getText(), "");
   }
-  
+
   public void testFilledAndEnabledCustomFeedbackSavedOnExperiment() {
-    CheckBox feedbackCheckBox = experimentCreationPanel.publishingPanel.customFeedbackCheckBox;
+    CheckBox feedbackCheckBox = experimentCreationPanel.feedbackPanels.get(0).customFeedbackCheckBox;
     feedbackCheckBox.setValue(true, true);
-    TextBoxBase feedbackTextBox = experimentCreationPanel.publishingPanel.customFeedbackText;
+    TextBoxBase feedbackTextBox = experimentCreationPanel.feedbackPanels.get(0).customFeedbackText;
     feedbackTextBox.setValue(TEST_TEXT, true);
     submitAndGetSavedExperiment();
-    assertEquals(savedExperiment.getFeedback().length, 1);
-    assertEquals(savedExperiment.getFeedback()[0].getText(), TEST_TEXT);
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback().length, 1);
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback()[0].getText(), TEST_TEXT);
   }
-  
+
   public void testFilledAndReDisabledCustomFeedbackSavedOnExperiment() {
-    CheckBox feedbackCheckBox = experimentCreationPanel.publishingPanel.customFeedbackCheckBox;
+    CheckBox feedbackCheckBox = experimentCreationPanel.feedbackPanels.get(0).customFeedbackCheckBox;
     feedbackCheckBox.setValue(true, true);
-    TextBoxBase feedbackTextBox = experimentCreationPanel.publishingPanel.customFeedbackText;
+    TextBoxBase feedbackTextBox = experimentCreationPanel.feedbackPanels.get(0).customFeedbackText;
     feedbackTextBox.setValue(TEST_TEXT, true);
     feedbackCheckBox.setValue(false, true);
     submitAndGetSavedExperiment();
-    assertEquals(savedExperiment.getFeedback().length, 1);
-    assertEquals(savedExperiment.getFeedback()[0].getText(), FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback().length, 1);
+    assertEquals(savedExperiment.getSignalGroups()[0].getFeedback()[0].getText(), FeedbackDAO.DEFAULT_FEEDBACK_MSG);
   }
-  
+
   public void testPublishedStatusSavedOnExperiment() {
     CheckBox publishCheckBox = experimentCreationPanel.publishingPanel.publishCheckBox;
     publishCheckBox.setValue(true, true);
     submitAndGetSavedExperiment();
     assertTrue(savedExperiment.getPublished());
   }
-    
+
   public void testPublishedUsersSavedOnExperiment() {
     String[] adminList = new String[]{TEST_EMAIL_1, TEST_EMAIL_2};
     experimentCreationPanel.publishingPanel.publishedUserList.setValue(Joiner.on(",").join(adminList), true);
@@ -186,7 +189,7 @@ public class ExperimentCreationModelUpdateTest extends GWTTestCase {
     assertEquals(savedExperiment.getPublishedUsers()[0], TEST_EMAIL_1);
     assertEquals(savedExperiment.getPublishedUsers()[1], TEST_EMAIL_2);
   }
-  
+
   private void submitAndGetSavedExperiment() {
     experimentCreationPanel.submitEvent();
     savedExperiment = experimentCreationPanel.getExperiment();

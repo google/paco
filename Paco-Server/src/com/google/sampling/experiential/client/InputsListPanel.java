@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -37,26 +37,26 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalGroupDAO;
 
 /**
  * A composite container for a bunch of InputPanel views.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class InputsListPanel extends Composite {
-  
+
   private MyConstants myConstants;
 
   private AbsolutePanel rootPanel;
   private VerticalPanel mainPanel;
-  private ExperimentDAO experiment;
+  private SignalGroupDAO signalGroup;
   private PickupDragController dragController;
   private ExperimentCreationListener listener;
   private int signalGroupNum;
-  
+
   private LinkedList<InputsPanel> inputsPanelsWithVarNameErrors;
   private LinkedList<InputsPanel> inputsPanelsWithListChoiceErrors;
   private LinkedList<InputsPanel> inputsPanelsWithLikertScaleErrors;
@@ -64,17 +64,17 @@ public class InputsListPanel extends Composite {
 
   // Visible for testing.
   protected LinkedList<InputsPanel> inputsPanelsList;
-  
+
   // TODO: this is here for backwards compatibility. Remove later.
-  public InputsListPanel(ExperimentDAO experiment, ExperimentCreationListener listener) {
+  public InputsListPanel(SignalGroupDAO experiment, ExperimentCreationListener listener) {
     this(experiment, 0, listener);
   }
 
-  public InputsListPanel(ExperimentDAO experiment, int signalGroupNum, 
+  public InputsListPanel(SignalGroupDAO experiment, int signalGroupNum,
                          ExperimentCreationListener listener) {
     myConstants = GWT.create(MyConstants.class);
-    
-    this.experiment = experiment;
+
+    this.signalGroup = experiment;
     this.signalGroupNum =  signalGroupNum;
     this.listener = listener;
 
@@ -88,7 +88,7 @@ public class InputsListPanel extends Composite {
     headerPanel.add(createSignalGroupHeader());
     headerPanel.add(createInputsHeader());
     rootPanel.add(headerPanel);
-    
+
     // Holds content.
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(10);
@@ -106,7 +106,7 @@ public class InputsListPanel extends Composite {
     }
     createDragSpaceBuffer();
   }
-  
+
   private Label createSignalGroupHeader() {
     // Groups are numbered starting from 0, but user sees the numbering as starting from 1.
     String titleText = myConstants.signalGroup() + " " + (signalGroupNum + 1);
@@ -114,7 +114,7 @@ public class InputsListPanel extends Composite {
     lblExperimentSchedule.setStyleName("paco-HTML-Large");
     return lblExperimentSchedule;
   }
-  
+
   private HTML createInputsHeader() {
     HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + "</h2>");
     questionsPrompt.setStyleName("keyLabel");
@@ -130,7 +130,7 @@ public class InputsListPanel extends Composite {
     updateExperimentInputs();
     deleteAllConditionalsForInput(inputsPanel.getInput());
   }
-  
+
   private void deleteAllConditionalsForInput(InputDAO input) {
     for (InputsPanel panel : inputsPanelsList) {
       panel.deleteConditionalsForInput(input);
@@ -150,31 +150,31 @@ public class InputsListPanel extends Composite {
 
     updateExperimentInputs();
   }
-  
+
   public void verify() {
     checkListItemsHaveAtLeastOneOptionAndHighlight();
     checkVarNamesFilledWithoutSpacesAndHighlight();
   }
-  
+
   public void checkListItemsHaveAtLeastOneOptionAndHighlight() {
     for (InputsPanel inputsPanel : inputsPanelsList) {
       inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight();
     }
   }
-  
+
   public void checkVarNamesFilledWithoutSpacesAndHighlight() {
     for (InputsPanel inputsPanel : inputsPanelsList) {
       inputsPanel.checkVarNameFilledWithoutSpacesAndHighlight();
     }
   }
-  
+
   public void removeVarNameErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithVarNameErrors.remove(panel);
     if (inputsPanelsWithVarNameErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
-  
+
   public void addVarNameErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithVarNameErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
@@ -183,14 +183,14 @@ public class InputsListPanel extends Composite {
       inputsPanelsWithVarNameErrors.add(panel);
     }
   }
-  
+
   public void removeFirstListChoiceErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithListChoiceErrors.remove(panel);
     if (inputsPanelsWithListChoiceErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
-  
+
   public void addFirstListChoiceErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithListChoiceErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
@@ -199,14 +199,14 @@ public class InputsListPanel extends Composite {
       inputsPanelsWithListChoiceErrors.add(panel);
     }
   }
-  
+
   public void removeLikertScaleErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithLikertScaleErrors.remove(panel);
     if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
-  
+
   public void addLikertScaleErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithLikertScaleErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
@@ -215,14 +215,14 @@ public class InputsListPanel extends Composite {
       inputsPanelsWithLikertScaleErrors.add(panel);
     }
   }
-  
+
   public void removeConditionalErrorMessage(InputsPanel panel, String message) {
     inputsPanelsWithConditionalErrors.remove(panel);
     if (inputsPanelsWithConditionalErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.REMOVE_ERROR, message);
     }
   }
-  
+
   public void addConditionalErrorMessage(InputsPanel panel, String message) {
     if (inputsPanelsWithConditionalErrors.isEmpty()) {
       fireExperimentCode(ExperimentCreationListener.ADD_ERROR, message);
@@ -232,7 +232,7 @@ public class InputsListPanel extends Composite {
     }
   }
 
-  private void createInputsPanels(ExperimentDAO experiment) {
+  private void createInputsPanels(SignalGroupDAO experiment) {
     inputsPanelsList = new LinkedList<InputsPanel>();
     InputDAO[] inputs = experiment.getInputs();
     if (signalGroupNum != 0 || // TODO: for now high input group numbers have no meaning. Will change with signal groups.
@@ -283,15 +283,15 @@ public class InputsListPanel extends Composite {
     for (int i = 0; i < inputsPanelsList.size(); i++) {
       newInputs[i] = inputsPanelsList.get(i).getInput();
     }
-    experiment.setInputs(newInputs);
+    signalGroup.setInputs(newInputs);
   }
-  
+
   private void updateAllConditionalsForOrdering() {
     List<InputDAO> precedingDaos = new ArrayList<InputDAO>();
     for (InputsPanel panel : inputsPanelsList) {
       panel.updateConditionalsForOrdering(precedingDaos);
       precedingDaos.add(panel.getInput());
-    }  
+    }
   }
 
   /**
@@ -300,7 +300,7 @@ public class InputsListPanel extends Composite {
   private final class InputsDragHandler implements DragHandler {
 
     @Override
-    public void onDragEnd(DragEndEvent event) { 
+    public void onDragEnd(DragEndEvent event) {
         updateInputPanelsList();
         updateModelInputsAndConditionals();
     }
@@ -320,11 +320,11 @@ public class InputsListPanel extends Composite {
       // Nothing to be done here.
     }
   }
-  
+
   public void fireExperimentCode(int code, String message) {
     listener.eventFired(code, signalGroupNum, message);
   }
-  
+
   // Visible for testing
   protected void updateInputPanelsList() {
     Collections.sort(inputsPanelsList, new Comparator<InputsPanel>() {
@@ -335,18 +335,18 @@ public class InputsListPanel extends Composite {
       }
     });
   }
-  
+
   // Visible for testing
   protected void updateModelInputsAndConditionals() {
     updateExperimentInputs();
     updateAllConditionalsForOrdering();
   }
-  
+
   // Visible for testing
   protected LinkedList<InputsPanel> getInputsPanels() {
     return inputsPanelsList;
   }
-  
+
   // Visible for testing
   protected VerticalPanel getContentPanel() {
     return mainPanel;
@@ -355,7 +355,7 @@ public class InputsListPanel extends Composite {
   // TODO: this is slow.
   public List<InputDAO> getPrecedingInputsWithVarName(String varName, InputDAO stopInput) {
     List<InputDAO> varNameInputs = new LinkedList<InputDAO>();
-    for (InputDAO input : experiment.getInputs()) {
+    for (InputDAO input : signalGroup.getInputs()) {
       if (input.equals(stopInput)) {
         break;
       } else if (input.getName() != null && input.getName().equals(varName)) {
@@ -364,7 +364,7 @@ public class InputsListPanel extends Composite {
     }
     return varNameInputs;
   }
-  
+
   protected void updateConditionalConfigurations(InputsPanel sender) {
     InputDAO input = sender.getInput();
     boolean isAfterPanel = false;
@@ -377,7 +377,7 @@ public class InputsListPanel extends Composite {
       }
     }
   }
-  
+
   protected void updateConditionalsForRename(InputsPanel sender) {
     InputDAO input = sender.getInput();
     boolean isAfterPanel = false;
@@ -390,7 +390,7 @@ public class InputsListPanel extends Composite {
       }
     }
   }
-  
+
   protected void invalidatePertinentConditionals(InputsPanel sender) {
     InputDAO input = sender.getInput();
     boolean isAfterPanel = false;

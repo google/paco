@@ -6,8 +6,6 @@ import java.util.List;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -16,16 +14,12 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DisclosureEvent;
-import com.google.gwt.user.client.ui.DisclosureHandler;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 
@@ -36,12 +30,13 @@ public class ExperimentPublishingPanel extends Composite {
   private MyConstants myConstants;
 
   private VerticalPanel mainPanel;
-  private DisclosurePanel customFeedbackPanel;
   private DisclosurePanel publishedUsersPanel;
 
   // Visible for testing
-  protected CheckBox customFeedbackCheckBox;
-  protected TextArea customFeedbackText;
+//  private DisclosurePanel customFeedbackPanel;
+//
+//  protected CheckBox customFeedbackCheckBox;
+//  protected TextArea customFeedbackText;
   protected CheckBox publishCheckBox;
   protected MouseOverTextBoxBase publishedUserList;
 
@@ -53,7 +48,7 @@ public class ExperimentPublishingPanel extends Composite {
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
     createPublishingHeader();
-    createFeedbackEntryPanel();
+    //createFeedbackEntryPanel();
     createPublishingPanel();
   }
 
@@ -64,81 +59,81 @@ public class ExperimentPublishingPanel extends Composite {
     mainPanel.add(lblExperimentPublishing);
   }
 
-  private Widget createFeedbackEntryPanel() {
-    // checkbox for default or custom feedback "[] Create Custom Feedback Page"
-    // if custom selected then fill with feedback from experiment in TextArea
-    HorizontalPanel feedbackPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setValue(experiment.getFeedback() != null && experiment.getFeedback().length > 0
-        && !defaultFeedback(experiment.getFeedback()[0]));
-    customFeedbackCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<Boolean> event) {
-        setFeedbackOn(experiment);
-      }
-    });
-    feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    feedbackPanel.add(feedbackLabel);
-    mainPanel.add(feedbackPanel);
-    createCustomFeedbackDisclosurePanel();
-    mainPanel.add(customFeedbackPanel);
-    setFeedbackOn(experiment); // Set initial feedback value for experiment.
-    return feedbackPanel;
-  }
-
-  private void createCustomFeedbackDisclosurePanel() {
-    customFeedbackPanel = new DisclosurePanel();
-
-    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
-                                                                               false,
-                                                                               "<b>"
-                                                                                   + myConstants.clickToEditCustomFeedback()
-                                                                                   + "</b>");
-    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
-                                                                             true,
-                                                                             "<b>"
-                                                                                 + myConstants.clickToCloseCustomFeedbackEditor()
-                                                                                 + "</b>");
-
-    customFeedbackPanel.setHeader(openHeaderWidget);
-    customFeedbackPanel.setOpen(true);
-    customFeedbackPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
-      @Override
-      public void onOpen(OpenEvent<DisclosurePanel> event) {
-        customFeedbackPanel.setHeader(openHeaderWidget);
-      }
-    });
-    customFeedbackPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
-      @Override
-      public void onClose(CloseEvent<DisclosurePanel> event) {
-        customFeedbackPanel.setHeader(closedHeaderWidget);
-      }
-    });
-
-    VerticalPanel userContentPanel = new VerticalPanel();
-    Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
-    userContentPanel.add(instructionLabel);
-
-    customFeedbackText = new TextArea();
-    customFeedbackText.setCharacterWidth(100);
-    customFeedbackText.setHeight("100");
-    customFeedbackText.addValueChangeHandler(new ValueChangeHandler<String>() {
-      @Override
-      public void onValueChange(ValueChangeEvent<String> event) {
-        setFeedbackOn(experiment);
-      }
-    });
-
-    FeedbackDAO[] feedbacks = experiment.getFeedback();
-
-    if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
-      customFeedbackText.setText(feedbacks[0].getText());
-    }
-
-    userContentPanel.add(customFeedbackText);
-    customFeedbackPanel.setContent(userContentPanel);
-  }
+//  private Widget createFeedbackEntryPanel() {
+//    // checkbox for default or custom feedback "[] Create Custom Feedback Page"
+//    // if custom selected then fill with feedback from experiment in TextArea
+//    HorizontalPanel feedbackPanel = new HorizontalPanel();
+//    customFeedbackCheckBox = new CheckBox();
+//    customFeedbackCheckBox.setValue(experiment.getFeedback() != null && experiment.getFeedback().length > 0
+//        && !defaultFeedback(experiment.getFeedback()[0]));
+//    customFeedbackCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+//      @Override
+//      public void onValueChange(ValueChangeEvent<Boolean> event) {
+//        setFeedbackOn(experiment);
+//      }
+//    });
+//    feedbackPanel.add(customFeedbackCheckBox);
+//    Label feedbackLabel = new Label(myConstants.customFeedback());
+//    feedbackPanel.add(feedbackLabel);
+//    mainPanel.add(feedbackPanel);
+//    createCustomFeedbackDisclosurePanel();
+//    mainPanel.add(customFeedbackPanel);
+//    setFeedbackOn(experiment); // Set initial feedback value for experiment.
+//    return feedbackPanel;
+//  }
+//
+//  private void createCustomFeedbackDisclosurePanel() {
+//    customFeedbackPanel = new DisclosurePanel();
+//
+//    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+//                                                                               false,
+//                                                                               "<b>"
+//                                                                                   + myConstants.clickToEditCustomFeedback()
+//                                                                                   + "</b>");
+//    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+//                                                                             true,
+//                                                                             "<b>"
+//                                                                                 + myConstants.clickToCloseCustomFeedbackEditor()
+//                                                                                 + "</b>");
+//
+//    customFeedbackPanel.setHeader(openHeaderWidget);
+//    customFeedbackPanel.setOpen(true);
+//    customFeedbackPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+//      @Override
+//      public void onOpen(OpenEvent<DisclosurePanel> event) {
+//        customFeedbackPanel.setHeader(openHeaderWidget);
+//      }
+//    });
+//    customFeedbackPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+//      @Override
+//      public void onClose(CloseEvent<DisclosurePanel> event) {
+//        customFeedbackPanel.setHeader(closedHeaderWidget);
+//      }
+//    });
+//
+//    VerticalPanel userContentPanel = new VerticalPanel();
+//    Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
+//    userContentPanel.add(instructionLabel);
+//
+//    customFeedbackText = new TextArea();
+//    customFeedbackText.setCharacterWidth(100);
+//    customFeedbackText.setHeight("100");
+//    customFeedbackText.addValueChangeHandler(new ValueChangeHandler<String>() {
+//      @Override
+//      public void onValueChange(ValueChangeEvent<String> event) {
+//        setFeedbackOn(experiment);
+//      }
+//    });
+//
+//    FeedbackDAO[] feedbacks = experiment.getFeedback();
+//
+//    if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
+//      customFeedbackText.setText(feedbacks[0].getText());
+//    }
+//
+//    userContentPanel.add(customFeedbackText);
+//    customFeedbackPanel.setContent(userContentPanel);
+//  }
 
   private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
     return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE)
@@ -161,7 +156,7 @@ public class ExperimentPublishingPanel extends Composite {
     publishCheckBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
-        setIsPublishedOnExperiment();   
+        setIsPublishedOnExperiment();
       }
     });
     publishingPanel.add(publishCheckBox);
@@ -170,11 +165,11 @@ public class ExperimentPublishingPanel extends Composite {
     mainPanel.add(publishingPanel);
 
     createPublishedUsersDisclosurePanel(experiment);
-    
+
     // Set initial published values for experiment.
     setIsPublishedOnExperiment();
     setExperimentPublishedUsersAndHighlight(publishedUserList.getValue());
-    
+
     mainPanel.add(publishedUsersPanel);
   }
 
@@ -232,7 +227,7 @@ public class ExperimentPublishingPanel extends Composite {
   private void setIsPublishedOnExperiment() {
     experiment.setPublished(publishCheckBox.getValue());
   }
-  
+
   private void setExperimentPublishedUsersAndHighlight(String publishedList) {
     try {
       setPublishedUsersOn(experiment, publishedList);
@@ -259,15 +254,15 @@ public class ExperimentPublishingPanel extends Composite {
     experiment.setPublishedUsers(userEmailsStrArray);
   }
 
-  private void setFeedbackOn(ExperimentDAO experiment) {
-    if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
-                                                                 FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
-    } else {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
-                                                                 customFeedbackText.getText()) });
-    }
-  }
+//  private void setFeedbackOn(ExperimentDAO experiment) {
+//    if (!customFeedbackCheckBox.getValue()) {
+//      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
+//                                                                 FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
+//    } else {
+//      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
+//                                                                 customFeedbackText.getText()) });
+//    }
+//  }
 
   private String toCSVString(List<String> list) {
     StringBuilder buf = new StringBuilder();
@@ -282,11 +277,11 @@ public class ExperimentPublishingPanel extends Composite {
     }
     return buf.toString();
   }
-  
+
   private void fireExperimentCode(int code, String message) {
     listener.eventFired(code, null, message);
   }
-  
+
   // Visible for testing
   protected void setPublishedUsersInPanel(String commaSepEmailList) {
     publishedUserList.setValue(commaSepEmailList, true);

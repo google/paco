@@ -337,7 +337,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
         }
         for (Long id : idList) {
           experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+              null, null, null, null, null, null, null, null, null));
         }
       } finally {
         if (pm != null) {
@@ -479,7 +479,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String experimentName = experiment.getTitle();
       Set<What> whats = Sets.newHashSet();
       whats.add(new What("joined", "true"));
-      whats.add(new What("schedule", experiment.getSchedule().toString()));
+      whats.add(new What("schedule", experiment.getCompositeSchedule()));
 
       EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform",
           "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz);
