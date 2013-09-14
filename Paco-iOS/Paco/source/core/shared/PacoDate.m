@@ -339,23 +339,11 @@
       NSLog(@"NEW SCHEDULE \n %@", scheduleDates);
     }
     scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
-    //if (!scheduled) {
-    //  NSLog(@"THIS DATE = %@", fromThisDate);
-    //  NSLog(@"TO CHOOSE FROM A = %@", scheduleDates);
-    //  scheduleDates = [self createESMScheduleDates:experiment fromThisDate:from];
-    //  experiment.schedule.esmSchedule = scheduleDates;
-    //  NSLog(@"TO CHOOSE FROM B = %@", scheduleDates);
-    //  scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:from];
-    // }
     if (!scheduled) {
-      
-      
-      
       // need to either schedule entire days here or know whether to use last time or
       // whether to use today+1 for generating the new schedule
       
-      
-      
+
       // Must be for the next day/week/month.
       switch (experiment.schedule.esmPeriod) {
         case kPacoScheduleRepeatPeriodDay:
@@ -368,9 +356,8 @@
           from = [PacoDate date:from thisManyMonthsFrom:1];
           break;
         default:
-          assert(!"Invalid esm period");
+          NSAssert(NO, @"Invalid esm period");
       }
-      //from = experiment.schedule.esmSchedule.lastObject;
       experiment.schedule.esmSchedule = nil;
     }
     if (scheduled) {
