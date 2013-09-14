@@ -195,7 +195,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
     scheduleDates = experiment.schedule.esmSchedule;
     if (!scheduleDates.count) {
-      scheduleDates = [PacoDate createESMScheduleDates:experiment fromThisDate:now];
+      scheduleDates = [PacoDate createESMScheduleDates:experiment.schedule fromThisDate:now];
       experiment.schedule.esmSchedule = scheduleDates;
     }
   }

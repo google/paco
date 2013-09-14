@@ -16,6 +16,7 @@
 #import <Foundation/Foundation.h>
 
 @class PacoExperiment;
+@class PacoExperimentSchedule;
 
 @interface PacoDate : NSObject
 + (NSString *)pacoStringForDate:(NSDate *)date;
@@ -48,7 +49,9 @@
                          nth:(int)nth
                     dayFlags:(unsigned int)dayFlags;
 + (NSDate *)nextScheduledDay:(NSUInteger)dayFlags fromDate:(NSDate *)date;
-+ (NSArray *)createESMScheduleDates:(PacoExperiment *)experiment fromThisDate:(NSDate *)fromThisDate;
++ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
+                       fromThisDate:(NSDate*)fromThisDate;
+
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate;
 

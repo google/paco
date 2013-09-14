@@ -260,39 +260,40 @@
   return nil;
 }
 
-+ (NSArray *)createESMScheduleDates:(PacoExperiment *)experiment fromThisDate:(NSDate *)fromThisDate {
-  double startSeconds = experiment.schedule.esmStartHour / 1000.0;
++ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
+                       fromThisDate:(NSDate*)fromThisDate {
+  double startSeconds = experimentSchedule.esmStartHour / 1000.0;
   double startMinutes = startSeconds / 60.0;
   double startHour = startMinutes / 60.0;
   int iStartHour = ((int)startHour);
   startMinutes -= (iStartHour * 60);
-  double millisecondsPerDay = experiment.schedule.esmEndHour - experiment.schedule.esmStartHour;
+  double millisecondsPerDay = experimentSchedule.esmEndHour - experimentSchedule.esmStartHour;
   double secondsPerDay = millisecondsPerDay / 1000.0;
   double minutesPerDay = secondsPerDay / 60.0;
   double hoursPerDay = minutesPerDay / 60.0;
 
-  int startDay = experiment.schedule.esmWeekends ? 0 : 1;
+  int startDay = experimentSchedule.esmWeekends ? 0 : 1;
   
   double durationMinutes = 0;
-  switch (experiment.schedule.esmPeriod) {
+  switch (experimentSchedule.esmPeriod) {
     case kPacoSchedulePeriodDay: {
         durationMinutes = minutesPerDay;
         startDay = [PacoDate weekdayIndexOfDate:fromThisDate];
       }
       break;
     case kPacoSchedulePeriodWeek: {
-        durationMinutes = minutesPerDay * (experiment.schedule.esmWeekends ? 7.0 : 5.0);
+        durationMinutes = minutesPerDay * (experimentSchedule.esmWeekends ? 7.0 : 5.0);
       }
       break;
     case kPacoSchedulePeriodMonth: {
         //about 21.74 work days per month on average.
-        durationMinutes = minutesPerDay * (experiment.schedule.esmWeekends ? 30 : 21.74);
+        durationMinutes = minutesPerDay * (experimentSchedule.esmWeekends ? 30 : 21.74);
       }
       break;
   }
 
   NSMutableArray *randomDates = [NSMutableArray array];
-  for (int i = 0; i < experiment.schedule.esmFrequency; ++i) {
+  for (int i = 0; i < experimentSchedule.esmFrequency; ++i) {
     u_int32_t value = 0;
     // Do half random and half random uniform ?
     if ((i % 2) == 0) {
@@ -333,7 +334,7 @@
       break;
     NSArray *scheduleDates = experiment.schedule.esmSchedule;
     if (!scheduleDates.count) {
-      scheduleDates = [self createESMScheduleDates:experiment fromThisDate:from];
+      scheduleDates = [self createESMScheduleDates:experiment.schedule fromThisDate:from];
       experiment.schedule.esmSchedule = scheduleDates;
       NSLog(@"NEW SCHEDULE \n %@", scheduleDates);
     }
