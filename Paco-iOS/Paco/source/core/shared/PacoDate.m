@@ -332,10 +332,10 @@
     max -= 1;
     if (max == 0)
       break;
-    NSArray *scheduleDates = experiment.schedule.esmSchedule;
+    NSArray *scheduleDates = experiment.schedule.esmScheduleList;
     if (!scheduleDates.count) {
       scheduleDates = [self createESMScheduleDates:experiment.schedule fromThisDate:from];
-      experiment.schedule.esmSchedule = scheduleDates;
+      experiment.schedule.esmScheduleList = scheduleDates;
       NSLog(@"NEW SCHEDULE \n %@", scheduleDates);
     }
     scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
@@ -358,7 +358,7 @@
         default:
           NSAssert(NO, @"Invalid esm period");
       }
-      experiment.schedule.esmSchedule = nil;
+      experiment.schedule.esmScheduleList = nil;
     }
     if (scheduled) {
       done = YES;

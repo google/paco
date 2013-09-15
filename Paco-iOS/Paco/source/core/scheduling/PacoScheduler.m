@@ -170,7 +170,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   NSArray *esmSchedule = [notification.userInfo objectForKey:@"esmSchedule"];
   if (esmSchedule) {
-    experiment.schedule.esmSchedule = esmSchedule;
+    experiment.schedule.esmScheduleList = esmSchedule;
   }
   
   [self deleteAllNotificationsForExperiment:experiment];
@@ -193,10 +193,10 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   // put the esm schedule in the notification dictionary
   NSArray *scheduleDates = nil;
   if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
-    scheduleDates = experiment.schedule.esmSchedule;
+    scheduleDates = experiment.schedule.esmScheduleList;
     if (!scheduleDates.count) {
       scheduleDates = [PacoDate createESMScheduleDates:experiment.schedule fromThisDate:now];
-      experiment.schedule.esmSchedule = scheduleDates;
+      experiment.schedule.esmScheduleList = scheduleDates;
     }
   }
   
