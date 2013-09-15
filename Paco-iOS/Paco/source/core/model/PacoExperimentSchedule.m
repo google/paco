@@ -81,7 +81,13 @@
     NSDate *rhs = obj2;
     return [lhs compare:rhs];
   }];
-  schedule.userEditable = [[scheduleMembers objectForKey:@"userEditable"] boolValue];
+  
+  NSNumber* userEditableObject = [scheduleMembers objectForKey:@"userEditable"];
+  if (userEditableObject) {
+    schedule.userEditable = [userEditableObject boolValue];
+  } else {
+    schedule.userEditable = YES; //userEditable is YES by default
+  }
   schedule.weekDaysScheduled = [[scheduleMembers objectForKey:@"weekDaysScheduled"] intValue];
   
   // !!! TPE temporary timeout fix for issue #9
