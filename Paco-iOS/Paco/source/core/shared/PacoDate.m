@@ -260,6 +260,15 @@
   return nil;
 }
 
+
++ (NSUInteger)randomUnsignedIntegerBetweenMin:(NSUInteger)min andMax:(NSUInteger)max {
+  NSAssert(max >= min, @"max should be larger than or equal to min!");
+  int temp = arc4random_uniform(max - min + 1);  //[0, max-min]
+  return temp + min; //[min, max]
+}
+
+
+//YMZ:TODO: check this algorithm for kPacoSchedulePeriodWeek and kPacoSchedulePeriodMonth
 + (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
                        fromThisDate:(NSDate*)fromThisDate {
   double startSeconds = experimentSchedule.esmStartHour / 1000.0;
@@ -291,28 +300,48 @@
       }
       break;
   }
-
+  
+  int NUM_OF_BUCKETS = experimentSchedule.esmFrequency;
+  NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
+  double MINUTES_PER_BUCKET = durationMinutes/((double)NUM_OF_BUCKETS);
+  
   NSMutableArray *randomDates = [NSMutableArray array];
-  for (int i = 0; i < experimentSchedule.esmFrequency; ++i) {
-    u_int32_t value = 0;
-    // Do half random and half random uniform ?
-    if ((i % 2) == 0) {
-      value = arc4random_uniform(0xFFFFFFFF);
-    } else {
-      value = arc4random();
+  int lowerBound = 0;
+  for (int bucketIndex = 1; bucketIndex <= NUM_OF_BUCKETS; ++bucketIndex) {
+    int upperBound = MINUTES_PER_BUCKET * bucketIndex;
+    int upperBoundByMinBuffer =
+        durationMinutes - experimentSchedule.minimumBuffer * (NUM_OF_BUCKETS - bucketIndex);
+    if (upperBound > upperBoundByMinBuffer) {
+      upperBound = upperBoundByMinBuffer;
+//      NSLog(@"%d: upperBound is adjusted to %d", bucketIndex, upperBound);
     }
-
-    double max = (double)0xFFFFFFFF;
-    double randomValue = (double)value / (double)max;
-
-    int offsetMinutes = (durationMinutes * randomValue);
-    int offsetHours = ((durationMinutes * randomValue) / 60.0);
-    int offsetDays = ((durationMinutes * randomValue) / 60.0 / hoursPerDay);
+//    NSLog(@"low=%d, upper=%d", lowerBound, upperBound);
+    int offsetMinutes = [self randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
+//    NSLog(@"RandomMinutes=%d", offsetMinutes);
+    int offsetHours = offsetMinutes / 60.0;
+    int offsetDays = offsetHours / hoursPerDay;
+    
+    if (experimentSchedule.esmPeriod == kPacoSchedulePeriodDay && offsetDays > 0) {
+      double offsetHoursInDouble = offsetMinutes/60.0;
+      if (offsetHoursInDouble <= hoursPerDay) {
+        offsetDays = 0;
+      } else {
+        NSAssert(NO, @"offsetDays should always be 0 for kPacoSchedulePeriodDay");
+      }
+    }
+    
     offsetMinutes -= offsetHours * 60;
     offsetHours -= offsetDays * hoursPerDay;
 
     NSDate *date = [self dateSameWeekAs:fromThisDate dayIndex:(startDay + offsetDays) hr24:(iStartHour + offsetHours) min:(startMinutes + offsetMinutes)];
     [randomDates addObject:date];
+    
+    lowerBound = upperBound;
+    int lowestBoundForNextSchedule = offsetMinutes + experimentSchedule.minimumBuffer;
+    if (lowerBound < lowestBoundForNextSchedule) {
+      lowerBound = lowestBoundForNextSchedule;
+//      NSLog(@"%d: lowerBound is adjusted to %d", bucketIndex, lowestBoundForNextSchedule);
+    }
   }
 
   return [randomDates sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
