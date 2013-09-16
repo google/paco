@@ -194,10 +194,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   NSArray *scheduleDates = nil;
   if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
     scheduleDates = experiment.schedule.esmScheduleList;
-    if (!scheduleDates.count) {
-      scheduleDates = [PacoDate createESMScheduleDates:experiment.schedule fromThisDate:now];
-      experiment.schedule.esmScheduleList = scheduleDates;
-    }
+    NSAssert([scheduleDates count] > 0 && [scheduleDates count] == experiment.schedule.esmFrequency,
+             @"nextScheduledDateForExperiment should always create valid dates");
   }
   
   NSAssert(experimentFireDate != nil, @"experimentFireDate should NOT be nil!");
