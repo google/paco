@@ -153,10 +153,12 @@
   //NSDate *now = [self midnightThisDate:dayOfDate];
   for (NSDate *date in scheduledDates) {
     if ([dayOfDate compare:date] == NSOrderedAscending) {
-      NSLog(@"LHS=%@ RHS=%@", dayOfDate, date);
+      NSLog(@"LHS=%@ RHS=%@",
+            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
       return date;
     } else {
-      NSLog(@"SKIPPING %@ vs. %@", dayOfDate, date);
+      NSLog(@"SKIPPING %@ vs. %@",
+            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
     }
   }
   // Time for a new list of scheduled dates.
@@ -366,7 +368,12 @@
     if (!scheduleDates.count) {
       scheduleDates = [self createESMScheduleDates:experiment.schedule fromThisDate:from];
       experiment.schedule.esmScheduleList = scheduleDates;
-      NSLog(@"NEW SCHEDULE \n %@", scheduleDates);
+      NSLog(@"NEW SCHEDULE: ");
+      NSLog(@"(");
+      for (NSDate* date in scheduleDates) {
+        NSLog(@"%@", [PacoDate pacoStringForDate:date]);
+      }
+      NSLog(@")");
     }
     scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
     if (!scheduled) {
