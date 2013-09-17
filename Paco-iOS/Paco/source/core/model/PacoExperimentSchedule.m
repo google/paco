@@ -22,7 +22,8 @@
 
 - (id)serializeToJSON
 {
-  return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+  NSMutableDictionary* scheduleJson =
+      [NSMutableDictionary dictionaryWithObjectsAndKeys:
           [NSNumber numberWithBool:self.byDayOfMonth], @"byDayOfMonth",
           [NSNumber numberWithBool:self.byDayOfWeek], @"byDayOfWeek",
           [NSNumber numberWithInt:self.dayOfMonth], @"dayOfMonth",
@@ -31,7 +32,7 @@
           [NSNumber numberWithLongLong:self.esmPeriodInDays], @"esmPeriodInDays",
           [NSNumber numberWithLongLong:self.esmStartHour], @"esmStartHour",
           [NSNumber numberWithBool:self.esmWeekends], @"esmWeekends",
-          self.scheduleId, @"id",
+          [NSNumber numberWithLongLong:[self.scheduleId longLongValue]], @"id",
           [NSNumber numberWithInt:self.nthOfMonth], @"nthOfMonth",
           [NSNumber numberWithInt:self.repeatPeriod], @"repeatRate",
           
@@ -42,6 +43,15 @@
           [NSNumber numberWithBool:self.userEditable], @"userEditable",
           [NSNumber numberWithInt:self.weekDaysScheduled], @"weekDaysScheduled",
           nil];
+  
+  if ([self.esmScheduleList count] > 0) {
+    NSMutableArray* dateStringArr = [NSMutableArray arrayWithCapacity:[self.esmScheduleList count]];
+    for (NSDate* date in self.esmScheduleList) {
+      [dateStringArr addObject:[PacoDate pacoStringForDate:date]];
+    }
+    [scheduleJson setObject:dateStringArr forKey:@"esmScheduleList"];
+  }
+  return scheduleJson;
 }
 
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject {
@@ -62,7 +72,7 @@
   }
   schedule.esmStartHour = [[scheduleMembers objectForKey:@"esmStartHour"] longLongValue];
   schedule.esmWeekends = [[scheduleMembers objectForKey:@"esmWeekends" ] boolValue];
-  schedule.scheduleId = [NSString stringWithFormat:@"%ld", [[scheduleMembers objectForKey:@"id"] longValue]];
+  schedule.scheduleId = [NSString stringWithFormat:@"%lld", [[scheduleMembers objectForKey:@"id"] longLongValue]];
   schedule.nthOfMonth = [[scheduleMembers objectForKey:@"nthOfMonth"] intValue];
   schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
@@ -97,6 +107,14 @@
     } else {
       schedule.timeout = 479;
     }
+  }
+  NSArray* esmScheduleStringArr = [scheduleMembers objectForKey:@"esmScheduleList"];
+  if ([esmScheduleStringArr count] > 0) {
+    NSMutableArray* dateArr = [NSMutableArray arrayWithCapacity:[esmScheduleStringArr count]];
+    for (NSString* dateStr in esmScheduleStringArr) {
+      [dateArr addObject:[PacoDate pacoDateForString:dateStr]];
+    }
+    schedule.esmScheduleList = dateArr;
   }
   
   schedule.jsonObject = jsonObject;
