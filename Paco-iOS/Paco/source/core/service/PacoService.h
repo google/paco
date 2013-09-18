@@ -25,8 +25,9 @@
 @property (nonatomic, retain) PacoAuthenticator *authenticator;
 
 // Load all experiement definitions from the server.
-- (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler;
+- (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
 // Batch submit a list of events
 - (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;

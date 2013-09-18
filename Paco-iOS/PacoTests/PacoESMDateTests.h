@@ -12,16 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <Foundation/Foundation.h>
 
-@interface PacoNotificationManager : NSObject
+#import <SenTestingKit/SenTestingKit.h>
 
-- (NSDictionary*)copyOfNotificationDictionary;
+@interface PacoESMDateTests : SenTestCase
 
-- (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
-- (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
-- (NSTimeInterval)nearestTimerInterval;
-
-- (NSMutableArray*)loadNotificationsFromFile;
-- (BOOL)saveNotificationsToFile;
 @end

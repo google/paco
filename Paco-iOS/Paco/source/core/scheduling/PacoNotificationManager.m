@@ -14,7 +14,7 @@
  */
 
 #import "PacoNotificationManager.h"
-
+#import "PacoDate.h"
 @interface PacoNotificationManager ()
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
 @end
@@ -34,24 +34,74 @@
 }
 
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey {
-  NSAssert(notification != nil, @"notification should be valid!");
-  NSAssert(hashKey.length > 0, @"hashKey should be valid!");
-  
-  BOOL success = NO;
-  if ([self.notificationDict objectForKey:hashKey] == nil) {
-    success = YES;
+  @synchronized(self) {
+    NSAssert(notification != nil, @"notification should be valid!");
+    NSAssert(hashKey.length > 0, @"hashKey should be valid!");
+    
+    BOOL success = NO;
+    if ([self.notificationDict objectForKey:hashKey] == nil) {
+      success = YES;
+    }
+//    NSLog(@"%@: ADD key:%@, notification:%@", success?@"Success":@"Fail",
+//          hashKey, [PacoDate pacoStringForDate:[notification.userInfo objectForKey:@"experimentFireDate"]]);
+    [self.notificationDict setObject:notification forKey:hashKey];
+    return success;
   }
-  [self.notificationDict setObject:notification forKey:hashKey];
-  return success;
 }
 
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey {
-  NSAssert(hashKey.length > 0, @"hashKey should be valid!");
-  if ([self.notificationDict objectForKey:hashKey] == nil) {
-    return NO;
-  } else {
-    [self.notificationDict removeObjectForKey:hashKey];
-    return YES;
+  @synchronized(self) {
+    NSAssert(hashKey.length > 0, @"hashKey should be valid!");
+    UILocalNotification* noti = [self.notificationDict objectForKey:hashKey];
+    if (noti == nil) {
+//      NSLog(@"Fail: DELETE key:%@, notification:%@",
+//            hashKey, [PacoDate pacoStringForDate:[noti.userInfo objectForKey:@"experimentFireDate"]]);
+      return NO;
+    } else {
+//      NSLog(@"Success: DELETE key:%@, notification:%@",
+//            hashKey, [PacoDate pacoStringForDate:[noti.userInfo objectForKey:@"experimentFireDate"]]);
+      [self.notificationDict removeObjectForKey:hashKey];
+      return YES;
+    }    
+  }
+}
+
+
+- (NSTimeInterval)nearestTimerInterval {
+  @synchronized(self) {
+    NSTimeInterval interval = MAXFLOAT;
+    
+    for (NSString* notificationHash in self.notificationDict) {
+      UILocalNotification* noti = [self.notificationDict objectForKey:notificationHash];
+      NSDate* fireDate = [noti.userInfo objectForKey:@"experimentFireDate"];
+      NSTimeInterval timerInterval = [fireDate timeIntervalSinceNow];
+      //notification fired, fetch the time out interval
+      if (timerInterval <= 0) {
+        NSDate* timeOutDate = [noti.userInfo objectForKey:@"experimentTimeOutDate"];
+        NSAssert(timeOutDate != nil, @"");
+        NSTimeInterval timerInterval = [timeOutDate timeIntervalSinceNow];
+        
+        if (timerInterval > 0) {
+          if (interval > timerInterval) {
+            interval = timerInterval;
+          }
+        } else {
+          NSLog(@"ERROR: timerInterval should probably be larger than 0, maybe a bug!");
+        }
+      } else {
+        if (interval > timerInterval) {
+          interval = timerInterval;
+        }
+      }
+    }
+    
+    if (interval == MAXFLOAT) {
+      return 0;
+    } else {
+      NSTimeInterval offset = 1;
+      return interval + offset;
+      
+    }
   }
 }
 

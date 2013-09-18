@@ -46,7 +46,7 @@
   view.backgroundColor = [PacoColor pacoLightBlue];
 
   PacoMenuButton *buttonFind = [[PacoMenuButton alloc] init];
-  buttonFind.text.text = @"Find Experiments";
+  buttonFind.text.text = @"Find My Experiments";
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_normal.png"] forState:UIControlStateNormal];
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_pressed.png"] forState:UIControlStateHighlighted];
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_disabled.png"] forState:UIControlStateDisabled];

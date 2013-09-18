@@ -19,7 +19,7 @@
 #import "PacoDate.h"
 
 
-NSTimer* LocationTimer;
+NSTimer* LocationTimer; //non-repeatable timer
 
 @interface PacoLocation () <CLLocationManagerDelegate>
 @property (nonatomic, copy, readwrite) CLLocation *location;
@@ -30,7 +30,7 @@ NSTimer* LocationTimer;
 @implementation PacoLocation
 
 
-- (id)init {
+- (id)initWithTimerInterval:(NSTimeInterval)interval {
   self = [super init];
   if (self) {
     //NOTE: both NSTimer and CLLocationManager need to be initialized in the main thread to work correctly
@@ -43,12 +43,14 @@ NSTimer* LocationTimer;
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
         
     dispatch_async(dispatch_get_main_queue(), ^{
-      NSLog(@"***********  PacoLocation is allocated, timer starts working! ***********");
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:59.0
+      NSLog(@"***********  PacoLocation is allocated ***********");
+      NSLog(@"Timer starts working, interval:%f seconds, will fire at %@",
+            interval, [PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:interval]]);
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
                                                      userInfo:nil
-                                                      repeats:YES];
+                                                      repeats:NO];
     });
   }
   
@@ -57,10 +59,30 @@ NSTimer* LocationTimer;
 
 - (void)dealloc {
   NSLog(@"***********  PacoLocation is deallocated, timer stops working! ***********");
+  [self removeTimerAndStopLocationService];
+}
+
+- (void)removeTimerAndStopLocationService {
+  NSLog(@"***********  PacoLocation: removeTimerAndStopLocationService ***********");
   [LocationTimer invalidate];
   LocationTimer = nil;
   [self disableLocationService];
 }
+
+
+- (void)resetTimerInterval:(NSTimeInterval)newInterval {
+  [LocationTimer invalidate];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSLog(@"*********** Timer Updated, interval:%f seconds, will fire at %@ ***********",
+         newInterval,[PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:newInterval]]);
+    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:newInterval
+                                                     target:self
+                                                   selector:@selector(LocationTimerHandler:)
+                                                   userInfo:nil
+                                                    repeats:NO];
+  });
+}
+
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
   NSLog(@"Paco LocationTimer fired @ %@", [PacoDate pacoStringForDate:[LocationTimer fireDate]]);

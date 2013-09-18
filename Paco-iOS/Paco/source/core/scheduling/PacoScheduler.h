@@ -26,6 +26,9 @@ extern NSString* const kExperimentHasFiredKey;
 @required
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime;
+
+- (void)updateTimerInterval:(NSTimeInterval)newInterval;
+
 @end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
