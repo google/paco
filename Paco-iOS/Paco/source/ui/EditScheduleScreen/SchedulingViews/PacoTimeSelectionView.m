@@ -165,7 +165,7 @@
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
     [button setTitle:@"Enter a time" forState:UIControlStateNormal];
     [self addSubview:button];
-    self.timePickers = [NSArray arrayWithObject:button];
+    self.timePickers = [NSMutableArray arrayWithObject:button];
     [self setNeedsLayout];
     return;
   }
