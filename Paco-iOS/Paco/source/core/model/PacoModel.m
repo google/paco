@@ -169,10 +169,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 - (void)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
-    if (!experiment.jsonObject) {
-      id json = [experiment serializeToJSON];
-      experiment.jsonObject = json;
-    }
+    id json = [experiment serializeToJSON];
+    experiment.jsonObject = json;
     assert(experiment.jsonObject);
     [experiments addObject:experiment.jsonObject];
   }

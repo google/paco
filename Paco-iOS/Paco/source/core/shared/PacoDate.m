@@ -45,6 +45,27 @@
 }
 
 
+/*
+ * 12:33:22-0700, Sep 12, 2013 
+ */
++ (NSDateFormatter*)debugDateFormatter {
+  static NSDateFormatter* debugDateFormatter = nil;
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    debugDateFormatter = [[NSDateFormatter alloc] init];
+    [debugDateFormatter setDateFormat:@"HH:mm:ssZZZ, MMM dd, YYYY"];
+    [debugDateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+  });
+  
+  return debugDateFormatter;
+}
+
++ (NSString*)debugStringForDate:(NSDate*)date {
+  return [[PacoDate debugDateFormatter] stringFromDate:date];
+}
+
+
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSUInteger day = [calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSYearCalendarUnit forDate:date];
@@ -132,10 +153,12 @@
   //NSDate *now = [self midnightThisDate:dayOfDate];
   for (NSDate *date in scheduledDates) {
     if ([dayOfDate compare:date] == NSOrderedAscending) {
-      NSLog(@"LHS=%@ RHS=%@", dayOfDate, date);
+      NSLog(@"LHS=%@ RHS=%@",
+            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
       return date;
     } else {
-      NSLog(@"SKIPPING %@ vs. %@", dayOfDate, date);
+      NSLog(@"SKIPPING %@ vs. %@",
+            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
     }
   }
   // Time for a new list of scheduled dates.
@@ -239,58 +262,88 @@
   return nil;
 }
 
-+ (NSArray *)createESMScheduleDates:(PacoExperiment *)experiment fromThisDate:(NSDate *)fromThisDate {
-  double startSeconds = experiment.schedule.esmStartHour / 1000.0;
+
++ (NSUInteger)randomUnsignedIntegerBetweenMin:(NSUInteger)min andMax:(NSUInteger)max {
+  NSAssert(max >= min, @"max should be larger than or equal to min!");
+  int temp = arc4random_uniform(max - min + 1);  //[0, max-min]
+  return temp + min; //[min, max]
+}
+
+
+//YMZ:TODO: check this algorithm for kPacoSchedulePeriodWeek and kPacoSchedulePeriodMonth
++ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
+                       fromThisDate:(NSDate*)fromThisDate {
+  double startSeconds = experimentSchedule.esmStartHour / 1000.0;
   double startMinutes = startSeconds / 60.0;
   double startHour = startMinutes / 60.0;
   int iStartHour = ((int)startHour);
   startMinutes -= (iStartHour * 60);
-  double millisecondsPerDay = experiment.schedule.esmEndHour - experiment.schedule.esmStartHour;
+  double millisecondsPerDay = experimentSchedule.esmEndHour - experimentSchedule.esmStartHour;
   double secondsPerDay = millisecondsPerDay / 1000.0;
   double minutesPerDay = secondsPerDay / 60.0;
   double hoursPerDay = minutesPerDay / 60.0;
 
-  int startDay = experiment.schedule.esmWeekends ? 0 : 1;
+  int startDay = experimentSchedule.esmWeekends ? 0 : 1;
   
   double durationMinutes = 0;
-  switch (experiment.schedule.esmPeriod) {
+  switch (experimentSchedule.esmPeriod) {
     case kPacoSchedulePeriodDay: {
         durationMinutes = minutesPerDay;
         startDay = [PacoDate weekdayIndexOfDate:fromThisDate];
       }
       break;
     case kPacoSchedulePeriodWeek: {
-        durationMinutes = minutesPerDay * (experiment.schedule.esmWeekends ? 7.0 : 5.0);
+        durationMinutes = minutesPerDay * (experimentSchedule.esmWeekends ? 7.0 : 5.0);
       }
       break;
     case kPacoSchedulePeriodMonth: {
         //about 21.74 work days per month on average.
-        durationMinutes = minutesPerDay * (experiment.schedule.esmWeekends ? 30 : 21.74);
+        durationMinutes = minutesPerDay * (experimentSchedule.esmWeekends ? 30 : 21.74);
       }
       break;
   }
-
+  
+  int NUM_OF_BUCKETS = experimentSchedule.esmFrequency;
+  NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
+  double MINUTES_PER_BUCKET = durationMinutes/((double)NUM_OF_BUCKETS);
+  
   NSMutableArray *randomDates = [NSMutableArray array];
-  for (int i = 0; i < experiment.schedule.esmFrequency; ++i) {
-    u_int32_t value = 0;
-    // Do half random and half random uniform ?
-    if ((i % 2) == 0) {
-      value = arc4random_uniform(0xFFFFFFFF);
-    } else {
-      value = arc4random();
+  int lowerBound = 0;
+  for (int bucketIndex = 1; bucketIndex <= NUM_OF_BUCKETS; ++bucketIndex) {
+    int upperBound = MINUTES_PER_BUCKET * bucketIndex;
+    int upperBoundByMinBuffer =
+        durationMinutes - experimentSchedule.minimumBuffer * (NUM_OF_BUCKETS - bucketIndex);
+    if (upperBound > upperBoundByMinBuffer) {
+      upperBound = upperBoundByMinBuffer;
+//      NSLog(@"%d: upperBound is adjusted to %d", bucketIndex, upperBound);
     }
-
-    double max = (double)0xFFFFFFFF;
-    double randomValue = (double)value / (double)max;
-
-    int offsetMinutes = (durationMinutes * randomValue);
-    int offsetHours = ((durationMinutes * randomValue) / 60.0);
-    int offsetDays = ((durationMinutes * randomValue) / 60.0 / hoursPerDay);
+//    NSLog(@"low=%d, upper=%d", lowerBound, upperBound);
+    int offsetMinutes = [self randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
+//    NSLog(@"RandomMinutes=%d", offsetMinutes);
+    int offsetHours = offsetMinutes / 60.0;
+    int offsetDays = offsetHours / hoursPerDay;
+    
+    if (experimentSchedule.esmPeriod == kPacoSchedulePeriodDay && offsetDays > 0) {
+      double offsetHoursInDouble = offsetMinutes/60.0;
+      if (offsetHoursInDouble <= hoursPerDay) {
+        offsetDays = 0;
+      } else {
+        NSAssert(NO, @"offsetDays should always be 0 for kPacoSchedulePeriodDay");
+      }
+    }
+    
     offsetMinutes -= offsetHours * 60;
     offsetHours -= offsetDays * hoursPerDay;
 
     NSDate *date = [self dateSameWeekAs:fromThisDate dayIndex:(startDay + offsetDays) hr24:(iStartHour + offsetHours) min:(startMinutes + offsetMinutes)];
     [randomDates addObject:date];
+    
+    lowerBound = upperBound;
+    int lowestBoundForNextSchedule = offsetMinutes + experimentSchedule.minimumBuffer;
+    if (lowerBound < lowestBoundForNextSchedule) {
+      lowerBound = lowestBoundForNextSchedule;
+//      NSLog(@"%d: lowerBound is adjusted to %d", bucketIndex, lowestBoundForNextSchedule);
+    }
   }
 
   return [randomDates sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
@@ -299,6 +352,58 @@
     return [lhs compare:rhs];
   }];
 }
+
+//YMZ:TODO: why 500? when will a nil result be returned?
++ (NSDate *)nextESMScheduledDateForExperiment:(PacoExperiment *)experiment
+                                 fromThisDate:(NSDate *)fromThisDate {
+  NSDate *scheduled = nil;
+  BOOL done = NO;
+  NSDate *from = fromThisDate;
+  int max = 500;
+  while (!done) {
+    max -= 1;
+    if (max == 0)
+      break;
+    NSArray *scheduleDates = experiment.schedule.esmScheduleList;
+    if (!scheduleDates.count) {
+      scheduleDates = [self createESMScheduleDates:experiment.schedule fromThisDate:from];
+      experiment.schedule.esmScheduleList = scheduleDates;
+      NSLog(@"NEW SCHEDULE: ");
+      NSLog(@"(");
+      for (NSDate* date in scheduleDates) {
+        NSLog(@"%@", [PacoDate pacoStringForDate:date]);
+      }
+      NSLog(@")");
+    }
+    scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
+    if (!scheduled) {
+      // need to either schedule entire days here or know whether to use last time or
+      // whether to use today+1 for generating the new schedule
+      
+
+      // Must be for the next day/week/month.
+      switch (experiment.schedule.esmPeriod) {
+        case kPacoScheduleRepeatPeriodDay:
+          from = [PacoDate date:from thisManyDaysFrom:1];
+          break;
+        case kPacoScheduleRepeatPeriodWeek:
+          from = [PacoDate date:from thisManyWeeksFrom:1];
+          break;
+        case kPacoScheduleRepeatPeriodMonth:
+          from = [PacoDate date:from thisManyMonthsFrom:1];
+          break;
+        default:
+          NSAssert(NO, @"Invalid esm period");
+      }
+      experiment.schedule.esmScheduleList = nil;
+    }
+    if (scheduled) {
+      done = YES;
+    }
+  }
+  return scheduled;
+}
+
 
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate {
@@ -356,60 +461,8 @@
     }
     break;
   case kPacoScheduleTypeESM: {
-    BOOL done = NO;
-    NSDate *scheduled = nil;
-    NSDate *from = fromThisDate;
-    int max = 500;
-    while (!done) {
-      max -= 1;
-      if (max == 0)
-        break;
-      NSArray *scheduleDates = experiment.schedule.esmSchedule;
-      if (!scheduleDates.count) {
-        scheduleDates = [self createESMScheduleDates:experiment fromThisDate:from];
-        experiment.schedule.esmSchedule = scheduleDates;
-        NSLog(@"NEW SCHEDULE \n %@", scheduleDates);
-      }
-      scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
-      //if (!scheduled) {
-      //  NSLog(@"THIS DATE = %@", fromThisDate);
-      //  NSLog(@"TO CHOOSE FROM A = %@", scheduleDates);
-      //  scheduleDates = [self createESMScheduleDates:experiment fromThisDate:from];
-      //  experiment.schedule.esmSchedule = scheduleDates;
-      //  NSLog(@"TO CHOOSE FROM B = %@", scheduleDates);
-      //  scheduled = [self nextTimeFromScheduledDates:scheduleDates onDayOfDate:from];
-     // }
-      if (!scheduled) {
-      
-      
-      
-      // need to either schedule entire days here or know whether to use last time or
-      // whether to use today+1 for generating the new schedule
-      
-      
-      
-        // Must be for the next day/week/month.
-        switch (experiment.schedule.esmPeriod) {
-          case kPacoScheduleRepeatPeriodDay:
-            from = [PacoDate date:from thisManyDaysFrom:1];
-            break;
-          case kPacoScheduleRepeatPeriodWeek:
-            from = [PacoDate date:from thisManyWeeksFrom:1];
-            break;
-          case kPacoScheduleRepeatPeriodMonth:
-            from = [PacoDate date:from thisManyMonthsFrom:1];
-            break;
-          default:
-            assert(!"Invalid esm period");
-        }
-        //from = experiment.schedule.esmSchedule.lastObject;
-        experiment.schedule.esmSchedule = nil;
-      }
-      if (scheduled) {
-        done = YES;
-      }
-    }
-    assert(scheduled);
+    NSDate *scheduled = [self nextESMScheduledDateForExperiment:experiment fromThisDate:fromThisDate];
+    NSAssert(scheduled != nil, @"ESM schedule should not be nil!");
     return scheduled;
   }
   break;

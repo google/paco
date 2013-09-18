@@ -37,10 +37,7 @@
 }
 
 - (id)serializeToJSON {
-  id jsonSchedule = self.schedule.jsonObject;
-  if (!jsonSchedule) {
-    jsonSchedule = [self.schedule serializeToJSON];
-  }
+  id  jsonSchedule = [self.schedule serializeToJSON];
   NSMutableArray *pacoEvents = [NSMutableArray array];
   for (PacoEvent *event in self.events) {
     if (!event.jsonObject) {

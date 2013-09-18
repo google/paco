@@ -153,6 +153,7 @@
   } else {
     NSLog(@"Failed to save notifications!");
   }
+  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {

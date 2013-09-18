@@ -26,10 +26,16 @@
 @interface PacoLocation : NSObject {
 }
 @property (nonatomic, assign) id <PacoLocationDelegate> delegate;
-@property (nonatomic, copy, readonly) CLLocation *location;
+@property (nonatomic, copy, readonly) CLLocation *location; 
+
+- (id)initWithTimerInterval:(NSTimeInterval)interval;
+- (void)removeTimerAndStopLocationService;
+
+- (void)resetTimerInterval:(NSTimeInterval)newInterval;
 
 - (void)updateLocation;
 - (void)enableLocationService;
 - (void)disableLocationService;
+
 
 @end

@@ -153,6 +153,7 @@
 		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
 		36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
 		36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
+		36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D4249F17E64917003BCD61 /* PacoESMDateTests.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -457,6 +458,8 @@
 		36B8EC3717568E40004CF035 /* PacoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTests.m; sourceTree = "<group>"; };
 		36B8EC3A17568E40004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PacoTests-Info.plist"; sourceTree = "<group>"; };
+		36D4249E17E64917003BCD61 /* PacoESMDateTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMDateTests.h; sourceTree = "<group>"; };
+		36D4249F17E64917003BCD61 /* PacoESMDateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMDateTests.m; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1085,6 +1088,8 @@
 				36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */,
 				36B8EC3617568E40004CF035 /* PacoTests.h */,
 				36B8EC3717568E40004CF035 /* PacoTests.m */,
+				36D4249E17E64917003BCD61 /* PacoESMDateTests.h */,
+				36D4249F17E64917003BCD61 /* PacoESMDateTests.m */,
 				36B8EC3817568E40004CF035 /* resources */,
 			);
 			path = PacoTests;
@@ -1452,6 +1457,7 @@
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
+				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
