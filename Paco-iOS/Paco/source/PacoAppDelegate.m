@@ -74,15 +74,20 @@
   // this is necessary for notifications that we fire immediately after launch to fill Notification Center
   NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
   if (experimentHasFired != nil && ![experimentHasFired boolValue]) {
-    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+    //Handle time out properly just in case
+    NSDate* experimentTimeOutDate =[notification.userInfo valueForKey:@"experimentTimeOutDate"];
+    if (experimentTimeOutDate != nil && [experimentTimeOutDate timeIntervalSinceNow] <= 0) {
+      NSLog(@"Warning: A time out notification was received!");
+      return;
+    }
     
-    [JCNotificationCenter
-     enqueueNotificationWithTitle:@""
-     message:notification.alertBody
-     tapHandler:^{
-       NSLog(@"Received tap on notification banner!");
-       [self showSurveyForNotification:notification];
-     }];
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+    [JCNotificationCenter enqueueNotificationWithTitle:@""
+                                               message:notification.alertBody
+                                            tapHandler:^{
+                                              NSLog(@"Received tap on notification banner!");
+                                              [self showSurveyForNotification:notification];
+                                            }];
   }
 }
 
