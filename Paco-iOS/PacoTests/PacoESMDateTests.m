@@ -38,6 +38,9 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
 
 @interface PacoDate ()
 + (NSUInteger)randomUnsignedIntegerBetweenMin:(NSUInteger)min andMax:(NSUInteger)max;
++ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
+                       fromThisDate:(NSDate*)fromThisDate;
+
 @end
 
 
