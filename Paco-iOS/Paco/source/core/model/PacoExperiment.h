@@ -33,6 +33,7 @@
 - (void)deserializeFromJSON:(id)json model:(PacoModel *)model;
 
 - (BOOL)haveJoined;
+- (BOOL)shouldScheduleNotifications;
 
 @end
 

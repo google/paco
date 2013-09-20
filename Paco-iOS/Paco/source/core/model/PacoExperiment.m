@@ -81,6 +81,11 @@
   self.definition = experimentDefinition;
 }
 
+- (BOOL)shouldScheduleNotifications {
+  return (self.schedule.scheduleType != kPacoScheduleTypeSelfReport) &&
+         (self.schedule.scheduleType != kPacoScheduleTypeAdvanced);
+}
+
 - (BOOL)haveJoined {
   // TODO(gregvance): maybe should check for the "joined"="true" in the event
   //     responses, but what about un-joining ?

@@ -74,7 +74,7 @@
                                 events:nil]; //TODO: events will be removed from this method
   
   //start scheduling notifications for this joined experiment
-  [[PacoClient sharedInstance].scheduler startSchedulingForExperiment:experiment];
+  [[PacoClient sharedInstance].scheduler startSchedulingForExperimentIfNeeded:experiment];
   
 
   NSString* title = @"Congratulations!";

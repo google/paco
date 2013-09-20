@@ -98,7 +98,12 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 
 
 #pragma mark Public Methods
--(void)startSchedulingForExperiment:(PacoExperiment*)experiment {
+-(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
+  if (![experiment shouldScheduleNotifications]) {
+    NSLog(@"Skip scheduling for newly-joined self-report or advanced expeirment: %@", experiment.instanceId);
+    return;
+  }
+  
   //check schedule notifications
   NSArray* scheduledArr = [self getiOSLocalNotifications:experiment.instanceId];
   NSAssert([scheduledArr count] == 0, @"There should be 0 notfications scheduled!");
@@ -185,6 +190,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 }
 
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
+  NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
+  
   NSDate* now = [NSDate dateWithTimeIntervalSinceNow:0];
   NSDate* experimentFireDate = [PacoDate nextScheduledDateForExperiment:experiment fromThisDate:now];
   NSDate* experimentTimeOutDate = [experimentFireDate dateByAddingTimeInterval:(experiment.schedule.timeout * 60)];
@@ -299,12 +306,16 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 - (void)registerUpcomingiOSNotifications: (NSArray *)experiments {
   // go through all experiments, see if a notification is already scheduled, and if not add it to the schedule
   for (PacoExperiment *experiment in experiments) {
-    if ([self getiOSLocalNotifications:experiment.instanceId].count == 0) {
-      // ok, so no notification exists, so schedule one
-      NSLog(@"Registering iOS notification for %@", experiment.instanceId);
-      [self registeriOSNotificationForExperiment:experiment];
+    if ([experiment shouldScheduleNotifications]) {
+      if ([self getiOSLocalNotifications:experiment.instanceId].count == 0) {
+          NSLog(@"Registering iOS notification for %@", experiment.instanceId);
+          [self registeriOSNotificationForExperiment:experiment];
+      } else {
+        NSLog(@"Skip registering iOS notification for %@, since it has a notification scheduled.",
+              experiment.instanceId);
+      }
     } else {
-      NSLog(@"Skip registering iOS notification for %@, since it has a notification scheduled.",
+      NSLog(@"Skip registering notification for %@, it's a self-report or advanced experiment.",
             experiment.instanceId);
     }
   }

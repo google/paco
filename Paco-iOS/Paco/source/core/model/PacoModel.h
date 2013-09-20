@@ -37,6 +37,8 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
+- (BOOL)shouldTriggerNotificationSystem;
+
 - (NSArray *)joinedExperiments;
 
 - (BOOL)saveToFile;

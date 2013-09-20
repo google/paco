@@ -118,6 +118,18 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   [self updateExperimentInstances:instances];
 }
 
+- (BOOL)shouldTriggerNotificationSystem {
+  if (0 == self.experimentInstances.count) {
+    return NO;
+  }
+  for (PacoExperiment* experiment in self.experimentInstances) {
+    if ([experiment shouldScheduleNotifications]) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
 
 - (NSArray *)joinedExperiments {
   NSMutableArray *array = [NSMutableArray array];
