@@ -257,6 +257,10 @@ NSString *kCellIdText = @"text";
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
+    if (self.tableView.footer == nil) {
+      self.tableView.footer = self.joinButton;
+      [self.joinButton sizeToFit];
+    }
     [self setNeedsLayout];
   }
 }
