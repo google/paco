@@ -176,7 +176,7 @@
     hrs %= 24;
     minutes %= 60;
     NSDate *dateScheduled = [self timeOfDayThisDate:now hrs24:hrs minutes:minutes];
-    if (dateScheduled.timeIntervalSince1970 > dayOfDate.timeIntervalSince1970) {
+    if (dateScheduled.timeIntervalSince1970 >= dayOfDate.timeIntervalSince1970) {
       return dateScheduled;
     }
   }
