@@ -59,16 +59,18 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
 	// Do any additional setup after loading the view.
-  self.view.backgroundColor = [PacoColor pacoBlue];
+  self.view.backgroundColor = [UIColor whiteColor];
 
   UIButton *login = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [login setTitle:@"Login" forState:UIControlStateNormal];
+  [login setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [login.titleLabel setFont:[UIFont fontWithName:@"Helvetica Bold" size:18]];
   [login addTarget:self action:@selector(onLogin) forControlEvents:UIControlEventTouchUpInside];
   login.frame = CGRectMake(0, 0, 100, 40);
   [self.view addSubview:login];
 
   UITextField *textField = [[UITextField alloc] initWithFrame:CGRectZero];
-  textField.textColor = [UIColor whiteColor];
+  textField.textColor = [PacoColor pacoBlue];
   textField.text = @"";
   textField.placeholder = @"<email>";
   textField.keyboardType = UIKeyboardTypeEmailAddress;
@@ -86,7 +88,7 @@
   
 
   UITextField *textField2 = [[UITextField alloc] initWithFrame:CGRectZero];
-  textField.textColor = [UIColor whiteColor];
+  textField2.textColor = [PacoColor pacoBlue];
   textField2.text = @"";
   textField2.placeholder = @"<password>";
   textField2.keyboardType = UIKeyboardTypeDefault;
@@ -107,8 +109,7 @@
   label.numberOfLines = 3;
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
-  label.textColor = [UIColor whiteColor];
-  label.shadowColor = [UIColor lightGrayColor];
+  label.textColor = [PacoColor pacoBlue];
   [label setText:@"Hi, Log In Now\n\n  Run Your Paco Experiment today!"];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];
