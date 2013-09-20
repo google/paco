@@ -23,8 +23,6 @@
 + (NSDate *)pacoDateForString:(NSString *)dateStr;
 + (NSString*)debugStringForDate:(NSDate*)date;
 
-
-+ (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
-                              fromThisDate:(NSDate *)fromThisDate;
++ (NSDate*)nextScheduledDateFromNow:(PacoExperiment *)experiment;
 
 @end

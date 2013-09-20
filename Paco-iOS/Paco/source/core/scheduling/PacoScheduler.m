@@ -192,8 +192,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
   NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
   
-  NSDate* now = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSDate* experimentFireDate = [PacoDate nextScheduledDateForExperiment:experiment fromThisDate:now];
+  NSDate* experimentFireDate = [PacoDate nextScheduledDateFromNow:experiment];
   NSDate* experimentTimeOutDate = [experimentFireDate dateByAddingTimeInterval:(experiment.schedule.timeout * 60)];
   assert(experiment.instanceId.length);
   
@@ -202,7 +201,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
     scheduleDates = experiment.schedule.esmScheduleList;
     NSAssert([scheduleDates count] > 0 && [scheduleDates count] == experiment.schedule.esmFrequency,
-             @"nextScheduledDateForExperiment should always create valid dates");
+             @"nextScheduledDateFromNow should always create valid dates");
   }
   
   NSAssert(experimentFireDate != nil, @"experimentFireDate should NOT be nil!");

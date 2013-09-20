@@ -404,6 +404,10 @@
   return scheduled;
 }
 
++ (NSDate*)nextScheduledDateFromNow:(PacoExperiment *)experiment {
+  return [self nextScheduledDateForExperiment:experiment fromThisDate:[NSDate dateWithTimeIntervalSinceNow:0]];
+}
+
 
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate {
