@@ -40,6 +40,11 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  
+  //fix the layout of menu buttons on iOS7
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
 
   UIView *view = self.view;
   assert(view);
