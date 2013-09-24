@@ -84,7 +84,6 @@ public class ExperimentRetrieverTest extends TestCase {
     DateTimeZone email1Timezone = DateTime.now().getZone();
     List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone);
     assertTrue(experiments.size() == 0);
-
   }
 
 
