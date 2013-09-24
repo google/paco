@@ -50,7 +50,7 @@
                 android:layout_alignParentRight="true"                                
                 android:padding="0dip"
                 
-                android:text="8" >
+                android:text="3" >
             </TextView>
         </RelativeLayout>
 
@@ -65,58 +65,26 @@
 
                 <RadioButton
                     android:id="@+id/rb1"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                     android:layout_width="33dip"  android:padding="0dip"
                     >
                 </RadioButton>
 
                 <RadioButton
                     android:id="@+id/rb2"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                     android:layout_width="33dip"  android:padding="0dip"
                      >
                 </RadioButton>
 
                 <RadioButton
                     android:id="@+id/rb3"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                     android:layout_width="33dip"  android:padding="0dip"
                      >
                 </RadioButton>
 
-                <RadioButton
-                    android:id="@+id/rb4"
-                    android:layout_height="wrap_content"
-                     android:layout_width="33dip"  android:padding="0dip"
-                     >
-                </RadioButton>
-
-                <RadioButton
-                    android:id="@+id/rb5"
-                    android:layout_height="wrap_content"
-                     android:layout_width="33dip"  android:padding="0dip"
-                    >
-                </RadioButton>
-                
-                
-                <RadioButton  
-            android:id="@+id/rb6"
-            android:layout_height="wrap_content" 
-            android:layout_width="33dip"  android:padding="0dip"
-            ></RadioButton>
-                <RadioButton  
-            android:id="@+id/rb7"
-            android:layout_height="wrap_content"
-             android:layout_width="33dip"  android:padding="0dip"
-            ></RadioButton>
-                <RadioButton  
-            android:id="@+id/rb8"
-            android:layout_height="wrap_content"
-             android:layout_width="33dip"  android:padding="0dip"
-            android:text="8"></RadioButton>
-                
             </RadioGroup>
     </LinearLayout>
 
 </merge>
-
