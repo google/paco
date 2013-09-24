@@ -20,7 +20,6 @@
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoFont.h"
 #import "PacoModel.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 
 
@@ -40,7 +39,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Find My Experiments"];
+    self.navigationItem.title = @"Find My Experiments";
     self.navigationItem.hidesBackButton = NO;
   }
   return self;
@@ -132,8 +131,8 @@
       // Must be loading...
       return;
     }
-    PacoExperimentDetailsViewController *details = [[PacoExperimentDetailsViewController alloc] init];
-    details.experiment = experiment;
+    PacoExperimentDetailsViewController *details =
+        [PacoExperimentDetailsViewController controllerWithExperiment:experiment];
     [self.navigationController pushViewController:details animated:YES];
   }
 }

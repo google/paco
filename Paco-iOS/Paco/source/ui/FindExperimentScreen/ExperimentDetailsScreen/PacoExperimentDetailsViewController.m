@@ -19,12 +19,11 @@
 #import "PacoFont.h"
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoClient.h"
 
 @interface PacoExperimentDetailsViewController ()
-
+@property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
 @implementation PacoExperimentDetailsViewController
@@ -41,18 +40,12 @@
   return converted;
 }
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-  if (self) {
-    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Details"];
-  }
-  return self;
-}
-
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  PacoTitleView *titleView = (PacoTitleView *)self.navigationItem.titleView;
-  titleView.title.text = experiment.title;
++(PacoExperimentDetailsViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
+  PacoExperimentDetailsViewController* controller =
+      [[PacoExperimentDetailsViewController alloc] initWithNibName:nil bundle:nil];
+  controller.experiment = experiment;
+  controller.navigationItem.title = experiment.title;
+  return controller;
 }
 
 - (NSString *)jsonStringFromObj:(id)jsonObject {
@@ -113,8 +106,8 @@
     return;
   }
   
-  PacoConsentViewController *consent = [[PacoConsentViewController alloc] init];
-  consent.experiment = self.experiment;
+  PacoConsentViewController *consent =
+      [PacoConsentViewController controllerWithExperiment:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
 }
 

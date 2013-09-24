@@ -21,7 +21,6 @@
 #import "PacoScheduler.h"
 #import "PacoService.h"
 #import "PacoTableView.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
@@ -40,7 +39,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Scheduling"];
+    self.navigationItem.title = @"Scheduling";
     self.navigationItem.hidesBackButton = NO;
   }
   return self;

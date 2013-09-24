@@ -22,7 +22,6 @@
 #import "PacoQuestionView.h"
 #import "PacoService.h"
 #import "PacoTableView.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
@@ -49,7 +48,7 @@ NSString *kCellIdQuestion = @"question";
       andNotification:(UILocalNotification*)notification{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Participate!"];
+    self.navigationItem.title = @"Participate!";
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
     [[UIBarButtonItem alloc] initWithTitle:@"Submit"

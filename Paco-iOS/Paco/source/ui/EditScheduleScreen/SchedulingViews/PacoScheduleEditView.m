@@ -49,7 +49,7 @@ NSString *kCellIdText = @"text";
 @end
 
 @implementation PacoScheduleEditView
-
+@synthesize experiment = _experiment;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -81,7 +81,6 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  //YMZ:TODO: need to check why auto synthesizer works in this case.
   _experiment = experiment;
   _tableView.data = [[self class] dataFromExperimentSchedule:_experiment.schedule];
   [self setNeedsLayout];

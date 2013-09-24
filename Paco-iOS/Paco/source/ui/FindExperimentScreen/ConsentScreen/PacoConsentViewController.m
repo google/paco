@@ -20,31 +20,24 @@
 #import "PacoEditScheduleViewController.h"
 #import "PacoModel.h"
 #import "PacoService.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
-
+@property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
 @implementation PacoConsentViewController
 @synthesize experiment = _experiment;
 
-
-- (id)initWithNibName:(NSString *)nibNameOrNil
-               bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Consent"];
-      self.navigationItem.hidesBackButton = NO;
-    }
-    return self;
++ (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
+  PacoConsentViewController* controller =
+      [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
+  controller.experiment = experiment;
+  controller.navigationItem.title = experiment.title;
+  controller.navigationItem.hidesBackButton = NO;
+  return controller;
 }
 
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  self.title = experiment.title;
-}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
