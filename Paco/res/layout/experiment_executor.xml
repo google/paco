@@ -21,18 +21,30 @@
 	<LinearLayout android:orientation="vertical"
 		android:gravity="center|top" android:layout_gravity="center|top"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_weight="1">
+		android:layout_weight="1"
+    
+    >
 
 		<TextView android:text="@string/experiment_title" android:id="@+id/experiment_title"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:textSize="25dip"></TextView>
 		<ScrollView android:id="@+id/ScrollView01"
-			android:layout_width="fill_parent" android:layout_height="wrap_content" android:padding="0dp" android:layout_margin="0dp" android:scrollbarFadeDuration="0" android:scrollbarAlwaysDrawVerticalTrack="true">
+			android:layout_width="fill_parent" android:layout_height="wrap_content" 
+               android:paddingRight="6dp" 
+            android:layout_margin="0dp" 
+      android:scrollbarFadeDuration="0" android:scrollbarAlwaysDrawVerticalTrack="true">
 			<LinearLayout
 				android:id="@+id/ScrollViewChild"	 
 				android:orientation="vertical"
 				android:gravity="center|top" android:layout_gravity="center|top"
-				android:layout_width="fill_parent" android:layout_height="wrap_content" android:padding="0dp"/>
+				android:layout_width="fill_parent" android:layout_height="wrap_content" 
+                        android:paddingLeft="0dp"
+             android:paddingTop="0dp"
+              android:paddingBottom="0dp"
+               android:paddingRight="2dp" 
+
+        
+        />
 		</ScrollView>
 	</LinearLayout>
 
