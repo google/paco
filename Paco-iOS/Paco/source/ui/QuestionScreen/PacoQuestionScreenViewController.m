@@ -49,7 +49,7 @@ NSString *kCellIdQuestion = @"question";
       andNotification:(UILocalNotification*)notification{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
+    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Participate!"];
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
     [[UIBarButtonItem alloc] initWithTitle:@"Submit"

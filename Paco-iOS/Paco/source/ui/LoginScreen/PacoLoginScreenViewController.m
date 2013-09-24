@@ -49,7 +49,7 @@
 {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    PacoTitleView *title = [[PacoTitleView alloc] initIconAndText:@"Login"];
+    PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Login"];
     self.navigationItem.titleView = title;
     self.completionBlock = block;
   }

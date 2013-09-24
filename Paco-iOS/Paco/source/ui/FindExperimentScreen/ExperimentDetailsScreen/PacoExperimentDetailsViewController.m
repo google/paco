@@ -44,7 +44,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Details"];
+    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Details"];
   }
   return self;
 }

@@ -35,7 +35,7 @@
                bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Consent"];
+    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Consent"];
       self.navigationItem.hidesBackButton = NO;
     }
     return self;

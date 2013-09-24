@@ -32,7 +32,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-      PacoTitleView *title = [[PacoTitleView alloc] initIconAndText:@"Paco"];
+      PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
       self.navigationItem.titleView = title;
     }
     return self;

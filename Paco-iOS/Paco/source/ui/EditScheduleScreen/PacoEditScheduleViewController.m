@@ -40,7 +40,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Scheduling"];
+    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Scheduling"];
     self.navigationItem.hidesBackButton = NO;
   }
   return self;

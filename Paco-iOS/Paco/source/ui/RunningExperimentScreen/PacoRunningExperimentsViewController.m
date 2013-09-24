@@ -41,7 +41,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Running Experiments"];
+    self.navigationItem.titleView = [PacoTitleView viewWithText:@"Running Experiments"];
     self.navigationItem.hidesBackButton = NO;
 
   }
