@@ -15,8 +15,11 @@ import com.google.paco.shared.model.ExperimentDAO;
 
 public class ExperimentCacheHelper {
 
-  public static final String EXPERIMENT_CACHE_KEY = "EXPERIMENT_CACHE_KEY";
   public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
+
+  private static final String ALL_JOINABLE_EXPERIMENTS_CACHE_KEY = "ALL_JOINABLE_EXPERIMENTS_CACHE_KEY";
+  private static final String MY_JOINABLE_EXPERIMENTS_CACHE_KEY = "MY_JOINABLE_EXPERIMENTS_CACHE_KEY";
+
 
   private static ExperimentCacheHelper instance;
 
@@ -51,20 +54,6 @@ public class ExperimentCacheHelper {
     }
   }
 
-  public String getExperimentsJsonForUser(String userId) {
-    String experimentsJson = null;
-    if (cache != null) {
-      experimentsJson = (String) cache.get(userId + EXPERIMENT_CACHE_KEY);
-    }
-    return experimentsJson;
-  }
-
-  public void putExperimentJsonForUser(String userId, String experimentsJson) {
-    if (cache != null) {
-      cache.put(userId + EXPERIMENT_CACHE_KEY, experimentsJson);
-    }
-  }
-
   /**
    * NOTE: About to be deprecated by getMyJoinableExperiments (below).
    *
@@ -79,7 +68,7 @@ public class ExperimentCacheHelper {
    * @return List of experiments that satisfy the criteria.
    */
   public List<ExperimentDAO> getJoinableExperiments(String loggedInEmail, DateTimeZone dateTimeZone) {
-    String experimentCacheKey = EXPERIMENT_CACHE_KEY;
+    String experimentCacheKey = loggedInEmail + "_" + ALL_JOINABLE_EXPERIMENTS_CACHE_KEY;
 
     List<ExperimentDAO> experimentDAOs = getCachedExperimentsByKey(experimentCacheKey);
     if (experimentDAOs != null) {
@@ -103,17 +92,7 @@ public class ExperimentCacheHelper {
    * @return List of experiments that satisfy the criteria.
    */
   public List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
-//    TODO Cache a specific experimentIdGroup for a specific user. Or not.
-
-//    List<ExperimentDAO> experimentDAOs = getCachedExperimentsByKey(experimentCacheKey);
-//    if (experimentDAOs != null) {
-//      return experimentDAOs;
-//    }
-
-    List<ExperimentDAO> experimentDAOs = experimentRetriever.getExperimentsById(experimentIds, email, timezone);
-
-    //    cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
-    return experimentDAOs;
+    return experimentRetriever.getExperimentsById(experimentIds, email, timezone);
   }
 
   /**
@@ -127,7 +106,16 @@ public class ExperimentCacheHelper {
    * @return List of experiments that satisfy the criteria.
    */
   public List<ExperimentDAO> getMyJoinableExperiments(String email, DateTimeZone dateTimeZone) {
-    return experimentRetriever.getMyJoinableExperiments(email, dateTimeZone);
+    String experimentCacheKey = email + "_" + MY_JOINABLE_EXPERIMENTS_CACHE_KEY;
+
+    List<ExperimentDAO> experimentDAOs = getCachedExperimentsByKey(experimentCacheKey);
+    if (experimentDAOs != null) {
+      return experimentDAOs;
+    }
+    experimentDAOs = experimentRetriever.getMyJoinableExperiments(email, dateTimeZone);;
+
+    cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
+    return experimentDAOs;
   }
 
   private void cacheExperimentsByKey(String experimentCacheKey, List<ExperimentDAO> experimentDAOs) {
