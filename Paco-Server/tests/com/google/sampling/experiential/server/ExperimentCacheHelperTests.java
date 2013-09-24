@@ -8,6 +8,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
 
 public class ExperimentCacheHelperTests extends TestCase {
 
@@ -20,11 +22,14 @@ public class ExperimentCacheHelperTests extends TestCase {
 
   @Test
   public void testExperimentIsOver() {
-
     DateTime today = new DateTime();
     DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
 
     ExperimentDAO experiment = new ExperimentDAO();
+    SignalScheduleDAO signalSchedule = new SignalScheduleDAO();
+    signalSchedule.setScheduleType(SignalScheduleDAO.ESM);
+
+    experiment.setSignalingMechanisms(new SignalingMechanismDAO[] {signalSchedule});
     experiment.setFixedDuration(true);
     experiment.setStartDate(today.minusDays(2).toString(formatter));
 
