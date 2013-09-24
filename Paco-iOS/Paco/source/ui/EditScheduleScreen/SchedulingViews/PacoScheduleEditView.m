@@ -32,7 +32,8 @@
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
-
+#import "PacoFont.h"
+#import "PacoClient.h"
 
 NSString *kCellIdRepeat = @"repeat";
 NSString *kCellIdSignalTimes = @"times";
@@ -63,6 +64,10 @@ NSString *kCellIdText = @"text";
 
     _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [_joinButton setTitle:@"Join" forState:UIControlStateNormal];
+    if (IS_IOS_7) {
+      _joinButton.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    }
+
     _tableView.footer = _joinButton;
     [_joinButton sizeToFit];
     

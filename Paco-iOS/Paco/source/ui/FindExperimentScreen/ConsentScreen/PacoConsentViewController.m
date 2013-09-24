@@ -21,6 +21,7 @@
 #import "PacoModel.h"
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoFont.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
@@ -62,6 +63,9 @@
 
   UIButton *accept = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [accept setTitle:@"I Consent" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    accept.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
   [accept addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:accept];
   [accept sizeToFit];

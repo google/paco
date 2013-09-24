@@ -41,6 +41,9 @@
 #define SERVER_DOMAIN_FLAG 0
 
 
+#define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+
+
 @interface PacoClient : NSObject
 
 @property (nonatomic, retain, readonly) PacoAuthenticator *authenticator;

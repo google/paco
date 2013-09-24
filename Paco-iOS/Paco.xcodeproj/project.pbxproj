@@ -88,8 +88,6 @@
 		36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9917568E29004CF035 /* current_experiments_normal.png */; };
 		36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */; };
 		36B8EBDB17568E29004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9B17568E29004CF035 /* InfoPlist.strings */; };
-		36B8EBDC17568E29004CF035 /* PacoViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9D17568E29004CF035 /* PacoViewController_iPad.xib */; };
-		36B8EBDD17568E29004CF035 /* PacoViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9F17568E29004CF035 /* PacoViewController_iPhone.xib */; };
 		36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA117568E29004CF035 /* experiment_disabled.png */; };
 		36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA217568E29004CF035 /* experiment_focused.png */; };
 		36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA317568E29004CF035 /* experiment_normal.png */; };
@@ -155,6 +153,7 @@
 		36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
 		36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D4249F17E64917003BCD61 /* PacoESMDateTests.m */; };
+		36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D8B54E17F153A100F7698E /* PacoClientTests.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -385,8 +384,6 @@
 		36B8EB9917568E29004CF035 /* current_experiments_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_normal.png; sourceTree = "<group>"; };
 		36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_pressed.png; sourceTree = "<group>"; };
 		36B8EB9C17568E29004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		36B8EB9E17568E29004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PacoViewController_iPad.xib; sourceTree = "<group>"; };
-		36B8EBA017568E29004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PacoViewController_iPhone.xib; sourceTree = "<group>"; };
 		36B8EBA117568E29004CF035 /* experiment_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_disabled.png; sourceTree = "<group>"; };
 		36B8EBA217568E29004CF035 /* experiment_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_focused.png; sourceTree = "<group>"; };
 		36B8EBA317568E29004CF035 /* experiment_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_normal.png; sourceTree = "<group>"; };
@@ -462,6 +459,7 @@
 		36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PacoTests-Info.plist"; sourceTree = "<group>"; };
 		36D4249E17E64917003BCD61 /* PacoESMDateTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMDateTests.h; sourceTree = "<group>"; };
 		36D4249F17E64917003BCD61 /* PacoESMDateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMDateTests.m; sourceTree = "<group>"; };
+		36D8B54E17F153A100F7698E /* PacoClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTests.m; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -926,8 +924,6 @@
 				36B8EB9917568E29004CF035 /* current_experiments_normal.png */,
 				36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */,
 				36B8EB9B17568E29004CF035 /* InfoPlist.strings */,
-				36B8EB9D17568E29004CF035 /* PacoViewController_iPad.xib */,
-				36B8EB9F17568E29004CF035 /* PacoViewController_iPhone.xib */,
 				36B8EBA117568E29004CF035 /* experiment_disabled.png */,
 				36B8EBA217568E29004CF035 /* experiment_focused.png */,
 				36B8EBA317568E29004CF035 /* experiment_normal.png */,
@@ -1086,6 +1082,7 @@
 		36B8EC3517568E40004CF035 /* PacoTests */ = {
 			isa = PBXGroup;
 			children = (
+				36D8B54E17F153A100F7698E /* PacoClientTests.m */,
 				36AD6CE917C5977E00B93855 /* PacoEvaluatorTests.h */,
 				36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */,
 				36B8EC3617568E40004CF035 /* PacoTests.h */,
@@ -1285,8 +1282,6 @@
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDB17568E29004CF035 /* InfoPlist.strings in Resources */,
-				36B8EBDC17568E29004CF035 /* PacoViewController_iPad.xib in Resources */,
-				36B8EBDD17568E29004CF035 /* PacoViewController_iPhone.xib in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
@@ -1462,6 +1457,7 @@
 				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
 				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
+				36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1487,22 +1483,6 @@
 				36B8EB9C17568E29004CF035 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		36B8EB9D17568E29004CF035 /* PacoViewController_iPad.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				36B8EB9E17568E29004CF035 /* en */,
-			);
-			name = PacoViewController_iPad.xib;
-			sourceTree = "<group>";
-		};
-		36B8EB9F17568E29004CF035 /* PacoViewController_iPhone.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				36B8EBA017568E29004CF035 /* en */,
-			);
-			name = PacoViewController_iPhone.xib;
 			sourceTree = "<group>";
 		};
 		36B8EC3917568E40004CF035 /* InfoPlist.strings */ = {

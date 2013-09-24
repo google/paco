@@ -88,6 +88,9 @@
 
   UIButton *join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [join setTitle:@"Join Experiment" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    join.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:join];
   [join sizeToFit];
