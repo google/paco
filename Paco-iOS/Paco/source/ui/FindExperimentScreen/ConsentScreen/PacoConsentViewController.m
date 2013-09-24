@@ -49,7 +49,7 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   
-  self.view.backgroundColor = [PacoColor pacoLightBlue];
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
   label.text = self.experiment.informedConsentForm;

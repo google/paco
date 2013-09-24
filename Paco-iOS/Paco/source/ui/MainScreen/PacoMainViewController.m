@@ -48,7 +48,7 @@
 
   UIView *view = self.view;
   assert(view);
-  view.backgroundColor = [PacoColor pacoLightBlue];
+  view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   PacoMenuButton *buttonFind = [[PacoMenuButton alloc] init];
   buttonFind.text.text = @"Find My Experiments";

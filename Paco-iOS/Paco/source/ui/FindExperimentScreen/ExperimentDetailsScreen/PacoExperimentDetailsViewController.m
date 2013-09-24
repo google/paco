@@ -74,7 +74,7 @@
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
 
-  self.view.backgroundColor = [PacoColor pacoLightBlue];
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString *labelText = [NSString stringWithFormat:@"Experiment Name:\n\n     %@\n\nExperiment Description:\n\n\t     %@", self.experiment.title, self.experiment.experimentDescription];

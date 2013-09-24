@@ -59,7 +59,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperiment class]];
-  table.backgroundColor = [PacoColor pacoLightBlue];
+  table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
@@ -106,7 +106,7 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperiment class]]) {
     PacoExperiment *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoLightBlue];
+    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];

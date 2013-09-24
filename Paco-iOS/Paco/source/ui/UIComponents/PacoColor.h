@@ -18,7 +18,7 @@
 @interface PacoColor : NSObject
 
 + (UIColor *)pacoBlue;
-+ (UIColor *)pacoLightBlue;
++ (UIColor *)pacoBackgroundWhite;
 + (UIColor *)pacoDarkBlue;
 + (UIColor *)pacoBackgroundBlue;
 

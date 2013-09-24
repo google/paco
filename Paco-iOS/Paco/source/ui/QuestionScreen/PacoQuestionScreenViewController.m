@@ -81,7 +81,7 @@ NSString *kCellIdQuestion = @"question";
   table.delegate = self;
   table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
   [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
-  table.backgroundColor = [PacoColor pacoLightBlue];
+  table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   [self reloadTable];
 }
