@@ -269,7 +269,7 @@
     <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
     <string name="updated_paco_notification_content_title">Paco Update</string>
     <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
-    <string name="default_list_item"></string>
+    <string name="default_list_item">Please select an option</string>
     <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
     <string name="experiment_retrieval">Experiment Retrieval</string>
     <string name="dialog_dismiss">OK</string>
