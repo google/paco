@@ -30,7 +30,7 @@
 }
 
 + (UIFont *)pacoNavbarTitleFont {
-  return [UIFont fontWithName:@"Courier New" size:18];
+  return [UIFont fontWithName:@"HelveticaNeue-Medium" size:23];
 }
 
 @end
