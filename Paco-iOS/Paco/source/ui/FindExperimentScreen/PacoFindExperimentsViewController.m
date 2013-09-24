@@ -111,6 +111,7 @@
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
+    cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
