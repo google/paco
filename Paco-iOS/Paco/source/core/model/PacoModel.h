@@ -37,14 +37,7 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
-//YMZ:TODO: need refactoring
-//a. events should be removed from this method, since we store events to a different file
-//b. make a better method name
-//c. change method: - (BOOL)haveJoined
-- (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                 schedule:(PacoExperimentSchedule *)schedule
-                                   events:(NSArray *)events;
-
+- (BOOL)shouldTriggerNotificationSystem;
 
 - (NSArray *)joinedExperiments;
 
@@ -54,6 +47,24 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 
 + (PacoModel *)pacoModelFromFile;
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
+
+/* Operations on the model */
+
+/* adding/removing Experiment Definitions */
+- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
+- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
+
+/* adding/removing Experiment Instances */
+//YMZ:TODO: need refactoring
+//a. events should be removed from this method, since we store events to a different file
+//b. make a better method name
+//c. change method: - (BOOL)haveJoined
+- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition*)definition
+                                schedule:(PacoExperimentSchedule*)schedule
+                                  events:(NSArray*)events;
+- (void)addExperimentInstance:(PacoExperiment*)experiment;
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment;
+
 
 @end
 

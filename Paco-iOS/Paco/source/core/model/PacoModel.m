@@ -69,7 +69,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  // TODO TPE: temporary disabled this comment since it's quite verbose
+  // NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectDefinitions = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];
@@ -90,17 +91,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   [self updateExperimentDefinitions:definitions];
 }
 
-- (void)updateExperimentDefinitions:(NSArray*)definitions
-{
-  self.experimentDefinitions = definitions;
-}
-
-- (void)updateExperimentInstances:(NSMutableArray*)experiments
-{
-  self.experimentInstances = experiments;
-}
-
-
 - (void)applyInstanceJSON:(id)jsonObject {
   NSMutableArray *instances = [NSMutableArray array];
   if (jsonObject == nil) {
@@ -108,7 +98,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     return;
   }
   
-  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
+//  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectInstances = jsonObject;
   //NSMutableArray *experiments = [NSMutableArray array];
@@ -126,6 +116,18 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   }
   //self.experimentInstances = experiments;
   [self updateExperimentInstances:instances];
+}
+
+- (BOOL)shouldTriggerNotificationSystem {
+  if (0 == self.experimentInstances.count) {
+    return NO;
+  }
+  for (PacoExperiment* experiment in self.experimentInstances) {
+    if ([experiment shouldScheduleNotifications]) {
+      return YES;
+    }
+  }
+  return NO;
 }
 
 
@@ -167,20 +169,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return array;
 }
 
-- (PacoExperiment *)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                 schedule:(PacoExperimentSchedule *)schedule
-                                   events:(NSArray *)events {
-  PacoExperiment *instance = [[PacoExperiment alloc] init];
-  instance.schedule = schedule;
-  instance.definition = definition;
-  instance.events = events;
-  NSDate *nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  instance.instanceId = definition.experimentId;
-  instance.lastEventQueryTime = nowdate;
-  [self.experimentInstances addObject:instance];
-  return instance;
-}
-
 - (void)makeJSONObjectFromExperiments {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
@@ -193,10 +181,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 - (void)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
-    if (!experiment.jsonObject) {
-      id json = [experiment serializeToJSON];
-      experiment.jsonObject = json;
-    }
+    id json = [experiment serializeToJSON];
+    experiment.jsonObject = json;
     assert(experiment.jsonObject);
     [experiments addObject:experiment.jsonObject];
   }
@@ -224,7 +210,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   }
 
 
-  NSLog(@"WRItiNG DEFINITION JSON to FILE \n%@", json);
+//  NSLog(@"WRItiNG DEFINITION JSON to FILE \n%@", json);
 //  return [json writeToFile:fileName atomically:NO];
   return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
 }
@@ -248,7 +234,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     NSLog(@"ERROR serializing to JSON %@", jsonError);
   }
 
-  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
+//  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
   //return [json writeToFile:fileName atomically:NO];
   return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
 }
@@ -309,7 +295,8 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
     NSLog(@"Failed to load from %@", fileName);
   }
   [self applyDefinitionJSON:experiments];
-  NSLog(@"LOADED DEFINTION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
+  // TODO TPE: temporary disabled this comment since it's quite verbose
+  // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
   return experiments.count > 0;
 }
 
@@ -382,14 +369,55 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
   return NO;
 }
 
+#pragma mark Experiment Definition operations
+- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
+  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
+  [definitions insertObject:experimentDefinition atIndex:0];
+  
+  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+}
 
-#pragma mark delete an experiment
-- (void)deleteExperiment:(PacoExperiment*)experiment
-{
+- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
+  NSUInteger index = [self.experimentDefinitions indexOfObject:experimentDefinition];
+  NSAssert(index != NSNotFound, @"An experiment definition must be in model to be deleted!");
+  
+  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
+  [definitions removeObject:experimentDefinition];
+  
+  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+}
+
+- (void)updateExperimentDefinitions:(NSArray*)definitions {
+  self.experimentDefinitions = definitions;
+}
+
+#pragma mark Experiment Instance operations
+- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition *)definition
+                                schedule:(PacoExperimentSchedule *)schedule
+                                  events:(NSArray *)events {
+  PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.events = events;
+  NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
+  experimentInstance.instanceId = definition.experimentId;
+  experimentInstance.lastEventQueryTime = nowdate;
+  [self addExperimentInstance:experimentInstance];
+  return experimentInstance;
+}
+
+- (void)addExperimentInstance:(PacoExperiment*)experiment {
+  [self.experimentInstances addObject:experiment];
+}
+
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment {
   NSUInteger index = [self.experimentInstances indexOfObject:experiment];
   NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
   [self.experimentInstances removeObject:experiment];
 }
 
+- (void)updateExperimentInstances:(NSMutableArray*)experiments {
+  self.experimentInstances = experiments;
+}
 
 @end

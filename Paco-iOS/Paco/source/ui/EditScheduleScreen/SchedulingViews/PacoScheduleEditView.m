@@ -32,7 +32,8 @@
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
-
+#import "PacoFont.h"
+#import "PacoClient.h"
 
 NSString *kCellIdRepeat = @"repeat";
 NSString *kCellIdSignalTimes = @"times";
@@ -49,20 +50,24 @@ NSString *kCellIdText = @"text";
 @end
 
 @implementation PacoScheduleEditView
-
+@synthesize experiment = _experiment;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    [self setBackgroundColor:[PacoColor pacoLightBlue]];
+    [self setBackgroundColor:[PacoColor pacoBackgroundWhite]];
 
     _tableView = [[PacoTableView alloc] initWithFrame:CGRectZero];
     _tableView.delegate = self;
-    _tableView.backgroundColor = [PacoColor pacoLightBlue];
+    _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
     [self addSubview:_tableView];
 
     _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [_joinButton setTitle:@"Join" forState:UIControlStateNormal];
+    if (IS_IOS_7) {
+      _joinButton.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    }
+
     _tableView.footer = _joinButton;
     [_joinButton sizeToFit];
     
@@ -81,7 +86,6 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  //YMZ:TODO: need to check why auto synthesizer works in this case.
   _experiment = experiment;
   _tableView.data = [[self class] dataFromExperimentSchedule:_experiment.schedule];
   [self setNeedsLayout];
@@ -92,8 +96,8 @@ NSString *kCellIdText = @"text";
   
   CGRect frame = self.frame;
   _tableView.frame = frame;
-  _tableView.backgroundColor = [PacoColor pacoLightBlue];
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
 }
 
 + (NSArray *)dataFromExperimentSchedule:(PacoExperimentSchedule *)schedule {
@@ -131,6 +135,8 @@ NSString *kCellIdText = @"text";
     return [NSArray arrayWithObjects:
                 [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
                 nil];
+  case kPacoScheduleTypeTesting: // TPE special type only used for iOS Notification testing
+    return nil;
   }
   return nil;
 }
@@ -242,6 +248,10 @@ NSString *kCellIdText = @"text";
   case kPacoScheduleTypeAdvanced:
     // not implemented on the server.
     break;
+  case kPacoScheduleTypeTesting: {
+    // special type for testing Notification
+    }
+  break;
   }
 
 }
@@ -251,6 +261,10 @@ NSString *kCellIdText = @"text";
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
+    if (self.tableView.footer == nil) {
+      self.tableView.footer = self.joinButton;
+      [self.joinButton sizeToFit];
+    }
     [self setNeedsLayout];
   }
 }
@@ -308,6 +322,10 @@ NSLog(@"TODO: implement schedule editing hookups");
     break;
   case kPacoScheduleTypeAdvanced:
     // not implemented on the server.
+    break;
+  case kPacoScheduleTypeTesting: {
+    // special type for testing Notification
+    }
     break;
   }
 

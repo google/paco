@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		368F4D9017EA5DF800CFC2E4 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */; };
+		368F4D9417EA5E0400CFC2E4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368F4D9317EA5E0400CFC2E4 /* Foundation.framework */; };
 		D302C69D0EF044810090E714 /* TDPlistParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D36568A60EEF9FE900226554 /* TDPlistParser.m */; };
 		D30805BA155ECB1F0000BC60 /* PKPattern.m in Sources */ = {isa = PBXBuildFile; fileRef = D34BAF380FF9E18300D7773A /* PKPattern.m */; };
 		D30805BB155ECB220000BC60 /* RegexKitLite.m in Sources */ = {isa = PBXBuildFile; fileRef = D36C55FD0FD3617B00141CB7 /* RegexKitLite.m */; };
@@ -45,8 +47,6 @@
 		D30DA1A117284EFF00A1A3EC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A017284EFF00A1A3EC /* Cocoa.framework */; };
 		D30DA1A417284F9900A1A3EC /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C560B0FD363D500141CB7 /* libicucore.dylib */; };
 		D30DA1A517284FD800A1A3EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA19E17284EC100A1A3EC /* Foundation.framework */; };
-		D30DA1A8172850A400A1A3EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A7172850A400A1A3EC /* Foundation.framework */; };
-		D30DA1AA172850BB00A1A3EC /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A9172850BB00A1A3EC /* libicucore.dylib */; };
 		D30DA1AB172850EC00A1A3EC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A017284EFF00A1A3EC /* Cocoa.framework */; };
 		D30DA1AC172850F500A1A3EC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A017284EFF00A1A3EC /* Cocoa.framework */; };
 		D30DA1AE1728510100A1A3EC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D30DA1A017284EFF00A1A3EC /* Cocoa.framework */; };
@@ -1122,6 +1122,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
+		368F4D9317EA5E0400CFC2E4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		8DC2EF5B0486A6940098B216 /* ParseKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ParseKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D30226F8170202DD00594F16 /* PKSParserGenVisitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PKSParserGenVisitor.h; path = src/PKSParserGenVisitor.h; sourceTree = "<group>"; };
 		D30226F9170202DD00594F16 /* PKSParserGenVisitor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PKSParserGenVisitor.m; path = src/PKSParserGenVisitor.m; sourceTree = "<group>"; };
@@ -1977,8 +1979,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D30DA1AA172850BB00A1A3EC /* libicucore.dylib in Frameworks */,
-				D30DA1A8172850A400A1A3EC /* Foundation.framework in Frameworks */,
+				368F4D9417EA5E0400CFC2E4 /* Foundation.framework in Frameworks */,
+				368F4D9017EA5DF800CFC2E4 /* libicucore.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2003,6 +2005,8 @@
 		0867D691FE84028FC02AAC07 /* TODParseKit */ = {
 			isa = PBXGroup;
 			children = (
+				368F4D9317EA5E0400CFC2E4 /* Foundation.framework */,
+				368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */,
 				D34F538517421715008700F3 /* OCMock.xcodeproj */,
 				08FB77AEFE84172EC02AAC07 /* ParseKit */,
 				D3C7D8220A411F31005DD154 /* ParseKit Tests */,

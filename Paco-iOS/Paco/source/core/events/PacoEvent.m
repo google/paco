@@ -214,20 +214,16 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   return event;
 }
 
-+ (PacoEvent*)surveyEventForDefinition:(PacoExperimentDefinition*)definition
-                            withInputs:(NSArray*)visibleInputs {
-  NSAssert(visibleInputs != nil, @"visibleInputs should not be nil!");
-  
++ (PacoEvent*)genericEventForDefinition:(PacoExperimentDefinition*)definition
+                             withInputs:(NSArray*)inputs {
   PacoEvent *event = [PacoEvent pacoEventForIOS];
   event.who = [[PacoClient sharedInstance] userEmail];
   event.experimentId = definition.experimentId;
   event.experimentName = definition.title;
   event.experimentVersion = definition.experimentVersion;
-  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
   
   NSMutableArray *responses = [NSMutableArray array];
-  
-  for (PacoExperimentInput *input in visibleInputs) {
+  for (PacoExperimentInput *input in inputs) {
     NSMutableDictionary *response = [NSMutableDictionary dictionary];
     id payloadObject = [input payloadObject];
     if (payloadObject == nil) {
@@ -243,6 +239,41 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   event.responses = responses;
   return event;
 }
+
++ (PacoEvent*)selfReportEventForDefinition:(PacoExperimentDefinition*)definition
+                                withInputs:(NSArray*)inputs {
+  NSAssert(inputs != nil, @"inputs should not be nil!");
+  PacoEvent* event = [PacoEvent genericEventForDefinition:definition withInputs:inputs];
+  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+  event.scheduledTime = nil;
+  return event;
+}
+
+
++ (PacoEvent*)surveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
+                                     withInputs:(NSArray*)inputs
+                               andScheduledTime:(NSDate*)scheduledTime {
+  NSAssert(scheduledTime != nil, @"scheduledTime should not be nil!");
+  PacoEvent* event = [PacoEvent genericEventForDefinition:definition withInputs:inputs];
+  event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+  event.scheduledTime = scheduledTime;
+  return event;  
+}
+
+
++ (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                           withScheduledTime:(NSDate*)scheduledTime {
+  NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
+  PacoEvent *event = [PacoEvent pacoEventForIOS];
+  event.who = [[PacoClient sharedInstance] userEmail];
+  event.experimentId = definition.experimentId;
+  event.experimentName = definition.title;
+  event.experimentVersion = definition.experimentVersion;
+  event.responseTime = nil;
+  event.scheduledTime = scheduledTime;
+  return event;
+}
+
 
 
 @end

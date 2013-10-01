@@ -72,7 +72,7 @@ static const int kInvalidIndex = -1;
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    self.backgroundColor = [PacoColor pacoLightBlue];
+    self.backgroundColor = [PacoColor pacoBackgroundWhite];
   }
   return self;
 }

@@ -39,6 +39,7 @@ typedef enum {
   kPacoScheduleTypeESM = 4,
   kPacoScheduleTypeSelfReport = 5,
   kPacoScheduleTypeAdvanced = 6,
+  kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications  
 } PacoScheduleType;
 
 typedef enum {
@@ -67,8 +68,10 @@ typedef enum {
 @property (nonatomic, retain) NSArray *times;  // NSNumber<long >
 @property (nonatomic, assign) BOOL userEditable;
 @property (nonatomic, assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
+@property (nonatomic, assign) NSInteger timeout;
+@property (nonatomic, assign) NSInteger minimumBuffer;
 @property (nonatomic, retain) id jsonObject;
-@property (nonatomic, retain) NSArray *esmSchedule;  // NSArray<NSDate>
+@property (nonatomic, retain) NSArray *esmScheduleList;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
 - (NSString *)jsonString;
 

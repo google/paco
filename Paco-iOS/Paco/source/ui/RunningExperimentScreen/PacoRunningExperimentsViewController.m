@@ -22,7 +22,6 @@
 #import "PacoModel.h"
 #import "PacoService.h"
 #import "PacoTableView.h"
-#import "PacoTitleView.h"
 #import "PacoQuestionScreenViewController.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
@@ -41,7 +40,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Running Experiments"];
+    self.navigationItem.title = @"Running Experiments";
     self.navigationItem.hidesBackButton = NO;
 
   }
@@ -59,7 +58,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperiment class]];
-  table.backgroundColor = [PacoColor pacoLightBlue];
+  table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
@@ -106,10 +105,11 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperiment class]]) {
     PacoExperiment *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoLightBlue];
+    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+    cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
@@ -152,12 +152,14 @@
   }
   
   PacoQuestionScreenViewController *questions =
-      [[PacoQuestionScreenViewController alloc] initWithExperiment:self.selectedExperiment];
+      [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 
 - (void)stopExperiment {
-  [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
+  if (!ADD_TEST_DEFINITION) {
+    [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
+  }
   
   //delete the experiment from local cache and update UI
   [[PacoClient sharedInstance] deleteExperimentFromCache:self.selectedExperiment];

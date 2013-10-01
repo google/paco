@@ -26,9 +26,22 @@
 @class Reachability;
 @class PacoEventManager;
 
+/*
+ Set both ADD_TEST_DEFINITION and SKIP_LOG_IN to 1 
+ will run the test definition only, and is easier to test notification
+ **/
+//Load a test experiment definition for test
+#define ADD_TEST_DEFINITION 0
+//Skip log in flow so that you can focus on testing notification
+#define SKIP_LOG_IN 0
+
+
 //production server: 0
 //local server: 1
 #define SERVER_DOMAIN_FLAG 0
+
+
+#define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 
 
 @interface PacoClient : NSObject
@@ -67,4 +80,5 @@
 
 - (void)deleteExperimentFromCache:(PacoExperiment*)experiment;
 
+- (void)startLocationTimerIfNeeded;
 @end

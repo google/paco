@@ -85,21 +85,85 @@
     }];
 }
 
-- (void)loadAllExperimentsWithCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
-  // Setup our request.
-  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/experiments", [PacoClient sharedInstance].serverDomain]];
+- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
+  
+  NSURL *url = [NSURL URLWithString:
+                   [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
+  [NSMutableURLRequest requestWithURL:url
+                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                      timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
+  
+  [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
+    if (completionBlock) {
+      completionBlock(jsonData, error);
+    }
+  }];
+}
 
-  // Make the network call.
-  [self executePacoServiceCall:request
-             completionHandler:^(id jsonData, NSError *error) {
-      if (completionHandler) {
-        completionHandler(jsonData, error);
+
+- (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  [self sendGetHTTPRequestWithEndPoint:@"experiments" andBlock:completionBlock];
+}
+
+
+- (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:completionBlock];
+}
+
+- (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  NSAssert([idList count] > 0, @"idList should have more than one id inside!");
+  NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
+  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:completionBlock];
+}
+
+- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  [self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
+    if (error == nil) {
+      NSMutableArray* result = [NSMutableArray arrayWithCapacity:[definitionList count]];
+      for (NSDictionary* dict in definitionList) {
+        NSNumber* idNum = [dict objectForKey:@"id"];
+        NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
+        NSString* definitionId = [NSString stringWithFormat:@"%ld", [idNum longValue]];
+        [result addObject:definitionId];
       }
+      if (completionBlock) {
+        completionBlock(result, error);
+      }
+    } else {
+      if (completionBlock) {
+        completionBlock(nil, error);
+      }
+    }
+  }];
+}
+
+//YMZ:TODO: there should be a single endpoint for this API
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  [self loadMyDefinitionIDListWithBlock:^(NSArray* idList, NSError* error) {
+    if (error == nil) {
+      if (0 == [idList count]) {
+        if (completionBlock) {
+          completionBlock(idList, error);
+        }
+      } else {
+        [self loadFullDefinitionListWithIDs:idList andBlock:^(NSArray* fullList, NSError* error) {
+          if (error == nil) {
+            if (completionBlock) {
+              completionBlock(fullList, error);
+            } 
+          } else {
+            completionBlock(nil, error);
+          }
+        }];
+      }
+    } else {
+      if (completionBlock) {
+        completionBlock(nil, error);
+      }
+    }
   }];
 }
 

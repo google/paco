@@ -18,21 +18,25 @@
 
 @interface PacoExperimentDefinition : NSObject
 
-@property (nonatomic, retain) NSArray *admins;  // <NSString>
-@property (nonatomic, copy) NSString *creator;
-@property (nonatomic, assign) BOOL deleted;
+@property (nonatomic, copy) NSString *experimentId;
+@property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *experimentDescription;
+
+@property (nonatomic, copy) NSString *creator;
+@property (nonatomic, retain) NSArray *admins;  // <NSString>
+
+@property (nonatomic, assign) BOOL published;
+@property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
+
+
+@property (nonatomic, assign) BOOL deleted;
 @property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>
 @property (nonatomic, assign) BOOL fixedDuration;
-@property (nonatomic, copy) NSString *experimentId;
 @property (nonatomic, copy) NSString *informedConsentForm;
 @property (nonatomic, retain) NSArray *inputs;  // <PacoExperimentInput>
 @property (nonatomic, copy) NSString* modifyDate;
-@property (nonatomic, assign) BOOL published;
-@property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
 @property (nonatomic, assign) BOOL questionsChange;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;
-@property (nonatomic, copy) NSString *title;
 @property (nonatomic, assign) BOOL webReccommended;
 @property (nonatomic, retain) id jsonObject;
 @property (nonatomic, assign) int experimentVersion;
@@ -41,5 +45,9 @@
 
 //clear the old response objects
 - (void)clearInputs;
+
+//TEST debug code
++ (PacoExperimentDefinition *)testPacoExperimentDefinition;
++ (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId;
 
 @end

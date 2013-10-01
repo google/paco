@@ -18,5 +18,7 @@
 @class PacoExperimentDefinition;
 
 @interface PacoExperimentDetailsViewController : UIViewController
-@property (nonatomic, retain) PacoExperimentDefinition *experiment;
+
++(PacoExperimentDetailsViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment;
+
 @end

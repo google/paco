@@ -116,7 +116,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoLightBlue];
+    self.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.vertical = NO;
   }

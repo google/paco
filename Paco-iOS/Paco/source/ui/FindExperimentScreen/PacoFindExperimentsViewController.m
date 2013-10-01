@@ -20,7 +20,6 @@
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoFont.h"
 #import "PacoModel.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 
 
@@ -40,7 +39,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Find Experiments"];
+    self.navigationItem.title = @"Find My Experiments";
     self.navigationItem.hidesBackButton = NO;
   }
   return self;
@@ -57,7 +56,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
-  table.backgroundColor = [PacoColor pacoLightBlue];
+  table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
   if (!finishLoading) {
@@ -107,11 +106,12 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperimentDefinition class]]) {
     PacoExperimentDefinition *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoLightBlue];
+    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
+    cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
@@ -132,8 +132,8 @@
       // Must be loading...
       return;
     }
-    PacoExperimentDetailsViewController *details = [[PacoExperimentDetailsViewController alloc] init];
-    details.experiment = experiment;
+    PacoExperimentDetailsViewController *details =
+        [PacoExperimentDetailsViewController controllerWithExperiment:experiment];
     [self.navigationController pushViewController:details animated:YES];
   }
 }

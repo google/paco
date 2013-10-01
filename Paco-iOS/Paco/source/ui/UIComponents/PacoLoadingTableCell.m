@@ -63,7 +63,7 @@
 }
 
 - (void)layoutSubviews {
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
   _loadingTextLabel.textColor = [PacoColor pacoDarkBlue];
   _loadingTextLabel.font = [PacoFont pacoTableCellFont];
 

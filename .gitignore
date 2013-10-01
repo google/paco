@@ -29,4 +29,5 @@ Shared/reports
 Paco/libs/shared.jar
 Paco-Server/war/WEB-INF/lib/shared.jar
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcuserdata/*
+Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*

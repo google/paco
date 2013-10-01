@@ -34,7 +34,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoLightBlue];
+    self.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.valueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.valueLabel.text = @"Value";
     self.valueLabel.font = [PacoFont pacoTableCellFont];
@@ -45,7 +45,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
     self.slider.minimumValue = 1.0;
     self.slider.maximumValue = 30.0;
     self.slider.continuous = NO;
-    self.slider.backgroundColor = [PacoColor pacoLightBlue];
+    self.slider.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.slider.minimumTrackTintColor = [PacoColor pacoDarkBlue];
     self.slider.maximumTrackTintColor = [PacoColor pacoDarkBlue];
     self.slider.thumbTintColor = [PacoColor pacoDarkBlue];

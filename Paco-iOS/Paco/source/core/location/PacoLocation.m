@@ -16,6 +16,10 @@
 #import "PacoLocation.h"
 
 #import <CoreLocation/CoreLocation.h>
+#import "PacoDate.h"
+
+
+NSTimer* LocationTimer; //non-repeatable timer
 
 @interface PacoLocation () <CLLocationManagerDelegate>
 @property (nonatomic, copy, readwrite) CLLocation *location;
@@ -26,15 +30,79 @@
 @implementation PacoLocation
 
 
-- (id)init {
+- (id)initWithTimerInterval:(NSTimeInterval)interval {
   self = [super init];
   if (self) {
+    //NOTE: both NSTimer and CLLocationManager need to be initialized in the main thread to work correctly
+    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
+    //However, initializing CLLocationManager on the main thread will disable the backgrounding in 17-20 minutes
+    //after user quits Paco.
     self.manager = [[CLLocationManager alloc] init];
     self.manager.delegate = self;
-    self.numUpdates = 0;
-    [self.manager startUpdatingLocation];
+    // to save battery life make the accuracy very low
+    [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
+        
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSLog(@"***********  PacoLocation is allocated ***********");
+      NSLog(@"Timer starts working, interval:%f seconds, will fire at %@",
+            interval, [PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:interval]]);
+      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:interval
+                                                       target:self
+                                                     selector:@selector(LocationTimerHandler:)
+                                                     userInfo:nil
+                                                      repeats:NO];
+    });
   }
+  
   return self;
+}
+
+- (void)dealloc {
+  NSLog(@"***********  PacoLocation is deallocated, timer stops working! ***********");
+  [self removeTimerAndStopLocationService];
+}
+
+- (void)removeTimerAndStopLocationService {
+  NSLog(@"***********  PacoLocation: removeTimerAndStopLocationService ***********");
+  [LocationTimer invalidate];
+  LocationTimer = nil;
+  [self disableLocationService];
+}
+
+
+- (void)resetTimerInterval:(NSTimeInterval)newInterval {
+  [LocationTimer invalidate];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSLog(@"*********** Timer Updated, interval:%f seconds, will fire at %@ ***********",
+         newInterval,[PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:newInterval]]);
+    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:newInterval
+                                                     target:self
+                                                   selector:@selector(LocationTimerHandler:)
+                                                   userInfo:nil
+                                                    repeats:NO];
+  });
+}
+
+
+-(void)LocationTimerHandler:(NSTimer *) LocationTimer {
+  NSLog(@"Paco LocationTimer fired @ %@", [PacoDate pacoStringForDate:[LocationTimer fireDate]]);
+
+  // Notify our PacoClient that our timer fired
+  if ([self.delegate respondsToSelector:@selector(timerUpdated)]) {
+    [_delegate timerUpdated];
+  }
+}
+
+- (void)enableLocationService {
+  NSLog(@"Paco background Location Service got enabled");
+  [self.manager startUpdatingLocation];
+  [self.manager startMonitoringSignificantLocationChanges];
+}
+
+- (void)disableLocationService {
+  NSLog(@"Paco background Location Service got disabled");
+  [self.manager stopUpdatingLocation];
+  [self.manager stopMonitoringSignificantLocationChanges];
 }
 
 - (void)updateLocation {
@@ -44,35 +112,6 @@
 
 #pragma mark - CLLocationManagerDelegate
 
-
-
-/*
- *  locationManager:didUpdateToLocation:fromLocation:
- *  
- *  Discussion:
- *    Invoked when a new location is available. oldLocation may be nil if there is no previous location
- *    available.
- *
- *    This method is deprecated. If locationManager:didUpdateLocations: is
- *    implemented, this method will not be called.
- */
-- (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-           fromLocation:(CLLocation *)oldLocation {
-  //CLLocationCoordinate2D coord = newLocation.coordinate;
-  self.location = newLocation;
-  self.numUpdates = self.numUpdates + 1;
-  if (self.numUpdates > 3) {
-    [self.manager stopUpdatingLocation];
-    if ([self.delegate respondsToSelector:@selector(locationUpdated:)]) {
-      [_delegate locationUpdated:self.location];
-    }
-  }
-
-  
-}
-
-#if 0
 /*
  *  locationManager:didUpdateLocations:
  *
@@ -83,23 +122,68 @@
  *
  *    locations is an array of CLLocation objects in chronological order.
  */
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+  NSLog(@"[LocationManager] Low Energy didUpdateLocations");
+}
+
+
+/*
+ *  locationManager:didUpdateToLocation:fromLocation:
+ *
+ *  Discussion:
+ *    Invoked when a new location is available. oldLocation may be nil if there is no previous location
+ *    available.
+ *
+ *    This method is deprecated. If locationManager:didUpdateLocations: is
+ *    implemented, this method will not be called.
+ */
 - (void)locationManager:(CLLocationManager *)manager
-	 didUpdateLocations:(NSArray *)locations __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation {
+  
+  //CLLocationCoordinate2D coord = newLocation.coordinate;
+  NSLog(@"[LocationManager] Location updated!");
+  
+  self.location = newLocation;
+  self.numUpdates = self.numUpdates + 1;
+  if (self.numUpdates > 3) {
+// TODO TPE: temporary disabled since the logic for the location is going to change 
+//    [self.manager stopUpdatingLocation];
+    if ([self.delegate respondsToSelector:@selector(locationUpdated:)]) {
+      [_delegate locationUpdated:self.location];
+    }
+  }
+}
+
+/*
+ *  locationManager:didFailWithError:
+ *
+ *  Discussion:
+ *    Invoked when an error has occurred. Error types are defined in "CLError.h".
+ */
+- (void)locationManager:(CLLocationManager *)manager
+       didFailWithError:(NSError *)error {
+  NSLog(@"[LocationManager] Failed to update location, error:%@", [error description]);
+}
+
+
+
+#if 0
 
 /*
  *  locationManager:didUpdateHeading:
- *  
+ *
  *  Discussion:
  *    Invoked when a new heading is available.
  */
 - (void)locationManager:(CLLocationManager *)manager
-       didUpdateHeading:(CLHeading *)newHeading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
+didUpdateHeading:(CLHeading *)newHeading __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
 
 /*
  *  locationManagerShouldDisplayHeadingCalibration:
  *
  *  Discussion:
- *    Invoked when a new heading is available. Return YES to display heading calibration info. The display 
+ *    Invoked when a new heading is available. Return YES to display heading calibration info. The display
  *    will remain until heading is calibrated, unless dismissed early via dismissHeadingCalibrationDisplay.
  */
 - (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager  __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_3_0);
@@ -112,7 +196,7 @@
  *    CLLocationManager instance with a non-nil delegate that implements this method.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didEnterRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+didEnterRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*
  *  locationManager:didExitRegion:
@@ -122,30 +206,21 @@
  *    CLLocationManager instance with a non-nil delegate that implements this method.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didExitRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
-
-/*
- *  locationManager:didFailWithError:
- *  
- *  Discussion:
- *    Invoked when an error has occurred. Error types are defined in "CLError.h".
- */
-- (void)locationManager:(CLLocationManager *)manager
-	didFailWithError:(NSError *)error;
+didExitRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*
  *  locationManager:monitoringDidFailForRegion:withError:
- *  
+ *
  *  Discussion:
  *    Invoked when a region monitoring error has occurred. Error types are defined in "CLError.h".
  */
 - (void)locationManager:(CLLocationManager *)manager
-	monitoringDidFailForRegion:(CLRegion *)region
-	withError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
+monitoringDidFailForRegion:(CLRegion *)region
+withError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_10_7,__IPHONE_4_0);
 
 /*
  *  locationManager:didChangeAuthorizationStatus:
- *  
+ *
  *  Discussion:
  *    Invoked when the authorization status changes for this application.
  */
@@ -153,12 +228,12 @@
 
 /*
  *  locationManager:didStartMonitoringForRegion:
- *  
+ *
  *  Discussion:
  *    Invoked when a monitoring for a region started successfully.
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didStartMonitoringForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_TBD,__IPHONE_5_0);
+didStartMonitoringForRegion:(CLRegion *)region __OSX_AVAILABLE_STARTING(__MAC_TBD,__IPHONE_5_0);
 
 /*
  *  Discussion:
@@ -187,7 +262,7 @@
  *    criteria are met (see CLError).
  */
 - (void)locationManager:(CLLocationManager *)manager
-	didFinishDeferredUpdatesWithError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
+didFinishDeferredUpdatesWithError:(NSError *)error __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0);
 #endif
 
 @end
