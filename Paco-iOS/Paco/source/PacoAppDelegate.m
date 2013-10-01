@@ -170,10 +170,6 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillEnterForeground  ==========");
-
-  if ([PacoClient sharedInstance].location != nil) {
-    [[PacoClient sharedInstance].location disableLocationService];
-  }
 }
 
 @end

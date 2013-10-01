@@ -169,9 +169,10 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   if ([self.model shouldTriggerNotificationSystem]) {
     NSAssert(newInterval > 0, @"newInterval should be larger than 0!");
     if (self.location == nil) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
         self.location = [[PacoLocation alloc] initWithTimerInterval:newInterval];
         self.location.delegate = self;
+        [self.location enableLocationService];
       });
     } else {
       [self.location resetTimerInterval:newInterval];

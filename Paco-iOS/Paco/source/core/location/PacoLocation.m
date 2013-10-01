@@ -96,11 +96,13 @@ NSTimer* LocationTimer; //non-repeatable timer
 - (void)enableLocationService {
   NSLog(@"Paco background Location Service got enabled");
   [self.manager startUpdatingLocation];
+  [self.manager startMonitoringSignificantLocationChanges];
 }
 
 - (void)disableLocationService {
   NSLog(@"Paco background Location Service got disabled");
   [self.manager stopUpdatingLocation];
+  [self.manager stopMonitoringSignificantLocationChanges];
 }
 
 - (void)updateLocation {
@@ -109,6 +111,21 @@ NSTimer* LocationTimer; //non-repeatable timer
 }
 
 #pragma mark - CLLocationManagerDelegate
+
+/*
+ *  locationManager:didUpdateLocations:
+ *
+ *  Discussion:
+ *    Invoked when new locations are available.  Required for delivery of
+ *    deferred locations.  If implemented, updates will
+ *    not be delivered to locationManager:didUpdateToLocation:fromLocation:
+ *
+ *    locations is an array of CLLocation objects in chronological order.
+ */
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+  NSLog(@"[LocationManager] Low Energy didUpdateLocations");
+}
+
 
 /*
  *  locationManager:didUpdateToLocation:fromLocation:
@@ -149,21 +166,9 @@ NSTimer* LocationTimer; //non-repeatable timer
   NSLog(@"[LocationManager] Failed to update location, error:%@", [error description]);
 }
 
+
+
 #if 0
-/*
- *  locationManager:didUpdateLocations:
- *
- *  Discussion:
- *    Invoked when new locations are available.  Required for delivery of
- *    deferred locations.  If implemented, updates will
- *    not be delivered to locationManager:didUpdateToLocation:fromLocation:
- *
- *    locations is an array of CLLocation objects in chronological order.
- */
-- (void)locationManager:(CLLocationManager *)manager
-didUpdateLocations:(NSArray *)locations __OSX_AVAILABLE_STARTING(__MAC_NA,__IPHONE_6_0) {
-  NSLog(@"[LocationManager] Low Energy didUpdateLocations");
-}
 
 /*
  *  locationManager:didUpdateHeading:
