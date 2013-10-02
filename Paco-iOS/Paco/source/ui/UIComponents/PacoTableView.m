@@ -57,7 +57,7 @@
     _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     _tableView.dataSource = self;
     _tableView.delegate = self;
-    _tableView.backgroundColor = [PacoColor pacoLightBlue];
+    _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self addSubview:_tableView];
     
@@ -200,7 +200,7 @@
 }
 
 - (void)layoutSubviews {
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
   CGRect headerFrame = self.header ? self.header.frame : CGRectZero;
   CGRect footerFrame = self.footer ? self.footer.frame : CGRectZero;
   CGFloat yStart = 0;
@@ -316,7 +316,7 @@
     pacoCell.tableDelegate = self.delegate;
     pacoCell.rowData = rowData;
     pacoCell.reuseId = reuseId;
-    pacoCell.backgroundColor = [PacoColor pacoLightBlue];
+    pacoCell.backgroundColor = [PacoColor pacoBackgroundWhite];
     pacoCell.textLabel.font = [PacoFont pacoTableCellFont];
     pacoCell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
   }

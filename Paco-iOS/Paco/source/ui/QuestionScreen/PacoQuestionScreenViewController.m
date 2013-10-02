@@ -22,7 +22,6 @@
 #import "PacoQuestionView.h"
 #import "PacoService.h"
 #import "PacoTableView.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
@@ -30,12 +29,14 @@
 #import "PacoEvent.h"
 #import "PacoEventManager.h"
 #import "PacoInputEvaluator.h"
+#import "PacoScheduler.h"
 
 NSString *kCellIdQuestion = @"question";
 
 @interface PacoQuestionScreenViewController () <PacoTableViewDelegate>
 
 @property(nonatomic, strong) PacoInputEvaluator* evaluator;
+@property(nonatomic, strong) UILocalNotification* notification;
 
 @end
 
@@ -43,10 +44,11 @@ NSString *kCellIdQuestion = @"question";
 
 - (id)initWithNibName:(NSString *)nibNameOrNil
                bundle:(NSBundle *)nibBundleOrNil
-        andExperiment:(PacoExperiment*)experiment {
+           experiment:(PacoExperiment*)experiment
+      andNotification:(UILocalNotification*)notification{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Participate!"];
+    self.navigationItem.title = @"Participate!";
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
     [[UIBarButtonItem alloc] initWithTitle:@"Submit"
@@ -54,14 +56,22 @@ NSString *kCellIdQuestion = @"question";
                                     target:self
                                     action:@selector(onDone)];
     _evaluator = [PacoInputEvaluator evaluatorWithExperiment:experiment];
+    _notification = notification;
   }
   return self;
 }
 
-- (id)initWithExperiment:(PacoExperiment*)experiment {
-  return [self initWithNibName:nil bundle:nil andExperiment:experiment];
++ (id)controllerWithExperiment:(PacoExperiment*)experiment {
+  return [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:nil];
 }
 
++ (id)controllerWithExperiment:(PacoExperiment*)experiment
+               andNotification:(UILocalNotification*)notification{
+  return [[PacoQuestionScreenViewController alloc] initWithNibName:nil
+                                                            bundle:nil
+                                                        experiment:experiment
+                                                   andNotification:notification];
+}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -70,7 +80,7 @@ NSString *kCellIdQuestion = @"question";
   table.delegate = self;
   table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
   [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
-  table.backgroundColor = [PacoColor pacoLightBlue];
+  table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   [self reloadTable];
 }
@@ -86,9 +96,24 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  [[PacoClient sharedInstance].eventManager
-      saveSurveyEventWithDefinition:self.evaluator.experiment.definition
-                          andInputs:self.evaluator.visibleInputs];
+  if (!ADD_TEST_DEFINITION) {
+    if (self.notification) {
+      NSDate* scheduledDate = [self.notification.userInfo objectForKey:@"experimentFireDate"];
+      [[PacoClient sharedInstance].eventManager
+          saveSurveySubmittedEventForDefinition:self.evaluator.experiment.definition
+                                     withInputs:self.evaluator.visibleInputs
+                               andScheduledTime:scheduledDate];
+    } else {
+      [[PacoClient sharedInstance].eventManager
+          saveSelfReportEventWithDefinition:self.evaluator.experiment.definition
+                                  andInputs:self.evaluator.visibleInputs];
+    }   
+  }
+  
+  if (self.notification) {
+    [[PacoClient sharedInstance].scheduler handleNotification:self.notification
+                                                  experiments:[[PacoClient sharedInstance].model experimentInstances]];
+  }
 
   //clear all inputs' submitted responseObject for the definition 
   [self.evaluator.experiment.definition clearInputs];

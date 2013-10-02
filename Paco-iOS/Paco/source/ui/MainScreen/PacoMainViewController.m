@@ -32,7 +32,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-      PacoTitleView *title = [[PacoTitleView alloc] initIconAndText:@"Paco"];
+      PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
       self.navigationItem.titleView = title;
     }
     return self;
@@ -40,13 +40,18 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+  
+  //fix the layout of menu buttons on iOS7
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
 
   UIView *view = self.view;
   assert(view);
-  view.backgroundColor = [PacoColor pacoLightBlue];
+  view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   PacoMenuButton *buttonFind = [[PacoMenuButton alloc] init];
-  buttonFind.text.text = @"Find Experiments";
+  buttonFind.text.text = @"Find My Experiments";
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_normal.png"] forState:UIControlStateNormal];
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_pressed.png"] forState:UIControlStateHighlighted];
   [buttonFind.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_disabled.png"] forState:UIControlStateDisabled];
@@ -94,7 +99,7 @@
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
-  
+    
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
     NSString* title = @"Nice";
     NSString* message = @"You are logged in successfully!";

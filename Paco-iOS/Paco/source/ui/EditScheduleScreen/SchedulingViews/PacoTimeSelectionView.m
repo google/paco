@@ -165,7 +165,7 @@
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
     [button setTitle:@"Enter a time" forState:UIControlStateNormal];
     [self addSubview:button];
-    self.timePickers = [NSArray arrayWithObject:button];
+    self.timePickers = [NSMutableArray arrayWithObject:button];
     [self setNeedsLayout];
     return;
   }
@@ -223,7 +223,7 @@
 - (void)layoutSubviews {
   [super layoutSubviews];
 
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   CGRect labelFrame = [PacoLayout centerRect:self.label.frame.size inRect:CGRectMake(0, 10, self.frame.size.width, self.label.frame.size.height)];
   self.label.frame = labelFrame;

@@ -19,12 +19,11 @@
 #import "PacoFont.h"
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoClient.h"
 
 @interface PacoExperimentDetailsViewController ()
-
+@property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
 @implementation PacoExperimentDetailsViewController
@@ -41,18 +40,12 @@
   return converted;
 }
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-  if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Details"];
-  }
-  return self;
-}
-
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  PacoTitleView *titleView = (PacoTitleView *)self.navigationItem.titleView;
-  titleView.title.text = experiment.title;
++(PacoExperimentDetailsViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
+  PacoExperimentDetailsViewController* controller =
+      [[PacoExperimentDetailsViewController alloc] initWithNibName:nil bundle:nil];
+  controller.experiment = experiment;
+  controller.navigationItem.title = experiment.title;
+  return controller;
 }
 
 - (NSString *)jsonStringFromObj:(id)jsonObject {
@@ -70,7 +63,11 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
 
-  self.view.backgroundColor = [PacoColor pacoLightBlue];
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
+
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString *labelText = [NSString stringWithFormat:@"Experiment Name:\n\n     %@\n\nExperiment Description:\n\n\t     %@", self.experiment.title, self.experiment.experimentDescription];
@@ -91,6 +88,9 @@
 
   UIButton *join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [join setTitle:@"Join Experiment" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    join.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:join];
   [join sizeToFit];
@@ -109,8 +109,8 @@
     return;
   }
   
-  PacoConsentViewController *consent = [[PacoConsentViewController alloc] init];
-  consent.experiment = self.experiment;
+  PacoConsentViewController *consent =
+      [PacoConsentViewController controllerWithExperiment:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
 }
 

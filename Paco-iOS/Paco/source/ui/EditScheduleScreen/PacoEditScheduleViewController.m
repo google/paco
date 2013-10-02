@@ -21,7 +21,6 @@
 #import "PacoScheduler.h"
 #import "PacoService.h"
 #import "PacoTableView.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
@@ -40,7 +39,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Scheduling"];
+    self.navigationItem.title = @"Scheduling";
     self.navigationItem.hidesBackButton = NO;
   }
   return self;
@@ -62,8 +61,10 @@
 }
 
 - (void)onJoin {
-  [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
-                                                           withSchedule:nil];
+  if (!ADD_TEST_DEFINITION) {
+    [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
+                                                             withSchedule:nil];
+  }
   
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [[PacoClient sharedInstance].model
@@ -72,8 +73,9 @@
                                 events:nil]; //TODO: events will be removed from this method
   
   //start scheduling notifications for this joined experiment
-  [[PacoClient sharedInstance].scheduler registerScheduleWithOS:experiment];
+  [[PacoClient sharedInstance].scheduler startSchedulingForExperimentIfNeeded:experiment];
   
+
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";
   [[[UIAlertView alloc] initWithTitle:title

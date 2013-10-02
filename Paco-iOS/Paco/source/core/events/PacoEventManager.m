@@ -280,11 +280,29 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   [self saveEvent:event];
 }
 
-- (void)saveSurveyEventWithDefinition:(PacoExperimentDefinition*)definition
-                            andInputs:(NSArray*)visibleInputs {
-  PacoEvent* surveyEvent = [PacoEvent surveyEventForDefinition:definition
-                                                    withInputs:visibleInputs];
+- (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
+                                andInputs:(NSArray*)visibleInputs {
+  PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
+                                                        withInputs:visibleInputs];
   [self saveEvent:surveyEvent];
+}
+
+
+- (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
+                                   withInputs:(NSArray*)inputs
+                             andScheduledTime:(NSDate*)scheduledTime {
+  PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
+                                                             withInputs:inputs
+                                                       andScheduledTime:scheduledTime];
+  [self saveEvent:surveyEvent];
+}
+
+
+- (void)saveSurveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                         withScheduledTime:(NSDate*)scheduledTime {
+  PacoEvent* surveyEvent = [PacoEvent surveyMissedEventForDefinition:definition
+                                                   withScheduledTime:scheduledTime];
+  [self saveEvent:surveyEvent];  
 }
 
 - (void)saveDataToFile {

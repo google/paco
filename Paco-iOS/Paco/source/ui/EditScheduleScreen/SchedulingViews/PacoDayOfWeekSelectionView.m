@@ -27,7 +27,7 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoLightBlue];
+    self.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.optionLabels = [NSArray arrayWithObjects:@"S", @"M", @"T", @"W", @"T", @"F", @"S", nil];
   }
@@ -52,7 +52,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
 }
 
 @end

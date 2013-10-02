@@ -21,5 +21,6 @@
 + (UIFont *)pacoTableCellDetailFont;
 + (UIFont *)pacoMenuButtonFont;
 + (UIFont *)pacoNavbarTitleFont;
++ (UIFont *)pacoNormalButtonFont;
 
 @end

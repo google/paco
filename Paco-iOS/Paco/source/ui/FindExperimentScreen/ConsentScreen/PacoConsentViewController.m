@@ -20,36 +20,30 @@
 #import "PacoEditScheduleViewController.h"
 #import "PacoModel.h"
 #import "PacoService.h"
-#import "PacoTitleView.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoFont.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
-
+@property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
 @implementation PacoConsentViewController
 @synthesize experiment = _experiment;
 
-
-- (id)initWithNibName:(NSString *)nibNameOrNil
-               bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-    self.navigationItem.titleView = [[PacoTitleView alloc] initText:@"Consent"];
-      self.navigationItem.hidesBackButton = NO;
-    }
-    return self;
++ (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
+  PacoConsentViewController* controller =
+      [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
+  controller.experiment = experiment;
+  controller.navigationItem.title = experiment.title;
+  controller.navigationItem.hidesBackButton = NO;
+  return controller;
 }
 
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  self.title = experiment.title;
-}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   
-  self.view.backgroundColor = [PacoColor pacoLightBlue];
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
   label.text = self.experiment.informedConsentForm;
@@ -69,6 +63,9 @@
 
   UIButton *accept = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [accept setTitle:@"I Consent" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    accept.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
   [accept addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:accept];
   [accept sizeToFit];

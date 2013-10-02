@@ -17,29 +17,43 @@
 
 #import "PacoModel.h"
 
+
+extern NSString* const kExperimentHasFiredKey;
+
 @class PacoExperiment;
+
+@protocol PacoSchedulerDelegate
+@required
+- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
+               experimentFireDate:(NSDate*)scheduledTime;
+
+- (void)updateTimerInterval:(NSTimeInterval)newInterval;
+
+@end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
 // experiment schedule is used to decide when to fire local notifications.  The
 // local notification system can have at most 64 scheduled notifications per
 // app. This means that there is a limit in how many experiments can be
 // scheduled at once.
-//
-// The scheduler will create 3 local notifications for the experiment.  Each
-// time the user opens the app with one of the notifications then the event
-// is re-scheduled.  If the user fails to open 3 notifications in a row then
-// the event will not be rescheduled until the next time they open the app.
 @interface PacoScheduler : NSObject
 
-// Creates 3 UILocalNotifications per experiment.
-- (void)registerScheduleWithOS:(PacoExperiment *)experiment;
-- (void)registerSchedulesWithOS:(NSArray *)experiments;
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate;
 
-// Call from your app delegate to handle the local notification that the app
-// was opened with.
-- (void)handleLocalNotification:(UILocalNotification *)notification;
+- (void)handleNotification:(UILocalNotification *)notification
+               experiments:(NSArray*) experiments;
 
-// Cancel all scheduled notifications for this experiment.
-- (void)cancelNotificationsForExperimentId:(NSString *)experimentId;
+// call this when joining an experiment
+-(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
+
+// call this when leaving an experiment
+- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
+
+// see which Notifications have expired, and schedule new ones
+-(void)update:(NSArray *)experiments;
+
+// call this when the application goes to InActive to make sure
+// we can persist the notifications state
+- (BOOL)saveNotificationsToFile;
 
 @end

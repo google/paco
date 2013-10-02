@@ -33,7 +33,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoLightBlue];
+  self.backgroundColor = [PacoColor pacoBackgroundWhite];
 }
 
 @end

@@ -18,5 +18,7 @@
 @class PacoExperimentDefinition;
 
 @interface PacoConsentViewController : UIViewController
-@property (nonatomic, retain) PacoExperimentDefinition *experiment;
+
++ (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment;
+
 @end

@@ -21,11 +21,15 @@
 #import "PacoScheduler.h"
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoExperiment.h"
 #import "PacoEvent.h"
 #import "Reachability.h"
 #import "PacoEventManager.h"
 #import "PacoAppDelegate.h"
 #import "NSError+Paco.h"
+#import "PacoDate.h"
+
+static NSTimeInterval kInitialTimerInterval = 5.0;
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -59,20 +63,16 @@
   self.finishLoadingExperiments = NO;
   self.errorLoadingExperiments = nil;
 }
-
 @end
-
-
-
 
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
 - (NSError*)loadExperimentInstancesFromFile;
 - (void)applyDefinitionJSON:(id)jsonObject;
-- (void)deleteExperiment:(PacoExperiment*)experiment;
+- (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
-@interface PacoClient ()
+@interface PacoClient () <PacoLocationDelegate, PacoSchedulerDelegate>
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
 @property (nonatomic, retain, readwrite) PacoLocation *location;
 @property (nonatomic, retain, readwrite) PacoModel *model;
@@ -82,8 +82,6 @@
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
-
-- (void)prefetch;
 @end
 
 @implementation PacoClient
@@ -102,7 +100,7 @@
   if (self) {
     self.authenticator = [[PacoAuthenticator alloc] init];
     self.location = nil;//[[PacoLocation alloc] init];
-    self.scheduler = [[PacoScheduler alloc] init];
+    self.scheduler = [PacoScheduler schedulerWithDelegate:self];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
     // Start the notifier, which will cause the reachability object to retain itself!
@@ -128,8 +126,7 @@
 }
 
 #pragma mark Public methods
-- (BOOL)isLoggedIn
-{
+- (BOOL)isLoggedIn {
   return [self.authenticator isLoggedIn];
 }
 
@@ -150,10 +147,55 @@
   [self showLoginScreenWithCompletionBlock:nil];
 }
 
+#pragma mark PacoLocationDelegate
+- (void)timerUpdated {
+  [self.scheduler update:self.model.experimentInstances];
+}
+
+
+#pragma mark PacoSchedulerDelegate
+- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
+               experimentFireDate:(NSDate*)scheduledTime {
+  if (!ADD_TEST_DEFINITION) {
+    NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
+          experimentInstanceId, [PacoDate pacoStringForDate:scheduledTime]);
+    PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
+    NSAssert(definition != nil, @"definition should not be nil!");
+    [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
+  }
+}
+
+- (void)updateTimerInterval:(NSTimeInterval)newInterval {
+  if ([self.model shouldTriggerNotificationSystem]) {
+    NSAssert(newInterval > 0, @"newInterval should be larger than 0!");
+    if (self.location == nil) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        self.location = [[PacoLocation alloc] initWithTimerInterval:newInterval];
+        self.location.delegate = self;
+        [self.location enableLocationService];
+      });
+    } else {
+      [self.location resetTimerInterval:newInterval];
+    }
+  } else {
+    if (self.location != nil) {
+      NSAssert(newInterval == 0, @"newInterval should be 0!");
+      [self.location removeTimerAndStopLocationService];
+      self.location = nil;
+    }
+  }
+}
 
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
+  if (SKIP_LOG_IN) {
+    [self prefetchInBackgroundWithBlock:^{
+      [self startLocationTimerIfNeeded];
+    }];
+    return;
+  }
+  
   UINavigationController* navi = (UINavigationController*)
       ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
   if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
@@ -168,7 +210,9 @@
   self.service.authenticator = self.authenticator;
   
   // Fetch the experiment definitions and the events of joined experiments.
-  [self prefetch];
+  [self prefetchInBackgroundWithBlock:^{
+    [self startLocationTimerIfNeeded];
+  }];
   
   [self uploadPendingEventsInBackground];
 }
@@ -201,7 +245,9 @@
   //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
   //we will re-authenticate user
   if (!self.reachability.isReachable) {
-    [self prefetch];
+    [self prefetchInBackgroundWithBlock:^{
+      [self startLocationTimerIfNeeded];
+    }];
     if (block != nil) {
       block(nil);
     }
@@ -225,12 +271,22 @@
 
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
+  if (SKIP_LOG_IN) {
+    [self startWorkingAfterLogIn];
+    if (block != nil) {
+      block(nil);
+    }
+    return;
+  }
+  
+  
   if ([self isLoggedIn]) {
     if (block) {
       block(nil);
     }
     return;
   }
+
   
   if ([self.authenticator setupWithCookie]) {
     NSLog(@"Valid cookie detected, no need to log in!");
@@ -249,6 +305,9 @@
   }
 }
 
+- (void)startLocationTimerIfNeeded {
+  [self updateTimerInterval:kInitialTimerInterval];
+}
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -278,7 +337,11 @@
         // Authorize the service.
         self.service.authenticator = self.authenticator;
         // Fetch the experiment definitions and the events of joined experiments.
-        [self prefetch];
+        [self prefetchInBackgroundWithBlock:^{
+          // let's handle setting up the notifications after that thread completes
+          NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
+          [self startLocationTimerIfNeeded];
+        }];
         completionHandler(nil);
       } else {
         completionHandler(error);
@@ -318,39 +381,57 @@
 #pragma mark Private methods
 - (void)definitionsLoadedWithError:(NSError*)error
 {
+  if (ADD_TEST_DEFINITION) {
+    // for testing purposes let's load a sample experiment
+    //[self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
+    [self.model addExperimentDefinition:[PacoExperimentDefinition testDefinitionWithId:@"999999999"]];
+  }
   self.prefetchState.finishLoadingDefinitions = YES;
   self.prefetchState.errorLoadingDefinitions = error;
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
 }
 
+- (void)prefetchInBackgroundWithBlock:(void (^)(void))completionBlock {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if ([self.prefetchState succeedToLoadAll]) {
+      return;
+    }
 
-//TODO: ymz: need to send this to background
-- (void)prefetch {
-  if ([self.prefetchState succeedToLoadAll]) {
-    return;
-  }
-  // Load the experiment definitions.  
-  BOOL success = [self.model loadExperimentDefinitionsFromFile];
-  if (success) {
-    [self definitionsLoadedWithError:nil];
-    [self prefetchExperiments];
-    return;
-  }
-  
-  [self.service loadAllExperimentsWithCompletionHandler:^(NSArray *experiments, NSError *error) {
-    if (error) {
-      NSLog(@"Failed to prefetch definitions: %@", [error description]);
-      [self definitionsLoadedWithError:error];
+    [self.prefetchState reset];
+    // Load the experiment definitions.
+    
+    if (SKIP_LOG_IN) {
+      [self definitionsLoadedWithError:nil];
+      [self prefetchExperimentsWithBlock:completionBlock];
+      return;
+    }
+
+    // Load the experiment definitions.
+    BOOL success = [self.model loadExperimentDefinitionsFromFile];
+    if (success) {
+      [self definitionsLoadedWithError:nil];
+      [self prefetchExperimentsWithBlock:completionBlock];
       return;
     }
     
-    NSLog(@"Loaded %d experiments", [experiments count]);
-    // Convert the JSON response into an object model.
-    [self.model applyDefinitionJSON:experiments];
-    [self definitionsLoadedWithError:nil];
-    
-    [self prefetchExperiments];
-  }];
+    [self.service loadMyFullDefinitionListWithBlock:^(NSArray *experiments, NSError *error) {
+      if (error) {
+        NSLog(@"Failed to prefetch definitions: %@", [error description]);
+        [self definitionsLoadedWithError:error];
+        if (completionBlock) {
+          completionBlock();
+        }
+        return;
+      }
+      
+      NSLog(@"Loaded %d experiments", [experiments count]);
+      // Convert the JSON response into an object model.
+      [self.model applyDefinitionJSON:experiments];
+      [self definitionsLoadedWithError:nil];
+      
+      [self prefetchExperimentsWithBlock:completionBlock];
+    }];
+  });
 }
 
 
@@ -358,14 +439,17 @@
 {
   self.prefetchState.finishLoadingExperiments = YES;
   self.prefetchState.errorLoadingExperiments = error;
+  
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
 }
 
 
-- (void)prefetchExperiments
-{
+- (void)prefetchExperimentsWithBlock:(void (^)(void))completionBlock {
   NSError* error = [self.model loadExperimentInstancesFromFile];
   [self experimentsLoadedWithError:error];
+  if (completionBlock) {
+    completionBlock();
+  }
 }
 
 
@@ -373,9 +457,9 @@
 - (void)deleteExperimentFromCache:(PacoExperiment*)experiment
 {
   //remove experiment from local cache
-  [self.model deleteExperiment:experiment];
-  
-  //TODO: ymz: clear all scheduled notifications and anything else
+  [self.model deleteExperimentInstance:experiment];
+  //clear all scheduled notifications and notifications in the tray
+  [self.scheduler stopSchedulingForExperiment:experiment];
 }
 
 

@@ -19,6 +19,9 @@
 
 @interface PacoQuestionScreenViewController : UIViewController
 
-- (id)initWithExperiment:(PacoExperiment*)experiment;
++ (id)controllerWithExperiment:(PacoExperiment*)experiment;
+
++ (id)controllerWithExperiment:(PacoExperiment*)experiment
+               andNotification:(UILocalNotification*)notification;
 
 @end

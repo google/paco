@@ -19,7 +19,7 @@
 @property (nonatomic, readonly, retain) UIImageView *icon;
 @property (nonatomic, readonly, retain) UILabel *title;
 
-- (id)initIconAndText:(NSString *)text;
-- (id)initText:(NSString *)text;
++ (PacoTitleView*)viewWithText:(NSString*)text;
++ (PacoTitleView*)viewWithDefaultIconAndText:(NSString*)text;
 
 @end
