@@ -2,6 +2,7 @@
 #import "JCNotificationBannerPresenter_Private.h"
 #import "JCNotificationBannerView.h"
 #import "JCNotificationBannerViewController.h"
+#define IS_IOS7 [[UIDevice currentDevice].systemVersion hasPrefix:@"7"]
 
 @implementation JCNotificationBannerPresenterSmokeStyle
 
@@ -41,7 +42,10 @@
   // Center the banner horizontally.
   CGFloat x = (MAX(statusBarSize.width, statusBarSize.height) / 2) - (bannerSize.width / 2);
   // Position the banner offscreen vertically.
-  CGFloat y = -self.bannerHeight - (MIN(statusBarSize.width, statusBarSize.height));
+  CGFloat y = -self.bannerHeight;
+  if (!IS_IOS7) {
+    y -= (MIN(statusBarSize.width, statusBarSize.height));
+  }
   banner.frame = CGRectMake(x, y, bannerSize.width, bannerSize.height);
 
   JCNotificationBannerTapHandlingBlock originalTapHandler = banner.notificationBanner.tapHandler;
