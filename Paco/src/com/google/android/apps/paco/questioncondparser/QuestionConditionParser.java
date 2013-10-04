@@ -1,10 +1,9 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g 2012-04-02 16:32:36
+// $ANTLR 3.2 Sep 23, 2009 12:02:23 /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g 2013-10-04 00:23:42
 
 package com.google.android.apps.paco.questioncondparser;
 
 
 import org.antlr.runtime.*;
-import com.pacoapp.paco.R;
 import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class QuestionConditionParser extends Parser {
         
 
     public String[] getTokenNames() { return QuestionConditionParser.tokenNames; }
-    public String getGrammarFileName() { return "/Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g"; }
+    public String getGrammarFileName() { return "/Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g"; }
 
 
        Environment environment;
@@ -58,7 +57,7 @@ public class QuestionConditionParser extends Parser {
 
 
     // $ANTLR start "comparison"
-    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:17:1: comparison returns [boolean value] : ( question_part LT i= INTEGER | question_part GT i= INTEGER | question_part EQ i= INTEGER | question_part NE i= INTEGER | question_part 'contains' i= INTEGER );
+    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:17:1: comparison returns [boolean value] : ( question_part LT i= INTEGER | question_part GT i= INTEGER | question_part EQ i= INTEGER | question_part NE i= INTEGER | question_part 'contains' i= INTEGER );
     public final boolean comparison() throws RecognitionException {
         boolean value = false;
 
@@ -75,7 +74,7 @@ public class QuestionConditionParser extends Parser {
 
 
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:18:4: ( question_part LT i= INTEGER | question_part GT i= INTEGER | question_part EQ i= INTEGER | question_part NE i= INTEGER | question_part 'contains' i= INTEGER )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:18:4: ( question_part LT i= INTEGER | question_part GT i= INTEGER | question_part EQ i= INTEGER | question_part NE i= INTEGER | question_part 'contains' i= INTEGER )
             int alt1=5;
             int LA1_0 = input.LA(1);
 
@@ -122,7 +121,7 @@ public class QuestionConditionParser extends Parser {
             }
             switch (alt1) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:18:6: question_part LT i= INTEGER
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:18:6: question_part LT i= INTEGER
                     {
                     pushFollow(FOLLOW_question_part_in_comparison37);
                     question_part1=question_part();
@@ -136,7 +135,7 @@ public class QuestionConditionParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:19:6: question_part GT i= INTEGER
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:19:6: question_part GT i= INTEGER
                     {
                     pushFollow(FOLLOW_question_part_in_comparison52);
                     question_part2=question_part();
@@ -150,7 +149,7 @@ public class QuestionConditionParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:20:6: question_part EQ i= INTEGER
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:20:6: question_part EQ i= INTEGER
                     {
                     pushFollow(FOLLOW_question_part_in_comparison67);
                     question_part3=question_part();
@@ -165,17 +164,17 @@ public class QuestionConditionParser extends Parser {
                             } else {
                               Object obj = environment.getValue((question_part3!=null?input.toString(question_part3.start,question_part3.stop):null));
                               if (obj instanceof Integer) {
-                    	    value =  ((Integer)obj) == Integer.parseInt((i!=null?i.getText():null)); 
-                    	  } else if (obj instanceof List) {
-                    	    value = ((List)obj).contains(Integer.parseInt((i!=null?i.getText():null)));
-                       	  }
-                       	}
+                                value =  ((Integer)obj) == Integer.parseInt((i!=null?i.getText():null)); 
+                              } else if (obj instanceof List) {
+                                value = ((List)obj).contains(Integer.parseInt((i!=null?i.getText():null)));
+                              }
+                            }
                           
 
                     }
                     break;
                 case 4 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:32:6: question_part NE i= INTEGER
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:32:6: question_part NE i= INTEGER
                     {
                     pushFollow(FOLLOW_question_part_in_comparison82);
                     question_part4=question_part();
@@ -190,19 +189,19 @@ public class QuestionConditionParser extends Parser {
                             } else {
                               Object obj = environment.getValue((question_part4!=null?input.toString(question_part4.start,question_part4.stop):null));
                               if (obj instanceof Integer) {
-                    	    value = ((Integer)obj) != Integer.parseInt((i!=null?i.getText():null)); 
-                    	  } else if (obj instanceof List) {
-                    	    value = ((List)obj).contains(Integer.parseInt((i!=null?i.getText():null)));
-                       	  } else {
-                       	    value = false; //default case
-                       	  }
-                       	}
+                                value = ((Integer)obj) != Integer.parseInt((i!=null?i.getText():null)); 
+                              } else if (obj instanceof List) {
+                                value = !((List)obj).contains(Integer.parseInt((i!=null?i.getText():null)));
+                              } else {
+                                value = false; //default case
+                              }
+                            }
                          
 
                     }
                     break;
                 case 5 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:46:6: question_part 'contains' i= INTEGER
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:46:6: question_part 'contains' i= INTEGER
                     {
                     pushFollow(FOLLOW_question_part_in_comparison97);
                     question_part5=question_part();
@@ -212,16 +211,16 @@ public class QuestionConditionParser extends Parser {
                     match(input,20,FOLLOW_20_in_comparison99); 
                     i=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_comparison103); 
                      
-                       	if (environment.getValue((question_part5!=null?input.toString(question_part5.start,question_part5.stop):null)) == null) {
+                            if (environment.getValue((question_part5!=null?input.toString(question_part5.start,question_part5.stop):null)) == null) {
                               value = false;
                             } else {
                               Object obj = environment.getValue((question_part5!=null?input.toString(question_part5.start,question_part5.stop):null));
                               if (obj instanceof List) {        
-                       	    value = ((List)obj).contains(Integer.parseInt((i!=null?i.getText():null))); 
-                       	  } else {
-                       	    value = false; // default case
-                       	  }
-                       	}
+                                value = ((List)obj).contains(Integer.parseInt((i!=null?i.getText():null))); 
+                              } else {
+                                value = false; // default case
+                              }
+                            }
                           
 
                     }
@@ -241,7 +240,7 @@ public class QuestionConditionParser extends Parser {
 
 
     // $ANTLR start "expression"
-    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:60:1: expression returns [boolean value] : c= comparison ( OR c1= comparison | AND c1= comparison )* ;
+    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:60:1: expression returns [boolean value] : c= comparison ( OR c1= comparison | AND c1= comparison )* ;
     public final boolean expression() throws RecognitionException {
         boolean value = false;
 
@@ -251,8 +250,8 @@ public class QuestionConditionParser extends Parser {
 
 
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:61:4: (c= comparison ( OR c1= comparison | AND c1= comparison )* )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:61:8: c= comparison ( OR c1= comparison | AND c1= comparison )*
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:61:4: (c= comparison ( OR c1= comparison | AND c1= comparison )* )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:61:8: c= comparison ( OR c1= comparison | AND c1= comparison )*
             {
             pushFollow(FOLLOW_comparison_in_expression128);
             c=comparison();
@@ -260,7 +259,7 @@ public class QuestionConditionParser extends Parser {
             state._fsp--;
 
             value = c;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:62:4: ( OR c1= comparison | AND c1= comparison )*
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:62:4: ( OR c1= comparison | AND c1= comparison )*
             loop2:
             do {
                 int alt2=3;
@@ -276,7 +275,7 @@ public class QuestionConditionParser extends Parser {
 
                 switch (alt2) {
             	case 1 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:62:6: OR c1= comparison
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:62:6: OR c1= comparison
             	    {
             	    match(input,OR,FOLLOW_OR_in_expression137); 
             	    pushFollow(FOLLOW_comparison_in_expression141);
@@ -289,7 +288,7 @@ public class QuestionConditionParser extends Parser {
             	    }
             	    break;
             	case 2 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:63:6: AND c1= comparison
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:63:6: AND c1= comparison
             	    {
             	    match(input,AND,FOLLOW_AND_in_expression150); 
             	    pushFollow(FOLLOW_comparison_in_expression154);
@@ -325,7 +324,7 @@ public class QuestionConditionParser extends Parser {
     };
 
     // $ANTLR start "question_part"
-    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:67:1: question_part : QUESTION_NAME ;
+    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:67:1: question_part : QUESTION_NAME ;
     public final QuestionConditionParser.question_part_return question_part() throws RecognitionException {
         QuestionConditionParser.question_part_return retval = new QuestionConditionParser.question_part_return();
         retval.start = input.LT(1);
@@ -333,8 +332,8 @@ public class QuestionConditionParser extends Parser {
         Token QUESTION_NAME6=null;
 
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:68:1: ( QUESTION_NAME )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:68:2: QUESTION_NAME
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:68:1: ( QUESTION_NAME )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:68:2: QUESTION_NAME
             {
             QUESTION_NAME6=(Token)match(input,QUESTION_NAME,FOLLOW_QUESTION_NAME_in_question_part173); 
              if (!environment.exists((QUESTION_NAME6!=null?QUESTION_NAME6.getText():null))) {

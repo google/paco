@@ -37,7 +37,7 @@ comparison  returns [boolean value]
           if (obj instanceof Integer) {
             $value = ((Integer)obj) != Integer.parseInt($i.text); 
           } else if (obj instanceof List) {
-            $value = ((List)obj).contains(Integer.parseInt($i.text));
+            $value = !((List)obj).contains(Integer.parseInt($i.text));
           } else {
             $value = false; //default case
           }

@@ -1,10 +1,9 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g 2012-04-02 16:32:36
+// $ANTLR 3.2 Sep 23, 2009 12:02:23 /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g 2013-10-04 00:23:42
 
 package com.google.android.apps.paco.questioncondparser;
 
 
 import org.antlr.runtime.*;
-import com.pacoapp.paco.R;
 import java.util.Stack;
 import java.util.List;
 import java.util.ArrayList;
@@ -40,15 +39,15 @@ public class QuestionConditionLexer extends Lexer {
         super(input,state);
 
     }
-    public String getGrammarFileName() { return "/Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g"; }
+    public String getGrammarFileName() { return "/Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g"; }
 
     // $ANTLR start "T__20"
     public final void mT__20() throws RecognitionException {
         try {
             int _type = T__20;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:7:7: ( 'contains' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:7:9: 'contains'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:7:7: ( 'contains' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:7:9: 'contains'
             {
             match("contains"); 
 
@@ -68,8 +67,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = OR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:77:4: ( '||' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:77:6: '||'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:77:4: ( '||' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:77:6: '||'
             {
             match("||"); 
 
@@ -89,8 +88,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = AND;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:78:5: ( '&&' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:78:7: '&&'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:78:5: ( '&&' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:78:7: '&&'
             {
             match("&&"); 
 
@@ -110,8 +109,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = QUESTION_NAME;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:80:2: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:80:8: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:80:2: ( ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )* )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:80:8: ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
             {
             if ( (input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
@@ -122,7 +121,7 @@ public class QuestionConditionLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:80:32: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:80:32: ( 'a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' )*
             loop1:
             do {
                 int alt1=2;
@@ -135,7 +134,7 @@ public class QuestionConditionLexer extends Lexer {
 
                 switch (alt1) {
             	case 1 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:
             	    {
             	    if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='Z')||input.LA(1)=='_'||(input.LA(1)>='a' && input.LA(1)<='z') ) {
             	        input.consume();
@@ -171,10 +170,10 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:83:9: ( ( '0' .. '9' )+ )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:83:17: ( '0' .. '9' )+
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:83:9: ( ( '0' .. '9' )+ )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:83:17: ( '0' .. '9' )+
             {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:83:17: ( '0' .. '9' )+
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:83:17: ( '0' .. '9' )+
             int cnt2=0;
             loop2:
             do {
@@ -188,7 +187,7 @@ public class QuestionConditionLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:83:17: '0' .. '9'
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:83:17: '0' .. '9'
             	    {
             	    matchRange('0','9'); 
 
@@ -220,7 +219,7 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:4: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' | '/*' ( options {greedy=false; } : . )* '*/' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:4: ( '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n' | '/*' ( options {greedy=false; } : . )* '*/' )
             int alt6=2;
             int LA6_0 = input.LA(1);
 
@@ -248,11 +247,11 @@ public class QuestionConditionLexer extends Lexer {
             }
             switch (alt6) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:8: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:8: '//' (~ ( '\\n' | '\\r' ) )* ( '\\r' )? '\\n'
                     {
                     match("//"); 
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:13: (~ ( '\\n' | '\\r' ) )*
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:13: (~ ( '\\n' | '\\r' ) )*
                     loop3:
                     do {
                         int alt3=2;
@@ -265,7 +264,7 @@ public class QuestionConditionLexer extends Lexer {
 
                         switch (alt3) {
                     	case 1 :
-                    	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:13: ~ ( '\\n' | '\\r' )
+                    	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:13: ~ ( '\\n' | '\\r' )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFF') ) {
                     	        input.consume();
@@ -285,7 +284,7 @@ public class QuestionConditionLexer extends Lexer {
                         }
                     } while (true);
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:27: ( '\\r' )?
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:27: ( '\\r' )?
                     int alt4=2;
                     int LA4_0 = input.LA(1);
 
@@ -294,7 +293,7 @@ public class QuestionConditionLexer extends Lexer {
                     }
                     switch (alt4) {
                         case 1 :
-                            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:87:27: '\\r'
+                            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:87:27: '\\r'
                             {
                             match('\r'); 
 
@@ -309,11 +308,11 @@ public class QuestionConditionLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:88:8: '/*' ( options {greedy=false; } : . )* '*/'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:88:8: '/*' ( options {greedy=false; } : . )* '*/'
                     {
                     match("/*"); 
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:88:13: ( options {greedy=false; } : . )*
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:88:13: ( options {greedy=false; } : . )*
                     loop5:
                     do {
                         int alt5=2;
@@ -338,7 +337,7 @@ public class QuestionConditionLexer extends Lexer {
 
                         switch (alt5) {
                     	case 1 :
-                    	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:88:41: .
+                    	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:88:41: .
                     	    {
                     	    matchAny(); 
 
@@ -371,8 +370,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:91:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:91:9: ( ' ' | '\\t' | '\\r' | '\\n' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:91:5: ( ( ' ' | '\\t' | '\\r' | '\\n' ) )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:91:9: ( ' ' | '\\t' | '\\r' | '\\n' )
             {
             if ( (input.LA(1)>='\t' && input.LA(1)<='\n')||input.LA(1)=='\r'||input.LA(1)==' ' ) {
                 input.consume();
@@ -400,11 +399,11 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:99:4: ( '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:99:7: '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:99:4: ( '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:99:7: '\"' ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )* '\"'
             {
             match('\"'); 
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:99:11: ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )*
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:99:11: ( ESC_SEQ | ~ ( '\\\\' | '\"' ) )*
             loop7:
             do {
                 int alt7=3;
@@ -420,14 +419,14 @@ public class QuestionConditionLexer extends Lexer {
 
                 switch (alt7) {
             	case 1 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:99:13: ESC_SEQ
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:99:13: ESC_SEQ
             	    {
             	    mESC_SEQ(); 
 
             	    }
             	    break;
             	case 2 :
-            	    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:99:23: ~ ( '\\\\' | '\"' )
+            	    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:99:23: ~ ( '\\\\' | '\"' )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='[')||(input.LA(1)>=']' && input.LA(1)<='\uFFFF') ) {
             	        input.consume();
@@ -464,11 +463,11 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = CHAR;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:102:5: ( '\\'' ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) ) '\\'' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:102:8: '\\'' ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) ) '\\''
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:102:5: ( '\\'' ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) ) '\\'' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:102:8: '\\'' ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) ) '\\''
             {
             match('\''); 
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:102:13: ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:102:13: ( ESC_SEQ | ~ ( '\\'' | '\\\\' ) )
             int alt8=2;
             int LA8_0 = input.LA(1);
 
@@ -486,14 +485,14 @@ public class QuestionConditionLexer extends Lexer {
             }
             switch (alt8) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:102:15: ESC_SEQ
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:102:15: ESC_SEQ
                     {
                     mESC_SEQ(); 
 
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:102:25: ~ ( '\\'' | '\\\\' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:102:25: ~ ( '\\'' | '\\\\' )
                     {
                     if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='[')||(input.LA(1)>=']' && input.LA(1)<='\uFFFF') ) {
                         input.consume();
@@ -525,8 +524,8 @@ public class QuestionConditionLexer extends Lexer {
     // $ANTLR start "HEX_DIGIT"
     public final void mHEX_DIGIT() throws RecognitionException {
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:106:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:106:13: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:106:11: ( ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' ) )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:106:13: ( '0' .. '9' | 'a' .. 'f' | 'A' .. 'F' )
             {
             if ( (input.LA(1)>='0' && input.LA(1)<='9')||(input.LA(1)>='A' && input.LA(1)<='F')||(input.LA(1)>='a' && input.LA(1)<='f') ) {
                 input.consume();
@@ -549,7 +548,7 @@ public class QuestionConditionLexer extends Lexer {
     // $ANTLR start "ESC_SEQ"
     public final void mESC_SEQ() throws RecognitionException {
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:110:4: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:110:4: ( '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' ) | UNICODE_ESC | OCTAL_ESC )
             int alt9=3;
             int LA9_0 = input.LA(1);
 
@@ -600,7 +599,7 @@ public class QuestionConditionLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:110:8: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:110:8: '\\\\' ( 'b' | 't' | 'n' | 'f' | 'r' | '\\\"' | '\\'' | '\\\\' )
                     {
                     match('\\'); 
                     if ( input.LA(1)=='\"'||input.LA(1)=='\''||input.LA(1)=='\\'||input.LA(1)=='b'||input.LA(1)=='f'||input.LA(1)=='n'||input.LA(1)=='r'||input.LA(1)=='t' ) {
@@ -616,14 +615,14 @@ public class QuestionConditionLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:111:8: UNICODE_ESC
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:111:8: UNICODE_ESC
                     {
                     mUNICODE_ESC(); 
 
                     }
                     break;
                 case 3 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:112:8: OCTAL_ESC
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:112:8: OCTAL_ESC
                     {
                     mOCTAL_ESC(); 
 
@@ -640,7 +639,7 @@ public class QuestionConditionLexer extends Lexer {
     // $ANTLR start "OCTAL_ESC"
     public final void mOCTAL_ESC() throws RecognitionException {
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:4: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:4: ( '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) ( '0' .. '7' ) | '\\\\' ( '0' .. '7' ) )
             int alt10=3;
             int LA10_0 = input.LA(1);
 
@@ -686,25 +685,25 @@ public class QuestionConditionLexer extends Lexer {
             }
             switch (alt10) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:8: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:8: '\\\\' ( '0' .. '3' ) ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:13: ( '0' .. '3' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:14: '0' .. '3'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:13: ( '0' .. '3' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:14: '0' .. '3'
                     {
                     matchRange('0','3'); 
 
                     }
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:24: ( '0' .. '7' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:25: '0' .. '7'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:24: ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:25: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
                     }
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:35: ( '0' .. '7' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:117:36: '0' .. '7'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:35: ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:117:36: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -714,18 +713,18 @@ public class QuestionConditionLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:118:8: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:118:8: '\\\\' ( '0' .. '7' ) ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:118:13: ( '0' .. '7' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:118:14: '0' .. '7'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:118:13: ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:118:14: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
                     }
 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:118:24: ( '0' .. '7' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:118:25: '0' .. '7'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:118:24: ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:118:25: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -735,11 +734,11 @@ public class QuestionConditionLexer extends Lexer {
                     }
                     break;
                 case 3 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:119:8: '\\\\' ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:119:8: '\\\\' ( '0' .. '7' )
                     {
                     match('\\'); 
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:119:13: ( '0' .. '7' )
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:119:14: '0' .. '7'
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:119:13: ( '0' .. '7' )
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:119:14: '0' .. '7'
                     {
                     matchRange('0','7'); 
 
@@ -759,8 +758,8 @@ public class QuestionConditionLexer extends Lexer {
     // $ANTLR start "UNICODE_ESC"
     public final void mUNICODE_ESC() throws RecognitionException {
         try {
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:124:4: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:124:8: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:124:4: ( '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:124:8: '\\\\' 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT
             {
             match('\\'); 
             match('u'); 
@@ -782,7 +781,7 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = EQ;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:129:9: ( '=' | '==' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:129:9: ( '=' | '==' )
             int alt11=2;
             int LA11_0 = input.LA(1);
 
@@ -803,14 +802,14 @@ public class QuestionConditionLexer extends Lexer {
             }
             switch (alt11) {
                 case 1 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:129:18: '='
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:129:18: '='
                     {
                     match('='); 
 
                     }
                     break;
                 case 2 :
-                    // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:129:24: '=='
+                    // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:129:24: '=='
                     {
                     match("=="); 
 
@@ -832,8 +831,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = LT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:130:9: ( '<' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:130:18: '<'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:130:9: ( '<' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:130:18: '<'
             {
             match('<'); 
 
@@ -852,8 +851,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = GT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:131:9: ( '>' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:131:18: '>'
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:131:9: ( '>' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:131:18: '>'
             {
             match('>'); 
 
@@ -872,8 +871,8 @@ public class QuestionConditionLexer extends Lexer {
         try {
             int _type = NE;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:132:9: ( '!=' )
-            // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:132:17: '!='
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:132:9: ( '!=' )
+            // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:132:17: '!='
             {
             match("!="); 
 
@@ -889,96 +888,96 @@ public class QuestionConditionLexer extends Lexer {
     // $ANTLR end "NE"
 
     public void mTokens() throws RecognitionException {
-        // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:8: ( T__20 | OR | AND | QUESTION_NAME | INTEGER | COMMENT | WS | STRING | CHAR | EQ | LT | GT | NE )
+        // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:8: ( T__20 | OR | AND | QUESTION_NAME | INTEGER | COMMENT | WS | STRING | CHAR | EQ | LT | GT | NE )
         int alt12=13;
         alt12 = dfa12.predict(input);
         switch (alt12) {
             case 1 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:10: T__20
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:10: T__20
                 {
                 mT__20(); 
 
                 }
                 break;
             case 2 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:16: OR
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:16: OR
                 {
                 mOR(); 
 
                 }
                 break;
             case 3 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:19: AND
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:19: AND
                 {
                 mAND(); 
 
                 }
                 break;
             case 4 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:23: QUESTION_NAME
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:23: QUESTION_NAME
                 {
                 mQUESTION_NAME(); 
 
                 }
                 break;
             case 5 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:37: INTEGER
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:37: INTEGER
                 {
                 mINTEGER(); 
 
                 }
                 break;
             case 6 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:45: COMMENT
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:45: COMMENT
                 {
                 mCOMMENT(); 
 
                 }
                 break;
             case 7 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:53: WS
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:53: WS
                 {
                 mWS(); 
 
                 }
                 break;
             case 8 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:56: STRING
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:56: STRING
                 {
                 mSTRING(); 
 
                 }
                 break;
             case 9 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:63: CHAR
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:63: CHAR
                 {
                 mCHAR(); 
 
                 }
                 break;
             case 10 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:68: EQ
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:68: EQ
                 {
                 mEQ(); 
 
                 }
                 break;
             case 11 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:71: LT
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:71: LT
                 {
                 mLT(); 
 
                 }
                 break;
             case 12 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:74: GT
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:74: GT
                 {
                 mGT(); 
 
                 }
                 break;
             case 13 :
-                // /Users/bobevans/projects/questioncond_incodenow/QuestionCondition.g:1:77: NE
+                // /Users/bobevans/git/paco/Paco/src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g:1:77: NE
                 {
                 mNE(); 
 
