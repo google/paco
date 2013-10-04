@@ -235,7 +235,7 @@
     <string name="raw_data_button_text">Go to Raw Data</string>
     <string name="your_current_experiments">Your Current Experiments</string>
     <string name="refresh_experiments_list_from_server">Refresh Experiments List From Server</string>
-    <string name="data_handling_title">Data Handling &amp;amp; Privacy Agreement between You and the Experiment Creator</string>
+    <string name="data_handling_title">Data Handling &amp; Privacy Agreement between You and the Experiment Creator</string>
     <string name="informed_consent_preamble">By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment.</string>
     <string name="consent_checkbox_text">"          I consent"</string>
     <string name="available_experiments">Available Experiments</string>
