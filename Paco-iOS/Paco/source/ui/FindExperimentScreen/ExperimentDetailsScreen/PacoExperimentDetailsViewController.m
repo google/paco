@@ -21,7 +21,7 @@
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoClient.h"
-
+//ajjank
 @interface PacoExperimentDetailsViewController ()
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
