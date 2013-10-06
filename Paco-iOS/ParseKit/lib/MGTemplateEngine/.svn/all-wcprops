@@ -1,0 +1,185 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/1265/trunk/lib/MGTemplateEngine
+END
+AppController.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/AppController.m
+END
+main.m
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/main.m
+END
+MGTemplateEngine.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/1265/trunk/lib/MGTemplateEngine/MGTemplateEngine.m
+END
+MGTemplateEngine README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateEngine%20README.txt
+END
+Info.plist
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/Info.plist
+END
+RegexKitLite.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/RegexKitLite.h
+END
+Writing Markers.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/Writing%20Markers.txt
+END
+MGTemplateMarker.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateMarker.h
+END
+Source Code License.rtf
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/Source%20Code%20License.rtf
+END
+Writing Matchers.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/Writing%20Matchers.txt
+END
+Writing Filters.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/Writing%20Filters.txt
+END
+sample_template.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/sample_template.txt
+END
+RegexKitLite.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/RegexKitLite.m
+END
+MGTemplateStandardMarkers.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateStandardMarkers.h
+END
+MGTemplateFilter.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateFilter.h
+END
+NSDictionary_DeepMutableCopy.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/NSDictionary_DeepMutableCopy.h
+END
+MGTemplateStandardFilters.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateStandardFilters.h
+END
+MGTemplateStandardMarkers.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1264/trunk/lib/MGTemplateEngine/MGTemplateStandardMarkers.m
+END
+NSDictionary_DeepMutableCopy.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/NSDictionary_DeepMutableCopy.m
+END
+MGTemplateStandardFilters.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/1100/trunk/lib/MGTemplateEngine/MGTemplateStandardFilters.m
+END
+ICUTemplateMatcher.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/ICUTemplateMatcher.h
+END
+NSArray_DeepMutableCopy.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/NSArray_DeepMutableCopy.h
+END
+RegexKitTemplateMatcher.h
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/RegexKitTemplateMatcher.h
+END
+DeepMutableCopy.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/DeepMutableCopy.h
+END
+AppController.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/AppController.h
+END
+ICUTemplateMatcher.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/ICUTemplateMatcher.m
+END
+MGTemplateEngine.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateEngine.h
+END
+MGTemplateEngine_Prefix.pch
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/MGTemplateEngine_Prefix.pch
+END
+NSArray_DeepMutableCopy.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/NSArray_DeepMutableCopy.m
+END
+RegexKitTemplateMatcher.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/747/trunk/lib/MGTemplateEngine/RegexKitTemplateMatcher.m
+END

@@ -6,19 +6,25 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
-import com.google.sampling.experiential.shared.InputDAO;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.sampling.experiential.model.Trigger;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class DAOConverter {
 
@@ -46,26 +52,37 @@ public class DAOConverter {
 
     Boolean published = experiment.getPublished();
 
+    SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
+    
     SignalSchedule schedule = experiment.getSchedule();
+    Trigger trigger  = experiment.getTrigger();
 
     SignalScheduleDAO signalScheduleDAO = null;
+    TriggerDAO triggerDAO = null;
     // BACKWard compatibility friendliness - create a schedule for this
     // experiment
-    if (schedule == null) {
+    if (schedule == null && trigger == null) {
       signalScheduleDAO = new SignalScheduleDAO();
       signalScheduleDAO.setScheduleType(SignalScheduleDAO.SELF_REPORT);
+      signalingMechanisms[0] = triggerDAO;
       published = Boolean.FALSE;
+    } else if (trigger != null) {
+      triggerDAO = createTriggerDAO(trigger);
+      signalingMechanisms[0] = triggerDAO;
     } else {
       signalScheduleDAO = createSignalScheduleDAO(schedule);
+      signalingMechanisms[0] = signalScheduleDAO;
     }
+    
+    
     Boolean fixedDuration = experiment.getFixedDuration();
     Boolean questionsChange = experiment.getQuestionsChange();
     Boolean deleted = experiment.getDeleted();
-    Long startDate = experiment.getStartDate() != null ? experiment.getStartDate().getTime() : null;
-    Long endDate = experiment.getEndDate() != null ? experiment.getEndDate().getTime() : null;
+    String startDate = experiment.getStartDate();
+    String endDate = experiment.getEndDate();
     String hash = experiment.getHash();
-    Long joinDate = experiment.getJoinDate() != null ? experiment.getJoinDate().getTime() : null;
-    Long modifyDate = experiment.getModifyDate() != null ? experiment.getModifyDate().getTime() : null;
+    String joinDate = experiment.getJoinDate();
+    String modifyDate = experiment.getModifyDate();
 
     List<String> admins = experiment.getAdmins();
     String[] adminStrArray = new String[admins.size()];
@@ -74,10 +91,12 @@ public class DAOConverter {
     List<String> userEmails = experiment.getPublishedUsers();
     String[] userEmailsStrArray = new String[userEmails.size()];
     userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
-
-    ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalScheduleDAO,
+    
+    Integer version = experiment.getVersion();
+    
+    ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted);
+            userEmailsStrArray, deleted, null, version);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -94,6 +113,11 @@ public class DAOConverter {
     return dao;
   }
 
+  private static TriggerDAO createTriggerDAO(Trigger trigger) {
+    return new TriggerDAO(trigger.getId().getId(), trigger.getEventCode(), trigger.getSourceIdentifier(), 
+                          trigger.getDelay(), trigger.getTimeout(), trigger.getMinimumBuffer());
+  }
+
   /**
    * @param schedule
    * @return
@@ -103,11 +127,16 @@ public class DAOConverter {
             schedule.getDayOfMonth(), schedule.getEsmEndHour(), schedule.getEsmFrequency(),
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
             schedule.getRepeatRate(), toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(),
-            schedule.getEsmWeekends(), schedule.getUserEditable());
+            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer());
   }
 
   public static FeedbackDAO createDAO(Feedback feedback) {
-    return new FeedbackDAO(feedback.getId().getId(), feedback.getFeedbackType(), feedback.getLongText());
+    Key feedbackKey = feedback.getId();
+    Long id = null;
+    if (feedbackKey != null) {
+      id = feedbackKey.getId();
+    }
+    return new FeedbackDAO(id, feedback.getFeedbackType(), feedback.getLongText());
   }
 
   public static InputDAO createDAO(Input input) {
@@ -139,7 +168,7 @@ public class DAOConverter {
     return times.toArray(res);
   }
 
-  static Experiment fromExperimentDAO(ExperimentDAO experimentDAO, Experiment experiment, User whoFromLogin) {
+  public static Experiment fromExperimentDAO(ExperimentDAO experimentDAO, Experiment experiment, User whoFromLogin) {
     experiment.setId(experimentDAO.getId()); // still neccessary in the case of retrieval from cache
     experiment.setTitle(experimentDAO.getTitle());
     experiment.setDescription(experimentDAO.getDescription());
@@ -149,29 +178,29 @@ public class DAOConverter {
     experiment.setInformedConsentFormText(experimentDAO.getInformedConsentForm());
     experiment.setQuestionsChange(experimentDAO.getQuestionsChange());
     experiment.setFixedDuration(experimentDAO.getFixedDuration());
-    Long startDateDAO = experimentDAO.getStartDate();
-    Date startDate = null;
-    if (startDateDAO != null) {
-      startDate = new DateTime(startDateDAO).toDate();
-    }
+    
+    String startDate = experimentDAO.getStartDate();
     experiment.setStartDate(startDate);
     
-    Long endDateDAO = experimentDAO.getEndDate();
-    Date endDate = null;
-    if (endDateDAO != null) {
-      endDate = new DateTime(endDateDAO).toDate();
-    }
+    String endDate = experimentDAO.getEndDate();
     experiment.setEndDate(endDate);
     
-    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? new Date(experimentDAO
-        .getModifyDate()) : new Date());
+    experiment.setModifyDate(experimentDAO.getModifyDate() != null ? experimentDAO
+        .getModifyDate() : getTodayAsString());
     
     Key key = null;
     if (experiment.getId() != null) {
       key = KeyFactory.createKey(Experiment.class.getSimpleName(), experiment.getId());
     }
   
-    experiment.setSchedule(fromScheduleDAO(key, experimentDAO.getSchedule()));
+    SignalingMechanismDAO[] signalingMechanisms = experimentDAO.getSignalingMechanisms();
+    SignalingMechanismDAO signalingMechanismDAO = signalingMechanisms[0];
+    if (signalingMechanismDAO instanceof SignalScheduleDAO) {
+      experiment.setSchedule(fromScheduleDAO(key, (SignalScheduleDAO) signalingMechanismDAO));
+    } else {
+      experiment.setTrigger(fromTriggerDAO(key, (TriggerDAO) signalingMechanismDAO));
+    }
+    
     experiment.setInputs(fromInputDAOs(key, experimentDAO.getInputs(), 
         experiment.getQuestionsChange()));
     experiment.setFeedback(fromFeedbackDAOs(key, experimentDAO.getFeedback()));
@@ -181,6 +210,19 @@ public class DAOConverter {
     experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
     experiment.setDeleted(experimentDAO.getDeleted());
     return experiment;
+  }
+  
+  private static String getTodayAsString() {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+    return new DateTime().toString(formatter);
+  }
+
+  private static Trigger fromTriggerDAO(Key key, TriggerDAO signalingMechanismDAO) {
+    Trigger trigger = new Trigger(key, signalingMechanismDAO.getId(),
+                                                 signalingMechanismDAO.getEventCode(),
+                                                 signalingMechanismDAO.getSourceIdentifier(),
+                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout(), signalingMechanismDAO.getMinimumBuffer());
+                                                 return trigger; 
   }
 
   private static ArrayList<String> lowerCaseEmailAddresses(String[] publishedUsers) {
@@ -207,7 +249,7 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()), 
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(), 
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(), 
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer());
     return schedule;
   }
 

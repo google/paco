@@ -16,6 +16,8 @@
 */
 package com.google.android.apps.paco;
 
+import java.util.List;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -127,12 +129,19 @@ public class Output implements Parcelable {
    * @return
    */
   String getDisplayForList(Input input) {
-    if (!input.isMultiselect()) {
-      String answer = getAnswer();
-      if (answer == null) {
-        return "";
+    List<String> listChoices = input.getListChoices();
+    String answer = getAnswer();
+    if (answer == null) {
+      return "";
+    }
+
+    if (!input.isMultiselect()) {      
+      int index = Integer.parseInt(answer) - 1;
+      if (index < listChoices.size()) {
+        return listChoices.get(index);
+      } else {
+        return "error: index value too large for list choices: " + index;
       }
-      return input.getListChoices().get(Integer.parseInt(answer) - 1);
     }
     // split answer, then retrieve list choice for each and return an array!?
     StringSplitter stringSplitter = new TextUtils.SimpleStringSplitter(',');
@@ -145,7 +154,12 @@ public class Output implements Parcelable {
       } else {
         buf.append(",");
       }
-      buf.append(input.getListChoices().get(Integer.parseInt(piece) - 1));
+      int index = Integer.parseInt(piece) - 1;
+      if (index < listChoices.size()) {
+        buf.append(listChoices.get(index));
+      } else {
+        buf.append("error: index value too large for list choices: " + index);
+      }
     }
     return buf.toString();
   }

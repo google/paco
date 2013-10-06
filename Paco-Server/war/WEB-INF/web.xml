@@ -54,7 +54,47 @@
   <filter-mapping>
    <filter-name>whitelistFilter</filter-name>
    <servlet-name>experimentServlet</servlet-name>
+  </filter-mapping>
+  
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>participantServlet</servlet-name>
   </filter-mapping> 
+
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>whitelistService</servlet-name>
+  </filter-mapping> 
+  
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>remoteLoggingService</servlet-name>
+  </filter-mapping> 
+        
+  <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>jobStatusServlet</servlet-name>
+  </filter-mapping> 
+
+  <filter>
+        <filter-name>appstats</filter-name>
+        <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
+         <init-param>
+          <param-name>calculateRpcCosts</param-name>
+          <param-value>true</param-value>
+      </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>appstats</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+<!--   <filter-mapping>
+   <filter-name>whitelistFilter</filter-name>
+   <servlet-name>backendReportJobExecutorServlet</servlet-name>
+  </filter-mapping> 
+ -->  
    
   <!-- Servlets -->
   <servlet>
@@ -75,13 +115,56 @@
     <servlet-name>experimentServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
     </servlet>
-  
+
+    <servlet>
+    <servlet-name>participantServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>whitelistService</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.WhitelistServiceImpl</servlet-class>
+  </servlet>
+    
+
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
     <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
-</servlet>
+  </servlet>
+  
+  <servlet>
+	  <servlet-name>remoteLoggingService</servlet-name>
+	  <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
+	</servlet>
+
+      <servlet>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.JobStatusServlet</servlet-class>
+  </servlet>
+  	
+    <servlet>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.BackendReportJobExecutorServlet</servlet-class>
+  </servlet>
+  
+
+    <servlet-mapping>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <url-pattern>/backendReportJobExecutor</url-pattern>
+    </servlet-mapping>
+
+ <servlet-mapping>
+  <servlet-name>jobStatusServlet</servlet-name>
+  <url-pattern>/jobStatus</url-pattern>
+</servlet-mapping>
+    
+<servlet-mapping>
+  <servlet-name>remoteLoggingService</servlet-name>
+  <url-pattern>/pacoserver/logging</url-pattern>
+</servlet-mapping>
+  
 <servlet-mapping>
     <servlet-name>RemoteApiServlet</servlet-name>
     <url-pattern>/remote_api</url-pattern>
@@ -101,24 +184,72 @@
     <url-pattern>/pacoserver/login</url-pattern>
   </servlet-mapping>  
 
+    <servlet-mapping>
+    <servlet-name>whitelistService</servlet-name>
+    <url-pattern>/pacoserver/whitelist</url-pattern>
+  </servlet-mapping>  
+  
  <servlet-mapping>
     <servlet-name>experimentServlet</servlet-name>
     <url-pattern>/experiments</url-pattern>
   </servlet-mapping>  
 
- <security-constraint>
-   <web-resource-collection>
-      <url-pattern>/pacoserver/maps*</url-pattern>
-      <url-pattern>/events*</url-pattern>
-      <url-pattern>/experiments*</url-pattern>
-      <url-pattern>/Main.html*</url-pattern>
-   </web-resource-collection>
-   <auth-constraint>
-       <role-name>*</role-name> 
-   </auth-constraint>
-   <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-   </user-data-constraint>
+  <servlet-mapping>
+    <servlet-name>participantServlet</servlet-name>
+    <url-pattern>/participantStats</url-pattern>
+  </servlet-mapping>  
+   
+  	 <security-constraint>
+	   <web-resource-collection>
+	      <url-pattern>/pacoserver/maps*</url-pattern>
+	      <url-pattern>/pacoserver/logging*</url-pattern>
+	      <url-pattern>/remote_api*</url-pattern>
+	      <url-pattern>/events*</url-pattern>
+	      <url-pattern>/experiments*</url-pattern>	      
+	      <url-pattern>/participantStats*</url-pattern>
+	      <!-- <url-pattern>/backendReportJobExecutor*</url-pattern> -->
+	      <url-pattern>/jobStatus*</url-pattern>
+	      <url-pattern>/join*</url-pattern>
+	   </web-resource-collection>
+	   <auth-constraint>
+	       <role-name>*</role-name> 
+	   </auth-constraint>
+	   <user-data-constraint>
+	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+	   </user-data-constraint>
+	
+	 </security-constraint>
+	 
+	 <security-constraint>
+	        <web-resource-collection>
+	            <url-pattern>/whitelist.jsp*</url-pattern>
+	            <url-pattern>/pacoserver/whitelist*</url-pattern>
+	        </web-resource-collection>
+	        <auth-constraint>
+	            <role-name>admin</role-name>
+	        </auth-constraint>
+	           <user-data-constraint>
+	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+	   </user-data-constraint>
+	        
+	    </security-constraint>
+	     <servlet>
+        <servlet-name>appstats</servlet-name>
+        <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
+    </servlet>
 
- </security-constraint>
-</web-app>
+    <servlet-mapping>
+        <servlet-name>appstats</servlet-name>
+        <url-pattern>/appstats/*</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/appstats/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+	 
+	</web-app>

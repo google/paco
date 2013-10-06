@@ -1,0 +1,9 @@
+<backends>
+ <backend name="reportworker">
+     <class>B4</class>
+   <options>
+     <dynamic>true</dynamic>
+     <public>false</public>     
+   </options>
+ </backend>
+</backends>

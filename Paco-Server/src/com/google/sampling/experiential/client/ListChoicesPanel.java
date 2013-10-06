@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.InputDAO;
 
 /**
  * A collection of all the ListChoicePanels to define the choices for a given
@@ -119,6 +119,14 @@ public class ListChoicesPanel extends Composite {
   public void updateChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
     input.getListChoices()[index] = choicePanel.getChoice();
+  }
+  
+  public ListChoicePanel getFirstChoicePanel() {
+    return getChoicePanel(0);
+  }
+  
+  private ListChoicePanel getChoicePanel(int index) {
+    return choicePanelsList.get(index);
   }
 
 

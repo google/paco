@@ -27,6 +27,7 @@ public class EventColumns implements BaseColumns {
   public static final String EXPERIMENT_ID = "experiment_id";
   public static final String EXPERIMENT_SERVER_ID = "experiment_server_id";
   public static final String EXPERIMENT_NAME = "experiment_name";
+  public static final String EXPERIMENT_VERSION = "experiment_version";
   public static final String SCHEDULE_TIME = "schedule_time";
   public static final String RESPONSE_TIME = "response_time";
   public static final String UPLOADED = "uploaded";

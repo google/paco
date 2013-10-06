@@ -31,6 +31,7 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 public class JDOQueryBuilder {
 
@@ -39,7 +40,7 @@ public class JDOQueryBuilder {
 
   private EventJDOQuery jdoQuery;
   
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern("yyyy/MM/dd");
+  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
 
 
 

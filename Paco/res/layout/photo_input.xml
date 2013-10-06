@@ -17,6 +17,6 @@
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-	<Button android:id="@+id/CameraButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Take Picture"/>
+	<Button android:id="@+id/CameraButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/take_picture"/>
 	<ImageView android:id="@+id/CameraPreviewImage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/paco_sil"/>
 </LinearLayout>

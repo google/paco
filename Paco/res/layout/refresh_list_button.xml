@@ -22,7 +22,7 @@
 <Button android:layout_width="wrap_content" 
 android:layout_height="wrap_content" 
 android:id="@+id/refresh_experiments_button" 
-android:text="Refresh Experiments" 
+android:text="@string/refresh_experiments" 
 android:layout_gravity="center|top" 
 android:textSize="15dip"></Button>
 </LinearLayout>

@@ -24,7 +24,6 @@ import android.os.Parcelable;
 
 public class Feedback implements Parcelable {
 
-  public static final String DEFAULT_FEEDBACK_MSG = "Thanks for Participating!";
   public static final String DISPLAY_FEEBACK_TYPE = "display";
   
   public static class Creator implements Parcelable.Creator<Feedback> {
@@ -164,8 +163,5 @@ public class Feedback implements Parcelable {
     }
   }
 
-  public boolean isDefaultFeedback() {
-    return getFeedbackType().equals(DISPLAY_FEEBACK_TYPE) &&
-      getText().equals(DEFAULT_FEEDBACK_MSG);
-  }
+
 }

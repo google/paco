@@ -26,7 +26,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="20dip"
-    android:text="Daily Scheduled Time for: "></TextView>
+    android:text="@string/daily_scheduled_time_for"></TextView>
 
   <TextView
     android:layout_width="wrap_content"
@@ -34,7 +34,7 @@
     android:layout_height="wrap_content"
     android:textSize="25dip"
     android:id="@+id/experimentNameSchedule"
-    android:text="Experiment Name"></TextView>
+    android:text="@string/experiment_name"></TextView>
 
   <RadioGroup
     android:id="@+id/RadioGroup01"
@@ -44,13 +44,13 @@
     android:paddingLeft="50dip">
 
     <RadioButton
-      android:text="          By Day of Month"
+      android:text="@string/by_day_of_month"
       android:paddingLeft="75dip"
       android:id="@+id/domRadio"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content" />
     <RadioButton
-      android:text="          Day of Week"
+      android:text="@string/by_day_of_week"
       android:paddingLeft="75dip"
       android:id="@+id/dowRadio"
       android:layout_width="fill_parent"
@@ -67,7 +67,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="20dip"
-    android:text="Day of Month:"/>
+    android:text="@string/day_of_month"/>
     
     <Spinner
       android:id="@+id/dayOfMonthSpinner"
@@ -84,7 +84,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:textSize="20dip"
-    android:text="Day of Week:"/>
+    android:text="@string/day_of_week"/>
     <Spinner
       android:id="@+id/NthOfMonthSpinner"
       android:layout_width="wrap_content"
@@ -105,7 +105,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/SetDailyScheduleButton"
-    android:text="Save Schedule"
+    android:text="@string/save_schedule"
     android:layout_gravity="center"></Button>
 
 

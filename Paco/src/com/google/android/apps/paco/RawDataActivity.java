@@ -23,6 +23,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.pacoapp.paco.R;
+
 import android.app.ListActivity;
 import android.net.Uri;
 import android.os.Bundle;
@@ -89,9 +91,9 @@ public class RawDataActivity extends ListActivity {
         if (responseTime == null) {
           DateTime scheduledTime = event.getScheduledTime();
           if (scheduledTime != null) {
-            signalTime = scheduledTime.toString(df) + ": missed";
+            signalTime = scheduledTime.toString(df) + ": " + getString(R.string.missed_signal_value);
           } else {
-            signalTime = "Missed";
+            signalTime = getString(R.string.missed_signal_value);
           }
         } else {
           signalTime = responseTime.toString(df);

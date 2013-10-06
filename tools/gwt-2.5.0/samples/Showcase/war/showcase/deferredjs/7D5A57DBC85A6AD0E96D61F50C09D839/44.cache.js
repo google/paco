@@ -1,0 +1,2 @@
+function kqb(){var a,b,c,d,e;e=new $0b(5);b5b(e.db,kqc,'cwSplitLayoutPanel');e.db.style[_sc]='3px solid #e7e7e7';VSb(e,new YRb(hxc),50);WSb(e,new YRb(ixc),50);V0b(e,new YRb(jxc),(tTb(),nTb),100,null);V0b(e,new YRb(kxc),sTb,100,null);VSb(e,new YRb(lxc),50);WSb(e,new YRb(mxc),50);c='\u4EE5\u4E0B\u6587\u5B57\u663E\u793A\u4E86\u5206\u9694\u6761\u4E24\u4FA7\u7684\u5185\u5BB9\u662F\u5982\u4F55\u5E03\u5C40\u7684\u3002';for(d=0;d<3;++d){c+=wpc+c}a=new YRb(c);b=new WOb(a);V0b(e,b,mTb,0,null);return e}
+n2(732,1,Doc);_.qc=function sqb(){S4(this.b,kqb())};qpc(Jn)(44);

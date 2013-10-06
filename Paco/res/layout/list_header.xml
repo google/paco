@@ -19,5 +19,5 @@
 	android:orientation="vertical"
 	android:gravity="center" android:layout_gravity="center|top"
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/list_title" android:text="Available Experiments" android:layout_gravity="center|top" android:textSize="15dip"></TextView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/list_title" android:text="@string/available_experiments" android:layout_gravity="center|top" android:textSize="15dip"></TextView>
 </LinearLayout>

@@ -30,16 +30,16 @@
     android:layout_weight="1"
     >
 
-    <TextView android:text="How would you like to explore your data?" android:gravity="center|top" android:layout_gravity="center|top"
+    <TextView android:text="@string/explore_data_title" android:gravity="center|top" android:layout_gravity="center|top"
       android:layout_width="fill_parent" android:background="@drawable/list_header_background"
       android:textColor="#ffffff" android:id="@+id/ExploreDataTitle" android:textSize="20dip" android:layout_height="54dip"/>
-    <Button android:text="Trends" android:id="@+id/TrendsButton"
+    <Button android:text="@string/trends" android:id="@+id/TrendsButton"
       android:layout_width="fill_parent" android:layout_height="70dip"
       android:layout_gravity="center" />
-    <Button android:text="Relationships" android:id="@+id/RelationshipsButton"
+    <Button android:text="@string/relationships" android:id="@+id/RelationshipsButton"
       android:layout_width="fill_parent" android:layout_height="70dip"
       android:layout_gravity="center" />
-    <Button android:text="Distributions" android:id="@+id/DistributionsButton"
+    <Button android:text="@string/distributions" android:id="@+id/DistributionsButton"
       android:layout_width="fill_parent" android:layout_height="70dip"
       android:layout_gravity="center" />
     <RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="match_parent"></RelativeLayout>  

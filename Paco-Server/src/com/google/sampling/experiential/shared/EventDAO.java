@@ -17,8 +17,11 @@
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
+
 
 /**
  * 
@@ -31,7 +34,11 @@ import java.util.Map;
  */
 public class EventDAO implements Serializable {
 
+  public static final String REFERRED_EXPERIMENT_INPUT_ITEM_KEY = "referred_experiment";
+
   private Long id;
+  
+  private Long experimentId;
 
   private String who;
 
@@ -66,6 +73,10 @@ public class EventDAO implements Serializable {
   
   private String[] blobs;
 
+  private Integer experimentVersion;
+
+  private String timezone;
+
   public Map<String, String> getWhat() {
     return what;
   }
@@ -80,7 +91,7 @@ public class EventDAO implements Serializable {
 
   public EventDAO(String who, Date when, String experimentName, String lat, String lon, 
       String appId, String pacoVersion, Map<String, String> map, boolean shared, Date responseTime, 
-      Date scheduledTime, String[] blobs) {
+      Date scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion, String timezone) {
     super();
     this.who = who;
     this.lat = lat;
@@ -91,9 +102,11 @@ public class EventDAO implements Serializable {
     this.pacoVersion = pacoVersion;
     this.shared = shared;
     this.experimentName = experimentName;
+    this.experimentVersion = experimentVersion;
     this.responseTime = responseTime;
     this.scheduledTime = scheduledTime;
-    this.blobs = blobs;
+    this.blobs = blobs;    
+    this.timezone = timezone;
   }
 
   public Long getId() {
@@ -227,7 +240,54 @@ public class EventDAO implements Serializable {
   public void setBlobs(String[] blobs) {
     this.blobs = blobs;
   }
+
+  public Date getIdFromTimes() {
+    if (getScheduledTime() != null) {
+      return getScheduledTime();
+    } else/* if (getResponseTime() != null) */{
+      return getResponseTime();
+    } // one of those two has to exist
+  }
+
+  public Long getExperimentId() {
+    return experimentId;
+  }
   
+  public void setExperimentId(Long id) {
+    this.experimentId = id;
+  }
+
+  public Integer getExperimentVersion() {
+    return experimentVersion;
+  }
+  
+  public void setExperimentVersion(Integer version) {
+    this.experimentVersion = version;
+  }
+
+  public String getTimezone() {
+    return timezone;
+  }
+
+  public void setTimezone(String timezone) {
+    this.timezone = timezone;
+  }
+
+  public boolean isEmptyResponse() {
+    Map<String, String> values = getWhat();
+    for (Entry<String, String> kvPair : values.entrySet()) {
+      String key = kvPair.getKey();
+      
+      if (key.equals(REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
+        continue;
+      }
+      String value = kvPair.getValue();
+      if (value != null && value.length() > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
   
 
 }

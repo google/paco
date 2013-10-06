@@ -25,13 +25,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.R;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
  * 
  */
-public class SignalSchedule implements Parcelable {
+public class SignalSchedule extends SignalingMechanism implements Parcelable {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;
@@ -51,17 +53,21 @@ public class SignalSchedule implements Parcelable {
   public static final int[] SCHEDULE_TYPES = new int[] { DAILY, WEEKDAY,
       WEEKLY, MONTHLY, ESM, SELF_REPORT, ADVANCED };
 
-  public static final String[] SCHEDULE_TYPES_NAMES = new String[] { "Daily",
-      "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)",
-      "Self report only", "Advanced" };
+  public static final int[] SCHEDULE_TYPES_NAMES = new int[] { R.string.daily_schedule_type,
+      R.string.weekdays_schedule_type, R.string.weekly_schedule_type, R.string.monthly_schedule_type, R.string.random_sampling_esm_schedule_type,
+      R.string.self_report_only_schedule_type, R.string.advanced_schedule_type };
 
+  public static final String[] SCHEDULE_TYPES_NAMES_DATA_STRINGS = new String[] { "daily", "weekday", "weekly", "monthly", "esm", "self report", "advanced"
+                                                                           };
   public static final int ESM_PERIOD_DAY = 0;
   public static final int ESM_PERIOD_WEEK = 1;
   public static final int ESM_PERIOD_MONTH = 2;
 
   public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
-  public static final String[] ESM_PERIODS_NAMES = new String[] { "Day",
-      "Week", "Month" };
+  public static final int[] ESM_PERIODS_NAMES = new int[] { R.string.day_esm_period,
+      R.string.week_esm_period, R.string.month_esm_period };
+  public static final String[] ESM_PERIODS_NAMES_DATA_STRINGS= new String[] { "day",
+                                                            "week", "month"};
   public static final Integer DEFAULT_REPEAT_RATE = 1;
   public static final int[] DAYS_OF_WEEK = new int[] { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -100,6 +106,8 @@ public class SignalSchedule implements Parcelable {
       schedule.beginDate = source.readLong();
 
       schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
+      schedule.timeout = source.readInt();
+      schedule.minimumBuffer = source.readInt();
       return schedule;
     }
 
@@ -124,6 +132,8 @@ public class SignalSchedule implements Parcelable {
   private Integer esmPeriodInDays;
   private Long esmStartHour;
   private Long esmEndHour;
+  /** timeout in minutes */
+  private Integer timeout;
 
   private List<Long> times;
   private Integer repeatRate = 1;
@@ -157,7 +167,7 @@ public class SignalSchedule implements Parcelable {
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable) {
+      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -175,6 +185,7 @@ public class SignalSchedule implements Parcelable {
       this.beginDate = beginDate;
     }
     this.userEditable = userEditable;
+    this.timeout = timeout;
   }
 
   /**
@@ -261,6 +272,23 @@ public class SignalSchedule implements Parcelable {
 
   public Integer getWeekDaysScheduled() {
     return weekDaysScheduled;
+  }
+  
+  public void addWeekDayToSchedule(Integer day) {
+    weekDaysScheduled |= day;
+  }
+  
+  public void removeWeekDayFromSchedule(Integer day) {
+    weekDaysScheduled &= (~day);
+  }
+  
+  // Visible for testing
+  public void removeAllWeekDaysScheduled() {
+    this.weekDaysScheduled = 0;
+  }
+  
+  public boolean isWeekDayScheduled(Integer day) {
+    return (weekDaysScheduled & day) != 0;
   }
 
   public Integer getNthOfMonth() {
@@ -353,6 +381,8 @@ public class SignalSchedule implements Parcelable {
     dest.writeInt(dayOfMonth);
     dest.writeLong(beginDate);
     dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
+    dest.writeInt(timeout);
+    dest.writeInt(minimumBuffer);
   }
 
   public DateTime getNextAlarmTime(DateTime dateTime) {
@@ -381,12 +411,12 @@ public class SignalSchedule implements Parcelable {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES[scheduleType]);
+    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES_DATA_STRINGS[scheduleType]);
     comma(buf);
     if (scheduleType == ESM) {
       appendKeyValue(buf, "frequency", esmFrequency.toString());
       comma(buf);
-      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES[esmPeriodInDays]);
+      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES_DATA_STRINGS[esmPeriodInDays]);
       comma(buf);
       appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
       comma(buf);
@@ -467,4 +497,28 @@ public class SignalSchedule implements Parcelable {
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
+  
+  public Integer getTimeout() {
+    if (timeout == null) {
+      return getOldDefaultTimeout();
+    }
+    return timeout;
+  }
+
+  
+  private Integer getOldDefaultTimeout() {
+    if (getScheduleType().equals(ESM)) {
+      setTimeout(59);
+      return 59;
+    } else {
+      setTimeout(479);
+      return 479;
+    }
+  }
+
+  public void setTimeout(Integer timeout) {
+    this.timeout = timeout;
+  }
+
+
 }

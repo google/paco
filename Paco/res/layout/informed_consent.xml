@@ -20,14 +20,14 @@
 	android:layout_height="fill_parent" >
 	<TextView android:textSize="15dip" android:layout_height="wrap_content"
 		android:layout_width="wrap_content" 
-    android:text="Data Handling &amp; Privacy Agreement between You and the Experiment Creator" android:textColor="#000000" android:textStyle="bold"></TextView>
+    android:text="@string/data_handling_title" android:textColor="#000000" android:textStyle="bold"></TextView>
 	<TextView android:textSize="15dip" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_width="wrap_content"
-      android:text="By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment." android:textColor="#000000" android:fadingEdge="horizontal"></TextView>
+      android:text="@string/informed_consent_preamble" android:textColor="#000000" android:fadingEdge="horizontal"></TextView>
 	<ScrollView android:id="@+id/ScrollView01"
 	android:layout_height="0dip" android:layout_weight="1"	
     
     android:layout_width="wrap_content" android:background="#fafafa">
-		<TextView android:text="Text of the Informed Consent Form"
+		<TextView android:text=""
 		android:textSize="20dip"
 	android:id="@+id/InformedConsentTextView" android:layout_width="wrap_content"
 	android:layout_height="wrap_content"></TextView>
@@ -35,5 +35,5 @@
 	<CheckBox android:id="@+id/InformedConsentAgreementCheckBox" 
 		android:layout_gravity="center" 
 		android:layout_height="65dip"
-		android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:text="          I consent"></CheckBox>
+		android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:text="@string/consent_checkbox_text"></CheckBox>
 </LinearLayout>

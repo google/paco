@@ -14,6 +14,7 @@ import android.util.Log;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.Response.Status;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
+import com.pacoapp.paco.R;
 
 public class VersionChecker {
 
@@ -34,13 +35,14 @@ public class VersionChecker {
     UrlContentManager um = null;
     try {
       UserPreferences userPrefs = new UserPreferences(context);  
-      String emailSuffix = userPrefs.getGoogleEmailType();
-      um = new UrlContentManager(context, true, emailSuffix);
+      um = new UrlContentManager(context);
 
       Log.i(PacoConstants.TAG, "Checking version of client");
+      
       Response response = um.createRequest()
-      .setUrl("https://"+new UserPreferences(context.getApplicationContext()).getServerAddress()+"/version")
-      .addHeader("http.useragent", "PacoDroid2")
+      .setUrl(ServerAddressBuilder.createServerUrl(new UserPreferences(context.getApplicationContext()).getServerAddress(),"/version"))
+      .addHeader("http.useragent", "Android")      
+      .addHeader("paco.version", AndroidUtils.getAppVersion(context))
       .execute();
       
       

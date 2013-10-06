@@ -17,19 +17,25 @@
 package com.google.sampling.experiential.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
 
+import org.apache.commons.codec.binary.Base64;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -37,6 +43,8 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -46,10 +54,12 @@ import com.google.sampling.experiential.model.What;
  */
 public class EventRetriever {
 
+  private static final int DEFAULT_FETCH_LIMIT = 100;
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   
-  private EventRetriever() {
+  @VisibleForTesting
+  EventRetriever() {
   }
 
   public static synchronized EventRetriever getInstance() {
@@ -61,25 +71,27 @@ public class EventRetriever {
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId, 
-      String experimentName, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs) {
-    long t1 = System.currentTimeMillis();
+      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String tz) {
+//    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, responseTime, scheduledTime, blobs);
+        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz);
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();
       tx.begin();
       pm.makePersistent(event);
       tx.commit();
+      log.info("Event saved");
     } finally {
       if (tx.isActive()) {
+        log.info("Event rolled back");
         tx.rollback();
       }
       pm.close();
     }
-    long t2 = System.currentTimeMillis();
-    log.info("POST Event time: " + (t2 - t1));
+//    long t2 = System.currentTimeMillis();
+//    log.info("POST Event time: " + (t2 - t1));
   }
 
   @SuppressWarnings("unchecked")
@@ -91,17 +103,21 @@ public class EventRetriever {
       q.declareParameters("String whoParam");
       long t11 = System.currentTimeMillis();
       List<Event> events = (List<Event>) q.execute(loggedInUser);
+      adjustTimeZone(events);
       long t12 = System.currentTimeMillis();
       log.info("get execute time: " + (t12 - t11));
       return events;
   }
 
   public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, 
-      String loggedInuser, DateTimeZone clientTimeZone) {
+      String loggedInuser, DateTimeZone clientTimeZone, int offset, int limit) {
+    if (limit == 0) {
+      limit = DEFAULT_FETCH_LIMIT;
+    }
     doOneTimeCleanup();
     Set<Event> allEvents = Sets.newHashSet();
     PersistenceManager pm = PMF.get().getPersistenceManager();
-    EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
+    EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone, offset, limit);
 
     long t11 = System.currentTimeMillis();
     
@@ -186,16 +202,42 @@ public class EventRetriever {
     log.info("Query = " + query.toString());
     log.info("Query params = " + Joiner.on(",").join(eventJDOQuery.getParameters()));      
     allEvents.addAll((List<Event>) query.executeWithArray(eventJDOQuery.getParameters().toArray()));
+    adjustTimeZone(allEvents);
   }
+
+  private void adjustTimeZone(Collection<Event> allEvents) {
+    for (Event event : allEvents) {
+      String tz = event.getTimeZone();      
+      event.setResponseTime(adjustTimeToTimezoneIfNecesssary(tz, event.getResponseTime()));
+      event.setScheduledTime(adjustTimeToTimezoneIfNecesssary(tz, event.getScheduledTime()));
+    }    
+  }
+  
+  public static Date adjustTimeToTimezoneIfNecesssary(String tz, Date responseTime) {
+    if (responseTime == null) {
+      return null;
+    }
+    DateTimeZone timezone = null;
+    if (tz != null) {
+      timezone = DateTimeZone.forID(tz);
+    }
+  
+    if (timezone != null && responseTime.getTimezoneOffset() != timezone.getOffset(responseTime.getTime())) {
+      responseTime = new DateTime(responseTime).withZone(timezone).toDate();
+    }
+    return responseTime;
+  }
+
+
 
   private void addAllSharedEvents(List<com.google.sampling.experiential.server.Query> queryFilters,
       DateTimeZone clientTimeZone, Set<Event> allEvents, PersistenceManager pm) {
-    EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
+    EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone, 0, 0);
     sharedQ.addFilters("shared == true");
     Query queryShared = sharedQ.getQuery(); 
-    List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(
-        sharedQ.getParameters().toArray());
+    List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(sharedQ.getParameters().toArray());
     allEvents.addAll(sharedEvents);
+    adjustTimeZone(allEvents);
   }
 
   private boolean isAnAdministrator(List<Experiment> adminExperiments) {
@@ -285,11 +327,68 @@ public class EventRetriever {
 
   private EventJDOQuery createJDOQueryFrom(PersistenceManager pm, 
       List<com.google.sampling.experiential.server.Query> queryFilters, 
-      DateTimeZone clientTimeZone) {
+      DateTimeZone clientTimeZone, int offset, int limit) {
     Query newQuery = pm.newQuery(Event.class);
-    JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
+    //newQuery.getFetchPlan().setFetchSize(limit);
+    //newQuery.setRange(offset, limit);
+    JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);    
     queryBuilder.addFilters(queryFilters, clientTimeZone);
     return queryBuilder.getQuery();
+  }
+
+  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime, List<PhotoBlob> blobs) {
+    
+    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion, 
+              responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs, 
+              responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString() 
+                                                                     : scheduledTime!= null && scheduledTime.getZone() != null ? 
+                                                                                                                                 scheduledTime.getZone().toString() : null);
+  }
+
+  public static void sortEvents(List<Event> greetings) {
+    Comparator<Event> dateComparator = new Comparator<Event>() {
+      @Override
+      public int compare(Event o1, Event o2) {
+        Date when1 = o1.getWhen();
+        Date when2 = o2.getWhen();
+        if (when1 == null || when2 == null) {
+          return 0;
+        } else if (when1.after(when2)) {
+          return -1;
+        } else if (when2.after(when1)) {
+          return 1;
+        }
+        return 0;
+      }
+    };
+    Collections.sort(greetings, dateComparator);
+  }
+
+  public static List<EventDAO> convertEventsToDAOs(List<Event> result) {
+    List<EventDAO> eventDAOs = Lists.newArrayList();
+  
+    for (Event event : result) {
+      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), 
+          event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(), 
+          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
+    }
+    return eventDAOs;
+  }
+
+  /**
+   * @param blobs
+   * @return
+   */
+  public static String[] toBase64StringArray(List<PhotoBlob> blobs) {
+    String[] results = new String[blobs.size()];
+    for (int i =0; i < blobs.size(); i++) {
+      results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
+    }
+    return results;
   }
   
 }

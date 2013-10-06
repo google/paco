@@ -35,32 +35,34 @@ public class Event implements Parcelable {
   public static class Creator implements Parcelable.Creator<Event> {
 
     public Event createFromParcel(Parcel source) {
-      Event input = new Event();
-      input.id = source.readLong();
-      input.experimentId = source.readLong();
-      input.experimentServerId = source.readLong();
-      input.experimentName = source.readString();
+      Event event = new Event();
+      event.id = source.readLong();
+      event.experimentId = source.readLong();
+      event.experimentServerId = source.readLong();
+      event.experimentName = source.readString();
+      event.experimentVersion = source.readInt();
       long scheduledMillis = source.readLong();
       String scheduledMillisTzId = source.readString();
       if (scheduledMillis != -1) {
-        input.scheduledTime = new DateTime(scheduledMillis, DateTimeZone.forID(scheduledMillisTzId));
+        event.scheduledTime = new DateTime(scheduledMillis, DateTimeZone.forID(scheduledMillisTzId));
       }
       
       long respondedMillis = source.readLong();
       String respondedMillisTzId = source.readString();
       if (respondedMillis != -1) {
-        input.responseTime = new DateTime(respondedMillis, DateTimeZone.forID(respondedMillisTzId));
+        event.responseTime = new DateTime(respondedMillis, DateTimeZone.forID(respondedMillisTzId));
       }
-      input.uploaded = source.readInt() == 1;
+      
+      event.uploaded = source.readInt() == 1;
       
       int responseSize = source.readInt();
       ClassLoader classLoader = getClass().getClassLoader();
 
       for (int i = 0; i < responseSize; i++) {
         Output response = source.readParcelable(classLoader);
-        input.responses.add(response);
+        event.responses.add(response);
       }
-      return input;
+      return event;
     }
 
     public Event[] newArray(int size) {
@@ -91,6 +93,8 @@ public class Event implements Parcelable {
   private boolean uploaded;
   
   private List<Output> responses = new ArrayList<Output>();
+
+  private Integer experimentVersion;
 
   public Event() {    
   }
@@ -191,6 +195,7 @@ public class Event implements Parcelable {
     dest.writeLong(experimentId);
     dest.writeLong(experimentServerId);
     dest.writeString(experimentName);
+    dest.writeInt(experimentVersion);
     long scheduledMillis = -1;
     String scheduledTzId = ""; 
     if (scheduledTime != null) {
@@ -198,7 +203,7 @@ public class Event implements Parcelable {
       scheduledTzId = scheduledTime.getZone().getID();
     } 
     dest.writeLong(scheduledMillis);
-    dest.writeString(scheduledTzId);
+    dest.writeString(scheduledTzId);    
 
     long respondedMillis = -1;
     String respondedTzId = "";
@@ -208,6 +213,7 @@ public class Event implements Parcelable {
     } 
     dest.writeLong(respondedMillis);
     dest.writeString(respondedTzId);
+    
     dest.writeInt(uploaded ? 1 : 0);
     dest.writeInt(responses.size());
     for (Output response : responses) {
@@ -237,6 +243,14 @@ public class Event implements Parcelable {
 
   public void setResponses(List<Output> responses) {
     this.responses = responses;
+  }
+
+  public void setExperimentVersion(Integer version) {
+    this.experimentVersion = version;    
+  }
+
+  public Integer getExperimentVersion() {
+    return this.experimentVersion;    
   }
 
 }

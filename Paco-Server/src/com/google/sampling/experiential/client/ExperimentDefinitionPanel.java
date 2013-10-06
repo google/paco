@@ -1,32 +1,36 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.  
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -41,32 +45,47 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 /**
- * The main panel for viewing the details of an experiment
- * Also used as the basis of creation and editing of experiments.
- * Delegates specific parts of experiment definition to sub panels.
- * Handles communication with subpanels about state of edits.
+ * The main panel for viewing the details of an experiment Also used as the
+ * basis of creation and editing of experiments. Delegates specific parts of
+ * experiment definition to sub panels. Handles communication with subpanels
+ * about state of edits.
  * 
  * @author Bob Evans
- *
+ * 
  */
 public class ExperimentDefinitionPanel extends Composite {
+  
+  /* Note: a valid email address, by our definition, contains:
+   *  A user name at least one character long. Valid characters are alphanumeric
+   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+), 
+   *    and period (.). The user name cannot start with a period or a plus,
+   *    and there cannot be two periods in a row.
+   *  A domain name that follows the same restrictions as a user name, except that it
+   *    cannot contain any underscore or plus characters.
+   *  A top-level domain, or TLD, (e.g. com, gov, edu) at least two characters long
+   *    and containing only alphabetic characters.
+   * The overall form of the email address must be username@domain.TLD
+   * Please update this documentation if changing the email regex below.
+   */
+  private static String EMAIL_REGEX = 
+      "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+      //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
+
+  private static String DATE_FORMAT = "yyyy/MM/dd";
 
   private ExperimentDAO experiment;
   private ArrayList<ExperimentListener> listeners;
-  private boolean admin;
 
   private VerticalPanel formPanel;
 
-  private HashMap<String, Widget> fieldToWidgetMap;
-  private int keyValueCounter = 0;
-  private ContentTypeView contentTypeView;
   private CheckBox publishCheckBox;
   private TextArea adminList;
   private DisclosurePanel publishedUsersPanel;
@@ -75,13 +94,22 @@ public class ExperimentDefinitionPanel extends Composite {
   private CheckBox customFeedbackCheckBox;
   private DisclosurePanel customFeedbackPanel;
   private TextArea customFeedbackText;
+  protected MyConstants myConstants;
+  protected MyMessages myMessages;
+  private DurationView durationPanel;
+  private TextArea informedConsentPanel;
+  private TextBox titlePanel;
+  private Label creatorPanel;
+  private TextArea descriptionPanel;
+  private InputsListPanel inputsListPanel;
 
+  private List<String> errorMessagesToDisplay;
 
+  public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
+    myConstants = GWT.create(MyConstants.class);
+    myMessages = GWT.create(MyMessages.class);
 
-  public ExperimentDefinitionPanel(
-      ExperimentDAO experiment, boolean admin, LoginInfo loginInfo, ExperimentListener listener) {
     this.experiment = experiment;
-    this.admin = admin;
     this.loginInfo = loginInfo;
     this.listeners = new ArrayList<ExperimentListener>();
     if (listener != null) {
@@ -90,22 +118,49 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel = new VerticalPanel();
     initWidget(formPanel);
 
-    String titleText = "Experiment Definition";
-    if (!isAdmin()) {
-      titleText = "Joined " + titleText;
-      titleText += " NOT EDITABLE";
-    }
+    String titleText = myConstants.experimentDefinition();
     Label lblExperimentDefinition = new Label(titleText);
     lblExperimentDefinition.setStyleName("paco-HTML-Large");
     formPanel.add(lblExperimentDefinition);
 
     createExperimentForm();
 
+    errorMessagesToDisplay = new ArrayList<String>();
+    errorMessagesToDisplay.add(myConstants.experimentCreationError());
+    // errorMessagesToDisplay = Arrays.asList(myConstants.experimentCreationError());
   }
 
+  private void createIdLabel(ExperimentDAO experiment) {
+    Long experimentVersionStr = 0l;
+    if (experiment.getId() != null) {
+      experimentVersionStr = experiment.getId();
+    }
+    HorizontalPanel versionPanel = new HorizontalPanel();
+    formPanel.add(versionPanel);
+    Label lblExperimentVersion = new Label(myConstants.experimentId() + ":");
+    lblExperimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(lblExperimentVersion);
 
-  private boolean isAdmin() {
-    return admin;
+    Label experimentVersion = new Label(Long.toString(experimentVersionStr));
+    experimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(experimentVersion);
+  }
+
+  private void createVersionLabel(ExperimentDAO experiment) {
+    String experimentVersionStr = "1";
+    if (experiment.getVersion() != null) {
+      experimentVersionStr = experiment.getVersion().toString();
+    }
+    HorizontalPanel versionPanel = new HorizontalPanel();
+    formPanel.add(versionPanel);
+
+    Label lblExperimentVersion = new Label(myConstants.experimentVersion() + ":");
+    lblExperimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(lblExperimentVersion);
+    
+    Label experimentVersion = new Label(experimentVersionStr);
+    experimentVersion.setStyleName("paco-HTML-Large");
+    versionPanel.add(experimentVersion);
   }
 
   protected void fireCanceled() {
@@ -118,38 +173,44 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void fireExperimentCode(int code) {
     for (ExperimentListener listener : listeners) {
-      listener.eventFired(code, experiment, false);
+      listener.eventFired(code, experiment, false, false);
     }
   }
 
   private void createExperimentForm() {
-    fieldToWidgetMap = Maps.newHashMap();
-    keyValueCounter = 0;
-    formPanel.add(createTitlePanel(experiment));
+    PanelPair titlePanelPair = createTitlePanel(experiment);
+    titlePanel = (TextBox) titlePanelPair.valueHolder;
+    formPanel.add(titlePanelPair.container);
 
-    formPanel.add(createDescriptionPanel(experiment));
-    formPanel.add(createCreatorPanel(experiment));
+    formPanel.add(createIdPanel(experiment).container);
+    formPanel.add(createVersionPanel(experiment).container);
 
-    if (isAdmin()) {
-      formPanel.add(createAdminDisclosurePanel(experiment));
-    }
+    PanelPair descriptionPanelPair = createDescriptionPanel(experiment);
+    descriptionPanel = (TextArea) descriptionPanelPair.valueHolder;
+    formPanel.add(descriptionPanelPair.container);
 
-    formPanel.add(createInformedConsentPanel(experiment));
+    PanelPair creatorPanelPair = createCreatorPanel(experiment);
+    creatorPanel = (Label) creatorPanelPair.valueHolder;
+    formPanel.add(creatorPanelPair.container);
+
+    formPanel.add(createAdminDisclosurePanel(experiment));
+
+    PanelPair informedConsentPanelPair = createInformedConsentPanel(experiment);
+    informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
+    formPanel.add(informedConsentPanelPair.container);
 
     formPanel.add(createDurationPanel(experiment));
-
-    createSchedulePanel(experiment);
-
-    formPanel.add(createContentTypeView("questionsChange", experiment.getQuestionsChange()));
+    formPanel.add(createSignalMechanismPanel(experiment));
 
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
     createFeedbackEntryPanel(experiment);
-    if (isAdmin()) {
-      createPublishingPanel(experiment);
-      createButtonPanel(experiment);
-    }
+    createPublishingPanel(experiment);
+    createButtonPanel(experiment);
+  }
 
+  private SignalMechanismChooserPanel createSignalMechanismPanel(ExperimentDAO experiment2) {
+    return new SignalMechanismChooserPanel(experiment);
   }
 
   /**
@@ -162,10 +223,10 @@ public class ExperimentDefinitionPanel extends Composite {
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
     customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
-        experiment.getFeedback().length > 0 && 
+        experiment.getFeedback().length > 0 &&
         !defaultFeedback(experiment.getFeedback()[0]));
     feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label("Custom Feedback");
+    Label feedbackLabel = new Label(myConstants.customFeedback());
     feedbackPanel.add(feedbackLabel);
     formPanel.add(feedbackPanel);
 
@@ -174,17 +235,22 @@ public class ExperimentDefinitionPanel extends Composite {
     return feedbackPanel;
   }
 
-
   /**
    * @param experiment2
    */
   private void createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
     customFeedbackPanel = new DisclosurePanel();
 
-    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(false, 
-        "<b>Click to edit custom feedback</b>");
-    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(true, 
-        "<b>Click to close editing of custom feedback</b>");
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditCustomFeedback()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToCloseCustomFeedbackEditor()
+                                                                                 + "</b>");
 
     customFeedbackPanel.setHeader(closedHeaderWidget);
     customFeedbackPanel.addEventHandler(new DisclosureHandler() {
@@ -198,8 +264,7 @@ public class ExperimentDefinitionPanel extends Composite {
     });
 
     VerticalPanel userContentPanel = new VerticalPanel();
-    Label instructionLabel =
-        new Label("Enter custom feedback page html and javascript");
+    Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
     userContentPanel.add(instructionLabel);
 
     customFeedbackText = new TextArea();
@@ -207,7 +272,7 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackText.setHeight("100");
 
     FeedbackDAO[] feedbacks = experiment.getFeedback();
-    
+
     if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
       customFeedbackText.setText(feedbacks[0].getText());
     }
@@ -216,59 +281,64 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackPanel.setContent(userContentPanel);
   }
 
-
   /**
    * @param feedbackDAO
    * @return
    */
   private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE) &&
-    feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+    return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE)
+           && feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
   }
 
-
-  private VerticalPanel createTitlePanel(ExperimentDAO experiment) {
-    return createFormLine("Title", experiment.getTitle());
+  private PanelPair createTitlePanel(ExperimentDAO experiment) {
+    return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
   }
 
-  private VerticalPanel createDescriptionPanel(ExperimentDAO experiment) {
-    return createFormArea("Description (<500 chars)", experiment.getDescription(), 75, "100");
+  private PanelPair createIdPanel(ExperimentDAO experiment) {
+    return createDisplayLine(myConstants.experimentId(),
+                             Long.toString(experiment.getId() != null ? experiment.getId() : 0));
   }
 
-  private VerticalPanel createCreatorPanel(ExperimentDAO experiment) {
-    return createDisplayLine("Creator",
-        experiment.getCreator() != null ? experiment.getCreator() : loginInfo.getEmailAddress());
+  private PanelPair createVersionPanel(ExperimentDAO experiment) {
+    return createDisplayLine(myConstants.experimentVersion(),
+                             Integer.toString(experiment.getVersion() == null ? 0 : experiment.getVersion()));
   }
 
-  private VerticalPanel createInformedConsentPanel(ExperimentDAO experiment) {
-    return createFormArea(
-        "Informed Consent Text", experiment.getInformedConsentForm(), 100, "200");
+  private PanelPair createDescriptionPanel(ExperimentDAO experiment) {
+    return createFormArea(myConstants.experimentDescription(), experiment.getDescription(), 75, "100");
+  }
+
+  private PanelPair createCreatorPanel(ExperimentDAO experiment) {
+    return createDisplayLine(myConstants.experimentCreator(),
+                             experiment.getCreator() != null ? experiment.getCreator() : loginInfo.getEmailAddress());
+  }
+
+  private PanelPair createInformedConsentPanel(ExperimentDAO experiment) {
+    return createFormArea(myConstants.informedConsent(), experiment.getInformedConsentForm(), 100, "200");
   }
 
   private HTML createInputsHeader() {
-    HTML questionsPrompt = new HTML("<h2>Enter at least one question</h2>");
+    HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + "</h2>");
     questionsPrompt.setStyleName("keyLabel");
     return questionsPrompt;
   }
 
   private DurationView createDurationPanel(ExperimentDAO experiment) {
-    DurationView durationPanel = new DurationView(
-        experiment.getFixedDuration(), experiment.getStartDate(), experiment.getEndDate());
-    fieldToWidgetMap.put("duration", durationPanel);
+    durationPanel = new DurationView(experiment.getFixedDuration(), experiment.getStartDate(),
+                                                  experiment.getEndDate());
+
     return durationPanel;
   }
 
   private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
-    InputsListPanel inputsListPanel = new InputsListPanel(experiment);
+    inputsListPanel = new InputsListPanel(experiment);
     inputsListPanel.setStyleName("left");
     return inputsListPanel;
   }
 
   private void createButtonPanel(ExperimentDAO experiment) {
     HorizontalPanel buttonPanel = new HorizontalPanel();
-    if (isAdmin()) {
-      buttonPanel.add(createSubmitButton(experiment));
-    }
+    buttonPanel.add(createSubmitButton(experiment));
     buttonPanel.add(createCancelButton());
     formPanel.add(buttonPanel);
   }
@@ -278,7 +348,7 @@ public class ExperimentDefinitionPanel extends Composite {
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
     publishingPanel.add(publishCheckBox);
-    Label publishLabel = new Label("Published");
+    Label publishLabel = new Label(myConstants.published());
     publishingPanel.add(publishLabel);
     formPanel.add(publishingPanel);
 
@@ -286,17 +356,18 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(publishedUsersPanel);
   }
 
-  private void createSchedulePanel(ExperimentDAO experiment) {
-    SchedulePanel sp = new SchedulePanel(experiment.getSchedule());
-    formPanel.add(sp);
-  }
-
   private DisclosurePanel createAdminDisclosurePanel(ExperimentDAO experiment) {
     final DisclosurePanel adminPanel = new DisclosurePanel();
-    final DisclosurePanelHeader closedHeaderWidget =
-        new DisclosurePanelHeader(false, "<b>Click to edit administrators</b>");
-    final DisclosurePanelHeader openHeaderWidget =
-        new DisclosurePanelHeader(true, "<b>Click to close editing of administrators</b>");
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditAdministrators()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToCloseAdministratorEditor()
+                                                                                 + "</b>");
     adminPanel.setHeader(closedHeaderWidget);
     adminPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
@@ -308,8 +379,7 @@ public class ExperimentDefinitionPanel extends Composite {
       }
     });
     VerticalPanel adminContentPanel = new VerticalPanel();
-    Label instructionlabel = createLabel(
-        "Enter emails separated by commas of who can edit this experiment and see results");
+    Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);
 
     adminList = new TextArea();
@@ -317,8 +387,9 @@ public class ExperimentDefinitionPanel extends Composite {
     adminList.setHeight("100");
     String[] adminStrArray = experiment.getAdmins();
     List<String> admins = Lists.newArrayList(adminStrArray);
-    if (!admins.contains(loginInfo.getEmailAddress())) {
-      admins.add(loginInfo.getEmailAddress());
+    String loginEmailLowercase = loginInfo.getEmailAddress().toLowerCase();
+    if (!admins.contains(loginEmailLowercase)) {
+      admins.add(loginEmailLowercase);
     }
     adminList.setText(toCSVString(admins));
 
@@ -327,16 +398,12 @@ public class ExperimentDefinitionPanel extends Composite {
     return adminPanel;
   }
 
-
-
-  final DisclosurePanelImages images =
-      (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
+  final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
 
   class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
-      add(
-          isOpen ? images.disclosurePanelOpen().createImage()
-              : images.disclosurePanelClosed().createImage());
+      add(isOpen ? images.disclosurePanelOpen().createImage() 
+                 : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
   }
@@ -344,10 +411,15 @@ public class ExperimentDefinitionPanel extends Composite {
   private void createPublishedUsersDisclosurePanel(ExperimentDAO experiment) {
     publishedUsersPanel = new DisclosurePanel();
 
-    final DisclosurePanelHeader closedHeaderWidget =
-        new DisclosurePanelHeader(false, "<b>Click to edit published audience</b>");
-    final DisclosurePanelHeader openHeaderWidget =
-        new DisclosurePanelHeader(true, "<b>Click to close editing of published audience</b>");
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditPublished()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToClosePublishedEditor()
+                                                                                 + "</b>");
 
     publishedUsersPanel.setHeader(closedHeaderWidget);
     publishedUsersPanel.addEventHandler(new DisclosureHandler() {
@@ -362,8 +434,7 @@ public class ExperimentDefinitionPanel extends Composite {
     });
 
     VerticalPanel userContentPanel = new VerticalPanel();
-    Label instructionLabel =
-        new Label("Enter emails separated by commas. An empty list is public.");
+    Label instructionLabel = new Label(myConstants.publishedEditorPrompt());
     userContentPanel.add(instructionLabel);
 
     userList = new TextArea();
@@ -378,69 +449,66 @@ public class ExperimentDefinitionPanel extends Composite {
     publishedUsersPanel.setContent(userContentPanel);
   }
 
-  private VerticalPanel createFormLine(String key, String value) {
+  private PanelPair createFormLine(String key, String value) {
+    return createFormLine(key, value, null);
+  }
+
+  private PanelPair createFormLine(String key, String value, String styleName) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
-    keyLabel.setStyleName("keyLabel");
+    keyLabel.setStyleName(styleName == null ? "keyLabel" : styleName);
     TextBox valueBox = new TextBox();
     if (value != null) {
       valueBox.setText(value);
     }
-    valueBox.setEnabled(isAdmin());
+    valueBox.setEnabled(true);
     line.add(keyLabel);
     line.add(valueBox);
-    fieldToWidgetMap.put(key, valueBox);
-    return line;
+    return new PanelPair(line, valueBox);
   }
 
-  private VerticalPanel createFormArea(String key, String value, int width, String height) {
+  private PanelPair createFormArea(String key, String value, int width, String height) {
     VerticalPanel line = new VerticalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName("keyLabel");
-    TextArea valueBox = new TextArea();
+    final TextArea valueBox = new TextArea();
     valueBox.setCharacterWidth(width);
     valueBox.setHeight(height);
     if (value != null) {
       valueBox.setText(value);
     }
-    valueBox.setEnabled(isAdmin());
+    valueBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        if (valueBox.getText().length() >= 500) {
+          // TODO surface a message that their text is being truncated.
+          valueBox.setText(valueBox.getText().substring(0, 499));
+        }
+
+      }
+    });
+    valueBox.setEnabled(true);
     line.add(keyLabel);
     line.add(valueBox);
-    fieldToWidgetMap.put(key, valueBox);
-    return line;
+    return new PanelPair(line, valueBox);
   }
 
-  private VerticalPanel createDisplayLine(String key, String value) {
-    VerticalPanel line = new VerticalPanel();
+  public static PanelPair createDisplayLine(String key, String value) {
+    HorizontalPanel line = new HorizontalPanel();
     line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName("keyLabel");
+
     Label valueBox = new Label();
     if (value != null) {
       valueBox.setText(value);
     }
     line.add(keyLabel);
     line.add(valueBox);
-    fieldToWidgetMap.put(key, valueBox);
-    return line;
-  }
-
-
-  private ContentTypeView createContentTypeView(String key, boolean value) {
-    contentTypeView = new ContentTypeView(value);
-    fieldToWidgetMap.put(key, contentTypeView);
-    return contentTypeView;
-  }
-
-  private VerticalPanel createFormLine(String key) {
-    return createFormLine(key, null);
-  }
-
-  private void resetDetailPanelAndDisplay() {
-    formPanel.clear();
-    keyValueCounter = 0;
+    return new PanelPair(line, valueBox);
   }
 
   private String toCSVString(List<String> list) {
@@ -452,7 +520,7 @@ public class ExperimentDefinitionPanel extends Composite {
       } else {
         buf.append(", ");
       }
-      buf.append(item);
+      buf.append(item.toLowerCase());
     }
     return buf.toString();
   }
@@ -467,7 +535,7 @@ public class ExperimentDefinitionPanel extends Composite {
    * @return
    */
   private Widget createCancelButton() {
-    Button cancelButton = new Button("Cancel");
+    Button cancelButton = new Button(myConstants.cancel());
     cancelButton.addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
@@ -479,17 +547,145 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private Widget createSubmitButton(final ExperimentDAO experiment) {
 
-    Button whatButton =
-        new Button(experiment.getId() == null ? "Create Experiment" : "Update Experiment");
+    Button whatButton = new Button(experiment.getId() == null ? myConstants.createExperiment()
+                                                             : myConstants.updateExperiment());
     whatButton.addClickListener(new ClickListener() {
 
       @Override
       public void onClick(Widget sender) {
-        submitEvent(experiment);
+        if (canSubmit()) {
+          submitEvent(experiment);
+        } else {
+          Window.alert(getErrorMessages());
+        }
       }
 
     });
     return whatButton;
+  }
+
+  // Visible for testing
+  protected boolean canSubmit() {
+    List<Boolean> allRequirementsAreMet = Arrays.asList(checkRequiredFieldsAreFilledAndHighlight(),
+                                                        checkVariableNamesHaveNoSpacesAndHighlight(),
+                                                        startDateIsNotAfterEndDate(),
+                                                        checkEmailFieldsAreValidAndHighlight());
+    List<String> requirementMessages = Arrays.asList(myConstants.needToCompleteRequiredFields(),
+                                                     myConstants.varNameUnfilledOrHasSpacesError(),
+                                                     myConstants.startEndDateError(),
+                                                     myConstants.emailAddressesError());
+    removeExistingErrorMessages();
+    for (int i = 0; i < allRequirementsAreMet.size(); ++i) {
+      if (!allRequirementsAreMet.get(i)) {
+        addErrorMessage(requirementMessages.get(i));
+      }
+    }
+    return !allRequirementsAreMet.contains(false);
+  }
+  
+  // Visible for testing
+  protected InputsListPanel getInputsListPanel() {
+    return inputsListPanel;
+  }
+  
+  // Visible for testing
+  protected DurationView getDurationPanel() {
+    return durationPanel;
+  }
+
+  private void removeExistingErrorMessages() {
+    if (errorMessagesListHasMessages()) {
+      errorMessagesToDisplay.subList(1, errorMessagesToDisplay.size()).clear();
+    }
+  }
+  
+  private boolean errorMessagesListHasMessages() {
+    Preconditions.checkArgument(!errorMessagesToDisplay.isEmpty());
+    return !(errorMessagesToDisplay.size() == 1);
+  }
+
+  private void addErrorMessage(String errorMessage) {
+    errorMessagesToDisplay.add(errorMessage);
+  }
+  
+  private String getErrorMessages() {
+    return Joiner.on("\n").join(errorMessagesToDisplay);
+  }
+
+  // Required fields are: title, informed consent, and at least one valid
+  // question.
+  private boolean checkRequiredFieldsAreFilledAndHighlight() {
+    List<Boolean> areRequiredWidgetsFilled = Arrays.asList(checkTextFieldIsFilledAndHighlight(titlePanel),
+                                                           // textFieldIsFilled(informedConsentPanel),
+                                                           checkListItemsHaveAtLeastOneOptionAndHighlight());
+    return !areRequiredWidgetsFilled.contains(false);
+  }
+
+  private boolean checkTextFieldIsFilledAndHighlight(TextBoxBase widget) {
+    boolean isFilled = !widget.getText().isEmpty();
+    setPanelHighlight(widget, isFilled);
+    return isFilled;
+  }
+  
+  private boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
+    return inputsListPanel.checkListItemsHaveAtLeatOneOptionAndHighlight();
+  }
+  
+  private boolean checkVariableNamesHaveNoSpacesAndHighlight() {
+    return inputsListPanel.checkVarNamesFilledWithoutSpacesAndHighlight();
+  }
+  
+  // Visible for testing
+  protected boolean startDateIsNotAfterEndDate() {
+    if (durationPanel.isFixedDuration()) {
+      Date startDate = getDateFromFormattedString(durationPanel.getStartDate());
+      Date endDate = getDateFromFormattedString(durationPanel.getEndDate());
+      boolean startDateNotAfterEndDate = !(endDate.before(startDate));
+      setPanelHighlight(durationPanel, startDateNotAfterEndDate);
+      return startDateNotAfterEndDate;
+    } else {
+      setPanelHighlight(durationPanel, true);
+      return true;
+    }
+  }
+  
+  private boolean checkEmailFieldsAreValidAndHighlight() {
+    boolean adminListIsValid = checkEmailFieldIsValidAndHighlight(adminList);
+    boolean userListIsValid = checkEmailFieldIsValidAndHighlight(userList);
+    return adminListIsValid && userListIsValid;
+  }
+  
+  private boolean checkEmailFieldIsValidAndHighlight(TextBoxBase widget) {
+    boolean emailAddressesAreValid = emailStringIsValid(widget.getText());
+    setPanelHighlight(widget, emailAddressesAreValid);
+    return emailAddressesAreValid;
+  }
+  
+  // Visible for testing
+  protected boolean emailStringIsValid(String emailString) {
+    Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
+    for (String email : sp.split(emailString)) {
+      if (!email.matches(EMAIL_REGEX)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void setPanelHighlight(Widget widget, boolean isFilled) {
+    if (isFilled) {
+      removeErrorHighlight(widget);
+    } else {
+      addErrorHighlight(widget);
+    }
+  }
+
+  private void addErrorHighlight(Widget widget) {
+    widget.addStyleName(Main.ERROR_HIGHLIGHT);
+  }
+
+  private void removeErrorHighlight(Widget widget) {
+    widget.removeStyleName(Main.ERROR_HIGHLIGHT);
   }
 
   private void submitEvent(ExperimentDAO experiment) {
@@ -499,7 +695,7 @@ public class ExperimentDefinitionPanel extends Composite {
       setCreatorOn(experiment);
       setAdminsOn(experiment);
       setInformedConsentOn(experiment);
-      setQuestionsChangeOn(experiment);
+      // setQuestionsChangeOn(experiment);
       setDurationOn(experiment);
       setFeedbackOn(experiment);
       setPublishingOn(experiment);
@@ -518,31 +714,46 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void setDescriptionOn(ExperimentDAO experiment) {
-    experiment.setDescription(((TextArea)fieldToWidgetMap.get(
-        "Description (<500 chars)")).getText());
+    experiment.setDescription(descriptionPanel.getText());
   }
 
   private void setTitleOn(ExperimentDAO experiment) {
-    experiment.setTitle(((TextBox) fieldToWidgetMap.get("Title")).getText());
+    experiment.setTitle(titlePanel.getText());
+  }
+  
+  protected void setTitleInPanel(String title) {
+    titlePanel.setText(title);
   }
 
-  private void setQuestionsChangeOn(ExperimentDAO experiment) {
-    experiment.setQuestionsChange(
-        ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
-  }
+  // private void setQuestionsChangeOn(ExperimentDAO experiment) {
+  // experiment.setQuestionsChange(
+  // ((BooleanValueHolder) fieldToWidgetMap.get("questionsChange")).getValue());
+  // }
 
   private void setInformedConsentOn(ExperimentDAO experiment) {
-    experiment.setInformedConsentForm(
-        ((TextArea) fieldToWidgetMap.get("Informed Consent Text")).getText());
+    experiment.setInformedConsentForm(informedConsentPanel.getText());
   }
+  
+  protected void setInformedConsentInPanel(String title) {
+    informedConsentPanel.setText(title);
+  }
+
 
   private void setModifyDateOn(ExperimentDAO experiment) {
     if (experiment.getModifyDate() == null) {
-      experiment.setModifyDate(new Date().getTime());
+      experiment.setModifyDate(formatDateAsString(new Date()));
     }
   }
-
-
+  
+  private String formatDateAsString(Date date) {
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.format(date);
+  }
+  
+  private Date getDateFromFormattedString(String dateString) {
+    DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
+    return formatter.parse(dateString);
+  }
 
   private void setPublishingOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
@@ -551,30 +762,26 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private void setFeedbackOn(ExperimentDAO experiment) {
     if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(new FeedbackDAO[] {new FeedbackDAO(null, 
-          FeedbackDAO.DISPLAY_FEEBACK_TYPE, FeedbackDAO.DEFAULT_FEEDBACK_MSG)});
+      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
+                                                                 FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
     } else {
-      experiment.setFeedback(new FeedbackDAO[] {new FeedbackDAO(null, 
-          FeedbackDAO.DISPLAY_FEEBACK_TYPE, customFeedbackText.getText())});
+      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
+                                                                 customFeedbackText.getText()) });
     }
   }
 
   private void setDurationOn(ExperimentDAO experiment) {
-    DurationView durationView = (DurationView) fieldToWidgetMap.get("duration");
-    experiment.setFixedDuration(durationView.isFixedDuration());
+    experiment.setFixedDuration(durationPanel.isFixedDuration());
     if (experiment.getFixedDuration()) {
-      experiment
-          .setStartDate(durationView.getStartDate() != null ? Long.valueOf(
-              durationView.getStartDate().getTime()) : null);
-      experiment
-          .setEndDate(durationView.getEndDate() != null
-              ? Long.valueOf(durationView.getEndDate().getTime()) : null);
+      experiment.setStartDate(durationPanel.getStartDate());
+      experiment.setEndDate(durationPanel.getEndDate());
     } else {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
     }
+    
   }
-
+  
   private void setAdminsOn(ExperimentDAO experiment) {
     List<String> admins = new ArrayList<String>();
     String adminsText = adminList.getText();
@@ -590,6 +797,11 @@ public class ExperimentDefinitionPanel extends Composite {
     adminStrArray = admins.toArray(adminStrArray);
     experiment.setAdmins(adminStrArray);
   }
+  
+  // Visible for testing
+  protected void setAdminsInPanel(String commaSepEmailList) {
+    adminList.setText(commaSepEmailList);
+  }
 
   private void setPublishedUsersOn(ExperimentDAO experiment) {
     List<String> userEmails = new ArrayList<String>();
@@ -603,5 +815,10 @@ public class ExperimentDefinitionPanel extends Composite {
     String[] userEmailsStrArray = new String[userEmails.size()];
     userEmailsStrArray = userEmails.toArray(userEmailsStrArray);
     experiment.setPublishedUsers(userEmailsStrArray);
+  }
+
+  // Visible for testing
+  protected void setPublishedUsersInPanel(String commaSepEmailList) {
+    userList.setText(commaSepEmailList);
   }
 }

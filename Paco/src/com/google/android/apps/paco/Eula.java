@@ -16,6 +16,10 @@
 */
 package com.google.android.apps.paco;
 
+import java.util.Locale;
+
+import com.pacoapp.paco.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -35,6 +39,26 @@ import android.content.SharedPreferences;
 class Eula {
   private static final String PREFERENCE_EULA_ACCEPTED = "eula.accepted";
   private static final String PREFERENCES_EULA = "eula";
+
+  
+  static class EulaLocaleHelper extends AndroidLocaleHelper<Integer> {
+
+    @Override
+    protected Integer getEnVersion() {
+      return R.raw.eula;
+    }
+
+    @Override
+    protected Integer getJaVersion() {
+      return R.raw.eula_ja;
+    }
+    
+    @Override
+    protected Integer getFiVersion() {
+      return R.raw.eula_fi;
+    }    
+
+  };
 
   /**
    * Displays the EULA if necessary. This method should be called from the
@@ -71,10 +95,13 @@ class Eula {
         refuse(activity);
       }
     });
-    builder.setMessage(ResourceUtils.readFile(activity, R.raw.eula));
+      
+    Integer eulaId = new EulaLocaleHelper().getLocalizedResource();
+    builder.setMessage(ResourceUtils.readFile(activity, eulaId));
     builder.show();
   }
-
+  
+  
   private static void accept(Activity activity, SharedPreferences preferences) {
     preferences.edit().putBoolean(PREFERENCE_EULA_ACCEPTED, true).commit();
     Intent startIntent = new Intent(activity, WelcomeActivity.class);
