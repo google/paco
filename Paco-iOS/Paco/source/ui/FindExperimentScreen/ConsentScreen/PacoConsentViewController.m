@@ -31,85 +31,76 @@
 @synthesize experiment = _experiment;
 
 + (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
-      PacoConsentViewController* controller =
-      [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
-      controller.experiment = experiment;
-      controller.navigationItem.title = experiment.title;
-      controller.navigationItem.hidesBackButton = NO;
-      return controller;
+  PacoConsentViewController* controller =
+  [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
+  controller.experiment = experiment;
+  controller.navigationItem.title = experiment.title;
+  controller.navigationItem.hidesBackButton = NO;
+  return controller;
 }
 
 
 - (void)viewDidLoad {
-      [super viewDidLoad];
-      if ([self respondsToSelector:@selector(edgesForExtendedLayout)])//for ios7, to adjust layout
-            self.edgesForExtendedLayout = UIRectEdgeNone;
+  [super viewDidLoad];
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]){//for ios7, to adjust layout
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
-      self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
-      UILabel *boldText = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 300, 30)];
-      boldText.text = @"Data Handling &amp; Privacy Agreement between You and the Experiment Creator";
-      boldText.font = [PacoFont pacoConsentBoldFont];
-      boldText.textColor = [UIColor blackColor];
-      boldText.backgroundColor = [UIColor clearColor];
+  UILabel* boldText = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 300, 30)];
+  boldText.text = @"Data Handling & Privacy Agreement between You and the Experiment Creator";
+  boldText.font = [PacoFont pacoConsentBoldFont];
+  boldText.textColor = [UIColor blackColor];
+  boldText.backgroundColor = [UIColor clearColor];
+  boldText.numberOfLines = 0;
+  [self.view addSubview:boldText];
+  [boldText sizeToFit];
+  CGRect boldTextFrame = boldText.frame;
+  boldTextFrame.origin.x = 10;
+  boldTextFrame.origin.y = 10;
+  boldText.frame = boldTextFrame;
 
-      boldText.numberOfLines = 0;
-      [self.view addSubview:boldText];
-      [boldText sizeToFit];
-      CGRect boldTextFrame = boldText.frame;
-      boldText.frame = boldTextFrame;
-      boldTextFrame = boldText.frame;
-      boldTextFrame.origin.x = 10;
-      boldTextFrame.origin.y = 10;
-      boldText.frame = boldTextFrame;
+  UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldText.frame.origin.y + boldText.frame.size.height + 10, 300, 0)];
+  consentText.text = @"By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy thay have provided below to decide on whether you want to participate in this experiment.";
+  consentText.font = [PacoFont pacoTableCellDetailFont];
+  consentText.textColor = [UIColor blackColor];
+  consentText.backgroundColor = [UIColor clearColor];
+  consentText.numberOfLines = 0;
+  [self.view addSubview:consentText];
+  [consentText sizeToFit];
+  CGRect textFrame = consentText.frame;
+  textFrame.origin.x = 10;
+  textFrame.origin.y = boldText.frame.origin.y + boldText.frame.size.height + 10;
+  consentText.frame = textFrame;
 
+  UITextView* textExpView = [[UITextView alloc] initWithFrame:CGRectMake(10, consentText.frame.origin.y + consentText.frame.size.height + 15, self.view.frame.size.width - 20, 180)];
+  textExpView.backgroundColor = [UIColor whiteColor];
+  textExpView.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+  textExpView.textColor = [PacoColor pacoDarkBlue];
+  textExpView.text = self.experiment.informedConsentForm;
+  textExpView.editable = NO;
+  [self.view addSubview:textExpView];
+  [textExpView sizeToFit];
 
-
-      UILabel *consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldText.frame.origin.y+boldText.frame.size.height+10, 300, 0)];
-      consentText.text = @"By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy thay have provided below to decide on whether you want to participate in this eperiment.";
-      consentText.font = [PacoFont pacoTableCellDetailFont];
-      consentText.textColor = [UIColor blackColor];
-      consentText.backgroundColor = [UIColor clearColor];
-      consentText.numberOfLines = 0;
-      [self.view addSubview:consentText];
-      [consentText sizeToFit];
-      CGRect textFrame = consentText.frame;
-      consentText.frame = textFrame;
-      textFrame = consentText.frame;
-      textFrame.origin.x = 10;
-      textFrame.origin.y = boldText.frame.origin.y+boldText.frame.size.height+10;
-      consentText.frame = textFrame;
-
-      UITextView *textexpview=   [[UITextView alloc] initWithFrame:CGRectMake(10, consentText.frame.origin.y+consentText.frame.size.height+15, self.view.frame.size.width-20, 180)];
-      textexpview.backgroundColor=[UIColor whiteColor];
-      textexpview.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-      textexpview.textColor = [PacoColor pacoDarkBlue];
-      textexpview.text=self.experiment.informedConsentForm;
-      textexpview.editable=FALSE;
-      [self.view addSubview:textexpview];
-      [textexpview sizeToFit];
-
-      UIButton *iConsent = [UIButton buttonWithType:UIButtonTypeCustom];
-      iConsent.frame = CGRectMake((self.view.frame.size.width-120)/2, self.view.frame.size.height-45-self.navigationController.navigationBar.frame.size.height, 120, 35);
-      [iConsent setTitle:@"I Consent" forState:UIControlStateNormal];
-      if (IS_IOS_7) {
-            iConsent.frame = CGRectMake((self.view.frame.size.width-120)/2, self.view.frame.size.height-65-self.navigationController.navigationBar.frame.size.height, 120, 35);
-            iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
-      }
-      [iConsent setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-      [iConsent addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
-      [self.view addSubview:iConsent];
-
-
+  UIButton* iConsent = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  iConsent.frame = CGRectMake((self.view.frame.size.width - 120) / 2, self.view.frame.size.height - 45 - self.navigationController.navigationBar.frame.size.height, 120, 35);
+  [iConsent setTitle:@"I Consent" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    iConsent.frame = CGRectMake((self.view.frame.size.width - 120) / 2, self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height, 120, 35);
+    iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
+  [iConsent addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
+  [self.view addSubview:iConsent];
 }
 
 - (void)onAccept {
-      PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-      edit.experiment = self.experiment;
-      [self.navigationController pushViewController:edit animated:YES];
+  PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
+  edit.experiment = self.experiment;
+  [self.navigationController pushViewController:edit animated:YES];
 }
 
 - (void)didReceiveMemoryWarning {
-      [super didReceiveMemoryWarning];
+  [super didReceiveMemoryWarning];
 }
 
 @end

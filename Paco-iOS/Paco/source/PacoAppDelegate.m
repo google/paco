@@ -35,13 +35,13 @@
   if (notification == nil) {
     return;
   }
-  
+
   NSDate* experimentTimeOutDate =[notification.userInfo valueForKey:@"experimentTimeOutDate"];
   if (experimentTimeOutDate != nil && [experimentTimeOutDate timeIntervalSinceNow] <= 0) {
     NSLog(@"Warning: A time out notification was received!");
     return;
   }
-  
+
   UIApplicationState state = [application applicationState];
   //if this is called when application is in background, we should show the question view directly.
   if (state == UIApplicationStateInactive) {
@@ -57,15 +57,15 @@
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
-  //If there is any view popped up, dismiss it and show a question view 
+  //If there is any view popped up, dismiss it and show a question view
   UINavigationController* navi = self.viewController.navigationController;
   [navi popToRootViewControllerAnimated:NO];
-  
+
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
-      [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+  [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
   [navi pushViewController:questions animated:NO];
 }
 
@@ -80,7 +80,7 @@
       NSLog(@"Warning: A time out notification was received!");
       return;
     }
-    
+
     [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
     [JCNotificationCenter enqueueNotificationWithTitle:@""
                                                message:notification.alertBody
@@ -94,12 +94,12 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   // Stir!
   arc4random_stir();
-  
+
   //YMZ:TODO: set the badge number to 0 may clear all notifications in the tray
   //http://stackoverflow.com/questions/7773584/can-i-programmatically-clear-my-apps-notifications-from-the-ios-5-notification
-  // Clear all Application Badges  
-//  application.applicationIconBadgeNumber = 0;
-  
+  // Clear all Application Badges
+  //  application.applicationIconBadgeNumber = 0;
+
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
 
@@ -113,8 +113,8 @@
 
   self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
   [self.window makeKeyAndVisible];
-  
-  
+
+
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
@@ -145,7 +145,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillTerminate  ==========");
-  
+
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
   if (success) {
     NSLog(@"Successfully saved model!");
