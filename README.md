@@ -15,6 +15,6 @@ Also, you can stay in touch
 * Announcements: https://groups.google.com/forum/#!forum/paco-announcements
 * Users: https://groups.google.com/forum/#!forum/paco-users
 
-
+-----
 * Twitter: https://twitter.com/pacoapp
 * Google+: https://plus.google.com/u/0/b/115229263290117262376/
