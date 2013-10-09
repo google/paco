@@ -14,7 +14,10 @@
  */
 
 #import <Foundation/Foundation.h>
+@class PacoExperiment;
 
 @interface PacoScheduleGenerator : NSObject
+
++ (NSDate*)nextScheduledDateFromNow:(PacoExperiment*)experiment;
 
 @end

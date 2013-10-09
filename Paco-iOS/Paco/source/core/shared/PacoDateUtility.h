@@ -15,14 +15,36 @@
 
 #import <Foundation/Foundation.h>
 
-@class PacoExperiment;
-@class PacoExperimentSchedule;
-
 @interface PacoDateUtility : NSObject
 + (NSString *)pacoStringForDate:(NSDate *)date;
 + (NSDate *)pacoDateForString:(NSString *)dateStr;
 + (NSString*)debugStringForDate:(NSDate*)date;
 
-+ (NSDate*)nextScheduledDateFromNow:(PacoExperiment *)experiment;
++ (int)dayIndexOfDate:(NSDate *)date;
++ (int)weekdayIndexOfDate:(NSDate *)date;
++ (int)weekOfYearIndexOfDate:(NSDate *)date;
++ (int)monthOfYearIndexOfDate:(NSDate *)date;
++ (NSDate *)midnightThisDate:(NSDate *)date;
++ (NSDate *)firstDayOfMonth:(NSDate *)date;
++ (NSDate *)timeOfDayThisDate:(NSDate *)date
+                        hrs24:(int)hrs24
+                      minutes:(int)minutes;
++ (NSDate *)nextTimeFromScheduledDates:(NSArray *)scheduledDates
+                           onDayOfDate:(NSDate *)dayOfDate;
++ (NSDate *)nextTimeFromScheduledTimes:(NSArray *)scheduledTimes
+                           onDayOfDate:(NSDate *)dayOfDate;
++ (NSDate *)date:(NSDate *)date thisManyDaysFrom:(int)daysFrom;
++ (NSDate *)date:(NSDate *)date thisManyWeeksFrom:(int)weeksFrom;
++ (NSDate *)date:(NSDate *)date thisManyMonthsFrom:(int)monthsFrom;
++ (NSDate *)dateSameWeekAs:(NSDate *)sameWeekAs
+                  dayIndex:(int)dayIndex
+                      hr24:(int)hr24
+                       min:(int)min;
++ (NSDate *)dateSameMonthAs:(NSDate *)sameMonthAs
+                   dayIndex:(int)dayIndex;
++ (NSDate *)dateOnNthOfMonth:(NSDate *)sameMonthAs
+                         nth:(int)nth
+                    dayFlags:(unsigned int)dayFlags;
++ (NSDate *)nextScheduledDay:(NSUInteger)dayFlags fromDate:(NSDate *)date;
 
 @end

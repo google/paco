@@ -18,6 +18,7 @@
 #import "PacoClient.h"
 #import "PacoConfig.h"
 #import "PacoDateUtility.h"
+#import "PacoScheduleGenerator.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 #import "PacoNotificationManager.h"
@@ -192,7 +193,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
   NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
   
-  NSDate* experimentFireDate = [PacoDateUtility nextScheduledDateFromNow:experiment];
+  NSDate* experimentFireDate = [PacoScheduleGenerator nextScheduledDateFromNow:experiment];
   NSDate* experimentTimeOutDate = [experimentFireDate dateByAddingTimeInterval:(experiment.schedule.timeout * 60)];
   assert(experiment.instanceId.length);
   

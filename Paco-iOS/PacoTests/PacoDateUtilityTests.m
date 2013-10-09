@@ -19,34 +19,9 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoScheduleGenerator.h"
 
-@interface PacoDateUtility ()
-+ (int)dayIndexOfDate:(NSDate *)date;
-+ (int)weekdayIndexOfDate:(NSDate *)date;
-+ (int)weekOfYearIndexOfDate:(NSDate *)date;
-+ (int)monthOfYearIndexOfDate:(NSDate *)date;
-+ (NSDate *)midnightThisDate:(NSDate *)date;
-+ (NSDate *)firstDayOfMonth:(NSDate *)date;
-+ (NSDate *)timeOfDayThisDate:(NSDate *)date
-                        hrs24:(int)hrs24
-                      minutes:(int)minutes;
-+ (NSDate *)nextTimeFromScheduledDates:(NSArray *)scheduledDates
-                           onDayOfDate:(NSDate *)dayOfDate;
-+ (NSDate *)nextTimeFromScheduledTimes:(NSArray *)scheduledTimes
-                           onDayOfDate:(NSDate *)dayOfDate;
-+ (NSDate *)date:(NSDate *)date thisManyDaysFrom:(int)daysFrom;
-+ (NSDate *)date:(NSDate *)date thisManyWeeksFrom:(int)weeksFrom;
-+ (NSDate *)date:(NSDate *)date thisManyMonthsFrom:(int)monthsFrom;
-+ (NSDate *)dateSameWeekAs:(NSDate *)sameWeekAs
-                  dayIndex:(int)dayIndex
-                      hr24:(int)hr24
-                       min:(int)min;
-+ (NSDate *)dateSameMonthAs:(NSDate *)sameMonthAs
-                   dayIndex:(int)dayIndex;
-+ (NSDate *)dateOnNthOfMonth:(NSDate *)sameMonthAs
-                         nth:(int)nth
-                    dayFlags:(unsigned int)dayFlags;
-+ (NSDate *)nextScheduledDay:(NSUInteger)dayFlags fromDate:(NSDate *)date;
+@interface PacoScheduleGenerator ()
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate;
 
@@ -120,27 +95,27 @@ static NSString* experimentFirst = @"{\"title\":\"First\",\"description\":\"This
 //9:30 am, 12:50 pm, 6:11 pm
 - (void)testNextScheduledDateForExperiment {
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:00-0700"]; //Friday
-  NSDate* date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  NSDate* date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   NSDate* expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 9:30:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 9:25:22-0700"]; //Friday
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 9:30:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 10:33:22-0700"]; //Friday
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 12:50:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 14:33:22-0700"]; //Friday
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 18:11:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 18:11:01-0700"]; //Friday
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/21 9:30:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 }
@@ -154,17 +129,17 @@ static NSString* experimentFirst = @"{\"title\":\"First\",\"description\":\"This
                                      [NSNumber numberWithInt:miliSecondsForEndOfDay]];
   
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:00-0700"];
-  NSDate* date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  NSDate* date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   NSDate* expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
   
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:01-0700"];
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/20 23:59:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 23:59:01-0700"];
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/21 00:00:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 }
@@ -175,12 +150,12 @@ static NSString* experimentFirst = @"{\"title\":\"First\",\"description\":\"This
   STAssertEquals((int)[self.experimentFirst.schedule.times count], 1, @"should only have one time");
   
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 14:00:00-0700"];
-  NSDate* date = [PacoDateUtility nextScheduledDateForExperiment:self.experimentFirst fromThisDate:fromDate];
+  NSDate* date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experimentFirst fromThisDate:fromDate];
   NSDate* expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/21 00:00:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
   
   fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:01-0700"];
-  date = [PacoDateUtility nextScheduledDateForExperiment:self.experimentFirst fromThisDate:fromDate];
+  date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experimentFirst fromThisDate:fromDate];
   expectedResult = [PacoDateUtility pacoDateForString:@"2013/09/21 00:00:00-0700"];
   STAssertEqualObjects(date, expectedResult, @"nextScheduledDate should be correct!");
 }

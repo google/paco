@@ -18,6 +18,7 @@
 #import "PacoDateUtility.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoScheduleGenerator.h"
 
 //ESM per day, doesn't include weekends
 //minimumBuffer: 5 min
@@ -36,13 +37,12 @@ static NSString* esmScheduleTemplate = @"{\"type\":\"signalSchedule\",\"timeout\
 //esmEndHour: 5pm, 61200000
 static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\",\"description\":\"te\",\"informedConsentForm\":\"test\",\"creator\":\"ymggtest@gmail.com\",\"fixedDuration\":false,\"id\":10948007,\"questionsChange\":false,\"modifyDate\":\"2013/09/05\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"hello\",\"mandatory\":false,\"responseType\":\"likert\",\"likertSteps\":5,\"leftSideLabel\":\"q\",\"rightSideLabel\":\"f\",\"name\":\"hello\",\"conditional\":false,\"listChoices\":[],\"invisibleInput\":false}],\"feedback\":[{\"id\":9001,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":10,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":50,\"minimumBuffer\":5,\"id\":1,\"scheduleType\":4,\"esmFrequency\":10,\"esmPeriodInDays\":0,\"esmStartHour\":57600000,\"esmEndHour\":61200000,\"times\":[46800000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":50,\"minimumBuffer\":5,\"id\":1,\"scheduleType\":4,\"esmFrequency\":10,\"esmPeriodInDays\":0,\"esmStartHour\":57600000,\"esmEndHour\":61200000,\"times\":[46800000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}}";
 
-@interface PacoDateUtility ()
+@interface PacoScheduleGenerator ()
 + (NSUInteger)randomUnsignedIntegerBetweenMin:(NSUInteger)min andMax:(NSUInteger)max;
 + (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
                        fromThisDate:(NSDate*)fromThisDate;
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate;
-
 @end
 
 
@@ -142,7 +142,7 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   double minutesPerBucket = totalMinutes/(double)self.esmSchedule.esmFrequency;
   
   for (int numOfTests=0; numOfTests<100; numOfTests++) {
-    NSArray* dates = [PacoDateUtility createESMScheduleDates:self.esmSchedule fromThisDate:self.fromDate];
+    NSArray* dates = [PacoScheduleGenerator createESMScheduleDates:self.esmSchedule fromThisDate:self.fromDate];
     
     [self genericTestESMDates:dates
                  esmFrequency:self.esmSchedule.esmFrequency
@@ -156,12 +156,12 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
 
 - (void)testRandomNumberGenerator {
   for (int numOfTests = 0; numOfTests < 50; numOfTests++) {
-    int rand = [PacoDateUtility randomUnsignedIntegerBetweenMin:0 andMax:0];
+    int rand = [PacoScheduleGenerator randomUnsignedIntegerBetweenMin:0 andMax:0];
     STAssertEquals(rand, 0, @"rand should be equal to 0");
   }
   
   for (int numOfTests = 0; numOfTests < 50; numOfTests++) {
-    int rand = [PacoDateUtility randomUnsignedIntegerBetweenMin:50 andMax:1000];
+    int rand = [PacoScheduleGenerator randomUnsignedIntegerBetweenMin:50 andMax:1000];
     STAssertTrue(rand >= 50 && rand <= 1000, @"rand should be between 50 and 1000");
   }
 }
@@ -192,7 +192,7 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/10 17:33:22-0700"]; //Tues
   NSDate* esmStartDate = [PacoDateUtility pacoDateForString:@"2013/09/11 16:00:00-0700"];
 
-  NSDate* nextScheduleDate = [PacoDateUtility nextScheduledDateForExperiment:self.esmExperiment fromThisDate:fromDate];
+  NSDate* nextScheduleDate = [PacoScheduleGenerator nextScheduledDateForExperiment:self.esmExperiment fromThisDate:fromDate];
   STAssertTrue(nextScheduleDate != nil, @"%@ should not be nil!", [PacoDateUtility pacoStringForDate:nextScheduleDate]);
   
   STAssertTrue([self.esmExperiment.schedule.esmScheduleList count] == self.esmExperiment.schedule.esmFrequency, @"esmScheduleList should be generated successfully!");
