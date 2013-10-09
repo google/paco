@@ -23,17 +23,17 @@
 #import "PacoFont.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
-#import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
+#import "PacoStepperView.h"
 
 static const int kInvalidIndex = -1;
 
 @interface PacoQuestionView () <MKMapViewDelegate,
-                                PacoCheckboxViewDelegate,
-                                PacoSliderViewDelegate,
-                                UITextFieldDelegate,
-                                UINavigationControllerDelegate,
-                                UIImagePickerControllerDelegate>
+PacoCheckboxViewDelegate,
+PacoStepperViewDelegate,
+UITextFieldDelegate,
+UINavigationControllerDelegate,
+UIImagePickerControllerDelegate>
 
 @property (nonatomic, retain, readwrite) PacoCheckboxView *checkboxes;
 @property (nonatomic, retain, readwrite) UISegmentedControl* photoSegmentControl;
@@ -42,11 +42,11 @@ static const int kInvalidIndex = -1;
 @property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
 @property (nonatomic, retain, readwrite) MKMapView *map;
 @property (nonatomic, retain, readwrite) NSArray *numberButtons;
-@property (nonatomic, retain, readwrite) PacoSliderView *numberSlider;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
 @property (nonatomic, retain, readwrite) UITextField *textField;
-
+@property (nonatomic, retain, readwrite) PacoStepperView *numberStepper;
+@property (nonatomic, retain, readwrite) NSArray *rightLeftLabels;
 // TODO(gregvance): add location and photo
 
 - (void)clearUI;
@@ -101,9 +101,12 @@ static const int kInvalidIndex = -1;
   for (UIButton *button in self.numberButtons) {
     [button removeFromSuperview];
   }
+  for (UILabel* label in self.rightLeftLabels) {
+    [label removeFromSuperview];
+  }
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
-  [self.numberSlider removeFromSuperview];
+  [self.numberStepper removeFromSuperview];
   [self.questionText removeFromSuperview];
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
@@ -117,10 +120,11 @@ static const int kInvalidIndex = -1;
   self.imagePicker = nil;
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
   self.numberButtons = nil;
-  self.numberSlider = nil;
+  self.numberStepper = nil;
   self.questionText = nil;
   self.smileysButtons = nil;
   self.textField = nil;
+  self.rightLeftLabels = nil;
 }
 
 - (void)selectSmiley:(int)index {
@@ -148,17 +152,33 @@ static const int kInvalidIndex = -1;
   for (int i = 0; i < self.question.likertSteps; ++i) {
     UIButton *button = [self.numberButtons objectAtIndex:i];
     if (i == index) {
-      UIFont *font = [PacoFont pacoTableCellFont];
-      UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
-      button.titleLabel.font = boldFont;
-      [button setTitleColor:highlightedColor forState:UIControlStateNormal];
-      [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
+      // UIFont *font = [PacoFont pacoTableCellFont];
+      //  UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
+      // button.titleLabel.font = boldFont;
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_checked"] forState:UIControlStateNormal];
+
+      //                  [button setTitleColor:highlightedColor forState:UIControlStateNormal];
+      //                  [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
     } else {
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_unchecked"] forState:UIControlStateNormal];
+
       button.titleLabel.font = [PacoFont pacoTableCellFont];
-      [button setTitleColor:normalColor forState:UIControlStateNormal];
-      [button setTitleColor:normalColor forState:UIControlStateHighlighted];
+      //                  [button setTitleColor:normalColor forState:UIControlStateNormal];
+      //                  [button setTitleColor:normalColor forState:UIControlStateHighlighted];
 
     }
+    /*  if (i == index) {
+     UIFont *font = [PacoFont pacoTableCellFont];
+     UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
+     button.titleLabel.font = boldFont;
+     [button setTitleColor:highlightedColor forState:UIControlStateNormal];
+     [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
+     } else {
+     button.titleLabel.font = [PacoFont pacoTableCellFont];
+     [button setTitleColor:normalColor forState:UIControlStateNormal];
+     [button setTitleColor:normalColor forState:UIControlStateHighlighted];
+
+     }*/
   }
   //[self updateConditionals];
 }
@@ -193,7 +213,7 @@ static const int kInvalidIndex = -1;
 {
   UIImagePickerController* imagePicker = [[UIImagePickerController alloc] init];
   imagePicker.delegate = self;
-  
+
   switch (self.photoSegmentControl.selectedSegmentIndex) {
     case 0:
       imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -201,18 +221,18 @@ static const int kInvalidIndex = -1;
     case 1:
       imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
       break;
-      
+
     default:
       NSAssert(NO, @"photoSegmentControl receive a wrong selected status!");
       break;
   }
   self.imagePicker = imagePicker;
-  
+
   [[UIApplication sharedApplication].keyWindow.rootViewController
-     presentViewController:self.imagePicker
-     animated:YES
-     completion:nil];
-  
+   presentViewController:self.imagePicker
+   animated:YES
+   completion:nil];
+
   [self updateConditionals];
 }
 
@@ -220,7 +240,7 @@ static const int kInvalidIndex = -1;
   if (self.question == nil) {
     return;
   }
-  
+
   if (![self.question.questionType isEqualToString:@"question"]) {
     NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
     return;
@@ -246,7 +266,7 @@ static const int kInvalidIndex = -1;
       [button sizeToFit];
       [button addTarget:self action:@selector(onSmiley:) forControlEvents:UIControlEventTouchUpInside];
     }
-    
+
     self.smileysButtons = buttons;
     if (self.question.responseObject) {
       NSNumber *number = self.question.responseObject;
@@ -255,11 +275,35 @@ static const int kInvalidIndex = -1;
       [self selectSmiley:kInvalidIndex];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
+    //set right left labels
+    if (self.question.leftSideLabel != nil && self.question.rightSideLabel != nil) {
+      NSMutableArray* labels = [NSMutableArray array];
+      UILabel* leftLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      leftLabel.text = self.question.leftSideLabel;
+      leftLabel.textColor = [PacoColor pacoDarkBlue];
+      leftLabel.backgroundColor = [UIColor clearColor];
+      leftLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:leftLabel];
+      [leftLabel sizeToFit];
+      [labels addObject:leftLabel];
+
+      UILabel* rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      rightLabel.text = self.question.rightSideLabel;
+      rightLabel.textColor = [PacoColor pacoDarkBlue];
+      rightLabel.backgroundColor = [UIColor clearColor];
+      rightLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:rightLabel];
+      [rightLabel sizeToFit];
+      [labels addObject:rightLabel];
+      self.rightLeftLabels = labels;
+    }
+
     // Number Steps
     NSMutableArray *buttons = [NSMutableArray array];
     for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
       UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-      [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
+      [button setBackgroundImage:[UIImage imageNamed:@"radiobtn_off"] forState:UIControlStateNormal];
+      // [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
       [buttons addObject:button];
       [self addSubview:button];
       [button sizeToFit];
@@ -277,7 +321,7 @@ static const int kInvalidIndex = -1;
     self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
     self.textField.placeholder = @"<type response here>";
     self.textField.borderStyle = UITextBorderStyleRoundedRect;
-    
+
     [self addSubview:self.textField];
     self.textField.delegate = self;
     if (self.question.responseObject) {
@@ -298,7 +342,7 @@ static const int kInvalidIndex = -1;
                                                            reuseIdentifier:listIdentifier];
     checkboxes.optionLabels = self.question.listChoices;
     checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
-    checkboxes.radioStyle = !self.question.multiSelect;  
+    checkboxes.radioStyle = !self.question.multiSelect;
     checkboxes.vertical = YES;
     checkboxes.delegate = self;
     self.checkboxes = checkboxes;
@@ -307,19 +351,19 @@ static const int kInvalidIndex = -1;
       checkboxes.bitFlags = self.question.responseObject;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
-    PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
-    slider.format = @"%d";
+    PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
+                                                      reuseIdentifier:@"question_number"];
+    stepper.format = @"%d";
     if (self.question.responseObject) {
-      slider.value = self.question.responseObject;
+      stepper.value = self.question.responseObject;
     } else {
-      slider.value = [NSNumber numberWithInt:0];
+      stepper.value = [NSNumber numberWithInt:0];
     }
-    slider.minValue = 0;
-    slider.maxValue = 100;
-    slider.delegate = self;
-    self.numberSlider = slider;
-    [self addSubview:slider];
-
+    stepper.minValue = 0;
+    stepper.maxValue = NSUIntegerMax;
+    stepper.delegate = self;
+    self.numberStepper = stepper;
+    [self addSubview:stepper];
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
       self.questionText.text = @"Attaching your location ...";
@@ -344,7 +388,7 @@ static const int kInvalidIndex = -1;
     self.photoSegmentControl.selectedSegmentIndex = 0;
     [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
     [self addSubview:self.photoSegmentControl];
-    
+
     self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [self updateChoosePhotoButtonTitle];
     [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
@@ -356,7 +400,7 @@ static const int kInvalidIndex = -1;
       UIImage *image = self.question.responseObject;
       [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
     }
-//      [self.choosePhotoButton sizeToFit];
+    //      [self.choosePhotoButton sizeToFit];
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
     if (self.question.responseObject) {
       assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
@@ -396,7 +440,7 @@ static const int kInvalidIndex = -1;
   NSArray *array = (NSArray *)data;
   PacoExperimentInput *question = (PacoExperimentInput *)[array objectAtIndex:1];
   CGSize textSize = [self textSizeToFitSize:CGSizeMake(320, 10000) text:question.text font:nil];
-  
+
   if (question == nil) {
     return [NSNumber numberWithInt:140 + (textSize.height)];
   }
@@ -405,7 +449,7 @@ static const int kInvalidIndex = -1;
     NSLog(@"TODO: implement question type \"%@\" [%@]", question.questionType, question.text);
     return [NSNumber numberWithInt:140 + (textSize.height)];
   }
-  
+
   if (question.responseEnumType == ResponseEnumTypeLikertSmileys) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeLikert) {
@@ -434,11 +478,11 @@ static const int kInvalidIndex = -1;
   CGSize textsize = [self.class textSizeToFitSize:self.questionText.frame.size
                                              text:self.questionText.text
                                              font:self.questionText.font];
-  
+
   if (self.question == nil) {
     return;
   }
-  
+
   if (![self.question.questionType isEqualToString:@"question"]) {
     NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
     return;
@@ -455,33 +499,57 @@ static const int kInvalidIndex = -1;
       CGRect rect = [valueRect CGRectValue];
       button.frame = rect;
     }
-  } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
-    int numValues = self.numberButtons.count;
-    CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
-    NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
-    //for (NSValue *valueRect in smileys) {
-    for (int i = 0; i < numValues; ++i) {
-      UIButton *button = [self.numberButtons objectAtIndex:i];
-      NSValue *valueRect = [numbers objectAtIndex:i];
-      CGRect rect = [valueRect CGRectValue];
-      button.frame = rect;
+  } 
+  else if (self.question.responseEnumType == ResponseEnumTypeLikert){
+    if (self.question.likertSteps == 2) {
+      int height = (self.frame.size.height - self.questionText.frame.size.height - 10);
+      UIButton* button = [self.numberButtons objectAtIndex:0];
+      height = self.questionText.frame.size.height + 10 + height / 2 - button.frame.size.height;
+      button.frame = CGRectMake(self.center.x - button.frame.size.width*2, height, button.frame.size.width, button.frame.size.height);
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(button.frame.origin.x - lLabel.frame.size.width - 10, height, lLabel.frame.size.width, button.frame.size.height);
+      UIButton* rButton = [self.numberButtons objectAtIndex:1];
+      rButton.frame = CGRectMake(self.center.x + rButton.frame.size.width, height, rButton.frame.size.width, rButton.frame.size.height);
+      rButton.frame = CGRectIntegral(rButton.frame);
+      UILabel* rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(rButton.frame.origin.x + rButton.frame.size.width + 10, height, rLabel.frame.size.width, rButton.frame.size.height);
     }
-  } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
+    else if (self.question.likertSteps == 5){
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(10, self.questionText.frame.size.height + 10, lLabel.frame.size.width, lLabel.frame.size.height);
+      UILabel *rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(self.frame.size.width - rLabel.frame.size.width - 10, self.questionText.frame.size.height + 10, rLabel.frame.size.width, rLabel.frame.size.height);
+      int height = (self.frame.size.height - lLabel.frame.origin.y - 10 - lLabel.frame.size.height);
+      height = lLabel.frame.origin.y + 10 + lLabel.frame.size.height+ height / 2 - 25;
+      int numValues = self.numberButtons.count;
+      CGRect bounds = CGRectMake(25, height + 10, self.frame.size.width - 20, height);
+      NSArray* numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
+      //for (NSValue *valueRect in smileys) {
+      for (int i = 0; i < numValues; ++i) {
+        UIButton* button = [self.numberButtons objectAtIndex:i];
+        NSValue* valueRect = [numbers objectAtIndex:i];
+        CGRect rect = [valueRect CGRectValue];
+        rect.size = CGSizeMake(25, 25);
+        button.frame = rect;
+      }
+    }
+  }
+  else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
     self.textField.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
     self.checkboxes.frame = bounds;
-//      int numChoices = self.question.listChoices.count;
-//      NSArray *choices = [PacoLayout splitRectVertically:bounds numSections:numChoices];
-//      for (int i = 0; i < numChoices; ++i) {
-//
-//      }
+    //      int numChoices = self.question.listChoices.count;
+    //      NSArray *choices = [PacoLayout splitRectVertically:bounds numSections:numChoices];
+    //      for (int i = 0; i < numChoices; ++i) {
+    //
+    //      }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
-    self.numberSlider.frame = bounds;
+    self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
@@ -492,7 +560,7 @@ static const int kInvalidIndex = -1;
                                             self.photoSegmentControl.frame.size.width,
                                             self.photoSegmentControl.frame.size.height);
     self.photoSegmentControl.frame = segmentControlFrame;
-    
+
     float maxHeight = MAX(textsize.height, self.photoSegmentControl.frame.size.height);
     CGRect photoButtonFrame = CGRectMake(10,
                                          maxHeight + 20,
@@ -522,15 +590,15 @@ static const int kInvalidIndex = -1;
   [self.choosePhotoButton setImage:image forState:UIControlStateHighlighted];
   [self.choosePhotoButton setNeedsLayout];
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker
-    didFinishPickingMediaWithInfo:(NSDictionary *)info {
-  
+didFinishPickingMediaWithInfo:(NSDictionary *)info {
+
   NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
   if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeImage]) {
     UIImage *orig = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -547,29 +615,55 @@ static const int kInvalidIndex = -1;
   }
 
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
   self.question.responseObject = nil;
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 
 #pragma mark - UITextFieldDelegate
 
 //- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-//- (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+  UITableView* table = (UITableView *)[self superview];
+  // Scroll to cell
+  [table setContentOffset:CGPointMake(0, self.frame.origin.y) animated: YES];
+}
+
+-(UITableViewCell *) getCellAt:(NSInteger)index{
+  NSUInteger indexArr[] = {0,index};  // First one is the section, second the row
+
+  NSIndexPath *myPath = [NSIndexPath indexPathWithIndexes:indexArr length:2];
+  UITableView *tableView =(UITableView *)[self superview];
+  return [tableView cellForRowAtIndexPath:myPath];
+}
+
+// became first responder
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
   // return YES to allow editing to stop and to resign first responder status.
   //        NO to disallow the editing session to end
+  UITableView* table = (UITableView *)[self superview];
+  NSIndexPath* pathOfTheCell = [table indexPathForCell:self];
+  int cell = pathOfTheCell.row;
+  if (cell >= 2) {
+    [table scrollToRowAtIndexPath:pathOfTheCell
+                 atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+  }
+  else{
+    [table scrollToRowAtIndexPath:pathOfTheCell
+                 atScrollPosition:UITableViewScrollPositionNone animated:YES];
+  }
   return YES;
 }
 
@@ -600,10 +694,10 @@ static const int kInvalidIndex = -1;
   [self updateConditionals];
 }
 
-#pragma mark - PacoSliderViewDelegate
+#pragma mark - PacoStepperViewDelegate
 
-- (void)onSliderChanged:(PacoSliderView *)slider {
-  int value = [slider.value intValue];
+- (void)onStepperValueChanged:(PacoStepperView *)stepper {
+  int value = [stepper.value intValue];
   self.question.responseObject = [NSNumber numberWithInt:value];
   [self updateConditionals];
 }
@@ -643,7 +737,7 @@ static const int kInvalidIndex = -1;
 //- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error NS_AVAILABLE(NA, 4_0);
 
 //- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view didChangeDragState:(MKAnnotationViewDragState)newState
-  // fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(NA, 4_0);
+// fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(NA, 4_0);
 
 //- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay NS_AVAILABLE(NA, 4_0);
 
@@ -654,152 +748,152 @@ static const int kInvalidIndex = -1;
 
 /*
 
-inputs =         (
-                        {
-  conditional = 0;
-  id = 3;
-  invisibleInput = 0;
-  leftSideLabel = "<left>";
-  likertSteps = 5;
-  listChoices =                 (
-      ""
-  );
-  mandatory = 1;
-  name = "<name1>";
-  questionType = question;
-  responseType = "likert_smileys";
-  rightSideLabel = "<right>";
-  text = "<input_prompt1>";
-},
-          {
-  conditional = 0;
-  id = 5;
-  invisibleInput = 0;
-  leftSideLabel = left;
-  likertSteps = 7;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name2>";
-  questionType = question;
-  responseType = likert;
-  rightSideLabel = right;
-  text = "<input_prompt2>";
-},
-          {
-  conditional = 0;
-  id = 6;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name3>";
-  questionType = question;
-  responseType = "open text";
-  text = "<input prompt3>";
-},
-          {
-  conditional = 0;
-  id = 7;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-      "choice 1",
-      "choice 2",
-      "choice 3",
-      "choice 4"
-  );
-  mandatory = 1;
-  name = "<name4>";
-  questionType = question;
-  responseType = list;
-  text = "<input prompt4>";
-},
-          {
-  conditional = 0;
-  id = 8;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 5>";
-  questionType = question;
-  responseType = number;
-  text = "<input prompt5>";
-},
-          {
-  conditional = 0;
-  id = 9;
-  invisibleInput = 1;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 6>";
-  questionType = question;
-  responseType = location;
-  text = "";
-},
-          {
-  conditional = 0;
-  id = 10;
-  invisibleInput = 1;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 7>";
-  questionType = question;
-  responseType = photo;
-  text = "";
-},
-          {
-  conditional = 0;
-  id = 11;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = root;
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt root>";
-},
-          {
-  conditionExpression = "root < 3";
-  conditional = 1;
-  id = 12;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 0;
-  name = "<leafL>";
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt leafL>";
-},
-          {
-  conditionExpression = "root >= 3";
-  conditional = 1;
-  id = 13;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 0;
-  name = "<leafR>";
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt leafR>";
-}
-);
-
-
-*/
+ inputs =         (
+ {
+ conditional = 0;
+ id = 3;
+ invisibleInput = 0;
+ leftSideLabel = "<left>";
+ likertSteps = 5;
+ listChoices =                 (
+ ""
+ );
+ mandatory = 1;
+ name = "<name1>";
+ questionType = question;
+ responseType = "likert_smileys";
+ rightSideLabel = "<right>";
+ text = "<input_prompt1>";
+ },
+ {
+ conditional = 0;
+ id = 5;
+ invisibleInput = 0;
+ leftSideLabel = left;
+ likertSteps = 7;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = "<name2>";
+ questionType = question;
+ responseType = likert;
+ rightSideLabel = right;
+ text = "<input_prompt2>";
+ },
+ {
+ conditional = 0;
+ id = 6;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = "<name3>";
+ questionType = question;
+ responseType = "open text";
+ text = "<input prompt3>";
+ },
+ {
+ conditional = 0;
+ id = 7;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ "choice 1",
+ "choice 2",
+ "choice 3",
+ "choice 4"
+ );
+ mandatory = 1;
+ name = "<name4>";
+ questionType = question;
+ responseType = list;
+ text = "<input prompt4>";
+ },
+ {
+ conditional = 0;
+ id = 8;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = "<name 5>";
+ questionType = question;
+ responseType = number;
+ text = "<input prompt5>";
+ },
+ {
+ conditional = 0;
+ id = 9;
+ invisibleInput = 1;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = "<name 6>";
+ questionType = question;
+ responseType = location;
+ text = "";
+ },
+ {
+ conditional = 0;
+ id = 10;
+ invisibleInput = 1;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = "<name 7>";
+ questionType = question;
+ responseType = photo;
+ text = "";
+ },
+ {
+ conditional = 0;
+ id = 11;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 1;
+ name = root;
+ questionType = question;
+ responseType = "likert_smileys";
+ text = "<input prompt root>";
+ },
+ {
+ conditionExpression = "root < 3";
+ conditional = 1;
+ id = 12;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 0;
+ name = "<leafL>";
+ questionType = question;
+ responseType = "likert_smileys";
+ text = "<input prompt leafL>";
+ },
+ {
+ conditionExpression = "root >= 3";
+ conditional = 1;
+ id = 13;
+ invisibleInput = 0;
+ likertSteps = 5;
+ listChoices =                 (
+ );
+ mandatory = 0;
+ name = "<leafR>";
+ questionType = question;
+ responseType = "likert_smileys";
+ text = "<input prompt leafR>";
+ }
+ );
+ 
+ 
+ */
 
 
 

@@ -1,4 +1,4 @@
-/* Copyright 2013 Google Inc. All Rights Reserved.
+  /* Copyright 2013 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,8 @@
 }
 
 - (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
+  //[self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
+      [self loadAllFullDefinitionListWithCompletionBlock:^(NSArray* definitionList, NSError* error){
     if (error == nil) {
       NSMutableArray* result = [NSMutableArray arrayWithCapacity:[definitionList count]];
       for (NSDictionary* dict in definitionList) {

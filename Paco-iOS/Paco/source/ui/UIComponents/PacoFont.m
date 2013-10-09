@@ -19,7 +19,7 @@
 
 + (UIFont *)pacoTableCellFont {
   static UIFont* font = nil;
-  
+
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     font = [UIFont fontWithName:@"HelveticaNeue" size:18];
@@ -29,7 +29,7 @@
 
 + (UIFont *)pacoTableCellDetailFont {
   static UIFont* font = nil;
-  
+
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     font = [UIFont fontWithName:@"HelveticaNeue" size:12];
@@ -39,7 +39,7 @@
 
 + (UIFont *)pacoMenuButtonFont {
   static UIFont* font = nil;
-  
+
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     font = [UIFont fontWithName:@"HelveticaNeue" size:12];
@@ -49,7 +49,7 @@
 
 + (UIFont *)pacoNavbarTitleFont {
   static UIFont* font = nil;
-  
+
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     font = [UIFont fontWithName:@"HelveticaNeue-Medium" size:23];
@@ -59,10 +59,20 @@
 
 + (UIFont *)pacoNormalButtonFont {
   static UIFont* font = nil;
-  
+
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15];
+  });
+  return font;
+}
+
++ (UIFont *)pacoConsentBoldFont {
+  static UIFont* font = nil;
+
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:12];
   });
   return font;
 }

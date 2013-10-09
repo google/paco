@@ -29,7 +29,6 @@
 @implementation PacoExperimentDetailsViewController
 @synthesize experiment = _experiment;
 
-
 + (NSString *)stringFromData:(NSData *)data {
   const char *bytes = [data bytes];
   char *dst = malloc([data length] + 1);
@@ -40,9 +39,9 @@
   return converted;
 }
 
-+(PacoExperimentDetailsViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
++ (PacoExperimentDetailsViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
   PacoExperimentDetailsViewController* controller =
-      [[PacoExperimentDetailsViewController alloc] initWithNibName:nil bundle:nil];
+  [[PacoExperimentDetailsViewController alloc] initWithNibName:nil bundle:nil];
   controller.experiment = experiment;
   controller.navigationItem.title = experiment.title;
   return controller;
@@ -51,9 +50,9 @@
 - (NSString *)jsonStringFromObj:(id)jsonObject {
   NSError *jsonError = nil;
   NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:jsonObject
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&jsonError];
+  [NSJSONSerialization dataWithJSONObject:jsonObject
+                                  options:NSJSONWritingPrettyPrinted
+                                    error:&jsonError];
   if (jsonError) {
     return nil;
   }
@@ -64,39 +63,85 @@
   [super viewDidLoad];
 
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
-    self.edgesForExtendedLayout = UIRectEdgeNone;
+     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-
   self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
-  UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
-  NSString *labelText = [NSString stringWithFormat:@"Experiment Name:\n\n     %@\n\nExperiment Description:\n\n\t     %@", self.experiment.title, self.experiment.experimentDescription];
-  label.text = labelText;
-  label.font = [PacoFont pacoTableCellFont];
-  label.textColor = [PacoColor pacoDarkBlue];
-  label.backgroundColor = [UIColor clearColor];
-  label.numberOfLines = 0;
-  [self.view addSubview:label];
-  CGRect frame = label.frame;
+  UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+  NSString* labelText = self.experiment.title;
+  titleLabel.text = labelText;
+  titleLabel.font = [PacoFont pacoTableCellFont];
+  titleLabel.textColor = [PacoColor pacoDarkBlue];
+  titleLabel.backgroundColor = [UIColor clearColor];
+  titleLabel.numberOfLines = 0;
+  [self.view addSubview:titleLabel];
+  CGRect frame = titleLabel.frame;
+  frame.origin.x = 10;
+  frame.origin.y = 10;
   frame.size.width = 300;
   frame.size.height = 480;
-  label.frame = frame;
-  [label sizeToFit];
-  frame = label.frame;
-  frame.origin.y += 100;
-  label.frame = frame;
+  titleLabel.frame = frame;
+  [titleLabel sizeToFit];
 
-  UIButton *join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [join setTitle:@"Join Experiment" forState:UIControlStateNormal];
+  UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, 300, 20)];
+  NSString* desText = @"Description:";
+  desLabel.text = desText;
+  desLabel.font = [PacoFont pacoNormalButtonFont];
+  desLabel.textColor = [PacoColor pacoDarkBlue];
+  desLabel.backgroundColor = [UIColor clearColor];
+  desLabel.numberOfLines = 0;
+  [self.view addSubview:desLabel];
+
+  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(0, desLabel.frame.origin.y + 20, self.view.frame.size.width - 20, 190)];
+  descriptionLabel.backgroundColor=[UIColor whiteColor];
+  descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+  descriptionLabel.textColor = [PacoColor pacoDarkBlue];
+  descriptionLabel.text = self.experiment.informedConsentForm;
+  descriptionLabel.editable = NO;
+  [descriptionLabel sizeToFit];
+  [self.view addSubview:descriptionLabel];
+  if (descriptionLabel.frame.size.height > 190) {
+    descriptionLabel.frame = CGRectMake(0, desLabel.frame.origin.y + 20, self.view.frame.size.width - 20, 190);
+  }
+
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20, 300, 20)];
+  NSString *creText = @"Creator:";
+  creatorLabel.text = creText;
+  creatorLabel.font = [PacoFont pacoNormalButtonFont];
+  creatorLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorLabel.backgroundColor = [UIColor clearColor];
+  creatorLabel.numberOfLines = 0;
+  [self.view addSubview:creatorLabel];
+
+  UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+  NSString* creatorText = self.experiment.creator;
+  creatorValueLabel.text = creatorText;
+  creatorValueLabel.font = [PacoFont pacoTableCellDetailFont];
+  creatorValueLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorValueLabel.backgroundColor = [UIColor clearColor];
+  creatorValueLabel.numberOfLines = 0;
+  [self.view addSubview:creatorValueLabel];
+  CGRect creatorframe = creatorValueLabel.frame;
+  creatorframe.origin.x = 10;
+  creatorframe.origin.y = creatorLabel.frame.origin.y + 30;
+  creatorframe.size.width = 300;
+  creatorframe.size.height = 480;
+  creatorValueLabel.frame = creatorframe;
+  [creatorValueLabel sizeToFit];
+
+  UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  [join setTitle:@"Join this Experiment" forState:UIControlStateNormal];
   if (IS_IOS_7) {
     join.titleLabel.font = [PacoFont pacoNormalButtonFont];
   }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:join];
   [join sizeToFit];
-  frame = join.frame;
-  frame.origin.x = (320 - frame.size.width) / 2;
-  join.frame = frame;
+  CGRect  joinframe = join.frame;
+  joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
+  joinframe.origin.y = creatorValueLabel.frame.origin.y + creatorValueLabel.frame.size.height + 30;
+  joinframe.size.height = 35;
+  join.frame = joinframe;
 }
 
 - (void)onJoin {
@@ -104,13 +149,13 @@
   if (joined) {
     [[[UIAlertView alloc] initWithTitle:@"Congratulations!"
                                 message:@"You have joined this experiment,\n"
-                                         "Check it out in Current Experiments."
+      "Check it out in Current Experiments."
                                delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
     return;
   }
-  
+
   PacoConsentViewController *consent =
-      [PacoConsentViewController controllerWithExperiment:self.experiment];
+  [PacoConsentViewController controllerWithExperiment:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
 }
 

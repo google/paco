@@ -167,6 +167,7 @@
 		C5C4F5F417B17520009E9F18 /* JCNotificationBannerViewIOSStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E317B17520009E9F18 /* JCNotificationBannerViewIOSStyle.m */; };
 		C5C4F5F617B17520009E9F18 /* JCNotificationBannerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E517B17520009E9F18 /* JCNotificationBannerWindow.m */; };
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
+		E4D3431918046F3400C65DA6 /* PacoStepperView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4D3431818046F3400C65DA6 /* PacoStepperView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -482,6 +483,8 @@
 		C5C4F5E517B17520009E9F18 /* JCNotificationBannerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerWindow.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerWindow.m; sourceTree = "<group>"; };
 		C5C4F5E617B17520009E9F18 /* JCNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationCenter.h; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.h; sourceTree = "<group>"; };
 		C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationCenter.m; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.m; sourceTree = "<group>"; };
+		E4D3431718046F3400C65DA6 /* PacoStepperView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoStepperView.h; sourceTree = "<group>"; };
+		E4D3431818046F3400C65DA6 /* PacoStepperView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoStepperView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -898,6 +901,8 @@
 				36B8EB6617568DAF004CF035 /* PacoTitleView.m */,
 				368C2EDF178DFFBA00546918 /* PacoAlertView.h */,
 				368C2EE0178DFFBA00546918 /* PacoAlertView.m */,
+				E4D3431718046F3400C65DA6 /* PacoStepperView.h */,
+				E4D3431818046F3400C65DA6 /* PacoStepperView.m */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -1408,6 +1413,7 @@
 				36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */,
 				36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */,
 				36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */,
+				E4D3431918046F3400C65DA6 /* PacoStepperView.m in Sources */,
 				36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */,
 				36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */,
 				36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */,
