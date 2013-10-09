@@ -14,7 +14,7 @@
  */
 
 #import "PacoExperimentSchedule.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 
 
 @implementation PacoExperimentSchedule
@@ -47,7 +47,7 @@
   if ([self.esmScheduleList count] > 0) {
     NSMutableArray* dateStringArr = [NSMutableArray arrayWithCapacity:[self.esmScheduleList count]];
     for (NSDate* date in self.esmScheduleList) {
-      [dateStringArr addObject:[PacoDate pacoStringForDate:date]];
+      [dateStringArr addObject:[PacoDateUtility pacoStringForDate:date]];
     }
     [scheduleJson setObject:dateStringArr forKey:@"esmScheduleList"];
   }
@@ -112,7 +112,7 @@
   if ([esmScheduleStringArr count] > 0) {
     NSMutableArray* dateArr = [NSMutableArray arrayWithCapacity:[esmScheduleStringArr count]];
     for (NSString* dateStr in esmScheduleStringArr) {
-      [dateArr addObject:[PacoDate pacoDateForString:dateStr]];
+      [dateArr addObject:[PacoDateUtility pacoDateForString:dateStr]];
     }
     schedule.esmScheduleList = dateArr;
   }

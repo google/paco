@@ -16,7 +16,7 @@
 #import "PacoLocation.h"
 
 #import <CoreLocation/CoreLocation.h>
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 
 
 NSTimer* LocationTimer; //non-repeatable timer
@@ -45,7 +45,7 @@ NSTimer* LocationTimer; //non-repeatable timer
     dispatch_async(dispatch_get_main_queue(), ^{
       NSLog(@"***********  PacoLocation is allocated ***********");
       NSLog(@"Timer starts working, interval:%f seconds, will fire at %@",
-            interval, [PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:interval]]);
+            interval, [PacoDateUtility pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:interval]]);
       LocationTimer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                        target:self
                                                      selector:@selector(LocationTimerHandler:)
@@ -74,7 +74,7 @@ NSTimer* LocationTimer; //non-repeatable timer
   [LocationTimer invalidate];
   dispatch_async(dispatch_get_main_queue(), ^{
     NSLog(@"*********** Timer Updated, interval:%f seconds, will fire at %@ ***********",
-         newInterval,[PacoDate pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:newInterval]]);
+         newInterval,[PacoDateUtility pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:newInterval]]);
     LocationTimer = [NSTimer scheduledTimerWithTimeInterval:newInterval
                                                      target:self
                                                    selector:@selector(LocationTimerHandler:)
@@ -85,7 +85,7 @@ NSTimer* LocationTimer; //non-repeatable timer
 
 
 -(void)LocationTimerHandler:(NSTimer *) LocationTimer {
-  NSLog(@"Paco LocationTimer fired @ %@", [PacoDate pacoStringForDate:[LocationTimer fireDate]]);
+  NSLog(@"Paco LocationTimer fired @ %@", [PacoDateUtility pacoStringForDate:[LocationTimer fireDate]]);
 
   // Notify our PacoClient that our timer fired
   if ([self.delegate respondsToSelector:@selector(timerUpdated)]) {

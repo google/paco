@@ -49,7 +49,7 @@
 		36B8EB6A17568DAF004CF035 /* PacoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0D17568DAF004CF035 /* PacoModel.m */; };
 		36B8EB6B17568DAF004CF035 /* PacoScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1017568DAF004CF035 /* PacoScheduler.m */; };
 		36B8EB6C17568DAF004CF035 /* PacoService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1317568DAF004CF035 /* PacoService.m */; };
-		36B8EB6D17568DAF004CF035 /* PacoDate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1617568DAF004CF035 /* PacoDate.m */; };
+		36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1617568DAF004CF035 /* PacoDateUtility.m */; };
 		36B8EB6E17568DAF004CF035 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1717568DAF004CF035 /* main.m */; };
 		36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */; };
@@ -312,8 +312,8 @@
 		36B8EB1017568DAF004CF035 /* PacoScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduler.m; sourceTree = "<group>"; };
 		36B8EB1217568DAF004CF035 /* PacoService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoService.h; sourceTree = "<group>"; };
 		36B8EB1317568DAF004CF035 /* PacoService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoService.m; sourceTree = "<group>"; };
-		36B8EB1517568DAF004CF035 /* PacoDate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDate.h; sourceTree = "<group>"; };
-		36B8EB1617568DAF004CF035 /* PacoDate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDate.m; sourceTree = "<group>"; };
+		36B8EB1517568DAF004CF035 /* PacoDateUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDateUtility.h; sourceTree = "<group>"; };
+		36B8EB1617568DAF004CF035 /* PacoDateUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtility.m; sourceTree = "<group>"; };
 		36B8EB1717568DAF004CF035 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		36B8EB1817568DAF004CF035 /* Paco-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Paco-Prefix.pch"; sourceTree = "<group>"; };
 		36B8EB1917568DAF004CF035 /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
@@ -746,8 +746,8 @@
 		36B8EB1417568DAF004CF035 /* shared */ = {
 			isa = PBXGroup;
 			children = (
-				36B8EB1517568DAF004CF035 /* PacoDate.h */,
-				36B8EB1617568DAF004CF035 /* PacoDate.m */,
+				36B8EB1517568DAF004CF035 /* PacoDateUtility.h */,
+				36B8EB1617568DAF004CF035 /* PacoDateUtility.m */,
 			);
 			path = shared;
 			sourceTree = "<group>";
@@ -1390,7 +1390,7 @@
 				36B8EB6A17568DAF004CF035 /* PacoModel.m in Sources */,
 				36B8EB6B17568DAF004CF035 /* PacoScheduler.m in Sources */,
 				36B8EB6C17568DAF004CF035 /* PacoService.m in Sources */,
-				36B8EB6D17568DAF004CF035 /* PacoDate.m in Sources */,
+				36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */,
 				36B8EB6E17568DAF004CF035 /* main.m in Sources */,
 				36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */,
 				36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */,

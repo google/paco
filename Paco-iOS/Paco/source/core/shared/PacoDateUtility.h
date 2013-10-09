@@ -18,7 +18,7 @@
 @class PacoExperiment;
 @class PacoExperimentSchedule;
 
-@interface PacoDate : NSObject
+@interface PacoDateUtility : NSObject
 + (NSString *)pacoStringForDate:(NSDate *)date;
 + (NSDate *)pacoDateForString:(NSString *)dateStr;
 + (NSString*)debugStringForDate:(NSDate*)date;

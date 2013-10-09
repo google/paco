@@ -15,7 +15,7 @@
 
 #import "PacoTests.h"
 
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 
 @implementation PacoTests
 
@@ -68,7 +68,7 @@
     // Keep in mind that pacoStringForDate will convert the datetime to the local timezone of the iOS device
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
-    STAssertEqualObjects([PacoDate pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
+    STAssertEqualObjects([PacoDateUtility pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
 }
 
 @end

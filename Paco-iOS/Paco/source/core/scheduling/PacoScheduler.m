@@ -17,7 +17,7 @@
 
 #import "PacoClient.h"
 #import "PacoConfig.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 #import "PacoNotificationManager.h"
@@ -134,7 +134,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     NSDate* firedDate = [notification.userInfo objectForKey:@"experimentFireDate"];
     if ([experiment.instanceId isEqualToString:experimentInstanceId]) {
       NSLog(@"Paco removing iOS notification fire at %@ for %@",
-            [PacoDate pacoStringForDate:firedDate], experimentInstanceId);
+            [PacoDateUtility pacoStringForDate:firedDate], experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       // the firedate + timeout falls before now, so the notification has expired and should be deleted
       [self.notificationManager deleteNotificationWithHashKey:notificationHash];
@@ -192,7 +192,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
   NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
   
-  NSDate* experimentFireDate = [PacoDate nextScheduledDateFromNow:experiment];
+  NSDate* experimentFireDate = [PacoDateUtility nextScheduledDateFromNow:experiment];
   NSDate* experimentTimeOutDate = [experimentFireDate dateByAddingTimeInterval:(experiment.schedule.timeout * 60)];
   assert(experiment.instanceId.length);
   
@@ -210,7 +210,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
                          [self getTimeZoneFormattedDateString:experimentFireDate]];
   if (DEBUG) {
     alertBody = [NSString stringWithFormat:@"[%@]%@",
-                 experiment.instanceId, [PacoDate debugStringForDate:experimentFireDate]];
+                 experiment.instanceId, [PacoDateUtility debugStringForDate:experimentFireDate]];
   }
   
   [self registeriOSNotification:experiment.instanceId
@@ -257,7 +257,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   }
   notification.userInfo = userInfo;
   NSLog(@"Notification Scheduled for %@ at %@",
-        experimentInstanceId, [PacoDate pacoStringForDate:notification.fireDate]);
+        experimentInstanceId, [PacoDateUtility pacoStringForDate:notification.fireDate]);
   NSLog(@"Detail: %@", [notification description]);
  [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   
@@ -356,7 +356,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       
       NSDate* firedDate = [notification.userInfo objectForKey:@"experimentFireDate"];
       NSLog(@"Paco clearing 1 iOS notification fired at %@ from tray for %@",
-            [PacoDate pacoStringForDate:firedDate], experimentInstanceId);
+            [PacoDateUtility pacoStringForDate:firedDate], experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       [self.notificationManager deleteNotificationWithHashKey:notificationHash];
       [self.delegate handleNotificationTimeOut:experimentInstanceId
@@ -380,7 +380,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     if ([timeOutDate timeIntervalSinceNow] < 0) {
       NSDate* fireDate = [notification.userInfo objectForKey:@"experimentFireDate"];
       NSLog(@"Paco cancelling iOS notification fired at %@ for %@",
-            [PacoDate pacoStringForDate:fireDate], experimentInstanceId);
+            [PacoDateUtility pacoStringForDate:fireDate], experimentInstanceId);
       [[UIApplication sharedApplication] cancelLocalNotification:notification];
       // the firedate + timeout falls before now, so the notification has expired and should be deleted
       [self.notificationManager deleteNotificationWithHashKey:notificationHash];

@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 
 #import "PacoModel.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 
-@implementation PacoDate
+@implementation PacoDateUtility
 
 /*
  * 2013/07/25 12:33:22-0700
@@ -37,11 +37,11 @@
 }
 
 + (NSString *)pacoStringForDate:(NSDate *)date {
-  return [[PacoDate dateFormatter] stringFromDate:date];
+  return [[PacoDateUtility dateFormatter] stringFromDate:date];
 }
 
 + (NSDate *)pacoDateForString:(NSString *)dateStr {
-  return [[PacoDate dateFormatter] dateFromString:dateStr];
+  return [[PacoDateUtility dateFormatter] dateFromString:dateStr];
 }
 
 
@@ -62,7 +62,7 @@
 }
 
 + (NSString*)debugStringForDate:(NSDate*)date {
-  return [[PacoDate debugDateFormatter] stringFromDate:date];
+  return [[PacoDateUtility debugDateFormatter] stringFromDate:date];
 }
 
 
@@ -154,11 +154,11 @@
   for (NSDate *date in scheduledDates) {
     if ([dayOfDate compare:date] == NSOrderedAscending) {
       NSLog(@"LHS=%@ RHS=%@",
-            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
+            [PacoDateUtility pacoStringForDate:dayOfDate], [PacoDateUtility pacoStringForDate:date]);
       return date;
     } else {
       NSLog(@"SKIPPING %@ vs. %@",
-            [PacoDate pacoStringForDate:dayOfDate], [PacoDate pacoStringForDate:date]);
+            [PacoDateUtility pacoStringForDate:dayOfDate], [PacoDateUtility pacoStringForDate:date]);
     }
   }
   // Time for a new list of scheduled dates.
@@ -289,7 +289,7 @@
   switch (experimentSchedule.esmPeriod) {
     case kPacoSchedulePeriodDay: {
         durationMinutes = minutesPerDay;
-        startDay = [PacoDate weekdayIndexOfDate:fromThisDate];
+        startDay = [PacoDateUtility weekdayIndexOfDate:fromThisDate];
       }
       break;
     case kPacoSchedulePeriodWeek: {
@@ -371,7 +371,7 @@
       NSLog(@"NEW SCHEDULE: ");
       NSLog(@"(");
       for (NSDate* date in scheduleDates) {
-        NSLog(@"%@", [PacoDate pacoStringForDate:date]);
+        NSLog(@"%@", [PacoDateUtility pacoStringForDate:date]);
       }
       NSLog(@")");
     }
@@ -384,13 +384,13 @@
       // Must be for the next day/week/month.
       switch (experiment.schedule.esmPeriod) {
         case kPacoScheduleRepeatPeriodDay:
-          from = [PacoDate date:from thisManyDaysFrom:1];
+          from = [PacoDateUtility date:from thisManyDaysFrom:1];
           break;
         case kPacoScheduleRepeatPeriodWeek:
-          from = [PacoDate date:from thisManyWeeksFrom:1];
+          from = [PacoDateUtility date:from thisManyWeeksFrom:1];
           break;
         case kPacoScheduleRepeatPeriodMonth:
-          from = [PacoDate date:from thisManyMonthsFrom:1];
+          from = [PacoDateUtility date:from thisManyMonthsFrom:1];
           break;
         default:
           NSAssert(NO, @"Invalid esm period");

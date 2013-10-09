@@ -27,7 +27,7 @@
 #import "PacoEventManager.h"
 #import "PacoAppDelegate.h"
 #import "NSError+Paco.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 
 static NSTimeInterval kInitialTimerInterval = 5.0;
 
@@ -158,7 +158,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
                experimentFireDate:(NSDate*)scheduledTime {
   if (!ADD_TEST_DEFINITION) {
     NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
-          experimentInstanceId, [PacoDate pacoStringForDate:scheduledTime]);
+          experimentInstanceId, [PacoDateUtility pacoStringForDate:scheduledTime]);
     PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
     NSAssert(definition != nil, @"definition should not be nil!");
     [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
