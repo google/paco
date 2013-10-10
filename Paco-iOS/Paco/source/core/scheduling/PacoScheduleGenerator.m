@@ -23,73 +23,85 @@
   return [self nextScheduledDateForExperiment:experiment fromThisDate:[NSDate dateWithTimeIntervalSinceNow:0]];
 }
 
++ (NSDate*)nextDateForDailyExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
+  // Today 12:30pm -> Today 1:30pm
+  NSDate *repeatTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times
+                                                       onDayOfDate:fromThisDate];
+  if (repeatTime) {
+    // return Today 1:30pm
+    return repeatTime;
+  } else {
+    // Today 12:30pm -> NextDay 9:00am
+    NSDate *repeatDay = [PacoDateUtility date:fromThisDate
+                             thisManyDaysFrom:experiment.schedule.repeatPeriod];
+    repeatDay = [PacoDateUtility midnightThisDate:repeatDay];
+    return [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:repeatDay];
+  }
+}
+
++ (NSDate*)nextDateForWeeklyExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
+  NSDate *thisWeek = [PacoDateUtility nextScheduledDay:experiment.schedule.weekDaysScheduled fromDate:fromThisDate];
+  if (thisWeek) {
+    return thisWeek;
+  }
+  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
+  repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
+  NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:experiment.schedule.weekDaysScheduled fromDate:repeatWeek];
+  assert(scheduledDay);
+  NSDate *nextTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:scheduledDay];
+  return nextTime;
+}
+
++ (NSDate*)nextDateForWeekdayExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
+  unsigned int weekdayFlags = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5);
+  NSDate *thisWeek = [PacoDateUtility nextScheduledDay:weekdayFlags fromDate:fromThisDate];
+  if (thisWeek) {
+    return thisWeek;
+  }
+  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
+  repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
+  NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:weekdayFlags fromDate:repeatWeek];
+  assert(scheduledDay);
+  NSDate *nextTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:scheduledDay];
+  return nextTime;
+}
+
++ (NSDate*)nextDateForMonthlyExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
+  NSDate *scheduledMonth = [PacoDateUtility date:fromThisDate thisManyMonthsFrom:experiment.schedule.repeatPeriod];
+  if (experiment.schedule.byDayOfWeek) {
+    scheduledMonth = [PacoDateUtility dateOnNthOfMonth:scheduledMonth nth:experiment.schedule.dayOfMonth dayFlags:experiment.schedule.weekDaysScheduled];
+  } else {
+    scheduledMonth = [PacoDateUtility dateSameMonthAs:scheduledMonth dayIndex:experiment.schedule.dayOfMonth];
+  }
+  return scheduledMonth;
+}
+
 + (NSDate *)nextScheduledDateForExperiment:(PacoExperiment *)experiment
                               fromThisDate:(NSDate *)fromThisDate {
   switch (experiment.schedule.scheduleType) {
-    case kPacoScheduleTypeDaily: {
-      // Today 12:30pm -> Today 1:30pm
-      NSDate *repeatTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times
-                                                onDayOfDate:fromThisDate];
-      if (repeatTime) {
-        // return Today 1:30pm
-        return repeatTime;
-      } else {
-        // Today 12:30pm -> NextDay 9:00am
-        NSDate *repeatDay = [PacoDateUtility date:fromThisDate
-                      thisManyDaysFrom:experiment.schedule.repeatPeriod];
-        repeatDay = [PacoDateUtility midnightThisDate:repeatDay];
-        return [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:repeatDay];
-      }
-    }
-    case kPacoScheduleTypeWeekly: {
-      NSDate *thisWeek = [PacoDateUtility nextScheduledDay:experiment.schedule.weekDaysScheduled fromDate:fromThisDate];
-      if (thisWeek) {
-        return thisWeek;
-      }
-      NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
-      repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
-      NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:experiment.schedule.weekDaysScheduled fromDate:repeatWeek];
-      assert(scheduledDay);
-      NSDate *nextTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:scheduledDay];
-      return nextTime;
-    }
-      break;
-    case kPacoScheduleTypeWeekday: {
-      unsigned int weekdayFlags = (1<<1) | (1<<2) | (1<<3) | (1<<4) | (1<<5);
-      NSDate *thisWeek = [PacoDateUtility nextScheduledDay:weekdayFlags fromDate:fromThisDate];
-      if (thisWeek) {
-        return thisWeek;
-      }
-      NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
-      repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
-      NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:weekdayFlags fromDate:repeatWeek];
-      assert(scheduledDay);
-      NSDate *nextTime = [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:scheduledDay];
-      return nextTime;
-    }
-      break;
-    case kPacoScheduleTypeMonthly: {
-      NSDate *scheduledMonth = [PacoDateUtility date:fromThisDate thisManyMonthsFrom:experiment.schedule.repeatPeriod];
-      if (experiment.schedule.byDayOfWeek) {
-        scheduledMonth = [PacoDateUtility dateOnNthOfMonth:scheduledMonth nth:experiment.schedule.dayOfMonth dayFlags:experiment.schedule.weekDaysScheduled];
-      } else {
-        scheduledMonth = [PacoDateUtility dateSameMonthAs:scheduledMonth dayIndex:experiment.schedule.dayOfMonth];
-      }
-      return scheduledMonth;
-    }
-      break;
+    case kPacoScheduleTypeDaily:
+      return [self nextDateForDailyExperiment:experiment fromThisDate:fromThisDate];
+
+    case kPacoScheduleTypeWeekly:
+      return [self nextDateForWeeklyExperiment:experiment fromThisDate:fromThisDate];
+    
+    case kPacoScheduleTypeWeekday:
+      return [self nextDateForWeekdayExperiment:experiment fromThisDate:fromThisDate];
+    
+    case kPacoScheduleTypeMonthly:
+      return [self nextDateForMonthlyExperiment:experiment fromThisDate:fromThisDate];
+    
     case kPacoScheduleTypeESM: {
       NSDate *scheduled = [self nextESMScheduledDateForExperiment:experiment fromThisDate:fromThisDate];
       NSAssert(scheduled != nil, @"ESM schedule should not be nil!");
       return scheduled;
     }
-      break;
     case kPacoScheduleTypeSelfReport:
     case kPacoScheduleTypeAdvanced:
     case kPacoScheduleTypeTesting:
-      break;
+    default:
+      return nil;
   }
-  return nil;
 }
 
 //YMZ:TODO: why 500? when will a nil result be returned?
