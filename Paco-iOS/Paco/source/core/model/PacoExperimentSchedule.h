@@ -63,6 +63,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL esmWeekends;
 @property (nonatomic, copy) NSString *scheduleId;
 @property (nonatomic, assign) NSInteger nthOfMonth;
+@property (nonatomic, assign) NSInteger repeatRate;
 @property (nonatomic, assign) PacoScheduleRepeatPeriod repeatPeriod;
 @property (nonatomic, assign) PacoScheduleType scheduleType;
 @property (nonatomic, retain) NSArray *times;  // NSNumber<long >
