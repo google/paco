@@ -63,13 +63,10 @@
   schedule.esmEndHour = [[scheduleMembers objectForKey:@"esmEndHour"] longLongValue];
   schedule.esmFrequency = [[scheduleMembers objectForKey:@"esmFrequency"] intValue];
   schedule.esmPeriodInDays = [[scheduleMembers objectForKey:@"esmPeriodInDays"] longLongValue];
-  if (schedule.esmPeriodInDays == 1) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodDay;
-  } else if (schedule.esmPeriodInDays == 7) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodWeek;
-  } else if (schedule.esmPeriodInDays == 30) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodMonth;
-  }
+  NSAssert(schedule.esmPeriodInDays == 0 ||
+           schedule.esmPeriodInDays == 1 ||
+           schedule.esmPeriodInDays == 2 , @"esmPeriodInDays should only be 0, 1 or 2!");
+  schedule.esmPeriod = (PacoScheduleRepeatPeriod)schedule.esmPeriodInDays;
   schedule.esmStartHour = [[scheduleMembers objectForKey:@"esmStartHour"] longLongValue];
   schedule.esmWeekends = [[scheduleMembers objectForKey:@"esmWeekends" ] boolValue];
   schedule.scheduleId = [NSString stringWithFormat:@"%lld", [[scheduleMembers objectForKey:@"id"] longLongValue]];
@@ -130,7 +127,7 @@
           @"esmEndHour=%lld "
           @"esmFrequency=%d "
           @"esmPeriodInDays=%lld "
-          @"esmPeriod=%d"
+          @"esmPeriod=%@"
           @"esmStartHour=%lld "
           @"esmWeekends=%d "
           @"scheduleId=%@ "
@@ -149,7 +146,7 @@
           self.esmEndHour,
           self.esmFrequency,
           self.esmPeriodInDays,
-          self.esmPeriod,
+          [self periodString],
           self.esmStartHour,
           self.esmWeekends,
           self.scheduleId,
