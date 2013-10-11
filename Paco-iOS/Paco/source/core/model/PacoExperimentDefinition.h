@@ -28,6 +28,8 @@
 @property (nonatomic, assign) BOOL published;
 @property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
 
+@property(nonatomic, strong, readonly) NSDate* startDate;
+@property(nonatomic, strong, readonly) NSDate* endDate;
 
 @property (nonatomic, assign) BOOL deleted;
 @property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>

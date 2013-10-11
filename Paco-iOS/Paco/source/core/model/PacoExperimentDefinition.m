@@ -17,6 +17,13 @@
 #import "PacoExperimentFeedback.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoDateUtility.h"
+
+@interface PacoExperimentDefinition ()
+@property(nonatomic, strong) NSDate* startDate;
+@property(nonatomic, strong) NSDate* endDate;
+@end
+
 
 @implementation PacoExperimentDefinition
 
@@ -45,6 +52,17 @@
   definition.modifyDate = [definitionMembers objectForKey:@"modifyDate"]; //Format: "2012/01/17"
   definition.published = [[definitionMembers objectForKey:@"published"] boolValue];
   definition.publishedUsers = [definitionMembers objectForKey:@"publishedUsers"];
+  
+  //"2013/10/15"
+  NSString* startDateStr = [definitionMembers objectForKey:@"startDate"];
+  NSString* endDateStr = [definitionMembers objectForKey:@"endDate"];
+  if (startDateStr && endDateStr) {
+    definition.startDate = [PacoDateUtility dateFromStringWithYearAndDay:startDateStr];
+    definition.endDate = [PacoDateUtility dateFromStringWithYearAndDay:endDateStr];
+    NSAssert(definition.startDate != nil && definition.endDate != nil,
+             @"startDate and endDate should be valid!");
+  }
+  
   definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
   
   id jsonSchedule = [definitionMembers objectForKey:@"schedule"];
@@ -75,6 +93,8 @@
           @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
+          @"startDate=%@"
+          @"endDate=%@"
           @"questionsChange=%d "
           @"schedule=%@ "
           @"webReccommended=%d "
@@ -93,6 +113,8 @@
           self.modifyDate,
           self.published,
           self.publishedUsers,
+          self.startDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.startDate] : @"None",
+          self.endDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.endDate] : @"None",
           self.questionsChange,
           self.schedule,
           self.webReccommended,

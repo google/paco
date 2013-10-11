@@ -39,4 +39,74 @@
   [super tearDown];
 }
 
+- (void)testDateFromStringWithYearAndDay {
+  NSString* testStr = @"2013/10/16";
+  NSDate* result = [PacoDateUtility dateFromStringWithYearAndDay:testStr];
+  
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  [comp setYear:2013];
+  [comp setMonth:10];
+  [comp setDay:16];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  
+  STAssertEqualObjects(result, expect, @"should work correctly");
+}
+
+- (void)testDateFromStringWithYearAndDay2 {
+  NSString* testStr = @"2013/07/25 12:33:22";
+  NSDate* result = [PacoDateUtility dateFromStringWithYearAndDay:testStr];
+  STAssertEqualObjects(result, nil,
+                       @"should result in nil if string doesn't have the expected format");
+}
+
+- (void)testDateFromStringWithYearAndDay3 {
+  NSString* testStr = @"";
+  NSDate* result = [PacoDateUtility dateFromStringWithYearAndDay:testStr];
+  STAssertEqualObjects(result, nil, @"should result in nil");
+}
+
+- (void)testDateFromStringWithYearAndDay4 {
+  NSString* testStr = nil;
+  NSDate* result = [PacoDateUtility dateFromStringWithYearAndDay:testStr];
+  STAssertEqualObjects(result, nil, @"should result in nil");
+}
+
+- (void)testStringWithYearAndDayFromDate {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  [comp setYear:2013];
+  [comp setMonth:10];
+  [comp setDay:16];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSDate* date = [gregorian dateFromComponents:comp];
+  
+  NSString* result = [PacoDateUtility stringWithYearAndDayFromDate:date];
+  STAssertEqualObjects(result, @"2013/10/16",
+                       @"should work correctly when the date is a mid night date");
+}
+
+- (void)testStringWithYearAndDayFromDate2 {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  [comp setYear:2013];
+  [comp setMonth:10];
+  [comp setDay:16];
+  [comp setHour:8];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSDate* date = [gregorian dateFromComponents:comp];
+  
+  NSString* result = [PacoDateUtility stringWithYearAndDayFromDate:date];
+  STAssertEqualObjects(result, @"2013/10/16",
+                       @"should get a valid string even if the date is not mid-night date");
+}
+
+- (void)testStringWithYearAndDayFromDate3 {
+  NSString* result = [PacoDateUtility stringWithYearAndDayFromDate:nil];
+  STAssertEqualObjects(result, nil, @"should get a nil string give a nil input");
+}
+
+
+
+
+
+
 @end

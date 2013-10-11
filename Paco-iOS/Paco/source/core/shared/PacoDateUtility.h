@@ -16,8 +16,14 @@
 #import <Foundation/Foundation.h>
 
 @interface PacoDateUtility : NSObject
-+ (NSString *)pacoStringForDate:(NSDate *)date;
+//"yyyy/MM/dd HH:mm:ssZ" : "2013/07/25 12:33:22-0700"
 + (NSDate *)pacoDateForString:(NSString *)dateStr;
++ (NSString *)pacoStringForDate:(NSDate *)date;
+
+//"yyyy/MM/dd": "2013/10/15"
++ (NSDate*)dateFromStringWithYearAndDay:(NSString*)dateStr;
++ (NSString*)stringWithYearAndDayFromDate:(NSDate*)date;
+
 + (NSString*)debugStringForDate:(NSDate*)date;
 
 + (int)dayIndexOfDate:(NSDate *)date;

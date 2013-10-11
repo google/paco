@@ -46,6 +46,30 @@
 
 
 /*
+ * "2013/10/15"
+**/
++ (NSDateFormatter*)dateFormatterWithYearAndDay {
+  static NSDateFormatter* dateFormatter = nil;
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd"];
+  });
+  
+  return dateFormatter;
+}
+
++ (NSDate *)dateFromStringWithYearAndDay:(NSString *)dateStr {
+  return [[PacoDateUtility dateFormatterWithYearAndDay] dateFromString:dateStr];
+}
+
++ (NSString*)stringWithYearAndDayFromDate:(NSDate*)date {
+  return [[PacoDateUtility dateFormatterWithYearAndDay] stringFromDate:date];
+}
+
+
+/*
  * 12:33:22-0700, Sep 12, 2013 
  */
 + (NSDateFormatter*)debugDateFormatter {
