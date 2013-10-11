@@ -63,8 +63,14 @@ typedef enum {
 @property (nonatomic, assign) BOOL esmWeekends;
 @property (nonatomic, copy) NSString *scheduleId;
 @property (nonatomic, assign) NSInteger nthOfMonth;
+
+/*
+ repeatRate is only valid for three types of experiment: daily, weekly and monthly
+ daily:   repeat every x days
+ weekly:  repeat every x weeks
+ monthly: repeat every x months
+ **/
 @property (nonatomic, assign) NSInteger repeatRate;
-@property (nonatomic, assign) PacoScheduleRepeatPeriod repeatPeriod;
 @property (nonatomic, assign) PacoScheduleType scheduleType;
 @property (nonatomic, retain) NSArray *times;  // NSNumber<long >
 @property (nonatomic, assign) BOOL userEditable;

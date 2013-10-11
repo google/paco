@@ -72,7 +72,6 @@
   schedule.scheduleId = [NSString stringWithFormat:@"%lld", [[scheduleMembers objectForKey:@"id"] longLongValue]];
   schedule.nthOfMonth = [[scheduleMembers objectForKey:@"nthOfMonth"] intValue];
   schedule.repeatRate = [[scheduleMembers objectForKey:@"repeatRate"] integerValue];
-  schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
   schedule.timeout = [[scheduleMembers objectForKey:@"timeout"] intValue];
   
@@ -133,7 +132,6 @@
           @"scheduleId=%@ "
           @"nthOfMonth=%d "
           @"repeatRate=%d "
-          @"repeatPeriod=%d "
           @"scheduleType=%d "
           @"times=%@ "
           @"timeout=%d "
@@ -152,7 +150,6 @@
           self.scheduleId,
           self.nthOfMonth,
           self.repeatRate,
-          self.repeatPeriod,
           self.scheduleType,
           self.times,
           self.timeout,
@@ -246,7 +243,6 @@
   [json appendString:@"];"];
   
   [json appendFormat:@"repeatRate = %d;", self.repeatRate];
-  [json appendFormat:@"repeatPeriod = %d;", self.repeatPeriod];
   [json appendFormat:@"daysOfWeek = %@;", [self weekDaysScheduledString]];
   [json appendFormat:@"nthOfMonth = %d;", self.nthOfMonth];
   [json appendFormat:@"byDayOfMonth = %d;", self.byDayOfMonth];

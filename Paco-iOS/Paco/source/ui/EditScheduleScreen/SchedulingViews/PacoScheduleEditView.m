@@ -104,12 +104,12 @@ NSString *kCellIdText = @"text";
   switch (schedule.scheduleType) {
   case kPacoScheduleTypeDaily:
     return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatPeriod)], nil],
+                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
                 [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
                 nil];
   case kPacoScheduleTypeWeekly:
     return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatPeriod)], nil],
+                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
                 [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
                 [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
                 nil];
@@ -119,7 +119,7 @@ NSString *kCellIdText = @"text";
                 nil];
   case kPacoScheduleTypeMonthly:
     return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatPeriod)], nil],
+                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
                 [NSArray arrayWithObjects:kCellIdByDaysOfWeekMonth, [NSNumber numberWithBool:schedule.byDayOfWeek], nil],
                 [NSArray arrayWithObjects:((schedule.byDayOfWeek) ? kCellIdWhichFirstDayOfMonth : kCellIdWhichDayOfMonth), [NSNumber numberWithInt:schedule.dayOfMonth], nil],
                 [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],

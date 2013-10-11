@@ -33,7 +33,7 @@
   } else {
     // Today 12:30pm -> NextDay 9:00am
     NSDate *repeatDay = [PacoDateUtility date:fromThisDate
-                             thisManyDaysFrom:experiment.schedule.repeatPeriod];
+                             thisManyDaysFrom:experiment.schedule.repeatRate];
     repeatDay = [PacoDateUtility midnightThisDate:repeatDay];
     return [PacoDateUtility nextTimeFromScheduledTimes:experiment.schedule.times onDayOfDate:repeatDay];
   }
@@ -44,7 +44,7 @@
   if (thisWeek) {
     return thisWeek;
   }
-  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
+  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatRate];
   repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
   NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:experiment.schedule.weekDaysScheduled fromDate:repeatWeek];
   assert(scheduledDay);
@@ -58,7 +58,7 @@
   if (thisWeek) {
     return thisWeek;
   }
-  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatPeriod];
+  NSDate *repeatWeek = [PacoDateUtility date:fromThisDate thisManyWeeksFrom:experiment.schedule.repeatRate];
   repeatWeek = [PacoDateUtility dateSameWeekAs:repeatWeek dayIndex:0 hr24:0 min:0];
   NSDate *scheduledDay = [PacoDateUtility nextScheduledDay:weekdayFlags fromDate:repeatWeek];
   assert(scheduledDay);
@@ -67,7 +67,7 @@
 }
 
 + (NSDate*)nextDateForMonthlyExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
-  NSDate *scheduledMonth = [PacoDateUtility date:fromThisDate thisManyMonthsFrom:experiment.schedule.repeatPeriod];
+  NSDate *scheduledMonth = [PacoDateUtility date:fromThisDate thisManyMonthsFrom:experiment.schedule.repeatRate];
   if (experiment.schedule.byDayOfWeek) {
     scheduledMonth = [PacoDateUtility dateOnNthOfMonth:scheduledMonth nth:experiment.schedule.dayOfMonth dayFlags:experiment.schedule.weekDaysScheduled];
   } else {
