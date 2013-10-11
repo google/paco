@@ -93,17 +93,13 @@
   desLabel.numberOfLines = 0;
   [self.view addSubview:desLabel];
 
-  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(0, desLabel.frame.origin.y + 20, self.view.frame.size.width - 20, 190)];
+  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 190)];
   descriptionLabel.backgroundColor=[UIColor whiteColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [PacoColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.informedConsentForm;
   descriptionLabel.editable = NO;
-  [descriptionLabel sizeToFit];
   [self.view addSubview:descriptionLabel];
-  if (descriptionLabel.frame.size.height > 190) {
-    descriptionLabel.frame = CGRectMake(0, desLabel.frame.origin.y + 20, self.view.frame.size.width - 20, 190);
-  }
 
   UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20, 300, 20)];
   NSString *creText = @"Creator:";
