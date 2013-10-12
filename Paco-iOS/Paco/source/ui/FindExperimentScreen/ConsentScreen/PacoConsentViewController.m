@@ -42,37 +42,49 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
-
-  UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
-  label.text = self.experiment.informedConsentForm;
-  label.backgroundColor = [UIColor clearColor];
-  label.numberOfLines = 0
-  ;
-  label.lineBreakMode = NSLineBreakByWordWrapping;
-  [self.view addSubview:label];
-  [label sizeToFit];
-  CGRect frame = label.frame;
-  frame.origin.x = 15;
-  frame.origin.y += 75;
-  frame.size.width = 285;
-  label.frame = frame;
-  [label sizeToFit];
-  frame = label.frame;
-
-  UIButton *accept = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [accept setTitle:@"I Consent" forState:UIControlStateNormal];
-  if (IS_IOS_7) {
-    accept.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  [accept addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
-  [self.view addSubview:accept];
-  [accept sizeToFit];
-  frame = accept.frame;
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  
+  UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 300, 30)];
+  boldTitle.text = @"Data Handling & Privacy Agreement between You and the Experiment Creator";
+  boldTitle.font = [PacoFont pacoConsentBoldFont];
+  boldTitle.textColor = [UIColor blackColor];
+  boldTitle.backgroundColor = [UIColor clearColor];
+  boldTitle.numberOfLines = 0;
+  [self.view addSubview:boldTitle];
+  [boldTitle sizeToFit];
+
+  UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, 300, 0)];
+  consentText.text = @"By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy thay have provided below to decide on whether you want to participate in this experiment.";
+  consentText.font = [PacoFont pacoTableCellDetailFont];
+  consentText.textColor = [UIColor blackColor];
+  consentText.backgroundColor = [UIColor clearColor];
+  consentText.numberOfLines = 0;
+  [self.view addSubview:consentText];
+  [consentText sizeToFit];
+
+  UITextView* expViewText = [[UITextView alloc] initWithFrame:CGRectMake(10, consentText.frame.origin.y + consentText.frame.size.height + 15, self.view.frame.size.width - 20, 180)];
+  expViewText.backgroundColor = [UIColor whiteColor];
+  expViewText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+  expViewText.textColor = [PacoColor pacoDarkBlue];
+  expViewText.text = self.experiment.informedConsentForm;
+  expViewText.editable = NO;
+  [self.view addSubview:expViewText];
+
+  UIButton* iConsent = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  [iConsent setTitle:@"I Consent" forState:UIControlStateNormal];
+  if (IS_IOS_7) {
+    iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
+  }
+  [iConsent addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
+  [self.view addSubview:iConsent];
+  [iConsent sizeToFit];
+  CGRect frame = iConsent.frame;
   frame.origin.x = (320 - frame.size.width) / 2;
-  frame.origin.y = 420 - (frame.size.height / 2) - 25;
-  accept.frame = frame;
+  frame.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
+  iConsent.frame = frame;
 }
 
 - (void)onAccept {
