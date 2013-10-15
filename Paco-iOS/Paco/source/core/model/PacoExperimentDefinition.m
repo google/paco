@@ -18,6 +18,7 @@
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
 
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
@@ -58,7 +59,8 @@
   NSString* endDateStr = [definitionMembers objectForKey:@"endDate"];
   if (startDateStr && endDateStr) {
     definition.startDate = [PacoDateUtility dateFromStringWithYearAndDay:startDateStr];
-    definition.endDate = [PacoDateUtility dateFromStringWithYearAndDay:endDateStr];
+    NSDate* inclusiveEndDate = [PacoDateUtility dateFromStringWithYearAndDay:endDateStr];
+    definition.endDate = [inclusiveEndDate pacoNextDayAtMidnight];
     NSAssert(definition.startDate != nil && definition.endDate != nil,
              @"startDate and endDate should be valid!");
   }
