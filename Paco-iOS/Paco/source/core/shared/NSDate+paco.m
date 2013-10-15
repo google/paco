@@ -70,7 +70,10 @@
   return [self pacoFutureDateAtMidnightWithInterval:1];
 }
 
-- (NSDate*)pacoTimeWithIntervalOfHoursIn24:(NSInteger)hoursIn24 minutes:(NSInteger)minutes {
+//The receiver must be a midnight date!
+- (NSDate*)pacoTimeWithIntervalOfHoursIn24:(NSInteger)hoursIn24
+                                   minutes:(NSInteger)minutes
+                                   seconds:(NSInteger)seconds {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit units = NSYearCalendarUnit |
                          NSMonthCalendarUnit |
@@ -83,7 +86,7 @@
   NSDateComponents *components = [calendar components:units fromDate:self];
   components.hour = hoursIn24;
   components.minute = minutes;
-  components.second = 0;
+  components.second = seconds;
   return [calendar dateFromComponents:components];
 }
 
@@ -100,9 +103,9 @@
   long seconds = milliseconds / 1000;
   long minutes = seconds / 60;
   long hrs = minutes / 60;
-  hrs %= 24;
-  minutes %= 60;
-  NSDate* time = [midnight pacoTimeWithIntervalOfHoursIn24:hrs minutes:minutes];
+  minutes -= hrs * 60;
+  seconds -= ((hrs * 60 + minutes) * 60);
+  NSDate* time = [midnight pacoTimeWithIntervalOfHoursIn24:hrs minutes:minutes seconds:seconds];
   return time;
 }
 
