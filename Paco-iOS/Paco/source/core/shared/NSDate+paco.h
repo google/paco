@@ -32,7 +32,7 @@
 - (NSDate*)pacoFutureDateAtMidnightWithInterval:(NSInteger)intervalDays;
 
 //The array of times should be already sorted!
-- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times;
+- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate;
 
 - (BOOL)pacoCanScheduleTimes:(NSArray*)times;
 @end

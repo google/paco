@@ -126,7 +126,7 @@
 
 
 //The array of times should be already sorted!
-- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times {
+- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate{
   NSAssert([times count] > 0, @"times should be valid!");
   
   NSDate* dateToSchedule = nil;
@@ -136,6 +136,13 @@
     
     dateToSchedule = [self pacoTimeFromMidnightWithMilliSeconds:millisecondsNumber];
     NSAssert(dateToSchedule, @"dateToSchedule should be valid");
+    
+    //if the dateToSchedule is later than or equal to endDate,
+    //we should stop adding dates.
+    if (endDate != nil && [dateToSchedule pacoNoEarlierThanDate:endDate]) {
+      break;
+    }
+    
     if ([dateToSchedule pacoNoEarlierThanDate:self]) {
       [dates addObject:dateToSchedule];
     }

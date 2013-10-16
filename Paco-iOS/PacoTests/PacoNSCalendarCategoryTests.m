@@ -36,21 +36,46 @@
   [super tearDown];
 }
 
-- (void)testPacoDaysFromDate {
+- (void)testPacoDaysForSameDay {
+  NSDate* firstTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 00:00:00-0700"];
+  STAssertNotNil(firstTestDate, @"firstTestDate should be valid");
+  NSDate* secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 23:59:59-0700"];
+  STAssertNotNil(secondTestDate, @"secondTestDate should be valid");
+  STAssertEquals([self.calendar pacoDaysFromDate:firstTestDate toDate:secondTestDate], 0, @"should be 0 day in between");
+}
+
+- (void)testPacoDaysForNeighboringDay {
+  NSDate* firstTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 00:00:00-0700"];
+  STAssertNotNil(firstTestDate, @"firstTestDate should be valid");
+  NSDate* secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/02 23:59:59-0700"];
+  STAssertNotNil(secondTestDate, @"secondTestDate should be valid");
+  STAssertEquals([self.calendar pacoDaysFromDate:firstTestDate toDate:secondTestDate], 1, @"should be 1 day in between");
+}
+
+- (void)testPacoDaysFromDate1 {
   NSDate* firstTestDate = [PacoDateUtility pacoDateForString:@"2013/09/25 13:03:59-0700"];
   STAssertNotNil(firstTestDate, @"firstTestDate should be valid");
-
   NSDate* secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 08:03:59-0700"];
   STAssertNotNil(secondTestDate, @"secondTestDate should be valid");
   STAssertEquals([self.calendar pacoDaysFromDate:firstTestDate toDate:secondTestDate], 6, @"should be 6 days in between");
+}
 
-  secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 15:03:59-0700"];
+- (void)testPacoDaysFromDate2 {
+  NSDate* firstTestDate = [PacoDateUtility pacoDateForString:@"2013/09/25 13:03:59-0700"];
+  STAssertNotNil(firstTestDate, @"firstTestDate should be valid");
+  NSDate* secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 15:03:59-0700"];
   STAssertNotNil(secondTestDate, @"secondTestDate should be valid");
   STAssertEquals([self.calendar pacoDaysFromDate:firstTestDate toDate:secondTestDate], 6, @"should be 6 days in between");
-  
+}
+
+- (void)testPacoDaysFromDate3 {
+  NSDate* secondTestDate = [PacoDateUtility pacoDateForString:@"2013/10/01 15:03:59-0700"];
+  STAssertNotNil(secondTestDate, @"secondTestDate should be valid");
   NSDate* thirdTestDate = [PacoDateUtility pacoDateForString:@"2013/11/02 08:03:59-0700"];
   STAssertNotNil(thirdTestDate, @"thirdTestDate should be valid");
   STAssertEquals([self.calendar pacoDaysFromDate:secondTestDate toDate:thirdTestDate], 32, @"should be 32 days in between");
-
 }
+
+
+
 @end

@@ -297,28 +297,39 @@
   NSDate* thirdTime = [PacoDateUtility pacoDateForString:@"2013/10/12 17:23:44-0700"];
   
   NSDate* testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 08:34:15-0700"];
+  NSDate* endDate = [PacoDateUtility pacoDateForString:@"2013/10/13 00:00:00-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
+  STAssertNotNil(endDate, @"endDate should be valid");
   NSArray* expect = @[firstTime, secondTime, thirdTime];
-  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times], expect,
+  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should be able to schedule three times");
 
   testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 10:34:15-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
   expect = @[secondTime, thirdTime];
-  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times], expect,
+  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should be able to schedule two times");
 
   testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 13:34:15-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
   expect = @[thirdTime];
-  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times], expect,
+  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should be able to schedule one times");
 
   testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 17:34:15-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
   expect = @[];
-  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times], expect,
+  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
                        @"should not be able to schedule any time");
+  
+  
+  testDate = [PacoDateUtility pacoDateForString:@"2013/10/12 08:34:15-0700"];
+  endDate = [PacoDateUtility pacoDateForString:@"2013/10/12 00:00:00-0700"];
+  STAssertNotNil(testDate, @"testDate should be valid");
+  STAssertNotNil(endDate, @"endDate should be valid");
+  expect = @[];
+  STAssertEqualObjects([testDate pacoDatesToScheduleWithTimes:times andEndDate:endDate], expect,
+                       @"should not be able to schedule any time since it passed the endDate");
 }
 
 

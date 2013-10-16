@@ -14,14 +14,134 @@
  */
 #import "PacoScheduleGenerator.h"
 #import "PacoExperiment.h"
+#import "PacoExperimentDefinition.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
+#import "NSCalendar+Paco.h"
 
 @implementation PacoScheduleGenerator
 
 + (NSDate*)nextScheduledDateFromNow:(PacoExperiment *)experiment {
   return [self nextScheduledDateForExperiment:experiment fromThisDate:[NSDate dateWithTimeIntervalSinceNow:0]];
 }
+
+
++ (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
+                             numOfDates:(NSInteger)numOfDates
+                               fromDate:(NSDate*)fromDate {
+  NSAssert(numOfDates > 0, @"numOfDates should be valid!");
+  
+  PacoExperimentSchedule* schedule = experiment.schedule;
+  NSAssert(schedule.scheduleType == kPacoScheduleTypeDaily, @"should be a daily experiment");
+  
+  //experiment already finished
+  if (experiment.definition.endDate != nil &&
+      [experiment.definition.endDate pacoNoLaterThanDate:fromDate]) {
+    return nil;
+  }
+  
+  NSMutableArray* dates = [NSMutableArray arrayWithCapacity:numOfDates];
+  NSDate* startDate = [self getRealStartDateWithTimes:schedule.times
+                                    originalStartDate:fromDate
+                                  experimentStartDate:experiment.definition.startDate
+                                           repeatRate:schedule.repeatRate];
+  
+  int numOfDatesNeeded = numOfDates;
+  while (numOfDatesNeeded > 0) {
+    NSAssert(startDate != nil, @"startDate should be valid!");
+    NSArray* datesOnStartDate = [startDate pacoDatesToScheduleWithTimes:schedule.times
+                                                             andEndDate:experiment.definition.endDate];
+    int currentNumOfDates = [datesOnStartDate count];
+    //if there are no valid dates to schedule, since we reach the experiment's endDate,
+    //then we should just stop here.
+    if (0 == currentNumOfDates) {
+      break;
+    }
+    
+    int numOfDatesToAdd = currentNumOfDates;
+    if (currentNumOfDates > numOfDatesNeeded) {
+      numOfDatesToAdd = numOfDatesNeeded;
+    }
+    NSIndexSet* indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, numOfDatesToAdd)];
+    [dates addObjectsFromArray:[datesOnStartDate objectsAtIndexes:indexSet]];
+    
+    numOfDatesNeeded -= numOfDatesToAdd;
+    startDate = [startDate pacoFutureDateAtMidnightWithInterval:schedule.repeatRate];
+  }
+  return dates;
+}
+
+//For daily experiment
++ (NSDate*)getRealStartDateWithTimes:(NSArray*)times
+                   originalStartDate:(NSDate*)originalStartDate
+                experimentStartDate:(NSDate*)experimentStartDate
+                         repeatRate:(NSInteger)repeatRate {
+  
+  if (experimentStartDate == nil) { //ongoing experiment
+    return [self getStartTimeFromDate:originalStartDate withTimes:times];
+  } else { //fixe-length experiment
+    return [self getStartTimeWithExperimentStartDate:experimentStartDate
+                                            fromDate:originalStartDate
+                                               times:times
+                                          repeatRate:repeatRate];
+  }
+}
+
+
++ (NSDate*)getStartTimeFromDate:(NSDate*)fromDate withTimes:(NSArray*)times {
+  //If it's still able to schedule any time from times, then return the current fromDate,
+  //otherwise return the next day's midnight as the new fromDate
+  if ([fromDate pacoCanScheduleTimes:times]) {
+    return fromDate;
+  } else {
+    return [fromDate pacoNextDayAtMidnight];
+  }
+}
+
+
++ (NSDate*)getStartTimeWithExperimentStartDate:(NSDate*)experimentStartDate
+                                      fromDate:(NSDate*)fromDate
+                                         times:(NSArray*)times
+                                    repeatRate:(NSInteger)repeatRate {
+  //if user joins an experiment before experiment's start date,
+  //then we should schedule dates from experiment's start date, not fromDate
+  if ([fromDate pacoNoLaterThanDate:experimentStartDate]) {
+    return experimentStartDate;
+  }
+
+  //the user joins an experiment after the experiment starts
+  int numOfDaysFromStartDate =
+      [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate toDate:fromDate];
+  
+  NSAssert(repeatRate >= 1, @"repeatRate should be valid");
+  int repeatTimes = numOfDaysFromStartDate / repeatRate;
+  int extraDays = numOfDaysFromStartDate % repeatRate;
+  if (extraDays != 0) {
+    repeatTimes++;
+  }
+  
+  int daysToNewStartDate = repeatTimes * repeatRate;
+  NSAssert(numOfDaysFromStartDate <= daysToNewStartDate,
+           @"new start date should either on the same day with fromDate or later than fromDate");
+  
+  NSDate* newStartDate = nil;
+  if (numOfDaysFromStartDate < daysToNewStartDate) { //newStartDate is later than fromDate
+    NSAssert(daysToNewStartDate > 0, @"daysToNewStartDate should be larger than 0");
+    newStartDate = [experimentStartDate pacoFutureDateAtMidnightWithInterval:daysToNewStartDate];
+  } else { //fromDate and newStartDate are on the same day
+    if ([fromDate pacoCanScheduleTimes:times]) {
+      newStartDate = fromDate;
+    } else {
+      repeatTimes++;
+      daysToNewStartDate = repeatTimes * repeatRate;
+      newStartDate = [experimentStartDate pacoFutureDateAtMidnightWithInterval:daysToNewStartDate];
+    }
+  }
+  NSAssert(newStartDate, @"newStartDate should be valid!");
+  return newStartDate;
+}
+
 
 + (NSDate*)nextDateForDailyExperiment:(PacoExperiment*)experiment fromThisDate:(NSDate*)fromThisDate {
   // Today 12:30pm -> Today 1:30pm
