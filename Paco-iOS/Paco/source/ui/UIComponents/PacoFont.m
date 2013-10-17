@@ -67,4 +67,14 @@
   return font;
 }
 
++ (UIFont *)pacoConsentBoldFont {
+  static UIFont* font = nil;
+
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:12];
+  });
+  return font;
+}
+
 @end
