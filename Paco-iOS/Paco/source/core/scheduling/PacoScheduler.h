@@ -26,9 +26,6 @@ extern NSString* const kExperimentHasFiredKey;
 @required
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime;
-
-- (void)updateTimerInterval:(NSTimeInterval)newInterval;
-
 @end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
@@ -50,7 +47,7 @@ extern NSString* const kExperimentHasFiredKey;
 - (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
 
 // see which Notifications have expired, and schedule new ones
--(void)update:(NSArray *)experiments;
+- (void)performMajorTaskWithAllExperiments:(NSArray*)experiments;
 
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state

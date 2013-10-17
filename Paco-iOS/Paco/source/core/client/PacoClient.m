@@ -29,7 +29,6 @@
 #import "NSError+Paco.h"
 #import "PacoDateUtility.h"
 
-static NSTimeInterval kInitialTimerInterval = 5.0;
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -147,11 +146,6 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   [self showLoginScreenWithCompletionBlock:nil];
 }
 
-#pragma mark PacoLocationDelegate
-- (void)timerUpdated {
-  [self.scheduler update:self.model.experimentInstances];
-}
-
 
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
@@ -165,22 +159,21 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   }
 }
 
-- (void)updateTimerInterval:(NSTimeInterval)newInterval {
+- (void)triggerOrShutdownNotificationSystem {
   if ([self.model shouldTriggerNotificationSystem]) {
-    NSAssert(newInterval > 0, @"newInterval should be larger than 0!");
     if (self.location == nil) {
+      //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
+      //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
       dispatch_async(dispatch_get_main_queue(), ^{
-        self.location = [[PacoLocation alloc] initWithTimerInterval:newInterval];
+        NSLog(@"***********  PacoLocation is allocated ***********");
+        self.location = [[PacoLocation alloc] init];
         self.location.delegate = self;
         [self.location enableLocationService];
       });
-    } else {
-      [self.location resetTimerInterval:newInterval];
     }
   } else {
     if (self.location != nil) {
-      NSAssert(newInterval == 0, @"newInterval should be 0!");
-      [self.location removeTimerAndStopLocationService];
+      [self.location disableLocationService];
       self.location = nil;
     }
   }
@@ -191,7 +184,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
 {
   if (SKIP_LOG_IN) {
     [self prefetchInBackgroundWithBlock:^{
-      [self startLocationTimerIfNeeded];
+      [self triggerOrShutdownNotificationSystem];
     }];
     return;
   }
@@ -211,7 +204,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   
   // Fetch the experiment definitions and the events of joined experiments.
   [self prefetchInBackgroundWithBlock:^{
-    [self startLocationTimerIfNeeded];
+    [self triggerOrShutdownNotificationSystem];
   }];
   
   [self uploadPendingEventsInBackground];
@@ -246,7 +239,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   //we will re-authenticate user
   if (!self.reachability.isReachable) {
     [self prefetchInBackgroundWithBlock:^{
-      [self startLocationTimerIfNeeded];
+      [self triggerOrShutdownNotificationSystem];
     }];
     if (block != nil) {
       block(nil);
@@ -305,9 +298,6 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   }
 }
 
-- (void)startLocationTimerIfNeeded {
-  [self updateTimerInterval:kInitialTimerInterval];
-}
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -340,7 +330,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
         [self prefetchInBackgroundWithBlock:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
-          [self startLocationTimerIfNeeded];
+          [self triggerOrShutdownNotificationSystem];
         }];
         completionHandler(nil);
       } else {

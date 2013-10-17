@@ -20,7 +20,6 @@
 
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
-- (NSTimeInterval)nearestTimerInterval;
 
 - (NSMutableArray*)loadNotificationsFromFile;
 - (BOOL)saveNotificationsToFile;

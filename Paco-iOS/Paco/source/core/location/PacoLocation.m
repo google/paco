@@ -19,7 +19,6 @@
 #import "PacoDateUtility.h"
 
 
-NSTimer* LocationTimer; //non-repeatable timer
 
 @interface PacoLocation () <CLLocationManagerDelegate>
 @property (nonatomic, copy, readwrite) CLLocation *location;
@@ -29,68 +28,15 @@ NSTimer* LocationTimer; //non-repeatable timer
 
 @implementation PacoLocation
 
-
-- (id)initWithTimerInterval:(NSTimeInterval)interval {
+- (id)init {
   self = [super init];
   if (self) {
-    //NOTE: both NSTimer and CLLocationManager need to be initialized in the main thread to work correctly
-    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-    //However, initializing CLLocationManager on the main thread will disable the backgrounding in 17-20 minutes
-    //after user quits Paco.
     self.manager = [[CLLocationManager alloc] init];
     self.manager.delegate = self;
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
-        
-    dispatch_async(dispatch_get_main_queue(), ^{
-      NSLog(@"***********  PacoLocation is allocated ***********");
-      NSLog(@"Timer starts working, interval:%f seconds, will fire at %@",
-            interval, [PacoDateUtility pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:interval]]);
-      LocationTimer = [NSTimer scheduledTimerWithTimeInterval:interval
-                                                       target:self
-                                                     selector:@selector(LocationTimerHandler:)
-                                                     userInfo:nil
-                                                      repeats:NO];
-    });
   }
-  
   return self;
-}
-
-- (void)dealloc {
-  NSLog(@"***********  PacoLocation is deallocated, timer stops working! ***********");
-  [self removeTimerAndStopLocationService];
-}
-
-- (void)removeTimerAndStopLocationService {
-  NSLog(@"***********  PacoLocation: removeTimerAndStopLocationService ***********");
-  [LocationTimer invalidate];
-  LocationTimer = nil;
-  [self disableLocationService];
-}
-
-
-- (void)resetTimerInterval:(NSTimeInterval)newInterval {
-  [LocationTimer invalidate];
-  dispatch_async(dispatch_get_main_queue(), ^{
-    NSLog(@"*********** Timer Updated, interval:%f seconds, will fire at %@ ***********",
-         newInterval,[PacoDateUtility pacoStringForDate:[NSDate dateWithTimeIntervalSinceNow:newInterval]]);
-    LocationTimer = [NSTimer scheduledTimerWithTimeInterval:newInterval
-                                                     target:self
-                                                   selector:@selector(LocationTimerHandler:)
-                                                   userInfo:nil
-                                                    repeats:NO];
-  });
-}
-
-
--(void)LocationTimerHandler:(NSTimer *) LocationTimer {
-  NSLog(@"Paco LocationTimer fired @ %@", [PacoDateUtility pacoStringForDate:[LocationTimer fireDate]]);
-
-  // Notify our PacoClient that our timer fired
-  if ([self.delegate respondsToSelector:@selector(timerUpdated)]) {
-    [_delegate timerUpdated];
-  }
 }
 
 - (void)enableLocationService {

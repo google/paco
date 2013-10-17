@@ -92,12 +92,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 }
 
 
-- (void)updateTimer {
-  NSTimeInterval timerInterval = [self.notificationManager nearestTimerInterval];
-  [self.delegate updateTimerInterval:timerInterval];
-}
-
-
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
   if (![experiment shouldScheduleNotifications]) {
@@ -112,15 +106,12 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   
   NSLog(@"Start scheduling notifications for newly joined experiment: %@", experiment.instanceId);
   [self registeriOSNotificationForExperiment:experiment];
-  
-  [self updateTimer];
 }
 
 
 - (void)stopSchedulingForExperiment:(PacoExperiment*)experiment {
   NSLog(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
   [self deleteAllNotificationsForExperiment:experiment];
-  [self updateTimer];
 }
 
 - (void)deleteAllNotificationsForExperiment:(PacoExperiment*)experiment {
@@ -154,11 +145,9 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   }
 }
 
--(void)update:(NSArray *)experiments {
+- (void)performMajorTaskWithAllExperiments:(NSArray*)experiments {
   [self cancelExpirediOSLocalNotifications:experiments];
-  [self registerUpcomingiOSNotifications:experiments];
-  
-  [self updateTimer];
+  [self registerUpcomingiOSNotifications:experiments];  
 }
 
 - (void)handleNotification:(UILocalNotification *)notification

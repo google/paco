@@ -66,46 +66,6 @@
   }
 }
 
-
-- (NSTimeInterval)nearestTimerInterval {
-  @synchronized(self) {
-    NSTimeInterval interval = MAXFLOAT;
-    
-    for (NSString* notificationHash in self.notificationDict) {
-      UILocalNotification* noti = [self.notificationDict objectForKey:notificationHash];
-      NSDate* fireDate = [noti.userInfo objectForKey:@"experimentFireDate"];
-      NSTimeInterval timerInterval = [fireDate timeIntervalSinceNow];
-      //notification fired, fetch the time out interval
-      if (timerInterval <= 0) {
-        NSDate* timeOutDate = [noti.userInfo objectForKey:@"experimentTimeOutDate"];
-        NSAssert(timeOutDate != nil, @"");
-        NSTimeInterval timerInterval = [timeOutDate timeIntervalSinceNow];
-        
-        if (timerInterval > 0) {
-          if (interval > timerInterval) {
-            interval = timerInterval;
-          }
-        } else {
-          NSLog(@"ERROR: timerInterval should probably be larger than 0, maybe a bug!");
-        }
-      } else {
-        if (interval > timerInterval) {
-          interval = timerInterval;
-        }
-      }
-    }
-    
-    if (interval == MAXFLOAT) {
-      return 0;
-    } else {
-      NSTimeInterval offset = 1;
-      return interval + offset;
-      
-    }
-  }
-}
-
-
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   //check cached notifications
   BOOL hasScheduledNotification = NO;

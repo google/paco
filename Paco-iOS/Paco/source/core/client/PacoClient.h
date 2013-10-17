@@ -80,5 +80,4 @@
 
 - (void)deleteExperimentFromCache:(PacoExperiment*)experiment;
 
-- (void)startLocationTimerIfNeeded;
 @end
