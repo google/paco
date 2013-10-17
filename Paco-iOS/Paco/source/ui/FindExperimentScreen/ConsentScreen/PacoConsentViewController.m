@@ -57,7 +57,9 @@
   [boldTitle sizeToFit];
 
   UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, 300, 0)];
-  consentText.text = @"By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy thay have provided below to decide on whether you want to participate in this experiment.";
+  consentText.text = @"By joining this experiment, you may be sharing data with the creator and "
+  @"administrators of this experiment. Read the data handling policy they have provided below to "
+  @"decide on whether you want to participate in this experiment.";
   consentText.font = [PacoFont pacoTableCellDetailFont];
   consentText.textColor = [UIColor blackColor];
   consentText.backgroundColor = [UIColor clearColor];
