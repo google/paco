@@ -82,8 +82,7 @@
 }
 
 - (BOOL)shouldScheduleNotifications {
-  return (self.schedule.scheduleType != kPacoScheduleTypeSelfReport) &&
-         (self.schedule.scheduleType != kPacoScheduleTypeAdvanced);
+  return (self.schedule.scheduleType != kPacoScheduleTypeSelfReport);
 }
 
 - (BOOL)haveJoined {

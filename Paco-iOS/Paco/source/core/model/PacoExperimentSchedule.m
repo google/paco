@@ -172,8 +172,6 @@
       return @"Random sampling (ESM)";
     case kPacoScheduleTypeSelfReport:
       return @"Self report only";
-    case kPacoScheduleTypeAdvanced:
-      return @"Advanced";
     case kPacoScheduleTypeTesting:
       return @"iOS Testing";
   }

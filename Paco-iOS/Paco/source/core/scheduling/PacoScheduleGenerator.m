@@ -217,7 +217,6 @@
       return scheduled;
     }
     case kPacoScheduleTypeSelfReport:
-    case kPacoScheduleTypeAdvanced:
     case kPacoScheduleTypeTesting:
     default:
       return nil;

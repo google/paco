@@ -180,8 +180,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   // Adding a schedule to the join event.  The join event is the only way to
   // edit a schedule.
   if (schedule &&
-      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport &&
-      definition.schedule.scheduleType != kPacoScheduleTypeAdvanced) {
+      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport) {
     [response setObject:@"schedule" forKey:kPacoResponseKeyName];
     [response setObject:[schedule jsonString] forKey:kPacoResponseKeyAnswer];
   }

@@ -131,7 +131,6 @@ NSString *kCellIdText = @"text";
                 [NSArray arrayWithObjects:kCellIdIncludeWeekends, [NSNumber numberWithBool:schedule.esmWeekends], nil],
                 nil];
   case kPacoScheduleTypeSelfReport:
-  case kPacoScheduleTypeAdvanced:
     return [NSArray arrayWithObjects:
                 [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
                 nil];
@@ -245,9 +244,6 @@ NSString *kCellIdText = @"text";
       cellView.detailTextLabel.text = @"Submit responses whenever you wish.";
     }
     break;
-  case kPacoScheduleTypeAdvanced:
-    // not implemented on the server.
-    break;
   case kPacoScheduleTypeTesting: {
     // special type for testing Notification
     }
@@ -319,9 +315,6 @@ NSLog(@"TODO: implement schedule editing hookups");
     break;
   case kPacoScheduleTypeSelfReport:
     // do nothing
-    break;
-  case kPacoScheduleTypeAdvanced:
-    // not implemented on the server.
     break;
   case kPacoScheduleTypeTesting: {
     // special type for testing Notification
