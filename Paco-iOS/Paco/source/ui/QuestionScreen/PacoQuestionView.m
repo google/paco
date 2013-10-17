@@ -23,14 +23,14 @@
 #import "PacoFont.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
-#import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
+#import "PacoStepperView.h"
 
 static const int kInvalidIndex = -1;
 
 @interface PacoQuestionView () <MKMapViewDelegate,
                                 PacoCheckboxViewDelegate,
-                                PacoSliderViewDelegate,
+                                PacoStepperViewDelegate,
                                 UITextFieldDelegate,
                                 UINavigationControllerDelegate,
                                 UIImagePickerControllerDelegate>
@@ -42,10 +42,11 @@ static const int kInvalidIndex = -1;
 @property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
 @property (nonatomic, retain, readwrite) MKMapView *map;
 @property (nonatomic, retain, readwrite) NSArray *numberButtons;
-@property (nonatomic, retain, readwrite) PacoSliderView *numberSlider;
+@property (nonatomic, retain, readwrite) PacoStepperView *numberStepper;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
 @property (nonatomic, retain, readwrite) UITextField *textField;
+@property (nonatomic, retain, readwrite) NSArray* rightLeftLabels;
 
 // TODO(gregvance): add location and photo
 
@@ -101,9 +102,12 @@ static const int kInvalidIndex = -1;
   for (UIButton *button in self.numberButtons) {
     [button removeFromSuperview];
   }
+  for (UILabel* label in self.rightLeftLabels) {
+    [label removeFromSuperview];
+  }
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
-  [self.numberSlider removeFromSuperview];
+  [self.numberStepper removeFromSuperview];
   [self.questionText removeFromSuperview];
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
@@ -117,10 +121,11 @@ static const int kInvalidIndex = -1;
   self.imagePicker = nil;
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
   self.numberButtons = nil;
-  self.numberSlider = nil;
+  self.numberStepper = nil;
   self.questionText = nil;
   self.smileysButtons = nil;
   self.textField = nil;
+  self.rightLeftLabels = nil;
 }
 
 - (void)selectSmiley:(int)index {
@@ -143,21 +148,12 @@ static const int kInvalidIndex = -1;
 }
 
 - (void)selectNumberButton:(int)index {
-  UIColor *highlightedColor = [UIColor blackColor];
-  UIColor *normalColor = [UIColor blackColor];
   for (int i = 0; i < self.question.likertSteps; ++i) {
     UIButton *button = [self.numberButtons objectAtIndex:i];
     if (i == index) {
-      UIFont *font = [PacoFont pacoTableCellFont];
-      UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
-      button.titleLabel.font = boldFont;
-      [button setTitleColor:highlightedColor forState:UIControlStateNormal];
-      [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_checked"] forState:UIControlStateNormal];
     } else {
-      button.titleLabel.font = [PacoFont pacoTableCellFont];
-      [button setTitleColor:normalColor forState:UIControlStateNormal];
-      [button setTitleColor:normalColor forState:UIControlStateHighlighted];
-
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_unchecked"] forState:UIControlStateNormal];
     }
   }
   //[self updateConditionals];
@@ -255,11 +251,33 @@ static const int kInvalidIndex = -1;
       [self selectSmiley:kInvalidIndex];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
+    //set right left labels
+    if (self.question.leftSideLabel != nil && self.question.rightSideLabel != nil) {
+      NSMutableArray* labels = [NSMutableArray array];
+      UILabel* leftLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      leftLabel.text = self.question.leftSideLabel;
+      leftLabel.textColor = [PacoColor pacoDarkBlue];
+      leftLabel.backgroundColor = [UIColor clearColor];
+      leftLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:leftLabel];
+      [leftLabel sizeToFit];
+      [labels addObject:leftLabel];
+
+      UILabel* rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      rightLabel.text = self.question.rightSideLabel;
+      rightLabel.textColor = [PacoColor pacoDarkBlue];
+      rightLabel.backgroundColor = [UIColor clearColor];
+      rightLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:rightLabel];
+      [rightLabel sizeToFit];
+      [labels addObject:rightLabel];
+      self.rightLeftLabels = labels;
+    }
     // Number Steps
     NSMutableArray *buttons = [NSMutableArray array];
     for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
       UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-      [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
+      [button setBackgroundImage:[UIImage imageNamed:@"radiobtn_off"] forState:UIControlStateNormal];
       [buttons addObject:button];
       [self addSubview:button];
       [button sizeToFit];
@@ -307,19 +325,19 @@ static const int kInvalidIndex = -1;
       checkboxes.bitFlags = self.question.responseObject;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
-    PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
-    slider.format = @"%d";
+    PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
+                                                      reuseIdentifier:@"question_number"];
+    stepper.format = @"%d";
     if (self.question.responseObject) {
-      slider.value = self.question.responseObject;
+      stepper.value = self.question.responseObject;
     } else {
-      slider.value = [NSNumber numberWithInt:0];
+      stepper.value = [NSNumber numberWithInt:0];
     }
-    slider.minValue = 0;
-    slider.maxValue = 100;
-    slider.delegate = self;
-    self.numberSlider = slider;
-    [self addSubview:slider];
-
+    stepper.minValue = 0;
+    stepper.maxValue = NSUIntegerMax;
+    stepper.delegate = self;
+    self.numberStepper = stepper;
+    [self addSubview:stepper];
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
       self.questionText.text = @"Attaching your location ...";
@@ -456,15 +474,37 @@ static const int kInvalidIndex = -1;
       button.frame = rect;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
-    int numValues = self.numberButtons.count;
-    CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
-    NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
-    //for (NSValue *valueRect in smileys) {
-    for (int i = 0; i < numValues; ++i) {
-      UIButton *button = [self.numberButtons objectAtIndex:i];
-      NSValue *valueRect = [numbers objectAtIndex:i];
-      CGRect rect = [valueRect CGRectValue];
-      button.frame = rect;
+     if (self.question.likertSteps == 2) {
+      int height = (self.frame.size.height - self.questionText.frame.size.height - 10);
+      UIButton* button = [self.numberButtons objectAtIndex:0];
+      height = self.questionText.frame.size.height + 10 + height / 2 - button.frame.size.height;
+      button.frame = CGRectMake(self.center.x - button.frame.size.width * 2, height, 25, 25);
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(button.frame.origin.x - lLabel.frame.size.width - 10, height, lLabel.frame.size.width, button.frame.size.height);
+      UIButton* rButton = [self.numberButtons objectAtIndex:1];
+      rButton.frame = CGRectMake(self.center.x + rButton.frame.size.width, height, 25, 25);
+      rButton.frame = CGRectIntegral(rButton.frame);
+      UILabel* rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(rButton.frame.origin.x + rButton.frame.size.width + 10, height, rLabel.frame.size.width, rButton.frame.size.height);
+    }
+    else if (self.question.likertSteps == 5){
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(10, self.questionText.frame.size.height + 10, lLabel.frame.size.width, lLabel.frame.size.height);
+      UILabel *rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(self.frame.size.width - rLabel.frame.size.width - 10, self.questionText.frame.size.height + 10, rLabel.frame.size.width, rLabel.frame.size.height);
+      int height = (self.frame.size.height - lLabel.frame.origin.y - 10 - lLabel.frame.size.height);
+      height = lLabel.frame.origin.y + 10 + lLabel.frame.size.height+ height / 2 - 25;
+      int numValues = self.numberButtons.count;
+      CGRect bounds = CGRectMake(25, height + 10, self.frame.size.width - 20, height);
+      NSArray* numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
+      //for (NSValue *valueRect in smileys) {
+      for (int i = 0; i < numValues; ++i) {
+        UIButton* button = [self.numberButtons objectAtIndex:i];
+        NSValue* valueRect = [numbers objectAtIndex:i];
+        CGRect rect = [valueRect CGRectValue];
+        rect.size = CGSizeMake(25, 25);
+        button.frame = rect;
+      }
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
@@ -480,8 +520,7 @@ static const int kInvalidIndex = -1;
 //      }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-
-    self.numberSlider.frame = bounds;
+    self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
@@ -566,14 +605,40 @@ static const int kInvalidIndex = -1;
 #pragma mark - UITextFieldDelegate
 
 //- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-//- (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+  UITableView* tableView = [self tableViewforCell:self];
+  [tableView setContentOffset:CGPointMake(0, self.frame.origin.y) animated:YES];
+}
+
+- (UITableView *)tableViewforCell:(UITableViewCell*)cell{//for diffenernt ios version view hierarchy
+  id view = [cell superview];
+  while ([view isKindOfClass:[UITableView class]] == NO) {
+    view = [view superview];
+  }
+  return (UITableView*)view;
+}
+
+// became first responder
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
   // return YES to allow editing to stop and to resign first responder status.
   //        NO to disallow the editing session to end
   return YES;
 }
 
-//- (void)textFieldDidEndEditing:(UITextField *)textField;             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
+- (void)textFieldDidEndEditing:(UITextField *)textField {             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
+  UITableView* tableView = [self tableViewforCell:self];
+  NSIndexPath* pathOfTheCell = [tableView indexPathForCell:self];
+  int cell = pathOfTheCell.row;
+  if (cell >= 2) {
+    [tableView scrollToRowAtIndexPath:pathOfTheCell
+                 atScrollPosition:UITableViewScrollPositionBottom
+                         animated:YES];
+  } else {
+    [tableView scrollToRowAtIndexPath:pathOfTheCell
+                 atScrollPosition:UITableViewScrollPositionNone
+                         animated:YES];
+  }
+}
 
 //- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
 
@@ -600,10 +665,10 @@ static const int kInvalidIndex = -1;
   [self updateConditionals];
 }
 
-#pragma mark - PacoSliderViewDelegate
+#pragma mark - PacoStepperViewDelegate
 
-- (void)onSliderChanged:(PacoSliderView *)slider {
-  int value = [slider.value intValue];
+- (void)onStepperValueChanged:(PacoStepperView *)stepper {
+  int value = [stepper.value intValue];
   self.question.responseObject = [NSNumber numberWithInt:value];
   [self updateConditionals];
 }
