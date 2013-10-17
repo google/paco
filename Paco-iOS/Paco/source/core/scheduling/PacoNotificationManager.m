@@ -101,9 +101,6 @@
     [saveDict setValue:[notification.userInfo objectForKey:@"experimentFireDate"] forKey:@"experimentFireDate"];
     [saveDict setValue:[notification.userInfo objectForKey:@"experimentTimeOutDate"] forKey:@"experimentTimeOutDate"];
     [saveDict setValue:notification.alertBody forKey:@"experimentAlertBody"];
-    if ([notification.userInfo objectForKey:@"experimentEsmSchedule"] != nil) {
-      [saveDict setValue:[notification.userInfo objectForKey:@"experimentEsmSchedule"] forKey:@"experimentEsmSchedule"];
-    }
     
     [notificationArray addObject:saveDict];
   }

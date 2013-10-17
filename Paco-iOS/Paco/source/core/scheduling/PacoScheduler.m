@@ -76,7 +76,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     NSDate* experimentFireDate =[notificationDictionary valueForKey:@"experimentFireDate"];
     NSDate* experimentTimeOutDate =[notificationDictionary valueForKey:@"experimentTimeOutDate"];
     NSString* experimentAlertBody = [notificationDictionary valueForKey:@"experimentAlertBody"];
-    NSArray* experimentEsmSchedule = [notificationDictionary valueForKey:@"experimentEsmSchedule"];
     
     // if this notification has already timed out, we should let the deligate know so he can notify the server
     if (([experimentTimeOutDate timeIntervalSinceNow] <= 0)) {
@@ -85,7 +84,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
       [self registeriOSNotification:experimentInstanceId
                  experimentFireDate:experimentFireDate
               experimentTimeOutDate:experimentTimeOutDate
-              experimentEsmSchedule:experimentEsmSchedule
                 experimentAlertBody:experimentAlertBody];
     }
   }
@@ -163,10 +161,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   
   NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-  NSArray *esmSchedule = [notification.userInfo objectForKey:@"esmSchedule"];
-  if (esmSchedule) {
-    experiment.schedule.esmScheduleList = esmSchedule;
-  }
   
   [self deleteAllNotificationsForExperiment:experiment];
   [self registerUpcomingiOSNotifications:experiments];
@@ -206,14 +200,12 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   [self registeriOSNotification:experiment.instanceId
              experimentFireDate:experimentFireDate
           experimentTimeOutDate:experimentTimeOutDate
-          experimentEsmSchedule:scheduleDates
             experimentAlertBody:alertBody];
 }
 
 - (void)registeriOSNotification:(NSString*) experimentInstanceId
              experimentFireDate:(NSDate*) experimentFireDate
           experimentTimeOutDate:(NSDate*) experimentTimeOutDate
-          experimentEsmSchedule:(NSArray*) experimentEsmSchedule
             experimentAlertBody:(NSString*) experimentAlertBody {
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   
@@ -226,9 +218,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   [userInfo setObject:experimentInstanceId forKey:@"experimentInstanceId"];
   [userInfo setObject:experimentFireDate forKey:@"experimentFireDate"];
   [userInfo setObject:experimentTimeOutDate forKey:@"experimentTimeOutDate"];
-  if (experimentEsmSchedule) {
-    [userInfo setObject:experimentEsmSchedule forKey:@"experimentEsmSchedule"];
-  }
   
   // this logic is for when we're loading notifications from a file that should have fired
   // in the past: we want them to fire right away (so they show up in Notification Center),
