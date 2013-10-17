@@ -75,7 +75,9 @@ NSString *kCellIdQuestion = @"question";
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
+  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
   PacoTableView *table = [[PacoTableView alloc] initWithFrame:CGRectZero];
   table.delegate = self;
   table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;

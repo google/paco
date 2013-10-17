@@ -565,8 +565,22 @@ static const int kInvalidIndex = -1;
 
 #pragma mark - UITextFieldDelegate
 
+//considering the diffenernce in view hierarchies for ios versions
+- (UITableView *)tableViewforCell:(UITableViewCell*)cell {
+  id view = [cell superview];
+  while ([view isKindOfClass:[UITableView class]] == NO) {
+    view = [view superview];
+  }
+  return (UITableView*)view;
+}
+
 //- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-//- (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+  UITableView* tableView = [self tableViewforCell:self];
+  [tableView setContentOffset:CGPointMake(0, self.frame.origin.y) animated:YES];
+}
+
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
   // return YES to allow editing to stop and to resign first responder status.
   //        NO to disallow the editing session to end
