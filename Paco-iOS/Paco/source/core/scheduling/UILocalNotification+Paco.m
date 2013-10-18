@@ -124,4 +124,38 @@ static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeo
   return info.timeOutDate;
 }
 
+
++ (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId {
+  NSAssert([experimentInstanceId length] > 0, @"id should be valid!");
+  
+  NSMutableArray* result = [NSMutableArray array];
+  NSArray* allScheduledNotifications = [UIApplication sharedApplication].scheduledLocalNotifications;
+  for (UILocalNotification* notification in allScheduledNotifications) {
+    PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:notification.userInfo];
+    NSAssert([info.experimentId length] > 0, @"experimentId should be valid!");
+    if ([info.experimentId isEqualToString:experimentInstanceId]) {
+      [result addObject:notification];
+    }
+  }
+  return result;
+}
+
++ (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId {
+  return 0 < [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
+}
+
++ (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId {
+  NSAssert([experimentInstanceId length] > 0, @"id should be valid!");
+
+  NSArray* scheduledArr = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  for (UILocalNotification* noti in scheduledArr) {
+    PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:noti.userInfo];
+    NSAssert([info.experimentId length] > 0, @"experimentId should be valid!");
+
+    if ([info.experimentId isEqualToString:experimentInstanceId]) {
+      [[UIApplication sharedApplication] cancelLocalNotification:noti];
+    }
+  }
+}
+
 @end

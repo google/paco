@@ -22,6 +22,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 #import "PacoNotificationManager.h"
+#import "UILocalNotification+Paco.h"
 
 NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 
@@ -97,9 +98,9 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     return;
   }
   
-  //check schedule notifications
-  NSArray* scheduledArr = [self getiOSLocalNotifications:experiment.instanceId];
-  NSAssert([scheduledArr count] == 0, @"There should be 0 notfications scheduled!");
+  BOOL hasScheduledNotifications =
+      [UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId];
+  NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
   NSLog(@"Start scheduling notifications for newly joined experiment: %@", experiment.instanceId);
@@ -133,16 +134,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
     }
   }
   //Just in case, remove any notificaiton that still exists in OS system
-  NSArray* scheduledArr =
-      [NSArray arrayWithArray:[[UIApplication sharedApplication] scheduledLocalNotifications]];
-  for (UILocalNotification* noti in scheduledArr) {
-    NSString* experimentInstanceId = [noti.userInfo objectForKey:@"experimentInstanceId"];
-    NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
-    if ([experimentInstanceId isEqualToString:experiment.instanceId]) {
-      NSAssert(NO, @"There shouldn't be notification existing!");
-      [[UIApplication sharedApplication] cancelLocalNotification:noti];
-    }
-  }
+  [UILocalNotification cancelScheduledNotificationsForExperiment:experiment.instanceId];
 }
 
 - (void)performMajorTaskWithAllExperiments:(NSArray*)experiments {
@@ -168,12 +160,6 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   [self registerUpcomingiOSNotifications:experiments];
 }
 
-- (void)canceliOSNotificationsForExperimentId:(NSString *)experimentId {
-  NSArray *notifications = [self getiOSLocalNotifications:experimentId];
-  for (UILocalNotification *notification in notifications) {
-    [[UIApplication sharedApplication] cancelLocalNotification:notification];
-  }
-}
 
 - (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
   NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
@@ -263,7 +249,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 }
 
 - (UILocalNotification*)getiOSLocalNotification:(NSString*)experimentInstanceId fireDate:(NSDate*)fireDate {
-  NSArray* notificationArray = [self getiOSLocalNotifications:experimentInstanceId];
+  NSArray* notificationArray =
+      [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
   for (UILocalNotification* notification in notificationArray) {
     if (([notification.fireDate timeIntervalSinceDate:fireDate] >= 0) && ([notification.fireDate timeIntervalSinceDate:fireDate] < 60)) {
       return notification;
@@ -272,27 +259,17 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   return nil;
 }
 
-- (NSArray*)getiOSLocalNotifications:(NSString*)experimentInstanceId {
-  NSMutableArray *array = [NSMutableArray array];
-  for (UILocalNotification *notification in [UIApplication sharedApplication].scheduledLocalNotifications) {
-    NSString *expId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    if ([expId isEqualToString:experimentInstanceId]) {
-      [array addObject:notification];
-    }
-  }
-  return array;
-}
 
 - (void)registerUpcomingiOSNotifications: (NSArray *)experiments {
   // go through all experiments, see if a notification is already scheduled, and if not add it to the schedule
   for (PacoExperiment *experiment in experiments) {
     if ([experiment shouldScheduleNotifications]) {
-      if ([self getiOSLocalNotifications:experiment.instanceId].count == 0) {
-          NSLog(@"Registering iOS notification for %@", experiment.instanceId);
-          [self registeriOSNotificationForExperiment:experiment];
-      } else {
+      if ([UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId]) {
         NSLog(@"Skip registering iOS notification for %@, since it has a notification scheduled.",
               experiment.instanceId);
+      } else {
+        NSLog(@"Registering iOS notification for %@", experiment.instanceId);
+        [self registeriOSNotificationForExperiment:experiment];
       }
     } else {
       NSLog(@"Skip registering notification for %@, it's a self-report or advanced experiment.",

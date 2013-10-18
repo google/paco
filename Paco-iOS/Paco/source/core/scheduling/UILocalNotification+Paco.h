@@ -42,5 +42,7 @@ typedef enum {
                                              timeOutDate:(NSDate*)timeOutDate;
 - (NSString*)pacoExperimentId;
 - (NSDate*)pacoTimeoutDate;
-
++ (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId;
++ (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId;
++ (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
 @end
