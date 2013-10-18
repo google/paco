@@ -83,10 +83,10 @@ static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeo
 
 @implementation UILocalNotification (Paco)
 
-+ (UILocalNotification*)notificationWithExperimentId:(NSString*)experimentId
-                                           alertBody:(NSString*)alertBody
-                                            fireDate:(NSDate*)fireDate
-                                         timeOutDate:(NSDate*)timeOutDate {
++ (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
+                                               alertBody:(NSString*)alertBody
+                                                fireDate:(NSDate*)fireDate
+                                             timeOutDate:(NSDate*)timeOutDate {
   if (0 == [experimentId length] || 0 == [alertBody length] || fireDate == nil ||
       timeOutDate == nil ||[timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
     return nil;
@@ -112,6 +112,16 @@ static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeo
     return PacoNotificationStatusUnknown;
   }
   return [info status];
+}
+
+- (NSString*)pacoExperimentId {
+  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  return info.experimentId;
+}
+
+- (NSDate*)pacoTimeoutDate {
+  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  return info.timeOutDate;
 }
 
 @end

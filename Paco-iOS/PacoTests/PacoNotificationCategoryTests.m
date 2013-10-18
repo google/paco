@@ -174,10 +174,10 @@
 
 
 - (void)testCreateNotification {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:self.testID
-                                                                      alertBody:self.testAlertBody
-                                                                       fireDate:self.testFireDate
-                                                                    timeOutDate:self.testTimeoutDate];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                                          alertBody:self.testAlertBody
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti.timeZone, [NSTimeZone systemTimeZone], @"should be system timezone");
   STAssertEqualObjects(noti.fireDate, self.testFireDate, @"firedate should be valid");
   STAssertEqualObjects(noti.alertBody, self.testAlertBody, @"alert body should be valid");
@@ -189,61 +189,61 @@
 }
 
 - (void)testCreateNotification2 {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:@""
-                                                                      alertBody:self.testAlertBody
-                                                                       fireDate:self.testFireDate
-                                                                    timeOutDate:self.testTimeoutDate];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:@""
+                                                                          alertBody:self.testAlertBody
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with an empty experiment id");
 }
 
 - (void)testCreateNotification3 {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:self.testID
-                                                                      alertBody:@""
-                                                                       fireDate:self.testFireDate
-                                                                    timeOutDate:self.testTimeoutDate];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                                          alertBody:@""
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with an empty alert body");
 }
 
 - (void)testCreateNotification4 {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:self.testID
-                                                                      alertBody:self.testAlertBody
-                                                                       fireDate:nil
-                                                                    timeOutDate:self.testTimeoutDate];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                                          alertBody:self.testAlertBody
+                                                                           fireDate:nil
+                                                                        timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
 }
 
 - (void)testCreateNotification5 {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:self.testID
-                                                                      alertBody:self.testAlertBody
-                                                                       fireDate:self.testFireDate
-                                                                    timeOutDate:nil];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                                          alertBody:self.testAlertBody
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:nil];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
 }
 
 - (void)testCreateNotification6 {
   UILocalNotification* noti =
-      [UILocalNotification notificationWithExperimentId:self.testID
-                                              alertBody:self.testAlertBody
-                                               fireDate:self.testFireDate
-                                            timeOutDate:self.testFireDate];
+      [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                  alertBody:self.testAlertBody
+                                                   fireDate:self.testFireDate
+                                                timeOutDate:self.testFireDate];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
 }
 
 - (void)testCreateNotification7 {
   self.testTimeoutDate = [NSDate dateWithTimeInterval:-1 sinceDate:self.testFireDate];
   UILocalNotification* noti =
-      [UILocalNotification notificationWithExperimentId:self.testID
-                                              alertBody:self.testAlertBody
-                                               fireDate:self.testFireDate
-                                            timeOutDate:self.testTimeoutDate];
+      [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                  alertBody:self.testAlertBody
+                                                   fireDate:self.testFireDate
+                                                timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
 }
 
 - (void)testPacoStatus {
-  UILocalNotification* noti = [UILocalNotification notificationWithExperimentId:@""
-                                                                      alertBody:self.testAlertBody
-                                                                       fireDate:self.testFireDate
-                                                                    timeOutDate:self.testTimeoutDate];
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:@""
+                                                                          alertBody:self.testAlertBody
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:self.testTimeoutDate];
   STAssertEqualObjects(noti, nil, @"noti should be nil if experiment id is not valid");
   STAssertEquals([noti pacoStatus], PacoNotificationStatusUnknown, @"a nil notification should be unknown status");
 }

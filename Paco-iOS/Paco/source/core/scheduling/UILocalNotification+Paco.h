@@ -36,8 +36,11 @@ typedef enum {
 
 - (PacoNotificationStatus)pacoStatus;
 
-+ (UILocalNotification*)notificationWithExperimentId:(NSString*)experimentId
-                                           alertBody:(NSString*)alertBody
-                                            fireDate:(NSDate*)fireDate
-                                         timeOutDate:(NSDate*)timeOutDate;
++ (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
+                                               alertBody:(NSString*)alertBody
+                                                fireDate:(NSDate*)fireDate
+                                             timeOutDate:(NSDate*)timeOutDate;
+- (NSString*)pacoExperimentId;
+- (NSDate*)pacoTimeoutDate;
+
 @end
