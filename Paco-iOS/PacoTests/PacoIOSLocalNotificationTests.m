@@ -78,6 +78,35 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
                  @"it should be valid to schedule a notification one second after now");
 }
 
+- (void)testCancelScheduledNotification {
+  UILocalNotification* notification = [[UILocalNotification alloc] init];
+  notification.timeZone = [NSTimeZone systemTimeZone];
+  notification.alertBody = kAlertBodyDefault;
+  notification.soundName = kSoundNameDefault;
+  notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:10];
+  
+  [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  STAssertEquals((int)[scheduled count], 1,
+                 @"it should be valid to schedule a notification one second after now");
+  
+  UILocalNotification* notificationInIOS = [scheduled firstObject];
+  STAssertTrue(notification != notificationInIOS,
+               @"notification is copied into iOS SDK, instead of retained as a pointer");
+  STAssertTrue([notification isEqual:notificationInIOS],
+               @"iOS SDK implemented an isEqual method for UILocalNotification");
+  STAssertEqualObjects(notification, notificationInIOS,
+                       @"different objects of UILocalNotification are considered the same"
+                       @"as long as they have exactly the same information");
+  
+  [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  STAssertEquals((int)[scheduled count], 0,
+                 @"cancelling the original notification object is able to cancel the one"
+                 @"held in iOS SDK");
+}
+
+
 - (void)testScheduleMaximumNotifcations {
   NSDate* date = [NSDate dateWithTimeIntervalSinceNow:10];
   for (int count = 0; count < 64; count++) {
