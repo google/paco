@@ -93,7 +93,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
   if (![experiment shouldScheduleNotifications]) {
-    NSLog(@"Skip scheduling for newly-joined self-report or advanced expeirment: %@", experiment.instanceId);
+    NSLog(@"Skip scheduling for newly-joined expeirment: %@", experiment.instanceId);
     return;
   }
   
@@ -104,6 +104,8 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   
   NSLog(@"Start scheduling notifications for newly joined experiment: %@", experiment.instanceId);
   [self registeriOSNotificationForExperiment:experiment];
+  
+  [self.delegate triggerOrShutdownNotificationSystem];
 }
 
 
