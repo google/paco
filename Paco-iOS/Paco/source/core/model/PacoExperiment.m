@@ -17,6 +17,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoModel.h"
+#import "NSDate+Paco.h"
 
 @interface PacoExperimentSchedule ()
 - (id)serializeToJSON;
@@ -82,7 +83,10 @@
 }
 
 - (BOOL)shouldScheduleNotifications {
-  return (self.schedule.scheduleType != kPacoScheduleTypeSelfReport);
+  if (self.schedule.scheduleType == kPacoScheduleTypeSelfReport) {
+    return NO;
+  }
+  return [self.definition isExperimentValid];
 }
 
 - (BOOL)haveJoined {

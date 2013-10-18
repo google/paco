@@ -45,6 +45,14 @@
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 
+//An experiment can be either on-going or fixed-length with valid start date and end date
+- (BOOL)isFixedLength;
+- (BOOL)isOngoing;
+
+//An on-going experiment is always valid
+//For a fixed-length experiment, if it doesn't finish yet, then it's valid; otherwise it's invalid
+- (BOOL)isExperimentValid;
+
 //clear the old response objects
 - (void)clearInputs;
 

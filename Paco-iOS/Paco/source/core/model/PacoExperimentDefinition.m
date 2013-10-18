@@ -63,6 +63,8 @@
     definition.endDate = [inclusiveEndDate pacoNextDayAtMidnight];
     NSAssert(definition.startDate != nil && definition.endDate != nil,
              @"startDate and endDate should be valid!");
+    NSAssert([definition.startDate pacoEarlierThanDate:definition.endDate],
+             @"startDate must be earlier than endDate");
   }
   
   definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
@@ -78,6 +80,24 @@
   definition.jsonObject = jsonObject;
   
   return definition;
+}
+
+- (BOOL)isFixedLength {
+  return self.startDate && self.endDate;
+}
+
+- (BOOL)isOngoing {
+  return ![self isFixedLength];
+}
+
+- (BOOL)isExperimentValid {
+  if ([self isOngoing]) {
+    return YES;
+  }
+  if ([self.endDate pacoLaterThanDate:[NSDate date]]) {
+    return YES;
+  }
+  return NO;
 }
 
 - (NSString *)description {
