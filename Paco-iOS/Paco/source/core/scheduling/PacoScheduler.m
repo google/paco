@@ -46,16 +46,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   self = [super init];
   if (self) {
     _notificationManager = [[PacoNotificationManager alloc] init];
-
-    // After a reboot or restart of our application we clear all notifications
-    NSLog(@"Cancel All LocalNotifications!");
-    [self cancelAlliOSLocalNotifications];
-    
-    // Load notifications from the plist
-    NSMutableArray* notificationArray = [_notificationManager loadNotificationsFromFile];
-    NSLog(@"Reschedule %d LocalNotifications from file!", [notificationArray count]);
-    // Reschedule the ones that have already fired
-    [self rescheduleLocalNotifications:notificationArray];
+    [self initializeNotifications];
   }
   return self;
 }
@@ -65,6 +56,19 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   scheduler.delegate = delegate;
   return scheduler;
 }
+
+
+- (void)initializeNotifications {
+  NSLog(@"Cancel All LocalNotifications!");
+  [self cancelAlliOSLocalNotifications];
+  
+  // Load notifications from the plist
+  NSMutableArray* notificationArray = [_notificationManager loadNotificationsFromFile];
+  NSLog(@"Reschedule %d LocalNotifications from file!", [notificationArray count]);
+  // Reschedule the ones that have already fired
+  [self rescheduleLocalNotifications:notificationArray];
+}
+
 
 - (BOOL)saveNotificationsToFile {
   return [self.notificationManager saveNotificationsToFile];
