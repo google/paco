@@ -247,24 +247,31 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark Public API
 - (void)saveEvent:(PacoEvent*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
-  NSAssert([[event.experimentId
-             stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
-            length] > 0, @"experimentId should not be empty!");
+  [self saveEvents:[NSArray arrayWithObject:event]];
+}
+
+- (void)saveEvents:(NSArray*)events {
+  NSAssert([events count] > 0, @"events should have more than one element");
   
   [self fetchAllEventsIfNecessary];
-  
-  NSMutableArray* events = [self.eventsDict objectForKey:event.experimentId];
-  if (events == nil) {
-    events = [NSMutableArray array];
-  }
-  [events addObject:event];
-  [self.eventsDict setObject:events forKey:event.experimentId];
-  
-  //add this event to pendingEvent list too
   [self fetchPendingEventsIfNecessary];
-  [self.pendingEvents addObject:event];
+
+  for (PacoEvent* event in events) {
+    NSString* experimentId = event.experimentId;
+    NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
+    
+    NSMutableArray* currentEvents = [self.eventsDict objectForKey:experimentId];
+    if (currentEvents == nil) {
+      currentEvents = [NSMutableArray array];
+    }
+    [currentEvents addObject:event];
+    [self.eventsDict setObject:currentEvents forKey:experimentId];
+    
+    //add this event to pendingEvent list too
+    [self.pendingEvents addObject:event];
+  }
   
-  //submit this event to server
+  //submit events to server
   [self startUploadingEvents];
 }
 

@@ -31,6 +31,7 @@
 + (PacoEventManager*)defaultManager;
 
 - (void)saveEvent:(PacoEvent*)event;
+- (void)saveEvents:(NSArray*)events;
 
 - (void)saveDataToFile;
 
