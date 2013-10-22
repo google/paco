@@ -68,4 +68,12 @@
   STAssertEquals(floatVersion, (float)6.3, @"version number should be correct.");
 }
 
+- (void)testHandleExpiredNotifications {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testNextNotificationsToSchedule {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
 @end

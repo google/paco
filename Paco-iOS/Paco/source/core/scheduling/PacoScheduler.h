@@ -19,6 +19,7 @@
 
 
 extern NSString* const kExperimentHasFiredKey;
+extern NSInteger const kTotalNumOfNotifications;
 
 @class PacoExperiment;
 
@@ -26,7 +27,10 @@ extern NSString* const kExperimentHasFiredKey;
 @required
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime;
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
+
 - (void)triggerOrShutdownNotificationSystem;
+- (NSArray*)nextNotificationsToSchedule;
 @end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The

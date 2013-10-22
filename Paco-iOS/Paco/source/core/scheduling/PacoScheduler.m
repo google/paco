@@ -25,6 +25,7 @@
 #import "UILocalNotification+Paco.h"
 
 NSString* const kExperimentHasFiredKey = @"experimentHasFired";
+NSInteger const kTotalNumOfNotifications = 60;
 
 
 @interface PacoNotificationManager ()
@@ -33,7 +34,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 @end
 
 
-@interface PacoScheduler ()
+@interface PacoScheduler () <PacoNotificationManagerDelegate>
 @property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
 @property (atomic, retain) PacoNotificationManager* notificationManager;
 
@@ -45,7 +46,7 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 - (id)init {
   self = [super init];
   if (self) {
-    _notificationManager = [[PacoNotificationManager alloc] init];
+    _notificationManager = [PacoNotificationManager managerWithDelegate:self];
     [self initializeNotifications];
   }
   return self;
@@ -107,9 +108,9 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
-  NSLog(@"Start scheduling notifications for newly joined experiment: %@", experiment.instanceId);
-  [self registeriOSNotificationForExperiment:experiment];
-  
+  NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+  NSAssert([notificationsToSchedule count] > 0, @"should be able to schedule notifications!");
+  [self.notificationManager scheduleNotifications:notificationsToSchedule];
   [self.delegate triggerOrShutdownNotificationSystem];
 }
 
@@ -365,4 +366,11 @@ NSString* const kExperimentHasFiredKey = @"experimentHasFired";
   
   [self clearOldNotificationsFromTray:firedNotificationsInTrayDict];
 }
+
+
+#pragma mark PacoNotificationManagerDelegate
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  [self.delegate handleExpiredNotifications:expiredNotifications];
+}
+
 @end

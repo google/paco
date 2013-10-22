@@ -28,7 +28,9 @@
 #import "PacoAppDelegate.h"
 #import "NSError+Paco.h"
 #import "PacoDateUtility.h"
-
+#import "UILocalNotification+Paco.h"
+#import "PacoScheduleGenerator.h"
+#import "NSMutableArray+Paco.h"
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -159,6 +161,22 @@
   }
 }
 
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
+  for (UILocalNotification* notification in expiredNotifications) {
+    NSString* experimentId = [notification pacoExperimentId];
+    NSAssert([experimentId length] > 0, @"id should be valid");
+    PacoExperiment* experiment = [self.model experimentForId:experimentId];
+    NSAssert(experiment, @"experiment should be valid");
+    NSDate* fireDate = [notification pacoFireDate];
+    NSAssert(fireDate, @"fireDate");
+    PacoEvent* event = [PacoEvent surveyMissedEventForDefinition:experiment.definition
+                                               withScheduledTime:fireDate];
+    [eventList addObject:event];
+  }
+  [self.eventManager saveEvents:eventList];
+}
+
 - (void)triggerOrShutdownNotificationSystem {
   if ([self.model shouldTriggerNotificationSystem]) {
     if (self.location == nil) {
@@ -178,6 +196,36 @@
     }
   }
 }
+
+- (NSArray*)nextNotificationsToSchedule {
+  int numOfRunningExperiments = [self.model.experimentInstances count];
+  NSMutableArray* allNotifications = [NSMutableArray arrayWithCapacity:numOfRunningExperiments];
+  
+  NSDate* now = [NSDate date];
+  for (PacoExperiment* experiment in [self.model experimentInstances]) {
+    if (![experiment shouldScheduleNotifications]) {
+      continue;
+    }
+    NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:experiment
+                                                        numOfDates:kTotalNumOfNotifications
+                                                          fromDate:now];
+    NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:experiment
+                                                                 datesToSchedule:dates];
+    [allNotifications addObjectsFromArray:notifications];
+  }
+  int numOfNotifications = [allNotifications count];
+  if (0 == numOfNotifications) {
+    return nil;
+  }
+  //sort all dates and return the first 60
+  [allNotifications pacoSortLocalNotificationsByFireDate];
+  int endIndex = kTotalNumOfNotifications;
+  if (numOfNotifications < kTotalNumOfNotifications) {
+    endIndex = numOfNotifications;
+  }
+  return [allNotifications subarrayWithRange:NSMakeRange(0, endIndex)];
+}
+
 
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
