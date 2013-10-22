@@ -14,13 +14,29 @@
  */
 #import <Foundation/Foundation.h>
 
+
+@protocol PacoNotificationManagerDelegate <NSObject>
+
+@required
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
+
+@end
+
+
+
 @interface PacoNotificationManager : NSObject
+
++ (PacoNotificationManager*)managerWithDelegate:(id)delegate;
 
 - (NSDictionary*)copyOfNotificationDictionary;
 
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
 
+
+- (void)scheduleNotifications:(NSArray*)notifications;
+
 - (NSMutableArray*)loadNotificationsFromFile;
 - (BOOL)saveNotificationsToFile;
+
 @end

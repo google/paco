@@ -15,8 +15,14 @@
 
 #import "PacoNotificationManager.h"
 #import "PacoDateUtility.h"
+#import "UILocalNotification+Paco.h"
+
 @interface PacoNotificationManager ()
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
+@property (nonatomic, weak, readwrite) id<PacoNotificationManagerDelegate> delegate;
+
+- (void)purgeCachedNotifications;
+
 @end
 
 @implementation PacoNotificationManager
@@ -27,6 +33,12 @@
     _notificationDict = [[NSMutableDictionary alloc] init];
   }
   return self;
+}
+
++ (PacoNotificationManager*)managerWithDelegate:(id)delegate {
+  PacoNotificationManager* manager = [[PacoNotificationManager alloc] init];
+  manager.delegate = delegate;
+  return manager;
 }
 
 - (NSDictionary*)copyOfNotificationDictionary {
@@ -42,8 +54,6 @@
     if ([self.notificationDict objectForKey:hashKey] == nil) {
       success = YES;
     }
-//    NSLog(@"%@: ADD key:%@, notification:%@", success?@"Success":@"Fail",
-//          hashKey, [PacoDate pacoStringForDate:[notification.userInfo objectForKey:@"experimentFireDate"]]);
     [self.notificationDict setObject:notification forKey:hashKey];
     return success;
   }
@@ -54,17 +64,101 @@
     NSAssert(hashKey.length > 0, @"hashKey should be valid!");
     UILocalNotification* noti = [self.notificationDict objectForKey:hashKey];
     if (noti == nil) {
-//      NSLog(@"Fail: DELETE key:%@, notification:%@",
-//            hashKey, [PacoDate pacoStringForDate:[noti.userInfo objectForKey:@"experimentFireDate"]]);
       return NO;
     } else {
-//      NSLog(@"Success: DELETE key:%@, notification:%@",
-//            hashKey, [PacoDate pacoStringForDate:[noti.userInfo objectForKey:@"experimentFireDate"]]);
       [self.notificationDict removeObjectForKey:hashKey];
       return YES;
     }    
   }
 }
+
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  [UILocalNotification pacoCancelNotifications:expiredNotifications];
+  [self.delegate handleExpiredNotifications:expiredNotifications];
+}
+
+/*
+ - Keep the active notifications
+ 
+ - For all expired notifications:
+ a. cancel them from iOS
+ b. save survey-missed events
+ c. delete them from the local cache
+ 
+ - For all scheduled but not fired notifications:
+ a. cancel them from iOS
+ b. delete them from the local cache
+ **/
+- (void)purgeCachedNotifications {
+  NSMutableDictionary* newDict = [NSMutableDictionary dictionaryWithCapacity:[self.notificationDict count]];
+  NSMutableArray* allExpiredNotifications = [NSMutableArray array];
+  NSMutableArray* allNotFiredNotifications = [NSMutableArray array];
+  
+  for (NSString* experimentId in self.notificationDict) {
+    NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+    if (0 == [notifications count]) {
+      continue;
+    }
+    NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                       NSArray* expiredNotifications,
+                                       NSArray* notFiredNotifications) {
+      if (activeNotification != nil) {
+        [newDict setObject:[NSMutableArray arrayWithObject:activeNotification] forKey:experimentId];
+      } else {
+        [newDict setObject:[NSMutableArray array] forKey:experimentId];
+      }
+      
+      if ([expiredNotifications count] > 0) {
+        [allExpiredNotifications addObjectsFromArray:expiredNotifications];
+      }
+      if ([notFiredNotifications count] > 0) {
+        [allNotFiredNotifications addObjectsFromArray:notFiredNotifications];
+      }
+    };
+    
+    [UILocalNotification pacoProcessNotifications:notifications withBlock:block];
+  }
+
+  if ([allExpiredNotifications count] > 0) {
+    [self handleExpiredNotifications:allExpiredNotifications];
+  }
+  if ([allNotFiredNotifications count] > 0) {
+    [UILocalNotification pacoCancelNotifications:allNotFiredNotifications];
+  }
+
+  self.notificationDict = newDict;
+}
+
+
+
+- (void)addNotifications:(NSArray*)allNotifications {
+  @synchronized(self) {
+    NSDictionary* sortedNotificationDict = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
+    for (NSString* experimentId in sortedNotificationDict) {
+      NSArray* sortedNotifications = [sortedNotificationDict objectForKey:experimentId];
+      NSMutableArray* currentNotifications = [self.notificationDict objectForKey:experimentId];
+      if (currentNotifications == nil) {
+        currentNotifications = [NSMutableArray arrayWithCapacity:[sortedNotifications count]];
+      }
+      NSAssert([currentNotifications isKindOfClass:[NSMutableArray class]],
+               @"currentNotifications should be an array!");
+      [currentNotifications addObjectsFromArray:sortedNotifications];
+      [self.notificationDict setObject:currentNotifications forKey:experimentId];
+    }
+  }
+}
+
+- (void)scheduleNotifications:(NSArray*)notifications {
+  @synchronized(self) {
+    [self purgeCachedNotifications];
+    [self addNotifications:notifications];
+    //save the new notifications
+    [self saveNotificationsToFile];
+    //schedule the new notifications
+    [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
+  }
+}
+
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   //check cached notifications
