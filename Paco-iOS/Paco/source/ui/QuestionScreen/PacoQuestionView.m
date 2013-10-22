@@ -497,7 +497,7 @@ static const int kInvalidIndex = -1;
       UILabel* rLabel = [self.rightLeftLabels objectAtIndex:1];
       rLabel.frame = CGRectMake(rButton.frame.origin.x + rButton.frame.size.width + 10, height, rLabel.frame.size.width, rButton.frame.size.height);
     }
-    else if (self.question.likertSteps >2){
+    else if (self.question.likertSteps > 2){
       UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
       lLabel.frame = CGRectMake(10, self.questionText.frame.size.height + 10, lLabel.frame.size.width, lLabel.frame.size.height);
       UILabel *rLabel = [self.rightLeftLabels objectAtIndex:1];
