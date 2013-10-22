@@ -248,6 +248,33 @@
   STAssertEquals([noti pacoStatus], PacoNotificationStatusUnknown, @"a nil notification should be unknown status");
 }
 
+- (void)testPacoExperimentId {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoFireDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoTimeoutDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoNotificationsForExperiment {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoCancelNotifications {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoProcessNotifications {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testSortNotificationsPerExperiment {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 
 @end

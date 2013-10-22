@@ -15,6 +15,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class PacoExperiment;
+
 typedef enum {
   PacoNotificationStatusUnknown = 0,      //unknown
   PacoNotificationStatusNotFired,         //not fired yet
@@ -31,6 +33,9 @@ typedef enum {
 @end
 
 
+typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
+                                        NSArray* expiredNotifications,
+                                        NSArray* notFiredNotifications);
 
 @interface UILocalNotification (Paco)
 
@@ -40,9 +45,21 @@ typedef enum {
                                                alertBody:(NSString*)alertBody
                                                 fireDate:(NSDate*)fireDate
                                              timeOutDate:(NSDate*)timeOutDate;
+
++ (NSArray*)pacoNotificationsForExperiment:(PacoExperiment*)experiment
+                           datesToSchedule:(NSArray*)datesToSchedule;
+
 - (NSString*)pacoExperimentId;
+- (NSDate*)pacoFireDate;
 - (NSDate*)pacoTimeoutDate;
 + (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId;
 + (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId;
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
+
++ (void)pacoCancelNotifications:(NSArray*)notifications;
+
+//notifications MUST be sorted already
++ (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
++ (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications;
+
 @end
