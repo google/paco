@@ -27,6 +27,20 @@
 }
 
 
++ (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
+                        numOfDates:(NSInteger)numOfDates
+                          fromDate:(NSDate*)fromDate {
+  PacoExperimentSchedule* schedule = experiment.schedule;
+  if (schedule.scheduleType == kPacoScheduleTypeDaily) {
+    return [self nextDatesForDailyExperiment:experiment
+                                  numOfDates:numOfDates
+                                    fromDate:fromDate];
+  }
+
+  //TODO:
+}
+
+
 + (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
                              numOfDates:(NSInteger)numOfDates
                                fromDate:(NSDate*)fromDate {

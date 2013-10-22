@@ -23,4 +23,8 @@
                              numOfDates:(NSInteger)numOfDates
                                fromDate:(NSDate*)fromDate;
 
++ (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
+                        numOfDates:(NSInteger)numOfDates
+                          fromDate:(NSDate*)fromDate;
+
 @end
