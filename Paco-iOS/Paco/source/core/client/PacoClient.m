@@ -148,6 +148,22 @@
   [self showLoginScreenWithCompletionBlock:nil];
 }
 
+- (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {
+  NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
+  for (UILocalNotification* notification in expiredNotifications) {
+    NSString* experimentId = [notification pacoExperimentId];
+    NSAssert([experimentId length] > 0, @"id should be valid");
+    PacoExperiment* experiment = [self.model experimentForId:experimentId];
+    NSAssert(experiment, @"experiment should be valid");
+    NSDate* fireDate = [notification pacoFireDate];
+    NSAssert(fireDate, @"fireDate");
+    PacoEvent* event = [PacoEvent surveyMissedEventForDefinition:experiment.definition
+                                               withScheduledTime:fireDate
+                                                      userEmail:[self userEmail]];
+    [eventList addObject:event];
+  }
+  return eventList;
+}
 
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
@@ -162,18 +178,11 @@
 }
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
-  NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
-  for (UILocalNotification* notification in expiredNotifications) {
-    NSString* experimentId = [notification pacoExperimentId];
-    NSAssert([experimentId length] > 0, @"id should be valid");
-    PacoExperiment* experiment = [self.model experimentForId:experimentId];
-    NSAssert(experiment, @"experiment should be valid");
-    NSDate* fireDate = [notification pacoFireDate];
-    NSAssert(fireDate, @"fireDate");
-    PacoEvent* event = [PacoEvent surveyMissedEventForDefinition:experiment.definition
-                                               withScheduledTime:fireDate];
-    [eventList addObject:event];
+  if (0 == [expiredNotifications count]) {
+    return;
   }
+  NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
+  NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
   [self.eventManager saveEvents:eventList];
 }
 

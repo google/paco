@@ -49,6 +49,9 @@
                                andScheduledTime:(NSDate*)scheduledTime;
 + (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
                            withScheduledTime:(NSDate*)scheduledTime;
++ (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                           withScheduledTime:(NSDate*)scheduledTime
+                                   userEmail:(NSString*)userEmail;
 
 
 @end
