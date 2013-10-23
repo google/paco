@@ -77,19 +77,7 @@
   [self.delegate handleExpiredNotifications:expiredNotifications];
 }
 
-/*
- - Keep the active notifications
- 
- - For all expired notifications:
- a. cancel them from iOS
- b. save survey-missed events
- c. delete them from the local cache
- 
- - For all scheduled but not fired notifications:
- a. cancel them from iOS
- b. delete them from the local cache
- **/
-- (void)purgeCachedNotifications {
+- (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block {
   NSMutableDictionary* newDict = [NSMutableDictionary dictionaryWithCapacity:[self.notificationDict count]];
   NSMutableArray* allExpiredNotifications = [NSMutableArray array];
   NSMutableArray* allNotFiredNotifications = [NSMutableArray array];
@@ -104,9 +92,7 @@
                                        NSArray* notFiredNotifications) {
       if (activeNotification != nil) {
         [newDict setObject:[NSMutableArray arrayWithObject:activeNotification] forKey:experimentId];
-      } else {
-        [newDict setObject:[NSMutableArray array] forKey:experimentId];
-      }
+      } 
       
       if ([expiredNotifications count] > 0) {
         [allExpiredNotifications addObjectsFromArray:expiredNotifications];
@@ -118,18 +104,42 @@
     
     [UILocalNotification pacoProcessNotifications:notifications withBlock:block];
   }
-
-  if ([allExpiredNotifications count] > 0) {
-    [self handleExpiredNotifications:allExpiredNotifications];
-  }
-  if ([allNotFiredNotifications count] > 0) {
-    [UILocalNotification pacoCancelNotifications:allNotFiredNotifications];
+  
+  if (0 == [allExpiredNotifications count]) {
+    allExpiredNotifications = nil;
   }
 
-  self.notificationDict = newDict;
+  if (0 == [allNotFiredNotifications count]) {
+    allNotFiredNotifications = nil;
+  }
+  block(newDict, allExpiredNotifications, allNotFiredNotifications);
 }
 
-
+/*
+ - Keep the active notifications
+ 
+ - For all expired notifications:
+ a. cancel them from iOS
+ b. save survey-missed events
+ c. delete them from the local cache
+ 
+ - For all scheduled but not fired notifications:
+ a. cancel them from iOS
+ b. delete them from the local cache
+ **/
+- (void)purgeCachedNotifications {
+  [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
+                                              NSArray* expiredNotifications,
+                                              NSArray* notFiredNotifications) {
+    self.notificationDict = newNotificationDict;
+    if (expiredNotifications) {
+      [self handleExpiredNotifications:expiredNotifications];
+    }
+    if (notFiredNotifications) {
+      [UILocalNotification pacoCancelNotifications:notFiredNotifications];
+    }
+  }];
+}
 
 - (void)addNotifications:(NSArray*)allNotifications {
   @synchronized(self) {
