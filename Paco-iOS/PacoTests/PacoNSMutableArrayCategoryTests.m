@@ -14,6 +14,9 @@
  */
 
 #import <SenTestingKit/SenTestingKit.h>
+#import "NSMutableArray+Paco.h"
+#import "UILocalNotification+Paco.h"
+#import "PacoDateUtility.h"
 
 @interface PacoNSMutableArrayCategoryTests : SenTestCase
 
@@ -32,11 +35,56 @@
 }
 
 - (void)testSortDatesToSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* date2 = [NSDate date];
+  NSDate* date3 = [NSDate dateWithTimeInterval:10 sinceDate:date2];
+  
+  NSMutableArray* dates = [NSMutableArray arrayWithObjects:date3, date2, date1,nil];
+  [dates pacoSortDatesToSchedule];
+  NSArray* expect = @[date1, date2, date3];
+  STAssertEqualObjects(dates,expect, @"dates should be sorted correctly");
 }
 
 - (void)testSortLocalNotificationsByFireDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  NSString* experimentId = @"12345";
+  NSTimeInterval timeoutInterval = 400 * 60;//400 minutes
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* date2 = [NSDate date];
+  NSDate* date3 = [NSDate dateWithTimeInterval:10 sinceDate:date2];
+  
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  
+  NSString* title = @"Experiment";
+  NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility debugStringForDate:date1],
+                          title];
+  NSString* alertBody2 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility debugStringForDate:date2],
+                          title];
+  NSString* alertBody3 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility debugStringForDate:date3],
+                          title];
+  UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                           alertBody:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  UILocalNotification* noti2 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                           alertBody:alertBody2
+                                                                            fireDate:date2
+                                                                         timeOutDate:timeout2];
+  UILocalNotification* noti3 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                           alertBody:alertBody3
+                                                                            fireDate:date3
+                                                                         timeOutDate:timeout3];
+  STAssertNotNil(noti1, @"notification should be valid");
+  STAssertNotNil(noti2, @"notification should be valid");
+  STAssertNotNil(noti3, @"notification should be valid");
+  NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti3, noti2, noti1, nil];
+  [notifications pacoSortLocalNotificationsByFireDate];
+  NSArray* expect = @[noti1, noti2, noti3];
+  STAssertEqualObjects(notifications, expect, @"notifications should be sorted by fire date");
 }
 
 @end

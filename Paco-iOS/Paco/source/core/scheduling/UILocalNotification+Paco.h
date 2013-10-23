@@ -25,6 +25,11 @@ typedef enum {
 } PacoNotificationStatus;
 
 
+extern NSString* const kNotificationSoundName;
+extern NSString* const kUserInfoKeyExperimentId;
+extern NSString* const kUserInfoKeyNotificationFireDate;
+extern NSString* const kUserInfoKeyNotificationTimeoutDate;
+
 
 @interface PacoNotificationInfo : NSObject
 @property(nonatomic, copy, readonly) NSString* experimentId;
@@ -46,6 +51,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                                 fireDate:(NSDate*)fireDate
                                              timeOutDate:(NSDate*)timeOutDate;
 
+//datesToSchedule Must be sorted already
 + (NSArray*)pacoNotificationsForExperiment:(PacoExperiment*)experiment
                            datesToSchedule:(NSArray*)datesToSchedule;
 
@@ -60,6 +66,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 
 //notifications MUST be sorted already
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
+
 + (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications;
 
 @end

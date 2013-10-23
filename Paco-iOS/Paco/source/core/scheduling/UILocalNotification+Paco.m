@@ -20,12 +20,12 @@
 #import "PacoDateUtility.h"
 #import "PacoExperimentDefinition.h"
 
-static NSString* const kNotificationSoundName = @"deepbark_trial.mp3";
+NSString* const kNotificationSoundName = @"deepbark_trial.mp3";
 
 static int const kNumOfKeysInUserInfo = 3;
-static NSString* const kUserInfoKeyExperimentId = @"experimentInstanceId";
-static NSString* const kUserInfoKeyNotificationFireDate = @"notificationFireDate";
-static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate";
+NSString* const kUserInfoKeyExperimentId = @"experimentInstanceId";
+NSString* const kUserInfoKeyNotificationFireDate = @"notificationFireDate";
+NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate";
 
 @interface PacoNotificationInfo ()
 @property(nonatomic, copy) NSString* experimentId;
@@ -204,11 +204,14 @@ static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeo
   if (!block) {
     return;
   }
+  int totalNumOfNotifications = [notifications count];
+  if (0 == totalNumOfNotifications) {
+    block(nil, nil, nil);
+  }
   
   static int INVALID_INDEX = -1;
   NSInteger indexOfActiveNotification = INVALID_INDEX;
   NSInteger indexOfFirstNotFiredNotification = INVALID_INDEX;
-  int totalNumOfNotifications = [notifications count];
   for (NSInteger index = 0; index < totalNumOfNotifications; index++) {
     UILocalNotification* notification = [notifications objectAtIndex:index];
     PacoNotificationStatus status = [notification pacoStatus];
@@ -227,18 +230,32 @@ static NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeo
   UILocalNotification* activeNotication = nil;
   NSArray* expiredNotifications = nil;
   NSArray* notFiredNotifications = nil;
-  if (indexOfActiveNotification != INVALID_INDEX) { //There is an active notification
+  
+  if (indexOfActiveNotification != INVALID_INDEX) {
     activeNotication = [notifications objectAtIndex:indexOfActiveNotification];
-    expiredNotifications = [notifications subarrayWithRange:NSMakeRange(0, indexOfActiveNotification)];
-    notFiredNotifications = [notifications subarrayWithRange:NSMakeRange(indexOfActiveNotification+1, totalNumOfNotifications + 1)];
+  }
+  
+  if (indexOfFirstNotFiredNotification != INVALID_INDEX) {
+    NSRange notFiredRange = NSMakeRange(indexOfFirstNotFiredNotification,
+                                        totalNumOfNotifications - indexOfFirstNotFiredNotification);
+    notFiredNotifications = [notifications subarrayWithRange:notFiredRange];
+  }
+  
+  NSInteger endIndexOfExpiredNotifications = INVALID_INDEX;
+  if (indexOfActiveNotification != INVALID_INDEX) { //There is an active notification
+    endIndexOfExpiredNotifications = indexOfActiveNotification;
   } else { //There isn't any active notification
     if (indexOfFirstNotFiredNotification != INVALID_INDEX) { //There are notifications that didn't fire yet
-      expiredNotifications = [notifications subarrayWithRange:NSMakeRange(0, indexOfFirstNotFiredNotification)];
-      notFiredNotifications = [notifications subarrayWithRange:NSMakeRange(indexOfFirstNotFiredNotification, totalNumOfNotifications + 1)];
+      endIndexOfExpiredNotifications = indexOfFirstNotFiredNotification;
     } else { //There aren't any non-fired notifications
-      expiredNotifications = notifications;
+      endIndexOfExpiredNotifications = totalNumOfNotifications;
     }
   }
+  NSAssert(endIndexOfExpiredNotifications != INVALID_INDEX, @"should be an valid value!");
+  if (endIndexOfExpiredNotifications > 0) { //There are expired notifications
+    expiredNotifications = [notifications subarrayWithRange:NSMakeRange(0, endIndexOfExpiredNotifications)];
+  }
+  
   block(activeNotication, expiredNotifications, notFiredNotifications);
 }
 

@@ -15,6 +15,14 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 #import "UILocalNotification+Paco.h"
+#import "PacoExperiment.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoExperimentSchedule.h"
+#import "PacoDateUtility.h"
+
+//Ongoing, Fixed interval, Daily, Repeat every 1 day, timeout 479 minutes
+//9:30 am, 12:50 pm, 6:11 pm
+static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2\",\"description\":\"test\",\"informedConsentForm\":\"test\",\"creator\":\"ymggtest@gmail.com\",\"fixedDuration\":false,\"id\":10451001,\"questionsChange\":false,\"modifyDate\":\"2013/08/23\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"hello\",\"mandatory\":false,\"responseType\":\"likert\",\"likertSteps\":5,\"leftSideLabel\":\"left\",\"rightSideLabel\":\"right\",\"name\":\"hello\",\"conditional\":false,\"listChoices\":[],\"invisibleInput\":false}],\"feedback\":[{\"id\":20001,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":22,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":479,\"id\":1,\"scheduleType\":0,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[34200000,46200000,65460000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":479,\"id\":1,\"scheduleType\":0,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[34200000,46200000,65460000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}}";
 
 
 @interface PacoNotificationInfo()
@@ -32,23 +40,48 @@
 @property(nonatomic, strong) NSString* testAlertBody;
 @property(nonatomic, strong) NSDate* testFireDate;
 @property(nonatomic, strong) NSDate* testTimeoutDate;
+
+@property(nonatomic, strong) PacoExperiment* testExperiment;
+@property(nonatomic, strong) NSArray* testDatesToSchedule;
 @end
 
 @implementation PacoNotificationCategoryTests
 
 - (void)setUp {
+  [super setUp];
+
   self.testID = @"12345";
   self.testAlertBody = @"Paco Notification One";
   self.testFireDate = [NSDate date];
   self.testTimeoutDate = [NSDate dateWithTimeInterval:10 sinceDate:self.testFireDate];
   
-  [super setUp];
+  NSError* error = nil;
+  NSData* data = [DEFINITION_JSON dataUsingEncoding:NSUTF8StringEncoding];
+  id definitionDict = [NSJSONSerialization JSONObjectWithData:data
+                                                      options:NSJSONReadingAllowFragments
+                                                        error:&error];
+  STAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+               @"DEFINITION_JSON should be successfully serialized!");
+  PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
+  STAssertTrue(definition != nil, @"definition should not be nil!");
+  PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = definition.schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.instanceId = definition.experimentId;
+  STAssertNotNil(experimentInstance, @"experimentInstance should be valid!");
+  self.testExperiment = experimentInstance;
+  
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:10];
+  NSDate* date2 = [NSDate dateWithTimeInterval:10 sinceDate:date1];
+  self.testDatesToSchedule = @[date1, date2];
 }
 
 - (void)tearDown {
   self.testID = nil;
   self.testFireDate = nil;
   self.testTimeoutDate = nil;
+  self.testExperiment = nil;
+  self.testDatesToSchedule = nil;
   [super tearDown];
 }
 
@@ -248,32 +281,468 @@
   STAssertEquals([noti pacoStatus], PacoNotificationStatusUnknown, @"a nil notification should be unknown status");
 }
 
-- (void)testPacoExperimentId {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testPacoFireDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testPacoTimeoutDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 - (void)testPacoNotificationsForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:self.testExperiment
+                                                               datesToSchedule:self.testDatesToSchedule];
+  STAssertEquals(self.testExperiment.schedule.timeout, 479, @"timeout should be 479 minutes");
+  NSTimeInterval timeoutInterval = 479 * 60;
+  
+  NSMutableArray* expect = [NSMutableArray array];
+  for (NSDate* date in self.testDatesToSchedule) {
+    NSDate* timeOutDate = [date dateByAddingTimeInterval:timeoutInterval];
+    NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
+                           [PacoDateUtility debugStringForDate:date],
+                           self.testExperiment.definition.title];
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
+    [userInfo setObject:self.testExperiment.instanceId forKey:kUserInfoKeyExperimentId];
+    [userInfo setObject:date forKey:kUserInfoKeyNotificationFireDate];
+    [userInfo setObject:timeOutDate forKey:kUserInfoKeyNotificationTimeoutDate];
+
+    UILocalNotification *notification = [[UILocalNotification alloc] init];
+    notification.timeZone = [NSTimeZone systemTimeZone];
+    notification.fireDate = date;
+    notification.alertBody = alertBody;
+    notification.soundName = kNotificationSoundName;
+    notification.userInfo = userInfo;
+    [expect addObject:notification];
+  }
+  STAssertEqualObjects(notifications, expect, @"");
 }
 
-- (void)testPacoCancelNotifications {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+
+- (void)testPacoNotificationsForNilExperiment {
+  NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:nil
+                                                               datesToSchedule:self.testDatesToSchedule];
+  STAssertNil(notifications, @"should return nil if experiment is nil");
 }
 
-- (void)testPacoProcessNotifications {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+- (void)testPacoNotificationsForEmptyDates {
+  NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:self.testExperiment
+                                                               datesToSchedule:@[]];
+  STAssertNil(notifications, @"should return nil if dates is empty");
+}
+
+
+- (void)testPacoProcessNotificationsWithNilBlock {
+  UILocalNotification* testNoti = [[UILocalNotification alloc] init];
+  [UILocalNotification pacoProcessNotifications:[NSArray arrayWithObject:testNoti] withBlock:nil];
+}
+
+- (void)testPacoProcessNotificationsWithEmptyNotifications {
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertNil(activeNotification, @"should be nil");
+    STAssertNil(expiredNotifications, @"should be nil");
+    STAssertNil(notFiredNotifications, @"should be nil");
+  };
+  [UILocalNotification pacoProcessNotifications:nil withBlock:block];
+}
+
+- (void)testPacoProcessNotificationsTimeoutAndActive {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 5;//5 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:-20 sinceDate:now]; //timeout
+  NSDate* date2 = [NSDate dateWithTimeInterval:-3 sinceDate:now]; //active
+
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility debugStringForDate:date1],
+                         experimentTitle];
+  UILocalNotification* timeoutNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date1
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
+
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility debugStringForDate:date2],
+                         experimentTitle];
+  UILocalNotification* activeNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date2
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
+  
+  NSArray* allNotifications = @[timeoutNoti, activeNoti];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertEqualObjects(activeNotification, activeNoti, @"should have an active notification");
+    STAssertEqualObjects(expiredNotifications, @[timeoutNoti], @"should have one expired notification");
+    STAssertNil(notFiredNotifications, @"should be nil");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+}
+
+- (void)testPacoProcessNotificationsTimeoutObsoleteAndActive {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:-25 sinceDate:now]; //timeout
+  NSDate* date2 = [NSDate dateWithTimeInterval:-15 sinceDate:now]; //obsolete
+  NSDate* date3 = [NSDate dateWithTimeInterval:-5 sinceDate:now]; //active
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility debugStringForDate:date1],
+                         experimentTitle];
+  UILocalNotification* timeoutNoti =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date1
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+               [PacoDateUtility debugStringForDate:date2],
+               experimentTitle];
+  UILocalNotification* obsoleteNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date2
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
+
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+               [PacoDateUtility debugStringForDate:date3],
+               experimentTitle];
+  UILocalNotification* activeNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date3
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
+  
+  NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, activeNoti];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    NSArray* expiredNotis = @[timeoutNoti, obsoleteNoti];
+    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    STAssertNil(notFiredNotifications, @"should be nil");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+}
+
+- (void)testPacoProcessNotificationsExpiredActiveAndScheduled {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:-25 sinceDate:now]; //timeout
+  NSDate* date2 = [NSDate dateWithTimeInterval:-15 sinceDate:now]; //obsolete
+  NSDate* date3 = [NSDate dateWithTimeInterval:-5 sinceDate:now]; //active
+  NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
+  NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  UILocalNotification* timeoutNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date1
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  UILocalNotification* obsoleteNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date2
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
+  
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  UILocalNotification* activeNoti =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date3
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
+
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  UILocalNotification* scheduledNoti1 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date4
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
+
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  UILocalNotification* scheduledNoti2 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                  alertBody:alertBody
+                                                   fireDate:date5
+                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
+
+  NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, activeNoti, scheduledNoti1, scheduledNoti2];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    NSArray* expiredNotis = @[timeoutNoti, obsoleteNoti];
+    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
+    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+}
+
+- (void)testPacoProcessNotificationsTimeoutAndScheduled {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:-25 sinceDate:now]; //timeout
+  NSDate* date2 = [NSDate dateWithTimeInterval:-22 sinceDate:now]; //timeout
+  NSDate* date3 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled
+  NSDate* date4 = [NSDate dateWithTimeInterval:20 sinceDate:now]; //scheduled
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  UILocalNotification* timeoutNoti1 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date1
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  UILocalNotification* timeoutNoti2 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date2
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
+  
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  UILocalNotification* scheduledNoti1 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date3
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  UILocalNotification* scheduledNoti2 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date4
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
+  
+  
+  NSArray* allNotifications = @[timeoutNoti1, timeoutNoti2,scheduledNoti1, scheduledNoti2];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    
+    STAssertNil(activeNotification, @"should be nil");
+    NSArray* expiredNotis = @[timeoutNoti1, timeoutNoti2];
+    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
+    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+
+}
+
+- (void)testPacoProcessNotificationsOnlyTimeOut {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:-25 sinceDate:now]; //timeout
+  NSDate* date2 = [NSDate dateWithTimeInterval:-22 sinceDate:now]; //timeout
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  UILocalNotification* timeoutNoti1 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date1
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  UILocalNotification* timeoutNoti2 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date2
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
+  
+  NSArray* allNotifications = @[timeoutNoti1, timeoutNoti2];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertNil(activeNotification, @"should be nil");
+    NSArray* expiredNotis = @[timeoutNoti1, timeoutNoti2];
+    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    STAssertNil(notFiredNotifications, @"should be nil");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+
+}
+
+- (void)testPacoProcessNotificationActiveAndScheduled {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date3 = [NSDate dateWithTimeInterval:-5 sinceDate:now]; //active
+  NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
+  NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  UILocalNotification* activeNoti =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date3
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  UILocalNotification* scheduledNoti1 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date4
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  UILocalNotification* scheduledNoti2 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date5
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
+  
+  NSArray* allNotifications = @[activeNoti, scheduledNoti1, scheduledNoti2];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    STAssertNil(expiredNotifications, @"should be nil");
+    NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
+    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
+}
+
+- (void)testPacoProcessNotificationOnlyScheduled {
+  NSString* experimentId = @"1";
+  NSString* experimentTitle = @"title";
+  NSTimeInterval timeoutInterval = 20;//20 seconds
+  
+  NSDate* now = [NSDate date];
+  NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
+  NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  UILocalNotification* scheduledNoti1 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date4
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
+  
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  UILocalNotification* scheduledNoti2 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                              alertBody:alertBody
+                                               fireDate:date5
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
+  
+  NSArray* allNotifications = @[scheduledNoti1, scheduledNoti2];
+  NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
+                                     NSArray* expiredNotifications,
+                                     NSArray* notFiredNotifications) {
+    STAssertNil(activeNotification, @"should be nil");
+    STAssertNil(expiredNotifications, @"should be nil");
+    NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
+    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+  };
+  [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
 
 - (void)testSortNotificationsPerExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
+  NSDate* date2 = [NSDate dateWithTimeInterval:20 sinceDate:now];
+  NSDate* date3 = [NSDate dateWithTimeInterval:30 sinceDate:now];
+  NSDate* date4 = [NSDate dateWithTimeInterval:40 sinceDate:now];
+  
+  NSTimeInterval timeoutInterval = 479*60;
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  NSDate* timeout4 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4];
+  
+  NSString* experimentId1 = @"1";
+  NSString* experimentId2 = @"2";
+  NSString* title1 = @"title1";
+  NSString* title2 = @"title2";
+  
+  //id:1, fireDate:date4
+  //id:2, fireDate:date3
+  //id:1, fireDate:date1
+  //id:2, fireDate:date2
+  NSMutableArray* allNotifications = [NSMutableArray arrayWithCapacity:4];
+  
+  //id:1, fireDate:date4
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility debugStringForDate:date4],
+                         title1];
+  UILocalNotification* notification1 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                              alertBody:alertBody
+                                               fireDate:date4
+                                            timeOutDate:timeout4];
+  [allNotifications addObject:notification1];
+
+  //id:2, fireDate:date3
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility debugStringForDate:date3],
+                         title2];
+  UILocalNotification* notification2 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                                  alertBody:alertBody
+                                                   fireDate:date3
+                                                timeOutDate:timeout3];
+  [allNotifications addObject:notification2];
+  
+  //id:1, fireDate:date1
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+               [PacoDateUtility debugStringForDate:date1],
+               title1];
+  UILocalNotification* notification3 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                                  alertBody:alertBody
+                                                   fireDate:date1
+                                                timeOutDate:timeout1];
+  [allNotifications addObject:notification3];
+
+  //id:2, fireDate:date2
+  alertBody = [NSString stringWithFormat:@"[%@]%@",
+               [PacoDateUtility debugStringForDate:date2],
+               title2];
+  UILocalNotification* notification4 =
+      [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                                  alertBody:alertBody
+                                                   fireDate:date2
+                                                timeOutDate:timeout2];
+  [allNotifications addObject:notification4];
+
+  //allNotifications:
+  //id:1, fireDate:date4
+  //id:2, fireDate:date3
+  //id:1, fireDate:date1
+  //id:2, fireDate:date2
+  NSDictionary* result = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
+  NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
+  NSArray* notifications1 = @[notification3, notification1];
+  NSArray* notifications2 = @[notification4, notification2];
+  [expect setObject:notifications1 forKey:experimentId1];
+  [expect setObject:notifications2 forKey:experimentId2];
+  
+  STAssertEqualObjects(result, expect,
+                       @"notifications should be put into different buckets according to their "
+                       @"experimentId, and each bucket's notifications should be sorted by fire date");
 }
 
 
