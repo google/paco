@@ -36,6 +36,12 @@
 //notifications MUST be sorted already
 - (void)scheduleNotifications:(NSArray*)notifications;
 
+//call this when the user stops an experiment
+//1. cancel all notifications from iOS for this expeirment
+//2. clear this expeirment's notifications from notification tray
+//3. delete all notifications from cache for this experiment
+- (void)cancelNotificationsForExperiment:(NSString*)experimentId;
+
 - (NSMutableArray*)loadNotificationsFromFile;
 - (BOOL)saveNotificationsToFile;
 

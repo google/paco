@@ -169,6 +169,21 @@
   }
 }
 
+- (void)cancelNotificationsForExperiment:(NSString*)experimentId {
+  NSAssert([experimentId length] > 0, @"experimentId should be valid");
+  @synchronized(self) {
+    NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+    if (notifications != nil) {
+      NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
+      [UILocalNotification pacoCancelNotifications:notifications];
+      [self.notificationDict removeObjectForKey:experimentId];
+      //save the new notifications
+      [self saveNotificationsToFile];
+    }
+    //Just in case, remove any notificaiton that still exists in OS system
+    [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
+  }
+}
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   //check cached notifications
