@@ -45,4 +45,8 @@
 - (NSMutableArray*)loadNotificationsFromFile;
 - (BOOL)saveNotificationsToFile;
 
+
+- (BOOL)saveNotificationsToCache;
+- (BOOL)loadNotificationsFromCache;
+
 @end

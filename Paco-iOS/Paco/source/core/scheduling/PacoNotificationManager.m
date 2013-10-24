@@ -163,7 +163,7 @@
     [self purgeCachedNotifications];
     [self addNotifications:notifications];
     //save the new notifications
-    [self saveNotificationsToFile];
+    [self saveNotificationsToCache];
     //schedule the new notifications
     [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
   }
@@ -178,7 +178,7 @@
       [UILocalNotification pacoCancelNotifications:notifications];
       [self.notificationDict removeObjectForKey:experimentId];
       //save the new notifications
-      [self saveNotificationsToFile];
+      [self saveNotificationsToCache];
     }
     //Just in case, remove any notificaiton that still exists in OS system
     [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
@@ -200,12 +200,9 @@
   NSAssert(!hasScheduledNotification, @"shouldn't have any scheduled notifications!");
 }
 
+
 - (NSMutableArray*)loadNotificationsFromFile {
-  NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString* documentsDirectory = [paths objectAtIndex:0];
-  NSString* filePath = [documentsDirectory stringByAppendingString:@"/notifications.plist"];
-  
-  return [NSMutableArray arrayWithContentsOfFile:filePath];
+  return [NSMutableArray arrayWithContentsOfFile:[self notificationPlistPath]];
 }
 
 - (BOOL)saveNotificationsToFile {
@@ -223,11 +220,38 @@
     
     [notificationArray addObject:saveDict];
   }
-  
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *filePath = [documentsDirectory stringByAppendingString:@"/notifications.plist"];
-  return [notificationArray writeToFile:filePath atomically:YES];
+  return [notificationArray writeToFile:[self notificationPlistPath] atomically:YES];
 }
+
+
+- (NSString*)notificationPlistPath {
+  static NSString* filePath = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString* documentsDirectory = [paths objectAtIndex:0];
+    filePath = [documentsDirectory stringByAppendingPathComponent:@"notifications.plist"];
+  });
+  return filePath;
+}
+
+- (BOOL)saveNotificationsToCache {
+  NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
+  return [data writeToFile:[self notificationPlistPath] atomically:YES];
+}
+
+- (BOOL)loadNotificationsFromCache {
+  NSError* error = nil;
+  NSData* data = [NSData dataWithContentsOfFile:[self notificationPlistPath]
+                                        options:NSDataReadingMappedIfSafe
+                                          error:&error];
+  if (error == nil) {
+    self.notificationDict = (NSMutableDictionary*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 
 @end
