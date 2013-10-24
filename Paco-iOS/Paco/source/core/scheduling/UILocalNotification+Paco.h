@@ -47,7 +47,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 - (PacoNotificationStatus)pacoStatus;
 
 + (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
-                                               alertBody:(NSString*)alertBody
+                                         experimentTitle:(NSString*)experimentTitle
                                                 fireDate:(NSDate*)fireDate
                                              timeOutDate:(NSDate*)timeOutDate;
 

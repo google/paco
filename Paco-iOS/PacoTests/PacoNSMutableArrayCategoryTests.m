@@ -67,15 +67,15 @@
                           [PacoDateUtility stringForAlertBodyFromDate:date3],
                           title];
   UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                                                           alertBody:alertBody1
+                                                                           experimentTitle:alertBody1
                                                                             fireDate:date1
                                                                          timeOutDate:timeout1];
   UILocalNotification* noti2 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                                                           alertBody:alertBody2
+                                                                           experimentTitle:alertBody2
                                                                             fireDate:date2
                                                                          timeOutDate:timeout2];
   UILocalNotification* noti3 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                                                           alertBody:alertBody3
+                                                                           experimentTitle:alertBody3
                                                                             fireDate:date3
                                                                          timeOutDate:timeout3];
   STAssertNotNil(noti1, @"notification should be valid");

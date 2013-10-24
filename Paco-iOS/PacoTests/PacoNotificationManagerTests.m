@@ -85,34 +85,29 @@
   NSDate* date4 = [NSDate dateWithTimeInterval:7 sinceDate:baseDate]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:baseDate]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle1];
   UILocalNotification* noti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle1
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date1]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle1];
   UILocalNotification* noti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle1
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date2]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle1];
   UILocalNotification* noti3 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle1
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date3]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle1];
   UILocalNotification* noti4 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle1
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date4]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle1];
   UILocalNotification* noti5 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle1
                                                fireDate:date5
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date5]];
   NSMutableArray* allNotificationsForExperiment1 = [NSMutableArray arrayWithObjects:noti1, noti2, noti3, noti4, noti5, nil];
@@ -126,28 +121,24 @@
   date2 = [NSDate dateWithTimeInterval:3 sinceDate:baseDate]; //timeout
   date3 = [NSDate dateWithTimeInterval:8 sinceDate:baseDate]; //scheduled
   date4 = [NSDate dateWithTimeInterval:9 sinceDate:baseDate]; //scheduled
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle2];
   UILocalNotification* noti21 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle2
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval2 sinceDate:date1]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle2];
   UILocalNotification* noti22 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle2
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval2 sinceDate:date2]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle2];
   UILocalNotification* noti23 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle2
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval2 sinceDate:date3]];
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle2];
   UILocalNotification* noti24 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle2
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval2 sinceDate:date4]];
   NSMutableArray* allNotifications2 = [NSMutableArray arrayWithObjects:noti21, noti22, noti23, noti24,nil];
@@ -189,41 +180,36 @@
   NSDate* date4 = [NSDate dateWithTimeInterval:7 sinceDate:baseDate]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:baseDate]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* obsoleteNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   self.activeNotification = activeNoti;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti11 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled11 = scheduledNoti11;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti12 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date5
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
@@ -239,33 +225,29 @@
   date3 = [NSDate dateWithTimeInterval:8 sinceDate:baseDate]; //scheduled
   date4 = [NSDate dateWithTimeInterval:9 sinceDate:baseDate]; //scheduled
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* timeoutNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* scheduledNoti21 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   self.scheduled21 = scheduledNoti21;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti22 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled22 = scheduledNoti22;
@@ -319,26 +301,23 @@
   NSDate* date4 = [NSDate dateWithTimeInterval:7 sinceDate:baseDate]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:baseDate]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   self.activeNotification = activeNoti;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti11 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled11 = scheduledNoti11;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti12 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date5
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
@@ -352,18 +331,16 @@
   date3 = [NSDate dateWithTimeInterval:8 sinceDate:baseDate]; //scheduled
   date4 = [NSDate dateWithTimeInterval:9 sinceDate:baseDate]; //scheduled
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* scheduledNoti21 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   self.scheduled21 = scheduledNoti21;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti22 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled22 = scheduledNoti22;
@@ -411,25 +388,22 @@
   NSDate* date2 = [NSDate dateWithTimeInterval:2 sinceDate:baseDate]; //obsolete
   NSDate* date3 = [NSDate dateWithTimeInterval:3 sinceDate:baseDate]; //active
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* obsoleteNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti11 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, activeNoti11];
@@ -443,24 +417,21 @@
   date2 = [NSDate dateWithTimeInterval:3 sinceDate:baseDate]; //timeout
   date3 = [NSDate dateWithTimeInterval:4.5 sinceDate:baseDate]; //active
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* timeoutNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
 
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti21 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
 
@@ -512,33 +483,29 @@
   NSDate* date4 = [NSDate dateWithTimeInterval:7 sinceDate:baseDate]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:baseDate]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* obsoleteNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti11 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled11 = scheduledNoti11;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti12 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date5
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
@@ -554,33 +521,29 @@
   NSDate* date3 = [NSDate dateWithTimeInterval:8 sinceDate:baseDate]; //scheduled
   date4 = [NSDate dateWithTimeInterval:9 sinceDate:baseDate]; //scheduled
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* timeoutNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* scheduledNoti21 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   self.scheduled21 = scheduledNoti21;
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti22 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
-                                              alertBody:alertBody
+                                        experimentTitle:experimentTitle
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   self.scheduled22 = scheduledNoti22;
@@ -642,45 +605,33 @@
   NSMutableArray* allNotifications = [NSMutableArray arrayWithCapacity:4];
   
   //id:1, fireDate:date4
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility stringForAlertBodyFromDate:date4],
-                         title1];
   UILocalNotification* notification1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:title1
                                                fireDate:date4
                                             timeOutDate:timeout4];
   [allNotifications addObject:notification1];
   
   //id:2, fireDate:date3
-  alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility stringForAlertBodyFromDate:date3],
-               title2];
   UILocalNotification* notification2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:title2
                                                fireDate:date3
                                             timeOutDate:timeout3];
   [allNotifications addObject:notification2];
   
   //id:1, fireDate:date1
-  alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility stringForAlertBodyFromDate:date1],
-               title1];
   UILocalNotification* notification3 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
-                                              alertBody:alertBody
+                                        experimentTitle:title1
                                                fireDate:date1
                                             timeOutDate:timeout1];
   [allNotifications addObject:notification3];
   
   //id:2, fireDate:date2
-  alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility stringForAlertBodyFromDate:date2],
-               title2];
   UILocalNotification* notification4 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId2
-                                              alertBody:alertBody
+                                        experimentTitle:title2
                                                fireDate:date2
                                             timeOutDate:timeout2];
   [allNotifications addObject:notification4];

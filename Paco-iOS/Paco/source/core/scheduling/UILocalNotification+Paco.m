@@ -89,14 +89,18 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
 @implementation UILocalNotification (Paco)
 
 + (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
-                                               alertBody:(NSString*)alertBody
+                                         experimentTitle:(NSString*)experimentTitle
                                                 fireDate:(NSDate*)fireDate
                                              timeOutDate:(NSDate*)timeOutDate {
-  if (0 == [experimentId length] || 0 == [alertBody length] || fireDate == nil ||
+  if (0 == [experimentId length] || 0 == [experimentTitle length] || fireDate == nil ||
       timeOutDate == nil ||[timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
     return nil;
   }
-
+  
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
+                         [PacoDateUtility stringForAlertBodyFromDate:fireDate],
+                         experimentTitle];
+  
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.fireDate = fireDate;
@@ -119,14 +123,11 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:[datesToSchedule count]];
   for (NSDate* fireDate in datesToSchedule) {
     NSDate* timeOutDate = [fireDate dateByAddingTimeInterval:timeoutInterval];
-    NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                           [PacoDateUtility stringForAlertBodyFromDate:fireDate],
-                           experiment.definition.title];
     UILocalNotification* notification =
-        [UILocalNotification pacoNotificationWithExperimentId:experiment.instanceId
-                                                    alertBody:alertBody
-                                                     fireDate:fireDate
-                                                  timeOutDate:timeOutDate];
+    [UILocalNotification pacoNotificationWithExperimentId:experiment.instanceId
+                                          experimentTitle:experiment.definition.title
+                                                 fireDate:fireDate
+                                              timeOutDate:timeOutDate];
     [notifications addObject:notification];
   }
   return notifications;
