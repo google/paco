@@ -40,7 +40,8 @@ extern NSInteger const kTotalNumOfNotifications;
 // scheduled at once.
 @interface PacoScheduler : NSObject
 
-+ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate;
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate
+                        firstLaunchFlag:(BOOL)firstLaunch;
 
 - (void)handleNotification:(UILocalNotification *)notification
                experiments:(NSArray*) experiments;

@@ -35,14 +35,23 @@
   return self;
 }
 
-+ (PacoNotificationManager*)managerWithDelegate:(id)delegate {
++ (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
+                                firstLaunchFlag:(BOOL)firstLaunch {
   PacoNotificationManager* manager = [[PacoNotificationManager alloc] init];
   manager.delegate = delegate;
+  
+  if (firstLaunch) {
+    [manager cancelAllNotifications];
+  }
   return manager;
 }
 
 - (NSDictionary*)copyOfNotificationDictionary {
   return [self.notificationDict copy];
+}
+
+- (void)cancelAllNotifications {
+  [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey {

@@ -45,22 +45,14 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 @implementation PacoAuthenticator
 
-- (id)init {
+- (id)initWithFirstLaunchFlag:(BOOL)firstLaunch {
   self = [super init];
   if (self) {
-    [self clearKeyChainIfFirstLaunch];
+    if (firstLaunch) {
+      [self deleteAccount];
+    }
   }
   return self;
-}
-
-- (void)clearKeyChainIfFirstLaunch {
-  NSString* launchedKey = [NSString stringWithFormat:@"%@.launched", kPacoService];
-  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
-  if (value == nil) { //first launch
-    [self deleteAccount];
-    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-  }
 }
 
 #pragma mark - log in status

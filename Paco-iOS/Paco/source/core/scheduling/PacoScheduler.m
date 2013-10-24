@@ -43,17 +43,19 @@ NSInteger const kTotalNumOfNotifications = 60;
 @implementation PacoScheduler
 
 #pragma mark Object Lifecycle
-- (id)init {
+- (id)initWithFirstLaunchFlag:(BOOL)firstLaunch {
   self = [super init];
   if (self) {
-    _notificationManager = [PacoNotificationManager managerWithDelegate:self];
+    _notificationManager = [PacoNotificationManager managerWithDelegate:self
+                                                        firstLaunchFlag:firstLaunch];
     [self initializeNotifications];
   }
   return self;
 }
 
-+ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate {
-  PacoScheduler* scheduler = [[PacoScheduler alloc] init];
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate
+                        firstLaunchFlag:(BOOL)firstLaunch {
+  PacoScheduler* scheduler = [[PacoScheduler alloc] initWithFirstLaunchFlag:firstLaunch];
   scheduler.delegate = delegate;
   return scheduler;
 }

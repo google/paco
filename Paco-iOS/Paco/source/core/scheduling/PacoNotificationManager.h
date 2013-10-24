@@ -26,7 +26,8 @@
 
 @interface PacoNotificationManager : NSObject
 
-+ (PacoNotificationManager*)managerWithDelegate:(id)delegate;
++ (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
+                                firstLaunchFlag:(BOOL)firstLaunchFlag;
 
 - (NSDictionary*)copyOfNotificationDictionary;
 

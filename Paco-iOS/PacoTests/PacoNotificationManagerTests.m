@@ -60,7 +60,7 @@
   // Put setup code here; it will be run once, before the first test case.
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
   [self cleanDocumentDirectory];
-  self.testManager = [PacoNotificationManager managerWithDelegate:nil];
+  self.testManager = [PacoNotificationManager managerWithDelegate:nil firstLaunchFlag:YES];
 }
 
 - (void)tearDown {

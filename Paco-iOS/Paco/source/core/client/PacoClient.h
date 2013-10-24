@@ -54,6 +54,7 @@
 @property (nonatomic, strong, readonly) Reachability* reachability;
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
+@property (nonatomic, assign, readonly) BOOL firstLaunch;
 
 
 + (PacoClient *)sharedInstance;

@@ -32,6 +32,8 @@
 #import "PacoScheduleGenerator.h"
 #import "NSMutableArray+Paco.h"
 
+
+
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
 @property(atomic, readwrite, strong) NSError* errorLoadingDefinitions;
@@ -83,6 +85,7 @@
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
+@property (nonatomic, assign, readwrite) BOOL firstLaunch;
 @end
 
 @implementation PacoClient
@@ -99,9 +102,11 @@
 - (id)init {
   self = [super init];
   if (self) {
-    self.authenticator = [[PacoAuthenticator alloc] init];
+    [self checkIfUserFirstLaunchPaco];
+    
+    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
     self.location = nil;//[[PacoLocation alloc] init];
-    self.scheduler = [PacoScheduler schedulerWithDelegate:self];
+    self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
     // Start the notifier, which will cause the reachability object to retain itself!
@@ -118,12 +123,25 @@
     }else{//localserver
       self.serverDomain = @"http://127.0.0.1";
     }
+    
   }
   return self;
 }
 
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)checkIfUserFirstLaunchPaco {
+  NSString* launchedKey = @"paco_launched";
+  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+  if (value == nil) { //first launch
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _firstLaunch = YES;
+  } else {
+    _firstLaunch = NO;
+  }
 }
 
 #pragma mark Public methods
