@@ -72,7 +72,7 @@
 /*
  * 12:33:22-0700, Sep 12, 2013 
  */
-+ (NSDateFormatter*)debugDateFormatter {
++ (NSDateFormatter*)dateFormatterForAlertBody {
   static NSDateFormatter* debugDateFormatter = nil;
   
   static dispatch_once_t onceToken;
@@ -85,8 +85,8 @@
   return debugDateFormatter;
 }
 
-+ (NSString*)debugStringForDate:(NSDate*)date {
-  return [[PacoDateUtility debugDateFormatter] stringFromDate:date];
++ (NSString*)stringForAlertBodyFromDate:(NSDate*)date {
+  return [[PacoDateUtility dateFormatterForAlertBody] stringFromDate:date];
 }
 
 

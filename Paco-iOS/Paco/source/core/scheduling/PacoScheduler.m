@@ -187,7 +187,7 @@ NSInteger const kTotalNumOfNotifications = 60;
                          [self getTimeZoneFormattedDateString:experimentFireDate]];
   if (DEBUG) {
     alertBody = [NSString stringWithFormat:@"[%@]%@",
-                 experiment.instanceId, [PacoDateUtility debugStringForDate:experimentFireDate]];
+                 experiment.instanceId, [PacoDateUtility stringForAlertBodyFromDate:experimentFireDate]];
   }
   
   [self registeriOSNotification:experiment.instanceId

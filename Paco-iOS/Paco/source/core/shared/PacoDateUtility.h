@@ -24,7 +24,7 @@
 + (NSDate*)dateFromStringWithYearAndDay:(NSString*)dateStr;
 + (NSString*)stringWithYearAndDayFromDate:(NSDate*)date;
 
-+ (NSString*)debugStringForDate:(NSDate*)date;
++ (NSString*)stringForAlertBodyFromDate:(NSDate*)date;
 
 + (int)dayIndexOfDate:(NSDate *)date;
 + (int)weekdayIndexOfDate:(NSDate *)date;

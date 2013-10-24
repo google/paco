@@ -120,7 +120,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   for (NSDate* fireDate in datesToSchedule) {
     NSDate* timeOutDate = [fireDate dateByAddingTimeInterval:timeoutInterval];
     NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                           [PacoDateUtility debugStringForDate:fireDate],
+                           [PacoDateUtility stringForAlertBodyFromDate:fireDate],
                            experiment.definition.title];
     UILocalNotification* notification =
         [UILocalNotification pacoNotificationWithExperimentId:experiment.instanceId

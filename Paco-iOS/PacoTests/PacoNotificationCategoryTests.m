@@ -292,7 +292,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   for (NSDate* date in self.testDatesToSchedule) {
     NSDate* timeOutDate = [date dateByAddingTimeInterval:timeoutInterval];
     NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                           [PacoDateUtility debugStringForDate:date],
+                           [PacoDateUtility stringForAlertBodyFromDate:date],
                            self.testExperiment.definition.title];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
@@ -351,7 +351,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date2 = [NSDate dateWithTimeInterval:-3 sinceDate:now]; //active
 
   NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date1],
+                         [PacoDateUtility stringForAlertBodyFromDate:date1],
                          experimentTitle];
   UILocalNotification* timeoutNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -360,7 +360,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                 timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
 
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date2],
+                         [PacoDateUtility stringForAlertBodyFromDate:date2],
                          experimentTitle];
   UILocalNotification* activeNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -390,7 +390,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date3 = [NSDate dateWithTimeInterval:-5 sinceDate:now]; //active
   
   NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date1],
+                         [PacoDateUtility stringForAlertBodyFromDate:date1],
                          experimentTitle];
   UILocalNotification* timeoutNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -399,7 +399,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility debugStringForDate:date2],
+               [PacoDateUtility stringForAlertBodyFromDate:date2],
                experimentTitle];
   UILocalNotification* obsoleteNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -409,7 +409,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
   
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility debugStringForDate:date3],
+               [PacoDateUtility stringForAlertBodyFromDate:date3],
                experimentTitle];
   UILocalNotification* activeNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -441,14 +441,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                                   alertBody:alertBody
                                                    fireDate:date1
                                                 timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* obsoleteNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                                   alertBody:alertBody
@@ -456,21 +456,21 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                 timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                                   alertBody:alertBody
                                                    fireDate:date3
                                                 timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
 
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti1 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
 
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti2 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                                   alertBody:alertBody
@@ -501,14 +501,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date3 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled
   NSDate* date4 = [NSDate dateWithTimeInterval:20 sinceDate:now]; //scheduled
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* timeoutNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
@@ -516,14 +516,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* scheduledNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
@@ -555,14 +555,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date1 = [NSDate dateWithTimeInterval:-25 sinceDate:now]; //timeout
   NSDate* date2 = [NSDate dateWithTimeInterval:-22 sinceDate:now]; //timeout
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date1], experimentTitle];
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date1], experimentTitle];
   UILocalNotification* timeoutNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date1
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date2], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date2], experimentTitle];
   UILocalNotification* timeoutNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
@@ -592,21 +592,21 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date3], experimentTitle];
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date3], experimentTitle];
   UILocalNotification* activeNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
@@ -634,14 +634,14 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDate* date4 = [NSDate dateWithTimeInterval:5 sinceDate:now]; //scheduled 1
   NSDate* date5 = [NSDate dateWithTimeInterval:10 sinceDate:now]; //scheduled 2
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date4], experimentTitle];
+  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date4], experimentTitle];
   UILocalNotification* scheduledNoti1 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4]];
   
-  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility debugStringForDate:date5], experimentTitle];
+  alertBody = [NSString stringWithFormat:@"[%@]%@", [PacoDateUtility stringForAlertBodyFromDate:date5], experimentTitle];
   UILocalNotification* scheduledNoti2 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                               alertBody:alertBody
@@ -686,7 +686,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   
   //id:1, fireDate:date4
   NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date4],
+                         [PacoDateUtility stringForAlertBodyFromDate:date4],
                          title1];
   UILocalNotification* notification1 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId1
@@ -697,7 +697,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
   //id:2, fireDate:date3
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date3],
+                         [PacoDateUtility stringForAlertBodyFromDate:date3],
                          title2];
   UILocalNotification* notification2 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId2
@@ -708,7 +708,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   
   //id:1, fireDate:date1
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility debugStringForDate:date1],
+               [PacoDateUtility stringForAlertBodyFromDate:date1],
                title1];
   UILocalNotification* notification3 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId1
@@ -719,7 +719,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
   //id:2, fireDate:date2
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility debugStringForDate:date2],
+               [PacoDateUtility stringForAlertBodyFromDate:date2],
                title2];
   UILocalNotification* notification4 =
       [UILocalNotification pacoNotificationWithExperimentId:experimentId2

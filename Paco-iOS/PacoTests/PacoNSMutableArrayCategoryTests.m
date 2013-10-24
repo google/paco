@@ -58,13 +58,13 @@
   
   NSString* title = @"Experiment";
   NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
-                          [PacoDateUtility debugStringForDate:date1],
+                          [PacoDateUtility stringForAlertBodyFromDate:date1],
                           title];
   NSString* alertBody2 = [NSString stringWithFormat:@"[%@]%@",
-                          [PacoDateUtility debugStringForDate:date2],
+                          [PacoDateUtility stringForAlertBodyFromDate:date2],
                           title];
   NSString* alertBody3 = [NSString stringWithFormat:@"[%@]%@",
-                          [PacoDateUtility debugStringForDate:date3],
+                          [PacoDateUtility stringForAlertBodyFromDate:date3],
                           title];
   UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
                                                                            alertBody:alertBody1

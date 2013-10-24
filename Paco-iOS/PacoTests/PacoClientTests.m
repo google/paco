@@ -121,7 +121,7 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   NSDate* date2 = [NSDate dateWithTimeInterval:-15 sinceDate:now]; //obsolete
   
   NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility debugStringForDate:date1],
+                         [PacoDateUtility stringForAlertBodyFromDate:date1],
                          experimentTitle];
   UILocalNotification* timeoutNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
@@ -130,7 +130,7 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1]];
   
   alertBody = [NSString stringWithFormat:@"[%@]%@",
-               [PacoDateUtility debugStringForDate:date2],
+               [PacoDateUtility stringForAlertBodyFromDate:date2],
                experimentTitle];
   UILocalNotification* obsoleteNoti =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId
