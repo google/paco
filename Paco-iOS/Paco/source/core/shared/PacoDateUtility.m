@@ -73,16 +73,16 @@
  * 12:33:22-0700, Sep 12, 2013 
  */
 + (NSDateFormatter*)dateFormatterForAlertBody {
-  static NSDateFormatter* debugDateFormatter = nil;
+  static NSDateFormatter* dateFormatter = nil;
   
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    debugDateFormatter = [[NSDateFormatter alloc] init];
-    [debugDateFormatter setDateFormat:@"HH:mm:ssZZZ, MMM dd, YYYY"];
-    [debugDateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"HH:mm:ssZZZ, MMM dd, YYYY"];
+    [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
   });
   
-  return debugDateFormatter;
+  return dateFormatter;
 }
 
 + (NSString*)stringForAlertBodyFromDate:(NSDate*)date {
