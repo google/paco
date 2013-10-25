@@ -14,11 +14,8 @@
  */
 #import <Foundation/Foundation.h>
 
-@interface NSError (Paco)
+@interface NSString (Paco)
 
-- (BOOL)isOfflineError;
-
-//error of "No such file or directory"
-- (BOOL)pacoIsFileNotExistError;
++ (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName;
 
 @end

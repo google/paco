@@ -12,13 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <Foundation/Foundation.h>
 
-@interface NSError (Paco)
+#import "NSString+Paco.h"
 
-- (BOOL)isOfflineError;
+@implementation NSString (Paco)
 
-//error of "No such file or directory"
-- (BOOL)pacoIsFileNotExistError;
++ (NSString*)pacoDocumentDirectory {
+  static NSString* documentDirectory = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    documentDirectory = [paths objectAtIndex:0];
+  });
+  return documentDirectory;
+}
+
++ (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName {
+  NSString* fileFullPath = [[NSString pacoDocumentDirectory] stringByAppendingPathComponent:fileName];
+  return fileFullPath;
+}
 
 @end

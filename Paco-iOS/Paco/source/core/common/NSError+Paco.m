@@ -29,4 +29,15 @@
 }
 
 
+//error of "No such file or directory"
+- (BOOL)pacoIsFileNotExistError {
+  NSError* underlyingError = [self.userInfo objectForKey:NSUnderlyingErrorKey];
+  if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
+      && underlyingError.code == ENOENT) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 @end

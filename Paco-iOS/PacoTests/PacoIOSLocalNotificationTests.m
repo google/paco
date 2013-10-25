@@ -115,6 +115,31 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
                  @"it should be fine to cancel an invalid notification from UIApplication");
 }
 
+
+- (void)testCancelTimeoutNotification {
+  UILocalNotification* notification = [[UILocalNotification alloc] init];
+  notification.timeZone = [NSTimeZone systemTimeZone];
+  notification.alertBody = kAlertBodyDefault;
+  notification.soundName = kSoundNameDefault;
+  notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
+  [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  STAssertEquals((int)[scheduled count], 1,
+                 @"it should be invalid to schedule a notification for now");
+  
+  sleep(1);
+  
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  STAssertEquals((int)[scheduled count], 0,
+                 @"the notification should fire already");
+
+  [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  STAssertEquals((int)[scheduled count], 0,
+                 @"it should be fine to cancel an invalid notification from UIApplication");
+}
+
 - (void)testScheduleValidNotificationAfterNow {
   UILocalNotification* notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
