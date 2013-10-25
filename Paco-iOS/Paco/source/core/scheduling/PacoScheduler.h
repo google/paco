@@ -29,6 +29,7 @@ extern NSInteger const kTotalNumOfNotifications;
                experimentFireDate:(NSDate*)scheduledTime;
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 
+- (BOOL)needsNotificationSystem;
 - (void)triggerOrShutdownNotificationSystem;
 - (NSArray*)nextNotificationsToSchedule;
 @end
@@ -58,5 +59,7 @@ extern NSInteger const kTotalNumOfNotifications;
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state
 - (BOOL)saveNotificationsToFile;
+
+- (void)initializeNotifications;
 
 @end

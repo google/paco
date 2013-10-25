@@ -71,6 +71,18 @@
   [super tearDown];
 }
 
+- (void)testLoadNotificationsForFirstLaunch {
+  BOOL success = [self.testManager loadNotificationsFromCache];
+  STAssertTrue(success, @"should ignore non-existing error");
+  STAssertTrue(0 == [self.testManager.notificationDict count] &&
+               [self.testManager.notificationDict isKindOfClass:[NSMutableDictionary class]],
+               @"should be empty");
+}
+
+- (void)testCancelAllPacoNotifications {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
 - (void)testSaveAndLoadNotifications {
   NSMutableDictionary* notificationDict = [NSMutableDictionary dictionaryWithCapacity:2];
 

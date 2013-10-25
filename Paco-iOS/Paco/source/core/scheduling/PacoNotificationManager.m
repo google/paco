@@ -17,6 +17,10 @@
 #import "PacoDateUtility.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoScheduler.h"
+#import "NSError+Paco.h"
+#import "NSString+Paco.h"
+
+static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 @interface PacoNotificationManager ()
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
@@ -28,21 +32,13 @@
 
 @implementation PacoNotificationManager
 
-- (id)init {
-  self = [super init];
-  if (self) {
-    _notificationDict = [[NSMutableDictionary alloc] init];
-  }
-  return self;
-}
-
 + (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
                                 firstLaunchFlag:(BOOL)firstLaunch {
   PacoNotificationManager* manager = [[PacoNotificationManager alloc] init];
   manager.delegate = delegate;
   
   if (firstLaunch) {
-    [manager cancelAllNotifications];
+    [manager cancelAlliOSNotifications];
   }
   return manager;
 }
@@ -51,9 +47,30 @@
   return [self.notificationDict copy];
 }
 
-- (void)cancelAllNotifications {
+- (void)cancelAlliOSNotifications {
+  NSLog(@"Cancel All Local Notifications!");
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
+
+//when notification system needs to be shut down, Paco needs to:
+//a. cancel all notifications from iOS system
+//b. check if there are any expired notifications, and save survey missing events for them
+//c. set notification dictionary to be empty
+- (void)cancelAllPacoNotifications {
+  [self cancelAlliOSNotifications];
+
+  [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
+                                              NSArray* expiredNotifications,
+                                              NSArray* notFiredNotifications) {
+    if (expiredNotifications) {
+      [self handleExpiredNotifications:expiredNotifications];
+    }
+  }];
+
+  //reset notification dictionary
+  self.notificationDict = [NSMutableDictionary dictionary];
+}
+
 
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey {
   @synchronized(self) {
@@ -88,7 +105,12 @@
 }
 
 - (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block {
-  NSMutableDictionary* newDict = [NSMutableDictionary dictionaryWithCapacity:[self.notificationDict count]];
+  NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+  if (0 == [self.notificationDict count]) {
+    block(newDict, nil, nil);
+    return;
+  }
+  
   NSMutableArray* allExpiredNotifications = [NSMutableArray array];
   NSMutableArray* allNotFiredNotifications = [NSMutableArray array];
   
@@ -141,6 +163,7 @@
   [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
+    NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
     self.notificationDict = newNotificationDict;
     if (expiredNotifications) {
       [self handleExpiredNotifications:expiredNotifications];
@@ -176,7 +199,7 @@
   return (kTotalNumOfNotifications == [[UIApplication sharedApplication].scheduledLocalNotifications count]);
 }
 
-- (void)scheduleNotifications:(NSArray*)notifications {
+- (void)schedulePacoNotifications:(NSArray*)notifications {
   @synchronized(self) {
     [self purgeCachedNotifications];
     
@@ -252,7 +275,7 @@
   dispatch_once(&onceToken, ^{
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString* documentsDirectory = [paths objectAtIndex:0];
-    filePath = [documentsDirectory stringByAppendingPathComponent:@"notifications.plist"];
+    filePath = [documentsDirectory stringByAppendingPathComponent:kNotificationPlistName];
   });
   return filePath;
 }
@@ -269,9 +292,13 @@
                                           error:&error];
   if (error == nil) {
     self.notificationDict = (NSMutableDictionary*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
-    return YES;
   } else {
+    self.notificationDict = [NSMutableDictionary dictionary];
+  }
+  if (error != nil && ![error pacoIsFileNotExistError]) {
     return NO;
+  } else {
+    return YES;
   }
 }
 

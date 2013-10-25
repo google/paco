@@ -48,7 +48,6 @@ NSInteger const kTotalNumOfNotifications = 60;
   if (self) {
     _notificationManager = [PacoNotificationManager managerWithDelegate:self
                                                         firstLaunchFlag:firstLaunch];
-    [self initializeNotifications];
   }
   return self;
 }
@@ -62,14 +61,16 @@ NSInteger const kTotalNumOfNotifications = 60;
 
 
 - (void)initializeNotifications {
-  NSLog(@"Cancel All LocalNotifications!");
-  [self cancelAlliOSLocalNotifications];
+  BOOL success = [self.notificationManager loadNotificationsFromCache];
+  if (!success) {
+    NSLog(@"Serious Error: failed to load notifications!");
+  }
   
-  // Load notifications from the plist
-  NSMutableArray* notificationArray = [_notificationManager loadNotificationsFromFile];
-  NSLog(@"Reschedule %d LocalNotifications from file!", [notificationArray count]);
-  // Reschedule the ones that have already fired
-  [self rescheduleLocalNotifications:notificationArray];
+  if (![self.delegate needsNotificationSystem]) {
+    [self.notificationManager cancelAllPacoNotifications];
+  } else {
+    [self executeRoutineMajorTask];
+  }
 }
 
 
@@ -168,7 +169,7 @@ NSInteger const kTotalNumOfNotifications = 60;
   }
   if (needToScheduleNewNotifications) {
     NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-    [self.notificationManager scheduleNotifications:notificationsToSchedule];
+    [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   }
   [self.delegate triggerOrShutdownNotificationSystem];
 }
@@ -276,10 +277,6 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 #pragma mark functions for interacting with iOS's LocalNotification System
-- (void)cancelAlliOSLocalNotifications {
-  [[UIApplication sharedApplication] cancelAllLocalNotifications];
-}
-
 - (UILocalNotification*)getiOSLocalNotification:(NSString*)experimentInstanceId fireDate:(NSDate*)fireDate {
   NSArray* notificationArray =
       [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];

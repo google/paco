@@ -35,7 +35,7 @@
 - (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
 
 //notifications MUST be sorted already
-- (void)scheduleNotifications:(NSArray*)notifications;
+- (void)schedulePacoNotifications:(NSArray*)notifications;
 
 //call this when the user stops an experiment
 //1. cancel all notifications from iOS for this expeirment
@@ -52,4 +52,5 @@
 
 - (BOOL)hasMaximumScheduledNotifications;
 
+- (void)cancelAllPacoNotifications;
 @end

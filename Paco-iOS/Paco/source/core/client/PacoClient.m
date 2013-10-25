@@ -183,9 +183,6 @@
   return eventList;
 }
 
-- (BOOL)needsNotificationSystem {
-  return [self.model shouldTriggerNotificationSystem];
-}
 
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
@@ -206,6 +203,10 @@
   NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
   [self.eventManager saveEvents:eventList];
+}
+
+- (BOOL)needsNotificationSystem {
+  return [self.model shouldTriggerNotificationSystem];
 }
 
 - (void)triggerOrShutdownNotificationSystem {
@@ -257,13 +258,22 @@
   return [allNotifications subarrayWithRange:NSMakeRange(0, endIndex)];
 }
 
+#pragma mark set up notification system
+//After date model is loaded successfully, Paco needs to
+//a. load notifications from cache
+//b. perform major task if needed
+//c. trigger or shutdown the notifications system
+- (void)setUpNotificationSystem {
+  [self.scheduler initializeNotifications];
+  [self triggerOrShutdownNotificationSystem];
+}
 
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
   if (SKIP_LOG_IN) {
     [self prefetchInBackgroundWithBlock:^{
-      [self triggerOrShutdownNotificationSystem];
+      [self setUpNotificationSystem];
     }];
     return;
   }
@@ -283,7 +293,7 @@
   
   // Fetch the experiment definitions and the events of joined experiments.
   [self prefetchInBackgroundWithBlock:^{
-    [self triggerOrShutdownNotificationSystem];
+    [self setUpNotificationSystem ];
   }];
   
   [self uploadPendingEventsInBackground];
@@ -318,7 +328,7 @@
   //we will re-authenticate user
   if (!self.reachability.isReachable) {
     [self prefetchInBackgroundWithBlock:^{
-      [self triggerOrShutdownNotificationSystem];
+      [self setUpNotificationSystem];
     }];
     if (block != nil) {
       block(nil);
@@ -409,7 +419,7 @@
         [self prefetchInBackgroundWithBlock:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
-          [self triggerOrShutdownNotificationSystem];
+          [self setUpNotificationSystem];
         }];
         completionHandler(nil);
       } else {
