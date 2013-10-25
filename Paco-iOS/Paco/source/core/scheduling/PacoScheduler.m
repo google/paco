@@ -110,10 +110,7 @@ NSInteger const kTotalNumOfNotifications = 60;
   NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
-  NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-  NSAssert([notificationsToSchedule count] > 0, @"should be able to schedule notifications!");
-  [self.notificationManager scheduleNotifications:notificationsToSchedule];
-  [self.delegate triggerOrShutdownNotificationSystem];
+  [self executeMajorTaskForChangedExperimentModel];
 }
 
 
@@ -148,6 +145,34 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self cancelExpirediOSLocalNotifications:experiments];
   [self registerUpcomingiOSNotifications:experiments];  
 }
+
+
+- (void)executeRoutineMajorTask {
+  [self executeMajorTask:NO];
+}
+
+- (void)executeMajorTaskForChangedExperimentModel {
+  [self executeMajorTask:YES];
+}
+
+/*
+ experimentModelChanged:
+ YES: whenever a schedule experiment is joined or stopped
+ NO: no schedule experiment is joined or stopped
+ **/
+//YMZ:TODO: this method can be improved to be more efficient
+- (void)executeMajorTask:(BOOL)experimentModelChanged {
+  BOOL needToScheduleNewNotifications = YES;
+  if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
+    needToScheduleNewNotifications = NO;
+  }
+  if (needToScheduleNewNotifications) {
+    NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+    [self.notificationManager scheduleNotifications:notificationsToSchedule];
+  }
+  [self.delegate triggerOrShutdownNotificationSystem];
+}
+
 
 - (void)handleNotification:(UILocalNotification *)notification
                experiments:(NSArray*) experiments {

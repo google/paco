@@ -50,4 +50,6 @@
 - (BOOL)saveNotificationsToCache;
 - (BOOL)loadNotificationsFromCache;
 
+- (BOOL)hasMaximumScheduledNotifications;
+
 @end

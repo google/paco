@@ -183,6 +183,10 @@
   return eventList;
 }
 
+- (BOOL)needsNotificationSystem {
+  return [self.model shouldTriggerNotificationSystem];
+}
+
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime {
@@ -205,7 +209,7 @@
 }
 
 - (void)triggerOrShutdownNotificationSystem {
-  if ([self.model shouldTriggerNotificationSystem]) {
+  if ([self needsNotificationSystem]) {
     if (self.location == nil) {
       //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
       //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m

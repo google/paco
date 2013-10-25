@@ -16,6 +16,7 @@
 #import "PacoNotificationManager.h"
 #import "PacoDateUtility.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoScheduler.h"
 
 @interface PacoNotificationManager ()
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
@@ -151,6 +152,10 @@
 }
 
 - (void)addNotifications:(NSArray*)allNotifications {
+  if (0 == [allNotifications count]) {
+    return;
+  }
+  
   @synchronized(self) {
     NSDictionary* sortedNotificationDict = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
     for (NSString* experimentId in sortedNotificationDict) {
@@ -167,12 +172,20 @@
   }
 }
 
+- (BOOL)hasMaximumScheduledNotifications {
+  return (kTotalNumOfNotifications == [[UIApplication sharedApplication].scheduledLocalNotifications count]);
+}
+
 - (void)scheduleNotifications:(NSArray*)notifications {
   @synchronized(self) {
     [self purgeCachedNotifications];
-    [self addNotifications:notifications];
+    
+    if ([notifications count] > 0) {
+      [self addNotifications:notifications];
+    }
     //save the new notifications
     [self saveNotificationsToCache];
+    
     //schedule the new notifications
     [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
   }
