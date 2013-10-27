@@ -43,9 +43,6 @@
 //3. delete all notifications from cache for this experiment
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId;
 
-- (NSMutableArray*)loadNotificationsFromFile;
-- (BOOL)saveNotificationsToFile;
-
 
 - (BOOL)saveNotificationsToCache;
 - (BOOL)loadNotificationsFromCache;

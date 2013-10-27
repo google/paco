@@ -246,28 +246,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 
-- (NSMutableArray*)loadNotificationsFromFile {
-  return [NSMutableArray arrayWithContentsOfFile:[self notificationPlistPath]];
-}
-
-- (BOOL)saveNotificationsToFile {
-  NSMutableArray* notificationArray = [[NSMutableArray alloc] init];
-  NSDictionary* notificationDict = [self copyOfNotificationDictionary];
-  
-  for(NSString* notificationHash in notificationDict) {
-    UILocalNotification* notification = [notificationDict objectForKey:notificationHash];
-    
-    NSMutableDictionary *saveDict = [NSMutableDictionary dictionary];
-    [saveDict setValue:[notification.userInfo objectForKey:@"experimentInstanceId"] forKey:@"experimentInstanceId"];
-    [saveDict setValue:[notification.userInfo objectForKey:@"experimentFireDate"] forKey:@"experimentFireDate"];
-    [saveDict setValue:[notification.userInfo objectForKey:@"experimentTimeOutDate"] forKey:@"experimentTimeOutDate"];
-    [saveDict setValue:notification.alertBody forKey:@"experimentAlertBody"];
-    
-    [notificationArray addObject:saveDict];
-  }
-  return [notificationArray writeToFile:[self notificationPlistPath] atomically:YES];
-}
-
 
 - (NSString*)notificationPlistPath {
   static NSString* filePath = nil;

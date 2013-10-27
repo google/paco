@@ -75,7 +75,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 
 
 - (BOOL)saveNotificationsToFile {
-  return [self.notificationManager saveNotificationsToFile];
+  return [self.notificationManager saveNotificationsToCache];
 }
 
 
