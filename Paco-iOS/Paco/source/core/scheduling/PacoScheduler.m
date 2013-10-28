@@ -126,7 +126,7 @@ NSInteger const kTotalNumOfNotifications = 60;
     NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
     [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   }
-  [self.delegate triggerOrShutdownNotificationSystem];
+  [self.delegate updateNotificationSystem];
 }
 
 

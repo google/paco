@@ -30,7 +30,7 @@ extern NSInteger const kTotalNumOfNotifications;
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 
 - (BOOL)needsNotificationSystem;
-- (void)triggerOrShutdownNotificationSystem;
+- (void)updateNotificationSystem;
 - (NSArray*)nextNotificationsToSchedule;
 @end
 

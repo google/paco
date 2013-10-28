@@ -209,7 +209,7 @@
   return [self.model shouldTriggerNotificationSystem];
 }
 
-- (void)triggerOrShutdownNotificationSystem {
+- (void)updateNotificationSystem {
   if ([self needsNotificationSystem]) {
     if (self.location == nil) {
       //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
@@ -265,7 +265,7 @@
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
   [self.scheduler initializeNotifications];
-  [self triggerOrShutdownNotificationSystem];
+  [self updateNotificationSystem];
 }
 
 #pragma mark bring up login flow if necessary
