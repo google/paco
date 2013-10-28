@@ -16,6 +16,7 @@
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
+#import "NSString+Paco.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -48,13 +49,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Private methods
-- (NSString*)documentPathForFile:(NSString*)fileName {
-  NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString* documentsDirectory = [paths objectAtIndex:0];
-  NSString* fullPath = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-  return fullPath;
-}
-
 //check to see if the error is "No such file or directory"
 - (BOOL)isFileNotExistError:(NSError*)error {
   if (error == nil) {
@@ -71,7 +65,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (id)loadJsonObjectFromFile:(NSString*)fileName {
-  NSString* filePath = [self documentPathForFile:fileName];
+  NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:filePath
                                             options:NSDataReadingMappedIfSafe
@@ -111,7 +105,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   NSAssert(jsonData != nil, @"jsonData should not be nil!");
   
   NSError* saveError = nil;
-  [jsonData writeToFile:[self documentPathForFile:fileName]
+  [jsonData writeToFile:[NSString pacoDocumentDirectoryFilePathWithName:fileName]
                 options:NSDataWritingFileProtectionComplete
                   error:&saveError];
   if (saveError) {

@@ -264,17 +264,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   NSAssert(!hasScheduledNotification, @"shouldn't have any scheduled notifications!");
 }
 
-
-
 - (NSString*)notificationPlistPath {
-  static NSString* filePath = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString* documentsDirectory = [paths objectAtIndex:0];
-    filePath = [documentsDirectory stringByAppendingPathComponent:kNotificationPlistName];
-  });
-  return filePath;
+  return [NSString pacoDocumentDirectoryFilePathWithName:kNotificationPlistName];
 }
 
 - (BOOL)saveNotificationsToCache {
