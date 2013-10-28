@@ -79,6 +79,7 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
 - (void)stopExperiment:(PacoExperiment*)experiment;
 
 @end

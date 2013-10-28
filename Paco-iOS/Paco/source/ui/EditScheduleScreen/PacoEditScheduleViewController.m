@@ -61,21 +61,8 @@
 }
 
 - (void)onJoin {
-  if (!ADD_TEST_DEFINITION) {
-    [[PacoClient sharedInstance].eventManager saveJoinEventWithDefinition:self.experiment
-                                                             withSchedule:nil];
-  }
+  [[PacoClient sharedInstance] joinExperimentWithDefinition:self.experiment];
   
-  //create a new experiment and save it to cache
-  PacoExperiment *experiment = [[PacoClient sharedInstance].model
-                                addExperimentInstance:self.experiment
-                                schedule:self.experiment.schedule
-                                events:nil]; //TODO: events will be removed from this method
-  
-  //start scheduling notifications for this joined experiment
-  [[PacoClient sharedInstance].scheduler startSchedulingForExperimentIfNeeded:experiment];
-  
-
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";
   [[[UIAlertView alloc] initWithTitle:title
