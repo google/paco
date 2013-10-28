@@ -96,30 +96,11 @@ NSInteger const kTotalNumOfNotifications = 60;
 
 
 - (void)stopSchedulingForExperiment:(PacoExperiment*)experiment {
-  NSLog(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
-  [self deleteAllNotificationsForExperiment:experiment];
-}
-
-- (void)deleteAllNotificationsForExperiment:(PacoExperiment*)experiment {
-  NSLog(@"Delete all notifications for experiment: %@", experiment.instanceId);
-  
-  NSDictionary* iosLocalNotifications = [self.notificationManager copyOfNotificationDictionary];
-  
-  for(NSString* notificationHash in iosLocalNotifications) {
-    UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
-    NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    
-    NSDate* firedDate = [notification.userInfo objectForKey:@"experimentFireDate"];
-    if ([experiment.instanceId isEqualToString:experimentInstanceId]) {
-      NSLog(@"Paco removing iOS notification fire at %@ for %@",
-            [PacoDateUtility pacoStringForDate:firedDate], experimentInstanceId);
-      [[UIApplication sharedApplication] cancelLocalNotification:notification];
-      // the firedate + timeout falls before now, so the notification has expired and should be deleted
-      [self.notificationManager deleteNotificationWithHashKey:notificationHash];
-    }
+  if (experiment == nil) {
+    return;
   }
-  //Just in case, remove any notificaiton that still exists in OS system
-  [UILocalNotification cancelScheduledNotificationsForExperiment:experiment.instanceId];
+  NSLog(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
+  [self.notificationManager cancelNotificationsForExperiment:experiment.instanceId];
 }
 
 - (void)executeRoutineMajorTask {

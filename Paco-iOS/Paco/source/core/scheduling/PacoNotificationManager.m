@@ -43,9 +43,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   return manager;
 }
 
-- (NSDictionary*)copyOfNotificationDictionary {
-  return [self.notificationDict copy];
-}
 
 - (void)cancelAlliOSNotifications {
   NSLog(@"Cancel All Local Notifications!");
@@ -69,19 +66,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
   //reset notification dictionary
   self.notificationDict = [NSMutableDictionary dictionary];
-}
-
-- (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey {
-  @synchronized(self) {
-    NSAssert(hashKey.length > 0, @"hashKey should be valid!");
-    UILocalNotification* noti = [self.notificationDict objectForKey:hashKey];
-    if (noti == nil) {
-      return NO;
-    } else {
-      [self.notificationDict removeObjectForKey:hashKey];
-      return YES;
-    }    
-  }
 }
 
 - (void)handleRespondedNotification:(UILocalNotification*)notification {

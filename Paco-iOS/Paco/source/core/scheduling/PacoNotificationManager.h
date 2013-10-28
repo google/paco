@@ -29,9 +29,6 @@
 + (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
                                 firstLaunchFlag:(BOOL)firstLaunchFlag;
 
-- (NSDictionary*)copyOfNotificationDictionary;
-
-- (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;

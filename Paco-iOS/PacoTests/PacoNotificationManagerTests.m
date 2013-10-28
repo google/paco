@@ -767,6 +767,10 @@
   STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore nil notification");
 }
 
+- (void)testCancelAllNotificationsForExperiment {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
 - (void)testHandleRespondedNotificationNotExist {
   NSDate* now = [NSDate date];
   NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
