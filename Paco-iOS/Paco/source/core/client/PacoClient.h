@@ -79,6 +79,6 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
-- (void)deleteExperimentFromCache:(PacoExperiment*)experiment;
+- (void)stopExperiment:(PacoExperiment*)experiment;
 
 @end

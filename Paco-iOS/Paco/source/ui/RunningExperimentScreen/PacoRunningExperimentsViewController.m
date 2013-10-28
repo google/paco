@@ -157,12 +157,8 @@
 }
 
 - (void)stopExperiment {
-  if (!ADD_TEST_DEFINITION) {
-    [[PacoClient sharedInstance].eventManager saveStopEventWithExperiment:self.selectedExperiment];
-  }
-  
-  //delete the experiment from local cache and update UI
-  [[PacoClient sharedInstance] deleteExperimentFromCache:self.selectedExperiment];
+  //stop an experiment and update UI
+  [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment];
 
   PacoTableView* tableView = (PacoTableView*)self.view;
   tableView.data = [PacoClient sharedInstance].model.experimentInstances;

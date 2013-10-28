@@ -533,8 +533,11 @@
 
 
 #pragma mark stop an experiment
-- (void)deleteExperimentFromCache:(PacoExperiment*)experiment
-{
+- (void)stopExperiment:(PacoExperiment*)experiment {
+  if (experiment == nil) {
+    return;
+  }
+  [self.eventManager saveStopEventWithExperiment:experiment];
   //remove experiment from local cache
   [self.model deleteExperimentInstance:experiment];
   //clear all scheduled notifications and notifications in the tray
