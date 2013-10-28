@@ -60,7 +60,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     if (expiredNotifications) {
-      [self handleExpiredNotifications:expiredNotifications];
+      [self.delegate handleExpiredNotifications:expiredNotifications];
     }
   }];
 
@@ -88,10 +88,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   [self saveNotificationsToCache];
 }
 
-- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
-  [UILocalNotification pacoCancelNotifications:expiredNotifications];
-  [self.delegate handleExpiredNotifications:expiredNotifications];
-}
 
 - (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block {
   NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
@@ -155,7 +151,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
     self.notificationDict = newNotificationDict;
     if (expiredNotifications) {
-      [self handleExpiredNotifications:expiredNotifications];
+      [UILocalNotification pacoCancelNotifications:expiredNotifications];
+      [self.delegate handleExpiredNotifications:expiredNotifications];
     }
     if (notFiredNotifications) {
       [UILocalNotification pacoCancelNotifications:notFiredNotifications];
