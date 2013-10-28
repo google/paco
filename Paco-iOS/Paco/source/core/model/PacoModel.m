@@ -24,7 +24,7 @@
 #import "PacoEvent.h"
 #import "PacoExperiment.h"
 #import "NSString+Paco.h"
-
+#import "NSError+Paco.h"
 
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
@@ -303,10 +303,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
   if (error != nil) {
-    NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
     //We should ignore error of "No such file or directory"
-    if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
-        && underlyingError.code == ENOENT) {
+    if ([error pacoIsFileNotExistError]) {
       NSLog(@"Instances plist doesn't exist.");
       [self applyInstanceJSON:nil];
       return nil;

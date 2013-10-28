@@ -17,6 +17,7 @@
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
+#import "NSError+Paco.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -49,28 +50,13 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Private methods
-//check to see if the error is "No such file or directory"
-- (BOOL)isFileNotExistError:(NSError*)error {
-  if (error == nil) {
-    return NO;
-  }
-  
-  NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-  if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
-      && underlyingError.code == ENOENT) {
-    return YES;
-  }else {
-    return NO;
-  }
-}
-
 - (id)loadJsonObjectFromFile:(NSString*)fileName {
   NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:filePath
                                             options:NSDataReadingMappedIfSafe
                                               error:&error];
-  if (error != nil && ![self isFileNotExistError:error]) {
+  if (error != nil && ![error pacoIsFileNotExistError]) {
     NSLog(@"[Error]Failed to load %@: %@",
           fileName,
           error.description ? error.description : @"unknown error");

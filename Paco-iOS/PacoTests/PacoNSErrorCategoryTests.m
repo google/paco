@@ -33,6 +33,12 @@
   [super tearDown];
 }
 
+- (void)testNilError {
+  NSError* error = nil;
+  BOOL isFileNotExist = [error pacoIsFileNotExistError];
+  STAssertFalse(isFileNotExist, @"nil error should not be file not exist error");
+}
+
 - (void)testFileNotExist {
   NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:@"unit_test.plist"];
   NSError* error = nil;
