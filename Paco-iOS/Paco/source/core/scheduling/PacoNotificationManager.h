@@ -44,6 +44,8 @@
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId;
 
 
+- (void)handleRespondedNotification:(UILocalNotification*)notification;
+
 - (BOOL)saveNotificationsToCache;
 - (BOOL)loadNotificationsFromCache;
 

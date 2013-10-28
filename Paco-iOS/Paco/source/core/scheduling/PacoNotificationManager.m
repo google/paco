@@ -99,6 +99,25 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+- (void)handleRespondedNotification:(UILocalNotification*)notification {
+  if (notification == nil) {
+    return;
+  }
+  //Since this notification is responded successfully, cancelling it will clear it from the notification tray
+  [[UIApplication sharedApplication] cancelLocalNotification:notification];
+
+  //remove this notification from local cache
+  NSString* experimentId = [notification pacoExperimentId];
+  NSAssert(experimentId, @"experimentId should be valid");
+  NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+  if (0 == [notifications count]) {
+    return;
+  }
+  [notifications removeObject:notification];
+  [self.notificationDict setObject:notifications forKey:experimentId];
+  [self saveNotificationsToCache];
+}
+
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   [UILocalNotification pacoCancelNotifications:expiredNotifications];
   [self.delegate handleExpiredNotifications:expiredNotifications];

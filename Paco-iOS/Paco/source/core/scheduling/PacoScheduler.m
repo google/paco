@@ -79,26 +79,6 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 
--(void) rescheduleLocalNotifications:(NSMutableArray*) schedule {
-  for(NSDictionary* notificationDictionary in schedule) {
-    NSString* experimentInstanceId = [notificationDictionary valueForKey:@"experimentInstanceId"];
-    NSDate* experimentFireDate =[notificationDictionary valueForKey:@"experimentFireDate"];
-    NSDate* experimentTimeOutDate =[notificationDictionary valueForKey:@"experimentTimeOutDate"];
-    NSString* experimentAlertBody = [notificationDictionary valueForKey:@"experimentAlertBody"];
-    
-    // if this notification has already timed out, we should let the deligate know so he can notify the server
-    if (([experimentTimeOutDate timeIntervalSinceNow] <= 0)) {
-      [self.delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:experimentFireDate];
-    } else {
-      [self registeriOSNotification:experimentInstanceId
-                 experimentFireDate:experimentFireDate
-              experimentTimeOutDate:experimentTimeOutDate
-                experimentAlertBody:experimentAlertBody];
-    }
-  }
-}
-
-
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
   if (![experiment shouldScheduleNotifications]) {
@@ -142,12 +122,6 @@ NSInteger const kTotalNumOfNotifications = 60;
   [UILocalNotification cancelScheduledNotificationsForExperiment:experiment.instanceId];
 }
 
-- (void)performMajorTaskWithAllExperiments:(NSArray*)experiments {
-  [self cancelExpirediOSLocalNotifications:experiments];
-  [self registerUpcomingiOSNotifications:experiments];  
-}
-
-
 - (void)executeRoutineMajorTask {
   [self executeMajorTask:NO];
 }
@@ -175,106 +149,10 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 
-- (void)handleNotification:(UILocalNotification *)notification
-               experiments:(NSArray*) experiments {
-  NSLog(@"Paco handling an iOS notification = %@", notification.userInfo);
-  
-  // make sure to decrement the Application Badge Number
-//  UIApplication *application = [UIApplication sharedApplication];
-//  application.applicationIconBadgeNumber = notification.applicationIconBadgeNumber - 1;
-  
-  //Since this notification is responded successfully, cancelling it will clear it from the notification tray
-  [[UIApplication sharedApplication] cancelLocalNotification:notification];
-  
-  NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-  
-  [self deleteAllNotificationsForExperiment:experiment];
-  [self registerUpcomingiOSNotifications:experiments];
+- (void)handleRespondedNotification:(UILocalNotification *)notification {
+  [self.notificationManager handleRespondedNotification:notification];
 }
 
-
-- (void)registeriOSNotificationForExperiment:(PacoExperiment *)experiment {
-  NSAssert([experiment shouldScheduleNotifications], @"experiment shouldScheduleNotifications!");
-  
-  NSDate* experimentFireDate = [PacoScheduleGenerator nextScheduledDateFromNow:experiment];
-  NSDate* experimentTimeOutDate = [experimentFireDate dateByAddingTimeInterval:(experiment.schedule.timeout * 60)];
-  assert(experiment.instanceId.length);
-  
-  // put the esm schedule in the notification dictionary
-  NSArray *scheduleDates = nil;
-  if (experiment.schedule.scheduleType == kPacoScheduleTypeESM) {
-    scheduleDates = experiment.schedule.esmScheduleList;
-    NSAssert([scheduleDates count] > 0 && [scheduleDates count] == experiment.schedule.esmFrequency,
-             @"nextScheduledDateFromNow should always create valid dates");
-  }
-  
-  NSAssert(experimentFireDate != nil, @"experimentFireDate should NOT be nil!");
-  NSString* alertBody = [NSString stringWithFormat:@"Paco experiment %@ at %@.",
-                         experiment.instanceId,
-                         [self getTimeZoneFormattedDateString:experimentFireDate]];
-  if (DEBUG) {
-    alertBody = [NSString stringWithFormat:@"[%@]%@",
-                 experiment.instanceId, [PacoDateUtility stringForAlertBodyFromDate:experimentFireDate]];
-  }
-  
-  [self registeriOSNotification:experiment.instanceId
-             experimentFireDate:experimentFireDate
-          experimentTimeOutDate:experimentTimeOutDate
-            experimentAlertBody:alertBody];
-}
-
-- (void)registeriOSNotification:(NSString*) experimentInstanceId
-             experimentFireDate:(NSDate*) experimentFireDate
-          experimentTimeOutDate:(NSDate*) experimentTimeOutDate
-            experimentAlertBody:(NSString*) experimentAlertBody {
-  UILocalNotification *notification = [[UILocalNotification alloc] init];
-  
-  notification.timeZone = [NSTimeZone systemTimeZone];
-  notification.alertBody = experimentAlertBody;
-  notification.soundName = @"deepbark_trial.mp3";
-//  notification.applicationIconBadgeNumber += 1;
-
-  NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-  [userInfo setObject:experimentInstanceId forKey:@"experimentInstanceId"];
-  [userInfo setObject:experimentFireDate forKey:@"experimentFireDate"];
-  [userInfo setObject:experimentTimeOutDate forKey:@"experimentTimeOutDate"];
-  
-  // this logic is for when we're loading notifications from a file that should have fired
-  // in the past: we want them to fire right away (so they show up in Notification Center),
-  // but by setting the hasFired object in userInfo object we make sure that the UI doesn't show them
-  if (([experimentFireDate timeIntervalSinceNow] <= 0)) {
-    NSLog(@"Notification scheduled in 5 seconds!!!");
-    notification.fireDate = [[NSDate date] dateByAddingTimeInterval:5]; 
-    [userInfo setObject:[NSNumber numberWithBool:YES] forKey:kExperimentHasFiredKey];
-    
-    if (DEBUG) {
-      notification.alertBody = [NSString stringWithFormat:@"[Rescheduled]%@", experimentAlertBody];
-    }
-  } else {
-    notification.fireDate = experimentFireDate;
-    [userInfo setObject:[NSNumber numberWithBool:NO] forKey:kExperimentHasFiredKey];
-  }
-  notification.userInfo = userInfo;
-  NSLog(@"Notification Scheduled for %@ at %@",
-        experimentInstanceId, [PacoDateUtility pacoStringForDate:notification.fireDate]);
-  NSLog(@"Detail: %@", [notification description]);
- [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  
-  // now that it's scheduled we need to start bookkeeping it
-  UILocalNotification* notificationObject = [self getiOSLocalNotification:experimentInstanceId fireDate:notification.fireDate];
-  NSString* notificationKey = [NSString stringWithFormat:@"%@%.0f", experimentInstanceId, [notification.fireDate timeIntervalSince1970]];
-  NSAssert(notificationObject != nil, @"notification shouldn't be nil");
-  [self.notificationManager addNotification:notificationObject withHashKey:notificationKey];
-}
-
-- (NSString*)getTimeZoneFormattedDateString:(NSDate*)date {
-  NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-  [dateFormat setDateFormat:@"MMM dd, YYYY HH:mm:ssZZZ"];
-  [dateFormat setTimeZone:[NSTimeZone systemTimeZone]];
-  
-  return [dateFormat stringFromDate:date];
-}
 
 #pragma mark functions for interacting with iOS's LocalNotification System
 - (UILocalNotification*)getiOSLocalNotification:(NSString*)experimentInstanceId fireDate:(NSDate*)fireDate {
@@ -286,109 +164,6 @@ NSInteger const kTotalNumOfNotifications = 60;
     }
   }
   return nil;
-}
-
-
-- (void)registerUpcomingiOSNotifications: (NSArray *)experiments {
-  // go through all experiments, see if a notification is already scheduled, and if not add it to the schedule
-  for (PacoExperiment *experiment in experiments) {
-    if ([experiment shouldScheduleNotifications]) {
-      if ([UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId]) {
-        NSLog(@"Skip registering iOS notification for %@, since it has a notification scheduled.",
-              experiment.instanceId);
-      } else {
-        NSLog(@"Registering iOS notification for %@", experiment.instanceId);
-        [self registeriOSNotificationForExperiment:experiment];
-      }
-    } else {
-      NSLog(@"Skip registering notification for %@, it's a self-report or advanced experiment.",
-            experiment.instanceId);
-    }
-  }
-}
-
-
-- (void)clearOldNotificationsFromTray:(NSMutableDictionary*)firedNotificationsInTrayDict {
-  for (NSString* experimentInstanceId in firedNotificationsInTrayDict) {
-    NSMutableArray* notificationsFired = [firedNotificationsInTrayDict objectForKey:experimentInstanceId];
-    //If there is only one fired notification in the tray for the same experiment, we don't need
-    //to clear anything
-    if ([notificationsFired count] <= 1) {
-      continue;
-    }
-    
-    //experiment has more than one notification that fired and thus are currently showing up in the tray,
-    //so we need to cancel old notifications and only leave the latest fired one in the tray    
-    [notificationsFired sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-      NSAssert([obj1 isKindOfClass:[NSArray class]] && [obj2 isKindOfClass:[NSArray class]],
-               @"obj1 and obj2 should be NSArray!");
-      UILocalNotification* notificationObject1 = [(NSArray*)obj1 objectAtIndex:1];
-      UILocalNotification* notificationObject2 = [(NSArray*)obj2 objectAtIndex:1];
-      NSAssert([notificationObject1 isKindOfClass:[UILocalNotification class]] &&
-               [notificationObject2 isKindOfClass:[UILocalNotification class]],
-               @"notificationObject1 and notificationObject2 should be UILocalNotification!");
-      
-      NSDate* fireDate1 = [notificationObject1.userInfo objectForKey:@"experimentFireDate"];
-      NSDate* fireDate2 = [notificationObject2.userInfo objectForKey:@"experimentFireDate"];
-      NSAssert(fireDate1 != nil && fireDate2 != nil, @"fireDate1 and fireDate2 should be valid!");
-      return [fireDate1 compare:fireDate2];
-    }];
-  
-    NSLog(@"There are %d fired notifications in the tray for %@",[notificationsFired count],experimentInstanceId);
-    for (int index=0; index < [notificationsFired count]-1; index++) {
-      NSArray* notificationObjectArr = [notificationsFired objectAtIndex:index];
-      
-      NSString* notificationHash = [notificationObjectArr objectAtIndex:0];
-      UILocalNotification* notification = [notificationObjectArr objectAtIndex:1];
-      
-      NSDate* firedDate = [notification.userInfo objectForKey:@"experimentFireDate"];
-      NSLog(@"Paco clearing 1 iOS notification fired at %@ from tray for %@",
-            [PacoDateUtility pacoStringForDate:firedDate], experimentInstanceId);
-      [[UIApplication sharedApplication] cancelLocalNotification:notification];
-      [self.notificationManager deleteNotificationWithHashKey:notificationHash];
-      [self.delegate handleNotificationTimeOut:experimentInstanceId
-                            experimentFireDate:firedDate];
-    }
-  }
-
-}
-
-// This will clear iOS Local Notifications that have fired from Notification Center and notify the deligate that they've timed out
-- (void)cancelExpirediOSLocalNotifications: (NSArray *)experiments {
-  NSDictionary* iosLocalNotifications = [self.notificationManager copyOfNotificationDictionary];
-  NSMutableDictionary* firedNotificationsInTrayDict = [NSMutableDictionary dictionary];
-  
-  for(NSString* notificationHash in iosLocalNotifications) {
-    UILocalNotification* notification = [iosLocalNotifications objectForKey:notificationHash];
-    NSDate* timeOutDate = [notification.userInfo objectForKey:@"experimentTimeOutDate"];
-    NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
-    
-    //clear time out notification
-    if ([timeOutDate timeIntervalSinceNow] < 0) {
-      NSDate* fireDate = [notification.userInfo objectForKey:@"experimentFireDate"];
-      NSLog(@"Paco cancelling iOS notification fired at %@ for %@",
-            [PacoDateUtility pacoStringForDate:fireDate], experimentInstanceId);
-      [[UIApplication sharedApplication] cancelLocalNotification:notification];
-      // the firedate + timeout falls before now, so the notification has expired and should be deleted
-      [self.notificationManager deleteNotificationWithHashKey:notificationHash];
-      // Let the server know about this Missed Responses/Signals
-      [self.delegate handleNotificationTimeOut:experimentInstanceId experimentFireDate:fireDate];
-    }
-
-    NSDate* fireDate = [notification.userInfo objectForKey:@"experimentFireDate"];
-    NSAssert(fireDate != nil, @"fireDate should not be nil!");
-    NSTimeInterval intervalSinceFiredDate = [fireDate timeIntervalSinceNow];
-    if (intervalSinceFiredDate <= 0) {
-      NSMutableArray* firedNotifications = [firedNotificationsInTrayDict objectForKey:experimentInstanceId];
-      if (firedNotifications == nil) {
-        firedNotifications = [NSMutableArray array];
-      }
-      [firedNotifications addObject:@[notificationHash, notification]];
-      [firedNotificationsInTrayDict setObject:firedNotifications forKey:experimentInstanceId];
-    }
-  }
-  
-  [self clearOldNotificationsFromTray:firedNotificationsInTrayDict];
 }
 
 

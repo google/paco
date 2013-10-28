@@ -111,8 +111,7 @@ NSString *kCellIdQuestion = @"question";
   }
   
   if (self.notification) {
-    [[PacoClient sharedInstance].scheduler handleNotification:self.notification
-                                                  experiments:[[PacoClient sharedInstance].model experimentInstances]];
+    [[PacoClient sharedInstance].scheduler handleRespondedNotification:self.notification];
   }
 
   //clear all inputs' submitted responseObject for the definition 

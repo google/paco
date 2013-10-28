@@ -44,8 +44,7 @@ extern NSInteger const kTotalNumOfNotifications;
 + (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate
                         firstLaunchFlag:(BOOL)firstLaunch;
 
-- (void)handleNotification:(UILocalNotification *)notification
-               experiments:(NSArray*) experiments;
+- (void)handleRespondedNotification:(UILocalNotification *)notification;
 
 // call this when joining an experiment
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
@@ -53,8 +52,6 @@ extern NSInteger const kTotalNumOfNotifications;
 // call this when leaving an experiment
 - (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
 
-// see which Notifications have expired, and schedule new ones
-- (void)performMajorTaskWithAllExperiments:(NSArray*)experiments;
 
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state

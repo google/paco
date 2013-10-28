@@ -679,6 +679,10 @@
                        @"add notifications should work correctly");
 }
 
+- (void)testHandleRespondedNotification {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
 
 
 @end
