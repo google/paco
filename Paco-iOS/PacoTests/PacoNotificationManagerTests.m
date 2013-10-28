@@ -160,6 +160,7 @@
   BOOL success = [self.testManager saveNotificationsToCache];
   STAssertTrue(success, @"should be saved successfully");
   
+  //reset current notificationDict
   self.testManager.notificationDict = nil;
   success = [self.testManager loadNotificationsFromCache];
   STAssertTrue(success, @"should be loaded successfully");
@@ -171,6 +172,34 @@
   NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
   STAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   STAssertEqualObjects(notificationsForExperiment2, allNotifications2,@"should be loaded correctly");
+  
+  //create a new notification with the same information as noti3:
+  UILocalNotification* notiToRemove =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:experimentTitle1
+                                               fireDate:noti3.fireDate
+                                            timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:noti3.fireDate]];
+
+  [notificationsForExperiment1 removeObject:notiToRemove];
+  NSMutableArray* newNotificationsForExperiment1 = [NSMutableArray arrayWithObjects:noti1, noti2, noti4, noti5, nil];
+  STAssertEqualObjects([[self.testManager notificationDict] objectForKey:experimentId1],
+                       newNotificationsForExperiment1,
+                       @"should be able to remove noti3 successfully");
+  
+  //test store the new dict and load it from cache
+  [self.testManager.notificationDict removeObjectForKey:experimentId2];
+  [self.testManager saveNotificationsToCache];
+  //reset current notificationDict
+  self.testManager.notificationDict = nil;
+  success = [self.testManager loadNotificationsFromCache];
+  STAssertTrue(success, @"should be loaded successfully");
+  STAssertEquals([[self.testManager notificationDict] count], (NSUInteger)1, @"should have 1 key-value pairs");
+  STAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
+  notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
+  STAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  STAssertEqualObjects(notificationsForExperiment1,newNotificationsForExperiment1, @"should be loaded correctly");
+  notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
+  STAssertNil(notificationsForExperiment2, @"should be nil");
 }
 
 
@@ -679,9 +708,236 @@
                        @"add notifications should work correctly");
 }
 
-- (void)testHandleRespondedNotification {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+- (void)testHandleNilRespondedNotification {
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
+  NSDate* date2 = [NSDate dateWithTimeInterval:20 sinceDate:now];
+  NSDate* date3 = [NSDate dateWithTimeInterval:30 sinceDate:now];
+  NSDate* date4 = [NSDate dateWithTimeInterval:40 sinceDate:now];
+  NSDate* date5 = [NSDate dateWithTimeInterval:50 sinceDate:now];
+  NSTimeInterval timeoutInterval = 479*60;
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  NSDate* timeout4 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4];
+  NSDate* timeout5 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5];
+  
+  NSString* experimentId1 = @"1";
+  NSString* experimentId2 = @"2";
+  NSString* title1 = @"title1";
+  NSString* title2 = @"title2";
+  //id:1, fireDate:date1
+  UILocalNotification* notification11 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date1
+                                            timeOutDate:timeout1];
+  //id:1, fireDate:date4
+  UILocalNotification* notification12 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date4
+                                            timeOutDate:timeout4];
+  
+  //id:2, fireDate:date2
+  UILocalNotification* notification21 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date2
+                                            timeOutDate:timeout2];
+  //id:2, fireDate:date3
+  UILocalNotification* notification22 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date3
+                                            timeOutDate:timeout3];
+  //id:2, fireDate:date5
+  UILocalNotification* notification23 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date5
+                                            timeOutDate:timeout5];
+  NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
+  NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
+  NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
+  [expect setObject:notifications1 forKey:experimentId1];
+  [expect setObject:notifications2 forKey:experimentId2];
+  self.testManager.notificationDict = expect;
+  [self.testManager handleRespondedNotification:nil];
+  STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore nil notification");
 }
+
+- (void)testHandleRespondedNotificationNotExist {
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
+  NSDate* date2 = [NSDate dateWithTimeInterval:20 sinceDate:now];
+  NSDate* date3 = [NSDate dateWithTimeInterval:30 sinceDate:now];
+  NSDate* date4 = [NSDate dateWithTimeInterval:40 sinceDate:now];
+  NSDate* date5 = [NSDate dateWithTimeInterval:50 sinceDate:now];
+  NSTimeInterval timeoutInterval = 479*60;
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  NSDate* timeout4 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4];
+  NSDate* timeout5 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5];
+  
+  NSString* experimentId1 = @"1";
+  NSString* experimentId2 = @"2";
+  NSString* title1 = @"title1";
+  NSString* title2 = @"title2";
+  //id:1, fireDate:date1
+  UILocalNotification* notification11 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date1
+                                            timeOutDate:timeout1];
+  //id:1, fireDate:date4
+  UILocalNotification* notification12 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date4
+                                            timeOutDate:timeout4];
+  
+  //id:2, fireDate:date2
+  UILocalNotification* notification21 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date2
+                                            timeOutDate:timeout2];
+  //id:2, fireDate:date3
+  UILocalNotification* notification22 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date3
+                                            timeOutDate:timeout3];
+  //id:2, fireDate:date5
+  UILocalNotification* notification23 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date5
+                                            timeOutDate:timeout5];
+  NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
+  NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
+  NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
+  [expect setObject:notifications1 forKey:experimentId1];
+  [expect setObject:notifications2 forKey:experimentId2];
+  self.testManager.notificationDict = expect;
+  
+  NSString* experimentId3 = @"3";
+  NSString* title3 = @"title3";
+  UILocalNotification* notificationToHandle =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId3
+                                        experimentTitle:title3
+                                               fireDate:date3
+                                            timeOutDate:timeout3];
+  [self.testManager handleRespondedNotification:notificationToHandle];
+  STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore non-existing notification");
+}
+
+- (void)testHandleRespondedNotification {
+  NSDate* now = [NSDate date];
+  NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
+  NSDate* date2 = [NSDate dateWithTimeInterval:20 sinceDate:now];
+  NSDate* date3 = [NSDate dateWithTimeInterval:30 sinceDate:now];
+  NSDate* date4 = [NSDate dateWithTimeInterval:40 sinceDate:now];
+  NSDate* date5 = [NSDate dateWithTimeInterval:50 sinceDate:now];
+  NSTimeInterval timeoutInterval = 479*60;
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  NSDate* timeout4 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4];
+  NSDate* timeout5 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5];
+  
+  NSString* experimentId1 = @"1";
+  NSString* experimentId2 = @"2";
+  NSString* title1 = @"title1";
+  NSString* title2 = @"title2";
+  //id:1, fireDate:date1
+  UILocalNotification* notification11 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date1
+                                            timeOutDate:timeout1];
+  //id:1, fireDate:date4
+  UILocalNotification* notification12 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId1
+                                        experimentTitle:title1
+                                               fireDate:date4
+                                            timeOutDate:timeout4];
+  
+  //id:2, fireDate:date2
+  UILocalNotification* notification21 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date2
+                                            timeOutDate:timeout2];
+  //id:2, fireDate:date3
+  UILocalNotification* notification22 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date3
+                                            timeOutDate:timeout3];
+  //id:2, fireDate:date5
+  UILocalNotification* notification23 =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date5
+                                            timeOutDate:timeout5];
+  //schedule them all
+  [UIApplication sharedApplication].scheduledLocalNotifications =
+      @[notification11, notification12, notification21, notification22, notification23];
+  NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
+  STAssertEquals([scheduled count],
+                 (NSUInteger)5, @"should have 5 notifications scheduled successfully");
+  NSUInteger index = [scheduled indexOfObject:notification22];
+  STAssertEquals(index, (NSUInteger)2, @"should be at position 2");
+
+  NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
+  NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
+  NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
+  [expect setObject:notifications1 forKey:experimentId1];
+  [expect setObject:notifications2 forKey:experimentId2];
+  self.testManager.notificationDict = expect;
+  
+  //remove notification22
+  UILocalNotification* notificationToHandle =
+  [UILocalNotification pacoNotificationWithExperimentId:experimentId2
+                                        experimentTitle:title2
+                                               fireDate:date3
+                                            timeOutDate:timeout3];
+  STAssertFalse(notification22 == notificationToHandle, @"pointers should be different");
+  [self.testManager handleRespondedNotification:notificationToHandle];
+  
+  scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
+  STAssertEquals([scheduled count],
+                 (NSUInteger)4, @"should have notification22 cancelled");
+  index = [scheduled indexOfObject:notification22];
+  STAssertTrue(index != 2, @"should have notification22 cancelled");
+  STAssertFalse([scheduled containsObject:notification22], @"should not contain notification22");
+
+  NSMutableArray* newNotifications2 = [self.testManager.notificationDict objectForKey:experimentId2];
+  NSMutableArray* expectNotifications2 = [NSMutableArray arrayWithObjects:notification21,notification23, nil];
+  STAssertTrue([newNotifications2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  STAssertEqualObjects(newNotifications2, expectNotifications2, @"should successfully delete notification22");
+  
+  //reset current notificationDict
+  self.testManager.notificationDict = nil;
+  BOOL success = [self.testManager loadNotificationsFromCache];
+  STAssertTrue(success, @"should be loaded successfully");
+  STAssertEquals([[self.testManager notificationDict] count], (NSUInteger)2,
+                 @"should have 2 key-value pairs");
+  STAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]],
+               @"should be a mutable dictionary");
+  NSMutableArray* notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
+  STAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  STAssertEqualObjects(notificationsForExperiment1,notifications1, @"should be loaded correctly");
+  NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
+  STAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  STAssertEqualObjects(notificationsForExperiment2, expectNotifications2,@"should be loaded correctly");
+}
+
+
+
 
 
 
