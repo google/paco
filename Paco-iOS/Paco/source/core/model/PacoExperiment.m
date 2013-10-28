@@ -83,10 +83,18 @@
 }
 
 - (BOOL)shouldScheduleNotifications {
-  if (self.schedule.scheduleType == kPacoScheduleTypeSelfReport) {
+  if ([self isSelfReportExperiment]) {
     return NO;
   }
   return [self.definition isExperimentValid];
+}
+
+- (BOOL)isSelfReportExperiment {
+  return self.schedule.scheduleType == kPacoScheduleTypeSelfReport;
+}
+
+- (BOOL)isScheduledExperiment {
+  return ![self isSelfReportExperiment];
 }
 
 - (BOOL)haveJoined {

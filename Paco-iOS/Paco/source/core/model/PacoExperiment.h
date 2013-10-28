@@ -35,5 +35,8 @@
 - (BOOL)haveJoined;
 - (BOOL)shouldScheduleNotifications;
 
+- (BOOL)isSelfReportExperiment;
+- (BOOL)isScheduledExperiment;
+
 @end
 

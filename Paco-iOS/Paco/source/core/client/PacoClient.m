@@ -541,7 +541,7 @@
   //remove experiment from local cache
   [self.model deleteExperimentInstance:experiment];
   //clear all scheduled notifications and notifications in the tray
-  [self.scheduler stopSchedulingForExperiment:experiment];
+  [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
 }
 
 

@@ -50,7 +50,7 @@ extern NSInteger const kTotalNumOfNotifications;
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
 // call this when leaving an experiment
-- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
+- (void)stopSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
 
 // call this when the application goes to InActive to make sure

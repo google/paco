@@ -95,8 +95,8 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 
-- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment {
-  if (experiment == nil) {
+- (void)stopSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
+  if (experiment == nil || [experiment isSelfReportExperiment]) {
     return;
   }
   NSLog(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
