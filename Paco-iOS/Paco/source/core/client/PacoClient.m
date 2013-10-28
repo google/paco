@@ -183,6 +183,27 @@
   return eventList;
 }
 
+- (void)triggerNotificationSystemIfNeeded {
+  if (self.location != nil) {
+    return;
+  }
+  //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
+  //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSLog(@"***********  PacoLocation is allocated ***********");
+    self.location = [[PacoLocation alloc] init];
+    self.location.delegate = self;
+    [self.location enableLocationService];
+  });
+}
+
+- (void)shutDownNotificationSystemIfNeeded {
+  if (self.location == nil) {
+    return;
+  }
+  [self.location disableLocationService];
+  self.location = nil;
+}
 
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
@@ -211,21 +232,9 @@
 
 - (void)updateNotificationSystem {
   if ([self needsNotificationSystem]) {
-    if (self.location == nil) {
-      //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
-      //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-      dispatch_async(dispatch_get_main_queue(), ^{
-        NSLog(@"***********  PacoLocation is allocated ***********");
-        self.location = [[PacoLocation alloc] init];
-        self.location.delegate = self;
-        [self.location enableLocationService];
-      });
-    }
+    [self triggerNotificationSystemIfNeeded];
   } else {
-    if (self.location != nil) {
-      [self.location disableLocationService];
-      self.location = nil;
-    }
+    [self shutDownNotificationSystemIfNeeded];
   }
 }
 
@@ -554,8 +563,18 @@
   [self.eventManager saveStopEventWithExperiment:experiment];
   //remove experiment from local cache
   [self.model deleteExperimentInstance:experiment];
-  //clear all scheduled notifications and notifications in the tray
-  [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+  
+  //if experiment is self-report, no need to touch notification system
+  if ([experiment isSelfReportExperiment]) {
+    return;
+  }
+  if ([self needsNotificationSystem]) {
+    //clear all scheduled notifications and notifications in the tray for the stopped experiment
+    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+  } else {
+    [self.scheduler stopSchedulingForAllExperiments];
+    [self shutDownNotificationSystemIfNeeded];
+  }
 }
 
 

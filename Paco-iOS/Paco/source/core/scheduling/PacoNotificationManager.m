@@ -66,6 +66,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
   //reset notification dictionary
   self.notificationDict = [NSMutableDictionary dictionary];
+  [self saveNotificationsToCache];
 }
 
 - (void)handleRespondedNotification:(UILocalNotification*)notification {

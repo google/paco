@@ -103,6 +103,11 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.notificationManager cancelNotificationsForExperiment:experiment.instanceId];
 }
 
+- (void)stopSchedulingForAllExperiments {
+  NSLog(@"stop scheduling for all experiments");
+  [self.notificationManager cancelAllPacoNotifications];
+}
+
 - (void)executeRoutineMajorTask {
   [self executeMajorTask:NO];
 }

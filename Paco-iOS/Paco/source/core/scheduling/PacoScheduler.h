@@ -52,6 +52,8 @@ extern NSInteger const kTotalNumOfNotifications;
 // call this when leaving an experiment
 - (void)stopSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
+// call this when shutting down the notification system
+- (void)stopSchedulingForAllExperiments;
 
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state
