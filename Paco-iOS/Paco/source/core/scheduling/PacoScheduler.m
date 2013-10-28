@@ -153,20 +153,6 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.notificationManager handleRespondedNotification:notification];
 }
 
-
-#pragma mark functions for interacting with iOS's LocalNotification System
-- (UILocalNotification*)getiOSLocalNotification:(NSString*)experimentInstanceId fireDate:(NSDate*)fireDate {
-  NSArray* notificationArray =
-      [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
-  for (UILocalNotification* notification in notificationArray) {
-    if (([notification.fireDate timeIntervalSinceDate:fireDate] >= 0) && ([notification.fireDate timeIntervalSinceDate:fireDate] < 60)) {
-      return notification;
-    }
-  }
-  return nil;
-}
-
-
 #pragma mark PacoNotificationManagerDelegate
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   [self.delegate handleExpiredNotifications:expiredNotifications];

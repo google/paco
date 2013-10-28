@@ -32,7 +32,6 @@
 - (NSDictionary*)copyOfNotificationDictionary;
 
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
-- (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;

@@ -71,21 +71,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   self.notificationDict = [NSMutableDictionary dictionary];
 }
 
-
-- (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey {
-  @synchronized(self) {
-    NSAssert(notification != nil, @"notification should be valid!");
-    NSAssert(hashKey.length > 0, @"hashKey should be valid!");
-    
-    BOOL success = NO;
-    if ([self.notificationDict objectForKey:hashKey] == nil) {
-      success = YES;
-    }
-    [self.notificationDict setObject:notification forKey:hashKey];
-    return success;
-  }
-}
-
 - (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey {
   @synchronized(self) {
     NSAssert(hashKey.length > 0, @"hashKey should be valid!");
