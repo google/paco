@@ -34,6 +34,17 @@
     [super tearDown];
 }
 
+- (void)testAddObjectsFromNilArray {
+  NSArray* arrayToAdd = nil;
+  NSMutableArray* testArr = [NSMutableArray arrayWithCapacity:0];
+  [testArr addObjectsFromArray:arrayToAdd];
+  STAssertEquals([testArr count], (NSUInteger)0, @"should have 0 elements");
+  
+  arrayToAdd = @[@1, @2];
+  [testArr addObjectsFromArray:arrayToAdd];
+  STAssertEquals([testArr count], (NSUInteger)2, @"should have 2 elements");
+}
+
 - (void)testSortDatesToSchedule {
   NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
   NSDate* date2 = [NSDate date];
