@@ -97,6 +97,10 @@
   return ![self isSelfReportExperiment];
 }
 
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
+  return [self.definition isExperimentValidSinceDate:fromDate];
+}
+
 - (BOOL)haveJoined {
   // TODO(gregvance): maybe should check for the "joined"="true" in the event
   //     responses, but what about un-joining ?

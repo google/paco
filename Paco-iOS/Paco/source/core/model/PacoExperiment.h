@@ -38,5 +38,7 @@
 - (BOOL)isSelfReportExperiment;
 - (BOOL)isScheduledExperiment;
 
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
+
 @end
 

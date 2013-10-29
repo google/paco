@@ -91,14 +91,19 @@
 }
 
 - (BOOL)isExperimentValid {
+  return [self isExperimentValidSinceDate:[NSDate date]];
+}
+
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
+  if (fromDate == nil) {
+    return NO;
+  }
   if ([self isOngoing]) {
     return YES;
   }
-  if ([self.endDate pacoLaterThanDate:[NSDate date]]) {
-    return YES;
-  }
-  return NO;
+  return [self.endDate pacoLaterThanDate:fromDate];
 }
+
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentDefinition:%p - "
