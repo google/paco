@@ -40,5 +40,8 @@
 
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
 
+- (BOOL)isFixedLength;
+- (BOOL)isOngoing;
+
 @end
 
