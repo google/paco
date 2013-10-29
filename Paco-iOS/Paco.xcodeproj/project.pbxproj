@@ -42,6 +42,10 @@
 		365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E6181B198D0097F379 /* NSString+Paco.m */; };
 		365D20E8181B198D0097F379 /* NSString+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E6181B198D0097F379 /* NSString+Paco.m */; };
 		365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */; };
+		365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */; };
+		365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */; };
+		365D20FA1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
+		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
 		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DE1803AEE9006611E6 /* PacoNotificationCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */; };
@@ -307,6 +311,10 @@
 		365D20E5181B198D0097F379 /* NSString+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Paco.h"; sourceTree = "<group>"; };
 		365D20E6181B198D0097F379 /* NSString+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Paco.m"; sourceTree = "<group>"; };
 		365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSStringCategoryTests.m; sourceTree = "<group>"; };
+		365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+ESM.h"; sourceTree = "<group>"; };
+		365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+ESM.m"; sourceTree = "<group>"; };
+		365D20F81820695E0097F379 /* PacoUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoUtility.h; sourceTree = "<group>"; };
+		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
 		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
 		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
 		367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationCategoryTests.m; sourceTree = "<group>"; };
@@ -678,6 +686,8 @@
 				36AD6CE117C4440000B93855 /* NSError+Paco.m */,
 				365D20E5181B198D0097F379 /* NSString+Paco.h */,
 				365D20E6181B198D0097F379 /* NSString+Paco.m */,
+				365D20F81820695E0097F379 /* PacoUtility.h */,
+				365D20F91820695E0097F379 /* PacoUtility.m */,
 			);
 			path = common;
 			sourceTree = "<group>";
@@ -770,6 +780,8 @@
 				367233D31803956E006611E6 /* UILocalNotification+Paco.m */,
 				367233DF180619A5006611E6 /* PacoScheduleGenerator.h */,
 				367233E0180619A5006611E6 /* PacoScheduleGenerator.m */,
+				365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */,
+				365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */,
 			);
 			path = scheduling;
 			sourceTree = "<group>";
@@ -1475,6 +1487,7 @@
 				363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
 				36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */,
 				367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */,
+				365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */,
 				36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */,
 				36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */,
@@ -1484,6 +1497,7 @@
 				36B8EB8E17568DAF004CF035 /* PacoTitleView.m in Sources */,
 				36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */,
 				36B8EC2E17568E33004CF035 /* GTMHTTPFetcher.m in Sources */,
+				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
 				36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */,
 				36B8EC3017568E33004CF035 /* GTMOAuth2SignIn.m in Sources */,
 				36B8EC3117568E33004CF035 /* GTMOAuth2ViewControllerTouch.m in Sources */,
@@ -1528,12 +1542,14 @@
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
 				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
+				365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */,
 				36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */,
 				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
 				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
 				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
+				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
 				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,
