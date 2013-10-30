@@ -43,5 +43,7 @@
 - (BOOL)isFixedLength;
 - (BOOL)isOngoing;
 
+- (BOOL)hasESMScheduleList;
+
 @end
 

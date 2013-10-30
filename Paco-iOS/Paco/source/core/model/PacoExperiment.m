@@ -109,11 +109,9 @@
   return [self.definition isOngoing];
 }
 
-
-- (BOOL)haveJoined {
-  // TODO(gregvance): maybe should check for the "joined"="true" in the event
-  //     responses, but what about un-joining ?
-  return [self.events count];
+- (BOOL)hasESMScheduleList {
+  return [self.schedule.esmScheduleList count] > 0;
 }
+
 
 @end

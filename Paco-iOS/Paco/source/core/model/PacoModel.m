@@ -135,16 +135,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (NSArray *)joinedExperiments {
-  NSMutableArray *array = [NSMutableArray array];
-  for (PacoExperiment *experiment in self.experimentInstances) {
-    if ([experiment haveJoined]) {
-      [array addObject:experiment];
-    }
-  }
-  return array;
-}
-
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId {
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
     if ([definition.experimentId isEqualToString:experimentId]) {
