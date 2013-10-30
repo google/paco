@@ -15,8 +15,78 @@ package com.google.android.apps.paco.questioncondparser;
 
 
 comparison  returns [boolean value]
-   : question_part LT i=INTEGER { $value = environment.getValue($question_part.text) != null && ((Integer)environment.getValue($question_part.text)) < Integer.parseInt($i.text); }
-   | question_part GT i=INTEGER { $value = environment.getValue($question_part.text) != null && ((Integer)environment.getValue($question_part.text)) > Integer.parseInt($i.text); }
+   : question_part LTE i=INTEGER { 
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof Integer) {
+            $value =  ((Integer)obj) <= Integer.parseInt($i.text); 
+          } else if (obj instanceof List) {
+            Integer predValue = Integer.parseInt($i.text);
+            List list = ((List)obj);
+            if (list.size() != 1) {
+              $value = false;
+            } else {
+              $value = ((Integer)list.get(0)) <= predValue;
+            }
+          } 
+        }
+      }
+   | question_part LT i=INTEGER {         
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof Integer) {
+            $value =  ((Integer)obj) < Integer.parseInt($i.text); 
+          } else if (obj instanceof List) {
+            Integer predValue = Integer.parseInt($i.text);
+            List list = ((List)obj);
+            if (list.size() != 1) {
+              $value = false;
+            } else {
+              $value = ((Integer)list.get(0)) < predValue;
+            }
+          } 
+        }
+      }
+    | question_part GTE i=INTEGER { 
+        if (environment.getValue($question_part.text) == null) {
+          $value = false;
+        } else {
+          Object obj = environment.getValue($question_part.text);
+          if (obj instanceof Integer) {
+            $value =  ((Integer)obj) >= Integer.parseInt($i.text); 
+          } else if (obj instanceof List) {
+            Integer predValue = Integer.parseInt($i.text);
+            List list = ((List)obj);
+            if (list.size() != 1) {
+              $value = false;
+            } else {
+              $value = ((Integer)list.get(0)) >= predValue;
+            }
+          } 
+        }
+      }
+   | question_part GT i=INTEGER { 
+       if (environment.getValue($question_part.text) == null) {
+         $value = false;
+       } else {
+         Object obj = environment.getValue($question_part.text);
+         if (obj instanceof Integer) {
+           $value =  ((Integer)obj) > Integer.parseInt($i.text); 
+         } else if (obj instanceof List) {
+           Integer predValue = Integer.parseInt($i.text);
+           List list = ((List)obj);
+           if (list.size() != 1) {
+             $value = false;
+           } else {
+             $value = ((Integer)list.get(0)) > predValue;
+           }
+         } 
+       }
+     }
    | question_part EQ i=INTEGER { 
         if (environment.getValue($question_part.text) == null) {
           $value = false;
@@ -128,6 +198,8 @@ UNICODE_ESC
 
 EQ      :        '=' | '==';
 LT      :        '<';
+LTE      :        '<=';
 GT      :        '>';
+GTE      :        '>=';
 NE      :       '!=' ;
 
