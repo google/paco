@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.SoundPool;
 import android.net.Uri;
@@ -87,8 +88,6 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private int requestCode;
   private ImageView photoView;
   private static int code = 1200;
-
-
 
   public InputLayout(ExperimentExecutor context, Input input) {
     super(context);
@@ -851,7 +850,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private TextView getInputTextView() {
     TextView inputTextView = new TextView(getContext());
-    inputTextView.setText(input.getText());
+    String text = input.getText();
+    inputTextView.setText(text);
+    inputTextView.setTextSize(18);
+    if (!Strings.isNullOrEmpty(text)) {
+      inputTextView.setBackgroundColor(Color.argb(40, 200, 200, 250));
+    }
     return inputTextView;
   }
 

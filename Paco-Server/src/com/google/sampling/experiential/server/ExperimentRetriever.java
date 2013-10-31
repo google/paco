@@ -420,7 +420,7 @@ public class ExperimentRetriever {
 
   private List<Experiment> getExperimentsPublishedTo(String email, PersistenceManager pm) {
     ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
-    jdoQuery.addFilters("publishedUsers == idParam");
+    jdoQuery.addFilters("publishedUsers == idParam", "published == true");
     jdoQuery.declareParameters("String idParam");
     jdoQuery.addParameterObjects(email);
     @SuppressWarnings("unchecked")
