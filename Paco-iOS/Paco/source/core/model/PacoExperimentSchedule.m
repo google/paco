@@ -15,7 +15,7 @@
 
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
-
+#import "NSDate+Paco.h"
 
 @implementation PacoExperimentSchedule
 
@@ -249,6 +249,31 @@
   return json;
   
   return nil;
+}
+
+- (BOOL)isESMSchedule {
+  return self.scheduleType == kPacoScheduleTypeESM;
+}
+
+- (double)minutesPerDayOfESM {
+  if (![self isESMSchedule]) {
+    return 0;
+  }
+  double millisecondsPerDay = self.esmEndHour - self.esmStartHour;
+  double secondsPerDay = millisecondsPerDay / 1000.0;
+  double minutesPerDay = secondsPerDay / 60.0;
+  return minutesPerDay;
+}
+
+- (NSDate*)esmStartTimeOnDate:(NSDate*)date {
+  if (![self isESMSchedule] || date == nil) {
+    return nil;
+  }
+  NSDate* midnight = [date pacoCurrentDayAtMidnight];
+  double intervalFromMidnight = self.esmStartHour / 1000.0;
+  NSDate* startTime = [midnight dateByAddingTimeInterval:intervalFromMidnight];
+  NSAssert(startTime, @"startTime should be valid!");
+  return startTime;
 }
 
 @end

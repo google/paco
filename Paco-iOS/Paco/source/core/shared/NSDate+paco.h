@@ -35,4 +35,14 @@
 - (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate;
 
 - (BOOL)pacoCanScheduleTimes:(NSArray*)times;
+
+- (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
+
+- (BOOL)pacoIsWeekend;
+
+//return a midnight date
+- (NSDate*)pacoFirstFutureNonWeekendDate;
+
+- (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
+
 @end

@@ -157,4 +157,40 @@
 }
 
 
+- (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate {
+  NSDate* midnight = [self pacoCurrentDayAtMidnight];
+  NSDate* anotherMidnight = [anotherDate pacoCurrentDayAtMidnight];
+  return [midnight isEqualToDate:anotherMidnight];
+}
+
+static NSUInteger kSundayIndex = 1;
+static NSUInteger kFridayIndex = 6;
+static NSUInteger kSaturdayIndex = 7;
+- (BOOL)pacoIsWeekend {
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
+  NSUInteger weekdayIndex = [components weekday];
+  NSAssert(weekdayIndex >= kSundayIndex && weekdayIndex <= kSaturdayIndex,
+           @"weekday index should be between 1 and 7");
+  return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
+}
+
+- (NSDate*)pacoFirstFutureNonWeekendDate {
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
+  NSUInteger weekdayIndex = [components weekday];
+  NSUInteger intervalForFutureDay = 1; //next day
+  if (weekdayIndex == kFridayIndex) { //next monday
+    intervalForFutureDay = 3;
+  } else if (weekdayIndex == kSaturdayIndex){ //next monday
+    intervalForFutureDay = 2;
+  }
+  return [self pacoFutureDateAtMidnightWithInterval:intervalForFutureDay];
+}
+
+- (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes {
+  NSTimeInterval interval = offsetMinutes * 60;
+  return [self dateByAddingTimeInterval:interval];
+}
+
 @end

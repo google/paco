@@ -81,4 +81,8 @@ typedef enum {
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
 - (NSString *)jsonString;
 
+- (BOOL)isESMSchedule;
+- (double)minutesPerDayOfESM;
+- (NSDate*)esmStartTimeOnDate:(NSDate*)date;
+
 @end

@@ -15,6 +15,7 @@
 
 #import "NSMutableArray+Paco.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoDateUtility.h"
 
 @implementation NSMutableArray (Paco)
 
@@ -42,4 +43,26 @@
     return [firstFireDate compare:secondFireDate];
   }];
 }
+@end
+
+
+
+@implementation NSArray (Paco)
+
+- (BOOL)pacoIsNotEmpty {
+  return [self count] > 0;
+}
+
+- (NSString*)pacoDescriptionForDates {
+  NSString* descript = @"(\n";
+  for (id object in self) {
+    NSDate* date = (NSDate*)object;
+    NSAssert([date isKindOfClass:[NSDate class]], @"every element should be NSDate");
+    descript = [descript stringByAppendingString:[PacoDateUtility pacoStringForDate:date]];
+    descript = [descript stringByAppendingString:@"\n"];
+  }
+  descript = [descript stringByAppendingString:@")"];
+  return descript;
+}
+
 @end

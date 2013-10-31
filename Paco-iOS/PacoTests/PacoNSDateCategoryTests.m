@@ -332,7 +332,50 @@
                        @"should not be able to schedule any time since it passed the endDate");
 }
 
+- (void)testPacoOnSameDayWithDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
+- (void)testPacoIsWeekend {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:10];
+  [comp setDay:16];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Wed, Oct 16, 2013, 00:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  BOOL isWeekend = [date pacoIsWeekend];
+  STAssertFalse(isWeekend, @"should not be weekend");
+  
+  //Sat, Nov 2, 2013, 12:00:00
+  [comp setMonth:11];
+  [comp setDay:2];
+  date = [gregorian dateFromComponents:comp];
+  isWeekend = [date pacoIsWeekend];
+  STAssertTrue(isWeekend, @"should be weekend");
+
+  //Sun, Nov 10, 2013, 23:59:59
+  [comp setMonth:11];
+  [comp setDay:10];
+  date = [gregorian dateFromComponents:comp];
+  isWeekend = [date pacoIsWeekend];
+  STAssertTrue(isWeekend, @"should be weekend");
+}
+
+- (void)testPacoFirstFutureNonWeekendDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+
+- (void)testPacoDateByAddingMinutesInterval {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 
 @end

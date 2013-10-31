@@ -98,4 +98,51 @@
   STAssertEqualObjects(notifications, expect, @"notifications should be sorted by fire date");
 }
 
+- (void)testPacoIsNotEmpty {
+  NSArray* arr = @[];
+  STAssertFalse([arr pacoIsNotEmpty], @"should be empty");
+  arr = @[@"hello"];
+  STAssertTrue([arr pacoIsNotEmpty], @"should not be empty");
+  arr = nil;
+  STAssertFalse([arr pacoIsNotEmpty], @"nil should be empty");
+  
+  NSMutableArray* mutableArr = [NSMutableArray array];
+  STAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
+  [mutableArr addObject:@"hello"];
+  STAssertTrue([mutableArr pacoIsNotEmpty], @"should not be empty");
+  [mutableArr removeAllObjects];
+  STAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
+  mutableArr = nil;
+  STAssertFalse([mutableArr pacoIsNotEmpty], @"nil should be empty");
+}
+
+- (void)testPacoDescriptionForDates {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:10];
+  [comp setDay:16];
+  [comp setHour:8];
+  [comp setMinute:54];
+  [comp setSecond:34];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  NSDate* date1 = [gregorian dateFromComponents:comp];
+  [comp setMonth:10];
+  [comp setDay:25];
+  [comp setHour:22];
+  [comp setMinute:10];
+  [comp setSecond:00];
+  NSDate* date2 = [gregorian dateFromComponents:comp];
+  NSArray* arr = @[date1, date2];
+
+  NSString* descript = [arr pacoDescriptionForDates];
+  NSString* expect = @"(\n"
+                     @"2013/10/16 08:54:34-0700\n"
+                     @"2013/10/25 22:10:00-0700\n"
+                     @")";
+  STAssertEqualObjects(descript, expect, @"should be correct");
+}
+
 @end

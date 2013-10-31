@@ -22,5 +22,39 @@
   return temp + min; //[min, max]
 }
 
++ (NSArray*)randomIntegersInRange:(NSUInteger)rangeNumber
+                    numOfIntegers:(NSUInteger)numOfIntegers
+                        minBuffer:(NSUInteger)minBuffer {
+  if (0 == numOfIntegers || 0 == rangeNumber) {
+    return nil;
+  }
+  double duration = rangeNumber;
+  int NUM_OF_BUCKETS = numOfIntegers;
+  NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
+  double DURATION_PER_BUCKET = duration/((double)NUM_OF_BUCKETS);
+  
+  NSMutableArray* randomNumberList = [NSMutableArray array];
+  int lowerBound = 0;
+  for (int bucketIndex = 1; bucketIndex <= NUM_OF_BUCKETS; ++bucketIndex) {
+    int upperBound = DURATION_PER_BUCKET * bucketIndex;
+    //adjust upperBound according to minBuffer
+    int upperBoundByMinBuffer = duration - minBuffer * (NUM_OF_BUCKETS - bucketIndex);
+    if (upperBound > upperBoundByMinBuffer) {
+      upperBound = upperBoundByMinBuffer;
+    }
+    NSAssert(lowerBound <= upperBound, @"lowerBound and upperBound should be valid");
+    int randomNum = [PacoUtility randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
+    [randomNumberList addObject:[NSNumber numberWithInt:randomNum]];
+    
+    //prepare lowerBound and upperBound for generating next random number
+    lowerBound = upperBound;
+    int lowestBoundForNextRandomNumber = randomNum + minBuffer;
+    if (lowerBound < lowestBoundForNextRandomNumber) {
+      lowerBound = lowestBoundForNextRandomNumber;
+    }
+  }
+  NSAssert(numOfIntegers == [randomNumberList count], @"should generate numOfIntegers");
+  return randomNumberList;
+}
 
 @end

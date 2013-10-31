@@ -13,25 +13,26 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <SenTestingKit/SenTestingKit.h>
 
-@interface NSMutableArray (Paco)
-
-//The receiver must contain NSDate objects
-- (void)pacoSortDatesToSchedule;
-
-//The receiver must contain UILocalNotification objects composed by UILocalNotification+Paco
-- (void)pacoSortLocalNotificationsByFireDate;
+@interface PacoExperimentTests : SenTestCase
 
 @end
 
+@implementation PacoExperimentTests
 
-@interface NSArray (Paco)
+- (void)setUp {
+  [super setUp];
+  // Put setup code here; it will be run once, before the first test case.
+}
 
-- (BOOL)pacoIsNotEmpty;
+- (void)tearDown {
+  // Put teardown code here; it will be run once, after the last test case.
+  [super tearDown];
+}
 
-//The receiver must contain only NSDate objects
-- (NSString*)pacoDescriptionForDates;
+- (void)testESMSchedulesFromDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 @end
-

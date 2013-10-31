@@ -31,6 +31,7 @@
 		363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211517AF88BB007DE3CE /* PacoEventUploader.m */; };
 		363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
 		363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */; };
+		3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */; };
 		36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */; };
 		36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */; };
 		36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE7180DCA9600335B74 /* NSDate+Paco.m */; };
@@ -46,6 +47,8 @@
 		365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */; };
 		365D20FA1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
 		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
+		3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */; };
+		366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 366292851821C2EF00FC647A /* PacoUtilityTests.m */; };
 		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DE1803AEE9006611E6 /* PacoNotificationCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */; };
@@ -300,6 +303,7 @@
 		363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExpressionExecutor.m; sourceTree = "<group>"; };
 		363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoInputEvaluator.h; sourceTree = "<group>"; };
 		363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInputEvaluator.m; sourceTree = "<group>"; };
+		3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentTests.m; sourceTree = "<group>"; };
 		36417BE4180DCA9600335B74 /* NSCalendar+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendar+Paco.h"; sourceTree = "<group>"; };
 		36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCalendar+Paco.m"; sourceTree = "<group>"; };
 		36417BE6180DCA9600335B74 /* NSDate+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Paco.h"; sourceTree = "<group>"; };
@@ -315,6 +319,8 @@
 		365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+ESM.m"; sourceTree = "<group>"; };
 		365D20F81820695E0097F379 /* PacoUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoUtility.h; sourceTree = "<group>"; };
 		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
+		3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentScheduleTests.m; sourceTree = "<group>"; };
+		366292851821C2EF00FC647A /* PacoUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtilityTests.m; sourceTree = "<group>"; };
 		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
 		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
 		367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationCategoryTests.m; sourceTree = "<group>"; };
@@ -1168,6 +1174,9 @@
 				3647926718171D7600409E87 /* PacoSchedulerTests.m */,
 				365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */,
 				365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */,
+				3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */,
+				366292851821C2EF00FC647A /* PacoUtilityTests.m */,
+				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
 				36B8EC3817568E40004CF035 /* resources */,
 			);
 			path = PacoTests;
@@ -1543,10 +1552,12 @@
 				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
+				3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */,
 				36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */,
 				36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */,
 				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
+				366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */,
 				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
 				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
@@ -1558,6 +1569,7 @@
 				36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */,
 				3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */,
 				367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
+				3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */,
 				3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */,
 				36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */,
 				363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,

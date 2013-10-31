@@ -17,6 +17,13 @@
 
 @interface PacoUtility : NSObject
 
+//YMZ:TODO: should consider if we need to change max to be exclusive
 + (NSUInteger)randomUnsignedIntegerBetweenMin:(NSUInteger)min andMax:(NSUInteger)max;
+
+//YMZ:TODO: should check if we should allow duplicate numbers
++ (NSArray*)randomIntegersInRange:(NSUInteger)rangeNumber
+                    numOfIntegers:(NSUInteger)numOfIntegers
+                        minBuffer:(NSUInteger)minBuffer;
+
 
 @end
