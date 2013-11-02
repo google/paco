@@ -482,15 +482,14 @@ public class ExperimentProviderUtil {
           experiment.setTrigger(trigger);
           experiment.setSignalingMechanisms(signalingMechanisms);
         }
+        experiment.setCustomRendering(experimentFromJson.isCustomRendering());
+        experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
 
       } catch (JsonParseException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       } catch (JsonMappingException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
