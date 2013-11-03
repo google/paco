@@ -15,6 +15,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "PacoExperimentSchedule.h"
 
 @interface NSDate (Paco)
 
@@ -44,5 +45,8 @@
 - (NSDate*)pacoFirstFutureNonWeekendDate;
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
+
+- (NSDate*)pacoNextCycleStartDateForESMType:(PacoScheduleRepeatPeriod)esmType
+                            includeWeekends:(BOOL)includeWeekends;
 
 @end

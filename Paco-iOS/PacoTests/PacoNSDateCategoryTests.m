@@ -24,6 +24,13 @@
                                    seconds:(NSInteger)seconds;
 - (NSDate*)pacoTimeFromMidnightWithMilliSeconds:(NSNumber*)milliSecondsNumber;
 - (NSDate*)pacoFirstAvailableTimeWithTimes:(NSArray*)times;
+
+- (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends;
+- (NSDate*)pacoWeeklyESMNextCycleStartDate:(BOOL)includeWeekends;
+- (NSDate*)pacoMonthlyESMNextCycleStartDate:(BOOL)includeWeekends;
+
+
+
 @end
 
 
@@ -375,6 +382,22 @@
 
 - (void)testPacoDateByAddingMinutesInterval {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testDailyESMNextCycleStartDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testWeeklyESMNextCycleStartDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testMonthlyESMNextCycleStartDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
+- (void)testPacoDateByAddingMonthInterval {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
 }
 
 

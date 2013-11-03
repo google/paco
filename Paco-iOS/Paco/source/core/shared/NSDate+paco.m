@@ -188,9 +188,62 @@ static NSUInteger kSaturdayIndex = 7;
   return [self pacoFutureDateAtMidnightWithInterval:intervalForFutureDay];
 }
 
+- (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval {
+  NSCalendar* calendar = [NSCalendar currentCalendar];
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  comp.month = monthInterval;
+  return [calendar dateByAddingComponents:comp toDate:self options:0];
+}
+
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes {
   NSTimeInterval interval = offsetMinutes * 60;
   return [self dateByAddingTimeInterval:interval];
+}
+
+
+- (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends {
+  NSDate* nextCycleStartDate = [self pacoNextDayAtMidnight];
+  if (!includeWeekends && [nextCycleStartDate pacoIsWeekend]) {
+    nextCycleStartDate = [self pacoFirstFutureNonWeekendDate];
+  }
+  return nextCycleStartDate;
+}
+
+
+- (NSDate*)pacoWeeklyESMNextCycleStartDate:(BOOL)includeWeekends {
+  NSDate* sameDayNextWeek = [self pacoFutureDateAtMidnightWithInterval:7];
+  if (!includeWeekends && [sameDayNextWeek pacoIsWeekend]) {
+    sameDayNextWeek = [sameDayNextWeek pacoFirstFutureNonWeekendDate];
+  }
+  return sameDayNextWeek;
+}
+
+
+- (NSDate*)pacoMonthlyESMNextCycleStartDate:(BOOL)includeWeekends {
+  NSDate* sameDayNextMonth = [self pacoDateByAddingMonthInterval:1];
+  sameDayNextMonth = [sameDayNextMonth pacoCurrentDayAtMidnight];
+  if (!includeWeekends && [sameDayNextMonth pacoIsWeekend]) {
+    sameDayNextMonth = [sameDayNextMonth pacoFirstFutureNonWeekendDate];
+  }
+  return sameDayNextMonth;
+}
+
+- (NSDate*)pacoNextCycleStartDateForESMType:(PacoScheduleRepeatPeriod)esmType
+                            includeWeekends:(BOOL)includeWeekends {
+  switch (esmType) {
+    case kPacoScheduleRepeatPeriodDay:
+      return [self pacoDailyESMNextCycleStartDate:includeWeekends];
+
+    case kPacoScheduleRepeatPeriodWeek:
+      return [self pacoWeeklyESMNextCycleStartDate:includeWeekends];
+      
+    case kPacoScheduleRepeatPeriodMonth:
+      return [self pacoMonthlyESMNextCycleStartDate:includeWeekends];
+      
+    default:
+      NSAssert(NO, @"esmType should be valid");
+      return nil;
+  }
 }
 
 @end
