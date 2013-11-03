@@ -41,12 +41,18 @@
 
 - (BOOL)pacoIsWeekend;
 
-//return a midnight date
-- (NSDate*)pacoNearestFutureNonWeekendDate;
+- (NSDate*)pacoNearestNonWeekendDateAtMidnight;
+
+- (NSDate*)pacoDateInFutureBySkippingWeekends;
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
 
 - (NSDate*)pacoNextCycleStartDateForESMType:(PacoScheduleRepeatPeriod)esmType
                             includeWeekends:(BOOL)includeWeekends;
+
+- (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays;
+
+- (NSUInteger)pacoNumOfDaysInCurrentMonth;
+- (NSUInteger)pacoNumOfWeekdaysInCurrentMonth;
 
 @end

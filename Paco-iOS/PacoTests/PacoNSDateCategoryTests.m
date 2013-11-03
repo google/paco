@@ -375,7 +375,7 @@
   STAssertTrue(isWeekend, @"should be weekend");
 }
 
-- (void)testPacoNearestFutureNonWeekendDate {
+- (void)testPacoNearestNonWeekendDateAtMidnight {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
@@ -398,6 +398,65 @@
 
 - (void)testPacoDateByAddingMonthInterval {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
+}
+
+- (void)testPacoDateByAddingDayInterval {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
+}
+
+- (void)testNumOfDaysInJan2013 {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:1];
+  [comp setDay:16];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Wed, Jan 16, 2013, 00:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  int numOfDays = [date pacoNumOfDaysInCurrentMonth];
+  int numOfWeekDays = [date pacoNumOfWeekdaysInCurrentMonth];
+  STAssertEquals(numOfDays, 31, @"should have 31 days in Jan 2013");
+  STAssertEquals(numOfWeekDays, 23, @"should have 28 week days in Jan 2013");
+  
+  [comp setDay:31];
+  [comp setHour:10];
+  [comp setMinute:23];
+  [comp setSecond:54];
+  //Thurs, Jan 31, 2013, 10:23:54
+  date = [gregorian dateFromComponents:comp];
+  numOfDays = [date pacoNumOfDaysInCurrentMonth];
+  numOfWeekDays = [date pacoNumOfWeekdaysInCurrentMonth];
+  STAssertEquals(numOfDays, 28, @"should have 28 days in Feb 2013");
+  STAssertEquals(numOfWeekDays, 20, @"should have 20 week days in Feb 2013");
+}
+
+- (void)testNumOfDaysInFeb2013 {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:2];
+  [comp setDay:28];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Thurs, Feb 28, 2013, 00:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  int numOfDays = [date pacoNumOfDaysInCurrentMonth];
+  int numOfWeekDays = [date pacoNumOfWeekdaysInCurrentMonth];
+  STAssertEquals(numOfDays, 28, @"should have 28 days in Feb 2013");
+  STAssertEquals(numOfWeekDays, 20, @"should have 20 week days in Feb 2013");
+}
+
+- (void)testPacoDateInFutureBySkippingWeekends {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 

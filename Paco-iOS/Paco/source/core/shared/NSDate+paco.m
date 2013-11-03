@@ -15,6 +15,7 @@
 
 
 #import "NSDate+Paco.h"
+#import "NSCalendar+Paco.h"
 
 @implementation NSDate (Paco)
 
@@ -165,7 +166,7 @@ static NSUInteger kSaturdayIndex = 7;
   return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
 }
 
-- (NSDate*)pacoNearestFutureNonWeekendDate {
+- (NSDate*)pacoNearestNonWeekendDateAtMidnight {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];
@@ -178,6 +179,19 @@ static NSUInteger kSaturdayIndex = 7;
   return [self pacoDateAtMidnightByAddingDayInterval:intervalForFutureDay];
 }
 
+- (NSDate*)pacoDateInFutureBySkippingWeekends {
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
+  NSUInteger weekdayIndex = [components weekday];
+  NSUInteger intervalForFutureDay = 1; //next day
+  if (weekdayIndex == kFridayIndex) { //next monday
+    intervalForFutureDay = 3;
+  } else if (weekdayIndex == kSaturdayIndex){ //next monday
+    intervalForFutureDay = 2;
+  }
+  return [self pacoDateByAddingDayInterval:intervalForFutureDay];
+}
+
 //intervalDays should be larger than or equal to 0
 - (NSDate*)pacoDateAtMidnightByAddingDayInterval:(NSInteger)intervalDays {
   NSAssert(intervalDays >= 0, @"intervalDays should be larger than or equal to 0");
@@ -187,6 +201,13 @@ static NSUInteger kSaturdayIndex = 7;
   NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
   dayComponents.day = intervalDays;
   return [calendar dateByAddingComponents:dayComponents toDate:midnightDate options:0];
+}
+
+- (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays {
+  NSCalendar* calendar = [NSCalendar currentCalendar];
+  NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
+  dayComponents.day = intervalDays;
+  return [calendar dateByAddingComponents:dayComponents toDate:self options:0];
 }
 
 - (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval {
@@ -205,7 +226,7 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends {
   NSDate* nextCycleStartDate = [self pacoNextDayAtMidnight];
   if (!includeWeekends && [nextCycleStartDate pacoIsWeekend]) {
-    nextCycleStartDate = [self pacoNearestFutureNonWeekendDate];
+    nextCycleStartDate = [self pacoNearestNonWeekendDateAtMidnight];
   }
   return nextCycleStartDate;
 }
@@ -214,7 +235,7 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoWeeklyESMNextCycleStartDate:(BOOL)includeWeekends {
   NSDate* sameDayNextWeek = [self pacoDateAtMidnightByAddingDayInterval:7];
   if (!includeWeekends && [sameDayNextWeek pacoIsWeekend]) {
-    sameDayNextWeek = [sameDayNextWeek pacoNearestFutureNonWeekendDate];
+    sameDayNextWeek = [sameDayNextWeek pacoNearestNonWeekendDateAtMidnight];
   }
   return sameDayNextWeek;
 }
@@ -224,7 +245,7 @@ static NSUInteger kSaturdayIndex = 7;
   NSDate* sameDayNextMonth = [self pacoDateByAddingMonthInterval:1];
   sameDayNextMonth = [sameDayNextMonth pacoCurrentDayAtMidnight];
   if (!includeWeekends && [sameDayNextMonth pacoIsWeekend]) {
-    sameDayNextMonth = [sameDayNextMonth pacoNearestFutureNonWeekendDate];
+    sameDayNextMonth = [sameDayNextMonth pacoNearestNonWeekendDateAtMidnight];
   }
   return sameDayNextMonth;
 }
@@ -246,5 +267,30 @@ static NSUInteger kSaturdayIndex = 7;
       return nil;
   }
 }
+
+- (NSUInteger)pacoNumOfDaysInCurrentMonth {
+  NSDate* sameDayNextMonth = [self pacoDateByAddingMonthInterval:1];
+  int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:self toDate:sameDayNextMonth];
+  NSAssert(numOfDays >= 28 && numOfDays <= 31, @"numOfDays should be valid");
+  return numOfDays;
+}
+
+- (NSUInteger)pacoNumOfWeekdaysInCurrentMonth {
+  NSDate* startDate = [self pacoCurrentDayAtMidnight];
+  NSDate* sameDayNextMonth = [startDate pacoDateByAddingMonthInterval:1];
+  int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:startDate
+                                                                toDate:sameDayNextMonth];
+  NSAssert(numOfDays >= 28 && numOfDays <= 31, @"numOfDays should be valid");
+  NSDate* date = nil;
+  NSUInteger count = 0;
+  for(int dayIndex = 0; dayIndex < numOfDays; dayIndex++) {
+    date = [startDate pacoDateByAddingDayInterval:dayIndex];
+    if (![date pacoIsWeekend]) {
+      count++;
+    }
+  }
+  return count;
+}
+
 
 @end
