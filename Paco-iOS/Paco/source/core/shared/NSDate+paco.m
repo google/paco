@@ -175,7 +175,7 @@ static NSUInteger kSaturdayIndex = 7;
   return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
 }
 
-- (NSDate*)pacoFirstFutureNonWeekendDate {
+- (NSDate*)pacoNearestFutureNonWeekendDate {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];
@@ -204,7 +204,7 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends {
   NSDate* nextCycleStartDate = [self pacoNextDayAtMidnight];
   if (!includeWeekends && [nextCycleStartDate pacoIsWeekend]) {
-    nextCycleStartDate = [self pacoFirstFutureNonWeekendDate];
+    nextCycleStartDate = [self pacoNearestFutureNonWeekendDate];
   }
   return nextCycleStartDate;
 }
@@ -213,7 +213,7 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoWeeklyESMNextCycleStartDate:(BOOL)includeWeekends {
   NSDate* sameDayNextWeek = [self pacoFutureDateAtMidnightWithInterval:7];
   if (!includeWeekends && [sameDayNextWeek pacoIsWeekend]) {
-    sameDayNextWeek = [sameDayNextWeek pacoFirstFutureNonWeekendDate];
+    sameDayNextWeek = [sameDayNextWeek pacoNearestFutureNonWeekendDate];
   }
   return sameDayNextWeek;
 }
@@ -223,7 +223,7 @@ static NSUInteger kSaturdayIndex = 7;
   NSDate* sameDayNextMonth = [self pacoDateByAddingMonthInterval:1];
   sameDayNextMonth = [sameDayNextMonth pacoCurrentDayAtMidnight];
   if (!includeWeekends && [sameDayNextMonth pacoIsWeekend]) {
-    sameDayNextMonth = [sameDayNextMonth pacoFirstFutureNonWeekendDate];
+    sameDayNextMonth = [sameDayNextMonth pacoNearestFutureNonWeekendDate];
   }
   return sameDayNextMonth;
 }

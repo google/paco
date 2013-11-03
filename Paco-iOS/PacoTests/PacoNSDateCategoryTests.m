@@ -375,7 +375,7 @@
   STAssertTrue(isWeekend, @"should be weekend");
 }
 
-- (void)testPacoFirstFutureNonWeekendDate {
+- (void)testPacoNearestFutureNonWeekendDate {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 

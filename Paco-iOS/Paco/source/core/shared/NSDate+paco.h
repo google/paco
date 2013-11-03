@@ -42,7 +42,7 @@
 - (BOOL)pacoIsWeekend;
 
 //return a midnight date
-- (NSDate*)pacoFirstFutureNonWeekendDate;
+- (NSDate*)pacoNearestFutureNonWeekendDate;
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
 
