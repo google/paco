@@ -30,7 +30,7 @@
 - (NSDate*)pacoNextDayAtMidnight;
 
 //intervalDays should be larger than or equal to 0
-- (NSDate*)pacoFutureDateAtMidnightWithInterval:(NSInteger)intervalDays;
+- (NSDate*)pacoDateAtMidnightByAddingDayInterval:(NSInteger)intervalDays;
 
 //The array of times should be already sorted!
 - (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate;

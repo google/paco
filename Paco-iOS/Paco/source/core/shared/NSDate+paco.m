@@ -55,19 +55,9 @@
   return [calendar dateFromComponents:components];
 }
 
-//intervalDays should be larger than or equal to 0
-- (NSDate*)pacoFutureDateAtMidnightWithInterval:(NSInteger)intervalDays {
-  NSAssert(intervalDays >= 0, @"intervalDays should be larger than or equal to 0");
-  
-  NSDate* midnightDate = [self pacoCurrentDayAtMidnight];
-  NSCalendar* calendar = [NSCalendar currentCalendar];
-  NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
-  dayComponents.day = intervalDays;
-  return [calendar dateByAddingComponents:dayComponents toDate:midnightDate options:0];
-}
 
 - (NSDate*)pacoNextDayAtMidnight {
-  return [self pacoFutureDateAtMidnightWithInterval:1];
+  return [self pacoDateAtMidnightByAddingDayInterval:1];
 }
 
 //The receiver must be a midnight date!
@@ -185,7 +175,18 @@ static NSUInteger kSaturdayIndex = 7;
   } else if (weekdayIndex == kSaturdayIndex){ //next monday
     intervalForFutureDay = 2;
   }
-  return [self pacoFutureDateAtMidnightWithInterval:intervalForFutureDay];
+  return [self pacoDateAtMidnightByAddingDayInterval:intervalForFutureDay];
+}
+
+//intervalDays should be larger than or equal to 0
+- (NSDate*)pacoDateAtMidnightByAddingDayInterval:(NSInteger)intervalDays {
+  NSAssert(intervalDays >= 0, @"intervalDays should be larger than or equal to 0");
+  
+  NSDate* midnightDate = [self pacoCurrentDayAtMidnight];
+  NSCalendar* calendar = [NSCalendar currentCalendar];
+  NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
+  dayComponents.day = intervalDays;
+  return [calendar dateByAddingComponents:dayComponents toDate:midnightDate options:0];
 }
 
 - (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval {
@@ -211,7 +212,7 @@ static NSUInteger kSaturdayIndex = 7;
 
 
 - (NSDate*)pacoWeeklyESMNextCycleStartDate:(BOOL)includeWeekends {
-  NSDate* sameDayNextWeek = [self pacoFutureDateAtMidnightWithInterval:7];
+  NSDate* sameDayNextWeek = [self pacoDateAtMidnightByAddingDayInterval:7];
   if (!includeWeekends && [sameDayNextWeek pacoIsWeekend]) {
     sameDayNextWeek = [sameDayNextWeek pacoNearestFutureNonWeekendDate];
   }

@@ -86,7 +86,7 @@
     [dates addObjectsFromArray:[datesOnStartDate objectsAtIndexes:indexSet]];
     
     numOfDatesNeeded -= numOfDatesToAdd;
-    startDate = [startDate pacoFutureDateAtMidnightWithInterval:schedule.repeatRate];
+    startDate = [startDate pacoDateAtMidnightByAddingDayInterval:schedule.repeatRate];
   }
   return dates;
 }
@@ -147,14 +147,14 @@
   NSDate* newStartDate = nil;
   if (numOfDaysFromStartDate < daysToNewStartDate) { //newStartDate is later than fromDate
     NSAssert(daysToNewStartDate > 0, @"daysToNewStartDate should be larger than 0");
-    newStartDate = [experimentStartDate pacoFutureDateAtMidnightWithInterval:daysToNewStartDate];
+    newStartDate = [experimentStartDate pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
   } else { //fromDate and newStartDate are on the same day
     if ([fromDate pacoCanScheduleTimes:times]) {
       newStartDate = fromDate;
     } else {
       repeatTimes++;
       daysToNewStartDate = repeatTimes * repeatRate;
-      newStartDate = [experimentStartDate pacoFutureDateAtMidnightWithInterval:daysToNewStartDate];
+      newStartDate = [experimentStartDate pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
     }
   }
   NSAssert(newStartDate, @"newStartDate should be valid!");

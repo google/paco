@@ -135,7 +135,7 @@
 - (void)testFutureDateAtMidnight {
   NSDate* testDate = [PacoDateUtility pacoDateForString:@"2013/07/25 13:03:59-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
-  NSDate* futureDate = [testDate pacoFutureDateAtMidnightWithInterval:3];
+  NSDate* futureDate = [testDate pacoDateAtMidnightByAddingDayInterval:3];
 
   NSString* futureStr = @"2013/07/28 00:00:00-0700";
   NSDate* expect = [PacoDateUtility pacoDateForString:futureStr];
@@ -147,7 +147,7 @@
 - (void)testFutureDateAtMidnight2 {
   NSDate* testDate = [PacoDateUtility pacoDateForString:@"2013/07/25 13:03:59-0700"];
   STAssertNotNil(testDate, @"testDate should be valid");
-  NSDate* futureDate = [testDate pacoFutureDateAtMidnightWithInterval:8];
+  NSDate* futureDate = [testDate pacoDateAtMidnightByAddingDayInterval:8];
   
   NSString* futureStr = @"2013/08/02 00:00:00-0700";
   NSDate* expect = [PacoDateUtility pacoDateForString:futureStr];
