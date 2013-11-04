@@ -204,6 +204,10 @@ static NSUInteger kSaturdayIndex = 7;
 }
 
 - (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays {
+  if (intervalDays == 0) {
+    return self;
+  }
+  
   NSCalendar* calendar = [NSCalendar currentCalendar];
   NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
   dayComponents.day = intervalDays;
