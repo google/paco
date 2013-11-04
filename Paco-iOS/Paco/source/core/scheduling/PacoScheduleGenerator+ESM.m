@@ -20,15 +20,191 @@
 #import "NSDate+Paco.h"
 #import "NSCalendar+Paco.h"
 #import "PacoUtility.h"
+#import "NSMutableArray+Paco.h"
 
 
 @implementation PacoScheduleGenerator (ESM)
 
 + (NSArray*)nextDatesForESMExperiment:(PacoExperiment*)experiment
-                           numOfDates:(NSInteger)numOfDates
+                           numOfDates:(NSUInteger)numOfDates
                              fromDate:(NSDate*)fromDate {
-  //todo
+  NSAssert(numOfDates > 0, @"numOfDates should be valid!");
+  NSAssert(([experiment startDate] && [experiment endDate]) ||
+           (![experiment startDate] && ![experiment endDate]),
+           @"start and end date should be consistent");
+  NSAssert(experiment.schedule.scheduleType == kPacoScheduleTypeESM, @"should be an ESM experiment");
+  
+  //experiment already finished
+  if (![experiment isExperimentValidSinceDate:fromDate]) {
+    return nil;
+  }
+  NSArray* result = [self datesToScheduleForESMExperiment:experiment
+                                              numOfDates:numOfDates
+                                                fromDate:fromDate];
+  return [result pacoIsNotEmpty] ? result : nil;
 }
+
+
++ (NSArray*)datesToScheduleForESMExperiment:(PacoExperiment*)experiment
+                                numOfDates:(NSInteger)numOfDates
+                                  fromDate:(NSDate*)fromDate {
+  NSArray* datesToSchedule = [experiment ESMSchedulesFromDate:fromDate];
+  int datesCount = [datesToSchedule count];
+  if (datesCount < numOfDates) {
+    int extraNumOfDates = numOfDates - datesCount;
+    NSArray* extraDates = [self generateESMDatesForExperiment:experiment
+                                            minimumNumOfDates:extraNumOfDates
+                                                     fromDate:fromDate];
+    if ([extraDates pacoIsNotEmpty]) {
+      NSMutableArray* result = [NSMutableArray arrayWithArray:datesToSchedule];
+      [result addObjectsFromArray:extraDates];
+      datesToSchedule = result;
+    }
+  }
+  experiment.schedule.esmScheduleList = datesToSchedule;
+  NSLog(@"%@", [datesToSchedule pacoDescriptionForDates]);
+  if ([datesToSchedule count] <= numOfDates) {
+    return datesToSchedule;
+  } else {
+    return [datesToSchedule subarrayWithRange:NSMakeRange(0, numOfDates)];
+  }
+}
+
+
++ (NSDate*)esmCycleStartDateForSchedule:(PacoExperimentSchedule*)schedule
+                    experimentStartDate:(NSDate*)experimentStartDate
+                      experimentEndDate:(NSDate*)experimentEndDate
+                               fromDate:(NSDate*)fromDate {
+  NSDate* realStartDate = [fromDate pacoCurrentDayAtMidnight];
+  if (experimentEndDate && [realStartDate pacoNoEarlierThanDate:experimentEndDate]) {
+    return nil;
+  }
+  //if user joins a fixed-length experiment ealier than the its start date,
+  //then we need to adjust the real start date to the experiment start date
+  if (experimentStartDate && [realStartDate pacoEarlierThanDate:experimentStartDate]) {
+    realStartDate = experimentStartDate;
+  }
+  //adjust the startDate if weekend is not included
+  if (!schedule.esmWeekends && [realStartDate pacoIsWeekend]) {
+    realStartDate = [realStartDate pacoNearestNonWeekendDateAtMidnight];
+  }
+  if (experimentEndDate && [realStartDate pacoNoEarlierThanDate:experimentEndDate]) {
+    return nil;
+  } else {
+    return realStartDate;
+  }
+}
+
++ (NSDate*)nextCycleStartDateForSchedule:(PacoExperimentSchedule*)schedule
+                     experimentStartDate:(NSDate*)experimentStartDate
+                       experimentEndDate:(NSDate*)experimentEndDate
+                          cycleStartDate:(NSDate*)currentStartDate {
+  NSDate* nextCycleStartDate = [currentStartDate pacoNextCycleStartDateForESMType:schedule.esmPeriod
+                                                                  includeWeekends:schedule.esmWeekends];
+  if (experimentEndDate && [nextCycleStartDate pacoNoEarlierThanDate:experimentEndDate]) {
+    return nil;
+  }
+  NSAssert(experimentStartDate == nil ||
+           (experimentStartDate && [nextCycleStartDate pacoLaterThanDate:experimentStartDate]),
+           @"nextCycleStartDate should always be later than experiment start date");
+  return nextCycleStartDate;
+}
+
++ (NSArray*)generateESMDatesForExperiment:(PacoExperiment*)experiment
+                        minimumNumOfDates:(NSUInteger)minimumNumOfDates
+                                 fromDate:(NSDate*)fromDate {
+  if ([experiment endDate] && [fromDate pacoNoEarlierThanDate:[experiment endDate]]) {
+    NSAssert(NO, @"should never happen");
+  }
+
+  NSMutableArray* result = [NSMutableArray arrayWithCapacity:minimumNumOfDates];
+  NSDate* cycleStartDate = [self esmCycleStartDateForSchedule:experiment.schedule
+                                          experimentStartDate:[experiment startDate]
+                                            experimentEndDate:[experiment endDate]
+                                                     fromDate:fromDate];
+  NSArray* esmDatesInCycle = nil;
+  BOOL finished = NO;
+  while (!finished) {
+    if (cycleStartDate == nil) {
+      finished = YES;
+    } else {
+      esmDatesInCycle = [self createESMScheduleDates:experiment.schedule
+                                      cycleStartDate:cycleStartDate
+                                            fromDate:fromDate
+                                   experimentEndDate:[experiment endDate]];
+      [result addObjectsFromArray:esmDatesInCycle];
+      if ([result count] >= minimumNumOfDates) {
+        finished = YES;
+      } else {
+        cycleStartDate = [self nextCycleStartDateForSchedule:experiment.schedule
+                                         experimentStartDate:[experiment startDate]
+                                           experimentEndDate:[experiment endDate]
+                                              cycleStartDate:cycleStartDate];
+      }
+    }
+  }
+  return result;
+}
+
++ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
+                     cycleStartDate:(NSDate*)cycleStartDate
+                           fromDate:(NSDate*)fromDate
+                  experimentEndDate:(NSDate*)experimentEndDate {
+  if (cycleStartDate == nil) {
+    return nil;
+  }
+  int numOfExperimentDaysInCycle = 0;
+  switch (experimentSchedule.esmPeriod) {
+    case kPacoScheduleRepeatPeriodDay:
+      numOfExperimentDaysInCycle = 1;
+      break;
+    case kPacoScheduleRepeatPeriodWeek:
+      numOfExperimentDaysInCycle = experimentSchedule.esmWeekends ? 7.0 : 5.0;
+      break;
+    case kPacoScheduleRepeatPeriodMonth:
+      if (experimentSchedule.esmWeekends) {
+        numOfExperimentDaysInCycle = [fromDate pacoNumOfDaysInCurrentMonth];
+      } else {
+        numOfExperimentDaysInCycle = [fromDate pacoNumOfWeekdaysInCurrentMonth];
+      }
+      break;
+    default:
+      NSAssert(NO, @"should never happen");
+      return nil;
+  }
+  int esmMinutesPerDay = [experimentSchedule minutesPerDayOfESM];
+  int durationMinutes = esmMinutesPerDay * numOfExperimentDaysInCycle;
+  NSArray* randomMinutes = [PacoUtility randomIntegersInRange:durationMinutes
+                                                numOfIntegers:experimentSchedule.esmFrequency
+                                                    minBuffer:experimentSchedule.minimumBuffer];
+  
+  NSDate* esmStartTime = [experimentSchedule esmStartTimeOnDate:cycleStartDate];
+  NSMutableArray* randomDateList = [NSMutableArray arrayWithCapacity:experimentSchedule.esmFrequency];
+  for (NSNumber* minutesNumObj in randomMinutes) {
+    NSUInteger offsetMinutes = [minutesNumObj unsignedIntegerValue];
+    NSUInteger days = offsetMinutes / esmMinutesPerDay;
+    if (offsetMinutes % esmMinutesPerDay != 0) {
+      days++;
+    }
+    NSUInteger dayOffset = days - 1;
+    NSDate* realStartTime = [esmStartTime pacoDateByAddingDayInterval:dayOffset];
+    if (!experimentSchedule.esmWeekends && [realStartTime pacoIsWeekend]) {
+      realStartTime = [realStartTime pacoDateInFutureBySkippingWeekends];
+    }
+    
+    NSUInteger realOffsetMinutes = offsetMinutes - dayOffset * esmMinutesPerDay;
+    NSDate* randomDate = [realStartTime pacoDateByAddingMinutesInterval:realOffsetMinutes];
+    if (experimentEndDate && [experimentEndDate pacoNoLaterThanDate:randomDate]) {
+      break;
+    }
+    if ([randomDate pacoLaterThanDate:fromDate]) {
+      [randomDateList addObject:randomDate];
+    }
+  }
+  return randomDateList;
+}
+
+
 
 
 //YMZ:TODO: why 500? when will a nil result be returned?
