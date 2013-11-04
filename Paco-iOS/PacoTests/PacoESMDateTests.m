@@ -56,6 +56,8 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
 
 @implementation PacoESMDateTests
 - (void)setUp {
+  [super setUp];
+  
   NSError* error = nil;
   NSData* data = [esmScheduleTemplate dataUsingEncoding:NSUTF8StringEncoding];
   id scheduleDict = [NSJSONSerialization JSONObjectWithData:data
@@ -89,6 +91,8 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   self.esmExperiment = nil;
   self.fromDate = nil;
   self.esmStartDate = nil;
+  
+  [super tearDown];
 }
 
 //generic test
