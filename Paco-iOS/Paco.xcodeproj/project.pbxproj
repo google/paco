@@ -68,6 +68,8 @@
 		36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */; };
 		36B5A4DF18272028004DB894 /* PacoScheduleGeneratorESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4DE18272028004DB894 /* PacoScheduleGeneratorESMTests.m */; };
 		36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */; };
+		36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */; };
+		36B5A4FD18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */; };
 		36B8EB6717568DAF004CF035 /* PacoAuthenticator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0417568DAF004CF035 /* PacoAuthenticator.m */; };
 		36B8EB6817568DAF004CF035 /* PacoClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0717568DAF004CF035 /* PacoClient.m */; };
 		36B8EB6917568DAF004CF035 /* PacoLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0A17568DAF004CF035 /* PacoLocation.m */; };
@@ -352,6 +354,8 @@
 		36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvaluatorTests.m; sourceTree = "<group>"; };
 		36B5A4DE18272028004DB894 /* PacoScheduleGeneratorESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorESMTests.m; sourceTree = "<group>"; };
 		36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorDailyESMTests.m; sourceTree = "<group>"; };
+		36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorWeeklyESMTests.m; sourceTree = "<group>"; };
+		36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorMonthlyESMTests.m; sourceTree = "<group>"; };
 		36B8EB0317568DAF004CF035 /* PacoAuthenticator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAuthenticator.h; sourceTree = "<group>"; };
 		36B8EB0417568DAF004CF035 /* PacoAuthenticator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAuthenticator.m; sourceTree = "<group>"; };
 		36B8EB0617568DAF004CF035 /* PacoClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoClient.h; sourceTree = "<group>"; };
@@ -1161,6 +1165,8 @@
 			isa = PBXGroup;
 			children = (
 				36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */,
+				36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */,
+				36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */,
 				36F02D31180DE16B0027395F /* PacoNSCalendarCategoryTests.m */,
 				36F02D32180DE16B0027395F /* PacoNSDateCategoryTests.m */,
 				36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */,
@@ -1552,6 +1558,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */,
 				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
@@ -1578,6 +1585,7 @@
 				3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */,
 				367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
 				3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */,
+				36B5A4FD18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m in Sources */,
 				3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */,
 				36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */,
 				363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
