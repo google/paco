@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,11 +21,9 @@ package com.google.sampling.experiential.model;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -38,29 +36,24 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.sampling.experiential.server.EventCsvUploadProcessor;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 
 /**
- * 
+ *
  * Definition of an Experiment (a tracker). This holds together a bunch of objects:
- * * A list of Input objects which are the data that will be gathered. 
- *    Usually it is questions, but it could be sensors as well (photos, audio, gps, accelerometer, 
+ * * A list of Input objects which are the data that will be gathered.
+ *    Usually it is questions, but it could be sensors as well (photos, audio, gps, accelerometer,
  *    compass, etc..)
  * * A list of Feedback objects that presents visualizations or interventions to the user.
  * * A SignalSchedule object which contains the frequency to gather data.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -68,13 +61,13 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class Experiment {
 
   /**
-   * @param id 
+   * @param id
    * @param title2
    * @param description2
    * @param creator2
    * @param informedConsentForm2
    * @param questionsCanChange
-   * @param modifyDate 
+   * @param modifyDate
    * @param published TODO
    * @param admins TODO
    */
@@ -96,34 +89,34 @@ public class Experiment {
     if (this.admins == null) {
       this.admins = Lists.newArrayList(creator.getEmail());
     } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
-      admins.add(0, creator.getEmail()); 
+      admins.add(0, creator.getEmail());
     }
   }
 
   /**
-   * 
+   *
    */
   public Experiment() {
   }
-  
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
 
   @Persistent
   private String title;
-  
+
   @Persistent
   private String description;
-  
+
   @Persistent
   @Deprecated
   @JsonIgnore
   private String informedConsentForm;
-  
+
   @Persistent
   private User creator;
-  
+
   @Persistent(defaultFetchGroup="true")
   @Element(dependent = "true")
   private SignalSchedule schedule;
@@ -134,19 +127,19 @@ public class Experiment {
 
   @Persistent
   private Boolean fixedDuration;
-  
+
   @Persistent
   private Boolean questionsChange;
-  
+
   @Persistent
   private Date startDate;
 
   @Persistent
   private Date endDate;
-  
+
   @Persistent
   private String hash;
-  
+
   @Persistent
   private Date joinDate;
 
@@ -160,7 +153,7 @@ public class Experiment {
 
   @Persistent
   private Date modifyDate;
-  
+
   @Persistent Boolean deleted = false;
   /**
    * Is this experiment available to anyone
@@ -230,11 +223,11 @@ public class Experiment {
   public void setSchedule(SignalSchedule schedule) {
     this.schedule = schedule;
   }
-  
+
   public Trigger getTrigger() {
     return trigger;
   }
-  
+
   public void setTrigger(Trigger trigger) {
     this.trigger = trigger;
   }
@@ -262,7 +255,7 @@ public class Experiment {
   public void setStartDate(String startDateStr) {
       setFormattedStartDate(startDateStr);
   }
-  
+
   private void setFormattedStartDate(String startDateStr) {
     this.startDate = getFormattedDate(startDateStr, TimeUtil.DATE_FORMAT);
   }
@@ -270,7 +263,7 @@ public class Experiment {
   public String getEndDate() {
     return getDateAsString(endDate, TimeUtil.DATE_FORMAT);
   }
-  
+
   public void setEndDate(String endDateStr) {
       setFormattedEndDate(endDateStr);
   }
@@ -294,11 +287,11 @@ public class Experiment {
   private String getJoinDateAsString() {
     return getDateAsString(joinDate, TimeUtil.DATE_WITH_ZONE_FORMAT);
   }
-  
+
   public void setJoinDate(String joinDateStr) {
       setFormattedJoinDate(joinDateStr);
   }
-  
+
   private void setFormattedJoinDate(String joinDateStr) {
     this.joinDate = getFormattedDate(joinDateStr, TimeUtil.DATE_WITH_ZONE_FORMAT);
   }
@@ -326,7 +319,7 @@ public class Experiment {
   public void setModifyDate(String modifyDateStr) {
       setFormattedModifyDate(modifyDateStr);
   }
-  
+
   private void setFormattedModifyDate(String modifyDateStr) {
     this.modifyDate = getFormattedDate(modifyDateStr, TimeUtil.DATE_FORMAT);
   }
@@ -389,7 +382,7 @@ public class Experiment {
     if (informedConsentFormText == null && informedConsentForm != null) {
       informedConsentFormText = new Text(informedConsentForm);
       informedConsentForm = null;
-    } 
+    }
     if (informedConsentFormText != null) {
       return informedConsentFormText.getValue();
     } else {
@@ -416,15 +409,15 @@ public class Experiment {
     }
     return null;
   }
-  
+
   @JsonIgnore
   public boolean isOver(DateTime now) {
     return getFixedDuration() != null && getFixedDuration() && now.isAfter(getEndDateTime());
   }
-  
+
   @JsonIgnore
   private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) { 
+    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
       List<Long> times = schedule.getTimes();
       // get the latest time
       Collections.sort(times);
@@ -435,7 +428,7 @@ public class Experiment {
       return new DateMidnight(endDate).plusDays(1).toDateTime();
     }
   }
-  
+
   private String getDateAsString(Date date, String dateFormat) {
     if (date == null) {
       return null;
@@ -443,7 +436,7 @@ public class Experiment {
     SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
     return formatter.format(date);
   }
-  
+
   private Date getFormattedDate(String inputDateStr, String dateFormat) {
     if (inputDateStr == null) {
       return null;
@@ -452,22 +445,22 @@ public class Experiment {
     try {
       return formatter.parse(inputDateStr);
     } catch (ParseException e) {
-      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr + 
+      throw new IllegalArgumentException("Cannot parse date: " + inputDateStr +
                                          ". Format is " + dateFormat);
     }
   }
-  
+
   @JsonIgnore
   public boolean isWhoAllowedToPostToExperiment(String who) {
     who = who.toLowerCase();
-    return getAdmins().contains(who) || 
+    return getAdmins().contains(who) ||
       (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
   }
 
   public Integer getVersion() {
     return this.version;
   }
-  
+
   public void setVersion(Integer version) {
     this.version = version;
   }
