@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="91"
-    android:versionName="2.0.91" >
+    android:versionCode="93"
+    android:versionName="2.0.93" >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 

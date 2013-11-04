@@ -231,19 +231,22 @@ public class ExperimentRetriever {
       if (!hasAdministrativeRightsOnExperiment(loggedInUserEmail, experiment)) {
         return false;
       }
-      incrementExperimentVersionNumber(experimentDAO, experiment);
 
       JDOHelper.makeDirty(experiment, "inputs");
       JDOHelper.makeDirty(experiment, "feedback");
       JDOHelper.makeDirty(experiment, "schedule");
+      JDOHelper.makeDirty(experiment, "trigger");
     }
-    DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
 
     Transaction tx = null;
     boolean committed = false;
     try {
       tx = pm.currentTransaction();
       tx.begin();
+      if (experiment.getId() != null) {
+        incrementExperimentVersionNumber(experimentDAO, experiment);
+      }
+      DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
       pm.makePersistent(experiment);
       tx.commit();
       committed  = true;

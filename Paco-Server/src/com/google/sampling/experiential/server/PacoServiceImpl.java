@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.jdo.Transaction;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -182,6 +183,8 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     PersistenceManager pm = null;
     try {
       pm = PMF.get().getPersistenceManager();
+      Transaction tx = pm.currentTransaction();
+      tx.begin();
       Query q = pm.newQuery(Experiment.class);
       q.setFilter("admins == whoParam");
       q.declareParameters("String whoParam");
@@ -191,6 +194,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
           experimentDAOs.add(DAOConverter.createDAO(experiment));
         }
       }
+      tx.commit();
     } finally {
       if (pm != null) {
         pm.close();
