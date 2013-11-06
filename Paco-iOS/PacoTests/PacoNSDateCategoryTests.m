@@ -37,6 +37,9 @@
 
 @interface PacoNSDateCategoryTests : SenTestCase
 
+@property(nonatomic, strong) NSDateComponents* comp;
+@property(nonatomic, strong) NSCalendar* calendar;
+
 @property(nonatomic, strong) NSDate* dateEarlier;
 @property(nonatomic, strong) NSDate* dateLater;
 
@@ -47,6 +50,12 @@
 - (void)setUp {
   [super setUp];
   // Put setup code here; it will be run once, before the first test case.
+  self.comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [self.comp setTimeZone:timeZone];
+  self.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  
   NSString* testStrEarlier = @"2013/07/25 12:33:22-0700";
   NSString* testStrLater = @"2013/07/25 12:33:23-0700";
   self.dateEarlier = [PacoDateUtility pacoDateForString:testStrEarlier];
@@ -57,6 +66,9 @@
 
 - (void)tearDown {
   // Put teardown code here; it will be run once, after the last test case.
+  self.comp = nil;
+  self.calendar = nil;
+  
   self.dateEarlier = nil;
   self.dateLater = nil;
   [super tearDown];
@@ -400,6 +412,61 @@
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
 }
 
+- (void)testPacoDateByAddingWeekInterval {
+  [self.comp setYear:2013];
+  [self.comp setMonth:11];
+  [self.comp setDay:6];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //testDate: 11/6, 9:35:50, 2013
+  NSDate* testDate = [self.calendar dateFromComponents:self.comp];
+  
+  NSDate* oneWeekLater = [testDate pacoDateByAddingWeekInterval:1];
+  [self.comp setYear:2013];
+  [self.comp setMonth:11];
+  [self.comp setDay:13];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //oneWeekLater: 11/13, 9:35:50, 2013
+  NSDate* expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(oneWeekLater, expect, @"should be one week later");
+  
+  NSDate* twoWeeksLater = [testDate pacoDateByAddingWeekInterval:2];
+  [self.comp setYear:2013];
+  [self.comp setMonth:11];
+  [self.comp setDay:20];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //twoWeeksLater: 11/20, 9:35:50, 2013
+  expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(twoWeeksLater, expect, @"should be two weeks later");
+
+  NSDate* fourWeeksLater = [testDate pacoDateByAddingWeekInterval:4];
+  [self.comp setYear:2013];
+  [self.comp setMonth:12];
+  [self.comp setDay:4];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //fourWeeksLater: 11/20, 9:35:50, 2013
+  expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(fourWeeksLater, expect, @"should be four weeks later");
+
+  NSDate* eightWeeksLater = [testDate pacoDateByAddingWeekInterval:8];
+  [self.comp setYear:2014];
+  [self.comp setMonth:1];
+  [self.comp setDay:1];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //eightWeeksLater: 1/1, 9:35:50, 2014
+  expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(eightWeeksLater, expect, @"should be eight weeks later");
+}
+
 - (void)testPacoDateByAddingDayInterval {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
 }
@@ -458,6 +525,153 @@
 - (void)testPacoDateInFutureBySkippingWeekends {
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
+
+- (void)testPacoFirstDayInCurrentMonth {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:30];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //11/30, 2013, 10:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInMonth = [date pacoFirstDayInCurrentMonth];
+  [comp setMonth:11];
+  [comp setDay:1];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //11/30, 2013, 10:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(firstDayInMonth, expect, @"should be first day in month");
+}
+
+- (void)testPacoFirstDayInCurrentWeekFromWeekday {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:4];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Mon, 11/4, 2013, 10:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  [comp setMonth:11];
+  [comp setDay:3];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Sun, 11/3, 2013, 10:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
+}
+
+- (void)testPacoFirstDayInCurrentWeekFromSunday {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:3];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Sun, 11/3, 2013, 10:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  [comp setMonth:11];
+  [comp setDay:3];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Sun, 11/3, 2013, 10:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
+}
+
+- (void)testPacoFirstDayInCurrentWeekFromSaturday {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:9];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Sat, 11/9, 2013, 10:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  [comp setMonth:11];
+  [comp setDay:3];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Sun, 11/3, 2013, 10:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
+}
+
+- (void)testPacoCycleStartDateOfMonthWithOriginalStartDate {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:4];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Mon, 11/4, 2013, 0:00:00
+  NSDate* startDate = [gregorian dateFromComponents:comp];
+  
+  [comp setMonth:11];
+  [comp setDay:5];
+  [comp setHour:20];
+  [comp setMinute:10];
+  [comp setSecond:45];
+  //11/5, 2013, 20:10:45
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* cycleStartDate = [date pacoCycleStartDateOfMonthWithOriginalStartDate:startDate];
+  NSDate* expect = startDate;
+  STAssertEqualObjects(cycleStartDate, expect, @"should be original start date");
+
+  [comp setYear:2014];
+  [comp setMonth:1];
+  [comp setDay:5];
+  [comp setHour:20];
+  [comp setMinute:10];
+  [comp setSecond:45];
+  //1/5, 2014, 20:10:45
+  date = [gregorian dateFromComponents:comp];
+  cycleStartDate = [date pacoCycleStartDateOfMonthWithOriginalStartDate:startDate];
+  [comp setYear:2014];
+  [comp setMonth:1];
+  [comp setDay:4];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //1/4, 2014, 00:00:00
+  expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(cycleStartDate, expect, @"should be original start date");
+}
+
 
 
 @end

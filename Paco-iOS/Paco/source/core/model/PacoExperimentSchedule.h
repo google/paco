@@ -41,13 +41,6 @@ typedef enum {
   kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications
 } PacoScheduleType;
 
-typedef enum {
-  kPacoSchedulePeriodDay = 0,
-  kPacoSchedulePeriodWeek = 1,
-  kPacoSchedulePeriodMonth = 2,
-} PacoSchedulePeriod;
-
-
 
 @interface PacoExperimentSchedule : NSObject
 
@@ -82,7 +75,7 @@ typedef enum {
 - (NSString *)jsonString;
 
 - (BOOL)isESMSchedule;
-- (double)minutesPerDayOfESM;
+- (NSUInteger)minutesPerDayOfESM;
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date;
 
 @end

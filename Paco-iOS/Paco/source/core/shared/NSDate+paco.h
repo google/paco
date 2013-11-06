@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import "PacoExperimentSchedule.h"
 
+
+
 @interface NSDate (Paco)
 
 - (BOOL)pacoEarlierThanDate:(NSDate*)another;
@@ -39,6 +41,11 @@
 
 - (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
 
+- (NSDate*)pacoFirstDayInCurrentMonth;
+- (NSDate*)pacoFirstDayInCurrentWeek;
+
+- (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
+
 - (BOOL)pacoIsWeekend;
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight;
@@ -47,12 +54,14 @@
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
 
-- (NSDate*)pacoNextCycleStartDateForESMType:(PacoScheduleRepeatPeriod)esmType
-                            includeWeekends:(BOOL)includeWeekends;
-
 - (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays;
+- (NSDate*)pacoDateByAddingWeekInterval:(NSUInteger)weekInterval;
 
 - (NSUInteger)pacoNumOfDaysInCurrentMonth;
 - (NSUInteger)pacoNumOfWeekdaysInCurrentMonth;
+
+- (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends;
+- (NSDate*)pacoWeeklyESMNextCycleStartDate;
+- (NSDate*)pacoMonthlyESMNextCycleStartDate;
 
 @end

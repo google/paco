@@ -93,6 +93,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [super tearDown];
 }
 
+
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
@@ -130,9 +131,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
 
   for (int dayIndex=0; dayIndex<numOfDays; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = [dates objectAtIndex:(dayIndex*3 + 0)];
+    NSDate* second = [dates objectAtIndex:(dayIndex*3 + 1)];
+    NSDate* third = [dates objectAtIndex:(dayIndex*3 + 2)];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -141,6 +144,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend] &&
+                 ![third pacoIsWeekend], @"shouldn't be weekend");
     
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex;
@@ -150,12 +156,12 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -166,6 +172,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     STAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
   }
 }
+
 
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
@@ -210,6 +217,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
     NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
     NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -223,12 +232,12 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     [comp setDay:dayIndex];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -240,9 +249,10 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   }
 }
 
+
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
- 3 times per day, include weekend, 9:30am - 5:30pm
+ 3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
 - (void)testDailyDatesToScheduleFixedLengthNoWeekendsStartInMiddle {
@@ -280,6 +290,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
     NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
     NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -288,18 +300,22 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend] &&
+                 ![third pacoIsWeekend], @"shouldn't be weekend");
     
+
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -310,6 +326,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     STAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
   }
 }
+
 
 
 /*
@@ -352,6 +369,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
     NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
     NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -361,17 +380,23 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
     
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend] &&
+                 ![third pacoIsWeekend], @"shouldn't be weekend");
+    
+
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -382,6 +407,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     STAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
   }
 }
+
 
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
@@ -423,6 +449,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
     NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
     NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -431,18 +459,22 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend] &&
+                 ![third pacoIsWeekend], @"shouldn't be weekend");
     
+
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -453,6 +485,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     STAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
   }
 }
+
 
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
@@ -494,6 +527,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
     NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
     NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    STAssertTrue([first pacoEarlierThanDate:second] &&
+                 [second pacoEarlierThanDate:third], @"should be sorted");
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
     STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
@@ -502,18 +537,22 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend] &&
+                 ![third pacoIsWeekend], @"shouldn't be weekend");
     
+
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [third pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];
     STAssertTrue(interval > 0, @"should be sorted");
@@ -593,8 +632,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
       third = [dates objectAtIndex:dayIndex*3 + 2];
     }
     STAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
+    STAssertTrue([first pacoEarlierThanDate:second], @"should be sorted");
+
     if (third) {
       STAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
+      STAssertTrue([second pacoEarlierThanDate:third], @"should be sorted");
     }
     
     NSDateComponents* comp = [[NSDateComponents alloc] init];
@@ -606,14 +648,18 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     [comp setDay:dayOffset];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [first pacoEarlierThanDate:endTimeForCurrentDay] &&
-                 [second pacoLaterThanDate:startTimeForCurrentDay] &&
-                 [second pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                 [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                 [second pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+    STAssertTrue(![first pacoIsWeekend] &&
+                 ![second pacoIsWeekend], @"shouldn't be weekend");
     
+
     if (third) {
-      STAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
-                   [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
+      STAssertTrue([third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                   [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+      STAssertTrue(![third pacoIsWeekend], @"shouldn't be weekend");
     }
     
     NSTimeInterval interval = [second timeIntervalSinceDate:first];

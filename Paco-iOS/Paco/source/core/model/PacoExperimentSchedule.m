@@ -255,13 +255,13 @@
   return self.scheduleType == kPacoScheduleTypeESM;
 }
 
-- (double)minutesPerDayOfESM {
+- (NSUInteger)minutesPerDayOfESM {
   if (![self isESMSchedule]) {
     return 0;
   }
-  double millisecondsPerDay = self.esmEndHour - self.esmStartHour;
-  double secondsPerDay = millisecondsPerDay / 1000.0;
-  double minutesPerDay = secondsPerDay / 60.0;
+  NSUInteger millisecondsPerDay = self.esmEndHour - self.esmStartHour;
+  NSUInteger secondsPerDay = millisecondsPerDay / 1000.0;
+  NSUInteger minutesPerDay = secondsPerDay / 60.0;
   return minutesPerDay;
 }
 

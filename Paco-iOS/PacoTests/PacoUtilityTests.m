@@ -14,6 +14,7 @@
  */
 
 #import <SenTestingKit/SenTestingKit.h>
+#import "PacoUtility.h"
 
 @interface PacoUtilityTests : SenTestCase
 
@@ -35,9 +36,25 @@
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
-//TODO: make sure to test all numbers are sorted
 - (void)testRandomIntegersInRange {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  for (int numOfTests=0; numOfTests < 100; numOfTests++) {
+    int hours = 8;
+    int totalMinutes = hours * 60;
+    int totalNum = 3;
+    int minBufferMinutes = 120;
+    NSArray* list = [PacoUtility randomIntegersInRange:totalMinutes
+                                         numOfIntegers:totalNum
+                                             minBuffer:minBufferMinutes];
+    int prev = -1;
+    STAssertEquals((int)[list count], totalNum, @"should generate correct number of integers");
+    for (NSNumber* number in list) {
+      int num = [number intValue];
+      STAssertTrue(num >= 0, @"should be larger than 0");
+      STAssertTrue(num <= totalMinutes, @"should be smaller than or equal to the upperbound");
+      STAssertTrue(num > prev, @"should be sorted!");
+      prev = num;
+    }
+  }
 }
 
 @end

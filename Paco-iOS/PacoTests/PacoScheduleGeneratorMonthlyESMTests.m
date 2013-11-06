@@ -56,4 +56,8 @@
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
+- (void)testCurrentCycleStartDateFrom {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
+
 @end

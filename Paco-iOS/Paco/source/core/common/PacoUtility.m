@@ -28,10 +28,10 @@
   if (0 == numOfIntegers || 0 == rangeNumber) {
     return nil;
   }
-  double duration = rangeNumber;
+  int duration = rangeNumber;
   int NUM_OF_BUCKETS = numOfIntegers;
   NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
-  double DURATION_PER_BUCKET = duration/((double)NUM_OF_BUCKETS);
+  int DURATION_PER_BUCKET = duration/NUM_OF_BUCKETS;
   
   NSMutableArray* randomNumberList = [NSMutableArray array];
   int lowerBound = 0;
