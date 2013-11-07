@@ -44,6 +44,7 @@
   }
 
   //TODO:
+  return nil;
 }
 
 + (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
