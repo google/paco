@@ -19,7 +19,6 @@
 
 + (NSCalendar*)pacoGregorianCalendar;
 
-//startDate should be earlier than or equal to endDate
 - (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
 
 @end

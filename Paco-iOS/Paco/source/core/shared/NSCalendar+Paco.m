@@ -27,8 +27,6 @@
 - (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
   startDate = [startDate pacoCurrentDayAtMidnight];
   endDate = [endDate pacoCurrentDayAtMidnight];
-  
-  NSAssert([startDate pacoNoLaterThanDate:endDate], @"startDate should be no later than endDate!");
   NSInteger startDay = [self ordinalityOfUnit:NSDayCalendarUnit
                                        inUnit:NSEraCalendarUnit
                                       forDate:startDate];
@@ -36,7 +34,6 @@
                                      inUnit:NSEraCalendarUnit
                                     forDate:endDate];
   NSInteger numOfDaysInBetween = endDay - startDay;
-  NSAssert(numOfDaysInBetween >= 0, @"difference in days should be larger than or equal to 0");
   return numOfDaysInBetween;
 }
 

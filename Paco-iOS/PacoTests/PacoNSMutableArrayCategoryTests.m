@@ -145,4 +145,15 @@
   STAssertEqualObjects(descript, expect, @"should be correct");
 }
 
+- (void)testGetFirstOrLastObjectFromEmptyArray {
+  NSArray* testArr = nil;
+  STAssertNil([testArr firstObject], @"should be nil");
+  STAssertNil([testArr lastObject], @"should be nil");
+  
+  testArr = [NSArray array];
+  STAssertNil([testArr firstObject], @"should be nil");
+  STAssertNil([testArr lastObject], @"should be nil");
+}
+
+
 @end
