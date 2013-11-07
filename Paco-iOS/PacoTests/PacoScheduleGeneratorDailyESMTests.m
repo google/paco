@@ -690,6 +690,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
+- (void)testEsmCycleStartDateFromScheduledDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
-
+- (void)testLaterCycleThan {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 @end

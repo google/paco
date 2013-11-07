@@ -46,14 +46,15 @@
 
 
 + (NSArray*)datesToScheduleForESMExperiment:(PacoExperiment*)experiment
-                                numOfDates:(NSInteger)numOfDates
-                                  fromDate:(NSDate*)fromDate {
+                                 numOfDates:(NSInteger)numOfDates
+                                   fromDate:(NSDate*)fromDate {
   NSArray* datesToSchedule = [experiment ESMSchedulesFromDate:fromDate];
   int datesCount = [datesToSchedule count];
   if (datesCount < numOfDates) {
     int extraNumOfDates = numOfDates - datesCount;
     NSArray* extraDates = [self generateESMDatesForExperiment:experiment
                                             minimumNumOfDates:extraNumOfDates
+                                                 lastSchedule:[datesToSchedule lastObject]
                                                      fromDate:fromDate];
     if ([extraDates pacoIsNotEmpty]) {
       NSMutableArray* result = [NSMutableArray arrayWithArray:datesToSchedule];
@@ -72,27 +73,55 @@
 
 
 static int kPacoNumOfDaysInWeek = 7;
-+ (NSDate*)currentCycleStartDateFrom:(NSDate*)fromDate
-                 experimentStartDate:(NSDate*)experimentStartDate
-                        scheduleType:(PacoScheduleRepeatPeriod)repeatPeriod {
+/*
+   Daily:                return current day at midnight
+  Weekly:a.ongoing:      return the first day in current calendar week
+         b.fixed-length: return the first day in current cycle week determined by experiment start date
+ Monthly:a.ongoing:      return the first day in current calendar month
+         b.fixed-length: return the first day in current cycle month determined by experiment start date
+ **/
++ (NSDate*)currentCycleStartDateForDate:(NSDate*)date
+                    experimentStartDate:(NSDate*)experimentStartDate
+                           scheduleType:(PacoScheduleRepeatPeriod)repeatPeriod {
   NSDate* result = nil;
-  if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
-    int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
-                                                                  toDate:fromDate];
-    if (numOfDays >= kPacoNumOfDaysInWeek) { //more than a week
-      int weekOffset = numOfDays / kPacoNumOfDaysInWeek;
-      result = [experimentStartDate pacoDateByAddingWeekInterval:weekOffset];
-    } else {
-      result = experimentStartDate;
-    }
-  } else if (repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
-    result = [fromDate pacoCycleStartDateOfMonthWithOriginalStartDate:experimentStartDate];
+  //daily
+  if (repeatPeriod == kPacoScheduleRepeatPeriodDay) {
+    result = [date pacoCurrentDayAtMidnight];
+    return result;
   }
-  NSAssert(result, @"should be valid");
+  //weekly
+  if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
+    if (experimentStartDate == nil ) { //ongoing
+      result = [date pacoFirstDayInCurrentWeek];
+    } else { //fixed-length
+      int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
+                                                                    toDate:date];
+      NSAssert(numOfDays >= 0, @"scheduleDate should be later than experimentStartDate");
+      if (numOfDays >= kPacoNumOfDaysInWeek) { //more than a week
+        int weekOffset = numOfDays / kPacoNumOfDaysInWeek;
+        result = [experimentStartDate pacoDateByAddingWeekInterval:weekOffset];
+      } else {
+        result = experimentStartDate;
+      }
+    }
+    return result;
+  }
+  //monthly
+  if (repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
+    if (experimentStartDate == nil ) { //ongoing
+      result = [date pacoFirstDayInCurrentMonth];
+    } else { //fixed-length
+      result = [date pacoCycleStartDateOfMonthWithOriginalStartDate:experimentStartDate];
+    }
+    return result;
+  }
+
+  NSAssert(NO, @"should never happen");
   return result;
 }
 
 
+//YMZ:TODO: this method should be refactored using the method of currentCycleStartDateForDate
 + (NSDate*)esmCycleStartDateForSchedule:(PacoExperimentSchedule*)schedule
                     experimentStartDate:(NSDate*)experimentStartDate
                       experimentEndDate:(NSDate*)experimentEndDate
@@ -110,9 +139,9 @@ static int kPacoNumOfDaysInWeek = 7;
     } else {
       if (repeatPeriod == kPacoScheduleRepeatPeriodWeek ||
           repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
-        realStartDate = [self currentCycleStartDateFrom:fromDate
-                                    experimentStartDate:experimentStartDate
-                                           scheduleType:repeatPeriod];
+        realStartDate = [self currentCycleStartDateForDate:fromDate
+                                       experimentStartDate:experimentStartDate
+                                              scheduleType:repeatPeriod];
       }
     }
   } else { //ongoing
@@ -161,18 +190,57 @@ static int kPacoNumOfDaysInWeek = 7;
   return nextCycleStartDate;
 }
 
++ (BOOL)isCurrentFromDate:(NSDate*)fromDate
+         inLaterCycleThan:(NSDate*)lastScheduleDate
+                ofESMType:(PacoScheduleRepeatPeriod)esmType
+      experimentStartDate:(NSDate*)experimentStartDate {
+  NSDate* lastScheduleCycleStartDate = [self currentCycleStartDateForDate:lastScheduleDate
+                                                      experimentStartDate:experimentStartDate
+                                                             scheduleType:esmType];
+  NSDate* currentCycleStartDate = [self currentCycleStartDateForDate:fromDate
+                                                 experimentStartDate:experimentStartDate
+                                                        scheduleType:esmType];
+  if ([currentCycleStartDate pacoLaterThanDate:lastScheduleCycleStartDate]) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 + (NSArray*)generateESMDatesForExperiment:(PacoExperiment*)experiment
                         minimumNumOfDates:(NSUInteger)minimumNumOfDates
+                             lastSchedule:(NSDate*)lastSchedule
                                  fromDate:(NSDate*)fromDate {
   if ([experiment endDate] && [fromDate pacoNoEarlierThanDate:[experiment endDate]]) {
     NSAssert(NO, @"should never happen");
   }
+  BOOL needsToAdjustCycleStartDate = NO;
+  if (lastSchedule && ![self isCurrentFromDate:fromDate
+                              inLaterCycleThan:lastSchedule
+                                     ofESMType:experiment.schedule.esmPeriod
+                           experimentStartDate:[experiment startDate]]) {
+    needsToAdjustCycleStartDate = YES;
+  }
+  
+  NSDate* cycleStartDate = nil;
+  if (needsToAdjustCycleStartDate) {
+      NSDate* lastScheduleCycleStartDate =
+          [self currentCycleStartDateForDate:lastSchedule
+                         experimentStartDate:[experiment startDate]
+                                scheduleType:experiment.schedule.esmPeriod];
+      cycleStartDate = [self nextCycleStartDateForSchedule:experiment.schedule
+                                       experimentStartDate:[experiment startDate]
+                                         experimentEndDate:[experiment endDate]
+                                            cycleStartDate:lastScheduleCycleStartDate];
+  } else {
+    cycleStartDate = [self esmCycleStartDateForSchedule:experiment.schedule
+                                    experimentStartDate:[experiment startDate]
+                                      experimentEndDate:[experiment endDate]
+                                               fromDate:fromDate];
+  }
+  
 
   NSMutableArray* result = [NSMutableArray arrayWithCapacity:minimumNumOfDates];
-  NSDate* cycleStartDate = [self esmCycleStartDateForSchedule:experiment.schedule
-                                          experimentStartDate:[experiment startDate]
-                                            experimentEndDate:[experiment endDate]
-                                                     fromDate:fromDate];
   NSArray* esmDatesInCycle = nil;
   BOOL finished = NO;
   while (!finished) {
