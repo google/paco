@@ -190,10 +190,12 @@
   //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
   //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
   dispatch_async(dispatch_get_main_queue(), ^{
-    NSLog(@"***********  PacoLocation is allocated ***********");
-    self.location = [[PacoLocation alloc] init];
-    self.location.delegate = self;
-    [self.location enableLocationService];
+    if (self.location == nil) {
+      NSLog(@"***********  PacoLocation is allocated ***********");
+      self.location = [[PacoLocation alloc] init];
+      self.location.delegate = self;
+      [self.location enableLocationService];
+    }
   });
 }
 
@@ -240,7 +242,8 @@
 
 - (NSArray*)nextNotificationsToSchedule {
   int numOfRunningExperiments = [self.model.experimentInstances count];
-  NSMutableArray* allNotifications = [NSMutableArray arrayWithCapacity:numOfRunningExperiments];
+  NSMutableArray* allNotifications =
+      [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
   
   NSDate* now = [NSDate date];
   for (PacoExperiment* experiment in [self.model experimentInstances]) {

@@ -19,6 +19,7 @@
 #import "PacoScheduler.h"
 #import "NSError+Paco.h"
 #import "NSString+Paco.h"
+#import "NSMutableArray+Paco.h"
 
 static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
@@ -175,8 +176,10 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       }
       NSAssert([currentNotifications isKindOfClass:[NSMutableArray class]],
                @"currentNotifications should be an array!");
+      //clean duplicate notification with the same fireDate just to be safe
       [currentNotifications addObjectsFromArray:sortedNotifications];
-      [self.notificationDict setObject:currentNotifications forKey:experimentId];
+      NSMutableArray* nonDuplicate = [currentNotifications pacoSortLocalNotificationsAndRemoveDuplicates];
+      [self.notificationDict setObject:nonDuplicate forKey:experimentId];
     }
   }
 }

@@ -176,7 +176,8 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
 }
 
 + (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId {
-  return 0 < [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
+  NSArray* notifications = [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
+  return 0 < [notifications count];
 }
 
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId {
