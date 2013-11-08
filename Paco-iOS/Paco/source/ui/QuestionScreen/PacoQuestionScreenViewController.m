@@ -97,23 +97,9 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  if (!ADD_TEST_DEFINITION) {
-    if (self.notification) {
-      NSDate* scheduledDate = [self.notification pacoFireDate];
-      [[PacoClient sharedInstance].eventManager
-          saveSurveySubmittedEventForDefinition:self.evaluator.experiment.definition
-                                     withInputs:self.evaluator.visibleInputs
-                               andScheduledTime:scheduledDate];
-    } else {
-      [[PacoClient sharedInstance].eventManager
-          saveSelfReportEventWithDefinition:self.evaluator.experiment.definition
-                                  andInputs:self.evaluator.visibleInputs];
-    }   
-  }
-  
-  if (self.notification) {
-    [[PacoClient sharedInstance].scheduler handleRespondedNotification:self.notification];
-  }
+  [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
+                                             surveyInputs:self.evaluator.visibleInputs
+                                             notification:self.notification];
 
   //clear all inputs' submitted responseObject for the definition 
   [self.evaluator.experiment.definition clearInputs];

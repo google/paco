@@ -81,5 +81,8 @@
 
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
 - (void)stopExperiment:(PacoExperiment*)experiment;
+- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification;
 
 @end

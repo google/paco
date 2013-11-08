@@ -580,5 +580,19 @@
   }
 }
 
+#pragma mark submit a survey
+- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification {
+  if (notification) {
+    [self.eventManager saveSurveySubmittedEventForDefinition:definition
+                                                  withInputs:surveyInputs
+                                            andScheduledTime:[notification pacoFireDate]];
+    [self.scheduler handleRespondedNotification:notification];
+  } else {
+    [self.eventManager saveSelfReportEventWithDefinition:definition andInputs:surveyInputs];
+  }
+}
+
 
 @end
