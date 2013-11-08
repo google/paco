@@ -224,7 +224,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   BOOL hasScheduledNotification = NO;
   for(NSString* notificationHash in self.notificationDict) {
     UILocalNotification* notification = [self.notificationDict objectForKey:notificationHash];
-    NSString* experimentInstanceId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+    NSString* experimentInstanceId = [notification pacoExperimentId];
     NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
     if ([experimentInstanceId isEqualToString:instanceIdToCheck]) {
       hasScheduledNotification = YES;

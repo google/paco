@@ -30,6 +30,7 @@
 #import "PacoEventManager.h"
 #import "PacoInputEvaluator.h"
 #import "PacoScheduler.h"
+#import "UILocalNotification+Paco.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -98,7 +99,7 @@ NSString *kCellIdQuestion = @"question";
   
   if (!ADD_TEST_DEFINITION) {
     if (self.notification) {
-      NSDate* scheduledDate = [self.notification.userInfo objectForKey:@"experimentFireDate"];
+      NSDate* scheduledDate = [self.notification pacoFireDate];
       [[PacoClient sharedInstance].eventManager
           saveSurveySubmittedEventForDefinition:self.evaluator.experiment.definition
                                      withInputs:self.evaluator.visibleInputs
