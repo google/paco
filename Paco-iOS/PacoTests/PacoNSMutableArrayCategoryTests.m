@@ -98,6 +98,157 @@
   STAssertEqualObjects(notifications, expect, @"notifications should be sorted by fire date");
 }
 
+
+- (void)testSortAndRemoveDuplicatesWithOneNotifications {
+  NSString* experimentId = @"12345";
+  NSTimeInterval timeoutInterval = 400 * 60;//400 minutes
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSString* title = @"Experiment";
+  NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date1],
+                          title];
+  UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  STAssertNotNil(noti1, @"notification should be valid");
+  NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti1, nil];
+  NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  STAssertTrue(notifications != result, @"should be different objects");
+  STAssertEqualObjects(notifications, result, @"should have the same objects");
+}
+
+- (void)testSortAndRemoveDuplicatesForEmptyArray {
+  NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:10];
+  NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  STAssertEquals((int)[result count], 0, @"should be empty");
+}
+
+
+- (void)testSortAndRemoveDuplicatesWithTwoNonDuplicateNotifications {
+  NSString* experimentId = @"12345";
+  NSTimeInterval timeoutInterval = 400 * 60;//400 minutes
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* date2 = [NSDate date];
+  
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  
+  NSString* title = @"Experiment";
+  NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date1],
+                          title];
+  NSString* alertBody2 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date2],
+                          title];
+  UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  UILocalNotification* noti2 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody2
+                                                                            fireDate:date2
+                                                                         timeOutDate:timeout2];
+  STAssertNotNil(noti1, @"notification should be valid");
+  STAssertNotNil(noti2, @"notification should be valid");
+  NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti2, noti1, nil];
+  NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  NSArray* expect = @[noti1, noti2];
+  STAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
+}
+
+- (void)testSortAndRemoveDuplicatesWithTwoDuplicateNotifications {
+  NSString* experimentId = @"12345";
+  NSTimeInterval timeoutInterval = 400 * 60;//400 minutes
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  
+  NSString* title = @"Experiment";
+  NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date1],
+                          title];
+  UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  UILocalNotification* noti2 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  STAssertNotNil(noti1, @"notification should be valid");
+  STAssertNotNil(noti2, @"notification should be valid");
+  STAssertTrue(noti1 != noti2, @"should be two different objects");
+  STAssertEqualObjects([noti1 pacoFireDate], [noti2 pacoFireDate], @"fireDate should be duplicate");
+  NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti2, noti1, nil];
+  NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  STAssertEquals((int)[result count], 1, @"should contain only 1 object");
+  UILocalNotification* noti = [result firstObject];
+  STAssertTrue(noti == noti2, @"should only contain noti2");
+}
+
+//noti2 and noti3 have the same fire date
+- (void)testSortAndRemoveDuplicatesWithMultipleDuplicateNotifications {
+  NSString* experimentId = @"12345";
+  NSTimeInterval timeoutInterval = 400 * 60;//400 minutes
+  NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* date2 = [NSDate date];
+  NSDate* date3 = date2;
+  NSDate* date4 = [NSDate dateWithTimeInterval:10 sinceDate:date3];
+  
+  NSDate* timeout1 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date1];
+  NSDate* timeout2 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2];
+  NSDate* timeout3 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3];
+  NSDate* timeout4 = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:date4];
+  
+  NSString* title = @"Experiment";
+  NSString* alertBody1 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date1],
+                          title];
+  NSString* alertBody2 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date2],
+                          title];
+  NSString* alertBody3 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date3],
+                          title];
+  NSString* alertBody4 = [NSString stringWithFormat:@"[%@]%@",
+                          [PacoDateUtility stringForAlertBodyFromDate:date4],
+                          title];
+  UILocalNotification* noti1 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody1
+                                                                            fireDate:date1
+                                                                         timeOutDate:timeout1];
+  UILocalNotification* noti2 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody2
+                                                                            fireDate:date2
+                                                                         timeOutDate:timeout2];
+  UILocalNotification* noti3 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody3
+                                                                            fireDate:date3
+                                                                         timeOutDate:timeout3];
+  UILocalNotification* noti4 = [UILocalNotification pacoNotificationWithExperimentId:experimentId
+                                                                     experimentTitle:alertBody4
+                                                                            fireDate:date4
+                                                                         timeOutDate:timeout4];
+  STAssertNotNil(noti1, @"notification should be valid");
+  STAssertNotNil(noti2, @"notification should be valid");
+  STAssertNotNil(noti3, @"notification should be valid");
+  STAssertNotNil(noti4, @"notification should be valid");
+  STAssertEqualObjects([noti2 pacoFireDate], [noti3 pacoFireDate], @"fireDate should be duplicate");
+
+  NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti4, noti3, noti2, noti1, nil];
+  NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  NSArray* expect = @[noti1, noti2, noti4];
+  STAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
+}
+
+
 - (void)testPacoIsNotEmpty {
   NSArray* arr = @[];
   STAssertFalse([arr pacoIsNotEmpty], @"should be empty");

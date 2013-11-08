@@ -23,6 +23,9 @@
 //The receiver must contain UILocalNotification objects composed by UILocalNotification+Paco
 - (void)pacoSortLocalNotificationsByFireDate;
 
+//The receiver must contain UILocalNotification objects composed by UILocalNotification+Paco
+- (NSMutableArray*)pacoSortLocalNotificationsAndRemoveDuplicates;
+
 @end
 
 

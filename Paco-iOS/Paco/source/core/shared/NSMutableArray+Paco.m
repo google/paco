@@ -16,6 +16,7 @@
 #import "NSMutableArray+Paco.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
 
 @implementation NSMutableArray (Paco)
 
@@ -43,6 +44,41 @@
     return [firstFireDate compare:secondFireDate];
   }];
 }
+
+- (NSMutableArray*)pacoSortLocalNotificationsAndRemoveDuplicates {
+  //if there are less than 2 notifications, no need to do anything
+  NSMutableArray* nonDuplicateArray = [NSMutableArray arrayWithCapacity:[self count]];
+  if ([self count] < 2) {
+    [nonDuplicateArray addObjectsFromArray:self];
+    return nonDuplicateArray;
+  }
+  
+  [self pacoSortLocalNotificationsByFireDate];
+  
+  int prevIndex = 0;
+  int currentIndex = 1;
+  //add the first element
+  [nonDuplicateArray addObject:[self objectAtIndex:prevIndex]];
+  while (currentIndex < [self count]) {
+    UILocalNotification* prev = [self objectAtIndex:prevIndex];
+    UILocalNotification* current = [self objectAtIndex:currentIndex];
+    NSAssert([prev isKindOfClass:[UILocalNotification class]] &&
+             [current isKindOfClass:[UILocalNotification class]],
+             @"all elements should be UILocalNotification object");
+    
+    NSDate* prevFireDate = [prev pacoFireDate];
+    NSDate* currentFireDate = [current pacoFireDate];
+    NSAssert([prevFireDate pacoNoLaterThanDate:currentFireDate],
+             @"previous should be earlier than or equal to current after sorting");
+    if (![currentFireDate isEqualToDate:prevFireDate]) {
+      [nonDuplicateArray addObject:current];
+      prevIndex = currentIndex;
+    }
+    currentIndex++;
+  }
+  return nonDuplicateArray;
+}
+
 @end
 
 
