@@ -45,6 +45,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 @interface UILocalNotification (Paco)
 
 - (PacoNotificationStatus)pacoStatus;
+- (NSString*)pacoStatusDescription;
 
 + (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
                                          experimentTitle:(NSString*)experimentTitle

@@ -144,6 +144,24 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   return [info status];
 }
 
+
+- (NSString*)pacoStatusDescription {
+  switch ([self pacoStatus]) {
+    case PacoNotificationStatusFiredNotTimeout:
+      return @"Fired, Not Timeout";
+    case PacoNotificationStatusTimeout:
+      return @"Fired, Timeout";
+    case PacoNotificationStatusNotFired:
+      return @"Not Fired";
+    case PacoNotificationStatusUnknown:
+      return @"Unknown";
+    default:
+      NSAssert(NO, @"should not happen");
+      return @"Wrong";
+  }
+}
+
+
 - (NSString*)pacoExperimentId {
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.experimentId;
