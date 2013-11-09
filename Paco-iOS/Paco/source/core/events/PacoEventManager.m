@@ -18,6 +18,7 @@
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
+#import "PacoClient.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -231,6 +232,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)saveEvents:(NSArray*)events {
+  if (ADD_TEST_DEFINITION) {
+    return;
+  }
+  
   NSAssert([events count] > 0, @"events should have more than one element");
   
   [self fetchAllEventsIfNecessary];
