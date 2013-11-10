@@ -82,6 +82,17 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
 }
 
+
+- (BOOL)isEqualToNotificationInfo:(PacoNotificationInfo*)info {
+  if ([self.experimentId isEqualToString:info.experimentId] &&
+      [self.fireDate isEqualToDate:info.fireDate] &&
+      [self.timeOutDate isEqualToDate:info.timeOutDate]) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 @end
 
 
@@ -159,6 +170,28 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
       NSAssert(NO, @"should not happen");
       return @"Wrong";
   }
+}
+
+
+- (BOOL)pacoIsEqualTo:(UILocalNotification*)notification {
+  if (![self.timeZone isEqualToTimeZone:notification.timeZone]) {
+    return NO;
+  }
+  if (![self.fireDate isEqualToDate:notification.fireDate]) {
+    return NO;
+  }
+  if (![self.alertBody isEqualToString:notification.alertBody]) {
+    return NO;
+  }
+  if (![self.soundName isEqualToString:notification.soundName]) {
+    return NO;
+  }
+  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoNotificationInfo* another = [PacoNotificationInfo pacoInfoWithDictionary:notification.userInfo];
+  if (![info isEqualToNotificationInfo:another]) {
+    return NO;
+  }
+  return YES;
 }
 
 

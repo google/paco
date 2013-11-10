@@ -725,4 +725,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 }
 
 
+- (void)testPacoIsEqualTo {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 @end

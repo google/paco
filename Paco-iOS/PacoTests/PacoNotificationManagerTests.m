@@ -1052,7 +1052,13 @@
 }
 
 
+- (void)testActiveNotificationForExperiment {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
+- (void)testIsNotificationActiveForExperiment {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 
 

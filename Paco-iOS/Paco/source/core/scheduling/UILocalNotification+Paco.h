@@ -70,4 +70,6 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 
 + (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications;
 
+- (BOOL)pacoIsEqualTo:(UILocalNotification*)notification;
+
 @end

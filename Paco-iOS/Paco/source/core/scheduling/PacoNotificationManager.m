@@ -219,6 +219,39 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId {
+  NSAssert([experimentId length] > 0, @"experimentId should be valid");
+  @synchronized(self) {
+    NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+    if (0 == [notifications count]) {
+      return nil;
+    }
+    __block UILocalNotification* result = nil;
+    [UILocalNotification pacoProcessNotifications:notifications
+                                        withBlock:^(UILocalNotification* activeNotification,
+                                                    NSArray* expiredNotifications,
+                                                    NSArray* notFiredNotifications) {
+                                          result = activeNotification;
+    }];
+    return result;
+  }
+}
+
+- (BOOL)isNotificationActive:(UILocalNotification*)notification {
+  if (notification == nil) {
+    return NO;
+  }
+  NSString* experimentId = [notification pacoExperimentId];
+  NSAssert([experimentId length] > 0, @"experimentId should be nil");
+  UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
+  if (activeNotification && [activeNotification pacoIsEqualTo:notification]) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   //check cached notifications
   BOOL hasScheduledNotification = NO;

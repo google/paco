@@ -39,6 +39,8 @@
 //3. delete all notifications from cache for this experiment
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId;
 
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
+- (BOOL)isNotificationActive:(UILocalNotification*)notification;
 
 - (void)handleRespondedNotification:(UILocalNotification*)notification;
 
