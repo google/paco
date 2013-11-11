@@ -86,6 +86,49 @@ NSString *kCellIdQuestion = @"question";
   [self reloadTable];
 }
 
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  NSLog(@"Survey shows up:");
+  [self processAttachedNotificationIfNeeded];
+}
+
+- (void)processAttachedNotificationIfNeeded {
+  //No need to worry about self-report only experiment
+  if ([self.evaluator.experiment isSelfReportExperiment]) {
+    return;
+  }
+
+  if (self.notification) {
+    NSLog(@"Detail: %@", [self.notification description]);
+    NSLog(@"Notification Status: %@", [self.notification pacoStatusDescription]);
+  }
+  BOOL needToDetectActiveNotification = NO;
+  if (self.notification == nil ||   //self-report
+      (self.notification != nil &&  //non-self-report, but notification is not active any more
+       ![[PacoClient sharedInstance].scheduler isNotificationActive:self.notification])) {
+        needToDetectActiveNotification = YES;
+        NSLog(@"Need to detect active notification.");
+  }
+  
+  if (needToDetectActiveNotification) {
+    [[UIApplication sharedApplication] cancelLocalNotification:self.notification];
+    NSString* experimentId = self.evaluator.experiment.instanceId;
+    NSAssert([experimentId length] > 0, @"experiementId should be valid");
+    self.notification =
+        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experimentId];
+    if (self.notification) {
+      NSLog(@"Active Notification Detected: %@", [self.notification description]);
+    } else {
+      NSLog(@"No Active Notification Detected. ");
+    }
+  }
+  if (self.notification == nil) {
+    NSLog(@"Self-report");
+  }
+}
+
+
 - (void)onDone {
   NSError* error = [self.evaluator validateVisibleInputs];
   if (error) {
@@ -96,6 +139,8 @@ NSString *kCellIdQuestion = @"question";
                       otherButtonTitles:nil] show];
     return;
   }
+  
+  [self processAttachedNotificationIfNeeded];
   
   [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
                                              surveyInputs:self.evaluator.visibleInputs

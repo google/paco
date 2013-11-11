@@ -245,6 +245,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   if (notification == nil) {
     return NO;
   }
+  if ([notification pacoStatus] == PacoNotificationStatusTimeout) {
+    return NO;
+  }
   NSString* experimentId = [notification pacoExperimentId];
   NSAssert([experimentId length] > 0, @"experimentId should be nil");
   UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
