@@ -123,12 +123,15 @@ NSInteger const kTotalNumOfNotifications = 60;
  **/
 //YMZ:TODO: this method can be improved to be more efficient
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
+  NSLog(@"Executing Major Task...");
   BOOL needToScheduleNewNotifications = YES;
   if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
     needToScheduleNewNotifications = NO;
+    NSLog(@"No need to schedule new notifications, there are 60 notifications already.");
   }
   if (needToScheduleNewNotifications) {
     NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+    NSLog(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
     [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   }
   [self.delegate updateNotificationSystem];

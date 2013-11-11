@@ -206,6 +206,7 @@
   if (self.location == nil) {
     return;
   }
+  NSLog(@"Shut down notification system ...");
   [self.location disableLocationService];
   self.location = nil;
 }
