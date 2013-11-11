@@ -32,9 +32,13 @@
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
+  [self processReceivedNotification:notification];
+}
+
+- (void)processReceivedNotification:(UILocalNotification*)notification {
   NSLog(@"Detail: %@", [notification description]);
   NSLog(@"Notification Status: %@", [notification pacoStatusDescription]);
-
+  
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
     NSLog(@"Notification is not active anymore!");
@@ -47,8 +51,8 @@
       NSLog(@"No Active Notification Detected. ");
     }
   }
-
-  UIApplicationState state = [application applicationState];
+  
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
     if (state == UIApplicationStateInactive) {
       [self showNoSurveyNeeded];
@@ -57,7 +61,6 @@
     }
   } else {
     if (state == UIApplicationStateInactive) {
-      //if this is called when application is in background, we should show the question view directly.
       NSLog(@"UIApplicationStateInactive");
       [self showSurveyForNotification:activeNotification];
     } else if (state == UIApplicationStateActive) {
@@ -66,6 +69,7 @@
     }
   }
 }
+
 
 - (void)showNoSurveyNeeded {
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
@@ -89,11 +93,7 @@
 }
 
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
-  PacoNotificationStatus status = [notification pacoStatus];
-  if (status == PacoNotificationStatusTimeout) {
-    NSLog(@"Warning: A time out notification was received!");
-    return;
-  }
+  NSAssert([notification pacoStatus] != PacoNotificationStatusTimeout, @"should not be timeout");
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
   [JCNotificationCenter enqueueNotificationWithTitle:@""
                                              message:notification.alertBody
@@ -129,8 +129,7 @@
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    NSLog(@"Detail: %@", [notification description]);
-    [self presentForegroundNotification:notification];
+    [self processReceivedNotification:notification];
   } else {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
