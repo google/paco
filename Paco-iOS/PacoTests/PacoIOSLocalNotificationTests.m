@@ -98,6 +98,13 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
                  @"it should be invalid to schedule a notification for now");
 }
 
+
+- (void)testCancelNilNotification {
+  STAssertThrows([[UIApplication sharedApplication] cancelLocalNotification:nil],
+                 @"Cancle a nil notification will throw an exception!");
+}
+
+
 - (void)testCancelAnInvalidNotification {
   UILocalNotification* notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];

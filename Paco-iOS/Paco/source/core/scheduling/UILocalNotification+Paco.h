@@ -64,6 +64,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
 
 + (void)pacoCancelNotifications:(NSArray*)notifications;
++ (void)pacoCancelLocalNotification:(UILocalNotification*)notification;
 
 //notifications MUST be sorted already
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;

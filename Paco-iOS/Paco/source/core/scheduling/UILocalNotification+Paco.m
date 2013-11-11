@@ -253,6 +253,12 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
 }
 
++ (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
+  if (notification != nil) {
+    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  }
+}
+
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block {
   if (!block) {
     return;
