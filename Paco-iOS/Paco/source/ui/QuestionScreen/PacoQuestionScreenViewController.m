@@ -91,6 +91,25 @@ NSString *kCellIdQuestion = @"question";
   [super viewWillAppear:animated];
   NSLog(@"Survey shows up:");
   [self processAttachedNotificationIfNeeded];
+  
+  if (self.evaluator.experiment.definition.webReccommended) {
+    [self showRecommendationAlert];
+  }
+}
+
+- (void)showRecommendationAlert {
+  NSString* title = [NSString stringWithFormat:@"Hi %@", [[PacoClient sharedInstance] userEmail]];
+  NSString* message = @"It is recommended that you fill this study out on your computer instead.";
+  [PacoAlertView showAlertWithTitle:title
+                            message:message
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         if (self.notification) {
+                           [[PacoClient sharedInstance].scheduler handleRespondedNotification:self.notification];
+                         }
+                         [self.navigationController popViewControllerAnimated:YES];
+                       }
+                  cancelButtonTitle:@"I will respond on the web"
+                  otherButtonTitles:nil];
 }
 
 - (void)processAttachedNotificationIfNeeded {
