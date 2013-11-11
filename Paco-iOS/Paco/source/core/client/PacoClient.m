@@ -158,6 +158,9 @@
 }
 
 - (NSString*)userEmail {
+  if (SKIP_LOG_IN) {
+    return @"test@gmail.com";
+  }
   return [self.authenticator userEmail];
 }
 

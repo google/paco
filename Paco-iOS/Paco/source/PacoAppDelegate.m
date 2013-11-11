@@ -38,6 +38,7 @@
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
     NSLog(@"Notification is not active anymore!");
+    [[UIApplication sharedApplication] cancelLocalNotification:activeNotification];
     activeNotification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
     if (activeNotification) {

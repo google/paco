@@ -146,10 +146,13 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
  b. delete them from the local cache
  **/
 - (void)purgeCachedNotifications {
+  NSLog(@"Purge cached notifications...");
   [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
+    NSLog(@"There are %d expired notifications.", [expiredNotifications count]);
+    NSLog(@"There are %d not fired notifications.", [notFiredNotifications count]);
     self.notificationDict = newNotificationDict;
     if (expiredNotifications) {
       [UILocalNotification pacoCancelNotifications:expiredNotifications];
