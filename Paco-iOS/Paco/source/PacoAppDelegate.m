@@ -33,23 +33,45 @@
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
   NSLog(@"Detail: %@", [notification description]);
-  
-  PacoNotificationStatus status = [notification pacoStatus];
-  if (status == PacoNotificationStatusTimeout) {
-    NSLog(@"Warning: A time out notification was received!");
-    return;
-  }
   NSLog(@"Notification Status: %@", [notification pacoStatusDescription]);
-  
-  UIApplicationState state = [application applicationState];
-  if (state == UIApplicationStateInactive) {
-    //if this is called when application is in background, we should show the question view directly.
-    NSLog(@"UIApplicationStateInactive");
-    [self showSurveyForNotification:notification];
-  } else if (state == UIApplicationStateActive) {
-    NSLog(@"UIApplicationStateActive");
-    [self presentForegroundNotification:notification];
+
+  UILocalNotification* activeNotification = notification;
+  if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
+    NSLog(@"Notification is not active anymore!");
+    activeNotification =
+        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
+    if (activeNotification) {
+      NSLog(@"Active Notification Detected: %@", [activeNotification description]);
+    } else {
+      NSLog(@"No Active Notification Detected. ");
+    }
   }
+
+  UIApplicationState state = [application applicationState];
+  if (activeNotification == nil) {
+    if (state == UIApplicationStateInactive) {
+      [self showNoSurveyNeeded];
+    } else {
+      NSLog(@"Ignore this notfication");
+    }
+  } else {
+    if (state == UIApplicationStateInactive) {
+      //if this is called when application is in background, we should show the question view directly.
+      NSLog(@"UIApplicationStateInactive");
+      [self showSurveyForNotification:activeNotification];
+    } else if (state == UIApplicationStateActive) {
+      NSLog(@"UIApplicationStateActive");
+      [self presentForegroundNotification:activeNotification];
+    }
+  }
+}
+
+- (void)showNoSurveyNeeded {
+  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+  NSString* message = @"No need to fill out any survey at this moment for this experiment.";
+  [JCNotificationCenter enqueueNotificationWithTitle:@""
+                                             message:message
+                                          tapHandler:nil];
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {

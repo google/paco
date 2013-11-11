@@ -139,6 +139,14 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.notificationManager handleRespondedNotification:notification];
 }
 
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId {
+  return [self.notificationManager activeNotificationForExperiment:experimentId];
+}
+
+- (BOOL)isNotificationActive:(UILocalNotification*)notification {
+  return [self.notificationManager isNotificationActive:notification];
+}
+
 #pragma mark PacoNotificationManagerDelegate
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   [self.delegate handleExpiredNotifications:expiredNotifications];

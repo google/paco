@@ -46,6 +46,10 @@ extern NSInteger const kTotalNumOfNotifications;
 
 - (void)handleRespondedNotification:(UILocalNotification *)notification;
 
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
+- (BOOL)isNotificationActive:(UILocalNotification*)notification;
+
+
 // call this when joining an experiment
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
