@@ -48,6 +48,7 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 
 - (PacoNotificationStatus)pacoStatus;
 - (NSString*)pacoStatusDescription;
+- (NSString*)pacoDescription;
 
 + (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
                                          experimentTitle:(NSString*)experimentTitle

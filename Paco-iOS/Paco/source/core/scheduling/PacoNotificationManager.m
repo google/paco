@@ -201,6 +201,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     //save the new notifications
     [self saveNotificationsToCache];
     
+    NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    
     //schedule the new notifications
     [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
   }

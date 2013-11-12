@@ -101,4 +101,35 @@
   return descript;
 }
 
+- (NSString*)pacoDescriptionForNotifications {
+  NSString* descript = @"(\n";
+  for (id object in self) {
+    UILocalNotification* notification = (UILocalNotification*)object;
+    NSAssert([notification isKindOfClass:[UILocalNotification class]], @"every element should be UILocalNotification");
+    descript = [descript stringByAppendingString:[notification pacoDescription]];
+    descript = [descript stringByAppendingString:@"\n"];
+  }
+  descript = [descript stringByAppendingString:@")"];
+  return descript;
+}
+
+@end
+
+
+@implementation NSDictionary (Paco)
+
+- (NSString*)pacoDescriptionForNotificationDict {
+  NSString* descript = @"{\n";
+  for (NSString* experimentId in self) {
+    NSAssert([experimentId isKindOfClass:[NSString class]], @"key should be experimentId");
+    NSArray* notifications = [self objectForKey:experimentId];
+    descript = [descript stringByAppendingString:experimentId];
+    descript = [descript stringByAppendingString:@":"];
+    descript = [descript stringByAppendingString:[notifications pacoDescriptionForNotifications]];
+    descript = [descript stringByAppendingString:@";\n"];
+  }
+  descript = [descript stringByAppendingString:@"}"];
+  return descript;
+}
+
 @end

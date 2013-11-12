@@ -275,6 +275,28 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   STAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
 }
 
+- (void)testNotificationDescription {
+  UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:self.testID
+                                                                    experimentTitle:self.testTitle
+                                                                           fireDate:self.testFireDate
+                                                                        timeOutDate:self.testTimeoutDate];
+  NSString* description = [noti pacoDescription];
+  NSString* fireDateStr = [NSString stringWithFormat:@"notificationFireDate:%@; ",
+                           [PacoDateUtility pacoStringForDate:self.testFireDate]];
+  NSString* timeoutDateStr = [NSString stringWithFormat:@"notificationTimeoutDate:%@; }",
+                           [PacoDateUtility pacoStringForDate:self.testTimeoutDate]];
+  NSString* expect = [NSString stringWithFormat:@"<%@,%p: fireDate=%@, status=(%@), userInfo=%@%@%@>",
+                      NSStringFromClass([noti class]),
+                      noti,
+                      [PacoDateUtility pacoStringForDate:self.testFireDate],
+                      @"Fired, Not Timeout",
+                      @"{experimentInstanceId:12345; ",
+                      fireDateStr,
+                      timeoutDateStr
+                      ];
+  STAssertEqualObjects(description, expect, @"description should be correct");
+}
+
 - (void)testPacoStatus {
   UILocalNotification* noti = [UILocalNotification pacoNotificationWithExperimentId:@""
                                                                     experimentTitle:self.testTitle

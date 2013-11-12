@@ -38,3 +38,10 @@
 
 @end
 
+
+
+@interface NSDictionary (Paco)
+
+- (NSString*)pacoDescriptionForNotificationDict;
+
+@end

@@ -82,6 +82,19 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
 }
 
+- (NSString*)description {
+  NSString* description = @"{";
+  description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
+                                                      kUserInfoKeyExperimentId, self.experimentId]];
+  description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
+                                                      kUserInfoKeyNotificationFireDate,
+                                                      [PacoDateUtility pacoStringForDate:self.fireDate]]];
+  description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
+                                                      kUserInfoKeyNotificationTimeoutDate,
+                                                      [PacoDateUtility pacoStringForDate:self.timeOutDate]]];
+  description = [description stringByAppendingString:@"}"];
+  return description;
+}
 
 - (BOOL)isEqualToNotificationInfo:(PacoNotificationInfo*)info {
   if ([self.experimentId isEqualToString:info.experimentId] &&
@@ -172,6 +185,15 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
 }
 
+- (NSString*)pacoDescription {
+  return [NSString stringWithFormat:@"<%@,%p: fireDate=%@, status=(%@), userInfo=%@>",
+          NSStringFromClass([self class]),
+          self,
+          [PacoDateUtility pacoStringForDate:self.fireDate],
+          [self pacoStatusDescription],
+          [[PacoNotificationInfo pacoInfoWithDictionary:self.userInfo] description]
+          ];
+}
 
 - (BOOL)pacoIsEqualTo:(UILocalNotification*)notification {
   if (![self.timeZone isEqualToTimeZone:notification.timeZone]) {
