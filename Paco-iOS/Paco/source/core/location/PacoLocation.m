@@ -41,19 +41,16 @@
 
 - (void)enableLocationService {
   NSLog(@"Paco background Location Service got enabled");
-  [self.manager startUpdatingLocation];
   [self.manager startMonitoringSignificantLocationChanges];
 }
 
 - (void)disableLocationService {
   NSLog(@"Paco background Location Service got disabled");
-  [self.manager stopUpdatingLocation];
   [self.manager stopMonitoringSignificantLocationChanges];
 }
 
 - (void)updateLocation {
   self.numUpdates = 0;
-  [self.manager startUpdatingLocation];
 }
 
 #pragma mark - CLLocationManagerDelegate
