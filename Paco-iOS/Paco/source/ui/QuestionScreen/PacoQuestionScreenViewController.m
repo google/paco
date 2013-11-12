@@ -119,8 +119,7 @@ NSString *kCellIdQuestion = @"question";
   }
 
   if (self.notification) {
-    NSLog(@"Detail: %@", [self.notification description]);
-    NSLog(@"Notification Status: %@", [self.notification pacoStatusDescription]);
+    NSLog(@"Detail: %@", [self.notification pacoDescription]);
   }
   BOOL needToDetectActiveNotification = NO;
   if (self.notification == nil ||   //self-report
@@ -137,7 +136,7 @@ NSString *kCellIdQuestion = @"question";
     self.notification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experimentId];
     if (self.notification) {
-      NSLog(@"Active Notification Detected: %@", [self.notification description]);
+      NSLog(@"Active Notification Detected: %@", [self.notification pacoDescription]);
     } else {
       NSLog(@"No Active Notification Detected. ");
     }

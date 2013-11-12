@@ -36,8 +36,7 @@
 }
 
 - (void)processReceivedNotification:(UILocalNotification*)notification {
-  NSLog(@"Detail: %@", [notification description]);
-  NSLog(@"Notification Status: %@", [notification pacoStatusDescription]);
+  NSLog(@"Detail: %@", [notification pacoDescription]);
   
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
@@ -46,7 +45,7 @@
     activeNotification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
     if (activeNotification) {
-      NSLog(@"Active Notification Detected: %@", [activeNotification description]);
+      NSLog(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
     } else {
       NSLog(@"No Active Notification Detected. ");
     }
