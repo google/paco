@@ -206,6 +206,52 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+
+/*
+ - Keep the following notifications: 
+ a. the active notifications
+ b. all scheduled but not fired notifications
+ 
+ - Clean all expired notifications:
+ a. cancel them from iOS
+ b. save survey-missed events
+ c. delete them from the local cache
+ **/
+- (void)cleanExpiredNotifications {
+  @synchronized(self) {
+    if (0 == [self.notificationDict count]) {
+      return;
+    }
+    NSMutableDictionary* newNotificationDict = [NSMutableDictionary dictionary];
+    NSMutableArray* allExpiredNotifications = [NSMutableArray array];
+    for (NSString* experimentId in self.notificationDict) {
+      NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+      if (0 == [notifications count]) {
+        continue;
+      }
+      FetchExpiredBlock block = ^(NSArray* expiredNotifications,
+                                  NSArray* nonExpiredNotifications) {
+        if ([expiredNotifications count] > 0) {
+          [allExpiredNotifications addObjectsFromArray:expiredNotifications];
+        }
+        if ([nonExpiredNotifications count] > 0) {
+          [newNotificationDict setObject:[NSMutableArray arrayWithArray:nonExpiredNotifications]
+                                  forKey:experimentId];
+        }
+      };
+      [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
+    }
+    //handle the expired notifications
+    if ([allExpiredNotifications count] > 0) {
+      [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
+      [self.delegate handleExpiredNotifications:allExpiredNotifications];
+    }
+    //set the new notification dict, and save it to cache
+    self.notificationDict = newNotificationDict;
+    [self saveNotificationsToCache];
+  }
+}
+
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId {
   NSAssert([experimentId length] > 0, @"experimentId should be valid");
   @synchronized(self) {

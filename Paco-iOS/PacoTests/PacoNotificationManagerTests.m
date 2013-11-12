@@ -1060,6 +1060,8 @@
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
-
+- (void)testCleanExpiredNotifications {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 @end

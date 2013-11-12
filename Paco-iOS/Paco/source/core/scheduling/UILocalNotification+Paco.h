@@ -42,6 +42,8 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                         NSArray* expiredNotifications,
                                         NSArray* notFiredNotifications);
 
+typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpiredNotifications);
+
 @interface UILocalNotification (Paco)
 
 - (PacoNotificationStatus)pacoStatus;
@@ -68,6 +70,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
 
 //notifications MUST be sorted already
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
++ (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
 
 + (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications;
 

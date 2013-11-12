@@ -319,6 +319,32 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
 }
 
 
++ (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block {
+  if (!block) {
+    return;
+  }
+  [self pacoProcessNotifications:notifications withBlock:^(UILocalNotification* activeNotification,
+                                                           NSArray* expiredNotifications,
+                                                           NSArray* notFiredNotifications) {
+    NSMutableArray* nonExpiredNotifications = [NSMutableArray array];
+    if (activeNotification) {
+      [nonExpiredNotifications addObject:activeNotification];
+    }
+    if ([notFiredNotifications count] > 0) {
+      [nonExpiredNotifications addObjectsFromArray:notFiredNotifications];
+    }
+    if (0 == [nonExpiredNotifications count]) {
+      nonExpiredNotifications = nil;
+    }
+    if (0 == [expiredNotifications count]) {
+      expiredNotifications = nil;
+    }
+    block(expiredNotifications, nonExpiredNotifications);
+  }];
+}
+
+
+
 + (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications {
   NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithCapacity:[allNotifications count]];
   //create a dictionary from allNotifications

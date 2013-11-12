@@ -32,6 +32,7 @@
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;
+- (void)cleanExpiredNotifications;
 
 //call this when the user stops an experiment
 //1. cancel all notifications from iOS for this expeirment
