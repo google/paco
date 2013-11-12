@@ -119,17 +119,24 @@
 @implementation NSDictionary (Paco)
 
 - (NSString*)pacoDescriptionForNotificationDict {
+  NSString* meta = @"";
+  int total = 0;
+  
   NSString* descript = @"{\n";
   for (NSString* experimentId in self) {
     NSAssert([experimentId isKindOfClass:[NSString class]], @"key should be experimentId");
     NSArray* notifications = [self objectForKey:experimentId];
+    total += [notifications count];
+    meta = [meta stringByAppendingString:[NSString stringWithFormat:@"[%@: %d],",
+                                          experimentId, [notifications count]]];
     descript = [descript stringByAppendingString:experimentId];
     descript = [descript stringByAppendingString:@":"];
     descript = [descript stringByAppendingString:[notifications pacoDescriptionForNotifications]];
     descript = [descript stringByAppendingString:@";\n"];
   }
   descript = [descript stringByAppendingString:@"}"];
-  return descript;
+  NSString* result = [NSString stringWithFormat:@"Total: %d, %@\n%@", total, meta,descript];
+  return result;
 }
 
 @end
