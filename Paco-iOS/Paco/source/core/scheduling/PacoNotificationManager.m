@@ -312,18 +312,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
-  //check cached notifications
-  BOOL hasScheduledNotification = NO;
-  for(NSString* notificationHash in self.notificationDict) {
-    UILocalNotification* notification = [self.notificationDict objectForKey:notificationHash];
-    NSString* experimentInstanceId = [notification pacoExperimentId];
-    NSAssert(experimentInstanceId.length > 0, @"experimentInstanceId should be valid!");
-    if ([experimentInstanceId isEqualToString:instanceIdToCheck]) {
-      hasScheduledNotification = YES;
-      break;
-    }
-  }
-  NSAssert(!hasScheduledNotification, @"shouldn't have any scheduled notifications!");
+  NSAssert([instanceIdToCheck length] > 0, @"instanceIdToCheck should be valid");
+  NSArray* notifications = [self.notificationDict objectForKey:instanceIdToCheck];
+  NSAssert([notifications count] == 0, @"shouldn't have any notifications!");
 }
 
 - (NSString*)notificationPlistPath {
