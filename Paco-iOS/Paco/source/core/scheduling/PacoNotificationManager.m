@@ -241,6 +241,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       };
       [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
     }
+    NSLog(@"Clean %d expired notifications...", [allExpiredNotifications count]);
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
       [UILocalNotification pacoCancelNotifications:allExpiredNotifications];

@@ -133,6 +133,8 @@ NSInteger const kTotalNumOfNotifications = 60;
     NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
     NSLog(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
     [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
+  } else {
+    [self.notificationManager cleanExpiredNotifications];
   }
   [self.delegate updateNotificationSystem];
 }
