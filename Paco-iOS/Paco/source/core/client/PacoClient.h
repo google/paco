@@ -60,6 +60,8 @@
 + (PacoClient *)sharedInstance;
 
 - (NSString*)userEmail;
+- (NSString*)userName;
+
 - (BOOL)isLoggedIn;
 
 //call this method when we get authentication error

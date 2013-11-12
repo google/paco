@@ -164,6 +164,14 @@
   return [self.authenticator userEmail];
 }
 
+- (NSString*)userName {
+  NSString* email = [self userEmail];
+  NSArray* components = [email componentsSeparatedByString:@"@"];
+  NSAssert([components count] == 2, @"should be a valid email");
+  NSString* name = [[components firstObject] capitalizedString];
+  return name;
+}
+
 - (void)invalidateUserAccount {
   [self.authenticator invalidateCurrentAccount];
   [self showLoginScreenWithCompletionBlock:nil];

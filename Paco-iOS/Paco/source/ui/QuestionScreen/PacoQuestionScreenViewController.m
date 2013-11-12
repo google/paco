@@ -98,7 +98,7 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)showRecommendationAlert {
-  NSString* title = [NSString stringWithFormat:@"Hi %@", [[PacoClient sharedInstance] userEmail]];
+  NSString* title = [NSString stringWithFormat:@"Hi %@", [[PacoClient sharedInstance] userName]];
   NSString* message = @"It is recommended that you fill this study out on your computer instead.";
   [PacoAlertView showAlertWithTitle:title
                             message:message
