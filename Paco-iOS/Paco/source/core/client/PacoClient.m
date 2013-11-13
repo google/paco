@@ -178,6 +178,7 @@
 }
 
 - (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {
+  NSAssert([[self userEmail] length] > 0, @"userEmail should be valid");
   NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
   for (UILocalNotification* notification in expiredNotifications) {
     NSString* experimentId = [notification pacoExperimentId];
@@ -317,7 +318,7 @@
   
   // Fetch the experiment definitions and the events of joined experiments.
   [self prefetchInBackgroundWithBlock:^{
-    [self setUpNotificationSystem ];
+    [self setUpNotificationSystem];
   }];
   
   [self uploadPendingEventsInBackground];
@@ -456,6 +457,7 @@
 
 - (void)uploadPendingEventsInBackground {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSLog(@"Start uploading all pending events in background ...");
     [self.eventManager startUploadingEvents];
   });
 }

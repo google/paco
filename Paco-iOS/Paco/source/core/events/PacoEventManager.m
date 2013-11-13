@@ -130,6 +130,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       id events = [dict objectForKey:definitionId];
       [allEventsDict setObject:[self deserializedEvents:events] forKey:definitionId];
     }      
+    NSLog(@"Fetched all events.");
     self.eventsDict = allEventsDict;
   }
 }
@@ -144,6 +145,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if (events != nil) {
       pendingEvents = [self deserializedEvents:events];
     }
+    NSLog(@"Fetched %d pending events.", [pendingEvents count]);
     self.pendingEvents = pendingEvents;
   }
 }
@@ -218,6 +220,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       [self.pendingEvents removeObject:event];
     }
     
+    [self savePendingEventsToFile];
     NSLog(@"[Mark Complete] %d events! ", [events count]);
     NSLog(@"[Pending Events] %d.", [self.pendingEvents count]);
   }
@@ -238,6 +241,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   
   NSAssert([events count] > 0, @"events should have more than one element");
   
+  NSLog(@"Save %d events ...", [events count]);
   [self fetchAllEventsIfNecessary];
   [self fetchPendingEventsIfNecessary];
 
@@ -255,8 +259,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     //add this event to pendingEvent list too
     [self.pendingEvents addObject:event];
   }
-  
-  //submit events to server
+  [self saveDataToFile];
   [self startUploadingEvents];
 }
 
@@ -303,8 +306,15 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)startUploadingEvents {
-  [self.uploader startUploading];
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+  if (state == UIApplicationStateActive) {
+    NSLog(@"Start uploading %d pending events...", [self.pendingEvents count]);
+    [self.uploader startUploading];
+  } else {
+    NSLog(@"Won't upload %d pending events since app is inactive.", [self.pendingEvents count]);
+  }
 }
+
 - (void)stopUploadingEvents {
   [self.uploader stopUploading];
 }

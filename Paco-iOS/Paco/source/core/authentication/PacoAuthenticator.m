@@ -59,11 +59,13 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 - (NSString*)fetchUserEmailFromKeyChain {
   NSArray* accounts = [SSKeychain accountsForService:kPacoService];
   if (0 == [accounts count]) {
+    NSLog(@"No email stored in Keychain");
     return nil;
   }
   NSAssert([accounts count] == 1, @"should only have one account!");
   NSDictionary* accountDict = [accounts objectAtIndex:0];
   NSString* email = [accountDict objectForKey:kSSKeychainAccountKey];
+  NSLog(@"Fetched an email from Keychain");
   return email;
 }
 

@@ -170,18 +170,20 @@ static int const kMaxNumOfEventsToUpload = 50;
 - (void)startUploading {
   //if user is not logged in yet, wait until log in finishes
   if (![[PacoClient sharedInstance] isLoggedIn]) {
+    NSLog(@"EventUploader failed to start uploading since user is not logged in");
     return;
   }
 
   @synchronized(self) {
     if (self.isWorking) {
+      NSLog(@"EventUploading is already working.");
       return;
     }
-    
     if (![self.delegate hasPendingEvents]) {
+      NSLog(@"EventUploader failed to start uploading since there isn't any pending events");
       return;
     }
-    
+    NSLog(@"EventUploader starts uploading ...");
     [self uploadEvents];
   }
 }
