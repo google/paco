@@ -75,6 +75,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   if (notification == nil) {
     return;
   }
+  NSLog(@"Handling responded notification...");
   //Since this notification is responded successfully, cancelling it will clear it from the notification tray
   [[UIApplication sharedApplication] cancelLocalNotification:notification];
 
@@ -189,8 +190,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+- (NSUInteger)numOfScheduledNotifications {
+  return [[UIApplication sharedApplication].scheduledLocalNotifications count];
+}
+
 - (BOOL)hasMaximumScheduledNotifications {
-  return (kTotalNumOfNotifications == [[UIApplication sharedApplication].scheduledLocalNotifications count]);
+  return (kTotalNumOfNotifications == [self numOfScheduledNotifications]);
 }
 
 - (void)schedulePacoNotifications:(NSArray*)notifications {

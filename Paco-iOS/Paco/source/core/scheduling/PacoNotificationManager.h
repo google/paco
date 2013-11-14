@@ -48,6 +48,7 @@
 - (BOOL)saveNotificationsToCache;
 - (BOOL)loadNotificationsFromCache;
 
+- (NSUInteger)numOfScheduledNotifications;
 - (BOOL)hasMaximumScheduledNotifications;
 
 - (void)cancelAllPacoNotifications;

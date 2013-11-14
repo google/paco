@@ -125,12 +125,22 @@ NSInteger const kTotalNumOfNotifications = 60;
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
   NSLog(@"Executing Major Task...");
   BOOL needToScheduleNewNotifications = YES;
+  NSArray* notificationsToSchedule = nil;
+  
   if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
     needToScheduleNewNotifications = NO;
     NSLog(@"No need to schedule new notifications, there are 60 notifications already.");
   }
   if (needToScheduleNewNotifications) {
-    NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+    notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+  }
+  if (!experimentModelChanged &&
+      needToScheduleNewNotifications &&
+      [self.notificationManager numOfScheduledNotifications] == [notificationsToSchedule count]) {
+      NSLog(@"There are already %d notifications scheduled, skip scheduling new notifications.", [notificationsToSchedule count]);
+      needToScheduleNewNotifications = NO;
+  }
+  if (needToScheduleNewNotifications) {
     NSLog(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
     [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   } else {
