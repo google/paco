@@ -67,6 +67,7 @@
  */
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
   NSLog(@"[LocationManager] Low Energy didUpdateLocations");
+  [self.delegate locationChangedSignificantly];
 }
 
 

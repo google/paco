@@ -130,7 +130,10 @@ NSString *kCellIdQuestion = @"question";
   }
   
   if (needToDetectActiveNotification) {
-    [UILocalNotification pacoCancelLocalNotification:self.notification];
+    if (self.notification) {
+      NSLog(@"Cancelling current notification from the tray");
+      [UILocalNotification pacoCancelLocalNotification:self.notification];
+    }
     NSString* experimentId = self.evaluator.experiment.instanceId;
     NSAssert([experimentId length] > 0, @"experiementId should be valid");
     self.notification =

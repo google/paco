@@ -225,6 +225,17 @@
   self.location = nil;
 }
 
+#pragma mark PacoLocationDelegate
+- (void)locationChangedSignificantly {
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+  if (state == UIApplicationStateBackground) {
+    [self executeRoutineMajorTaskIfNeeded];
+  } else {
+    NSLog(@"Ignore significant location change when not in background");
+  }
+}
+
+
 #pragma mark PacoSchedulerDelegate
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime {

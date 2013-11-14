@@ -20,11 +20,13 @@
 @protocol PacoLocationDelegate <NSObject>
 @optional
 - (void)locationUpdated:(CLLocation *)location;
+@required
+- (void)locationChangedSignificantly;
 @end
 
 @interface PacoLocation : NSObject {
 }
-@property (nonatomic, assign) id <PacoLocationDelegate> delegate;
+@property (nonatomic, weak) id <PacoLocationDelegate> delegate;
 @property (nonatomic, copy, readonly) CLLocation *location; 
 
 
