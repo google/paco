@@ -33,7 +33,6 @@
 - (void)saveEvent:(PacoEvent*)event;
 - (void)saveEvents:(NSArray*)events;
 
-- (void)saveDataToFile;
 
 - (void)startUploadingEvents;
 - (void)stopUploadingEvents;

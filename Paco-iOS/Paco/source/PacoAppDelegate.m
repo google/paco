@@ -162,7 +162,6 @@
   } else {
     NSLog(@"FAILED TO SAVE TO FILE");
   }
-  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -180,7 +179,6 @@
   } else {
     NSLog(@"Failed to save notifications!");
   }
-  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
