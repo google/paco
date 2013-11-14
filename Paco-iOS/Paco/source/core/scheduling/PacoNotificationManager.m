@@ -328,7 +328,13 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 - (BOOL)saveNotificationsToCache {
   NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
-  return [data writeToFile:[self notificationPlistPath] atomically:YES];
+  BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
+  if (success) {
+    NSLog(@"Successfully saved notifications!");
+  } else {
+    NSLog(@"Failed to save notifications!");
+  }
+  return success;
 }
 
 - (BOOL)loadNotificationsFromCache {
