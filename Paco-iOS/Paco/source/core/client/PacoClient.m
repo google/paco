@@ -123,12 +123,13 @@
     }else{//localserver
       self.serverDomain = @"http://127.0.0.1";
     }
-    
+    NSLog(@"PacoClient initializing...");
   }
   return self;
 }
 
 - (void)dealloc {
+  NSLog(@"PacoClient deallocating...");
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -193,6 +194,10 @@
     [eventList addObject:event];
   }
   return eventList;
+}
+
+- (BOOL)isNotificationSystemOn {
+  return self.location != nil;
 }
 
 - (void)triggerNotificationSystemIfNeeded {
@@ -291,6 +296,14 @@
 - (void)setUpNotificationSystem {
   [self.scheduler initializeNotifications];
   [self updateNotificationSystem];
+}
+
+- (void)executeRoutineMajorTaskIfNeeded {
+  if ([self isNotificationSystemOn]) {
+    [self.scheduler executeRoutineMajorTask];
+  } else {
+    NSLog(@"Skip Executing Major Task, notification system is off");
+  }
 }
 
 #pragma mark bring up login flow if necessary

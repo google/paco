@@ -40,7 +40,7 @@
   
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
-    NSLog(@"Notification is not active anymore!");
+    NSLog(@"Notification is not active anymore, cancelling it from the tray...");
     [UILocalNotification pacoCancelLocalNotification:activeNotification];
     activeNotification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
@@ -179,6 +179,7 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillEnterForeground  ==========");
+  [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
 
 @end

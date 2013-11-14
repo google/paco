@@ -81,6 +81,8 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
+- (void)executeRoutineMajorTaskIfNeeded;
+
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
 - (void)stopExperiment:(PacoExperiment*)experiment;
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
