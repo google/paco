@@ -307,12 +307,19 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)startUploadingEvents {
-  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-  if (state == UIApplicationStateActive) {
-    NSLog(@"Start uploading %d pending events...", [self.pendingEvents count]);
-    [self.uploader startUploading];
-  } else {
-    NSLog(@"Won't upload %d pending events since app is inactive.", [self.pendingEvents count]);
+  @synchronized(self) {
+    NSArray* pendingEvents = [self allPendingEvents];
+    if ([pendingEvents count] == 0) {
+      NSLog(@"No pending events to upload.");
+      return;
+    }
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateActive) {
+      NSLog(@"There are %d pending events to upload.", [pendingEvents count]);
+      [self.uploader startUploading];
+    } else {
+      NSLog(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
+    }
   }
 }
 

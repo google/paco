@@ -82,6 +82,7 @@
 - (NSError*)errorOfPrefetchingexperiments;
 
 - (void)executeRoutineMajorTaskIfNeeded;
+- (void)uploadPendingEventsInBackground;
 
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
 - (void)stopExperiment:(PacoExperiment*)experiment;

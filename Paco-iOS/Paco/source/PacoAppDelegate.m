@@ -149,6 +149,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   NSLog(@"==========  Application applicationDidBecomeActive  ==========");
+  [[PacoClient sharedInstance] uploadPendingEventsInBackground];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
