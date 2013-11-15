@@ -230,8 +230,6 @@
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (state == UIApplicationStateBackground) {
     [self executeRoutineMajorTaskIfNeeded];
-  } else {
-    NSLog(@"Ignore significant location change when not in background");
   }
 }
 
