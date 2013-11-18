@@ -345,23 +345,19 @@ static const int kInvalidIndex = -1;
     [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
     [self addSubview:self.photoSegmentControl];
     
-    self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self updateChoosePhotoButtonTitle];
     [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
     [self addSubview:self.choosePhotoButton];
     if (self.question.responseObject) {
-      //NSString *classType = self.question.responseObject ? NSStringFromClass([self.question.responseObject class]) : nil;
-      assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
+      NSAssert([self.question.responseObject isKindOfClass:[UIImage class]],
+               @"a non-nil responseObject should be UIImage object");
       UIImage *image = self.question.responseObject;
+      self.image = image;
       [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
     }
-//      [self.choosePhotoButton sizeToFit];
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
-    if (self.question.responseObject) {
-      assert(self.question.responseObject == nil || [self.question.responseObject isKindOfClass:[UIImage class]]);
-      self.image = self.question.responseObject;
-    }
   } else {
 
     NSLog(@"TODO: implement response type \"%@\"", self.question.responseType);
