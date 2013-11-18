@@ -19,7 +19,9 @@
 
 
 NSString* const kPacoImageNamePrefix = @"[PacoImageName]";
-static CGFloat kPacoImageCompressionQuality = .5;
+
+//the maximum photo size to upload is 1MB = 1024KB = 1024 * 1024Bytes
+static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
 
 
 @implementation UIImage (Paco)
@@ -56,12 +58,34 @@ static CGFloat kPacoImageCompressionQuality = .5;
 
 
 - (NSString*)pacoBase64String {
-  NSData *imageData = UIImageJPEGRepresentation(self, kPacoImageCompressionQuality);
+  NSData *imageData = [self pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
   NSString* imageStr = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
   if (0 == [imageStr length]) {
     imageStr = nil;
   }
   return imageStr;
+}
+
+
+- (NSData*)pacoImageDataWithMaxSize:(CGFloat)maxBytes {
+  NSData* imageData = UIImageJPEGRepresentation(self, 1.);
+  if ([imageData length] < maxBytes) {
+    return imageData;
+  }
+  CGFloat compressionQuality = .5;
+  CGFloat MIN_COMPRESSION_QUALITY = .005;
+  while (compressionQuality >= MIN_COMPRESSION_QUALITY) {
+    imageData = UIImageJPEGRepresentation(self, compressionQuality);
+    if ([imageData length] < maxBytes) {
+      break;
+    }
+    compressionQuality /= 2.;
+  }
+  if ([imageData length] < maxBytes) {
+    return imageData;
+  } else {
+    return nil;
+  }
 }
 
 
@@ -75,7 +99,10 @@ static CGFloat kPacoImageCompressionQuality = .5;
   NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
   NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
   
-  NSData *imageData = UIImageJPEGRepresentation(image, kPacoImageCompressionQuality);
+  NSData* imageData = [image pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
+  if (!imageData) {
+    return nil;
+  }
   BOOL success = [imageData writeToFile:imagePath atomically:NO];
   return success ? imageName : nil;
 }
