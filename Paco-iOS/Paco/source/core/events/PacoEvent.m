@@ -21,6 +21,8 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentInput.h"
 #import <CoreLocation/CoreLocation.h>
+#import "NSString+Paco.h"
+#import "UIImage+Paco.h"
 
 static NSString* const kPacoEventKeyWho = @"who";
 static NSString* const kPacoEventKeyWhen = @"when";
@@ -35,9 +37,9 @@ static NSString* const kPacoEventKeyExperimentName = @"experimentName";
 static NSString* const kPacoEventKeyExperimentVersion = @"experimentVersion";
 static NSString* const kPacoEventKeyResponses = @"responses";
 
-static NSString* const kPacoResponseKeyName = @"name";
-static NSString* const kPacoResponseKeyAnswer = @"answer";
-static NSString* const kPacoResponseKeyInputId = @"inputId";
+NSString* const kPacoResponseKeyName = @"name";
+NSString* const kPacoResponseKeyAnswer = @"answer";
+NSString* const kPacoResponseKeyInputId = @"inputId";
 
 @interface PacoEvent ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -231,7 +233,21 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
     NSLog(@"INPUT RESPONSE NAME = %@", input.name);
     [response setObject:input.name forKey:@"name"];
     [response setObject:input.inputIdentifier forKey:@"inputId"];
-    [response setObject:payloadObject forKey:@"answer"];
+    
+    if (![payloadObject isKindOfClass:[UIImage class]]) {
+      [response setObject:payloadObject forKey:@"answer"];
+    } else {
+      NSString* imageName = [UIImage pacoSaveImageToDocumentDir:payloadObject
+                                                  forDefinition:definition.experimentId
+                                                        inputId:input.inputIdentifier];
+      if ([imageName length] > 0) {
+        NSString* fullName = [UIImage pacoBoxedNameFromImageName:imageName];
+        [response setObject:fullName forKey:@"answer"];
+      } else {
+        [response setObject:@"Failed to save image" forKey:@"answer"];
+      }
+    }
+    
     [responses addObject:response];
   }
   

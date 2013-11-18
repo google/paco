@@ -19,6 +19,12 @@
 @class PacoExperimentDefinition;
 @class PacoExperimentSchedule;
 
+
+extern NSString* const kPacoResponseKeyName;
+extern NSString* const kPacoResponseKeyAnswer;
+extern NSString* const kPacoResponseKeyInputId;
+
+
 @interface PacoEvent : NSObject
 
 @property (nonatomic, copy) NSString *who;

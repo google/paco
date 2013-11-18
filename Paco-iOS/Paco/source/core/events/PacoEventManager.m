@@ -207,7 +207,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 - (void)markEventsComplete:(NSArray*)events {
   if (0 == [events count]) {
-    NSLog(@"[WARNING]: events list should not be empty!");
     return;
   }
   

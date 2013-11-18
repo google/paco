@@ -249,8 +249,8 @@
       payload = self.responseObject;
       break;
       
-    case ResponseEnumTypePhoto: //YMZ:TODO: TODO:ImageUploading
-      payload = @"TODO:ImageUploading";
+    case ResponseEnumTypePhoto:
+      payload = self.responseObject;//UIImage object
       break;
 
     case ResponseEnumTypeLocation:
