@@ -1523,8 +1523,8 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Tom Pennings (3962CV8FL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Tom Pennings (3962CV8FL3)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1540,8 +1540,8 @@
 				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
-				PROVISIONING_PROFILE = "39A29179-1A82-4399-A4E7-D19FF8528408";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "39A29179-1A82-4399-A4E7-D19FF8528408";
+				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
@@ -1557,8 +1557,8 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Tom Pennings (3962CV8FL3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Tom Pennings (3962CV8FL3)";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1567,8 +1567,8 @@
 				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PROVISIONING_PROFILE = "39A29179-1A82-4399-A4E7-D19FF8528408";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "39A29179-1A82-4399-A4E7-D19FF8528408";
+				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
@@ -1579,8 +1579,8 @@
 		31977201163F0733000AC06B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
@@ -1590,7 +1590,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "39A29179-1A82-4399-A4E7-D19FF8528408";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1599,8 +1599,8 @@
 		31977202163F0733000AC06B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Dhanya Chengappa (G64578JR9Q)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
@@ -1610,7 +1610,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "39A29179-1A82-4399-A4E7-D19FF8528408";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
