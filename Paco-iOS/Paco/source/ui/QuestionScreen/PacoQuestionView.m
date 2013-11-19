@@ -46,6 +46,7 @@ static const int kInvalidIndex = -1;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
 @property (nonatomic, retain, readwrite) UITextField *textField;
+@property (nonatomic, retain, readwrite) NSArray* rightLeftLabels;
 
 // TODO(gregvance): add location and photo
 
@@ -101,6 +102,9 @@ static const int kInvalidIndex = -1;
   for (UIButton *button in self.numberButtons) {
     [button removeFromSuperview];
   }
+  for (UILabel* label in self.rightLeftLabels) {
+    [label removeFromSuperview];
+  }
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
   [self.numberSlider removeFromSuperview];
@@ -121,6 +125,7 @@ static const int kInvalidIndex = -1;
   self.questionText = nil;
   self.smileysButtons = nil;
   self.textField = nil;
+  self.rightLeftLabels = nil;
 }
 
 - (void)selectSmiley:(int)index {
@@ -153,11 +158,12 @@ static const int kInvalidIndex = -1;
       button.titleLabel.font = boldFont;
       [button setTitleColor:highlightedColor forState:UIControlStateNormal];
       [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_checked"] forState:UIControlStateNormal];
     } else {
       button.titleLabel.font = [PacoFont pacoTableCellFont];
       [button setTitleColor:normalColor forState:UIControlStateNormal];
       [button setTitleColor:normalColor forState:UIControlStateHighlighted];
-
+      [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_unchecked"] forState:UIControlStateNormal];
     }
   }
   //[self updateConditionals];
@@ -255,11 +261,33 @@ static const int kInvalidIndex = -1;
       [self selectSmiley:kInvalidIndex];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
+    //set right left labels
+    if (self.question.leftSideLabel != nil && self.question.rightSideLabel != nil) {
+      NSMutableArray* labels = [NSMutableArray array];
+      UILabel* leftLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      leftLabel.text = self.question.leftSideLabel;
+      leftLabel.textColor = [PacoColor pacoDarkBlue];
+      leftLabel.backgroundColor = [UIColor clearColor];
+      leftLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:leftLabel];
+      [leftLabel sizeToFit];
+      [labels addObject:leftLabel];
+
+      UILabel* rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+      rightLabel.text = self.question.rightSideLabel;
+      rightLabel.textColor = [PacoColor pacoDarkBlue];
+      rightLabel.backgroundColor = [UIColor clearColor];
+      rightLabel.font = [PacoFont pacoMenuButtonFont];
+      [self addSubview:rightLabel];
+      [rightLabel sizeToFit];
+      [labels addObject:rightLabel];
+      self.rightLeftLabels = labels;
+    }
     // Number Steps
     NSMutableArray *buttons = [NSMutableArray array];
     for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
       UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-      [button setTitle:[NSString stringWithFormat:@"%d", (i + 1)] forState:UIControlStateNormal];
+      [button setBackgroundImage:[UIImage imageNamed:@"radiobtn_off"] forState:UIControlStateNormal];
       [buttons addObject:button];
       [self addSubview:button];
       [button sizeToFit];
@@ -456,15 +484,36 @@ static const int kInvalidIndex = -1;
       button.frame = rect;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
-    int numValues = self.numberButtons.count;
-    CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
-    NSArray *numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
-    //for (NSValue *valueRect in smileys) {
-    for (int i = 0; i < numValues; ++i) {
-      UIButton *button = [self.numberButtons objectAtIndex:i];
-      NSValue *valueRect = [numbers objectAtIndex:i];
-      CGRect rect = [valueRect CGRectValue];
-      button.frame = rect;
+    if (self.question.likertSteps == 2) {
+      int height = (self.frame.size.height - self.questionText.frame.size.height - 10);
+      UIButton* button = [self.numberButtons objectAtIndex:0];
+      height = self.questionText.frame.size.height + 10 + height / 2 - button.frame.size.height;
+      button.frame = CGRectMake(self.center.x - button.frame.size.width * 2, height, 25, 25);
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(button.frame.origin.x - lLabel.frame.size.width - 10, height, lLabel.frame.size.width, button.frame.size.height);
+      UIButton* rButton = [self.numberButtons objectAtIndex:1];
+      rButton.frame = CGRectMake(self.center.x + rButton.frame.size.width, height, 25, 25);
+      rButton.frame = CGRectIntegral(rButton.frame);
+      UILabel* rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(rButton.frame.origin.x + rButton.frame.size.width + 10, height, rLabel.frame.size.width, rButton.frame.size.height);
+    }
+    else if (self.question.likertSteps > 2){
+      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      lLabel.frame = CGRectMake(10, self.questionText.frame.size.height + 10, lLabel.frame.size.width, lLabel.frame.size.height);
+      UILabel *rLabel = [self.rightLeftLabels objectAtIndex:1];
+      rLabel.frame = CGRectMake(self.frame.size.width - rLabel.frame.size.width - 10, self.questionText.frame.size.height + 10, rLabel.frame.size.width, rLabel.frame.size.height);
+      int height = (self.frame.size.height - lLabel.frame.origin.y - 10 - lLabel.frame.size.height);
+      height = lLabel.frame.origin.y + 10 + lLabel.frame.size.height+ height / 2 - 25;
+      int numValues = self.numberButtons.count;
+      CGRect bounds = CGRectMake(25, height + 10, self.frame.size.width - 20, height);
+      NSArray* numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
+      for (int i = 0; i < numValues; ++i) {
+        UIButton* button = [self.numberButtons objectAtIndex:i];
+        NSValue* valueRect = [numbers objectAtIndex:i];
+        CGRect rect = [valueRect CGRectValue];
+        rect.size = CGSizeMake(25, 25);
+        button.frame = rect;
+      }
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
