@@ -29,6 +29,8 @@
 		363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
 		363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */; };
 		364DDB321756A8760035F18F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 364DDB311756A8760035F18F /* Default-568h@2x.png */; };
+		367171F4183AFD87005A5058 /* PacoUserGuideWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 367171F3183AFD87005A5058 /* PacoUserGuideWebViewController.m */; };
+		367171FD183AFE33005A5058 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = 367171FC183AFE33005A5058 /* help.html */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
@@ -272,6 +274,9 @@
 		363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoInputEvaluator.h; sourceTree = "<group>"; };
 		363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInputEvaluator.m; sourceTree = "<group>"; };
 		364DDB311756A8760035F18F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		367171F2183AFD87005A5058 /* PacoUserGuideWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoUserGuideWebViewController.h; sourceTree = "<group>"; };
+		367171F3183AFD87005A5058 /* PacoUserGuideWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUserGuideWebViewController.m; sourceTree = "<group>"; };
+		367171FC183AFE33005A5058 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
 		368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtilityTests.m; sourceTree = "<group>"; };
@@ -616,6 +621,15 @@
 			path = conditional;
 			sourceTree = "<group>";
 		};
+		367171F1183AFD87005A5058 /* UserGuide */ = {
+			isa = PBXGroup;
+			children = (
+				367171F2183AFD87005A5058 /* PacoUserGuideWebViewController.h */,
+				367171F3183AFD87005A5058 /* PacoUserGuideWebViewController.m */,
+			);
+			path = UserGuide;
+			sourceTree = "<group>";
+		};
 		36AD6CD817C420F800B93855 /* sskeychain */ = {
 			isa = PBXGroup;
 			children = (
@@ -752,6 +766,7 @@
 				36B8EB1D17568DAF004CF035 /* EditScheduleScreen */,
 				36B8EB4E17568DAF004CF035 /* RunningExperimentScreen */,
 				36B8EB4917568DAF004CF035 /* QuestionScreen */,
+				367171F1183AFD87005A5058 /* UserGuide */,
 				36B8EB5117568DAF004CF035 /* UIComponents */,
 			);
 			path = ui;
@@ -915,6 +930,7 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
 				C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */,
 				36B8EB9517568E29004CF035 /* arrow_icon.png */,
@@ -1305,6 +1321,7 @@
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
 				36B8EBF317568E29004CF035 /* paco64.png in Resources */,
 				36B8EBF417568E29004CF035 /* paco_sil.png in Resources */,
+				367171FD183AFE33005A5058 /* help.html in Resources */,
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				36B8EBF617568E29004CF035 /* question_b16.png in Resources */,
 				36B8EBF717568E29004CF035 /* question_b32.png in Resources */,
@@ -1392,6 +1409,7 @@
 				36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */,
 				36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */,
 				36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */,
+				367171F4183AFD87005A5058 /* PacoUserGuideWebViewController.m in Sources */,
 				36B8EB7B17568DAF004CF035 /* PacoExperimentListViewController.m in Sources */,
 				36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */,
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
