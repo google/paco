@@ -212,6 +212,9 @@
       self.location = [[PacoLocation alloc] init];
       self.location.delegate = self;
       [self.location enableLocationService];
+      
+      //set background fetch min internval to be 15 minutes
+      [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
     }
   });
 }
@@ -223,6 +226,8 @@
   NSLog(@"Shut down notification system ...");
   [self.location disableLocationService];
   self.location = nil;
+  //no need to be woken by background fetch
+  [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
 #pragma mark PacoLocationDelegate

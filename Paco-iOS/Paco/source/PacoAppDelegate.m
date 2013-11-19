@@ -105,9 +105,6 @@
   // Stir!
   arc4random_stir();
   
-  //set background fetch min internval to be 15 minutes
-  [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
-  
   //YMZ:TODO: set the badge number to 0 may clear all notifications in the tray
   //http://stackoverflow.com/questions/7773584/can-i-programmatically-clear-my-apps-notifications-from-the-ios-5-notification
   // Clear all Application Badges  
