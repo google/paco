@@ -18,4 +18,7 @@
 
 - (BOOL)isOfflineError;
 
+//error of "No such file or directory"
+- (BOOL)pacoIsFileNotExistError;
+
 @end

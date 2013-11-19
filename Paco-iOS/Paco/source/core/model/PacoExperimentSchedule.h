@@ -38,16 +38,8 @@ typedef enum {
   kPacoScheduleTypeMonthly = 3,
   kPacoScheduleTypeESM = 4,
   kPacoScheduleTypeSelfReport = 5,
-  kPacoScheduleTypeAdvanced = 6,
-  kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications  
+  kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications
 } PacoScheduleType;
-
-typedef enum {
-  kPacoSchedulePeriodDay = 0,
-  kPacoSchedulePeriodWeek = 1,
-  kPacoSchedulePeriodMonth = 2,
-} PacoSchedulePeriod;
-
 
 
 @interface PacoExperimentSchedule : NSObject
@@ -63,7 +55,14 @@ typedef enum {
 @property (nonatomic, assign) BOOL esmWeekends;
 @property (nonatomic, copy) NSString *scheduleId;
 @property (nonatomic, assign) NSInteger nthOfMonth;
-@property (nonatomic, assign) PacoScheduleRepeatPeriod repeatPeriod;
+
+/*
+ repeatRate is only valid for three types of experiment: daily, weekly and monthly
+ daily:   repeat every x days
+ weekly:  repeat every x weeks
+ monthly: repeat every x months
+ **/
+@property (nonatomic, assign) NSInteger repeatRate;
 @property (nonatomic, assign) PacoScheduleType scheduleType;
 @property (nonatomic, retain) NSArray *times;  // NSNumber<long >
 @property (nonatomic, assign) BOOL userEditable;
@@ -74,5 +73,9 @@ typedef enum {
 @property (nonatomic, retain) NSArray *esmScheduleList;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
 - (NSString *)jsonString;
+
+- (BOOL)isESMSchedule;
+- (NSUInteger)minutesPerDayOfESM;
+- (NSDate*)esmStartTimeOnDate:(NSDate*)date;
 
 @end

@@ -32,8 +32,20 @@
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json model:(PacoModel *)model;
 
-- (BOOL)haveJoined;
 - (BOOL)shouldScheduleNotifications;
+
+- (BOOL)isSelfReportExperiment;
+- (BOOL)isScheduledExperiment;
+
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
+
+- (BOOL)isFixedLength;
+- (BOOL)isOngoing;
+
+- (NSArray*)ESMSchedulesFromDate:(NSDate*)fromDate;
+
+- (NSDate*)startDate;
+- (NSDate*)endDate;
 
 @end
 

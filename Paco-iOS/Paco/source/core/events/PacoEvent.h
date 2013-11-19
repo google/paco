@@ -19,6 +19,12 @@
 @class PacoExperimentDefinition;
 @class PacoExperimentSchedule;
 
+
+extern NSString* const kPacoResponseKeyName;
+extern NSString* const kPacoResponseKeyAnswer;
+extern NSString* const kPacoResponseKeyInputId;
+
+
 @interface PacoEvent : NSObject
 
 @property (nonatomic, copy) NSString *who;
@@ -49,6 +55,9 @@
                                andScheduledTime:(NSDate*)scheduledTime;
 + (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
                            withScheduledTime:(NSDate*)scheduledTime;
++ (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                           withScheduledTime:(NSDate*)scheduledTime
+                                   userEmail:(NSString*)userEmail;
 
 
 @end

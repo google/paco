@@ -54,11 +54,14 @@
 @property (nonatomic, strong, readonly) Reachability* reachability;
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
+@property (nonatomic, assign, readonly) BOOL firstLaunch;
 
 
 + (PacoClient *)sharedInstance;
 
 - (NSString*)userEmail;
+- (NSString*)userName;
+
 - (BOOL)isLoggedIn;
 
 //call this method when we get authentication error
@@ -78,7 +81,13 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
-- (void)deleteExperimentFromCache:(PacoExperiment*)experiment;
+- (void)executeRoutineMajorTaskIfNeeded;
+- (void)uploadPendingEventsInBackground;
 
-- (void)startLocationTimerIfNeeded;
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
+- (void)stopExperiment:(PacoExperiment*)experiment;
+- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification;
+
 @end

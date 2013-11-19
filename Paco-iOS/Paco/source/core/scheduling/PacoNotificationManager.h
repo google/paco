@@ -14,14 +14,42 @@
  */
 #import <Foundation/Foundation.h>
 
+
+@protocol PacoNotificationManagerDelegate <NSObject>
+
+@required
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
+
+@end
+
+
+
 @interface PacoNotificationManager : NSObject
 
-- (NSDictionary*)copyOfNotificationDictionary;
++ (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
+                                firstLaunchFlag:(BOOL)firstLaunchFlag;
 
-- (BOOL)deleteNotificationWithHashKey:(NSString*)hashKey;
-- (BOOL)addNotification:(UILocalNotification*)notification withHashKey:(NSString*)hashKey;
-- (NSTimeInterval)nearestTimerInterval;
 
-- (NSMutableArray*)loadNotificationsFromFile;
-- (BOOL)saveNotificationsToFile;
+//notifications MUST be sorted already
+- (void)schedulePacoNotifications:(NSArray*)notifications;
+- (void)cleanExpiredNotifications;
+
+//call this when the user stops an experiment
+//1. cancel all notifications from iOS for this expeirment
+//2. clear this expeirment's notifications from notification tray
+//3. delete all notifications from cache for this experiment
+- (void)cancelNotificationsForExperiment:(NSString*)experimentId;
+
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
+- (BOOL)isNotificationActive:(UILocalNotification*)notification;
+
+- (void)handleRespondedNotification:(UILocalNotification*)notification;
+
+- (BOOL)saveNotificationsToCache;
+- (BOOL)loadNotificationsFromCache;
+
+- (NSUInteger)numOfScheduledNotifications;
+- (BOOL)hasMaximumScheduledNotifications;
+
+- (void)cancelAllPacoNotifications;
 @end

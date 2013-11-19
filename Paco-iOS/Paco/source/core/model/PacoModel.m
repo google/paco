@@ -16,17 +16,21 @@
 #import "PacoModel.h"
 
 #import "PacoClient.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 #import "PacoExperimentFeedback.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoEvent.h"
 #import "PacoExperiment.h"
-
+#import "NSString+Paco.h"
+#import "NSError+Paco.h"
 
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
+
+static NSString* kPacoDefinitionPlistName = @"definitions.plist";
+static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 @interface PacoExperimentSchedule ()
 - (id)serializeToJSON;
@@ -131,16 +135,6 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 }
 
 
-- (NSArray *)joinedExperiments {
-  NSMutableArray *array = [NSMutableArray array];
-  for (PacoExperiment *experiment in self.experimentInstances) {
-    if ([experiment haveJoined]) {
-      [array addObject:experiment];
-    }
-  }
-  return array;
-}
-
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId {
   for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
     if ([definition.experimentId isEqualToString:experimentId]) {
@@ -191,9 +185,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 
 #pragma mark file writing operations
 - (BOOL)saveExperimentDefinitionsToFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/definitions.plist", documentsDirectory];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   NSLog(@"Saving to %@", fileName);
   if (!self.jsonObjectDefinitions) {
     [self makeJSONObjectFromExperiments];
@@ -216,9 +208,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 }
 
 - (BOOL)saveExperimentInstancesToFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
   NSLog(@"Saving to %@", fileName);
   
   [self makeJSONObjectFromInstances];
@@ -249,9 +239,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 }
 
 - (BOOL)deleteFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/definitions.plist", documentsDirectory];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   NSError *error = nil;
   if ([[NSFileManager defaultManager] removeItemAtPath:fileName error:&error] != YES) {
     return NO;
@@ -262,9 +250,7 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 
 #pragma mark file reading operations
 - (BOOL)loadExperimentDefinitionsFromFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/definitions.plist", documentsDirectory];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   NSLog(@"Loading from %@", fileName);
   NSError *error = nil;
   NSDictionary *attribs = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:&error];
@@ -301,18 +287,14 @@ NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExp
 }
 
 - (NSError*)loadExperimentInstancesFromFile {
-  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *fileName = [NSString stringWithFormat:@"%@/instances.plist", documentsDirectory];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
   NSLog(@"Loading from %@", fileName);
   
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
   if (error != nil) {
-    NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
     //We should ignore error of "No such file or directory"
-    if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
-        && underlyingError.code == ENOENT) {
+    if ([error pacoIsFileNotExistError]) {
       NSLog(@"Instances plist doesn't exist.");
       [self applyInstanceJSON:nil];
       return nil;

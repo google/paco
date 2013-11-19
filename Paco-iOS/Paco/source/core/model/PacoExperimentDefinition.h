@@ -28,6 +28,8 @@
 @property (nonatomic, assign) BOOL published;
 @property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
 
+@property(nonatomic, strong, readonly) NSDate* startDate;
+@property(nonatomic, strong, readonly) NSDate* endDate;
 
 @property (nonatomic, assign) BOOL deleted;
 @property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>
@@ -42,6 +44,16 @@
 @property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
+
+//An experiment can be either on-going or fixed-length with valid start date and end date
+- (BOOL)isFixedLength;
+- (BOOL)isOngoing;
+
+//An on-going experiment is always valid
+//For a fixed-length experiment, if it doesn't finish yet, then it's valid; otherwise it's invalid
+- (BOOL)isExperimentValid;
+
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
 
 //clear the old response objects
 - (void)clearInputs;

@@ -17,6 +17,14 @@
 #import "PacoExperimentFeedback.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
+
+@interface PacoExperimentDefinition ()
+@property(nonatomic, strong) NSDate* startDate;
+@property(nonatomic, strong) NSDate* endDate;
+@end
+
 
 @implementation PacoExperimentDefinition
 
@@ -45,6 +53,20 @@
   definition.modifyDate = [definitionMembers objectForKey:@"modifyDate"]; //Format: "2012/01/17"
   definition.published = [[definitionMembers objectForKey:@"published"] boolValue];
   definition.publishedUsers = [definitionMembers objectForKey:@"publishedUsers"];
+  
+  //"2013/10/15"
+  NSString* startDateStr = [definitionMembers objectForKey:@"startDate"];
+  NSString* endDateStr = [definitionMembers objectForKey:@"endDate"];
+  if (startDateStr && endDateStr) {
+    definition.startDate = [PacoDateUtility dateFromStringWithYearAndDay:startDateStr];
+    NSDate* inclusiveEndDate = [PacoDateUtility dateFromStringWithYearAndDay:endDateStr];
+    definition.endDate = [inclusiveEndDate pacoNextDayAtMidnight];
+    NSAssert(definition.startDate != nil && definition.endDate != nil,
+             @"startDate and endDate should be valid!");
+    NSAssert([definition.startDate pacoEarlierThanDate:definition.endDate],
+             @"startDate must be earlier than endDate");
+  }
+  
   definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
   
   id jsonSchedule = [definitionMembers objectForKey:@"schedule"];
@@ -59,6 +81,29 @@
   
   return definition;
 }
+
+- (BOOL)isFixedLength {
+  return self.startDate && self.endDate;
+}
+
+- (BOOL)isOngoing {
+  return ![self isFixedLength];
+}
+
+- (BOOL)isExperimentValid {
+  return [self isExperimentValidSinceDate:[NSDate date]];
+}
+
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
+  if (fromDate == nil) {
+    return NO;
+  }
+  if ([self isOngoing]) {
+    return YES;
+  }
+  return [self.endDate pacoLaterThanDate:fromDate];
+}
+
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentDefinition:%p - "
@@ -75,6 +120,8 @@
           @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
+          @"startDate=%@"
+          @"endDate=%@"
           @"questionsChange=%d "
           @"schedule=%@ "
           @"webReccommended=%d "
@@ -93,6 +140,8 @@
           self.modifyDate,
           self.published,
           self.publishedUsers,
+          self.startDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.startDate] : @"None",
+          self.endDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.endDate] : @"None",
           self.questionsChange,
           self.schedule,
           self.webReccommended,

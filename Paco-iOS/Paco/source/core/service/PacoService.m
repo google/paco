@@ -19,7 +19,7 @@
 #import "GTMHTTPFetcher.h"
 #import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 #import "PacoModel.h"
 #import "PacoClient.h"
 #import "PacoExperimentInput.h"
@@ -56,6 +56,12 @@
 
 - (void)executePacoServiceCall:(NSMutableURLRequest *)request
              completionHandler:(void (^)(id, NSError *))completionHandler {
+  NSString *version = [[[NSBundle mainBundle] infoDictionary]
+                       objectForKey:(NSString*)kCFBundleVersionKey];
+  NSAssert([version length] > 0, @"version number is not valid!");
+  [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
+  [request setValue:version forHTTPHeaderField:@"paco.version"];
+
   // Authenticate
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];

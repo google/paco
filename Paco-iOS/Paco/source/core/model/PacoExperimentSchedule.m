@@ -14,8 +14,8 @@
  */
 
 #import "PacoExperimentSchedule.h"
-#import "PacoDate.h"
-
+#import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
 
 @implementation PacoExperimentSchedule
 
@@ -34,7 +34,7 @@
           [NSNumber numberWithBool:self.esmWeekends], @"esmWeekends",
           [NSNumber numberWithLongLong:[self.scheduleId longLongValue]], @"id",
           [NSNumber numberWithInt:self.nthOfMonth], @"nthOfMonth",
-          [NSNumber numberWithInt:self.repeatPeriod], @"repeatRate",
+          [NSNumber numberWithInteger:self.repeatRate], @"repeatRate",
           
           [NSNumber numberWithInt:self.timeout], @"timeout",
           [NSNumber numberWithInt:self.minimumBuffer], @"minimumBuffer",
@@ -47,7 +47,7 @@
   if ([self.esmScheduleList count] > 0) {
     NSMutableArray* dateStringArr = [NSMutableArray arrayWithCapacity:[self.esmScheduleList count]];
     for (NSDate* date in self.esmScheduleList) {
-      [dateStringArr addObject:[PacoDate pacoStringForDate:date]];
+      [dateStringArr addObject:[PacoDateUtility pacoStringForDate:date]];
     }
     [scheduleJson setObject:dateStringArr forKey:@"esmScheduleList"];
   }
@@ -63,18 +63,15 @@
   schedule.esmEndHour = [[scheduleMembers objectForKey:@"esmEndHour"] longLongValue];
   schedule.esmFrequency = [[scheduleMembers objectForKey:@"esmFrequency"] intValue];
   schedule.esmPeriodInDays = [[scheduleMembers objectForKey:@"esmPeriodInDays"] longLongValue];
-  if (schedule.esmPeriodInDays == 1) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodDay;
-  } else if (schedule.esmPeriodInDays == 7) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodWeek;
-  } else if (schedule.esmPeriodInDays == 30) {
-    schedule.esmPeriod = kPacoScheduleRepeatPeriodMonth;
-  }
+  NSAssert(schedule.esmPeriodInDays == 0 ||
+           schedule.esmPeriodInDays == 1 ||
+           schedule.esmPeriodInDays == 2 , @"esmPeriodInDays should only be 0, 1 or 2!");
+  schedule.esmPeriod = (PacoScheduleRepeatPeriod)schedule.esmPeriodInDays;
   schedule.esmStartHour = [[scheduleMembers objectForKey:@"esmStartHour"] longLongValue];
   schedule.esmWeekends = [[scheduleMembers objectForKey:@"esmWeekends" ] boolValue];
   schedule.scheduleId = [NSString stringWithFormat:@"%lld", [[scheduleMembers objectForKey:@"id"] longLongValue]];
   schedule.nthOfMonth = [[scheduleMembers objectForKey:@"nthOfMonth"] intValue];
-  schedule.repeatPeriod = (PacoScheduleRepeatPeriod)[[scheduleMembers objectForKey:@"repeatRate"] intValue];
+  schedule.repeatRate = [[scheduleMembers objectForKey:@"repeatRate"] integerValue];
   schedule.scheduleType = [[scheduleMembers objectForKey:@"scheduleType"] intValue];
   schedule.timeout = [[scheduleMembers objectForKey:@"timeout"] intValue];
   
@@ -112,7 +109,7 @@
   if ([esmScheduleStringArr count] > 0) {
     NSMutableArray* dateArr = [NSMutableArray arrayWithCapacity:[esmScheduleStringArr count]];
     for (NSString* dateStr in esmScheduleStringArr) {
-      [dateArr addObject:[PacoDate pacoDateForString:dateStr]];
+      [dateArr addObject:[PacoDateUtility pacoDateForString:dateStr]];
     }
     schedule.esmScheduleList = dateArr;
   }
@@ -129,12 +126,12 @@
           @"esmEndHour=%lld "
           @"esmFrequency=%d "
           @"esmPeriodInDays=%lld "
-          @"esmPeriod=%d"
+          @"esmPeriod=%@"
           @"esmStartHour=%lld "
           @"esmWeekends=%d "
           @"scheduleId=%@ "
           @"nthOfMonth=%d "
-          @"repeatPeriod=%d "
+          @"repeatRate=%d "
           @"scheduleType=%d "
           @"times=%@ "
           @"timeout=%d "
@@ -147,12 +144,12 @@
           self.esmEndHour,
           self.esmFrequency,
           self.esmPeriodInDays,
-          self.esmPeriod,
+          [self periodString],
           self.esmStartHour,
           self.esmWeekends,
           self.scheduleId,
           self.nthOfMonth,
-          self.repeatPeriod,
+          self.repeatRate,
           self.scheduleType,
           self.times,
           self.timeout,
@@ -175,8 +172,6 @@
       return @"Random sampling (ESM)";
     case kPacoScheduleTypeSelfReport:
       return @"Self report only";
-    case kPacoScheduleTypeAdvanced:
-      return @"Advanced";
     case kPacoScheduleTypeTesting:
       return @"iOS Testing";
   }
@@ -245,7 +240,7 @@
   }
   [json appendString:@"];"];
   
-  [json appendFormat:@"repeatPeriod = %d;", self.repeatPeriod];
+  [json appendFormat:@"repeatRate = %d;", self.repeatRate];
   [json appendFormat:@"daysOfWeek = %@;", [self weekDaysScheduledString]];
   [json appendFormat:@"nthOfMonth = %d;", self.nthOfMonth];
   [json appendFormat:@"byDayOfMonth = %d;", self.byDayOfMonth];
@@ -254,6 +249,31 @@
   return json;
   
   return nil;
+}
+
+- (BOOL)isESMSchedule {
+  return self.scheduleType == kPacoScheduleTypeESM;
+}
+
+- (NSUInteger)minutesPerDayOfESM {
+  if (![self isESMSchedule]) {
+    return 0;
+  }
+  NSUInteger millisecondsPerDay = self.esmEndHour - self.esmStartHour;
+  NSUInteger secondsPerDay = millisecondsPerDay / 1000.0;
+  NSUInteger minutesPerDay = secondsPerDay / 60.0;
+  return minutesPerDay;
+}
+
+- (NSDate*)esmStartTimeOnDate:(NSDate*)date {
+  if (![self isESMSchedule] || date == nil) {
+    return nil;
+  }
+  NSDate* midnight = [date pacoCurrentDayAtMidnight];
+  double intervalFromMidnight = self.esmStartHour / 1000.0;
+  NSDate* startTime = [midnight dateByAddingTimeInterval:intervalFromMidnight];
+  NSAssert(startTime, @"startTime should be valid!");
+  return startTime;
 }
 
 @end

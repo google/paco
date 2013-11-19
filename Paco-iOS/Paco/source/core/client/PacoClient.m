@@ -27,9 +27,12 @@
 #import "PacoEventManager.h"
 #import "PacoAppDelegate.h"
 #import "NSError+Paco.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
+#import "UILocalNotification+Paco.h"
+#import "PacoScheduleGenerator.h"
+#import "NSMutableArray+Paco.h"
 
-static NSTimeInterval kInitialTimerInterval = 5.0;
+
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -82,6 +85,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain, readwrite) NSString *serverDomain;
 @property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
+@property (nonatomic, assign, readwrite) BOOL firstLaunch;
 @end
 
 @implementation PacoClient
@@ -98,9 +102,11 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
 - (id)init {
   self = [super init];
   if (self) {
-    self.authenticator = [[PacoAuthenticator alloc] init];
+    [self checkIfUserFirstLaunchPaco];
+    
+    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
     self.location = nil;//[[PacoLocation alloc] init];
-    self.scheduler = [PacoScheduler schedulerWithDelegate:self];
+    self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
     // Start the notifier, which will cause the reachability object to retain itself!
@@ -117,12 +123,26 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
     }else{//localserver
       self.serverDomain = @"http://127.0.0.1";
     }
+    NSLog(@"PacoClient initializing...");
   }
   return self;
 }
 
 - (void)dealloc {
+  NSLog(@"PacoClient deallocating...");
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)checkIfUserFirstLaunchPaco {
+  NSString* launchedKey = @"paco_launched";
+  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+  if (value == nil) { //first launch
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _firstLaunch = YES;
+  } else {
+    _firstLaunch = NO;
+  }
 }
 
 #pragma mark Public methods
@@ -139,7 +159,18 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
 }
 
 - (NSString*)userEmail {
+  if (SKIP_LOG_IN) {
+    return @"test@gmail.com";
+  }
   return [self.authenticator userEmail];
+}
+
+- (NSString*)userName {
+  NSString* email = [self userEmail];
+  NSArray* components = [email componentsSeparatedByString:@"@"];
+  NSAssert([components count] == 2, @"should be a valid email");
+  NSString* name = [[components firstObject] capitalizedString];
+  return name;
 }
 
 - (void)invalidateUserAccount {
@@ -147,9 +178,76 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   [self showLoginScreenWithCompletionBlock:nil];
 }
 
+- (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {
+  NSAssert([[self userEmail] length] > 0, @"userEmail should be valid");
+  NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
+  for (UILocalNotification* notification in expiredNotifications) {
+    NSString* experimentId = [notification pacoExperimentId];
+    NSAssert([experimentId length] > 0, @"id should be valid");
+    PacoExperiment* experiment = [self.model experimentForId:experimentId];
+    NSAssert(experiment, @"experiment should be valid");
+    NSDate* fireDate = [notification pacoFireDate];
+    NSAssert(fireDate, @"fireDate");
+    PacoEvent* event = [PacoEvent surveyMissedEventForDefinition:experiment.definition
+                                               withScheduledTime:fireDate
+                                                      userEmail:[self userEmail]];
+    [eventList addObject:event];
+  }
+  return eventList;
+}
+
+- (BOOL)isNotificationSystemOn {
+  return self.location != nil;
+}
+
+- (void)triggerNotificationSystemIfNeeded {
+  if (self.location != nil) {
+    return;
+  }
+  //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
+  //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (self.location == nil) {
+      NSLog(@"***********  PacoLocation is allocated ***********");
+      self.location = [[PacoLocation alloc] init];
+      self.location.delegate = self;
+      [self.location enableLocationService];
+      
+      //set background fetch min internval to be 15 minutes
+      [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
+    }
+  });
+}
+
+- (void)shutDownNotificationSystemIfNeeded {
+  if (self.location == nil) {
+    return;
+  }
+  NSLog(@"Shut down notification system ...");
+  [self.location disableLocationService];
+  self.location = nil;
+  //no need to be woken by background fetch
+  [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+}
+
 #pragma mark PacoLocationDelegate
-- (void)timerUpdated {
-  [self.scheduler update:self.model.experimentInstances];
+- (void)locationChangedSignificantly {
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+  if (state != UIApplicationStateBackground) {
+    return;
+  }
+  BOOL shouldUpdate = YES;
+  static NSString* lastUpdateDateKey = @"last_update_key";
+  NSDate* lastUpdateDate  = [[NSUserDefaults standardUserDefaults] objectForKey:lastUpdateDateKey];
+  NSDate* now = [NSDate date];
+  if (lastUpdateDate != nil && [now timeIntervalSinceDate:lastUpdateDate] < 15 * 60) {//less than 15 minutes
+    shouldUpdate = NO;
+  }
+  if (shouldUpdate) {
+    [self executeRoutineMajorTaskIfNeeded];
+    [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+  }
 }
 
 
@@ -158,31 +256,79 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
                experimentFireDate:(NSDate*)scheduledTime {
   if (!ADD_TEST_DEFINITION) {
     NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
-          experimentInstanceId, [PacoDate pacoStringForDate:scheduledTime]);
+          experimentInstanceId, [PacoDateUtility pacoStringForDate:scheduledTime]);
     PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
     NSAssert(definition != nil, @"definition should not be nil!");
     [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
   }
 }
 
-- (void)updateTimerInterval:(NSTimeInterval)newInterval {
-  if ([self.model shouldTriggerNotificationSystem]) {
-    NSAssert(newInterval > 0, @"newInterval should be larger than 0!");
-    if (self.location == nil) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        self.location = [[PacoLocation alloc] initWithTimerInterval:newInterval];
-        self.location.delegate = self;
-        [self.location enableLocationService];
-      });
-    } else {
-      [self.location resetTimerInterval:newInterval];
-    }
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  if (0 == [expiredNotifications count]) {
+    return;
+  }
+  NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
+  NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
+  [self.eventManager saveEvents:eventList];
+}
+
+- (BOOL)needsNotificationSystem {
+  return [self.model shouldTriggerNotificationSystem];
+}
+
+- (void)updateNotificationSystem {
+  if ([self needsNotificationSystem]) {
+    [self triggerNotificationSystemIfNeeded];
   } else {
-    if (self.location != nil) {
-      NSAssert(newInterval == 0, @"newInterval should be 0!");
-      [self.location removeTimerAndStopLocationService];
-      self.location = nil;
+    [self shutDownNotificationSystemIfNeeded];
+  }
+}
+
+- (NSArray*)nextNotificationsToSchedule {
+  int numOfRunningExperiments = [self.model.experimentInstances count];
+  NSMutableArray* allNotifications =
+      [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
+  
+  NSDate* now = [NSDate date];
+  for (PacoExperiment* experiment in [self.model experimentInstances]) {
+    if (![experiment shouldScheduleNotifications]) {
+      continue;
     }
+    NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:experiment
+                                                        numOfDates:kTotalNumOfNotifications
+                                                          fromDate:now];
+    NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:experiment
+                                                                 datesToSchedule:dates];
+    [allNotifications addObjectsFromArray:notifications];
+  }
+  int numOfNotifications = [allNotifications count];
+  if (0 == numOfNotifications) {
+    return nil;
+  }
+  //sort all dates and return the first 60
+  [allNotifications pacoSortLocalNotificationsByFireDate];
+  int endIndex = kTotalNumOfNotifications;
+  if (numOfNotifications < kTotalNumOfNotifications) {
+    endIndex = numOfNotifications;
+  }
+  return [allNotifications subarrayWithRange:NSMakeRange(0, endIndex)];
+}
+
+#pragma mark set up notification system
+//After date model is loaded successfully, Paco needs to
+//a. load notifications from cache
+//b. perform major task if needed
+//c. trigger or shutdown the notifications system
+- (void)setUpNotificationSystem {
+  [self.scheduler initializeNotifications];
+  [self updateNotificationSystem];
+}
+
+- (void)executeRoutineMajorTaskIfNeeded {
+  if ([self isNotificationSystemOn]) {
+    [self.scheduler executeRoutineMajorTask];
+  } else {
+    NSLog(@"Skip Executing Major Task, notification system is off");
   }
 }
 
@@ -191,7 +337,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
 {
   if (SKIP_LOG_IN) {
     [self prefetchInBackgroundWithBlock:^{
-      [self startLocationTimerIfNeeded];
+      [self setUpNotificationSystem];
     }];
     return;
   }
@@ -211,7 +357,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   
   // Fetch the experiment definitions and the events of joined experiments.
   [self prefetchInBackgroundWithBlock:^{
-    [self startLocationTimerIfNeeded];
+    [self setUpNotificationSystem];
   }];
   
   [self uploadPendingEventsInBackground];
@@ -246,7 +392,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   //we will re-authenticate user
   if (!self.reachability.isReachable) {
     [self prefetchInBackgroundWithBlock:^{
-      [self startLocationTimerIfNeeded];
+      [self setUpNotificationSystem];
     }];
     if (block != nil) {
       block(nil);
@@ -305,9 +451,6 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   }
 }
 
-- (void)startLocationTimerIfNeeded {
-  [self updateTimerInterval:kInitialTimerInterval];
-}
 
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -340,7 +483,7 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
         [self prefetchInBackgroundWithBlock:^{
           // let's handle setting up the notifications after that thread completes
           NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
-          [self startLocationTimerIfNeeded];
+          [self setUpNotificationSystem];
         }];
         completionHandler(nil);
       } else {
@@ -452,14 +595,55 @@ static NSTimeInterval kInitialTimerInterval = 5.0;
   }
 }
 
+#pragma mark join an experiment
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition {
+  if (definition == nil) {
+    return;
+  }
+  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:nil];
+  //create a new experiment and save it to cache
+  PacoExperiment *experiment = [[PacoClient sharedInstance].model
+                                addExperimentInstance:definition
+                                schedule:definition.schedule
+                                events:nil]; //TODO: events will be removed from this method
+  //start scheduling notifications for this joined experiment
+  [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
+}
 
 #pragma mark stop an experiment
-- (void)deleteExperimentFromCache:(PacoExperiment*)experiment
-{
+- (void)stopExperiment:(PacoExperiment*)experiment {
+  if (experiment == nil) {
+    return;
+  }
+  [self.eventManager saveStopEventWithExperiment:experiment];
   //remove experiment from local cache
   [self.model deleteExperimentInstance:experiment];
-  //clear all scheduled notifications and notifications in the tray
-  [self.scheduler stopSchedulingForExperiment:experiment];
+  
+  //if experiment is self-report, no need to touch notification system
+  if ([experiment isSelfReportExperiment]) {
+    return;
+  }
+  if ([self needsNotificationSystem]) {
+    //clear all scheduled notifications and notifications in the tray for the stopped experiment
+    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+  } else {
+    [self.scheduler stopSchedulingForAllExperiments];
+    [self shutDownNotificationSystemIfNeeded];
+  }
+}
+
+#pragma mark submit a survey
+- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification {
+  if (notification) {
+    [self.eventManager saveSurveySubmittedEventForDefinition:definition
+                                                  withInputs:surveyInputs
+                                            andScheduledTime:[notification pacoFireDate]];
+    [self.scheduler handleRespondedNotification:notification];
+  } else {
+    [self.eventManager saveSelfReportEventWithDefinition:definition andInputs:surveyInputs];
+  }
 }
 
 

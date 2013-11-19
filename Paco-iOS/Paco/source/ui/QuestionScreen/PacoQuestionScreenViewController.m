@@ -30,6 +30,7 @@
 #import "PacoEventManager.h"
 #import "PacoInputEvaluator.h"
 #import "PacoScheduler.h"
+#import "UILocalNotification+Paco.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -89,6 +90,70 @@ NSString *kCellIdQuestion = @"question";
   [self reloadTable];
 }
 
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  NSLog(@"Survey shows up:");
+  [self processAttachedNotificationIfNeeded];
+  
+  if (self.evaluator.experiment.definition.webReccommended) {
+    [self showRecommendationAlert];
+  }
+}
+
+- (void)showRecommendationAlert {
+  NSString* title = [NSString stringWithFormat:@"Hi %@", [[PacoClient sharedInstance] userName]];
+  NSString* message = @"It is recommended that you fill this study out on your computer instead.";
+  [PacoAlertView showAlertWithTitle:title
+                            message:message
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         if (self.notification) {
+                           [[PacoClient sharedInstance].scheduler handleRespondedNotification:self.notification];
+                         }
+                         [self.navigationController popViewControllerAnimated:YES];
+                       }
+                  cancelButtonTitle:@"I will respond on the web"
+                  otherButtonTitles:nil];
+}
+
+- (void)processAttachedNotificationIfNeeded {
+  //No need to worry about self-report only experiment
+  if ([self.evaluator.experiment isSelfReportExperiment]) {
+    return;
+  }
+
+  if (self.notification) {
+    NSLog(@"Detail: %@", [self.notification pacoDescription]);
+  }
+  BOOL needToDetectActiveNotification = NO;
+  if (self.notification == nil ||   //self-report
+      (self.notification != nil &&  //non-self-report, but notification is not active any more
+       ![[PacoClient sharedInstance].scheduler isNotificationActive:self.notification])) {
+        needToDetectActiveNotification = YES;
+        NSLog(@"Need to detect active notification.");
+  }
+  
+  if (needToDetectActiveNotification) {
+    if (self.notification) {
+      NSLog(@"Cancelling current notification from the tray");
+      [UILocalNotification pacoCancelLocalNotification:self.notification];
+    }
+    NSString* experimentId = self.evaluator.experiment.instanceId;
+    NSAssert([experimentId length] > 0, @"experiementId should be valid");
+    self.notification =
+        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experimentId];
+    if (self.notification) {
+      NSLog(@"Active Notification Detected: %@", [self.notification pacoDescription]);
+    } else {
+      NSLog(@"No Active Notification Detected. ");
+    }
+  }
+  if (self.notification == nil) {
+    NSLog(@"Self-report");
+  }
+}
+
+
 - (void)onDone {
   NSError* error = [self.evaluator validateVisibleInputs];
   if (error) {
@@ -100,24 +165,11 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
   
-  if (!ADD_TEST_DEFINITION) {
-    if (self.notification) {
-      NSDate* scheduledDate = [self.notification.userInfo objectForKey:@"experimentFireDate"];
-      [[PacoClient sharedInstance].eventManager
-          saveSurveySubmittedEventForDefinition:self.evaluator.experiment.definition
-                                     withInputs:self.evaluator.visibleInputs
-                               andScheduledTime:scheduledDate];
-    } else {
-      [[PacoClient sharedInstance].eventManager
-          saveSelfReportEventWithDefinition:self.evaluator.experiment.definition
-                                  andInputs:self.evaluator.visibleInputs];
-    }   
-  }
+  [self processAttachedNotificationIfNeeded];
   
-  if (self.notification) {
-    [[PacoClient sharedInstance].scheduler handleNotification:self.notification
-                                                  experiments:[[PacoClient sharedInstance].model experimentInstances]];
-  }
+  [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
+                                             surveyInputs:self.evaluator.visibleInputs
+                                             notification:self.notification];
 
   //clear all inputs' submitted responseObject for the definition 
   [self.evaluator.experiment.definition clearInputs];

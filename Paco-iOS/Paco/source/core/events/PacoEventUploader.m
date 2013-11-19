@@ -18,6 +18,9 @@
 #import "PacoClient.h"
 #import "PacoService.h"
 #import "NSError+Paco.h"
+#import "NSString+Paco.h"
+#import "PacoEvent.h"
+#import "UIImage+Paco.h"
 
 static int const kMaxNumOfEventsToUpload = 50;
 
@@ -76,6 +79,35 @@ static int const kMaxNumOfEventsToUpload = 50;
   }); 
 }
 
+
+- (void)composePayloadWithImagesIfNeeded:(NSArray*)events {
+  for (PacoEvent* event in events) {
+    NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:event.responses];
+    for (int index=0; index<[event.responses count]; index++) {
+      id responseDict = [event.responses objectAtIndex:index];
+      if (![responseDict isKindOfClass:[NSDictionary class]]) {
+        continue;
+      }
+      id answer = [(NSDictionary*)responseDict objectForKey:kPacoResponseKeyAnswer];
+      if (![answer isKindOfClass:[NSString class]]) {
+        continue;
+      }
+      NSString* imageName = [UIImage pacoImageNameFromBoxedName:(NSString*)answer];
+      if (!imageName) {
+        continue;
+      }
+      NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
+      if ([imageString length] > 0) {
+        NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
+        [newResponseDict setObject:imageString forKey:kPacoResponseKeyAnswer];
+        [newReponseList replaceObjectAtIndex:index withObject:newResponseDict];
+      }
+    }
+    event.responses = newReponseList;
+  }
+}
+
+
 - (void)uploadEvents {
   @synchronized(self) {
     NSArray* pendingEvents = [self.delegate allPendingEvents];
@@ -128,7 +160,7 @@ static int const kMaxNumOfEventsToUpload = 50;
         
         if (error == nil) {
           if ([successEventIndexes count] < [events count]) {
-            NSLog(@"[Error]%d events uploaded, but %d events failed!",
+            NSLog(@"[Error]%d events successfully uploaded, %d events failed!",
                   [successEventIndexes count], [events count] - [successEventIndexes count]);
           } else {
             NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
@@ -138,7 +170,9 @@ static int const kMaxNumOfEventsToUpload = 50;
           for (NSNumber* indexNum in successEventIndexes) {
             [successEvents addObject:[events objectAtIndex:[indexNum intValue]]];
           }
-          [self.delegate markEventsComplete:successEvents];          
+          if ([successEvents count] > 0) {
+            [self.delegate markEventsComplete:successEvents];
+          }
         } else {
           if ([self isOfflineError:error]) {
             [self startObserveReachability];
@@ -156,6 +190,7 @@ static int const kMaxNumOfEventsToUpload = 50;
       });
     };
     
+    [self composePayloadWithImagesIfNeeded:events];
     [[PacoClient sharedInstance].service submitEventList:events
                                      withCompletionBlock:finalBlock];
     
@@ -168,20 +203,21 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 #pragma mark Public API
 - (void)startUploading {
-  //if user is not logged in yet, wait until log in finishes
-  if (![[PacoClient sharedInstance] isLoggedIn]) {
-    return;
-  }
-
   @synchronized(self) {
+    //if user is not logged in yet, wait until log in finishes
+    if (![[PacoClient sharedInstance] isLoggedIn]) {
+      NSLog(@"EventUploader failed to start uploading since user is not logged in");
+      return;
+    }
     if (self.isWorking) {
+      NSLog(@"EventUploading is already working.");
       return;
     }
-    
     if (![self.delegate hasPendingEvents]) {
+      NSLog(@"EventUploader won't start uploading since there isn't any pending events");
       return;
     }
-    
+    NSLog(@"EventUploader starts uploading ...");
     [self uploadEvents];
   }
 }

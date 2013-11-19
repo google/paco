@@ -19,6 +19,7 @@
 
 
 extern NSString* const kExperimentHasFiredKey;
+extern NSInteger const kTotalNumOfNotifications;
 
 @class PacoExperiment;
 
@@ -26,9 +27,11 @@ extern NSString* const kExperimentHasFiredKey;
 @required
 - (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
                experimentFireDate:(NSDate*)scheduledTime;
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 
-- (void)updateTimerInterval:(NSTimeInterval)newInterval;
-
+- (BOOL)needsNotificationSystem;
+- (void)updateNotificationSystem;
+- (NSArray*)nextNotificationsToSchedule;
 @end
 
 // The PacoScheduler schedules local notifications via UILocalNotification.  The
@@ -38,22 +41,29 @@ extern NSString* const kExperimentHasFiredKey;
 // scheduled at once.
 @interface PacoScheduler : NSObject
 
-+ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate;
++ (PacoScheduler*)schedulerWithDelegate:(id<PacoSchedulerDelegate>)delegate
+                        firstLaunchFlag:(BOOL)firstLaunch;
 
-- (void)handleNotification:(UILocalNotification *)notification
-               experiments:(NSArray*) experiments;
+- (void)handleRespondedNotification:(UILocalNotification *)notification;
+
+- (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
+- (BOOL)isNotificationActive:(UILocalNotification*)notification;
+
+- (void)executeRoutineMajorTask;
 
 // call this when joining an experiment
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
 // call this when leaving an experiment
-- (void)stopSchedulingForExperiment:(PacoExperiment*)experiment;
+- (void)stopSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment;
 
-// see which Notifications have expired, and schedule new ones
--(void)update:(NSArray *)experiments;
+// call this when shutting down the notification system
+- (void)stopSchedulingForAllExperiments;
 
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state
 - (BOOL)saveNotificationsToFile;
+
+- (void)initializeNotifications;
 
 @end

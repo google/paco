@@ -13,16 +13,26 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <SenTestingKit/SenTestingKit.h>
 
-@class PacoExperiment;
-@class PacoExperimentSchedule;
+@interface PacoExperimentTests : SenTestCase
 
-@interface PacoDate : NSObject
-+ (NSString *)pacoStringForDate:(NSDate *)date;
-+ (NSDate *)pacoDateForString:(NSString *)dateStr;
-+ (NSString*)debugStringForDate:(NSDate*)date;
+@end
 
-+ (NSDate*)nextScheduledDateFromNow:(PacoExperiment *)experiment;
+@implementation PacoExperimentTests
+
+- (void)setUp {
+  [super setUp];
+  // Put setup code here; it will be run once, before the first test case.
+}
+
+- (void)tearDown {
+  // Put teardown code here; it will be run once, after the last test case.
+  [super tearDown];
+}
+
+- (void)testESMSchedulesFromDate {
+  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+}
 
 @end

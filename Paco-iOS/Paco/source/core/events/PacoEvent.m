@@ -14,13 +14,15 @@
  */
 
 #import "PacoEvent.h"
-#import "PacoDate.h"
+#import "PacoDateUtility.h"
 #import "PacoClient.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentInput.h"
 #import <CoreLocation/CoreLocation.h>
+#import "NSString+Paco.h"
+#import "UIImage+Paco.h"
 
 static NSString* const kPacoEventKeyWho = @"who";
 static NSString* const kPacoEventKeyWhen = @"when";
@@ -35,9 +37,9 @@ static NSString* const kPacoEventKeyExperimentName = @"experimentName";
 static NSString* const kPacoEventKeyExperimentVersion = @"experimentVersion";
 static NSString* const kPacoEventKeyResponses = @"responses";
 
-static NSString* const kPacoResponseKeyName = @"name";
-static NSString* const kPacoResponseKeyAnswer = @"answer";
-static NSString* const kPacoResponseKeyInputId = @"inputId";
+NSString* const kPacoResponseKeyName = @"name";
+NSString* const kPacoResponseKeyAnswer = @"answer";
+NSString* const kPacoResponseKeyInputId = @"inputId";
 
 @interface PacoEvent ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -71,11 +73,11 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   PacoEvent *event = [[PacoEvent alloc] init];
   NSDictionary *eventMembers = jsonObject;
   event.who = [eventMembers objectForKey:kPacoEventKeyWho];
-  event.when = [PacoDate pacoDateForString:[eventMembers objectForKey:kPacoEventKeyWhen]];
+  event.when = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyWhen]];
   event.latitude = [[eventMembers objectForKey:kPacoEventKeyLatitude] longLongValue];
   event.longitude = [[eventMembers objectForKey:kPacoEventKeyLongitude] longLongValue];
-  event.responseTime = [PacoDate pacoDateForString:[eventMembers objectForKey:kPacoEventKeyResponseTime]];
-  event.scheduledTime = [PacoDate pacoDateForString:[eventMembers objectForKey:kPacoEventKeyScheduledTime]];
+  event.responseTime = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyResponseTime]];
+  event.scheduledTime = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyScheduledTime]];
   event.appId = [eventMembers objectForKey:kPacoEventKeyAppId];
   event.pacoVersion = [eventMembers objectForKey:kPacoEventKeyPacoVersion];
   event.experimentId = [eventMembers objectForKey:kPacoEventKeyExperimentId];
@@ -140,7 +142,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   [dictionary setObject:self.appId forKey:kPacoEventKeyAppId];
   [dictionary setObject:self.pacoVersion forKey:kPacoEventKeyPacoVersion];
   if (self.when) {
-    [dictionary setObject:[PacoDate pacoStringForDate:self.when] forKey:kPacoEventKeyWhen];
+    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.when] forKey:kPacoEventKeyWhen];
   }
   if (self.latitude) {
     [dictionary setObject:[NSString stringWithFormat:@"%lld", self.latitude] forKey:kPacoEventKeyLatitude];
@@ -149,10 +151,10 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
     [dictionary setObject:[NSString stringWithFormat:@"%lld", self.longitude] forKey:kPacoEventKeyLongitude];
   }
   if (self.responseTime) {
-    [dictionary setObject:[PacoDate pacoStringForDate:self.responseTime] forKey:kPacoEventKeyResponseTime];
+    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.responseTime] forKey:kPacoEventKeyResponseTime];
   }
   if (self.scheduledTime) {
-    [dictionary setObject:[PacoDate pacoStringForDate:self.scheduledTime] forKey:kPacoEventKeyScheduledTime];
+    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.scheduledTime] forKey:kPacoEventKeyScheduledTime];
   }
   if (self.responses) {
     [dictionary setObject:self.responses forKey:kPacoEventKeyResponses];
@@ -180,8 +182,7 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
   // Adding a schedule to the join event.  The join event is the only way to
   // edit a schedule.
   if (schedule &&
-      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport &&
-      definition.schedule.scheduleType != kPacoScheduleTypeAdvanced) {
+      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport) {
     [response setObject:@"schedule" forKey:kPacoResponseKeyName];
     [response setObject:[schedule jsonString] forKey:kPacoResponseKeyAnswer];
   }
@@ -232,7 +233,21 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
     NSLog(@"INPUT RESPONSE NAME = %@", input.name);
     [response setObject:input.name forKey:@"name"];
     [response setObject:input.inputIdentifier forKey:@"inputId"];
-    [response setObject:payloadObject forKey:@"answer"];
+    
+    if (![payloadObject isKindOfClass:[UIImage class]]) {
+      [response setObject:payloadObject forKey:@"answer"];
+    } else {
+      NSString* imageName = [UIImage pacoSaveImageToDocumentDir:payloadObject
+                                                  forDefinition:definition.experimentId
+                                                        inputId:input.inputIdentifier];
+      if ([imageName length] > 0) {
+        NSString* fullName = [UIImage pacoBoxedNameFromImageName:imageName];
+        [response setObject:fullName forKey:@"answer"];
+      } else {
+        [response setObject:@"Failed to save image" forKey:@"answer"];
+      }
+    }
+    
     [responses addObject:response];
   }
   
@@ -264,8 +279,20 @@ static NSString* const kPacoResponseKeyInputId = @"inputId";
 + (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
                            withScheduledTime:(NSDate*)scheduledTime {
   NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
+  PacoEvent* event = [self surveyMissedEventForDefinition:definition
+                                        withScheduledTime:scheduledTime
+                                                userEmail:[[PacoClient sharedInstance] userEmail]];
+  return event;
+}
+
+
++ (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
+                           withScheduledTime:(NSDate*)scheduledTime
+                                   userEmail:(NSString*)userEmail{
+  NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
+  NSAssert([userEmail length] > 0, @"userEmail should be valid!");
   PacoEvent *event = [PacoEvent pacoEventForIOS];
-  event.who = [[PacoClient sharedInstance] userEmail];
+  event.who = userEmail;
   event.experimentId = definition.experimentId;
   event.experimentName = definition.title;
   event.experimentVersion = definition.experimentVersion;

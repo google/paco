@@ -26,34 +26,56 @@
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "PacoEventManager.h"
+#import "UILocalNotification+Paco.h"
 
 @implementation PacoAppDelegate
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
-  NSLog(@"Detail: %@", [notification description]);
-  if (notification == nil) {
-    return;
+  [self processReceivedNotification:notification];
+}
+
+- (void)processReceivedNotification:(UILocalNotification*)notification {
+  NSLog(@"Detail: %@", [notification pacoDescription]);
+  
+  UILocalNotification* activeNotification = notification;
+  if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
+    NSLog(@"Notification is not active anymore, cancelling it from the tray...");
+    [UILocalNotification pacoCancelLocalNotification:activeNotification];
+    activeNotification =
+        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
+    if (activeNotification) {
+      NSLog(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
+    } else {
+      NSLog(@"No Active Notification Detected. ");
+    }
   }
   
-  NSDate* experimentTimeOutDate =[notification.userInfo valueForKey:@"experimentTimeOutDate"];
-  if (experimentTimeOutDate != nil && [experimentTimeOutDate timeIntervalSinceNow] <= 0) {
-    NSLog(@"Warning: A time out notification was received!");
-    return;
+  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+  if (activeNotification == nil) {
+    if (state == UIApplicationStateInactive) {
+      [self showNoSurveyNeeded];
+    } else {
+      NSLog(@"Ignore this notfication");
+    }
+  } else {
+    if (state == UIApplicationStateInactive) {
+      NSLog(@"UIApplicationStateInactive");
+      [self showSurveyForNotification:activeNotification];
+    } else if (state == UIApplicationStateActive) {
+      NSLog(@"UIApplicationStateActive");
+      [self presentForegroundNotification:activeNotification];
+    }
   }
-  
-  UIApplicationState state = [application applicationState];
-  //if this is called when application is in background, we should show the question view directly.
-  if (state == UIApplicationStateInactive) {
-    NSLog(@"UIApplicationStateInactive");
-    //YMZ:TODO: need to figure out how to tell different launches from the notification tray or banner and
-    //from unlocking the screen when seeing a notification. If it's a launch from unclocking the screen,
-    //we don't want to show the survey.
-    [self showSurveyForNotification:notification];
-  } else if (state == UIApplicationStateActive) {
-    NSLog(@"UIApplicationStateActive");
-    [self presentForegroundNotification:notification];
-  }
+}
+
+
+- (void)showNoSurveyNeeded {
+  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+  NSString* message = @"No need to fill out any survey at this moment for this experiment.";
+  [JCNotificationCenter enqueueNotificationWithTitle:@""
+                                             message:message
+                                          tapHandler:nil];
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
@@ -61,7 +83,7 @@
   UINavigationController* navi = self.viewController.navigationController;
   [navi popToRootViewControllerAnimated:NO];
   
-  NSString *experimentId = [notification.userInfo objectForKey:@"experimentInstanceId"];
+  NSString *experimentId = [notification pacoExperimentId];
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
@@ -70,25 +92,13 @@
 }
 
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
-  // only show the notification if it hasn't fired before!
-  // this is necessary for notifications that we fire immediately after launch to fill Notification Center
-  NSNumber* experimentHasFired = [notification.userInfo objectForKey:kExperimentHasFiredKey];
-  if (experimentHasFired != nil && ![experimentHasFired boolValue]) {
-    //Handle time out properly just in case
-    NSDate* experimentTimeOutDate =[notification.userInfo valueForKey:@"experimentTimeOutDate"];
-    if (experimentTimeOutDate != nil && [experimentTimeOutDate timeIntervalSinceNow] <= 0) {
-      NSLog(@"Warning: A time out notification was received!");
-      return;
-    }
-    
-    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-    [JCNotificationCenter enqueueNotificationWithTitle:@""
-                                               message:notification.alertBody
-                                            tapHandler:^{
-                                              NSLog(@"Received tap on notification banner!");
-                                              [self showSurveyForNotification:notification];
-                                            }];
-  }
+  NSAssert([notification pacoStatus] != PacoNotificationStatusTimeout, @"should not be timeout");
+  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+  [JCNotificationCenter enqueueNotificationWithTitle:@""
+                                             message:notification.alertBody
+                                          tapHandler:^{
+                                            [self showSurveyForNotification:notification];
+                                          }];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -118,29 +128,36 @@
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    NSLog(@"Detail: %@", [notification description]);
-    [self presentForegroundNotification:notification];
+    [self processReceivedNotification:notification];
   } else {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
   return YES;
 }
 
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
+  NSLog(@"==========  Application Background Fetch Working ==========");
+  
+  [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
+  
+  UIBackgroundFetchResult result = UIBackgroundFetchResultNewData;
+  completionHandler(result);
+}
+
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   NSLog(@"==========  Application applicationDidBecomeActive  ==========");
+  [[PacoClient sharedInstance] uploadPendingEventsInBackground];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillResignActive  ==========");
 
   BOOL success = [[PacoClient sharedInstance].model saveToFile];
-  success = success && [[PacoClient sharedInstance].scheduler saveNotificationsToFile];
   if (success) {
-    NSLog(@"SUCCESSFULLY SAVED TO FILE");
+    NSLog(@"Successfully saved model!");
   } else {
-    NSLog(@"FAILED TO SAVE TO FILE");
+    NSLog(@"Failed to save model!");
   }
-  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -152,13 +169,6 @@
   } else {
     NSLog(@"Failed to save model!");
   }
-  success = [[PacoClient sharedInstance].scheduler saveNotificationsToFile];
-  if (success) {
-    NSLog(@"Successfully saved notifications!");
-  } else {
-    NSLog(@"Failed to save notifications!");
-  }
-  [[PacoClient sharedInstance].eventManager saveDataToFile];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
@@ -170,6 +180,7 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillEnterForeground  ==========");
+  [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
 
 @end

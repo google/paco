@@ -17,6 +17,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoModel.h"
+#import "NSDate+Paco.h"
 
 @interface PacoExperimentSchedule ()
 - (id)serializeToJSON;
@@ -82,14 +83,79 @@
 }
 
 - (BOOL)shouldScheduleNotifications {
-  return (self.schedule.scheduleType != kPacoScheduleTypeSelfReport) &&
-         (self.schedule.scheduleType != kPacoScheduleTypeAdvanced);
+  if ([self isSelfReportExperiment]) {
+    return NO;
+  }
+  return [self.definition isExperimentValid];
 }
 
-- (BOOL)haveJoined {
-  // TODO(gregvance): maybe should check for the "joined"="true" in the event
-  //     responses, but what about un-joining ?
-  return [self.events count];
+- (BOOL)isSelfReportExperiment {
+  return self.schedule.scheduleType == kPacoScheduleTypeSelfReport;
 }
+
+- (BOOL)isScheduledExperiment {
+  return ![self isSelfReportExperiment];
+}
+
+- (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
+  return [self.definition isExperimentValidSinceDate:fromDate];
+}
+
+- (BOOL)isFixedLength {
+  return [self.definition isFixedLength];
+}
+
+- (BOOL)isOngoing {
+  return [self.definition isOngoing];
+}
+
+- (BOOL)hasESMScheduleList {
+  return [self.schedule.esmScheduleList count] > 0;
+}
+
+static int INVALID_INDEX = -1;
+- (NSArray*)ESMSchedulesFromDate:(NSDate*)fromDate {
+  if (![self.schedule isESMSchedule] || fromDate == nil) {
+    return nil;
+  }
+  int index = INVALID_INDEX;
+  NSArray* dates = self.schedule.esmScheduleList;
+  for (NSUInteger currentIndex = 0; currentIndex < [dates count]; currentIndex++) {
+    NSDate* date = [dates objectAtIndex:currentIndex];
+    if ([date pacoLaterThanDate:fromDate]) {
+      index = currentIndex;
+      break;
+    }
+  }
+  NSArray* result = nil;
+  if (index != INVALID_INDEX) {
+    //since esmScheduleList is sorted already, just return the sub-array
+    int count = [dates count] - index;
+    result = [dates subarrayWithRange:NSMakeRange(index, count)];
+  }
+  return result;
+}
+
+- (NSUInteger)numOfESMSchedulesFromDate:(NSDate*)fromDate {
+  NSArray* esmSchedules = [self ESMSchedulesFromDate:fromDate];
+  return [esmSchedules count];
+}
+
+- (BOOL)hasESMSchedulesWithMinimumCount:(NSUInteger)numOfESMSchedules fromDate:(NSDate*)fromDate {
+  return [self numOfESMSchedulesFromDate:fromDate] >= numOfESMSchedules;
+}
+
+- (BOOL)hasESMSchedulesWithMaximumCount:(NSUInteger)numOfESMSchedules fromDate:(NSDate*)fromDate {
+  return [self numOfESMSchedulesFromDate:fromDate] <= numOfESMSchedules;
+}
+
+- (NSDate*)startDate {
+  return self.definition.startDate;
+}
+
+- (NSDate*)endDate {
+  return self.definition.endDate;
+}
+
 
 @end

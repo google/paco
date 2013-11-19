@@ -18,20 +18,17 @@
 #import <CoreLocation/CoreLocation.h>
 
 @protocol PacoLocationDelegate <NSObject>
- @optional
-- (void)timerUpdated;
+@optional
 - (void)locationUpdated:(CLLocation *)location;
+@required
+- (void)locationChangedSignificantly;
 @end
 
 @interface PacoLocation : NSObject {
 }
-@property (nonatomic, assign) id <PacoLocationDelegate> delegate;
+@property (nonatomic, weak) id <PacoLocationDelegate> delegate;
 @property (nonatomic, copy, readonly) CLLocation *location; 
 
-- (id)initWithTimerInterval:(NSTimeInterval)interval;
-- (void)removeTimerAndStopLocationService;
-
-- (void)resetTimerInterval:(NSTimeInterval)newInterval;
 
 - (void)updateLocation;
 - (void)enableLocationService;

@@ -16,6 +16,9 @@
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
+#import "NSString+Paco.h"
+#import "NSError+Paco.h"
+#import "PacoClient.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -48,35 +51,13 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Private methods
-- (NSString*)documentPathForFile:(NSString*)fileName {
-  NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString* documentsDirectory = [paths objectAtIndex:0];
-  NSString* fullPath = [NSString stringWithFormat:@"%@/%@", documentsDirectory, fileName];
-  return fullPath;
-}
-
-//check to see if the error is "No such file or directory"
-- (BOOL)isFileNotExistError:(NSError*)error {
-  if (error == nil) {
-    return NO;
-  }
-  
-  NSError* underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-  if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
-      && underlyingError.code == ENOENT) {
-    return YES;
-  }else {
-    return NO;
-  }
-}
-
 - (id)loadJsonObjectFromFile:(NSString*)fileName {
-  NSString* filePath = [self documentPathForFile:fileName];
+  NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:filePath
                                             options:NSDataReadingMappedIfSafe
                                               error:&error];
-  if (error != nil && ![self isFileNotExistError:error]) {
+  if (error != nil && ![error pacoIsFileNotExistError]) {
     NSLog(@"[Error]Failed to load %@: %@",
           fileName,
           error.description ? error.description : @"unknown error");
@@ -111,7 +92,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   NSAssert(jsonData != nil, @"jsonData should not be nil!");
   
   NSError* saveError = nil;
-  [jsonData writeToFile:[self documentPathForFile:fileName]
+  [jsonData writeToFile:[NSString pacoDocumentDirectoryFilePathWithName:fileName]
                 options:NSDataWritingFileProtectionComplete
                   error:&saveError];
   if (saveError) {
@@ -149,6 +130,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       id events = [dict objectForKey:definitionId];
       [allEventsDict setObject:[self deserializedEvents:events] forKey:definitionId];
     }      
+    NSLog(@"Fetched all events.");
     self.eventsDict = allEventsDict;
   }
 }
@@ -163,6 +145,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if (events != nil) {
       pendingEvents = [self deserializedEvents:events];
     }
+    NSLog(@"Fetched %d pending events.", [pendingEvents count]);
     self.pendingEvents = pendingEvents;
   }
 }
@@ -198,6 +181,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   if (self.pendingEvents == nil) {
     return;
   }
+  NSLog(@"Saving %d pending events", [self.pendingEvents count]);
   NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
   [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
 }
@@ -223,7 +207,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 - (void)markEventsComplete:(NSArray*)events {
   if (0 == [events count]) {
-    NSLog(@"[WARNING]: events list should not be empty!");
     return;
   }
   
@@ -237,6 +220,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       [self.pendingEvents removeObject:event];
     }
     
+    [self savePendingEventsToFile];
     NSLog(@"[Mark Complete] %d events! ", [events count]);
     NSLog(@"[Pending Events] %d.", [self.pendingEvents count]);
   }
@@ -247,24 +231,35 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark Public API
 - (void)saveEvent:(PacoEvent*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
-  NSAssert([[event.experimentId
-             stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
-            length] > 0, @"experimentId should not be empty!");
-  
-  [self fetchAllEventsIfNecessary];
-  
-  NSMutableArray* events = [self.eventsDict objectForKey:event.experimentId];
-  if (events == nil) {
-    events = [NSMutableArray array];
+  [self saveEvents:[NSArray arrayWithObject:event]];
+}
+
+- (void)saveEvents:(NSArray*)events {
+  if (ADD_TEST_DEFINITION) {
+    return;
   }
-  [events addObject:event];
-  [self.eventsDict setObject:events forKey:event.experimentId];
   
-  //add this event to pendingEvent list too
+  NSAssert([events count] > 0, @"events should have more than one element");
+  
+  NSLog(@"Save %d events ...", [events count]);
+  [self fetchAllEventsIfNecessary];
   [self fetchPendingEventsIfNecessary];
-  [self.pendingEvents addObject:event];
-  
-  //submit this event to server
+
+  for (PacoEvent* event in events) {
+    NSString* experimentId = event.experimentId;
+    NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
+    
+    NSMutableArray* currentEvents = [self.eventsDict objectForKey:experimentId];
+    if (currentEvents == nil) {
+      currentEvents = [NSMutableArray array];
+    }
+    [currentEvents addObject:event];
+    [self.eventsDict setObject:currentEvents forKey:experimentId];
+    
+    //add this event to pendingEvent list too
+    [self.pendingEvents addObject:event];
+  }
+  [self saveDataToFile];
   [self startUploadingEvents];
 }
 
@@ -311,8 +306,22 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)startUploadingEvents {
-  [self.uploader startUploading];
+  @synchronized(self) {
+    NSArray* pendingEvents = [self allPendingEvents];
+    if ([pendingEvents count] == 0) {
+      NSLog(@"No pending events to upload.");
+      return;
+    }
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateActive) {
+      NSLog(@"There are %d pending events to upload.", [pendingEvents count]);
+      [self.uploader startUploading];
+    } else {
+      NSLog(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
+    }
+  }
 }
+
 - (void)stopUploadingEvents {
   [self.uploader stopUploading];
 }
