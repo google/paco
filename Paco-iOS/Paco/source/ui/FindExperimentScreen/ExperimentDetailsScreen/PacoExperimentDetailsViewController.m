@@ -97,7 +97,7 @@
   descriptionLabel.backgroundColor=[UIColor whiteColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [PacoColor pacoDarkBlue];
-  descriptionLabel.text = self.experiment.informedConsentForm;
+  descriptionLabel.text = self.experiment.experimentDescription;
   descriptionLabel.editable = NO;
   [self.view addSubview:descriptionLabel];
 
