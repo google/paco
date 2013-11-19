@@ -23,6 +23,7 @@
 #import "PacoTitleView.h"
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
+#import "PacoUserGuideWebViewController.h"
 
 #import "GoogleClientLogin.h"
 
@@ -135,6 +136,8 @@
 }
 
 - (void)onUserGuide {
+  PacoUserGuideWebViewController *webViewController = [[PacoUserGuideWebViewController alloc] init];
+  [self.navigationController pushViewController:webViewController animated:YES];
 }
 
 - (void)onFindAllExperiments {
