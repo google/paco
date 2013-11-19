@@ -228,8 +228,20 @@
 #pragma mark PacoLocationDelegate
 - (void)locationChangedSignificantly {
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-  if (state == UIApplicationStateBackground) {
+  if (state != UIApplicationStateBackground) {
+    return;
+  }
+  BOOL shouldUpdate = YES;
+  static NSString* lastUpdateDateKey = @"last_update_key";
+  NSDate* lastUpdateDate  = [[NSUserDefaults standardUserDefaults] objectForKey:lastUpdateDateKey];
+  NSDate* now = [NSDate date];
+  if (lastUpdateDate != nil && [now timeIntervalSinceDate:lastUpdateDate] < 15 * 60) {//less than 15 minutes
+    shouldUpdate = NO;
+  }
+  if (shouldUpdate) {
     [self executeRoutineMajorTaskIfNeeded];
+    [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
