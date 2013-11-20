@@ -1,7 +1,6 @@
 package com.google.sampling.experiential.client;
 
 import com.google.gwt.i18n.client.Constants;
-import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface MyConstants extends Constants {
 
@@ -10,34 +9,34 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Cancel")
   String cancel();
-  
+
   @DefaultStringValue("OK")
   String ok();
 
   @DefaultStringValue("Success!")
   String success();
-    
+
   @DefaultStringValue("Failure")
   String failure();
-  
+
   @DefaultStringValue("Failed to login.")
   String failedToLogin();
-  
+
   @DefaultStringValue("Failure to join experiment.")
   String failureToJoinExperiment();
-  
+
   @DefaultStringValue("Something went wrong in saving to the server.")
   String saveToServerFailure();
-  
+
   @DefaultStringValue("Error message")
   String errorMessage();
-  
+
   @DefaultStringValue("Error deleting experiment.")
   String errorDeletingExperiment();
-  
+
   @DefaultStringValue("Could not retrieve charts.")
   String couldNotRetrieveCharts();
-  
+
   @DefaultStringValue("No results for your query.")
   String noResultsForQuery();
 
@@ -59,44 +58,44 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Responses")
   String responses();
-  
+
   @DefaultStringValue("Respond")
   String respond();
-  
+
   @DefaultStringValue("Login")
   String login();
-  
+
   @DefaultStringValue("Logout")
   String logout();
-  
+
   @DefaultStringValue("Help")
   String help();
-  
+
   @DefaultStringValue("Get Android App")
   String getAndroid();
-  
+
   @DefaultStringValue("Administer Experiments")
   String administerExperiments();
-  
+
   @DefaultStringValue("Experiments You Joined")
   String joinedExperiments();
-  
+
   @DefaultStringValue("User Guide")
   String userGuide();
-  
+
   @DefaultStringValue("Show All")
   String showAll();
-  
+
   @DefaultStringValue("Create New")
   String createNew();
-  
+
   @DefaultStringValue("Create New Experiment")
   String createNewExperiment();
 
 
   @DefaultStringValue("About")
   String about();
-  
+
   @DefaultStringValue("View Data")
   String viewData();
 
@@ -105,7 +104,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Stats")
   String stats();
- 
+
   @DefaultStringValue("CSV")
   String csv();
 
@@ -114,7 +113,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Welcome to the Daily Information Needs Study")
   String welcomeDIN();
-  
+
   @DefaultStringValue("Paco Experiment Dashboard")
   String pacoPageTitle();
 
@@ -138,7 +137,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Days")
   String repeatTypeDays();
-  
+
   @DefaultStringValue("Weeks")
   String repeatTypeWeeks();
 
@@ -148,7 +147,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Months")
   String repeatTypeMonths();
 
-    
+
 
 
   @DefaultStringValue("Signal Time (s)")
@@ -180,22 +179,22 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("S")
   String sundayInitial();
-  
+
   @DefaultStringValue("M")
   String mondayInitial();
-  
+
   @DefaultStringValue("T")
   String tuesdayInitial();
-  
+
   @DefaultStringValue("W")
   String wednesdayInitial();
-  
+
   @DefaultStringValue("T")
   String thursdayInitial();
-  
+
   @DefaultStringValue("SF")
   String fridayInitial();
-  
+
   @DefaultStringValue("S")
   String satdayInitial();
 
@@ -237,14 +236,14 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Unhide")
   String unHide();
-  
+
   @DefaultStringValue("Hide")
   String hide();
 
   @DefaultStringValue("Purge")
   String purge();
-  
-  @DefaultStringValue("Are you sure you want to delete this experiment definition? " 
+
+  @DefaultStringValue("Are you sure you want to delete this experiment definition? "
             + "Perhaps you want to unpublish it to hide it from new users?")
   String areYouSureYouWantToDelete();
 
@@ -280,7 +279,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Description")
   String experimentDescriptionNoPrompt();
-  
+
   @DefaultStringValue("Creator")
   String experimentCreator();
 
@@ -367,7 +366,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Signal Schedule")
   String signalSchedule();
-  
+
   @DefaultStringValue("Signaling")
   String signaling();
 
@@ -382,7 +381,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Join Experiment")
   String joinExperiment();
-  
+
   @DefaultStringValue("ID")
   String experimentId();
 
@@ -397,7 +396,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("This is a triggered experiment. No schedule to configure.")
   String triggeredExperimentNotScheduled();
-  
+
 
 
   @DefaultStringValue("")
@@ -405,22 +404,34 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Source of Paco Action")
   String chooseTriggerSourceIdentifier();
-  
+
   @DefaultStringValue("Please fix the following before submitting your experiment:")
   String experimentCreationError();
-  
+
   @DefaultStringValue("Some required fields need to be completed.")
   String needToCompleteRequiredFields();
-  
+
   @DefaultStringValue("End date cannot be before start date.")
   String startEndDateError();
-  
+
   @DefaultStringValue("Email address list may be invalid.")
   String emailAddressesError();
-  
+
   @DefaultStringValue("Input names are required and cannot contain spaces.")
   String varNameUnfilledOrHasSpacesError();
-  
+
   @DefaultStringValue("Minimum time between signals")
   String minimumBuffer();
+
+  @DefaultStringValue("Custom Rendering")
+  String customRendering();
+
+  @DefaultStringValue("Click to edit custom rendering")
+  String clickToEditCustomRendering();
+
+  @DefaultStringValue("Click to close custom rendering")
+  String clickToCloseCustomRenderingEditor();
+
+  @DefaultStringValue("Enter html and javascript for custom rendering of experiment")
+  String customRenderingInstructions();
 }

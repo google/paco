@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
-import org.jshybugger.DebugServiceClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,8 +109,6 @@ public class FeedbackActivity extends Activity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      DebugServiceClient dbgClient = DebugServiceClient.attachWebView(webView, this);
-
       if (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0))) {
         loadCustomFeedbackIntoWebView();
       } else {
@@ -154,11 +151,11 @@ public class FeedbackActivity extends Activity {
   }
 
   private void loadDefaultFeedbackIntoWebView() {
-    webView.loadUrl("content://jsHybugger.org/file:///android_asset/default_feedback.html");
+    webView.loadUrl("file:///android_asset/default_feedback.html");
   }
 
   private void loadCustomFeedbackIntoWebView() {
-    webView.loadUrl("content://jsHybugger.org/file:///android_asset/skeleton.html");
+    webView.loadUrl("file:///android_asset/skeleton.html");
   }
 
   private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final Feedback feedback) {
@@ -268,7 +265,7 @@ public class FeedbackActivity extends Activity {
 
       @Override
       public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        Log.d(PacoConstants.TAG,  consoleMessage.message() + " -- From line "
+        Log.d(PacoConstants.TAG,  "*" + consoleMessage.message() + " -- From line "
             + consoleMessage.lineNumber() + " of "
             + consoleMessage.sourceId() );
         return true;
@@ -317,12 +314,14 @@ public class FeedbackActivity extends Activity {
             continue;
           }
           responseJson.put("inputId", input.getServerId());
+          // deprecate inputName in favor of name. Some experiments still use it though
           responseJson.put("inputName", input.getName());
+          responseJson.put("name", input.getName());
           responseJson.put("responseType", input.getResponseType());
           responseJson.put("isMultiselect", input.isMultiselect());
           responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
           responseJson.put("answer", response.getDisplayOfAnswer(input));
-          // deprecated for answerRaw
+          // deprecate answerOrder for answerRaw
           responseJson.put("answerOrder", response.getAnswer());
           responseJson.put("answerRaw", response.getAnswer());
           responses.put(responseJson);

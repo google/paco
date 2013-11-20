@@ -517,7 +517,41 @@ public class ExperimentScheduleActivity extends Activity {
       alarmStore.deleteAllSignalsForSurvey(experiment.getId());
       experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     }
+    if (experiment.getJoinDate() != null) {
+      experimentProviderUtil.updateJoinedExperiment(experiment);
+    } else {
+      createJoinEvent();
+      startService(new Intent(this, SyncService.class));
+    }
+
+
   }
+  /**
+   * Creates a pacot for a newly registered experiment
+   */
+  private void createJoinEvent() {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+    responseForInput.setAnswer("true");
+    responseForInput.setName("joined");
+    event.addResponse(responseForInput);
+
+    Output responseForSchedule = new Output();
+    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
+    responseForSchedule.setAnswer(schedule.toString());
+    responseForSchedule.setName("schedule");
+    event.addResponse(responseForSchedule);
+
+    experimentProviderUtil.insertEvent(event);
+  }
+
+
 
   private void save() {
     Validation valid = isValid();

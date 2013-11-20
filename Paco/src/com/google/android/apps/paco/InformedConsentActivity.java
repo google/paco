@@ -179,36 +179,9 @@ public class InformedConsentActivity extends Activity {
     experiment.setJoinDate(getTodayAsStringWithZone());
     // Set the uri to refer to the experiment's new saved location.
     uri = experimentProviderUtil.insertFullJoinedExperiment(experiment);
-    createJoinEvent();
-    startService(new Intent(this, SyncService.class));
   }
 
-  /**
-   * Creates a pacot for a newly registered experiment
-   */
-  private void createJoinEvent() {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-    responseForInput.setAnswer("true");
-    responseForInput.setName("joined");
-    event.addResponse(responseForInput);
-
-    Output responseForSchedule = new Output();
-    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    responseForSchedule.setAnswer(schedule.toString());
-    responseForSchedule.setName("schedule");
-    event.addResponse(responseForSchedule);
-
-    experimentProviderUtil.insertEvent(event);
-  }
-
-  protected Dialog onCreateDialog(int id, Bundle args) {
+    protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
     case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
       return getRefreshJoinedDialog();

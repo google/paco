@@ -22,6 +22,11 @@
     <!-- If you add any GWT meta tags, they must   -->
     <!-- be added before this line.                -->
     <!--                                           -->
+    <script src="/pacoserver/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/pacoserver/ace/theme-twilight.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/pacoserver/ace/mode-javascript.js"
+    type="text/javascript" charset="utf-8"></script>
+    <script src="/pacoserver/ace/mode-html.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" language="javascript" src="/pacoserver/pacoserver.nocache.js"></script>
   </head>
 

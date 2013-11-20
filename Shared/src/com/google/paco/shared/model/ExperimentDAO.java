@@ -56,6 +56,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected SignalScheduleDAO schedule;
   protected Boolean customRendering = false;
   protected String customRenderingCode;
+  protected Boolean showFeedback = true;
 
 
   /**
@@ -70,13 +71,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param published
    * @param admins
    * @param customRenderingCode
+   * @param showFeedback
    * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
       String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange,
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
-      Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode) {
+      Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode, Boolean showFeedback) {
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
@@ -99,8 +101,13 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.deleted = deleted;
     this.webRecommended = webRecommended;
     this.version = version;
-    this.customRendering = customRendering;
+    if (customRendering != null) {
+      this.customRendering = customRendering;
+    }
     this.customRenderingCode = customRenderingCode;
+    if (showFeedback != null) {
+      this.showFeedback = showFeedback;
+    }
   }
 
   /**
@@ -252,6 +259,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   public void setCustomRenderingCode(String customRenderingCode) {
     this.customRenderingCode = customRenderingCode;
+  }
+
+  public Boolean shouldShowFeedback() {
+    return showFeedback;
+  }
+
+  public void setShowFeedback(Boolean showFeedback) {
+    this.showFeedback = showFeedback;
   }
 
 }

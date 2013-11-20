@@ -60,7 +60,6 @@ import com.google.sampling.experiential.shared.TimeUtil;
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Experiment {
 
-
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
@@ -141,6 +140,9 @@ public class Experiment {
 
   @Persistent
   private Text customRenderingCode;
+
+  @Persistent
+  private Boolean showFeedback;
 
 
   /**
@@ -492,6 +494,14 @@ public class Experiment {
       this.customRenderingCode = null;
     }
 
+  }
+
+  public Boolean shouldShowFeedback() {
+    return showFeedback;
+  }
+
+  public void setShowFeedback(Boolean show) {
+    this.showFeedback = show;
   }
 
 

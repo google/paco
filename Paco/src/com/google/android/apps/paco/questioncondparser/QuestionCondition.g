@@ -15,7 +15,7 @@ package com.google.android.apps.paco.questioncondparser;
 
 
 comparison  returns [boolean value]
-   : question_part LTE i=INTEGER { 
+   : question_part LTE i=OBJECT { 
         if (environment.getValue($question_part.text) == null) {
           $value = false;
         } else {

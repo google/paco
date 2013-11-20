@@ -264,6 +264,9 @@ public class ExperimentProviderUtil {
     existingExperiment.setStartDate(experiment.getStartDate());
     existingExperiment.setTitle(experiment.getTitle());
     existingExperiment.setWebRecommended(experiment.isWebRecommended());
+    existingExperiment.setCustomRendering(experiment.isCustomRendering());
+    existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
+    existingExperiment.setJson(getJson(experiment));
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -482,9 +485,11 @@ public class ExperimentProviderUtil {
           experiment.setTrigger(trigger);
           experiment.setSignalingMechanisms(signalingMechanisms);
         }
-        experiment.setCustomRendering(experimentFromJson.isCustomRendering());
+        Boolean customRendering = experimentFromJson.isCustomRendering();
+        experiment.setCustomRendering(customRendering != null ? customRendering : false);
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
-
+        Boolean shouldShowFeedback = experimentFromJson.shouldShowFeedback();
+        experiment.setShowFeedback(shouldShowFeedback != null ? shouldShowFeedback : true);
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {

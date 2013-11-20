@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-visualization.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-maps.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-r09-gwt.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.5.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.2.jar" sourcepath="/Users/bobevans/.m2/repository/commons-fileupload/commons-fileupload/1.2.2/commons-fileupload-1.2.2-sources.jar"/>
@@ -135,5 +134,7 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.5.0"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.7.5"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-incubator.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-maps-api-3.10.0-alpha-7-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-ajaxloader.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

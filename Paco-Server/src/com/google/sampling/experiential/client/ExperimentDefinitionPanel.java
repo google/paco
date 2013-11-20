@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -52,20 +52,24 @@ import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorMode;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
+
 /**
  * The main panel for viewing the details of an experiment Also used as the
  * basis of creation and editing of experiments. Delegates specific parts of
  * experiment definition to sub panels. Handles communication with subpanels
  * about state of edits.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 public class ExperimentDefinitionPanel extends Composite {
-  
+
   /* Note: a valid email address, by our definition, contains:
    *  A user name at least one character long. Valid characters are alphanumeric
-   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+), 
+   *    characters (A-Z, a-z, 0-9), underscore (_), dash (-), plus (+),
    *    and period (.). The user name cannot start with a period or a plus,
    *    and there cannot be two periods in a row.
    *  A domain name that follows the same restrictions as a user name, except that it
@@ -75,7 +79,7 @@ public class ExperimentDefinitionPanel extends Composite {
    * The overall form of the email address must be username@domain.TLD
    * Please update this documentation if changing the email regex below.
    */
-  private static String EMAIL_REGEX = 
+  private static String EMAIL_REGEX =
       "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
       //"[A-Za-z0-9._%\\+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}";
 
@@ -104,6 +108,15 @@ public class ExperimentDefinitionPanel extends Composite {
   private InputsListPanel inputsListPanel;
 
   private List<String> errorMessagesToDisplay;
+
+  private CheckBox customRenderingCheckBox;
+
+  private DisclosurePanel customRenderingPanel;
+
+  private TextArea customRenderingText;
+
+  private AceEditor customRenderingEditor;
+  private AceEditor customFeedbackEditor;
 
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -157,7 +170,7 @@ public class ExperimentDefinitionPanel extends Composite {
     Label lblExperimentVersion = new Label(myConstants.experimentVersion() + ":");
     lblExperimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(lblExperimentVersion);
-    
+
     Label experimentVersion = new Label(experimentVersionStr);
     experimentVersion.setStyleName("paco-HTML-Large");
     versionPanel.add(experimentVersion);
@@ -204,6 +217,9 @@ public class ExperimentDefinitionPanel extends Composite {
 
     formPanel.add(createInputsHeader());
     formPanel.add(createInputsListPanel(experiment));
+
+    createCustomRenderingEntryPanel(experiment);
+
     createFeedbackEntryPanel(experiment);
     createPublishingPanel(experiment);
     createButtonPanel(experiment);
@@ -211,6 +227,70 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private SignalMechanismChooserPanel createSignalMechanismPanel(ExperimentDAO experiment2) {
     return new SignalMechanismChooserPanel(experiment);
+  }
+
+
+  private Widget createCustomRenderingEntryPanel(ExperimentDAO experiment2) {
+    HorizontalPanel renderingPanel = new HorizontalPanel();
+    customRenderingCheckBox = new CheckBox();
+    customRenderingCheckBox.setChecked(experiment.isCustomRendering());
+    renderingPanel.add(customRenderingCheckBox);
+    Label renderingLabel = new Label(myConstants.customRendering());
+    renderingPanel.add(renderingLabel);
+    formPanel.add(renderingPanel);
+
+    createCustomRenderingDisclosurePanel(experiment);
+    formPanel.add(customRenderingPanel);
+    return renderingPanel;
+  }
+
+  /**
+   * @param experiment2
+   */
+  private void createCustomRenderingDisclosurePanel(ExperimentDAO experiment2) {
+    customRenderingPanel = new DisclosurePanel();
+
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                               "<b>"
+                                                                                   + myConstants.clickToEditCustomRendering()
+                                                                                   + "</b>");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             "<b>"
+                                                                                 + myConstants.clickToCloseCustomRenderingEditor()
+                                                                                 + "</b>");
+
+    customRenderingPanel.setHeader(closedHeaderWidget);
+    customRenderingPanel.addEventHandler(new DisclosureHandler() {
+      public void onClose(DisclosureEvent event) {
+        customRenderingPanel.setHeader(closedHeaderWidget);
+      }
+
+      public void onOpen(DisclosureEvent event) {
+        customRenderingPanel.setHeader(openHeaderWidget);
+      }
+    });
+
+    VerticalPanel userContentPanel = new VerticalPanel();
+    Label instructionLabel = new Label(myConstants.customRenderingInstructions());
+    userContentPanel.add(instructionLabel);
+
+    customRenderingEditor = new AceEditor();
+    customRenderingEditor.setWidth("600px");
+    customRenderingEditor.setHeight("400px");
+    customRenderingEditor.startEditor();
+    customRenderingEditor.setMode(AceEditorMode.JAVASCRIPT);
+    customRenderingEditor.setTheme(AceEditorTheme.ECLIPSE);
+
+    String customRendering = experiment.getCustomRenderingCode();
+
+    if (customRendering != null) {
+      customRenderingEditor.setText(customRendering);
+    }
+
+    userContentPanel.add(customRenderingEditor);
+    customRenderingPanel.setContent(userContentPanel);
   }
 
   /**
@@ -222,7 +302,7 @@ public class ExperimentDefinitionPanel extends Composite {
     // if custom selected then fill with feedback from experiment in TextArea
     HorizontalPanel feedbackPanel = new HorizontalPanel();
     customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
+    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null &&
         experiment.getFeedback().length > 0 &&
         !defaultFeedback(experiment.getFeedback()[0]));
     feedbackPanel.add(customFeedbackCheckBox);
@@ -267,17 +347,25 @@ public class ExperimentDefinitionPanel extends Composite {
     Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
     userContentPanel.add(instructionLabel);
 
-    customFeedbackText = new TextArea();
-    customFeedbackText.setCharacterWidth(100);
-    customFeedbackText.setHeight("100");
+//    customFeedbackText = new TextArea();
+//    customFeedbackText.setCharacterWidth(100);
+//    customFeedbackText.setHeight("100");
+
+    customFeedbackEditor = new AceEditor();
+    customFeedbackEditor.setWidth("600px");
+    customFeedbackEditor.setHeight("400px");
+    customFeedbackEditor.startEditor();
+    customFeedbackEditor.setMode(AceEditorMode.JAVASCRIPT);
+    customFeedbackEditor.setTheme(AceEditorTheme.ECLIPSE);
+
 
     FeedbackDAO[] feedbacks = experiment.getFeedback();
 
     if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
-      customFeedbackText.setText(feedbacks[0].getText());
+      customFeedbackEditor.setText(feedbacks[0].getText());
     }
 
-    userContentPanel.add(customFeedbackText);
+    userContentPanel.add(customFeedbackEditor);
     customFeedbackPanel.setContent(userContentPanel);
   }
 
@@ -402,7 +490,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
   class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
-      add(isOpen ? images.disclosurePanelOpen().createImage() 
+      add(isOpen ? images.disclosurePanelOpen().createImage()
                  : images.disclosurePanelClosed().createImage());
       add(new HTML(html));
     }
@@ -582,12 +670,12 @@ public class ExperimentDefinitionPanel extends Composite {
     }
     return !allRequirementsAreMet.contains(false);
   }
-  
+
   // Visible for testing
   protected InputsListPanel getInputsListPanel() {
     return inputsListPanel;
   }
-  
+
   // Visible for testing
   protected DurationView getDurationPanel() {
     return durationPanel;
@@ -598,7 +686,7 @@ public class ExperimentDefinitionPanel extends Composite {
       errorMessagesToDisplay.subList(1, errorMessagesToDisplay.size()).clear();
     }
   }
-  
+
   private boolean errorMessagesListHasMessages() {
     Preconditions.checkArgument(!errorMessagesToDisplay.isEmpty());
     return !(errorMessagesToDisplay.size() == 1);
@@ -607,7 +695,7 @@ public class ExperimentDefinitionPanel extends Composite {
   private void addErrorMessage(String errorMessage) {
     errorMessagesToDisplay.add(errorMessage);
   }
-  
+
   private String getErrorMessages() {
     return Joiner.on("\n").join(errorMessagesToDisplay);
   }
@@ -626,15 +714,15 @@ public class ExperimentDefinitionPanel extends Composite {
     setPanelHighlight(widget, isFilled);
     return isFilled;
   }
-  
+
   private boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
     return inputsListPanel.checkListItemsHaveAtLeatOneOptionAndHighlight();
   }
-  
+
   private boolean checkVariableNamesHaveNoSpacesAndHighlight() {
     return inputsListPanel.checkVarNamesFilledWithoutSpacesAndHighlight();
   }
-  
+
   // Visible for testing
   protected boolean startDateIsNotAfterEndDate() {
     if (durationPanel.isFixedDuration()) {
@@ -648,19 +736,19 @@ public class ExperimentDefinitionPanel extends Composite {
       return true;
     }
   }
-  
+
   private boolean checkEmailFieldsAreValidAndHighlight() {
     boolean adminListIsValid = checkEmailFieldIsValidAndHighlight(adminList);
     boolean userListIsValid = checkEmailFieldIsValidAndHighlight(userList);
     return adminListIsValid && userListIsValid;
   }
-  
+
   private boolean checkEmailFieldIsValidAndHighlight(TextBoxBase widget) {
     boolean emailAddressesAreValid = emailStringIsValid(widget.getText());
     setPanelHighlight(widget, emailAddressesAreValid);
     return emailAddressesAreValid;
   }
-  
+
   // Visible for testing
   protected boolean emailStringIsValid(String emailString) {
     Splitter sp = Splitter.on(",").trimResults().omitEmptyStrings();
@@ -698,6 +786,7 @@ public class ExperimentDefinitionPanel extends Composite {
       // setQuestionsChangeOn(experiment);
       setDurationOn(experiment);
       setFeedbackOn(experiment);
+      setCustomRenderingOn(experiment);
       setPublishingOn(experiment);
       setModifyDateOn(experiment);
 
@@ -705,6 +794,11 @@ public class ExperimentDefinitionPanel extends Composite {
     } catch (Throwable t) {
       Window.alert("Throwable: " + t.getMessage());
     }
+  }
+
+  private void setCustomRenderingOn(ExperimentDAO experiment2) {
+    experiment.setCustomRendering(customRenderingCheckBox.getValue());
+    experiment.setCustomRenderingCode(customRenderingEditor.getText());
   }
 
   private void setCreatorOn(ExperimentDAO experiment) {
@@ -720,7 +814,7 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setTitleOn(ExperimentDAO experiment) {
     experiment.setTitle(titlePanel.getText());
   }
-  
+
   protected void setTitleInPanel(String title) {
     titlePanel.setText(title);
   }
@@ -733,7 +827,7 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setInformedConsentOn(ExperimentDAO experiment) {
     experiment.setInformedConsentForm(informedConsentPanel.getText());
   }
-  
+
   protected void setInformedConsentInPanel(String title) {
     informedConsentPanel.setText(title);
   }
@@ -744,12 +838,12 @@ public class ExperimentDefinitionPanel extends Composite {
       experiment.setModifyDate(formatDateAsString(new Date()));
     }
   }
-  
+
   private String formatDateAsString(Date date) {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.format(date);
   }
-  
+
   private Date getDateFromFormattedString(String dateString) {
     DateTimeFormat formatter = DateTimeFormat.getFormat(DATE_FORMAT);
     return formatter.parse(dateString);
@@ -766,7 +860,7 @@ public class ExperimentDefinitionPanel extends Composite {
                                                                  FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
     } else {
       experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
-                                                                 customFeedbackText.getText()) });
+                                                                 customFeedbackEditor.getText()) });
     }
   }
 
@@ -779,9 +873,9 @@ public class ExperimentDefinitionPanel extends Composite {
       experiment.setStartDate(null);
       experiment.setEndDate(null);
     }
-    
+
   }
-  
+
   private void setAdminsOn(ExperimentDAO experiment) {
     List<String> admins = new ArrayList<String>();
     String adminsText = adminList.getText();
@@ -797,7 +891,7 @@ public class ExperimentDefinitionPanel extends Composite {
     adminStrArray = admins.toArray(adminStrArray);
     experiment.setAdmins(adminStrArray);
   }
-  
+
   // Visible for testing
   protected void setAdminsInPanel(String commaSepEmailList) {
     adminList.setText(commaSepEmailList);

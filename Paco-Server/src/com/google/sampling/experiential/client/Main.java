@@ -29,6 +29,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.maps.client.LoadApi;
+import com.google.gwt.maps.client.LoadApi.LoadLibrary;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -126,20 +128,16 @@ public class Main implements EntryPoint, ExperimentListener {
       public void onSuccess(LoginInfo result) {
         loginInfo = result;
         if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
-//          ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
-//          loadLibraries.add(LoadLibrary.ADSENSE);
-//          loadLibraries.add(LoadLibrary.DRAWING);
-//          loadLibraries.add(LoadLibrary.GEOMETRY);
-//          loadLibraries.add(LoadLibrary.PANORAMIO);
-//          loadLibraries.add(LoadLibrary.PLACES);
-//          loadLibraries.add(LoadLibrary.WEATHER);
-//
-//          LoadApi.go(new Runnable() {
-//            public void run() {
+          Runnable onLoad = new Runnable() {
+            @Override
+            public void run() {
               loginPanel.setVisible(false);
               createHomePage();
               signOutLink.setHref(loginInfo.getLogoutUrl());
+            }
+          };
 
+          loadMapApi(onLoad);
         } else {
           loadLogin();
         }
@@ -147,6 +145,20 @@ public class Main implements EntryPoint, ExperimentListener {
     });
   }
 
+  private void loadMapApi(Runnable runnable) {
+    boolean sensor = true;
+
+    // load all the libs for use in the maps
+    ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
+    loadLibraries.add(LoadLibrary.ADSENSE);
+    loadLibraries.add(LoadLibrary.DRAWING);
+    loadLibraries.add(LoadLibrary.GEOMETRY);
+    loadLibraries.add(LoadLibrary.PANORAMIO);
+    loadLibraries.add(LoadLibrary.PLACES);
+    loadLibraries.add(LoadLibrary.WEATHER);
+    //loadLibraries.add(LoadLibrary.VISUALIZATION);
+    LoadApi.go(runnable, loadLibraries, sensor);
+  }
   private void loadLogin() {
     loginPanel.setStyleName("front_page");
     HTML index2Html = null;
@@ -496,6 +508,7 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.CHARTS_CODE:
         contentPanel.clear();
+
         showChart(experiment, joined);
         break;
       case ExperimentListener.CSV_CODE:
@@ -815,6 +828,7 @@ public class Main implements EntryPoint, ExperimentListener {
           return;
         }
         // renderEventsOnList(eventList);
+
         ExperimentChartsPanel ep = new ExperimentChartsPanel(experiment, eventList);
         contentPanel.add(ep);
         statusLabel.setVisible(false);

@@ -142,7 +142,21 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       if (experiment.isWebRecommended()) {
         renderWebRecommendedMessage();
       } else {
-        showForm();
+        if (experiment.isCustomRendering() != null && experiment.isCustomRendering()) {
+          Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
+          customExecutorIntent.setData(getIntent().getData());
+
+          Bundle extras = getIntent().getExtras();
+          if (extras != null) {
+            customExecutorIntent.putExtra(Experiment.SCHEDULED_TIME, scheduledTime);
+            customExecutorIntent.putExtra(NotificationCreator.NOTIFICATION_ID, extras.getLong(NotificationCreator.NOTIFICATION_ID));
+          }
+
+          startActivity(customExecutorIntent);
+          finish();
+        } else {
+          showForm();
+        }
       }
     }
 

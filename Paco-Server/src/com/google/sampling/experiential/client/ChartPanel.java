@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -20,9 +20,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-//import com.google.gwt.maps.client.MapWidget;
-//import com.google.gwt.maps.client.overlays.Marker;
+import com.google.gwt.maps.client.MapOptions;
+import com.google.gwt.maps.client.MapTypeId;
+import com.google.gwt.maps.client.MapWidget;
+import com.google.gwt.maps.client.base.LatLng;
+import com.google.gwt.maps.client.base.LatLngBounds;
+import com.google.gwt.maps.client.events.MapEventType;
+import com.google.gwt.maps.client.events.MapHandlerRegistration;
+import com.google.gwt.maps.client.events.click.ClickMapEvent;
+import com.google.gwt.maps.client.events.click.ClickMapHandler;
+import com.google.gwt.maps.client.events.resize.ResizeMapEvent;
+import com.google.gwt.maps.client.events.resize.ResizeMapHandler;
+import com.google.gwt.maps.client.overlays.InfoWindow;
+import com.google.gwt.maps.client.overlays.InfoWindowOptions;
+import com.google.gwt.maps.client.overlays.Marker;
+import com.google.gwt.maps.client.overlays.MarkerOptions;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -36,7 +53,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Component for holding an individual chart for an Input's responses.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -46,45 +63,60 @@ public class ChartPanel extends Composite {
   private InputDAO input;
   private List<EventDAO> data;
 
-//  private MapWidget map;
-//  private Map<EventDAO, Marker> markers = com.google.common.collect.Maps.newHashMap();
+  private MapWidget map;
+  private Map<EventDAO, Marker> markers = com.google.common.collect.Maps.newHashMap();
   private DateTimeFormat formatter = DateTimeFormat.getFormat(TimeUtil.DATETIME_FORMAT);
-//  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
+  private int mapWidth;
+  private int mapHeight;
+  private boolean showLabel;
+  private VerticalPanel rootPanel;
+  private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(InputDAO input, List<EventDAO> eventList) {
+  public ChartPanel(InputDAO input, List<EventDAO> eventList, int mapWidth, int mapHeight, boolean showLabel) {
     this.input = input;
     this.data = eventList;
+    this.mapWidth = mapWidth;
+    this.mapHeight = mapHeight;
+    this.showLabel = showLabel;
 
-    VerticalPanel verticalPanel = new VerticalPanel();
-    verticalPanel.setSpacing(2);
-    initWidget(verticalPanel);
+    rootPanel = new VerticalPanel();
+    rootPanel.setSpacing(2);
+    initWidget(rootPanel);
+    rootPanel.clear();
 
-    String questionText = input.getText();
-    Label inputTextLabel = new Label(questionText);
-    inputTextLabel.setStyleName("paco-HTML");
-    verticalPanel.add(inputTextLabel);
+    if (showLabel) {
+      String questionText = input.getText();
+      Label inputTextLabel = new Label(questionText);
+      inputTextLabel.setStyleName("paco-HTML");
+      rootPanel.add(inputTextLabel);
+    }
 
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
     if (input.getResponseType().equals(InputDAO.OPEN_TEXT) &&
         dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
-      verticalPanel.add(cm.createWordCloud("", eventList, input.getName()));
+      rootPanel.add(cm.createWordCloud("", eventList, input.getName()));
     } else if (input.getResponseType().equals(InputDAO.PHOTO)) {
-      verticalPanel.add(createPhotoSlider());
+      rootPanel.add(createPhotoSlider());
     } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
-      verticalPanel.add(renderEventsOnMap());
+      renderEventsOnMap();
+      //rootPanel.add();
     } else if (input.getResponseType().equals(InputDAO.LIST)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
+      rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           input.getListChoices(), input.getMultiselect()));
     } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
+      rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           getLikertCategories(), false));
     } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
-      verticalPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
+      rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
       getLikertSmileyCategories(), false));
     } else {
-      verticalPanel.add(cm.createLineChart(eventList, "", input.getName()));
+      rootPanel.add(cm.createLineChart(eventList, "", input.getName()));
     }
+  }
+
+  public ChartPanel(InputDAO input, List<EventDAO> events) {
+    this(input, events, 800, 600, true);
   }
 
   /**
@@ -100,13 +132,13 @@ public class ChartPanel extends Composite {
     String[] choices = new String[likertSteps];
     if (input.getLeftSideLabel() != null) {
       choices[0] = input.getLeftSideLabel();
-    } 
+    }
     choices[0] = choices[0] + " (1)";
     if (input.getRightSideLabel() != null) {
       choices[likertSteps - 1] = input.getRightSideLabel();
     }
-    choices[likertSteps - 1] = choices[likertSteps - 1] 
-                                                   + " (" + likertSteps + ")"; 
+    choices[likertSteps - 1] = choices[likertSteps - 1]
+                                                   + " (" + likertSteps + ")";
     for (int i=1;i < (likertSteps - 1); i++) {
       choices[i] = "(" + (i + 1) + ")";
     }
@@ -124,7 +156,7 @@ public class ChartPanel extends Composite {
 
   /**
    * Show photos in a side-sliding gallery.
-   * 
+   *
    * @return The photo gallery widget
    */
   private Widget createPhotoSlider() {
@@ -137,7 +169,7 @@ public class ChartPanel extends Composite {
     ScrollPanel photosPanel = new ScrollPanel();
     photosPanel.setHeight("480");
     photosPanel.setWidth("800");
-    
+
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setHeight("450");
     photosPanel.add(horizontalPanel);
@@ -155,8 +187,8 @@ public class ChartPanel extends Composite {
         String formattedResponseTime = formatTime(event.getResponseTime());
         String formattedScheduledTime = formatTime(event.getScheduledTime());
         HTML picture = new HTML("<div style=\"text-align:center;margin-left:2;margin-right:2;\">"
-            + "<img height=\"375\" src=\"data:image/jpg;base64," 
-            + blobData 
+            + "<img height=\"375\" src=\"data:image/jpg;base64,"
+            + blobData
             + "\"><br><b>" + event.getWho() + "</b><br><b>" + formattedResponseTime + "</b>"
             + "<br><b>" + formattedScheduledTime + "</b>"
             +"</div>");
@@ -177,79 +209,93 @@ public class ChartPanel extends Composite {
    * Create a Map Widget of Lat/Lon data.
    */
   private void createMap() {
-//    
-//    map = new MapWidget(google, 11);
-//    map.setSize("800px", "600px");
-//    
-//    // Add some controls for the zoom level
-//    map.addControl(new LargeMapControl());
-//    map.addControl(new MapTypeControl());
-//    map.addControl(new ScaleControl());
+
+    MapOptions mapOptions = MapOptions.newInstance();
+    mapOptions.setCenter(google);
+    mapOptions.setZoom(4);
+    mapOptions.setMapTypeId(MapTypeId.ROADMAP);
+    map = new MapWidget(mapOptions);
+    rootPanel.add(map);
+    map.setSize(mapWidth + "px", mapHeight + "px");
   }
 
   private Widget renderEventsOnMap() {
-//	  return new HTML();
-//    markers.clear();
-//    createMap();
-//    LatLngBounds bounds = LatLngBounds.newInstance(null, null);
-//    map.setCenter(bounds.getCenter());
-//    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
-//    for (final EventDAO eventRating : data) {
-//      String latLon = eventRating.getWhatByKey(input.getName());
-//      if (latLon == null || latLon.length() == 0) {
-//        continue;
-//      }
-//      String[] splits = latLon.split(",");
-//      if (splits == null || splits.length != 2) {
-//        continue;
-//      }
-//      try {
-//        double latitude = Double.parseDouble(splits[0]);
-//        double longitude = Double.parseDouble(splits[1]);
-//
-//        MarkerOptions markerOptions = MarkerOptions.newInstance();
-//        markerOptions.setTitle(eventRating.getWhatString());
-//        LatLng newInstance = LatLng.newInstance(latitude, longitude);
-//        final Marker marker = new Marker();
-//        marker.setPosition(newInstance);
-//        marker.setOptions(markerOptions);
-//        bounds.extend(marker.getPosition());
-//        marker.addClickHandler(new ClickMapHandler() {
-//          
-//          @Override
-//          public void onEvent(ClickMapEvent event) {
-//            openInfoWindowForMarker(eventRating, marker);
-//          }
-//        });
-//        markers.put(eventRating, marker);
-//        map.addOverlay(marker);
-//      } catch (NumberFormatException nfe) {
-//      }
-//    }
-//    
-//    
-//    map.setCenter(bounds.getCenter());
-//    map.setZoomLevel(map.getBoundsZoomLevel(bounds));
-//    map.checkResizeAndCenter();
-//    return map;
-    return null;
-    
+    markers.clear();
+    createMap();
+    final LatLngBounds bounds = LatLngBounds.newInstance(google, google);
+    for (final EventDAO event : data) {
+      String latLon = event.getWhatByKey(input.getName());
+      if (latLon == null || latLon.length() == 0) {
+        continue;
+      }
+      String[] splits = latLon.split(",");
+      if (splits == null || splits.length != 2) {
+        continue;
+      }
+      try {
+        double latitude = Double.parseDouble(splits[0]);
+        double longitude = Double.parseDouble(splits[1]);
+
+        MarkerOptions markerOptions = MarkerOptions.newInstance();
+        markerOptions.setMap(map);
+        markerOptions.setTitle(event.getWhatString());
+        LatLng newInstance = LatLng.newInstance(latitude, longitude);
+        final Marker marker = Marker.newInstance(markerOptions);
+        marker.setPosition(newInstance);
+        bounds.union(LatLngBounds.newInstance(marker.getPosition(), marker.getPosition()));
+        marker.addClickHandler(new ClickMapHandler() {
+          @Override
+          public void onEvent(ClickMapEvent mapEvent) {
+            openInfoWindowForMarker(event, marker);
+          }
+        });
+        markers.put(event, marker);
+      } catch (NumberFormatException nfe) {
+      }
+    }
+
+
+    map.fitBounds(bounds);
+
+    final LatLng oldCenter = map.getCenter();
+    final int oldZoom = map.getZoom();
+    map.addResizeHandler(new ResizeMapHandler() {
+
+      @Override
+      public void onEvent(ResizeMapEvent event) {
+        map.setCenter(oldCenter);
+        map.setZoom(oldZoom);
+        map.fitBounds(bounds);
+      }
+    });
+    Window.addResizeHandler(new ResizeHandler() {
+      @Override
+      public void onResize(ResizeEvent event) {
+          MapHandlerRegistration.trigger(map, MapEventType.RESIZE);
+          GWT.log("Window has been resized!");
+      }
+  });
+    return map;
   }
 
-//  private void openInfoWindowForMarker(final EventDAO eventRating, final Marker marker) {
-//    map.getInfoWindow().open(marker.getPosition(), createInfoWindowForEventRating(eventRating));
-//  }
-//
-//
-//  private InfoWindowContent createInfoWindowForEventRating(final EventDAO eventRating) {
-//    return new InfoWindowContent(
-//        "What: " + eventRating.getWhatString() + "<br/>Who: " + eventRating.getWho() + "<br/>When: "
-//            + formatter.format(eventRating.getWhen()));
-//  }
+  private void openInfoWindowForMarker(final EventDAO eventRating, final Marker marker) {
+    InfoWindowOptions options = InfoWindowOptions.newInstance();
+    options.setContent(createInfoWindowForEvent(eventRating));
+    InfoWindow iw = InfoWindow.newInstance(options);
+    iw.open(map, marker);
+  }
+
+
+  private HTML createInfoWindowForEvent(final EventDAO event) {
+    return new HTML(
+        "What: " + event.getWhatString() + "<br/>Who: " + event.getWho() + "<br/>When: "
+            + formatter.format(event.getResponseTime()));
+  }
+
 
   /**
    * Sample the data to figure out what type it is.
-   * 
+   *
    * @param cm The ChartoMundo chart maker object.
    * @return
    */
@@ -264,9 +310,9 @@ public class ChartPanel extends Composite {
     if (answer == null) {
       return DEFAULT_DATA_CLASS;
     }
-    
+
     Class dataTypeOfFirstEntry = cm.getDataTypeOf(answer);
-    
+
     if (data.size() == 1) {
       return dataTypeOfFirstEntry;
     }
@@ -280,5 +326,14 @@ public class ChartPanel extends Composite {
     }
     return DEFAULT_DATA_CLASS;
   }
+
+  @Override
+  protected void onLoad() {
+    // TODO Auto-generated method stub
+    super.onLoad();
+    MapHandlerRegistration.trigger(map, MapEventType.RESIZE);
+  }
+
+
 
 }
