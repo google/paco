@@ -81,6 +81,10 @@ public class Experiment implements Parcelable {
       Trigger trigger = source.readParcelable(classLoader);
       experiment.trigger = trigger;
 
+      experiment.customRendering = source.readInt() == 1;
+      experiment.customRenderingCode = source.readString();
+
+      experiment.shouldShowFeedback = source.readInt() == 1;
       return experiment;
     }
 
@@ -112,7 +116,8 @@ public class Experiment implements Parcelable {
 
   private Trigger trigger;
   private List<SignalingMechanism> signalingMechanisms;
-
+  private Boolean customRendering = false;
+  private String customRenderingCode;
 
 
 
@@ -126,6 +131,7 @@ public class Experiment implements Parcelable {
 
   @JsonIgnore
   private String json;
+  private Boolean shouldShowFeedback = true;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -346,7 +352,9 @@ public class Experiment implements Parcelable {
     dest.writeString(json);
 
     dest.writeParcelable(trigger, 0);
-
+    dest.writeInt(customRendering ? 1 : 0);
+    dest.writeString(customRenderingCode);
+    dest.writeInt(shouldShowFeedback ? 1 : 0);
   }
 
   @JsonIgnore
@@ -473,7 +481,6 @@ public class Experiment implements Parcelable {
       if (lastTime == null || lastTimeForSignalGroup.isAfter(lastTime)) {
         lastTime = lastTimeForSignalGroup;
       }
-
     }
     return lastTime;
   }
@@ -648,5 +655,30 @@ public class Experiment implements Parcelable {
       this.trigger = (Trigger)signalingMechanism;
     }
   }
+
+  public Boolean isCustomRendering() {
+    return customRendering;
+  }
+
+  public void setCustomRendering(Boolean customRendering) {
+    this.customRendering = customRendering;
+  }
+
+  public String getCustomRenderingCode() {
+    return customRenderingCode;
+  }
+
+  public void setCustomRenderingCode(String customRenderingCode) {
+    this.customRenderingCode = customRenderingCode;
+  }
+
+  public Boolean shouldShowFeedback() {
+    return this.shouldShowFeedback ;
+  }
+
+  public void setShowFeedback(Boolean show) {
+    this.shouldShowFeedback = show;
+  }
+
 
 }

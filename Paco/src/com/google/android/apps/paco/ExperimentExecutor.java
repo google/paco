@@ -142,7 +142,21 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       if (experiment.isWebRecommended()) {
         renderWebRecommendedMessage();
       } else {
-        showForm();
+        if (experiment.isCustomRendering() != null && experiment.isCustomRendering()) {
+          Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
+          customExecutorIntent.setData(getIntent().getData());
+
+          Bundle extras = getIntent().getExtras();
+          if (extras != null) {
+            customExecutorIntent.putExtra(Experiment.SCHEDULED_TIME, scheduledTime);
+            customExecutorIntent.putExtra(NotificationCreator.NOTIFICATION_ID, extras.getLong(NotificationCreator.NOTIFICATION_ID));
+          }
+
+          startActivity(customExecutorIntent);
+          finish();
+        } else {
+          showForm();
+        }
       }
     }
 
@@ -361,7 +375,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         // to a notification.
         scheduledTime = 0L;
       }
-      Event event = createEvent();
+      Event event = createEvent(experiment, scheduledTime);
       gatherResponses(event);
       experimentProviderUtil.insertEvent(event);
 
@@ -433,13 +447,13 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     }
   }
 
-  private Event createEvent() {
+  public static Event createEvent(Experiment experiment, Long scheduledTimeLong) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getTitle());
-    if (scheduledTime != null && scheduledTime != 0L) {
-      event.setScheduledTime(new DateTime(scheduledTime));
+    if (scheduledTimeLong != null && scheduledTimeLong != 0L) {
+      event.setScheduledTime(new DateTime(scheduledTimeLong));
     }
     event.setExperimentVersion(experiment.getVersion());
     event.setResponseTime(new DateTime());
@@ -584,16 +598,22 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         Uri selectedImage = data.getData();
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-        Cursor cursor = getContentResolver().query(
-                           selectedImage, filePathColumn, null, null, null);
-        cursor.moveToFirst();
+        try {
+          Cursor cursor = getContentResolver().query(
+                             selectedImage, filePathColumn, null, null, null);
+          cursor.moveToFirst();
 
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String filePath = cursor.getString(columnIndex);
-        cursor.close();
-        for (InputLayout inputLayout : inputs) {
-          inputLayout.galleryPicturePicked(filePath, requestCode);
+          int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+          String filePath = cursor.getString(columnIndex);
+          cursor.close();
+          for (InputLayout inputLayout : inputs) {
+            inputLayout.galleryPicturePicked(filePath, requestCode);
+          }
+        } catch (Exception e) {
+          Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
+          e.printStackTrace();
         }
+
       }
 
     }

@@ -60,45 +60,6 @@ import com.google.sampling.experiential.shared.TimeUtil;
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Experiment {
 
-  /**
-   * @param id
-   * @param title2
-   * @param description2
-   * @param creator2
-   * @param informedConsentForm2
-   * @param questionsCanChange
-   * @param modifyDate
-   * @param published TODO
-   * @param admins TODO
-   */
-  public Experiment(Long id, String title, String description, User creator,
-      String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      String modifyDate, Boolean published, List<String> admins) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.creator = creator;
-    this.informedConsentForm = informedConsentForm;
-    this.schedule = schedule;
-    this.questionsChange = questionsCanChange;
-    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
-    this.inputs = Lists.newArrayList();
-    feedback = Lists.newArrayList();
-    this.published = published;
-    this.admins = admins;
-    if (this.admins == null) {
-      this.admins = Lists.newArrayList(creator.getEmail());
-    } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
-      admins.add(0, creator.getEmail());
-    }
-  }
-
-  /**
-   *
-   */
-  public Experiment() {
-  }
-
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
@@ -173,6 +134,55 @@ public class Experiment {
 
   @Persistent
   private Integer version;
+
+  @Persistent
+  private Boolean isCustomRendering = false;
+
+  @Persistent
+  private Text customRenderingCode;
+
+  @Persistent
+  private Boolean showFeedback;
+
+
+  /**
+   * @param id
+   * @param title2
+   * @param description2
+   * @param creator2
+   * @param informedConsentForm2
+   * @param questionsCanChange
+   * @param modifyDate
+   * @param published TODO
+   * @param admins TODO
+   */
+  public Experiment(Long id, String title, String description, User creator,
+      String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
+      String modifyDate, Boolean published, List<String> admins) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.creator = creator;
+    this.informedConsentForm = informedConsentForm;
+    this.schedule = schedule;
+    this.questionsChange = questionsCanChange;
+    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
+    this.inputs = Lists.newArrayList();
+    feedback = Lists.newArrayList();
+    this.published = published;
+    this.admins = admins;
+    if (this.admins == null) {
+      this.admins = Lists.newArrayList(creator.getEmail());
+    } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
+      admins.add(0, creator.getEmail());
+    }
+  }
+
+  /**
+   *
+   */
+  public Experiment() {
+  }
 
   public Long getId() {
     return id;
@@ -463,6 +473,35 @@ public class Experiment {
 
   public void setVersion(Integer version) {
     this.version = version;
+  }
+
+  public Boolean isCustomRendering() {
+    return isCustomRendering;
+  }
+
+  public void setCustomRendering(Boolean customHtml) {
+    this.isCustomRendering = customHtml;
+  }
+
+  public String getCustomRenderingCode() {
+    return customRenderingCode != null ? customRenderingCode.getValue() : null;
+  }
+
+  public void setCustomRenderingCode(String customRenderingCode) {
+    if (!Strings.isNullOrEmpty(customRenderingCode)) {
+      this.customRenderingCode = new Text(customRenderingCode);
+    } else {
+      this.customRenderingCode = null;
+    }
+
+  }
+
+  public Boolean shouldShowFeedback() {
+    return showFeedback;
+  }
+
+  public void setShowFeedback(Boolean show) {
+    this.showFeedback = show;
   }
 
 

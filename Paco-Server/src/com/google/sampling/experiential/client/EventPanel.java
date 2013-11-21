@@ -5,15 +5,18 @@ import java.util.Set;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 
@@ -34,18 +37,18 @@ public class EventPanel extends Composite {
     this.parent = parent;
     this.event = eventDAO;
     this.inputs = inputDAOs;
-    
-    mainPanel = new VerticalPanel();    
+
+    mainPanel = new VerticalPanel();
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     mainPanel.setStyleName("paco-offset-background");
     initWidget(mainPanel);
-    
+
     renderEventTimes(eventDAO);
     renderResponseValues();
   }
 
   private void renderEventTimes(EventDAO eventDAO) {
-    createScheduleTimePanel(eventDAO);    
+    createScheduleTimePanel(eventDAO);
     createResponseTimePanel(eventDAO);
   }
 
@@ -63,7 +66,7 @@ public class EventPanel extends Composite {
   private void createScheduleTimePanel(EventDAO eventDAO) {
     HorizontalPanel stPanel = new HorizontalPanel();
     mainPanel.add(stPanel);
-    
+
     Label scheduledTimeLabel = new Label(myConstants.scheduledTime() + ": ");
     scheduledTimeLabel.setStyleName("keyLabel");
     stPanel.add(scheduledTimeLabel);
@@ -77,90 +80,94 @@ public class EventPanel extends Composite {
     Label responseLabel = new Label(myConstants.responses() + ": ");
     responseLabel.setStyleName("keyLabel");
     panel.add(responseLabel);
-    
+
     Map<String, String> whatMap = event.getWhat();
     Set<String> keys = whatMap.keySet();
     if (keys == null) {
       return;
     }
-    
+
     Grid grid = new Grid(inputs.length * 2, 1);
     //grid.setBorderWidth(1);
     grid.setWidth("100%");
     mainPanel.add(grid);
-    
+
     int rowIndex = 0;
     for (int i=0;i < inputs.length; i++) {
       InputDAO input = inputs[i];
-      String value = whatMap.get(input.getName());
-      
+      String valueString = whatMap.get(input.getName());
+      Widget value = null;
+
       String displayText = input.getText();
       if (Strings.isNullOrEmpty(displayText)) {
         displayText = input.getName();
       }
 
-      
-      if (input == null || value == null || value.length() == 0) {
-        value = "";
-      } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && !value.equals("==") && !value.isEmpty() && event.getBlobs().length > 0 ) {            
+
+      if (input == null || valueString == null || valueString.length() == 0) {
+        value = new Label("");
+      } else if (input.getResponseType().equals("photo"/*InputDAO.PHOTO*/) && !valueString.equals("==") && !valueString.isEmpty() && event.getBlobs().length > 0 ) {
           String blobData = event.getBlobs()[0];
           if (blobData.isEmpty()) {
-            value = "";
+            value = new Label("");
           } else {
-            value = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
+            value = new Label("<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">");
           }
       } else if (input.getResponseType().equals(InputDAO.LIST)) {
         String[] listChoices = input.getListChoices();
         if (input.getMultiselect() != null && input.getMultiselect()) {
-          StringBuffer buff = new StringBuffer(); 
+          StringBuffer buff = new StringBuffer();
           boolean first = true;
-          for (String currentChoice : Splitter.on(',').split(value)) {
+          for (String currentChoice : Splitter.on(',').split(valueString)) {
             if (first) {
               first = false;
             } else {
               buff.append(",");
             }
-            
+
             String answerString = getListChoiceForAnswer(currentChoice, listChoices);
             buff.append(answerString);
           }
-          value = buff.toString();
+          value = new Label(buff.toString());
         } else {
-          value = getListChoiceForAnswer(value, listChoices);
+          value = new Label(getListChoiceForAnswer(valueString, listChoices));
         }
+      } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
+        value = new ChartPanel(input, Lists.newArrayList(event), 300, 300, false);
       } else {
-        if (value.equals("blob") && input.getResponseType().equals("photo")) {
-          value = "";
+        if (valueString.equals("blob") && input.getResponseType().equals("photo")) {
+          value = new Label("");
         }
-        value = new SafeHtmlBuilder().appendEscaped(value).toSafeHtml().asString();
+        value = new HTML(new SafeHtmlBuilder().appendEscaped(valueString).toSafeHtml().asString());
       }
-      addColumnToGrid(grid, rowIndex, value, displayText);
+      addColumnToGrid(grid, rowIndex, displayText, value);
       rowIndex = rowIndex + 2;
     }
   }
 
   private String getListChoiceForAnswer(String value, String[] listChocies) {
-    int zeroBasedIndex = -1; 
+    int zeroBasedIndex = -1;
     try {
       zeroBasedIndex = Integer.parseInt(value) - 1;
     } catch (NumberFormatException nfe) {
       // Log this error.
     }
     if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
-      value = ""; 
-    } else {               
-      value = listChocies[zeroBasedIndex]; 
+      value = "";
+    } else {
+      value = listChocies[zeroBasedIndex];
     }
     return value;
   }
 
-  private void addColumnToGrid(Grid grid, int i, String value, String text) {
+  private void addColumnToGrid(Grid grid, int i, String text, Widget widget) {
     SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(text).toSafeHtml();
     //Label label = new Label(questionText.asString());
     Label label = new Label(text);
     label.setStyleName("keyLabel");
+
     grid.setWidget(i, 0, label);
-    grid.setHTML(i + 1, 0, value);
+    grid.setWidget(i + 1, 0, widget);
   }
 
 }

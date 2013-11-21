@@ -181,9 +181,10 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
 
     PersistenceManager pm = null;
+    Transaction tx = null;
     try {
       pm = PMF.get().getPersistenceManager();
-      Transaction tx = pm.currentTransaction();
+      tx = pm.currentTransaction();
       tx.begin();
       Query q = pm.newQuery(Experiment.class);
       q.setFilter("admins == whoParam");
@@ -196,6 +197,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       }
       tx.commit();
     } finally {
+      if (tx.isActive()) {
+        tx.rollback();
+      }
       if (pm != null) {
         pm.close();
       }
@@ -359,7 +363,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
         }
         for (Long id : idList) {
           experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null));
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, true));
         }
       } finally {
         if (pm != null) {

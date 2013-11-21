@@ -74,7 +74,6 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View componentWithValue;
   private List<ChangeListener> inputChangeListeners;
   private TextView promptTextView;
-  private File file;
   private Location location;
 
   // Choices that have been selected on a multiselect list.
@@ -85,6 +84,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   protected boolean setupClickHasHappened;
   private AutoCompleteTextView openTextView;
   private AutocompleteDictionary autocompleteDatabase;
+
+  private File file;
   private int requestCode;
   private ImageView photoView;
   private static int code = 1200;
@@ -206,7 +207,6 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     }
     return null;
   }
-
 
   private String intToString(Integer numberValue) {
     if (numberValue != null) {

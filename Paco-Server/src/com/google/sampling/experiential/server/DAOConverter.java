@@ -94,9 +94,12 @@ public class DAOConverter {
 
     Integer version = experiment.getVersion();
 
+    String customRenderingCode = experiment.getCustomRenderingCode();
+    Boolean showFeedback = experiment.shouldShowFeedback();
+
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted, null, version);
+            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, showFeedback);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -211,6 +214,11 @@ public class DAOConverter {
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
     experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
     experiment.setDeleted(experimentDAO.getDeleted());
+
+    experiment.setCustomRendering(experimentDAO.isCustomRendering());
+    experiment.setCustomRenderingCode(experimentDAO.getCustomRenderingCode());
+
+    experiment.setShowFeedback(experimentDAO.shouldShowFeedback());
     return experiment;
   }
 

@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.datastore.ExperimentVersionEntity;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
@@ -220,8 +221,20 @@ public class ExperimentRetriever {
     String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Experiment experiment = null;
+
+    // workaround for appengine bug where dependent entities are not deleted when assigned null.
+    boolean deletingTrigger = false;
+    boolean deletingSchedule = false;
+
     if (experimentDAO.getId() != null) {
       experiment = retrieveExperimentForDAO(experimentDAO, pm);
+      SignalingMechanismDAO newSignalingMechanism = experimentDAO.getSignalingMechanisms()[0];
+      if (experiment.getTrigger() != null && (!(newSignalingMechanism instanceof TriggerDAO))) {
+        deletingTrigger = true;
+      }
+      if (experiment.getSchedule() != null && (!(newSignalingMechanism instanceof SignalScheduleDAO))) {
+        deletingSchedule = true;
+      }
     } else {
       experiment = new Experiment();
       experiment.setVersion(1);
@@ -232,10 +245,6 @@ public class ExperimentRetriever {
         return false;
       }
 
-      JDOHelper.makeDirty(experiment, "inputs");
-      JDOHelper.makeDirty(experiment, "feedback");
-      JDOHelper.makeDirty(experiment, "schedule");
-      JDOHelper.makeDirty(experiment, "trigger");
     }
 
     Transaction tx = null;
@@ -243,11 +252,29 @@ public class ExperimentRetriever {
     try {
       tx = pm.currentTransaction();
       tx.begin();
+
       if (experiment.getId() != null) {
         incrementExperimentVersionNumber(experimentDAO, experiment);
       }
+
+      if (deletingTrigger) {
+        pm.deletePersistent(experiment.getTrigger());
+      }
+      if (deletingSchedule) {
+        pm.deletePersistent(experiment.getSchedule());
+      }
+
       DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
+
+      JDOHelper.makeDirty(experiment, "inputs");
+      JDOHelper.makeDirty(experiment, "feedback");
+      JDOHelper.makeDirty(experiment, "schedule");
+      JDOHelper.makeDirty(experiment, "trigger");
+
+
       pm.makePersistent(experiment);
+
+
       tx.commit();
       committed  = true;
     } finally {

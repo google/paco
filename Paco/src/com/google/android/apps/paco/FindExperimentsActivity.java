@@ -47,6 +47,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.pacoapp.paco.R;
@@ -69,6 +70,7 @@ public class FindExperimentsActivity extends FragmentActivity {
   protected AvailableExperimentsListAdapter adapter;
   private List<Experiment> experiments;
   private ProgressDialogFragment newFragment;
+  private ProgressBar progressBar;
 
   private static DownloadShortExperimentsTask experimentDownloadTask;
 
@@ -101,6 +103,8 @@ public class FindExperimentsActivity extends FragmentActivity {
         }
       }
     });
+
+    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
 
 
     reloadAdapter();
@@ -169,7 +173,7 @@ public class FindExperimentsActivity extends FragmentActivity {
     if (lastRefresh == null) {
       listHeader.setVisibility(View.GONE);
     } else {
-      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
       String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
       listHeader.setText(header);
       listHeader.setTextSize(15);
@@ -181,7 +185,7 @@ public class FindExperimentsActivity extends FragmentActivity {
     userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
     DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
-    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
+    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
     listHeader.setText(header);
   }
 
@@ -199,8 +203,7 @@ public class FindExperimentsActivity extends FragmentActivity {
 
       @Override
       public void done(String resultCode) {
-        //dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        dismissAnyDialog();
+        progressBar.setVisibility(View.GONE);
         String contentAsString = experimentDownloadTask.getContentAsString();
         if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
           updateDownloadedExperiments(contentAsString);
@@ -213,7 +216,7 @@ public class FindExperimentsActivity extends FragmentActivity {
       }
 
     };
-    showDialogById(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    progressBar.setVisibility(View.VISIBLE);
     experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
     experimentDownloadTask.execute();
   }
