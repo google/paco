@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -26,13 +26,16 @@ import org.joda.time.format.ISODateTimeFormat;
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
-  
+
   static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
-  
+
+  static final String DATETIME_NOZONE_FORMAT = "yyyy/MM/dd hh:mm:ssa";
+  public static DateTimeFormatter dateTimeNoZoneFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_FORMAT);
+
   static final String DATE_FORMAT = "yyyy/MM/dd";
   private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
-  
+
   static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
@@ -48,11 +51,11 @@ public class TimeUtil {
   public static String formatDateTime(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateTimeFormatter);
   }
-  
+
   public static String formatDateTime(DateTime dateTime) {
     return dateTime.toString(dateTimeFormatter);
   }
-  
+
   public static DateTime parseDateTime(String dateTimeStr) {
     return dateTimeFormatter.parseDateTime(dateTimeStr);
   }
@@ -60,19 +63,19 @@ public class TimeUtil {
   public static String formatDate(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateFormatter);
   }
-  
+
   public static DateTime unformatDate(String dateStr) {
     return dateFormatter.parseDateTime(dateStr);
   }
-  
+
   public static String formatDateWithZone(DateTime dateTime) {
     return dateTime.toString(dateZoneFormatter);
   }
-  
+
   public static String formatDateWithZone(long dateTimeMillis) {
     return new DateTime(dateTimeMillis).toString(dateZoneFormatter);
   }
-  
+
   public static DateTime unformatDateWithZone(String dateStr) {
     return dateZoneFormatter.parseDateTime(dateStr);
 
@@ -88,7 +91,7 @@ public class TimeUtil {
   }
 
   public static boolean isWeekend(int dayOfWeek) {
-    return dayOfWeek == DateTimeConstants.SATURDAY || 
+    return dayOfWeek == DateTimeConstants.SATURDAY ||
       dayOfWeek == DateTimeConstants.SUNDAY;
   }
 
