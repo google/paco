@@ -201,33 +201,38 @@
 }
 
 - (void)triggerNotificationSystemIfNeeded {
-  if (self.location != nil) {
-    return;
-  }
-  //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
-  //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-  dispatch_async(dispatch_get_main_queue(), ^{
-    if (self.location == nil) {
-      NSLog(@"***********  PacoLocation is allocated ***********");
-      self.location = [[PacoLocation alloc] init];
-      self.location.delegate = self;
-      [self.location enableLocationService];
-      
-      //set background fetch min internval to be 15 minutes
-      [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
+  @synchronized(self) {
+    if (self.location != nil) {
+      return;
     }
-  });
+    //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
+    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (self.location == nil) {
+        NSLog(@"***********  PacoLocation is allocated ***********");
+        self.location = [[PacoLocation alloc] init];
+        self.location.delegate = self;
+        [self.location enableLocationService];
+        
+        //set background fetch min internval to be 15 minutes
+        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
+      }
+    });
+  }
 }
 
 - (void)shutDownNotificationSystemIfNeeded {
-  if (self.location == nil) {
-    return;
+  @synchronized(self) {
+    if (self.location == nil) {
+      return;
+    }
+    NSLog(@"Shut down notification system ...");
+    [self.scheduler stopSchedulingForAllExperiments];
+    //no need to be woken by background fetch
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+    [self.location disableLocationService];
+    self.location = nil;
   }
-  NSLog(@"Shut down notification system ...");
-  [self.location disableLocationService];
-  self.location = nil;
-  //no need to be woken by background fetch
-  [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
 #pragma mark PacoLocationDelegate
@@ -277,10 +282,12 @@
 }
 
 - (void)updateNotificationSystem {
-  if ([self needsNotificationSystem]) {
-    [self triggerNotificationSystemIfNeeded];
-  } else {
-    [self shutDownNotificationSystemIfNeeded];
+  @synchronized(self) {
+    if ([self needsNotificationSystem]) {
+      [self triggerNotificationSystemIfNeeded];
+    } else {
+      [self shutDownNotificationSystemIfNeeded];
+    }
   }
 }
 
@@ -616,20 +623,19 @@
     return;
   }
   [self.eventManager saveStopEventWithExperiment:experiment];
-  //remove experiment from local cache
-  [self.model deleteExperimentInstance:experiment];
   
-  //if experiment is self-report, no need to touch notification system
-  if ([experiment isSelfReportExperiment]) {
-    return;
+  //if experiment is scheduled, need to adjust notification system
+  if ([experiment isScheduledExperiment]) {
+    if ([self needsNotificationSystem]) {
+      //clear all scheduled notifications and notifications in the tray for the stopped experiment
+      [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+    } else {
+      [self shutDownNotificationSystemIfNeeded];
+    }
   }
-  if ([self needsNotificationSystem]) {
-    //clear all scheduled notifications and notifications in the tray for the stopped experiment
-    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
-  } else {
-    [self.scheduler stopSchedulingForAllExperiments];
-    [self shutDownNotificationSystemIfNeeded];
-  }
+  //remove experiment from local cache, this needs to be done after the notification system is adjusted
+  //since saving missing survey events needs the experiment from model
+  [self.model deleteExperimentInstance:experiment];
 }
 
 #pragma mark submit a survey
