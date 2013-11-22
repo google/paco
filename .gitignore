@@ -16,7 +16,8 @@ Paco-Server/war/WEB-INF/lib/appengine-jsr107cache-1.5.0.1.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet-deps.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
 Paco-Server/war/paco.apk
-Paco-Server/war/pacoserver/
+Paco-Server/war/pacoserver/*
+Paco-Server/www-test/*
 PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
