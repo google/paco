@@ -19,11 +19,9 @@
     package="com.pacoapp.paco"
     android:versionCode="96"
     android:versionName="2.0.96" >
-
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
     <application
-        android:debuggable="false"
+        android:debuggable="true"
         android:icon="@drawable/paco64"
         android:label="@string/app_name"
         android:theme="@style/PacoTheme" >
@@ -242,6 +240,8 @@
                 <action android:name="android.intent.action.PHONE_STATE_CHANGED" />
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />    
                 <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
             </intent-filter>
         </receiver>
@@ -252,33 +252,25 @@
             android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
             android:label="@string/title_activity_find_my_or_all_experiments_chooser" >
         </activity>
+
+        <service android:name="com.google.android.apps.paco.ProcessService"></service>
     </application>
 
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.VIBRATE" >
-    </uses-permission>
-
-    <uses-sdk android:minSdkVersion="8" >
-    </uses-sdk>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-feature android:name="android.hardware.camera" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-sdk android:minSdkVersion="8" ></uses-sdk>
 </manifest>
