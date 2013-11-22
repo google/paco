@@ -25,6 +25,7 @@ PacoTest/gen/*
 PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
+Shared/.gwt/*
 Shared/testbin
 Shared/dist
 Shared/reports
