@@ -8,6 +8,7 @@ PacoAndroidLib/bin/*
 PacoAndroidLib/gen/*
 Paco-Server/reports/*
 Paco-Server/gwt-unitCache/*
+Paco-Server/war/WEB-INF/deploy/*
 Paco-Server/war/WEB-INF/appengine-generated/
 Paco-Server/war/WEB-INF/classes/*
 Paco-Server/war/WEB-INF/lib/appengine-api-1.0-sdk-1.5.0.1.jar
