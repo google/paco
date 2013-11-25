@@ -26,6 +26,8 @@
 #import "PacoUserGuideWebViewController.h"
 
 #import "GoogleClientLogin.h"
+#import "JCNotificationCenter.h"
+#import "JCNotificationBannerPresenterSmokeStyle.h"
 
 @implementation PacoMainViewController
 
@@ -102,20 +104,17 @@
   [view setNeedsLayout];
     
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
-    NSString* title = @"Nice";
     NSString* message = @"You are logged in successfully!";
     if (error) {
-      title = @"Oops";
       message = [GoogleClientLogin descriptionForError:error.domain];
       if (0 == [message length]) {//just in case
         message = @"Something went wrong, please try again.";
       }
     }
-    [[[UIAlertView alloc] initWithTitle:title
-                                message:message
-                               delegate:nil
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
+    [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
+    [JCNotificationCenter enqueueNotificationWithTitle:@""
+                                               message:message
+                                            tapHandler:nil];
   }];
 }
 
