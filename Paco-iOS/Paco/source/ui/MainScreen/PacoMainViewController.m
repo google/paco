@@ -24,6 +24,7 @@
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
 #import "PacoUserGuideWebViewController.h"
+#import "PacoContactUsViewController.h"
 
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
@@ -80,14 +81,14 @@
   [view addSubview:buttonExploreData];
   [buttonExploreData sizeToFit];
 
-  PacoMenuButton *buttonFeedback = [[PacoMenuButton alloc] init];
-  buttonFeedback.text.text = @"Contact us";
-  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_normal.png"] forState:UIControlStateNormal];
-//  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_pressed.png"] forState:UIControlStateHighlighted];
-//  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_disabled.png"] forState:UIControlStateDisabled];
-  [buttonFeedback.button addTarget:self action:@selector(onSendFeedback) forControlEvents:UIControlEventTouchUpInside];
-  [view addSubview:buttonFeedback];
-  [buttonFeedback sizeToFit];
+  PacoMenuButton *buttonCreateExperiment = [[PacoMenuButton alloc] init];
+  buttonCreateExperiment.text.text = @"Create an experiment";
+  [buttonCreateExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_normal.png"] forState:UIControlStateNormal];
+  [buttonCreateExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_pressed.png"] forState:UIControlStateHighlighted];
+  [buttonCreateExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_disabled.png"] forState:UIControlStateDisabled];
+  [buttonCreateExperiment.button addTarget:self action:@selector(onCreateAnExperiment) forControlEvents:UIControlEventTouchUpInside];
+  [view addSubview:buttonCreateExperiment];
+  [buttonCreateExperiment sizeToFit];
 
   PacoMenuButton *buttonUserGuide = [[PacoMenuButton alloc] init];
   buttonUserGuide.text.text = @"User Guide";
@@ -96,9 +97,18 @@
   [view addSubview:buttonUserGuide];
   [buttonUserGuide sizeToFit];
 
+  PacoMenuButton *buttonFeedback = [[PacoMenuButton alloc] init];
+  buttonFeedback.text.text = @"Contact us";
+  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_normal.png"] forState:UIControlStateNormal];
+  //  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_pressed.png"] forState:UIControlStateHighlighted];
+  //  [buttonFeedback.button setBackgroundImage:[UIImage imageNamed:@"feedback_disabled.png"] forState:UIControlStateDisabled];
+  [buttonFeedback.button addTarget:self action:@selector(onSendFeedback) forControlEvents:UIControlEventTouchUpInside];
+  [view addSubview:buttonFeedback];
+  [buttonFeedback sizeToFit];
+
   CGRect layoutRect = CGRectInset(view.bounds, 15, 0);
   layoutRect.size.height -= 60;
-  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, buttonExploreData, buttonFeedback, buttonUserGuide, nil];
+  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, buttonExploreData, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
@@ -134,6 +144,10 @@
 - (void)onExploreData {
 }
 
+- (void)onCreateAnExperiment {
+
+}
+
 - (void)onUserGuide {
   PacoUserGuideWebViewController *webViewController = [[PacoUserGuideWebViewController alloc] init];
   [self.navigationController pushViewController:webViewController animated:YES];
@@ -145,10 +159,8 @@
 }
 
 - (void)onSendFeedback {
+  PacoContactUsViewController *controller = [[PacoContactUsViewController alloc] init];
+  [self.navigationController pushViewController:controller animated:YES];
 }
-
-
-
-
 
 @end
