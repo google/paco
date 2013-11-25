@@ -21,8 +21,7 @@
 #import "PacoFont.h"
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
-
-
+#import "PacoAlertView.h"
 
 
 //TODO temp
@@ -66,13 +65,25 @@
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
     [self updateUIWithError:prefetchError];
   }
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(definitionsUpdate:)
+                                               name:PacoFinishRefreshing
+                                             object:nil];
 }
 
 
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
-  // Dispose of any resources that can be recreated.
+- (void)onClickRefresh {
+  [PacoAlertView showAlertWithTitle:@"Note"
+                            message:@"All running experiments will be stopped and their data will be deleted."
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         if (0 == buttonIndex) {
+                           [[PacoClient sharedInstance] refreshDefinitions];
+                         }
+                       }
+                  cancelButtonTitle:nil
+                  otherButtonTitles:@"Refresh", @"Cancel", nil];
 }
+
 
 - (void)updateUIWithError:(NSError*)error
 {
@@ -89,6 +100,11 @@
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
     }
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Refresh"
+                                                                              style:UIBarButtonItemStyleDone
+                                                                             target:self
+                                                                             action:@selector(onClickRefresh)];
   });
 }
 

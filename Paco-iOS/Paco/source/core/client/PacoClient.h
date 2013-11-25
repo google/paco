@@ -90,4 +90,6 @@
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
 
+- (void)refreshDefinitions;
+
 @end

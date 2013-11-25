@@ -28,6 +28,7 @@
 
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
+NSString* const PacoFinishRefreshing = @"PacoFinishRefreshing";
 
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
@@ -181,6 +182,12 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     [experiments addObject:experiment.jsonObject];
   }
   self.jsonObjectInstances = experiments;
+}
+
+
+- (void)cleanAllExperiments {
+  self.experimentInstances = [NSMutableArray array];
+  self.jsonObjectInstances = nil;
 }
 
 #pragma mark file writing operations

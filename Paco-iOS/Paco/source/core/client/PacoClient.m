@@ -58,6 +58,10 @@
   return [self succeedToLoadDefinitions] && [self succeedToLoadExperiments];
 }
 
+- (BOOL)finishLoadingAll {
+  return self.finishLoadingDefinitions && self.finishLoadingExperiments;
+}
+
 - (void)reset
 {
   self.finishLoadingDefinitions = NO;
@@ -230,6 +234,7 @@
     [self.scheduler stopSchedulingForAllExperiments];
     //no need to be woken by background fetch
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+    self.location.delegate = nil;
     [self.location disableLocationService];
     self.location = nil;
   }
@@ -528,6 +533,48 @@
 }
 
 
+- (void)refreshDefinitions {
+  @synchronized(self) {
+    if (![self.prefetchState finishLoadingAll]) {
+      return;
+    }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [self.service loadMyFullDefinitionListWithBlock:^(NSArray *experiments, NSError *error) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          if (!error) {
+            NSLog(@"Loaded %d definitions", [experiments count]);
+            [self shutDownNotificationSystemIfNeeded];
+            //remove all notifications
+            [self.model applyDefinitionJSON:experiments];
+            //clean all experiments, this should happen after all notifications are cleared
+            [self.model cleanAllExperiments];
+            //store both definitions and experiments
+            [self.model saveToFile];
+          } else {
+            NSLog(@"Failed to prefetch definitions: %@", [error description]);
+          }
+          self.prefetchState.finishLoadingDefinitions = YES;
+          self.prefetchState.finishLoadingExperiments = YES;
+          //if it succeeded this time or last time
+          if (error == nil || (error != nil && [self.prefetchState succeedToLoadDefinitions])) {
+            self.prefetchState.errorLoadingDefinitions = nil;
+            self.prefetchState.errorLoadingExperiments = nil;
+            [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
+                                                                object:nil];
+          } else {
+            self.prefetchState.errorLoadingDefinitions = error;
+            self.prefetchState.errorLoadingExperiments = error;
+            [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
+                                                                object:error];
+          }
+        });
+      }];
+    });
+
+
+  }
+}
+
 #pragma mark Private methods
 - (void)definitionsLoadedWithError:(NSError*)error
 {
@@ -548,7 +595,6 @@
     }
 
     [self.prefetchState reset];
-    // Load the experiment definitions.
     
     if (SKIP_LOG_IN) {
       [self definitionsLoadedWithError:nil];

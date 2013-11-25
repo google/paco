@@ -17,6 +17,7 @@
 
 extern NSString* const PacoFinishLoadingDefinitionNotification;
 extern NSString* const PacoFinishLoadingExperimentNotification;
+extern NSString* const PacoFinishRefreshing;
 
 
 @class PacoModel;
@@ -43,6 +44,9 @@ extern NSString* const PacoFinishLoadingExperimentNotification;
 - (BOOL)saveToFile;
 - (BOOL)loadFromFile;
 - (BOOL)deleteFile;
+
+- (void)cleanAllExperiments;
+
 
 + (PacoModel *)pacoModelFromFile;
 - (BOOL)isExperimentJoined:(NSString*)definitionId;

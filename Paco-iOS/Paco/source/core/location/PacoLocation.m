@@ -32,7 +32,6 @@
   self = [super init];
   if (self) {
     self.manager = [[CLLocationManager alloc] init];
-    self.manager.delegate = self;
     // to save battery life make the accuracy very low
     [self.manager setDesiredAccuracy:kCLLocationAccuracyThreeKilometers];
   }
@@ -41,12 +40,14 @@
 
 - (void)enableLocationService {
   NSLog(@"Paco background Location Service got enabled");
+  self.manager.delegate = self;
   [self.manager startMonitoringSignificantLocationChanges];
   [self.manager startUpdatingLocation];
 }
 
 - (void)disableLocationService {
   NSLog(@"Paco background Location Service got disabled");
+  self.manager.delegate = nil;
   [self.manager stopMonitoringSignificantLocationChanges];
   [self.manager stopUpdatingLocation];
 }

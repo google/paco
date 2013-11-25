@@ -68,6 +68,10 @@
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
     [self updateUIWithError:prefetchError];
   }
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(experimentsUpdate:)
+                                               name:PacoFinishRefreshing
+                                             object:nil];
 }
 
 
