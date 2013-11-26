@@ -44,6 +44,11 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   return manager;
 }
 
+- (void)adjustBadgeNumber {
+  int numOfActiveNotifications = [self totalNumberOfActiveNotifications];
+  NSLog(@"Badge number set to %d", numOfActiveNotifications);
+  [UIApplication sharedApplication].applicationIconBadgeNumber = numOfActiveNotifications;
+}
 
 - (void)cancelAlliOSNotifications {
   NSLog(@"Cancel All Local Notifications!");
@@ -354,6 +359,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (BOOL)saveNotificationsToCache {
+  [self adjustBadgeNumber];
+
   NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
   BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
   if (success) {

@@ -53,6 +53,5 @@
 
 - (void)cancelAllPacoNotifications;
 
-- (NSUInteger)totalNumberOfActiveNotifications;
 
 @end
