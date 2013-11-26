@@ -48,6 +48,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 - (void)cancelAlliOSNotifications {
   NSLog(@"Cancel All Local Notifications!");
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
+  NSLog(@"Badge number set to 0");
+  [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
 //when notification system needs to be shut down, Paco needs to:
