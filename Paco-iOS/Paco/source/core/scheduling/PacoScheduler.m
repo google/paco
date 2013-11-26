@@ -146,6 +146,9 @@ NSInteger const kTotalNumOfNotifications = 60;
   } else {
     [self.notificationManager cleanExpiredNotifications];
   }
+  int numOfActiveNotifications = [self.notificationManager totalNumberOfActiveNotifications];
+  NSLog(@"Badge number set to %d", numOfActiveNotifications);
+  [UIApplication sharedApplication].applicationIconBadgeNumber = numOfActiveNotifications;
   [self.delegate updateNotificationSystem];
 }
 

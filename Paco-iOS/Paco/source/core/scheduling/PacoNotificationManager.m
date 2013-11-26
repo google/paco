@@ -263,6 +263,31 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+- (NSUInteger)totalNumberOfActiveNotifications {
+  @synchronized(self) {
+    if (0 == [self.notificationDict count]) {
+      return 0;
+    }
+    __block int totalNumber = 0;
+    for (NSString* experimentId in self.notificationDict) {
+      NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+      if (0 == [notifications count]) {
+        continue;
+      }
+      [UILocalNotification pacoProcessNotifications:notifications
+                                          withBlock:^(UILocalNotification* activeNotification,
+                                                      NSArray* expiredNotifications,
+                                                      NSArray* notFiredNotifications) {
+                                            if (activeNotification) {
+                                              totalNumber++;
+                                            }
+                                          }];
+    }
+    return totalNumber;
+  }
+}
+
+
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId {
   NSAssert([experimentId length] > 0, @"experimentId should be valid");
   @synchronized(self) {

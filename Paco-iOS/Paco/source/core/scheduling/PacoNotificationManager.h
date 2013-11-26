@@ -52,4 +52,7 @@
 - (BOOL)hasMaximumScheduledNotifications;
 
 - (void)cancelAllPacoNotifications;
+
+- (NSUInteger)totalNumberOfActiveNotifications;
+
 @end

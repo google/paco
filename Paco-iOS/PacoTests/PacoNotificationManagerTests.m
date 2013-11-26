@@ -77,6 +77,7 @@
   STAssertTrue(0 == [self.testManager.notificationDict count] &&
                [self.testManager.notificationDict isKindOfClass:[NSMutableDictionary class]],
                @"should be empty");
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
 }
 
 - (void)testCancelAllPacoNotifications {
@@ -200,6 +201,8 @@
   STAssertEqualObjects(notificationsForExperiment1,newNotificationsForExperiment1, @"should be loaded correctly");
   notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
   STAssertNil(notificationsForExperiment2, @"should be nil");
+  
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
 }
 
 
@@ -305,6 +308,7 @@
                  @"should have 9 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 
   sleep(self.sleepTime);
   
@@ -323,6 +327,7 @@
     STAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
     STAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
   }];
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
 }
 
 
@@ -396,6 +401,7 @@
                  @"should have 5 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
@@ -412,6 +418,7 @@
     STAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
     STAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
   }];
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
 }
 
 - (void)testProcessCachedNotificationsWithoutScheduledNotifications {
@@ -490,6 +497,7 @@
                  @"should have 6 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
@@ -505,6 +513,7 @@
     NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
     STAssertEqualObjects(scheduled, @[], @"should be empty");
   }];
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have two active notifications");
 }
 
 - (void)testProcessCachedNotificationsWithoutActiveNotifications {
@@ -601,9 +610,11 @@
                  @"should have 8 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have no active notifications");
   [self.testManager processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
                                                           NSArray* expiredNotifications,
                                                           NSArray* notFiredNotifications) {
@@ -678,13 +689,13 @@
   [allNotifications addObject:notification4];
   
   //original notifications
-  NSDate* firstFireDate = [NSDate dateWithTimeIntervalSinceNow:-10];
+  NSDate* firstFireDate = [NSDate dateWithTimeIntervalSinceNow:-10]; //active
   NSDate* firstTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:firstFireDate];
   UILocalNotification* firstNoti = [UILocalNotification pacoNotificationWithExperimentId:experimentId1
                                                                          experimentTitle:title1
                                                                                 fireDate:firstFireDate
                                                                              timeOutDate:firstTimeout];
-  NSDate* secondFireDate = [NSDate dateWithTimeIntervalSinceNow:-20];
+  NSDate* secondFireDate = [NSDate dateWithTimeIntervalSinceNow:-20]; //active
   NSDate* secondTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:firstFireDate];
   NSString* experimentId3 = @"3";
   NSString* title3 = @"title3";
@@ -695,14 +706,18 @@
   NSMutableDictionary* originalDict = [NSMutableDictionary dictionary];
   [originalDict setObject:[NSMutableArray arrayWithObject:firstNoti] forKey:experimentId1];
   [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
+  //There are 2 active notifications inside notificationDict
   self.testManager.notificationDict = originalDict;
-  
-  //allNotifications:
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+
+  //allNotifications: all are scheduled in the future
   //id:1, fireDate:date4
   //id:2, fireDate:date3
   //id:1, fireDate:date1
   //id:2, fireDate:date2
   [self.testManager addNotifications:allNotifications];
+  
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
@@ -778,6 +793,7 @@
   NSMutableDictionary* originalDict = [NSMutableDictionary dictionary];
   NSDate* firstFireDate = [NSDate dateWithTimeIntervalSinceNow:-10];
   NSDate* firstTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:firstFireDate];
+  //active notification
   UILocalNotification* firstNoti = [UILocalNotification pacoNotificationWithExperimentId:experimentId1
                                                                          experimentTitle:title1
                                                                                 fireDate:firstFireDate
@@ -786,18 +802,20 @@
                                                                               experimentTitle:title1
                                                                                      fireDate:[notification3 pacoFireDate]
                                                                                   timeOutDate:[notification3 pacoTimeoutDate]];
-  [originalDict setObject:[NSMutableArray arrayWithObjects:duplicateNoti1, firstNoti, nil] forKey:experimentId1];
+  [originalDict setObject:[NSMutableArray arrayWithObjects:firstNoti, duplicateNoti1, nil] forKey:experimentId1];
   NSDate* secondFireDate = [NSDate dateWithTimeIntervalSinceNow:-20];
-  NSDate* secondTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:firstFireDate];
+  NSDate* secondTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:secondFireDate];
   NSString* experimentId3 = @"3";
   NSString* title3 = @"title3";
+  //active notification
   UILocalNotification* secondNoti = [UILocalNotification pacoNotificationWithExperimentId:experimentId3
                                                                           experimentTitle:title3
                                                                                  fireDate:secondFireDate
                                                                               timeOutDate:secondTimeout];
   [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
   self.testManager.notificationDict = originalDict;
-  
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+
   //allNotifications:
   //notification1: id:1, fireDate:date4
   //notification2: id:2, fireDate:date3
@@ -805,6 +823,7 @@
   //notification4: id:2, fireDate:date2
   [self.testManager addNotifications:allNotifications];
   
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification4, notification2, nil];
@@ -874,8 +893,10 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 2 active notifications");
   [self.testManager handleRespondedNotification:nil];
   STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore nil notification");
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 - (void)testCancelAllNotificationsForExperiment {
@@ -937,6 +958,8 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+
   
   NSString* experimentId3 = @"3";
   NSString* title3 = @"title3";
@@ -947,6 +970,7 @@
                                             timeOutDate:timeout3];
   [self.testManager handleRespondedNotification:notificationToHandle];
   STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore non-existing notification");
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 - (void)testHandleRespondedNotification {
@@ -1013,6 +1037,7 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   //remove notification22
   UILocalNotification* notificationToHandle =
@@ -1022,6 +1047,7 @@
                                             timeOutDate:timeout3];
   STAssertFalse(notification22 == notificationToHandle, @"pointers should be different");
   [self.testManager handleRespondedNotification:notificationToHandle];
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
   STAssertEquals([scheduled count],
@@ -1049,6 +1075,7 @@
   NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
   STAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   STAssertEqualObjects(notificationsForExperiment2, expectNotifications2,@"should be loaded correctly");
+  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 
