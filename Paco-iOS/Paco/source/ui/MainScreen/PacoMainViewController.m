@@ -122,9 +122,11 @@
       }
     }
     [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
-    [JCNotificationCenter enqueueNotificationWithTitle:@""
-                                               message:message
-                                            tapHandler:nil];
+    JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
+                                                                       message:message
+                                                                       timeout:2.
+                                                                    tapHandler:nil];
+    [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
 }
 
