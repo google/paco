@@ -35,18 +35,18 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class HtmlBlobWriter {
-  
+
   private static final Logger log = Logger.getLogger(HtmlBlobWriter.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
-  
+
   public HtmlBlobWriter() {
   }
 
-  public String writeNormalExperimentEventsAsHtml(boolean anon, List<Event> events, String jobId, String experimentId, String timeZone) 
-          throws IOException {    
+  public String writeNormalExperimentEventsAsHtml(boolean anon, List<Event> events, String jobId, String experimentId, String timeZone)
+          throws IOException {
     log.info("writing normal Experiment events as html");
-    
+
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
     String eventPage;
     try {
@@ -94,8 +94,8 @@ public class HtmlBlobWriter {
     // are possible. Here we use a PrintWriter:
     PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
 
-    
-    
+
+
     out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZone));
     out.println(eventPage);
     out.flush();
@@ -116,7 +116,7 @@ public class HtmlBlobWriter {
     return blobKey.getKeyString();
 
   }
-  
+
   public String writeEndOfDayExperimentEventsAsHtml(boolean anon, String jobId, String experimentId,
                                                     List<EventDAO> events, String timeZoneForClient) throws IOException {
     log.info("writing End of Day Experiment events as html");
@@ -131,10 +131,10 @@ public class HtmlBlobWriter {
     // are possible. Here we use a PrintWriter:
     PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
 
-    
+
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
     String eventPage = printEventDAOs(events, experiment, timeZoneForClient, anon);
-    
+
     out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZoneForClient));
     out.println(eventPage);
     out.flush();
@@ -144,14 +144,18 @@ public class HtmlBlobWriter {
     BlobKey blobKey = fileService.getBlobKey(file);
     return blobKey.getKeyString();
 
-  } 
+  }
 
 
   private String getExperimentTitle(Experiment experiment) {
     String experimentTitle = experiment != null ? experiment.getTitle() : null;
-    return experimentTitle;
+    return escapeText(experimentTitle);
   }
-  
+
+  private String escapeText(String experimentTitle) {
+    return StringEscapeUtils.escapeHtml4(experimentTitle);
+  }
+
   private String printHeader(int eventCount, String experimentTitle, String clientTimeZone) {
     StringBuilder out = new StringBuilder();
     out.append("<html><head><title>Current Results for "
@@ -174,7 +178,7 @@ public class HtmlBlobWriter {
     return out.toString();
 
   }
- 
+
   private String printEvents(List<Event> events, Experiment experiment, String clientTimezone, boolean anon) throws IOException {
     if (events.isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
@@ -187,7 +191,7 @@ public class HtmlBlobWriter {
       StringBuilder out = new StringBuilder();
       out.append("<table class=\"gridtable\">");
       out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
-      
+
       for (String inputName : inputKeys) {
         out.append("<th>");
         out.append(inputName);
@@ -195,9 +199,9 @@ public class HtmlBlobWriter {
       }
       out.append("<th>Other Responses</th>");
       out.append("</tr>");
-      
+
       for (Event event : events) {
-        
+
         try {
           out.append("<tr>");
           out.append("<td>").append(event.getExperimentName()).append("</td>");
@@ -229,15 +233,15 @@ public class HtmlBlobWriter {
             out.append(getValueAsDisplayString(event, photoByNames, key));
             out.append("</td>");
           }
-          
-          List<String> keysCopy = Lists.newArrayList(event.getWhatKeys());  
+
+          List<String> keysCopy = Lists.newArrayList(event.getWhatKeys());
           keysCopy.removeAll(inputKeys);
           for (String extraKey : keysCopy) {
             out.append("<td>");
             out.append(extraKey);
             out.append(" = ");
             out.append(getValueAsDisplayString(event, photoByNames, extraKey));
-            out.append("</td>");          
+            out.append("</td>");
           }
           out.append("<tr>");
         } catch (Throwable e) {
@@ -248,7 +252,7 @@ public class HtmlBlobWriter {
       return out.toString();
     }
   }
-  
+
   private String printEventDAOs(List<EventDAO> events, Experiment experiment, String clientTimezone, boolean anon) throws IOException {
     if (events.isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
@@ -261,18 +265,18 @@ public class HtmlBlobWriter {
       StringBuilder out = new StringBuilder();
       out.append("<table class=\"gridtable\">");
       out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
-      
+
       for (String inputName : inputKeys) {
         out.append("<th>");
-        out.append(inputName);
+        out.append(escapeText(inputName));
         out.append("</th>");
       }
       out.append("<th>Other Responses</th>");
       out.append("</tr>");
-      
+
       for (EventDAO event : events) {
         out.append("<tr>");
-        out.append("<td>").append(event.getExperimentName()).append("</td>");
+        out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
         out.append("<td>").append(event.getExperimentVersion()).append("</td>");
         out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
         out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
@@ -288,15 +292,15 @@ public class HtmlBlobWriter {
           out.append(getValueAsDisplayString(event, input));
           out.append("</td>");
         }
-        
-        List<String> keysCopy = Lists.newArrayList(event.getWhat().keySet());  
+
+        List<String> keysCopy = Lists.newArrayList(event.getWhat().keySet());
         keysCopy.removeAll(inputKeys);
         for (String extraKey : keysCopy) {
           out.append("<td>");
           out.append(extraKey);
           out.append(" = ");
-          out.append(getValueAsDisplayString(event, extraKey));          
-          out.append("</td>");          
+          out.append(getValueAsDisplayString(event, extraKey));
+          out.append("</td>");
         }
         out.append("<tr>");
       }
@@ -392,5 +396,5 @@ public class HtmlBlobWriter {
      scheduledTimeString = jodaFormatter.print(event.getTimeZoneAdjustedDate(time, defaultTimezone));
    }
    return scheduledTimeString;
- } 
+ }
 }
