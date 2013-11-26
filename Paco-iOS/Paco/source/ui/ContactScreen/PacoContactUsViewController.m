@@ -20,6 +20,7 @@
 #import "PacoLayout.h"
 #import <MessageUI/MessageUI.h>
 #import "PacoAlertView.h"
+#import "PacoAlertView.h"
 
 static NSString *const browseUserGroupURL = @"https://groups.google.com/forum/m/#!forum/paco-users";
 static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/main.jsp";
@@ -104,11 +105,27 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
 }
 
 - (void)onBrowseUserGroup {
-  [self launchBrowserWithURL:browseUserGroupURL];
+  [PacoAlertView showAlertWithTitle:@"Note"
+                            message:@"You are about to leave Paco and visit Safari."
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         if (buttonIndex == 1) {
+                           [self launchBrowserWithURL:browseUserGroupURL];
+                         }
+                       }
+                  cancelButtonTitle:@"Cancel"
+                  otherButtonTitles:@"OK", nil];
 }
 
 - (void)onBrowseWebsite {
-  [self launchBrowserWithURL:browsePacoWebsite];
+  [PacoAlertView showAlertWithTitle:@"Note"
+                            message:@"You are about to leave Paco and visit Safari."
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         if (buttonIndex == 1) {
+                           [self launchBrowserWithURL:browsePacoWebsite];
+                         }
+                       }
+                  cancelButtonTitle:@"Cancel"
+                  otherButtonTitles:@"OK", nil];
 }
 
 - (void)launchBrowserWithURL:(NSString *)url {
