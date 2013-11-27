@@ -193,26 +193,24 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 #pragma mark file writing operations
 - (BOOL)saveExperimentDefinitionsToFile {
-  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
-  NSLog(@"Saving to %@", fileName);
   if (!self.jsonObjectDefinitions) {
     [self makeJSONObjectFromExperiments];
   }
-  NSDictionary *json = self.jsonObjectDefinitions;
-
   NSError *jsonError = nil;
-  NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:json
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&jsonError];
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectDefinitions
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&jsonError];
   if (jsonError) {
     NSLog(@"ERROR serializing to JSON %@", jsonError);
   }
-
-
-//  NSLog(@"WRItiNG DEFINITION JSON to FILE \n%@", json);
-//  return [json writeToFile:fileName atomically:NO];
-  return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
+  BOOL success =  [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
+  if (success) {
+    NSLog(@"Succeeded to save %@", fileName);
+  } else {
+    NSLog(@"Failed to save %@", fileName);
+  }
+  return success;
 }
 
 - (BOOL)saveExperimentInstancesToFile {
