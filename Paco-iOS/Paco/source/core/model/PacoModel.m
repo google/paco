@@ -258,38 +258,29 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (BOOL)loadExperimentDefinitionsFromFile {
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   NSLog(@"Loading from %@", fileName);
-  NSError *error = nil;
-  NSDictionary *attribs = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:&error];
-  if (error) {
-    NSLog(@"File error %@", error);
-  } else {
-    NSLog(@"File attribs = %@", attribs);
+  
+  NSError* error = nil;
+  NSData* fileData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
+  if (error && [error pacoIsFileNotExistError]) {
+    NSLog(@"Definition plist doesn't exist.");
+    return NO;
   }
-
-  NSData *jsonData = [[NSFileManager defaultManager] contentsAtPath:fileName];
-  if (!jsonData) {
+  if (error) {
     NSLog(@"Failed to load data for file %@", fileName);
   }
   NSError *jsonError = nil;
-  id jsonObj = !jsonData ? nil : [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
-  if (!jsonObj) {
+  id jsonObj = !fileData ? nil : [NSJSONSerialization JSONObjectWithData:fileData
+                                                                 options:NSJSONReadingAllowFragments
+                                                                   error:&jsonError];
+  if (!jsonObj || jsonError) {
+    NSLog(@"Failed to parse definition json");
     return NO;
   }
-  NSLog(@"class = %@", NSStringFromClass([jsonObj class]));
-  assert([jsonObj isKindOfClass:[NSArray class]]);
-
-  //NSDictionary *json = jsonObj;//[NSDictionary dictionaryWithContentsOfFile:fileName];
-  //if (!json) {
-  //  NSLog(@"Failed to load from %@", fileName);
- // }
-  NSArray *experiments = jsonObj;//[json objectForKey:@"definitions"];
-  if (!experiments) {
-    NSLog(@"Failed to load from %@", fileName);
-  }
-  [self applyDefinitionJSON:experiments];
-  // TODO TPE: temporary disabled this comment since it's quite verbose
   // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
-  return experiments.count > 0;
+  NSAssert([jsonObj isKindOfClass:[NSArray class]], @"should be an array");
+  NSArray* definitions = jsonObj;
+  [self applyDefinitionJSON:definitions];
+  return [definitions count] > 0;
 }
 
 - (NSError*)loadExperimentInstancesFromFile {
