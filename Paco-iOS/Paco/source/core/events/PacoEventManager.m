@@ -296,14 +296,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 
-- (void)saveSurveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
-                         withScheduledTime:(NSDate*)scheduledTime {
-  PacoEvent* surveyEvent = [PacoEvent surveyMissedEventForDefinition:definition
-                                                   withScheduledTime:scheduledTime];
-  NSLog(@"Save a survey missed event");
-  [self saveEvent:surveyEvent];
-}
-
 - (void)saveDataToFile {
   [self savePendingEventsToFile];
   [self saveAllEventsToFile];

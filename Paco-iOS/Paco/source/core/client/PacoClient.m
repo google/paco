@@ -262,17 +262,6 @@
 
 
 #pragma mark PacoSchedulerDelegate
-- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
-               experimentFireDate:(NSDate*)scheduledTime {
-  if (!ADD_TEST_DEFINITION) {
-    NSLog(@"Save experiment missed event for experiment %@ with scheduledTime %@",
-          experimentInstanceId, [PacoDateUtility pacoStringForDate:scheduledTime]);
-    PacoExperimentDefinition* definition = [self.model experimentForId:experimentInstanceId].definition;
-    NSAssert(definition != nil, @"definition should not be nil!");
-    [self.eventManager saveSurveyMissedEventForDefinition:definition withScheduledTime:scheduledTime];
-  }
-}
-
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   if (0 == [expiredNotifications count]) {
     return;

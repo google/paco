@@ -25,8 +25,6 @@ extern NSInteger const kTotalNumOfNotifications;
 
 @protocol PacoSchedulerDelegate
 @required
-- (void)handleNotificationTimeOut:(NSString*)experimentInstanceId
-               experimentFireDate:(NSDate*)scheduledTime;
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 
 - (BOOL)needsNotificationSystem;

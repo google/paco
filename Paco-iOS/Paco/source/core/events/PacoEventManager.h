@@ -46,7 +46,5 @@
 - (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime;
-- (void)saveSurveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
-                         withScheduledTime:(NSDate*)scheduledTime;
 
 @end
