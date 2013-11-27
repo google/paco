@@ -88,12 +88,13 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
     [label setText:labelString];
     label.backgroundColor = [UIColor clearColor];
     label.font = [PacoFont pacoTableCellFont];
+    label.textAlignment = NSTextAlignmentLeft;
     [self addSubview:label];
     [label sizeToFit];
     [labelArray addObject:label];
     
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
-    button.backgroundColor = [UIColor lightGrayColor];
+    button.backgroundColor = [UIColor clearColor];
     UIImage *unchecked = [UIImage imageNamed:@"uicheckbox_unchecked.png"];
     [button setBackgroundImage:unchecked forState:UIControlStateNormal];
     [button setBackgroundImage:unchecked forState:UIControlStateHighlighted];
@@ -136,7 +137,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 
   if (self.vertical) {
     CGRect left, right;
-    CGRect rect = CGRectInset(self.bounds, 50, 10);
+    CGRect rect = CGRectInset(self.bounds, 10, 10);
     [PacoLayout splitHorizontalRect:rect percent:0.25 leftOut:&left rightOut:&right];
     NSArray *leftSections = [PacoLayout splitRectVertically:left numSections:self.optionLabels.count];
     NSArray *rightSections = [PacoLayout splitRectVertically:right numSections:self.optionLabels.count];
@@ -146,8 +147,8 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
       CGRect rightRect = [[rightSections objectAtIndex:i] CGRectValue];
       UILabel *label = [self.labels objectAtIndex:i];
       UIButton *button = [self.buttons objectAtIndex:i];
-      button.frame = [PacoLayout centerRect:button.frame.size inRect:leftRect];
-      label.frame = [PacoLayout centerRect:label.frame.size inRect:rightRect];
+      button.frame = [PacoLayout leftAlignRect:button.frame.size inRect:leftRect];
+      label.frame = [PacoLayout leftAlignRect:label.frame.size inRect:rightRect];
     }
   } else {
     CGRect top, bottom;
