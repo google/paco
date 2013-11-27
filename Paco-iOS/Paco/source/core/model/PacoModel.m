@@ -235,14 +235,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return success;
 }
 
-- (BOOL)saveToFile {
-  BOOL success = YES;
-  BOOL check1 = [self saveExperimentDefinitionsToFile];
-  success = success && check1;
-  BOOL check2 = [self saveExperimentInstancesToFile];
-  success = success && check2;
-  return success;
-}
 
 - (BOOL)deleteFile {
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];

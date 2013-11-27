@@ -288,7 +288,7 @@ Deep Linking:	Enabled
 #pragma mark - GoogleClientLoginDelegate
 
 -(void)authSucceeded:(NSString *)authKey {
-  NSLog(@"PACO CLIENT LOGIN AUTH SUCCEEDED [%@]", authKey);
+  NSLog(@"PACO CLIENT LOGIN AUTH SUCCEEDED.");
   self.userLoggedIn = YES;
   
   self.cookie = [NSString stringWithFormat:@"SACSID=%@", authKey];
