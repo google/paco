@@ -536,10 +536,11 @@
             [self shutDownNotificationSystemIfNeeded];
             //remove all notifications
             [self.model applyDefinitionJSON:experiments];
-            //clean all experiments, this should happen after all notifications are cleared
+            //store refreshed definitions
+            [self.model saveExperimentDefinitionsToFile];
+            //clean all experiments, this should happen after the notification system is shut down
+            //and this will also store an empty experiment plist
             [self.model cleanAllExperiments];
-            //store both definitions and experiments
-            [self.model saveToFile];
           } else {
             NSLog(@"Failed to prefetch definitions: %@", [error description]);
           }

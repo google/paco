@@ -188,6 +188,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (void)cleanAllExperiments {
   self.experimentInstances = [NSMutableArray array];
   self.jsonObjectInstances = nil;
+  [self saveExperimentInstancesToFile];
 }
 
 #pragma mark file writing operations
@@ -404,6 +405,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSUInteger index = [self.experimentInstances indexOfObject:experiment];
   NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
   [self.experimentInstances removeObject:experiment];
+  [self saveExperimentInstancesToFile];
 }
 
 - (void)updateExperimentInstances:(NSMutableArray*)experiments {

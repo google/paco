@@ -150,7 +150,7 @@
 - (void)applicationWillResignActive:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillResignActive  ==========");
 
-  BOOL success = [[PacoClient sharedInstance].model saveToFile];
+  BOOL success = [[PacoClient sharedInstance].model saveExperimentDefinitionsToFile];
   if (success) {
     NSLog(@"Successfully saved model!");
   } else {
@@ -161,7 +161,7 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
   NSLog(@"==========  Application applicationWillTerminate  ==========");
   
-  BOOL success = [[PacoClient sharedInstance].model saveToFile];
+  BOOL success = [[PacoClient sharedInstance].model saveExperimentDefinitionsToFile];
   if (success) {
     NSLog(@"Successfully saved model!");
   } else {
