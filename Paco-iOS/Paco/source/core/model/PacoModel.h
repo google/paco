@@ -64,7 +64,6 @@ extern NSString* const PacoFinishRefreshing;
 - (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition*)definition
                                 schedule:(PacoExperimentSchedule*)schedule
                                   events:(NSArray*)events;
-- (void)addExperimentInstance:(PacoExperiment*)experiment;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 

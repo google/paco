@@ -384,6 +384,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition *)definition
                                 schedule:(PacoExperimentSchedule *)schedule
                                   events:(NSArray *)events {
+  //create an experiment instance
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = schedule;
   experimentInstance.definition = definition;
@@ -391,13 +392,13 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
   experimentInstance.instanceId = definition.experimentId;
   experimentInstance.lastEventQueryTime = nowdate;
-  [self addExperimentInstance:experimentInstance];
+  
+  //add it to instances array and save the instance file
+  [self.experimentInstances addObject:experimentInstance];
+  [self saveExperimentInstancesToFile];
   return experimentInstance;
 }
 
-- (void)addExperimentInstance:(PacoExperiment*)experiment {
-  [self.experimentInstances addObject:experiment];
-}
 
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment {
   NSUInteger index = [self.experimentInstances indexOfObject:experiment];
