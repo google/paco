@@ -178,7 +178,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   for (PacoExperiment *experiment in self.experimentInstances) {
     id json = [experiment serializeToJSON];
     experiment.jsonObject = json;
-    assert(experiment.jsonObject);
+    NSAssert(experiment.jsonObject, @"experiment json should not be nil");
     [experiments addObject:experiment.jsonObject];
   }
   self.jsonObjectInstances = experiments;
@@ -215,25 +215,25 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 - (BOOL)saveExperimentInstancesToFile {
-  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
-  NSLog(@"Saving to %@", fileName);
-  
   [self makeJSONObjectFromInstances];
-  
-  NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]], @"jsonObjectInstances should be an array!");
+  NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]],
+           @"jsonObjectInstances should be an array!");
 
   NSError *jsonError = nil;
-  NSData *jsonData =
-      [NSJSONSerialization dataWithJSONObject:self.jsonObjectInstances
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&jsonError];
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectInstances
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&jsonError];
   if (jsonError) {
     NSLog(@"ERROR serializing to JSON %@", jsonError);
   }
-
-//  NSLog(@"WRItiNG INSTANCE JSON to FILE \n%@", self.jsonObjectInstances);
-  //return [json writeToFile:fileName atomically:NO];
-  return [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
+  BOOL success = [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
+  if (success) {
+    NSLog(@"Succeeded to save %@", fileName);
+  } else {
+    NSLog(@"Failed to save %@", fileName);
+  }
+  return success;
 }
 
 - (BOOL)saveToFile {
