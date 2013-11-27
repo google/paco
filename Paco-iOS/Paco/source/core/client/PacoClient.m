@@ -522,6 +522,11 @@
   return self.prefetchState.errorLoadingExperiments;
 }
 
+- (void)applyDefinitionsFromServer:(NSArray*)definitions {
+  NSLog(@"Fetched %d definitions from server", [definitions count]);
+  [self.model applyDefinitionJSON:definitions];
+  [self.model saveExperimentDefinitionsToFile];
+}
 
 - (void)refreshDefinitions {
   @synchronized(self) {
@@ -529,15 +534,13 @@
       return;
     }
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [self.service loadMyFullDefinitionListWithBlock:^(NSArray *experiments, NSError *error) {
+      [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
-            NSLog(@"Loaded %d definitions", [experiments count]);
+            //shut down notification system should happen before applying new definitions and cleaning
+            //existing experiments, since we may need to save survey missing events
             [self shutDownNotificationSystemIfNeeded];
-            //remove all notifications
-            [self.model applyDefinitionJSON:experiments];
-            //store refreshed definitions
-            [self.model saveExperimentDefinitionsToFile];
+            [self applyDefinitionsFromServer:definitions];
             //clean all experiments, this should happen after the notification system is shut down
             //and this will also store an empty experiment plist
             [self.model cleanAllExperiments];
@@ -601,7 +604,7 @@
       return;
     }
     
-    [self.service loadMyFullDefinitionListWithBlock:^(NSArray *experiments, NSError *error) {
+    [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
       if (error) {
         NSLog(@"Failed to prefetch definitions: %@", [error description]);
         [self definitionsLoadedWithError:error];
@@ -610,12 +613,8 @@
         }
         return;
       }
-      
-      NSLog(@"Loaded %d experiments", [experiments count]);
-      // Convert the JSON response into an object model.
-      [self.model applyDefinitionJSON:experiments];
+      [self applyDefinitionsFromServer:definitions];
       [self definitionsLoadedWithError:nil];
-      
       [self prefetchExperimentsWithBlock:completionBlock];
     }];
   });
