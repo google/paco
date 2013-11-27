@@ -279,6 +279,7 @@
   }
   NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
+  NSLog(@"Save %d notification expired events", [eventList count]);
   [self.eventManager saveEvents:eventList];
 }
 

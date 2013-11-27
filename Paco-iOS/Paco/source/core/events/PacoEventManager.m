@@ -241,7 +241,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   
   NSAssert([events count] > 0, @"events should have more than one element");
   
-  NSLog(@"Save %d events ...", [events count]);
   [self fetchAllEventsIfNecessary];
   [self fetchPendingEventsIfNecessary];
 
@@ -266,12 +265,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule {
   PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
+  NSLog(@"Save a join event");
   [self saveEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
   PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
+  NSLog(@"Save a stop event");
   [self saveEvent:event];
 }
 
@@ -279,6 +280,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                 andInputs:(NSArray*)visibleInputs {
   PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
                                                         withInputs:visibleInputs];
+  NSLog(@"Save a self-report event");
   [self saveEvent:surveyEvent];
 }
 
@@ -289,6 +291,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
                                                              withInputs:inputs
                                                        andScheduledTime:scheduledTime];
+  NSLog(@"Save a survey submitted event");
   [self saveEvent:surveyEvent];
 }
 
@@ -297,7 +300,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                          withScheduledTime:(NSDate*)scheduledTime {
   PacoEvent* surveyEvent = [PacoEvent surveyMissedEventForDefinition:definition
                                                    withScheduledTime:scheduledTime];
-  [self saveEvent:surveyEvent];  
+  NSLog(@"Save a survey missed event");
+  [self saveEvent:surveyEvent];
 }
 
 - (void)saveDataToFile {

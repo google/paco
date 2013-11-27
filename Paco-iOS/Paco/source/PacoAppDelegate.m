@@ -36,8 +36,11 @@
 }
 
 - (void)processReceivedNotification:(UILocalNotification*)notification {
+  if (!notification) {
+    NSLog(@"Ignore a nil notification");
+    return;
+  }
   NSLog(@"Detail: %@", [notification pacoDescription]);
-  
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
     NSLog(@"Notification is not active anymore, cancelling it from the tray...");
