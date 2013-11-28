@@ -81,6 +81,8 @@
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
 
+- (void)backgroundFetchStarted;
+
 - (void)executeRoutineMajorTaskIfNeeded;
 - (void)uploadPendingEventsInBackground;
 

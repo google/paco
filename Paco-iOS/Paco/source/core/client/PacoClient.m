@@ -232,8 +232,8 @@
     }
     NSLog(@"Shut down notification system ...");
     [self.scheduler stopSchedulingForAllExperiments];
-    //no need to be woken by background fetch
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+    
+    [self disableBackgroundFetch];
     self.location.delegate = nil;
     [self.location disableLocationService];
     self.location = nil;
@@ -332,6 +332,19 @@
   } else {
     NSLog(@"Skip Executing Major Task, notification system is off");
   }
+}
+
+- (void)backgroundFetchStarted {
+  if (![self isNotificationSystemOn]) {
+    [self disableBackgroundFetch];
+  } else {
+    [self executeRoutineMajorTaskIfNeeded];
+  }
+}
+
+- (void)disableBackgroundFetch {
+  NSLog(@"Disable background fetch");
+  [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
 #pragma mark bring up login flow if necessary
