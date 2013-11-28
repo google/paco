@@ -149,7 +149,7 @@
 }
 
 - (void)loginWithEmail:(NSString*)email password:(NSString*)password {
-  [[PacoLoadingView sharedInstance] showLoadingScreenForController:self];
+  [[PacoLoadingView sharedInstance] showLoadingScreen];
   [[PacoClient sharedInstance] loginWithClientLogin:email password:password completionHandler:^(NSError *error) {
     [[PacoLoadingView sharedInstance] dismissLoadingScreen];
     if (!error) {

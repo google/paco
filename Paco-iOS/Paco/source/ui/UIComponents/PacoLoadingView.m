@@ -16,7 +16,6 @@
 #import "PacoLoadingView.h"
 
 @interface PacoLoadingView ()
-@property(nonatomic, weak) UIViewController* parentViewController;
 @property(nonatomic, strong) UIActivityIndicatorView* spinner;
 @end
 
@@ -40,30 +39,34 @@
   dispatch_once(&onceToken, ^{
     CGRect bounds = [[UIScreen mainScreen] bounds];
     sharedLoadingView = [[PacoLoadingView alloc] initWithFrame:bounds];
-  });
+  }); 
   return sharedLoadingView;
 }
 
-- (void)showLoadingScreenForController:(UIViewController*)parentController {
-  if (!parentController) {
+- (BOOL)isVisible {
+  return self.superview != nil;
+}
+
+- (void)showLoadingScreen {
+  if ([self isVisible]) {
     return;
   }
-  if (self.parentViewController) {
-    [self dismissLoadingScreen];
-  }
-  self.spinner.center = self.center;
-  [parentController.view addSubview:self];
-  [self.spinner startAnimating];
-  self.parentViewController = parentController;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.spinner.center = self.center;
+    [[[UIApplication sharedApplication] keyWindow] addSubview:self];
+    [[[UIApplication sharedApplication] keyWindow] bringSubviewToFront:self];
+    [self.spinner startAnimating];
+  });
 }
 
 - (void)dismissLoadingScreen {
-  if (!self.parentViewController) {
+  if (![self isVisible]) {
     return;
   }
-  [self.spinner stopAnimating];
-  [self removeFromSuperview];
-  self.parentViewController = nil;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self.spinner stopAnimating];
+    [self removeFromSuperview];
+  });
 }
 
 

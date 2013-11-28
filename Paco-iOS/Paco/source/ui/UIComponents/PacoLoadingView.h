@@ -19,7 +19,7 @@
 
 + (PacoLoadingView*)sharedInstance;
 
-- (void)showLoadingScreenForController:(UIViewController*)parentController;
+- (void)showLoadingScreen;
 - (void)dismissLoadingScreen;
 
 @end
