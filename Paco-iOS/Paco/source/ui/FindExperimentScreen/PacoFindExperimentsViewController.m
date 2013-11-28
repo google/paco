@@ -22,12 +22,10 @@
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoAlertView.h"
-
-
-//TODO temp
 #import "PacoQuestionScreenViewController.h"
 #import "PacoLoadingTableCell.h"
 #import "PacoTableView.h"
+#import "PacoLoadingView.h"
 
 @interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
 
@@ -66,7 +64,7 @@
     [self updateUIWithError:prefetchError];
   }
   [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(definitionsUpdate:)
+                                           selector:@selector(refreshFinished:)
                                                name:PacoFinishRefreshing
                                              object:nil];
 }
@@ -77,6 +75,7 @@
                             message:@"All running experiments will be stopped and their data will be deleted."
                        dismissBlock:^(NSInteger buttonIndex) {
                          if (0 == buttonIndex) {
+                           [[PacoLoadingView sharedInstance] showLoadingScreen];
                            [[PacoClient sharedInstance] refreshDefinitions];
                          }
                        }
@@ -108,8 +107,12 @@
   });
 }
 
-- (void)definitionsUpdate:(NSNotification*)notification
-{
+- (void)refreshFinished:(NSNotification*)notification {
+  [self definitionsUpdate:notification];
+  [[PacoLoadingView sharedInstance] dismissLoadingScreen];
+}
+
+- (void)definitionsUpdate:(NSNotification*)notification {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
   [self updateUIWithError:error];

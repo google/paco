@@ -21,7 +21,7 @@
 #import "PacoLayout.h"
 #import "PacoMainViewController.h"
 #import "PacoTitleView.h"
-
+#import "PacoLoadingView.h"
 
 @interface PacoClient ()
 - (void)loginWithClientLogin:(NSString *)email
@@ -128,23 +128,30 @@
   // Dispose of any resources that can be recreated.
 }
 
-- (void)onLogin
-{
-    NSString* emailStr = [self.emailField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    NSString* pwdStr = [self.pwdField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    if (emailStr.length == 0 || pwdStr.length == 0) {
-        [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                    message:@"Please input valid email and password."
-                                   delegate:nil
-                          cancelButtonTitle:@"OK"
-                          otherButtonTitles:nil] show];
-    }else{
-        [self loginWithEmail:emailStr password:pwdStr];
+- (void)onLogin {
+  NSString* emailStr = [self.emailField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  NSString* pwdStr = [self.pwdField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  if (emailStr.length == 0 || pwdStr.length == 0) {
+    [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                message:@"Please input valid email and password."
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }else{
+    if ([self.emailField isFirstResponder]) {
+      [self.emailField resignFirstResponder];
     }
+    if ([self.pwdField isFirstResponder]) {
+      [self.pwdField resignFirstResponder];
+    }
+    [self loginWithEmail:emailStr password:pwdStr];
+  }
 }
 
 - (void)loginWithEmail:(NSString*)email password:(NSString*)password {
+  [[PacoLoadingView sharedInstance] showLoadingScreen];
   [[PacoClient sharedInstance] loginWithClientLogin:email password:password completionHandler:^(NSError *error) {
+    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
     if (!error) {
       NSLog(@"PACO LOGIN SUCCESS!");
       [((PacoAppDelegate *)[UIApplication sharedApplication].delegate).viewController dismissViewControllerAnimated:YES completion:^{
@@ -166,20 +173,10 @@
 }
 
 #pragma mark - UITextFieldDelegate
-
-//- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-//- (void)textFieldDidBeginEditing:(UITextField *)textField;           // became first responder
-//- (BOOL)textFieldShouldEndEditing:(UITextField *)textField;          // return YES to allow editing to stop and to resign first responder status. NO to disallow the editing session to end
-//- (void)textFieldDidEndEditing:(UITextField *)textField;             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
-
-//- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
-
-//- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {              // called when 'return' key pressed. return NO to ignore.
-  [textField resignFirstResponder];
-  
+// called when 'return' key pressed. return NO to ignore.
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
   [self onLogin];
-  return TRUE;
+  return YES;
 }
 
 @end
