@@ -208,7 +208,7 @@
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
-               NSLog(@"JOIN RESPONSE = %@", jsonData);
+               NSLog(@"Event Upload RESPONSE = %@", jsonData);
                NSMutableArray* successEventIndexes = [NSMutableArray array];
                if (error == nil) {
                  NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
