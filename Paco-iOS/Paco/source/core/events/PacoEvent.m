@@ -289,6 +289,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
 + (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail{
+  NSAssert(definition, @"definition should be valid");
   NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
   NSAssert([userEmail length] > 0, @"userEmail should be valid!");
   PacoEvent *event = [PacoEvent pacoEventForIOS];

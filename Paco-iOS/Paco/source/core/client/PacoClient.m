@@ -671,19 +671,19 @@
     return;
   }
   [self.eventManager saveStopEventWithExperiment:experiment];
-  
-  //if experiment is scheduled, need to adjust notification system
+
   if ([experiment isScheduledExperiment]) {
-    if ([self needsNotificationSystem]) {
-      //clear all scheduled notifications and notifications in the tray for the stopped experiment
-      [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
-    } else {
-      [self shutDownNotificationSystemIfNeeded];
-    }
+    //clear all scheduled notifications and notifications in the tray for the stopped experiment
+    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
   }
-  //remove experiment from local cache, this needs to be done after the notification system is adjusted
-  //since saving missing survey events needs the experiment from model
+  //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
+  //is called, since we may need to store missing survey events, which needs the experiment from model
   [self.model deleteExperimentInstance:experiment];
+
+  //shut down notification if needed after experiment is deleted from model
+  if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
+    [self shutDownNotificationSystemIfNeeded];
+  }
 }
 
 #pragma mark submit a survey
