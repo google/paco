@@ -61,6 +61,16 @@
                                    height));
 }
 
++ (CGRect)leftAlignRect:(CGSize)rectSize inRect:(CGRect)parent {
+  int width = rectSize.width;
+  int height = rectSize.height;
+  int leftoverY = parent.size.height - height;
+  return CGRectIntegral(CGRectMake(parent.origin.x,
+                                   parent.origin.y + (leftoverY / 2),
+                                   width,
+                                   height));
+}
+
 + (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(int)numSections {
   CGFloat width = rect.size.width / (CGFloat)numSections;
   NSMutableArray *array = [NSMutableArray array];

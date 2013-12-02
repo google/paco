@@ -22,6 +22,7 @@
 + (void)splitVerticalRect:(CGRect)rect percent:(CGFloat)percent topOut:(CGRect *)topOut bottomOut:(CGRect *)bottomOut;
 + (void)splitVerticalRect:(CGRect)rect yOffset:(CGFloat)xOffset topOut:(CGRect *)topOut bottomOut:(CGRect *)bottomOut;
 + (CGRect)centerRect:(CGSize)rectSize inRect:(CGRect)parent;
++ (CGRect)leftAlignRect:(CGSize)rectSize inRect:(CGRect)parent;
 
 + (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(int)numSections;
 + (NSArray *)splitRectVertically:(CGRect)rect numSections:(int)numSections;
