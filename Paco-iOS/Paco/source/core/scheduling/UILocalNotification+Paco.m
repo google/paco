@@ -121,10 +121,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
     return nil;
   }
   
-  NSString* alertBody = [NSString stringWithFormat:@"[%@]%@",
-                         [PacoDateUtility stringForAlertBodyFromDate:fireDate],
-                         experimentTitle];
-  
+  NSString* alertBody = [NSString stringWithFormat:@"%@\nTime to participate!",experimentTitle];
   UILocalNotification *notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.fireDate = fireDate;
