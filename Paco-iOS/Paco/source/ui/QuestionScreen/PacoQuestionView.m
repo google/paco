@@ -23,14 +23,14 @@
 #import "PacoFont.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
-#import "PacoSliderView.h"
+#import "PacoStepperView.h"
 #import "PacoExperimentInput.h"
 
 static const int kInvalidIndex = -1;
 
 @interface PacoQuestionView () <MKMapViewDelegate,
                                 PacoCheckboxViewDelegate,
-                                PacoSliderViewDelegate,
+                                PacoStepperViewDelegate,
                                 UITextFieldDelegate,
                                 UINavigationControllerDelegate,
                                 UIImagePickerControllerDelegate>
@@ -42,7 +42,7 @@ static const int kInvalidIndex = -1;
 @property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
 @property (nonatomic, retain, readwrite) MKMapView *map;
 @property (nonatomic, retain, readwrite) NSArray *numberButtons;
-@property (nonatomic, retain, readwrite) PacoSliderView *numberSlider;
+@property (nonatomic, retain, readwrite) PacoStepperView *numberStepper;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
 @property (nonatomic, retain, readwrite) UITextField *textField;
@@ -107,7 +107,7 @@ static const int kInvalidIndex = -1;
   }
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
-  [self.numberSlider removeFromSuperview];
+  [self.numberStepper removeFromSuperview];
   [self.questionText removeFromSuperview];
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
@@ -121,7 +121,7 @@ static const int kInvalidIndex = -1;
   self.imagePicker = nil;
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
   self.numberButtons = nil;
-  self.numberSlider = nil;
+  self.numberStepper = nil;
   self.questionText = nil;
   self.smileysButtons = nil;
   self.textField = nil;
@@ -335,19 +335,19 @@ static const int kInvalidIndex = -1;
       checkboxes.bitFlags = self.question.responseObject;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
-    PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
-    slider.format = @"%d";
+    PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
+                                                      reuseIdentifier:@"question_number"];
+    stepper.format = @"%.0f";
     if (self.question.responseObject) {
-      slider.value = self.question.responseObject;
+      stepper.value = self.question.responseObject;
     } else {
-      slider.value = [NSNumber numberWithInt:0];
+      stepper.value = [NSNumber numberWithInt:0];
     }
-    slider.minValue = 0;
-    slider.maxValue = 100;
-    slider.delegate = self;
-    self.numberSlider = slider;
-    [self addSubview:slider];
-
+    stepper.minValue = 0;
+    stepper.maxValue = NSUIntegerMax;
+    stepper.delegate = self;
+    self.numberStepper = stepper;
+    [self addSubview:stepper];
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
       self.questionText.text = @"Attaching your location ...";
@@ -539,7 +539,7 @@ static const int kInvalidIndex = -1;
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
-    self.numberSlider.frame = bounds;
+    self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
@@ -672,12 +672,16 @@ static const int kInvalidIndex = -1;
   [self updateConditionals];
 }
 
-#pragma mark - PacoSliderViewDelegate
+#pragma mark - PacoStepperViewDelegate
 
-- (void)onSliderChanged:(PacoSliderView *)slider {
-  int value = [slider.value intValue];
-  self.question.responseObject = [NSNumber numberWithInt:value];
+- (void)onStepperValueChanged:(PacoStepperView *)stepper {
+  double value = [stepper.value doubleValue];
+  self.question.responseObject = [NSNumber numberWithDouble:value];
   [self updateConditionals];
+}
+
+- (void)onTextFieldEditBegan:(UITextField *)textField {
+  [self textFieldDidBeginEditing:textField];
 }
 
 #pragma mark MKMapViewDelegate
