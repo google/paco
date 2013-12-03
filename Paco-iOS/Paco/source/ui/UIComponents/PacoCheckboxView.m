@@ -83,14 +83,15 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
   NSMutableArray *buttonArray = [NSMutableArray array];
   NSMutableArray *labelArray = [NSMutableArray array];
   for (NSString *labelString in self.optionLabels) {
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
+    //the label should be big enough to show maximum 3 lines of messages
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 240, 60)];
+    label.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+    label.numberOfLines = 3;
     [label setTextColor:[UIColor blackColor]];
     [label setText:labelString];
     label.backgroundColor = [UIColor clearColor];
-    label.font = [PacoFont pacoTableCellFont];
     label.textAlignment = NSTextAlignmentLeft;
     [self addSubview:label];
-    [label sizeToFit];
     [labelArray addObject:label];
     
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
@@ -137,8 +138,8 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 
   if (self.vertical) {
     CGRect left, right;
-    CGRect rect = CGRectInset(self.bounds, 10, 10);
-    [PacoLayout splitHorizontalRect:rect percent:0.25 leftOut:&left rightOut:&right];
+    CGRect rect = CGRectInset(self.bounds, 0, 0);
+    [PacoLayout splitHorizontalRect:rect percent:0.13 leftOut:&left rightOut:&right];
     NSArray *leftSections = [PacoLayout splitRectVertically:left numSections:self.optionLabels.count];
     NSArray *rightSections = [PacoLayout splitRectVertically:right numSections:self.optionLabels.count];
     
