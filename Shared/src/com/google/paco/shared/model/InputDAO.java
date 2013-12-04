@@ -226,7 +226,7 @@ public class InputDAO implements Serializable {
    * @return
    */
   public boolean isInvisibleInput() {
-    return getResponseType().equals(InputDAO.LOCATION) || getResponseType().equals(InputDAO.PHOTO);
+    return getResponseType().equals(InputDAO.LOCATION);
   }
 
   public Boolean getMultiselect() {
