@@ -359,8 +359,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (BOOL)saveNotificationsToCache {
-  [self adjustBadgeNumber];
-
   NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
   BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
   if (success) {
