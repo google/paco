@@ -545,17 +545,20 @@ static const int kInvalidIndex = -1;
 
     self.map.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
-    CGRect segmentControlFrame = CGRectMake(self.questionText.frame.origin.x + textsize.width + 20,
-                                            self.questionText.frame.origin.y + 5,
+    CGFloat segmentY = self.questionText.frame.origin.y + self.questionText.frame.size.height + 10;
+    CGFloat marginHorizontal = 10;
+    CGRect segmentControlFrame = CGRectMake(marginHorizontal,
+                                            segmentY,
                                             self.photoSegmentControl.frame.size.width,
                                             self.photoSegmentControl.frame.size.height);
     self.photoSegmentControl.frame = segmentControlFrame;
-    
-    float maxHeight = MAX(textsize.height, self.photoSegmentControl.frame.size.height);
-    CGRect photoButtonFrame = CGRectMake(10,
-                                         maxHeight + 20,
-                                         self.frame.size.width - 20,
-                                         self.frame.size.height - maxHeight - 30);
+    CGFloat space = 5.;
+    CGFloat buttonY = segmentY + self.photoSegmentControl.frame.size.height + space;
+    CGFloat photoButtonHeight = self.frame.size.height - buttonY - space;
+    CGRect photoButtonFrame = CGRectMake(marginHorizontal,
+                                         buttonY,
+                                         self.frame.size.width - marginHorizontal*2,
+                                         photoButtonHeight);
     self.choosePhotoButton.frame = photoButtonFrame;
   }
 }
