@@ -14,6 +14,7 @@
  */
 
 #import "PacoLoginScreenViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 #import "PacoAppDelegate.h"
 #import "PacoClient.h"
@@ -22,6 +23,7 @@
 #import "PacoMainViewController.h"
 #import "PacoTitleView.h"
 #import "PacoLoadingView.h"
+#import "PacoFont.h"
 
 @interface PacoClient ()
 - (void)loginWithClientLogin:(NSString *)email
@@ -82,8 +84,12 @@
   [textField sizeToFit];
   CGRect frame = textField.frame;
   frame.size.width = 200;
-  frame.size.height = 25;
+  frame.size.height = 40;
+  textField.font = [PacoFont pacoTableCellFont];
   textField.frame = frame;
+  textField.clipsToBounds = YES;
+  textField.layer.cornerRadius = 5.;
+
   self.emailField = textField;
   
 
@@ -101,8 +107,11 @@
   [textField2 sizeToFit];
   frame = textField2.frame;
   frame.size.width = 200;
-  frame.size.height = 25;
+  frame.size.height = 40;
   textField2.frame = frame;
+  textField2.font = [PacoFont pacoTableCellFont];
+  textField2.clipsToBounds = YES;
+  textField2.layer.cornerRadius = 5.;
   self.pwdField = textField2;
   
   UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
@@ -110,7 +119,7 @@
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
   label.textColor = [PacoColor pacoBlue];
-  [label setText:@"Hi, Log In Now\n\n  Run Your Paco Experiment today!"];
+  [label setText:@"Hi, Log In Now\n\n  Run Your Paco Experiment Today!"];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];
 
