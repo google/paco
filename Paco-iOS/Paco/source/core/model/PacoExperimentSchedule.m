@@ -265,6 +265,38 @@
   return minutesPerDay;
 }
 
+- (NSString*)esmTimeString:(long long)miliSeconds {
+  long seconds = miliSeconds / 1000;
+  long minutes = seconds / 60;
+  int hours = minutes / 60;
+  int minutesLeft = minutes - hours * 60;
+  NSString* minutesString = [NSString stringWithFormat:@"%d", minutesLeft];
+  if (minutesLeft < 10) {
+    minutesString = [NSString stringWithFormat:@"0%d", minutesLeft];
+  }
+  int noon = 12;
+  NSString* suffix = hours < noon ?  @"am" : @"pm";
+  if (hours > noon) {
+    hours -= noon;
+  }
+  NSString* timeString = [NSString stringWithFormat:@"%d:%@ %@", hours, minutesString, suffix];
+  return timeString;
+}
+
+- (NSString*)esmStartTimeString {
+  if (![self isESMSchedule]) {
+    return nil;
+  }
+  return [NSString stringWithFormat:@"Start Time: %@", [self esmTimeString:self.esmStartHour]];
+}
+
+- (NSString*)esmEndTimeString {
+  if (![self isESMSchedule]) {
+    return nil;
+  }
+  return [NSString stringWithFormat:@"End  Time: %@", [self esmTimeString:self.esmEndHour]];
+}
+
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date {
   if (![self isESMSchedule] || date == nil) {
     return nil;

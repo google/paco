@@ -42,6 +42,8 @@ NSString *kCellIdByDaysOfWeekMonth = @"byDayOfWeek?";
 NSString *kCellIdWhichFirstDayOfMonth = @"1st;2nd;3rd;4th;5th";
 NSString *kCellIdWhichDayOfMonth = @"1-31";
 NSString *kCellIdESMFrequency = @"esm freq";
+NSString *kCellIdESMStartTime = @"esm start time";
+NSString *kCellIdESMEndTime = @"esm end time";
 NSString *kCellIdESMPeriod = @"esm period";
 NSString *kCellIdIncludeWeekends = @"include weekends";
 NSString *kCellIdText = @"text";
@@ -80,6 +82,8 @@ NSString *kCellIdText = @"text";
     [_tableView registerClass:[PacoESMFrequencySelectionView class] forStringKey:kCellIdESMFrequency dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoESMPeriodSelectionView class] forStringKey:kCellIdESMPeriod dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoESMIncludeWeekendsSelectionView class] forStringKey:kCellIdIncludeWeekends dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdESMStartTime dataClass:[NSString class]];
+    [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdESMEndTime dataClass:[NSString class]];
     [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdText dataClass:[NSString class]];
   }
   return self;
@@ -129,6 +133,8 @@ NSString *kCellIdText = @"text";
                 [NSArray arrayWithObjects:kCellIdESMPeriod, [NSNumber numberWithUnsignedInt:(1 << schedule.esmPeriod)], nil],
                 [NSArray arrayWithObjects:kCellIdESMFrequency, [NSNumber numberWithInt:schedule.esmFrequency], nil],
                 [NSArray arrayWithObjects:kCellIdIncludeWeekends, [NSNumber numberWithBool:schedule.esmWeekends], nil],
+                [NSArray arrayWithObjects:kCellIdESMStartTime, [schedule esmStartTimeString], nil],
+                [NSArray arrayWithObjects:kCellIdESMEndTime, [schedule esmEndTimeString], nil],
                 nil];
   case kPacoScheduleTypeSelfReport:
     return [NSArray arrayWithObjects:
@@ -231,7 +237,13 @@ NSString *kCellIdText = @"text";
       } else if ([self isCellType:kCellIdIncludeWeekends reuseId:reuseId]) {
         PacoESMIncludeWeekendsSelectionView *cellView = (PacoESMIncludeWeekendsSelectionView *)cell;
         cellView.bitFlags = [self realRowData:rowData];
-      } else {
+      } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
+        PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
+        cellView.textLabel.text = [self.experiment.schedule esmStartTimeString];
+      } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
+        PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
+        cellView.textLabel.text = [self.experiment.schedule esmEndTimeString];
+      }else {
         assert(0);
       }
     }
@@ -308,7 +320,9 @@ NSLog(@"TODO: implement schedule editing hookups");
       if ([self isCellType:kCellIdESMFrequency reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdESMPeriod reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdIncludeWeekends reuseId:reuseId]) {
-      } else {
+      } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
+      } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
+      }else {
         assert(0);
       }
     }
