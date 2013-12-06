@@ -179,7 +179,7 @@ NSString *kCellIdQuestion = @"question";
   [PacoAlertView showAlertWithTitle:title
                             message:message
                        dismissBlock:^(NSInteger buttonIndex) {
-                           [self.navigationController popViewControllerAnimated:YES];
+                         [self.navigationController popToRootViewControllerAnimated:YES];
                        }
                   cancelButtonTitle:@"OK"
                   otherButtonTitles:nil];
