@@ -164,6 +164,8 @@ NSString *kCellIdText = @"text";
 - (void)initializeCell:(UITableViewCell *)cell
               withData:(id)rowData
             forReuseId:(NSString *)reuseId {
+  //disable user to modify any schedule for now
+  cell.userInteractionEnabled = NO;
   switch (self.experiment.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
