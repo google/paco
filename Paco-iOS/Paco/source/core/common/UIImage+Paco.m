@@ -120,4 +120,18 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   return imageString;
 }
 
++ (UIImage *)reSizeImage:(UIImage *)image inBounds:(CGSize)bounds {
+  CGFloat horizontalRatio = bounds.width / image.size.width;
+  CGFloat verticalRatio = bounds.height / image.size.height;
+  CGFloat ratio = MIN(horizontalRatio, verticalRatio);
+
+  CGSize reSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio);
+
+  UIGraphicsBeginImageContext(CGSizeMake(reSize.width, reSize.height));
+  [image drawInRect:CGRectMake(0, 0, reSize.width, reSize.height)];
+  UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  return reSizeImage;
+}
+
 @end

@@ -25,6 +25,7 @@
 #import "PacoModel.h"
 #import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
+#import "UIImage+Paco.h"
 
 static const int kInvalidIndex = -1;
 
@@ -187,16 +188,21 @@ static const int kInvalidIndex = -1;
 
 - (void)updateChoosePhotoButtonTitle
 {
-  NSString* title = @"Take Photo";
-  if (self.photoSegmentControl.selectedSegmentIndex == 1) {
-    title = @"Choose Photo";
+  if (!self.image) {
+    NSString* title = @"Take Photo";
+    if (self.photoSegmentControl.selectedSegmentIndex == 1) {
+      title = @"Choose Photo";
+    }
+    [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
+    [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
   }
-  [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
 }
 
 - (void)takePhoto
 {
+  if((self.photoSegmentControl.selectedSegmentIndex == 0) && (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera ])) {
+    return;
+  }
   UIImagePickerController* imagePicker = [[UIImagePickerController alloc] init];
   imagePicker.delegate = self;
   
@@ -597,8 +603,11 @@ static const int kInvalidIndex = -1;
     UIImage *orig = [info objectForKey:UIImagePickerControllerOriginalImage];
     UIImage *edited = [info objectForKey:UIImagePickerControllerEditedImage];
     self.image = edited ? edited : orig;
+    self.image = [UIImage reSizeImage:self.image inBounds:self.choosePhotoButton.frame.size];
     self.question.responseObject = self.image;
     [self updateConditionals];
+    [self.choosePhotoButton setTitle:nil forState:UIControlStateNormal];
+    [self.choosePhotoButton setTitle:nil forState:UIControlStateHighlighted];
     [self.choosePhotoButton setImage:self.image forState:UIControlStateNormal];
     [self.choosePhotoButton setImage:self.image forState:UIControlStateHighlighted];
     [self.choosePhotoButton setNeedsLayout];
