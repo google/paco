@@ -83,14 +83,13 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
   NSMutableArray *buttonArray = [NSMutableArray array];
   NSMutableArray *labelArray = [NSMutableArray array];
   for (NSString *labelString in self.optionLabels) {
-    //the label should be big enough to show maximum 3 lines of messages
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 240, 60)];
-    label.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-    label.numberOfLines = 3;
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
     [label setTextColor:[UIColor blackColor]];
     [label setText:labelString];
     label.backgroundColor = [UIColor clearColor];
+    label.font = [PacoFont pacoTableCellFont];
     label.textAlignment = NSTextAlignmentLeft;
+    [label sizeToFit];
     [self addSubview:label];
     [labelArray addObject:label];
     
@@ -146,9 +145,16 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
     for (int i = 0; i < self.optionLabels.count; ++i) {
       CGRect leftRect = [[leftSections objectAtIndex:i] CGRectValue];
       CGRect rightRect = [[rightSections objectAtIndex:i] CGRectValue];
-      UILabel *label = [self.labels objectAtIndex:i];
       UIButton *button = [self.buttons objectAtIndex:i];
       button.frame = [PacoLayout leftAlignRect:button.frame.size inRect:leftRect];
+  
+      //For vertical labels, they should be big enough to show maximum 3 lines of messages
+      //and their font should be smaller too
+      UILabel *label = [self.labels objectAtIndex:i];
+      label.frame = CGRectMake(0, 0, 240, 60);
+      label.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+      label.numberOfLines = 3;
+      //recalculate the size comparing to parent
       label.frame = [PacoLayout leftAlignRect:label.frame.size inRect:rightRect];
     }
   } else {
