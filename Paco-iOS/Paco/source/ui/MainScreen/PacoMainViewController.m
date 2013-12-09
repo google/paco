@@ -25,6 +25,7 @@
 #import "PacoLoginScreenViewController.h"
 #import "PacoUserGuideWebViewController.h"
 #import "PacoContactUsViewController.h"
+#import "PacoCustomAlertPopUp.h"
 
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
@@ -147,7 +148,8 @@
 }
 
 - (void)onCreateAnExperiment {
-
+  PacoCustomAlertPopUp* popUp = [[PacoCustomAlertPopUp alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height)];
+  [self.view addSubview:popUp];
 }
 
 - (void)onUserGuide {
