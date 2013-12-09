@@ -47,7 +47,7 @@
   }
   self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
   
-  UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 300, 30)];
+  UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
   boldTitle.text = @"Data Handling & Privacy Agreement between You and the Experiment Creator";
   boldTitle.font = [PacoFont pacoConsentBoldFont];
   boldTitle.textColor = [UIColor blackColor];
@@ -56,7 +56,7 @@
   [self.view addSubview:boldTitle];
   [boldTitle sizeToFit];
 
-  UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, 300, 0)];
+  UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, self.view.frame.size.width - 20, 0)];
   consentText.text = @"By joining this experiment, you may be sharing data with the creator and "
   @"administrators of this experiment. Read the data handling policy they have provided below to "
   @"decide on whether you want to participate in this experiment.";
@@ -84,7 +84,7 @@
   [self.view addSubview:iConsent];
   [iConsent sizeToFit];
   CGRect frame = iConsent.frame;
-  frame.origin.x = (320 - frame.size.width) / 2;
+  frame.origin.x = (self.view.frame.size.width - frame.size.width) / 2;
   frame.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
   iConsent.frame = frame;
 }
