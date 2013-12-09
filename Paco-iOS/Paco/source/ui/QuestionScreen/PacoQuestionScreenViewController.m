@@ -56,6 +56,11 @@ NSString *kCellIdQuestion = @"question";
                                      style:UIBarButtonItemStyleDone
                                     target:self
                                     action:@selector(onDone)];
+    UIBarButtonItem* cancelButton =
+        [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                      target:self
+                                                      action:@selector(onCancel:)];
+    self.navigationItem.leftBarButtonItem = cancelButton;
     _evaluator = [PacoInputEvaluator evaluatorWithExperiment:experiment];
     _notification = notification;
   }
@@ -99,6 +104,12 @@ NSString *kCellIdQuestion = @"question";
   if (self.evaluator.experiment.definition.webReccommended) {
     [self showRecommendationAlert];
   }
+}
+
+- (void)onCancel:(id)sender {
+  //clear all inputs' submitted responseObject for the definition when user clicks on back button
+  [self.evaluator.experiment.definition clearInputs];
+  [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)showRecommendationAlert {
