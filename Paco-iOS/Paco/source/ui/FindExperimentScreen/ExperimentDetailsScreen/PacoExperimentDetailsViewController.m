@@ -137,8 +137,6 @@
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
   joinframe.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
- // joinframe.origin.y = creatorValueLabel.frame.origin.y + creatorValueLabel.frame.size.height + 30;
-  //joinframe.size.height = 35;
   join.frame = joinframe;
 }
 
