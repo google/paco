@@ -147,7 +147,14 @@
 }
 
 - (void)onCreateAnExperiment {
-
+  NSString* msg = @"Since creating experiments involves a fair amount of text entry, "
+                  @"a phone is not so well-suited to creating experiments.\n\n"
+                  @"Please point your browser to\nhttp://pacoapp.com/ to create an experiment.";
+  [[[UIAlertView alloc] initWithTitle:@"How to Create an Experiment"
+                             message:msg
+                            delegate:nil
+                   cancelButtonTitle:@"OK"
+                   otherButtonTitles:nil] show];
 }
 
 - (void)onUserGuide {
