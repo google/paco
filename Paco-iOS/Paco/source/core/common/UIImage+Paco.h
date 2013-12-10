@@ -24,6 +24,6 @@
                           forDefinition:(NSString*)definitionId
                                 inputId:(NSString*)inputId;
 + (NSString*)pacoBase64StringWithImageName:(NSString*)imageName;
-+ (UIImage *)reSizeImage:(UIImage *)image inBounds:(CGSize)bounds;
++ (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size;
 
 @end

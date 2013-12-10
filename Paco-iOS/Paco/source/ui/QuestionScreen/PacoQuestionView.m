@@ -200,9 +200,6 @@ static const int kInvalidIndex = -1;
 
 - (void)takePhoto
 {
-  if((self.photoSegmentControl.selectedSegmentIndex == 0) && (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera ])) {
-    return;
-  }
   UIImagePickerController* imagePicker = [[UIImagePickerController alloc] init];
   imagePicker.delegate = self;
   
@@ -603,13 +600,13 @@ static const int kInvalidIndex = -1;
     UIImage *orig = [info objectForKey:UIImagePickerControllerOriginalImage];
     UIImage *edited = [info objectForKey:UIImagePickerControllerEditedImage];
     self.image = edited ? edited : orig;
-    self.image = [UIImage reSizeImage:self.image inBounds:self.choosePhotoButton.frame.size];
     self.question.responseObject = self.image;
     [self updateConditionals];
+    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
     [self.choosePhotoButton setTitle:nil forState:UIControlStateNormal];
     [self.choosePhotoButton setTitle:nil forState:UIControlStateHighlighted];
-    [self.choosePhotoButton setImage:self.image forState:UIControlStateNormal];
-    [self.choosePhotoButton setImage:self.image forState:UIControlStateHighlighted];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateHighlighted];
     [self.choosePhotoButton setNeedsLayout];
   } else if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeMovie]) {
     NSURL *movieURL = [info objectForKey:UIImagePickerControllerMediaURL];

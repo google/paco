@@ -88,6 +88,20 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   }
 }
 
++ (NSData *)pacoGetImageDataAfterScale:(UIImage *)image {
+  CGSize parentFrame = [[UIScreen mainScreen]bounds].size;
+  CGFloat imageLength = image.size.width * image.size.height;
+  CGFloat maxLength = parentFrame.width * parentFrame.height;
+  if (imageLength > maxLength) {
+    if (image.size.width > image.size.height) {
+      image = [self scaleImage:image toSize:CGSizeMake(parentFrame.width, parentFrame.height)];
+    }
+    else {
+      image = [self scaleImage:image toSize:CGSizeMake(parentFrame.height, parentFrame.width)];
+    }
+  }
+  return UIImageJPEGRepresentation(image, 1.0);
+}
 
 + (NSString*)pacoSaveImageToDocumentDir:(UIImage*)image
                           forDefinition:(NSString*)definitionId
@@ -98,8 +112,7 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   }
   NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
   NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
-  
-  NSData* imageData = [image pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
+  NSData* imageData = [self pacoGetImageDataAfterScale:image];
   if (!imageData) {
     return nil;
   }
@@ -120,18 +133,18 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   return imageString;
 }
 
-+ (UIImage *)reSizeImage:(UIImage *)image inBounds:(CGSize)bounds {
-  CGFloat horizontalRatio = bounds.width / image.size.width;
-  CGFloat verticalRatio = bounds.height / image.size.height;
++ (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
+  CGFloat horizontalRatio = size.width / image.size.width;
+  CGFloat verticalRatio = size.height / image.size.height;
   CGFloat ratio = MIN(horizontalRatio, verticalRatio);
 
   CGSize reSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio);
 
   UIGraphicsBeginImageContext(CGSizeMake(reSize.width, reSize.height));
   [image drawInRect:CGRectMake(0, 0, reSize.width, reSize.height)];
-  UIImage *reSizeImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIImage *scaledimage = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
-  return reSizeImage;
+  return scaledimage;
 }
 
 @end
