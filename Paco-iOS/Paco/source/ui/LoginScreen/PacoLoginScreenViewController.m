@@ -84,7 +84,7 @@
   [textField sizeToFit];
   CGRect frame = textField.frame;
   frame.size.width = 200;
-  frame.size.height = 40;
+  frame.size.height = 36;
   textField.font = [PacoFont pacoTableCellFont];
   textField.frame = frame;
   textField.clipsToBounds = YES;
@@ -107,7 +107,7 @@
   [textField2 sizeToFit];
   frame = textField2.frame;
   frame.size.width = 200;
-  frame.size.height = 40;
+  frame.size.height = 36;
   textField2.frame = frame;
   textField2.font = [PacoFont pacoTableCellFont];
   textField2.clipsToBounds = YES;
@@ -119,7 +119,7 @@
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
   label.textColor = [PacoColor pacoBlue];
-  [label setText:@"Hi, Log In Now\n\n  Run Your Paco Experiment Today!"];
+  [label setText:@"Hi, Log in with a Google account\n\n  Run Your Paco Experiment Today!"];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];
 
