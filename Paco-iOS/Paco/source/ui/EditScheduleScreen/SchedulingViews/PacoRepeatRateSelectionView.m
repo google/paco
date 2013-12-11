@@ -31,7 +31,7 @@
     self.minValue = 1;
     self.maxValue = 30;
     self.value = [NSNumber numberWithInt:1];
-    self.format = @"Repeat every %d days";
+    self.format = @"Repeat every %d day(s)";
   }
   return self;
 }
@@ -40,7 +40,7 @@
   _repeatStyle = repeatStyle;
   switch (_repeatStyle) {
   case kPacoScheduleRepeatDays:
-    self.format = @"Repeat every %d days";
+    self.format = @"Repeat every %d day(s)";
     self.minValue = 1;
     self.maxValue = 30;
     self.value = [NSNumber numberWithInt:1];
@@ -52,7 +52,7 @@
     self.value = [NSNumber numberWithInt:1];
     break;
   case kPacoScheduleRepeatMonths:
-    self.format = @"Repeat every %d months.";
+    self.format = @"Repeat every %d month(s).";
     self.minValue = 1;
     self.maxValue = 12;
     self.value = [NSNumber numberWithInt:1];

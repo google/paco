@@ -79,12 +79,12 @@
   CGRect frame = titleLabel.frame;
   frame.origin.x = 10;
   frame.origin.y = 10;
-  frame.size.width = 300;
-  frame.size.height = 480;
+  frame.size.width = self.view.frame.size.width - 20;
+  frame.size.height = self.view.frame.size.height;
   titleLabel.frame = frame;
   [titleLabel sizeToFit];
 
-  UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, 300, 20)];
+  UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, self.view.frame.size.width - 20, 20)];
   NSString* desText = @"Description:";
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
@@ -101,7 +101,7 @@
   descriptionLabel.editable = NO;
   [self.view addSubview:descriptionLabel];
 
-  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20, 300, 20)];
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20, self.view.frame.size.width - 20, 20)];
   NSString *creText = @"Creator:";
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
@@ -121,8 +121,8 @@
   CGRect creatorframe = creatorValueLabel.frame;
   creatorframe.origin.x = 10;
   creatorframe.origin.y = creatorLabel.frame.origin.y + 30;
-  creatorframe.size.width = 300;
-  creatorframe.size.height = 480;
+  creatorframe.size.width = self.view.frame.size.width - 20;
+  creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
 
@@ -136,8 +136,7 @@
   [join sizeToFit];
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
-  joinframe.origin.y = creatorValueLabel.frame.origin.y + creatorValueLabel.frame.size.height + 30;
-  joinframe.size.height = 35;
+  joinframe.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
   join.frame = joinframe;
 }
 
