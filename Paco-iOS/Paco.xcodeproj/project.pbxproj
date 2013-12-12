@@ -95,7 +95,6 @@
 		36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3017568DAF004CF035 /* PacoRepeatRateSelectionView.m */; };
 		36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3217568DAF004CF035 /* PacoScheduleEditView.m */; };
 		36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3417568DAF004CF035 /* PacoTimeSelectionView.m */; };
-		36B8EB7B17568DAF004CF035 /* PacoExperimentListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3717568DAF004CF035 /* PacoExperimentListViewController.m */; };
 		36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */; };
 		36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */; };
 		36B8EB7E17568DAF004CF035 /* PacoFindExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4017568DAF004CF035 /* PacoFindExperimentsViewController.m */; };
@@ -1537,7 +1536,6 @@
 				36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */,
 				36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */,
 				367171F4183AFD87005A5058 /* PacoUserGuideWebViewController.m in Sources */,
-				36B8EB7B17568DAF004CF035 /* PacoExperimentListViewController.m in Sources */,
 				36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */,
 				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
