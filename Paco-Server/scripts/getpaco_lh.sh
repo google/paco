@@ -13,12 +13,12 @@ joburl=`curl -L -v -b ~/.paco_lh_cookie "http://127.0.0.1:8888/events?q=experime
 
 joburl="$joburl&cmdline=1"
 
-result=`curl -L -b ~/.paco_lh_cookie $outfile "http://127.0.0.1:8888$joburl"`
+result=`curl -L -b ~/.paco_lh_cookie "http://127.0.0.1:8888$joburl"`
 
 # refresh until the report is ready
 while [ "$result" = pending ]; do
-  result=`curl -L -b ~/.paco_lh_cookie $outfile "http://127.0.0.1:8888$joburl"`
+  result=`curl -L -b ~/.paco_lh_cookie "http://127.0.0.1:8888$joburl"`
 done
 
-echo $result > $outfile
+echo "$result" > $outfile
 

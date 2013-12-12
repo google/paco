@@ -13,12 +13,12 @@ joburl=`curl -L -v -b ~/.paco_qs_cookie "https://quantifiedself.appspot.com/even
 
 joburl="$joburl&cmdline=1"
 
-result=`curl -L -b ~/.paco_qs_cookie $outfile "https://quantifiedself.appspot.com$joburl"`
+result=`curl -L -b ~/.paco_qs_cookie "https://quantifiedself.appspot.com$joburl"`
 
 # refresh until the report is ready
 while [ "$result" = pending ]; do
-  result=`curl -L -b ~/.paco_qs_cookie $outfile "https://quantifiedself.appspot.com$joburl"`
+  result=`curl -L -b ~/.paco_qs_cookie "https://quantifiedself.appspot.com$joburl"`
 done
 
-echo $result > $outfile
+echo "$result" > $outfile
 
