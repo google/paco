@@ -7,6 +7,8 @@ Paco/gen/*
 PacoAndroidLib/bin/*
 PacoAndroidLib/gen/*
 Paco-Server/reports/*
+Paco-Server/gwt-unitCache/*
+Paco-Server/war/WEB-INF/deploy/*
 Paco-Server/war/WEB-INF/appengine-generated/
 Paco-Server/war/WEB-INF/classes/*
 Paco-Server/war/WEB-INF/lib/appengine-api-1.0-sdk-1.5.0.1.jar
@@ -15,7 +17,8 @@ Paco-Server/war/WEB-INF/lib/appengine-jsr107cache-1.5.0.1.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet-deps.jar
 Paco-Server/war/WEB-INF/lib/gwt-servlet.jar
 Paco-Server/war/paco.apk
-Paco-Server/war/pacoserver/
+Paco-Server/war/pacoserver/*
+Paco-Server/www-test/*
 PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
@@ -23,6 +26,7 @@ PacoTest/gen/*
 PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
+Shared/.gwt/*
 Shared/testbin
 Shared/dist
 Shared/reports
