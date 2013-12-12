@@ -633,6 +633,12 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
+  public boolean shouldPoll() {
+    return trigger != null && trigger.getEventCode() == Trigger.APP_USAGE;
+  }
+
+
+  @JsonIgnore
   public void setJson(String json) {
     this.json = json;
   }

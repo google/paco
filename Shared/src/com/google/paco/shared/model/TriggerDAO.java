@@ -8,22 +8,23 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
   public static final int HANGUP = 1;
   public static final int USER_PRESENT = 2;
   public static final int PACO_ACTION_EVENT = 3;
-  
-  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT, PACO_ACTION_EVENT};
-  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT", "Paco Action"};
+  public static final int APP_USAGE = 4;
+
+  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE};
+  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT", "Paco Action", "App Used"};
 
   private int eventCode;
   private long delay = 5000;
 
   private Long id;
   private String sourceIdentifier;
-  
- 
+
+
   public TriggerDAO() {
     super();
     this.type = "trigger";
   }
-  
+
   public TriggerDAO(Long id, Integer eventCode, String sourceIdentifier, Long delay, Integer timeout, Integer minimumBuffer) {
     super();
     this.id = id;
@@ -35,7 +36,7 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
     this.minimumBuffer = minimumBuffer;
   }
 
-  
+
   public int getEventCode() {
     return eventCode;
   }

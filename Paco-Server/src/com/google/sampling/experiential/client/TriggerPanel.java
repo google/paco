@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -31,7 +31,7 @@ import com.google.paco.shared.model.TriggerDAO;
 
 /**
  * View trigger configuration.
- * 
+ *
  */
 public class TriggerPanel extends Composite {
 
@@ -53,7 +53,7 @@ public class TriggerPanel extends Composite {
     TimeoutPanel timeoutPanel = new TimeoutPanel(trigger);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-    
+
     MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(trigger);
     verticalPanel.add(minimumBufferPanel);
     minimumBufferPanel.setWidth("286px");
@@ -63,7 +63,7 @@ public class TriggerPanel extends Composite {
     HorizontalPanel line = createHorizontalContainer();
     line.add(createLabel(myConstants.chooseTriggerSourceIdentifier()));
     line.add(createSourceIdentifierTextEdit());
-    line.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT);
+    line.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT || trigger.getEventCode() == TriggerDAO.APP_USAGE);
     return line;
   }
 
@@ -80,7 +80,7 @@ public class TriggerPanel extends Composite {
       public void onChange(ChangeEvent event) {
         trigger.setSourceIdentifier(valueBox.getText());
       }
-      
+
     });
     return valueBox;
   }
@@ -109,7 +109,7 @@ public class TriggerPanel extends Composite {
           Window.alert("Please enter a valid number in seconds for the trigger delay");
         }
       }
-      
+
     });
     return valueBox;
   }
@@ -117,12 +117,12 @@ public class TriggerPanel extends Composite {
   private Widget createTriggerChooser() {
     HorizontalPanel line = createHorizontalContainer();
     line.add(createLabel(myConstants.chooseTrigger()));
-    
+
     ListBox widgetWithValue = new ListBox();
     widgetWithValue.addItem("Choose Trigger Event");
     for (int i = 0; i < TriggerDAO.EVENT_NAMES.length; i++) {
-      widgetWithValue.addItem(TriggerDAO.EVENT_NAMES[i]);  
-    }    
+      widgetWithValue.addItem(TriggerDAO.EVENT_NAMES[i]);
+    }
     int event = trigger.getEventCode();
     if (event != 0) {
       widgetWithValue.setSelectedIndex(event);
@@ -143,7 +143,7 @@ public class TriggerPanel extends Composite {
     line.setStyleName("left");
     return line; //qq
   }
-  
+
   private void addListSelectionListener(final ListBox listBox) {
     listBox.addChangeHandler(new ChangeHandler() {
       @Override
@@ -157,7 +157,7 @@ public class TriggerPanel extends Composite {
 
   private void respondToListSelection(int index) {
     trigger.setEventCode(TriggerDAO.EVENTS[index - 1]);
-    sourceIdentifierPanel.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT);
+    sourceIdentifierPanel.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT || trigger.getEventCode() == TriggerDAO.APP_USAGE);
   }
 
 
