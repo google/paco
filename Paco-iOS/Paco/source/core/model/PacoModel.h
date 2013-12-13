@@ -58,9 +58,8 @@ extern NSString* const PacoFinishRefreshing;
 - (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
-//YMZ:TODO: need a better method name
-- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition*)definition
-                                schedule:(PacoExperimentSchedule*)schedule;
+- (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition
+                                      schedule:(PacoExperimentSchedule*)schedule;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 

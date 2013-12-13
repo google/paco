@@ -658,8 +658,8 @@
   }
   [self.eventManager saveJoinEventWithDefinition:definition withSchedule:nil];
   //create a new experiment and save it to cache
-  PacoExperiment *experiment = [self.model addExperimentInstance:definition
-                                                        schedule:definition.schedule];
+  PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
+                                                              schedule:definition.schedule];
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 }

@@ -363,8 +363,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 #pragma mark Experiment Instance operations
-- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                schedule:(PacoExperimentSchedule *)schedule {
+- (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
+                                      schedule:(PacoExperimentSchedule *)schedule {
   //create an experiment instance
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = schedule;
