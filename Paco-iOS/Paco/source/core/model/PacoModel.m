@@ -364,13 +364,11 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition *)definition
-                                schedule:(PacoExperimentSchedule *)schedule
-                                  events:(NSArray *)events {
+                                schedule:(PacoExperimentSchedule *)schedule {
   //create an experiment instance
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = schedule;
   experimentInstance.definition = definition;
-  experimentInstance.events = events;
   NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
   experimentInstance.instanceId = definition.experimentId;
   experimentInstance.lastEventQueryTime = nowdate;
