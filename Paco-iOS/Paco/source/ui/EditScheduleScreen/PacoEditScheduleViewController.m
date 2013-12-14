@@ -51,13 +51,13 @@
   [schedule.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   self.view = schedule;
 
-  schedule.experiment = self.definition;
+  schedule.definition = self.definition;
 }
 
 - (void)setDefinition:(PacoExperimentDefinition *)definition {
   _definition = definition;
   self.title = definition.title;
-  [(PacoScheduleEditView *)self.view setExperiment:definition];
+  [(PacoScheduleEditView *)self.view setDefinition:definition];
 }
 
 - (void)onJoin {

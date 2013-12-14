@@ -52,7 +52,7 @@ NSString *kCellIdText = @"text";
 @end
 
 @implementation PacoScheduleEditView
-@synthesize experiment = _experiment;
+@synthesize definition = _definition;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -89,9 +89,9 @@ NSString *kCellIdText = @"text";
   return self;
 }
 
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  _tableView.data = [[self class] dataFromExperimentSchedule:_experiment.schedule];
+- (void)setDefinition:(PacoExperimentDefinition *)definition {
+  _definition = definition;
+  _tableView.data = [[self class] dataFromExperimentSchedule:_definition.schedule];
   [self setNeedsLayout];
 }
 
@@ -166,7 +166,7 @@ NSString *kCellIdText = @"text";
             forReuseId:(NSString *)reuseId {
   //disable user to modify any schedule for now
   cell.userInteractionEnabled = NO;
-  switch (self.experiment.schedule.scheduleType) {
+  switch (self.definition.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
@@ -241,10 +241,10 @@ NSString *kCellIdText = @"text";
         cellView.bitFlags = [self realRowData:rowData];
       } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
-        cellView.textLabel.text = [self.experiment.schedule esmStartTimeString];
+        cellView.textLabel.text = [self.definition.schedule esmStartTimeString];
       } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
-        cellView.textLabel.text = [self.experiment.schedule esmEndTimeString];
+        cellView.textLabel.text = [self.definition.schedule esmEndTimeString];
       }else {
         assert(0);
       }
@@ -281,7 +281,7 @@ NSString *kCellIdText = @"text";
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
 NSLog(@"TODO: implement schedule editing hookups");
-  switch (self.experiment.schedule.scheduleType) {
+  switch (self.definition.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         assert([rowData isKindOfClass:[NSNumber class]]);
