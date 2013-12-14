@@ -91,7 +91,7 @@
 
 - (void)onAccept {
   PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-  edit.experiment = self.experiment;
+  edit.definition = self.experiment;
   [self.navigationController pushViewController:edit animated:YES];
 }
 
