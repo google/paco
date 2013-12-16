@@ -31,6 +31,7 @@
 #import "UILocalNotification+Paco.h"
 #import "PacoScheduleGenerator.h"
 #import "NSMutableArray+Paco.h"
+#import "PacoExperimentSchedule.h"
 
 
 
@@ -661,6 +662,7 @@
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
                                                               schedule:schedule];
+  NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 }

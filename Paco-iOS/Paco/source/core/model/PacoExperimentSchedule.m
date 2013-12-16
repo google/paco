@@ -123,11 +123,11 @@
           @"byDayOfMonth=%d "
           @"byDayOfWeek=%d "
           @"dayOfMonth=%d "
-          @"esmEndHour=%lld "
+          @"esmStartHour=%@ "
+          @"esmEndHour=%@ "
           @"esmFrequency=%d "
           @"esmPeriodInDays=%lld "
-          @"esmPeriod=%@"
-          @"esmStartHour=%lld "
+          @"esmPeriod=%@ "
           @"esmWeekends=%d "
           @"scheduleId=%@ "
           @"nthOfMonth=%d "
@@ -141,11 +141,11 @@
           self.byDayOfMonth,
           self.byDayOfWeek,
           self.dayOfMonth,
-          self.esmEndHour,
+          [self esmTimeString:self.esmStartHour],
+          [self esmTimeString:self.esmEndHour],
           self.esmFrequency,
           self.esmPeriodInDays,
           [self periodString],
-          self.esmStartHour,
           self.esmWeekends,
           self.scheduleId,
           self.nthOfMonth,
@@ -266,6 +266,10 @@
 }
 
 - (NSString*)esmTimeString:(long long)miliSeconds {
+  if (![self isESMSchedule]) {
+    return nil;
+  }
+
   long seconds = miliSeconds / 1000;
   long minutes = seconds / 60;
   int hours = minutes / 60;
