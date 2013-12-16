@@ -652,14 +652,15 @@
 }
 
 #pragma mark join an experiment
-- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition {
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
+                         andSchedule:(PacoExperimentSchedule*)schedule {
   if (definition == nil) {
     return;
   }
-  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:nil];
+  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
-                                                              schedule:definition.schedule];
+                                                              schedule:schedule];
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 }

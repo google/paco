@@ -61,7 +61,8 @@
 }
 
 - (void)onJoin {
-  [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition];
+  [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
+                                                andSchedule:self.definition.schedule];
   
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";
