@@ -216,39 +216,37 @@
   return string;
 }
 
-//YMZ:TODO: examine if we need to add timeout and minimumBuffer
 - (NSString *)jsonString {
   NSMutableString *json = [NSMutableString stringWithString:@"{"];
   
-  [json appendFormat:@"type = %@;", [self typeString]];
+  [json appendFormat:@"type = %@,", [self typeString]];
   
   if (self.scheduleType == kPacoScheduleTypeESM) {
-    [json appendFormat:@"frequency = %d", self.esmFrequency];
-    [json appendFormat:@"esmPeriod = %@", [self periodString]];
-    [json appendFormat:@"startHour = %lld", self.esmStartHour];
-    [json appendFormat:@"endHour = %lld", self.esmEndHour];
-    [json appendFormat:@"weekends = %d", self.esmWeekends];
+    [json appendFormat:@"frequency = %d,", self.esmFrequency];
+    [json appendFormat:@"esmPeriod = %@,", [self periodString]];
+    [json appendFormat:@"startHour = %@,", [self esmTimeString:self.esmStartHour]];
+    [json appendFormat:@"endHour = %@,", [self esmTimeString:self.esmEndHour]];
+    [json appendFormat:@"weekends = %@,", self.esmWeekends ? @"true" : @"false"];
   }
   
   [json appendString:@"times = ["];
-  for (NSNumber *time in self.times) {
-    if ([self.times objectAtIndex:0] == time) {
-      [json appendFormat:@"%lld", [time longLongValue]];
+  for (int index=0; index < [self.times count]; index++) {
+    long long milliSeconds = [[self.times objectAtIndex:index] longLongValue];
+    if (0 == index) {
+      [json appendFormat:@"%@", [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds]];
     } else {
-      [json appendFormat:@", %lld", [time longLongValue]];
+      [json appendFormat:@", %@", [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds]];
     }
   }
-  [json appendString:@"];"];
+  [json appendString:@"],"];
   
-  [json appendFormat:@"repeatRate = %d;", self.repeatRate];
-  [json appendFormat:@"daysOfWeek = %@;", [self weekDaysScheduledString]];
-  [json appendFormat:@"nthOfMonth = %d;", self.nthOfMonth];
-  [json appendFormat:@"byDayOfMonth = %d;", self.byDayOfMonth];
+  [json appendFormat:@"repeatRate = %d,", self.repeatRate];
+  [json appendFormat:@"daysOfWeek = %@,", [self weekDaysScheduledString]];
+  [json appendFormat:@"nthOfMonth = %d,", self.nthOfMonth];
+  [json appendFormat:@"byDayOfMonth = %@,", self.byDayOfMonth ? @"true" : @"false"];
   [json appendFormat:@"dayOfMonth = %d", self.dayOfMonth];
   [json appendString:@"}"];
   return json;
-  
-  return nil;
 }
 
 - (BOOL)isESMSchedule {
@@ -265,12 +263,9 @@
   return minutesPerDay;
 }
 
-- (NSString*)esmTimeString:(long long)miliSeconds {
-  if (![self isESMSchedule]) {
-    return nil;
-  }
 
-  long seconds = miliSeconds / 1000;
++ (NSString*)timeStringFromMiliseconds:(long long)milliSeconds {
+  long seconds = milliSeconds / 1000;
   long minutes = seconds / 60;
   int hours = minutes / 60;
   int minutesLeft = minutes - hours * 60;
@@ -285,6 +280,13 @@
   }
   NSString* timeString = [NSString stringWithFormat:@"%d:%@ %@", hours, minutesString, suffix];
   return timeString;
+}
+
+- (NSString*)esmTimeString:(long long)milliSeconds {
+  if (![self isESMSchedule]) {
+    return nil;
+  }
+  return [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds];
 }
 
 - (NSString*)esmStartTimeString {
