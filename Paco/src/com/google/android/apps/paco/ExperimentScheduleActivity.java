@@ -517,15 +517,11 @@ public class ExperimentScheduleActivity extends Activity {
       alarmStore.deleteAllSignalsForSurvey(experiment.getId());
       experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     }
-    if (experiment.getJoinDate() != null) {
-      experimentProviderUtil.updateJoinedExperiment(experiment);
-    } else {
-      createJoinEvent();
-      startService(new Intent(this, SyncService.class));
-    }
-
-
+    experimentProviderUtil.updateJoinedExperiment(experiment);
+    createJoinEvent();
+    startService(new Intent(this, SyncService.class));
   }
+
   /**
    * Creates a pacot for a newly registered experiment
    */
