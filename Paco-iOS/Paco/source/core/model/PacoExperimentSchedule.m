@@ -141,8 +141,8 @@
           self.byDayOfMonth,
           self.byDayOfWeek,
           self.dayOfMonth,
-          [self esmTimeString:self.esmStartHour],
-          [self esmTimeString:self.esmEndHour],
+          [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour],
+          [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour],
           self.esmFrequency,
           self.esmPeriodInDays,
           [self periodString],
@@ -224,8 +224,8 @@
   if (self.scheduleType == kPacoScheduleTypeESM) {
     [json appendFormat:@"frequency = %d,", self.esmFrequency];
     [json appendFormat:@"esmPeriod = %@,", [self periodString]];
-    [json appendFormat:@"startHour = %@,", [self esmTimeString:self.esmStartHour]];
-    [json appendFormat:@"endHour = %@,", [self esmTimeString:self.esmEndHour]];
+    [json appendFormat:@"startHour = %@,", [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour]];
+    [json appendFormat:@"endHour = %@,", [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour]];
     [json appendFormat:@"weekends = %@,", self.esmWeekends ? @"true" : @"false"];
   }
   
@@ -233,9 +233,9 @@
   for (int index=0; index < [self.times count]; index++) {
     long long milliSeconds = [[self.times objectAtIndex:index] longLongValue];
     if (0 == index) {
-      [json appendFormat:@"%@", [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds]];
+      [json appendFormat:@"%@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
     } else {
-      [json appendFormat:@", %@", [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds]];
+      [json appendFormat:@", %@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
     }
   }
   [json appendString:@"],"];
@@ -263,44 +263,18 @@
   return minutesPerDay;
 }
 
-
-+ (NSString*)timeStringFromMiliseconds:(long long)milliSeconds {
-  long seconds = milliSeconds / 1000;
-  long minutes = seconds / 60;
-  int hours = minutes / 60;
-  int minutesLeft = minutes - hours * 60;
-  NSString* minutesString = [NSString stringWithFormat:@"%d", minutesLeft];
-  if (minutesLeft < 10) {
-    minutesString = [NSString stringWithFormat:@"0%d", minutesLeft];
-  }
-  int noon = 12;
-  NSString* suffix = hours < noon ?  @"am" : @"pm";
-  if (hours > noon) {
-    hours -= noon;
-  }
-  NSString* timeString = [NSString stringWithFormat:@"%d:%@ %@", hours, minutesString, suffix];
-  return timeString;
-}
-
-- (NSString*)esmTimeString:(long long)milliSeconds {
-  if (![self isESMSchedule]) {
-    return nil;
-  }
-  return [PacoExperimentSchedule timeStringFromMiliseconds:milliSeconds];
-}
-
 - (NSString*)esmStartTimeString {
   if (![self isESMSchedule]) {
     return nil;
   }
-  return [NSString stringWithFormat:@"Start Time: %@", [self esmTimeString:self.esmStartHour]];
+  return [NSString stringWithFormat:@"Start Time: %@", [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour]];
 }
 
 - (NSString*)esmEndTimeString {
   if (![self isESMSchedule]) {
     return nil;
   }
-  return [NSString stringWithFormat:@"End  Time: %@", [self esmTimeString:self.esmEndHour]];
+  return [NSString stringWithFormat:@"End  Time: %@", [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour]];
 }
 
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date {

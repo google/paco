@@ -89,6 +89,23 @@
   return [[PacoDateUtility dateFormatterForAlertBody] stringFromDate:date];
 }
 
++ (NSString*)timeStringFromMilliseconds:(long long)milliSeconds {
+  long seconds = milliSeconds / 1000;
+  long minutes = seconds / 60;
+  int hours = minutes / 60;
+  int minutesLeft = minutes - hours * 60;
+  NSString* minutesString = [NSString stringWithFormat:@"%d", minutesLeft];
+  if (minutesLeft < 10) {
+    minutesString = [NSString stringWithFormat:@"0%d", minutesLeft];
+  }
+  int noon = 12;
+  NSString* suffix = hours < noon ?  @"am" : @"pm";
+  if (hours > noon) {
+    hours -= noon;
+  }
+  NSString* timeString = [NSString stringWithFormat:@"%d:%@%@", hours, minutesString, suffix];
+  return timeString;
+}
 
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
