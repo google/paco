@@ -36,6 +36,12 @@
 //The receiver must contain only NSDate objects
 - (NSString*)pacoDescriptionForDates;
 
+//The receiver must contain only NSNumber objects
+- (NSArray*)pacoSortedNumbers;
+
+//The receiver must contain only NSNumber objects
+- (BOOL)pacoIsNonDuplicate;
+
 @end
 
 

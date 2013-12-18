@@ -276,6 +276,14 @@ NSString *kCellIdText = @"text";
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
+    NSString* errorMsg = [self.schedule evaluateSchedule];
+    if (errorMsg) {
+      [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                  message:errorMsg
+                                 delegate:nil
+                        cancelButtonTitle:@"OK"
+                        otherButtonTitles:nil] show];
+    }
   }
   if ([self.schedule isESMSchedule]) {
     NSString* errorMsg = [self.schedule evaluateESMStartEndTime];

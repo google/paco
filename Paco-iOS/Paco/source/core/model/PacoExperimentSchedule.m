@@ -16,6 +16,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
+#import "NSMutableArray+Paco.h"
 
 @implementation PacoExperimentSchedule
 
@@ -298,4 +299,13 @@
   return nil;
 }
 
+- (NSString*)evaluateSchedule {
+  if (self.scheduleType == kPacoScheduleTypeDaily) {
+    self.times = [self.times pacoSortedNumbers];
+    if (![self.times pacoIsNonDuplicate]) {
+      return @"There shouldn't be duplicate signal times!";
+    }
+  }
+  return nil;
+}
 @end

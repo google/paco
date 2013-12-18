@@ -89,6 +89,38 @@
   return [self count] > 0;
 }
 
+- (NSArray*)pacoSortedNumbers {
+  NSMutableArray* arrayToSort = [NSMutableArray arrayWithArray:self];
+  [arrayToSort sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+    NSNumber* firstNum = (NSNumber*)obj1;
+    NSNumber* secondNum = (NSNumber*)obj2;
+    NSAssert([firstNum isKindOfClass:[NSNumber class]], @"firstNum should be NSNumber");
+    NSAssert([secondNum isKindOfClass:[NSNumber class]], @"secondNum should be NSNumber");
+    return[firstNum compare:secondNum];
+  }];
+  return [NSArray arrayWithArray:arrayToSort];
+}
+
+
+- (BOOL)pacoIsNonDuplicate {
+  NSArray* sortedArray = [self pacoSortedNumbers];
+  NSNumber* lastNum = nil;
+  BOOL nonDuplicate = YES;
+  for (NSNumber* num in sortedArray) {
+    if (!lastNum) {
+      lastNum = num;
+    } else {
+      if ([lastNum isEqualToNumber:num]) {
+        nonDuplicate = NO;
+        break;
+      }
+      lastNum = num;
+    }
+  }
+  return nonDuplicate;
+}
+
+
 - (NSString*)pacoDescriptionForDates {
   NSString* descript = @"(\n";
   for (id object in self) {
