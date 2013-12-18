@@ -25,6 +25,7 @@
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
+#import "PacoExperimentSchedule.h"
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
@@ -60,6 +61,16 @@
 }
 
 - (void)onJoin {
+  NSString* errorMsg = [[(PacoScheduleEditView*)self.view schedule] evaluateSchedule];
+  if (errorMsg) {
+    [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                message:errorMsg
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+    return;
+  }
+
   [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
                                                 andSchedule:self.definition.schedule];
   

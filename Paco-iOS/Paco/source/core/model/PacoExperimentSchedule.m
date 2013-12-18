@@ -289,21 +289,15 @@
   return startTime;
 }
 
-- (NSString*)evaluateESMStartEndTime {
-  if (![self isESMSchedule]) {
-    return nil;
-  }
-  if ([self minutesPerDayOfESM] <= 0) {
-    return @"Start Time must be earlier than End Time!";
-  }
-  return nil;
-}
-
 - (NSString*)evaluateSchedule {
   if (self.scheduleType == kPacoScheduleTypeDaily) {
     self.times = [self.times pacoSortedNumbers];
     if (![self.times pacoIsNonDuplicate]) {
       return @"There shouldn't be duplicate signal times!";
+    }
+  } else if (self.scheduleType == kPacoScheduleTypeESM) {
+    if ([self minutesPerDayOfESM] <= 0) {
+      return @"Start Time must be earlier than End Time!";
     }
   }
   return nil;

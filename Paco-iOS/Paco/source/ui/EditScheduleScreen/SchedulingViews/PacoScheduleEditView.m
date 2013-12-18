@@ -276,27 +276,21 @@ NSString *kCellIdText = @"text";
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
-    NSString* errorMsg = [self.schedule evaluateSchedule];
-    if (errorMsg) {
-      [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                  message:errorMsg
-                                 delegate:nil
-                        cancelButtonTitle:@"OK"
-                        otherButtonTitles:nil] show];
-    }
   }
-  if ([self.schedule isESMSchedule]) {
-    NSString* errorMsg = [self.schedule evaluateESMStartEndTime];
-    if (!errorMsg) {
-      [self.tableView dismissDatePicker];
-    } else {
-      [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                  message:errorMsg
-                                 delegate:nil
-                        cancelButtonTitle:@"OK"
-                        otherButtonTitles:nil] show];
-    }
+  
+  NSString* errorMsg = [self.schedule evaluateSchedule];
+  if (errorMsg) {
+    [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                message:errorMsg
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
   }
+  
+  if ([self.schedule isESMSchedule] && !errorMsg) {
+    [self.tableView dismissDatePicker];
+  }
+  
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;
     [self.joinButton sizeToFit];
