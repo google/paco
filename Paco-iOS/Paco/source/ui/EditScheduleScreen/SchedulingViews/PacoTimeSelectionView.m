@@ -129,7 +129,9 @@
     [addButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
     addButton.backgroundColor = [PacoColor pacoBlue];
     self.addButton = addButton;
-    [self addSubview:addButton];
+    //disable the ability to add more times for now, we may need it in the future.
+    //and a minus button is needed if we enable the add button
+    //[self addSubview:addButton];
     [self.addButton sizeToFit];
     [addButton addTarget:self action:@selector(onAddTime) forControlEvents:UIControlEventTouchUpInside];
 
