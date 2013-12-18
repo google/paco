@@ -677,6 +677,9 @@
   if ([experiment isScheduledExperiment]) {
     //clear all scheduled notifications and notifications in the tray for the stopped experiment
     [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+    if ([experiment.schedule isESMSchedule]) {
+      [experiment.definition clearEsmScheduleList];
+    }
   }
   //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
   //is called, since we may need to store missing survey events, which needs the experiment from model
