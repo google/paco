@@ -249,6 +249,10 @@
   if ([dataClassName isEqualToString:@"__NSArrayI"]) {
     dataClassName = @"NSArray";
   }
+  if ([dataClass isSubclassOfClass:[NSArray class]]) {
+    dataClassName = @"NSArray";
+  }
+  
   if ([dataClassName isEqualToString:@"__NSCFBoolean"]) {
     dataClassName = @"NSNumber";
   }
