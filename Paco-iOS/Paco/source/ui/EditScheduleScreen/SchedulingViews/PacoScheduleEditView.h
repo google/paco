@@ -15,11 +15,11 @@
 
 #import <UIKit/UIKit.h>
 
-@class PacoExperimentDefinition;
+@class PacoExperimentSchedule;
 @class PacoTableView;
 
 @interface PacoScheduleEditView : UIView
 @property (nonatomic, retain) UIButton *joinButton;
-@property (nonatomic, retain) PacoExperimentDefinition *definition;
+@property (nonatomic, retain) PacoExperimentSchedule* schedule;
 @property (nonatomic, retain) PacoTableView *tableView;
 @end

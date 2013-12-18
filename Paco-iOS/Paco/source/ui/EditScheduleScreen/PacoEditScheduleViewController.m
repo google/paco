@@ -47,17 +47,16 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
 
-  PacoScheduleEditView *schedule = [[PacoScheduleEditView alloc] initWithFrame:CGRectZero];
-  [schedule.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
-  self.view = schedule;
-
-  schedule.definition = self.definition;
+  PacoScheduleEditView* editView = [[PacoScheduleEditView alloc] initWithFrame:CGRectZero];
+  [editView.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
+  self.view = editView;
+  editView.schedule = self.definition.schedule;
 }
 
 - (void)setDefinition:(PacoExperimentDefinition *)definition {
   _definition = definition;
   self.title = definition.title;
-  [(PacoScheduleEditView *)self.view setDefinition:definition];
+  [(PacoScheduleEditView *)self.view setSchedule:_definition.schedule];
 }
 
 - (void)onJoin {

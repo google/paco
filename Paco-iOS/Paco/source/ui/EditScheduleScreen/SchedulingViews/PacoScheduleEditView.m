@@ -31,7 +31,6 @@
 #import "PacoTableTextCell.h"
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
-#import "PacoExperimentDefinition.h"
 #import "PacoFont.h"
 #import "PacoClient.h"
 #import "PacoTimeEditView.h"
@@ -53,7 +52,7 @@ NSString *kCellIdText = @"text";
 @end
 
 @implementation PacoScheduleEditView
-@synthesize definition = _definition;
+@synthesize schedule = _schedule;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -90,9 +89,9 @@ NSString *kCellIdText = @"text";
   return self;
 }
 
-- (void)setDefinition:(PacoExperimentDefinition *)definition {
-  _definition = definition;
-  _tableView.data = [[self class] dataFromExperimentSchedule:_definition.schedule];
+- (void)setSchedule:(PacoExperimentSchedule *)schedule {
+  _schedule = schedule;
+  _tableView.data = [[self class] dataFromExperimentSchedule:_schedule];
   [self setNeedsLayout];
 }
 
@@ -167,7 +166,7 @@ NSString *kCellIdText = @"text";
             forReuseId:(NSString *)reuseId {
   //disable user to modify any schedule for now
   cell.userInteractionEnabled = NO;
-  switch (self.definition.schedule.scheduleType) {
+  switch (self.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
@@ -277,8 +276,8 @@ NSString *kCellIdText = @"text";
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
   }
-  if ([self.definition.schedule isESMSchedule]) {
-    NSString* errorMsg = [self.definition.schedule evaluateESMStartEndTime];
+  if ([self.schedule isESMSchedule]) {
+    NSString* errorMsg = [self.schedule evaluateESMStartEndTime];
     if (!errorMsg) {
       [self.tableView dismissDatePicker];
     } else {
@@ -298,7 +297,7 @@ NSString *kCellIdText = @"text";
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
 NSLog(@"TODO: implement schedule editing hookups");
-  switch (self.definition.schedule.scheduleType) {
+  switch (self.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         assert([rowData isKindOfClass:[NSNumber class]]);
@@ -340,9 +339,9 @@ NSLog(@"TODO: implement schedule editing hookups");
       } else if ([self isCellType:kCellIdESMPeriod reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdIncludeWeekends reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
-        self.definition.schedule.esmStartHour = [rowData longLongValue];
+        self.schedule.esmStartHour = [rowData longLongValue];
       } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
-        self.definition.schedule.esmEndHour = [rowData longLongValue];
+        self.schedule.esmEndHour = [rowData longLongValue];
       }else {
         assert(0);
       }
