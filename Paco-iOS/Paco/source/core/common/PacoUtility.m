@@ -32,7 +32,7 @@
   NSMutableArray* randomNumberList = [NSMutableArray array];
   int duration = rangeNumber;
   
-  if (minBuffer > 0) {
+  if (minBuffer > 0 && duration >= minBuffer) {
     int maxNumOfIntegers = duration/minBuffer + 1;
     if (maxNumOfIntegers <= numOfIntegers) {
       for (int index=0; index<maxNumOfIntegers; index++) {
@@ -44,14 +44,19 @@
   }
   
   int NUM_OF_BUCKETS = numOfIntegers;
+  int MIN_BUFFER = minBuffer;
+  if (MIN_BUFFER > 0 && duration < MIN_BUFFER) {
+    NUM_OF_BUCKETS = 1;
+    MIN_BUFFER = 0;
+  }
   NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
   int DURATION_PER_BUCKET = duration/NUM_OF_BUCKETS;
   
   int lowerBound = 0;
   for (int bucketIndex = 1; bucketIndex <= NUM_OF_BUCKETS; ++bucketIndex) {
     int upperBound = DURATION_PER_BUCKET * bucketIndex;
-    //adjust upperBound according to minBuffer
-    int upperBoundByMinBuffer = duration - minBuffer * (NUM_OF_BUCKETS - bucketIndex);
+    //adjust upperBound according to MIN_BUFFER
+    int upperBoundByMinBuffer = duration - MIN_BUFFER * (NUM_OF_BUCKETS - bucketIndex);
     if (upperBound > upperBoundByMinBuffer) {
       upperBound = upperBoundByMinBuffer;
     }
@@ -61,12 +66,12 @@
     
     //prepare lowerBound and upperBound for generating next random number
     lowerBound = upperBound;
-    int lowestBoundForNextRandomNumber = randomNum + minBuffer;
+    int lowestBoundForNextRandomNumber = randomNum + MIN_BUFFER;
     if (lowerBound < lowestBoundForNextRandomNumber) {
       lowerBound = lowestBoundForNextRandomNumber;
     }
   }
-  NSAssert(numOfIntegers == [randomNumberList count], @"should generate numOfIntegers");
+  NSAssert(NUM_OF_BUCKETS == [randomNumberList count], @"should generate NUM_OF_BUCKETS");
   return randomNumberList;
 }
 
