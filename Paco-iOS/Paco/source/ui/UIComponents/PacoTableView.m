@@ -216,6 +216,20 @@
   }
 }
 
+- (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell {
+  self.footer = picker;
+  NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+  [self.tableView scrollToRowAtIndexPath:indexPath
+                        atScrollPosition:UITableViewScrollPositionBottom
+                                animated:YES];
+}
+
+- (void)dismissDatePicker {
+  if (self.footer && [self.footer isKindOfClass:[UIDatePicker class]]) {
+    self.footer = nil;
+  }
+}
+
 #pragma mark - Private
 
 - (NSString *)keyForDataClass:(Class)dataClass stringKey:(NSString *)stringKey {

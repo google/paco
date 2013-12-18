@@ -17,10 +17,14 @@
 
 #import "PacoTableViewDelegate.h"
 
+@class PacoTableView;
+
 @interface PacoTableCell : UITableViewCell
 
 @property (nonatomic, copy) NSString *reuseId;
 @property (nonatomic, retain) id rowData;
 @property (nonatomic) __weak id<PacoTableViewDelegate> tableDelegate;
+
+- (PacoTableView*)pacoTableView;
 
 @end

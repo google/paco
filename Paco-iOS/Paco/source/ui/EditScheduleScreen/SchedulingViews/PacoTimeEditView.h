@@ -13,31 +13,12 @@
  * limitations under the License.
  */
 
+#import <UIKit/UIKit.h>
 #import "PacoTableCell.h"
-#import "PacoTableView.h"
 
-@implementation PacoTableCell
+@interface PacoTimeEditView : PacoTableCell
 
-
-- (id)initWithFrame:(CGRect)frame {
-  assert(0);
-  return nil;
-}
-
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-  self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-  if (self) {
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
-  }
-  return self;
-}
-
-- (PacoTableView*)pacoTableView {
-  UIView* view = [self superview];
-  while (view && ![view isKindOfClass:[PacoTableView class]]) {
-    view = [view superview];
-  }
-  return (PacoTableView*)view;
-}
+@property(nonatomic, copy) NSString* title;
+@property(nonatomic, retain) NSNumber* time;
 
 @end
