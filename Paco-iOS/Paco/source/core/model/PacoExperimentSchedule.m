@@ -253,13 +253,13 @@
   return self.scheduleType == kPacoScheduleTypeESM;
 }
 
-- (NSUInteger)minutesPerDayOfESM {
+- (NSInteger)minutesPerDayOfESM {
   if (![self isESMSchedule]) {
     return 0;
   }
-  NSUInteger millisecondsPerDay = self.esmEndHour - self.esmStartHour;
-  NSUInteger secondsPerDay = millisecondsPerDay / 1000.0;
-  NSUInteger minutesPerDay = secondsPerDay / 60.0;
+  long long millisecondsPerDay = self.esmEndHour - self.esmStartHour;
+  long secondsPerDay = millisecondsPerDay / 1000.0;
+  NSInteger minutesPerDay = secondsPerDay / 60.0;
   return minutesPerDay;
 }
 
@@ -286,6 +286,16 @@
   NSDate* startTime = [midnight dateByAddingTimeInterval:intervalFromMidnight];
   NSAssert(startTime, @"startTime should be valid!");
   return startTime;
+}
+
+- (NSString*)evaluateESMStartEndTime {
+  if (![self isESMSchedule]) {
+    return nil;
+  }
+  if ([self minutesPerDayOfESM] <= 0) {
+    return @"Start Time must be earlier than End Time!";
+  }
+  return nil;
 }
 
 @end

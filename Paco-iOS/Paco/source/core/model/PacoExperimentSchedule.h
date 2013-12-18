@@ -76,7 +76,9 @@ typedef enum {
 - (NSString*)esmStartTimeString;
 - (NSString*)esmEndTimeString;
 - (BOOL)isESMSchedule;
-- (NSUInteger)minutesPerDayOfESM;
+- (NSInteger)minutesPerDayOfESM;
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date;
+
+- (NSString*)evaluateESMStartEndTime;
 
 @end

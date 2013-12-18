@@ -278,7 +278,16 @@ NSString *kCellIdText = @"text";
     [timeSelect finishTimeSelection];
   }
   if ([self.definition.schedule isESMSchedule]) {
-    [self.tableView dismissDatePicker];
+    NSString* errorMsg = [self.definition.schedule evaluateESMStartEndTime];
+    if (!errorMsg) {
+      [self.tableView dismissDatePicker];
+    } else {
+      [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                  message:errorMsg
+                                 delegate:nil
+                        cancelButtonTitle:@"OK"
+                        otherButtonTitles:nil] show];
+    }
   }
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;
