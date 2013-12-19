@@ -152,7 +152,7 @@
   }
   
   PacoConsentViewController *consent =
-      [PacoConsentViewController controllerWithExperiment:self.experiment];
+      [PacoConsentViewController controllerWithDefinition:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
 }
 

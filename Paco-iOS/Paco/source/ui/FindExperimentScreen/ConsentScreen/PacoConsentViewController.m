@@ -22,19 +22,21 @@
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoFont.h"
+#import "PacoExperimentSchedule.h"
+#import "PacoAlertView.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
-@property (nonatomic, retain) PacoExperimentDefinition *experiment;
+@property (nonatomic, retain) PacoExperimentDefinition* definition;
 @end
 
 @implementation PacoConsentViewController
-@synthesize experiment = _experiment;
+@synthesize definition = _definition;
 
-+ (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment {
++ (PacoConsentViewController*)controllerWithDefinition:(PacoExperimentDefinition *)definition {
   PacoConsentViewController* controller =
       [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
-  controller.experiment = experiment;
-  controller.navigationItem.title = experiment.title;
+  controller.definition = definition;
+  controller.navigationItem.title = definition.title;
   controller.navigationItem.hidesBackButton = NO;
   return controller;
 }
@@ -71,7 +73,7 @@
   expViewText.backgroundColor = [UIColor whiteColor];
   expViewText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   expViewText.textColor = [PacoColor pacoDarkBlue];
-  expViewText.text = self.experiment.informedConsentForm;
+  expViewText.text = self.definition.informedConsentForm;
   expViewText.editable = NO;
   [self.view addSubview:expViewText];
 
@@ -90,9 +92,24 @@
 }
 
 - (void)onAccept {
-  PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-  edit.definition = self.experiment;
-  [self.navigationController pushViewController:edit animated:YES];
+  if (!self.definition.schedule.userEditable) {
+    [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
+                                                  andSchedule:self.definition.schedule];
+    
+    NSString* title = @"Congratulations!";
+    NSString* message = @"You've successfully joined this experiment!";
+    [PacoAlertView showAlertWithTitle:title
+                              message:message
+                         dismissBlock:^(NSInteger buttonIndex) {
+                           [self.navigationController popToRootViewControllerAnimated:YES];
+                         }
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil];
+  } else {
+    PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
+    edit.definition = self.definition;
+    [self.navigationController pushViewController:edit animated:YES];
+  }
 }
 
 - (void)didReceiveMemoryWarning {
