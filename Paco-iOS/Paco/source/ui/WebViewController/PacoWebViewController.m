@@ -15,45 +15,26 @@
 
 #import "PacoWebViewController.h"
 
-@interface PacoWebViewController ()
-
-@end
-
 @implementation PacoWebViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-
-    }
-    return self;
++ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName {
+  PacoWebViewController* controller = [[PacoWebViewController alloc] initWithNibName:nil bundle:nil];
+  controller.title = title;
+  [controller loadWebViewWithHTML:htmlName];
+  return controller;
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
   [super viewDidLoad];
-  if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
-    self.edgesForExtendedLayout = UIRectEdgeNone;
-  }
+  self.edgesForExtendedLayout = UIRectEdgeNone;
 }
 
-- (void) setNavigationTitle:(NSString *)title {
-  self.navigationItem.title = @"User Guide";
-  self.navigationItem.hidesBackButton = NO;
-}
-
-- (void)loadWebViewWithHTML:(NSString *)htmlStr {
-  NSString *htmlFile = [[NSBundle mainBundle] pathForResource:htmlStr ofType:@"html"];
+- (void)loadWebViewWithHTML:(NSString*)htmlName {
+  NSString *htmlFile = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
   UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 65)];
   [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlFile]]];
-  [self.view addSubview:webView];
+  self.view = webView;
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 @end

@@ -43,7 +43,7 @@
 
       UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
       [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
-      self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:infoButton];
+      self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:infoButton];
     }
     return self;
 }
@@ -179,19 +179,23 @@
 }
 
 - (void)onInfoSelect:(UIButton *)sender {
-  PacoInfoView* infoView = [[PacoInfoView alloc]initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height)];
-  [infoView.aboutPacoBtn addTarget:self action:@selector(openAboutPaco:) forControlEvents:UIControlEventTouchUpInside];
-  [[[UIApplication sharedApplication] keyWindow] addSubview:infoView];
+  NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString*)kCFBundleVersionKey];
+  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:version
+                                                           delegate:self
+                                                  cancelButtonTitle:@"Close"
+                                             destructiveButtonTitle:nil
+                                                  otherButtonTitles:@"About Paco", nil];
+  [actionSheet showInView:self.view];
 }
 
-- (void)openAboutPaco:(UIButton *)sender {
-  [self loadWebView:@"About Paco" andHTML:@"welcome_paco"];
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if (buttonIndex == 0) {
+    [self loadWebView:@"About Paco" andHTML:@"welcome_paco"];
+  }
 }
 
-- (void)loadWebView:(NSString *)titleString andHTML:(NSString *)htmlString {
-  PacoWebViewController* webViewController =  [[PacoWebViewController alloc]init];
-  [webViewController setNavigationTitle:titleString];
-  [webViewController loadWebViewWithHTML:htmlString];
+- (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
+  PacoWebViewController* webViewController =  [PacoWebViewController controllerWithTitle:title andHtml:htmlName];
   [self.navigationController pushViewController:webViewController animated:YES];
 }
 

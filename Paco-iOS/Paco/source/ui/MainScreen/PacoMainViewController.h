@@ -15,6 +15,6 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PacoMainViewController : UIViewController
+@interface PacoMainViewController : UIViewController <UIActionSheetDelegate>
 
 @end

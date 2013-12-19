@@ -17,7 +17,6 @@
 
 @interface PacoWebViewController : UIViewController
 
-- (void) setNavigationTitle:(NSString *)title;
-- (void)loadWebViewWithHTML:(NSString *)htmlStr;
++ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName;
 
 @end
