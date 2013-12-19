@@ -178,7 +178,7 @@
 
 - (void)onInfoSelect:(UIButton *)sender {
   NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString*)kCFBundleVersionKey];
-  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:version
+  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"Version %@",version]
                                                            delegate:self
                                                   cancelButtonTitle:@"Close"
                                              destructiveButtonTitle:nil

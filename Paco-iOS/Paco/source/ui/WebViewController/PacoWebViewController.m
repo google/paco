@@ -31,7 +31,10 @@
 
 - (void)loadWebViewWithHTML:(NSString*)htmlName {
   NSString *htmlFile = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
-  UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 65)];
+  UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
+                                                                   0,
+                                                                   self.view.frame.size.width,
+                                                                   self.view.frame.size.height)];
   [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlFile]]];
   self.view = webView;
 }
