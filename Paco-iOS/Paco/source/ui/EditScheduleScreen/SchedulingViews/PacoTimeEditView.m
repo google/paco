@@ -18,6 +18,7 @@
 #import "PacoScheduleEditView.h"
 #import "PacoLayout.h"
 #import "PacoFont.h"
+#import "PacoDateUtility.h"
 
 @interface PacoTimeEditView ()
 
@@ -71,24 +72,8 @@
     return;
   }
   _time = time;
-  self.timeLabel.text = [self localAMPMTimeString:_time];
+  self.timeLabel.text = [PacoDateUtility timeStringAMPMFromMilliseconds:[_time longLongValue]];
   [self.timeLabel sizeToFit];
-}
-
-- (NSString *)localAMPMTimeString:(NSNumber*)time {
-  double hourInMS = 1000 * 60 * 60;
-  double minInMS = 1000 * 60;
-  double valueMs = [time longLongValue];
-  double hours = valueMs / hourInMS;
-  int hrs = floorf(hours);
-  double leftover = valueMs - (hrs * hourInMS);
-  double minutes = leftover / minInMS;
-  int mins = floorf(minutes);
-  BOOL isAM = hrs < 12;
-  hrs %= 12;
-  if (hrs == 0)
-    hrs = 12;
-  return [NSString stringWithFormat:@"%2d:%02d %@", hrs, mins, isAM ? @"AM" : @"PM"];
 }
 
 - (void)onEditTime:(id)sender {

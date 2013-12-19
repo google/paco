@@ -19,6 +19,7 @@
 #import "PacoLayout.h"
 #import "PacoDateUtility.h"
 #import "PacoTableView.h"
+#import "PacoDateUtility.h"
 
 @interface PacoTimeSelectionView ()
 @property (nonatomic, retain) NSMutableArray *timePickers;
@@ -28,7 +29,6 @@
 @property (nonatomic, retain) UIButton *addButton;
 @property (nonatomic, assign) NSInteger editIndex;
 
-- (NSString *)local24hrTimeString:(NSNumber *)time;
 @end
 
 @implementation PacoTimeSelectionView
@@ -47,8 +47,10 @@
 
 - (void)updateTime:(UIButton *)button {
   NSNumber *time = [NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)];
-  [button setTitle:[self localAMPMTimeString:time] forState:UIControlStateNormal];
-  [button setTitle:[self localAMPMTimeString:time] forState:UIControlStateHighlighted];
+  [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
+          forState:UIControlStateNormal];
+  [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
+          forState:UIControlStateHighlighted];
   if (self.editIndex != NSNotFound) {
     [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
   }
@@ -146,34 +148,6 @@
   return self;
 }
 
-- (NSString *)local24hrTimeString:(NSNumber *)time {
-  double hourInMS = 1000 * 60 * 60;
-  double minInMS = 1000 * 60;
-  double valueMs = [time longLongValue];
-  double hours = valueMs / hourInMS;
-  int hrs = floorf(hours);
-  double leftover = valueMs - (hrs * hourInMS);
-  double minutes = leftover / minInMS;
-  int mins = floorf(minutes);
-  return [NSString stringWithFormat:@"%02d:%02d", hrs, mins];
-}
-
-- (NSString *)localAMPMTimeString:(NSNumber *)time {
-  double hourInMS = 1000 * 60 * 60;
-  double minInMS = 1000 * 60;
-  double valueMs = [time longLongValue];
-  double hours = valueMs / hourInMS;
-  int hrs = floorf(hours);
-  double leftover = valueMs - (hrs * hourInMS);
-  double minutes = leftover / minInMS;
-  int mins = floorf(minutes);
-  BOOL isAM = hrs < 12;
-  hrs %= 12;
-  if (hrs == 0)
-    hrs = 12;
-  return [NSString stringWithFormat:@"%2d:%02d %@", hrs, mins, isAM ? @"AM" : @"PM"];
-}
-
 - (void)rebuildTimes {
   [self.timeEditButtons removeAllObjects];
   [self.timePickers removeAllObjects];
@@ -191,8 +165,10 @@
   for (NSNumber *time in self.times) {
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
     button.backgroundColor = [PacoColor pacoBlue];
-    [button setTitle:[self localAMPMTimeString:time] forState:UIControlStateNormal];
-    [button setTitle:[self local24hrTimeString:time] forState:UIControlStateHighlighted];
+    [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
+            forState:UIControlStateNormal];
+    [button setTitle:[PacoDateUtility timeString24hrFromMilliseconds:[time longLongValue]]
+            forState:UIControlStateHighlighted];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
 

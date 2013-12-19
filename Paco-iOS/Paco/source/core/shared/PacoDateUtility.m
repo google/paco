@@ -107,6 +107,32 @@
   return timeString;
 }
 
++ (NSString*)timeString24hrFromMilliseconds:(long long)milliSeconds {
+  double hourInMS = 1000 * 60 * 60;
+  double minInMS = 1000 * 60;
+  double hours = milliSeconds / hourInMS;
+  int hrs = floorf(hours);
+  double leftover = milliSeconds - (hrs * hourInMS);
+  double minutes = leftover / minInMS;
+  int mins = floorf(minutes);
+  return [NSString stringWithFormat:@"%02d:%02d", hrs, mins];
+}
+
++ (NSString*)timeStringAMPMFromMilliseconds:(long long)milliSeconds {
+  double hourInMS = 1000 * 60 * 60;
+  double minInMS = 1000 * 60;
+  double hours = milliSeconds / hourInMS;
+  int hrs = floorf(hours);
+  double leftover = milliSeconds - (hrs * hourInMS);
+  double minutes = leftover / minInMS;
+  int mins = floorf(minutes);
+  BOOL isAM = hrs < 12;
+  hrs %= 12;
+  if (hrs == 0)
+    hrs = 12;
+  return [NSString stringWithFormat:@"%2d:%02d %@", hrs, mins, isAM ? @"AM" : @"PM"];
+}
+
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSUInteger day = [calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSYearCalendarUnit forDate:date];
