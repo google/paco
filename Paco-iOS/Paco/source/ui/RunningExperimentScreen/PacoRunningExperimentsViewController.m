@@ -129,12 +129,13 @@
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperiment class]]) { //YMZ: is this necessary?
     self.selectedExperiment = rowData;
+    //TODO: @"Edit Schedule",@"Explore Data"
     UIAlertView *alert =
       [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Modify %@", self.selectedExperiment.definition.title]
                                  message:nil
                                 delegate:self
                        cancelButtonTitle:@"Cancel"
-                       otherButtonTitles:@"Participate", @"Edit Schedule", @"Stop Experiment", @"Explore Data", nil];
+                       otherButtonTitles:@"Participate", @"Stop Experiment", nil];
     [alert show];
   }else{
     self.selectedExperiment = nil;
@@ -208,13 +209,10 @@
       [self showParticipateController];
       break;
       
-    case 2: // Edit
-      break;
-    case 3: // Stop
+    case 2: // Stop
       [self showStopConfirmAlert];
       break;
-    case 4: // Explore
-      break;
+      
     default:
       NSAssert(NO, @"Error!");
       break;
