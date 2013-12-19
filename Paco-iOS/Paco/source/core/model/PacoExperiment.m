@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 #import "PacoExperiment.h"
-#import "PacoEvent.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoModel.h"
@@ -28,30 +27,16 @@
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperiment:%p - "
-          @"definitions=%@ "
-          @"events=%@ "
-          @"lastEventsQueryTime=%lld>",
+          @"definitions=%@>",
           self,
-          self.definition,
-          self.events,
-          self.lastEventQueryTime];
+          self.definition];
 }
 
 - (id)serializeToJSON {
   id  jsonSchedule = [self.schedule serializeToJSON];
-  NSMutableArray *pacoEvents = [NSMutableArray array];
-  for (PacoEvent *event in self.events) {
-    if (!event.jsonObject) {
-      event.jsonObject = [event generateJsonObject];
-    }
-    assert(event.jsonObject);
-    [pacoEvents addObject:event.jsonObject];
-  }
   return [NSDictionary dictionaryWithObjectsAndKeys:
           self.definition.experimentId, @"experimentId",
           self.instanceId, @"instanceId",
-          [NSNumber numberWithLongLong:self.lastEventQueryTime], @"lastEventQueryTime",
-          pacoEvents, @"events",
           jsonSchedule, @"schedule",
           nil];
 }
@@ -61,19 +46,8 @@
   NSDictionary *map = json;
   self.instanceId = [map objectForKey:@"instanceId"];
   
-  NSNumber *timestamp = [map objectForKey:@"lastEventQueryTime"];
-  self.lastEventQueryTime = [timestamp longLongValue];
-  
   self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:[map objectForKey:@"schedule"]];
   
-  NSMutableArray *pacoEvents = [NSMutableArray array];
-  NSArray *eventJSONs = [map objectForKey:@"events"];
-  for (id eventJSON in eventJSONs) {
-    PacoEvent *event = [PacoEvent pacoEventFromJSON:eventJSON];
-    assert(event);
-    [pacoEvents addObject:event];
-  }
-  self.events = pacoEvents;
   self.jsonObject = json;
   
   NSString *experimentId = [map objectForKey:@"experimentId"];

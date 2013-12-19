@@ -14,6 +14,7 @@
  */
 
 #import "PacoTableCell.h"
+#import "PacoTableView.h"
 
 @implementation PacoTableCell
 
@@ -29,6 +30,14 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
   }
   return self;
+}
+
+- (PacoTableView*)pacoTableView {
+  UIView* view = [self superview];
+  while (view && ![view isKindOfClass:[PacoTableView class]]) {
+    view = [view superview];
+  }
+  return (PacoTableView*)view;
 }
 
 @end

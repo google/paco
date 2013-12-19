@@ -15,7 +15,7 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol PacoTableViewDelegate
+@protocol PacoTableViewDelegate <NSObject>
  @optional
 - (void)initializeCell:(UITableViewCell *)cell
               withData:(id)rowData
@@ -24,6 +24,8 @@
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId;
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId;
+
+- (void)didReceiveTapButNoCellSelected;
 
 - (void)reloadTable;
 

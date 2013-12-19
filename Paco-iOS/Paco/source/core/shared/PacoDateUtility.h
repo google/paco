@@ -26,6 +26,11 @@
 
 + (NSString*)stringForAlertBodyFromDate:(NSDate*)date;
 
+//10:00am, 5:00pm
++ (NSString*)timeStringFromMilliseconds:(long long)milliSeconds;
++ (NSString*)timeString24hrFromMilliseconds:(long long)milliSeconds;
++ (NSString*)timeStringAMPMFromMilliseconds:(long long)milliSeconds;
+
 + (int)dayIndexOfDate:(NSDate *)date;
 + (int)weekdayIndexOfDate:(NSDate *)date;
 + (int)weekOfYearIndexOfDate:(NSDate *)date;

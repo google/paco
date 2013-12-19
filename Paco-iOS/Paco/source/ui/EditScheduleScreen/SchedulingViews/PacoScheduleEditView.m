@@ -31,9 +31,9 @@
 #import "PacoTableTextCell.h"
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
-#import "PacoExperimentDefinition.h"
 #import "PacoFont.h"
 #import "PacoClient.h"
+#import "PacoTimeEditView.h"
 
 NSString *kCellIdRepeat = @"repeat";
 NSString *kCellIdSignalTimes = @"times";
@@ -41,10 +41,8 @@ NSString *kCellIdDaysOfWeek = @"days";
 NSString *kCellIdByDaysOfWeekMonth = @"byDayOfWeek?";
 NSString *kCellIdWhichFirstDayOfMonth = @"1st;2nd;3rd;4th;5th";
 NSString *kCellIdWhichDayOfMonth = @"1-31";
-NSString *kCellIdESMFrequency = @"esm freq";
 NSString *kCellIdESMStartTime = @"esm start time";
 NSString *kCellIdESMEndTime = @"esm end time";
-NSString *kCellIdESMPeriod = @"esm period";
 NSString *kCellIdIncludeWeekends = @"include weekends";
 NSString *kCellIdText = @"text";
 
@@ -52,7 +50,7 @@ NSString *kCellIdText = @"text";
 @end
 
 @implementation PacoScheduleEditView
-@synthesize experiment = _experiment;
+@synthesize schedule = _schedule;
 
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
@@ -79,19 +77,17 @@ NSString *kCellIdText = @"text";
     [_tableView registerClass:[PacoByWeekOrMonthSelectionView class] forStringKey:kCellIdByDaysOfWeekMonth dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoFirstDayOfMonthSelectionView class] forStringKey:kCellIdWhichFirstDayOfMonth dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoDayOfMonthSelectionView class] forStringKey:kCellIdWhichDayOfMonth dataClass:[NSNumber class]];
-    [_tableView registerClass:[PacoESMFrequencySelectionView class] forStringKey:kCellIdESMFrequency dataClass:[NSNumber class]];
-    [_tableView registerClass:[PacoESMPeriodSelectionView class] forStringKey:kCellIdESMPeriod dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoESMIncludeWeekendsSelectionView class] forStringKey:kCellIdIncludeWeekends dataClass:[NSNumber class]];
-    [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdESMStartTime dataClass:[NSString class]];
-    [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdESMEndTime dataClass:[NSString class]];
+    [_tableView registerClass:[PacoTimeEditView class] forStringKey:kCellIdESMStartTime dataClass:[NSNumber class]];
+    [_tableView registerClass:[PacoTimeEditView class] forStringKey:kCellIdESMEndTime dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdText dataClass:[NSString class]];
   }
   return self;
 }
 
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  _tableView.data = [[self class] dataFromExperimentSchedule:_experiment.schedule];
+- (void)setSchedule:(PacoExperimentSchedule *)schedule {
+  _schedule = schedule;
+  _tableView.data = [[self class] dataFromExperimentSchedule:_schedule];
   [self setNeedsLayout];
 }
 
@@ -108,7 +104,6 @@ NSString *kCellIdText = @"text";
   switch (schedule.scheduleType) {
   case kPacoScheduleTypeDaily:
     return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
                 [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
                 nil];
   case kPacoScheduleTypeWeekly:
@@ -130,11 +125,8 @@ NSString *kCellIdText = @"text";
                 nil];
   case kPacoScheduleTypeESM:
     return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdESMPeriod, [NSNumber numberWithUnsignedInt:(1 << schedule.esmPeriod)], nil],
-                [NSArray arrayWithObjects:kCellIdESMFrequency, [NSNumber numberWithInt:schedule.esmFrequency], nil],
-                [NSArray arrayWithObjects:kCellIdIncludeWeekends, [NSNumber numberWithBool:schedule.esmWeekends], nil],
-                [NSArray arrayWithObjects:kCellIdESMStartTime, [schedule esmStartTimeString], nil],
-                [NSArray arrayWithObjects:kCellIdESMEndTime, [schedule esmEndTimeString], nil],
+                [NSArray arrayWithObjects:kCellIdESMStartTime, [NSNumber numberWithLongLong:schedule.esmStartHour], nil],
+                [NSArray arrayWithObjects:kCellIdESMEndTime, [NSNumber numberWithLongLong:schedule.esmEndHour], nil],
                 nil];
   case kPacoScheduleTypeSelfReport:
     return [NSArray arrayWithObjects:
@@ -166,15 +158,12 @@ NSString *kCellIdText = @"text";
             forReuseId:(NSString *)reuseId {
   //disable user to modify any schedule for now
   cell.userInteractionEnabled = NO;
-  switch (self.experiment.schedule.scheduleType) {
+  switch (self.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-        PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
-        cellView.repeatStyle = kPacoScheduleRepeatDays;
-        cellView.repeatNumberValue = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
+        cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
@@ -230,22 +219,17 @@ NSString *kCellIdText = @"text";
     }
     break;
   case kPacoScheduleTypeESM: {
-      if ([self isCellType:kCellIdESMFrequency reuseId:reuseId]) {
-        PacoESMFrequencySelectionView *cellView = (PacoESMFrequencySelectionView *)cell;
-        cellView.value = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdESMPeriod reuseId:reuseId]) {
-        PacoESMPeriodSelectionView *cellView = (PacoESMPeriodSelectionView *)cell;
-        cellView.bitFlags = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdIncludeWeekends reuseId:reuseId]) {
-        PacoESMIncludeWeekendsSelectionView *cellView = (PacoESMIncludeWeekendsSelectionView *)cell;
-        cellView.bitFlags = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
-        PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
-        cellView.textLabel.text = [self.experiment.schedule esmStartTimeString];
-      } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
-        PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
-        cellView.textLabel.text = [self.experiment.schedule esmEndTimeString];
-      }else {
+      if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
+        PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.time = [self realRowData:rowData];
+        cellView.title = @"Start Time: ";
+        cell.userInteractionEnabled = YES;
+      } else if([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
+        PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.time = [self realRowData:rowData];
+        cellView.title = @"End Time: ";
+        cell.userInteractionEnabled = YES;
+      } else {
         assert(0);
       }
     }
@@ -266,26 +250,46 @@ NSString *kCellIdText = @"text";
 
 }
 
+- (void)handleUserTap {
+  NSString* errorMsg = [self.schedule evaluateSchedule];
+  if (errorMsg) {
+    [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                message:errorMsg
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  }
+  [self.tableView dismissDatePicker];
+  
+  if (self.tableView.footer == nil) {
+    self.tableView.footer = self.joinButton;
+    [self.joinButton sizeToFit];
+    [self setNeedsLayout];
+  }
+}
+
+
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   // When the time picker is active a cell selection triggers dismissal of the time picker.
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
     [timeSelect finishTimeSelection];
-    if (self.tableView.footer == nil) {
-      self.tableView.footer = self.joinButton;
-      [self.joinButton sizeToFit];
-    }
-    [self setNeedsLayout];
+  }
+  [self handleUserTap];
+}
+
+- (void)didReceiveTapButNoCellSelected {
+  if ([self.schedule isESMSchedule]) {
+    [self handleUserTap];
   }
 }
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
 NSLog(@"TODO: implement schedule editing hookups");
-  switch (self.experiment.schedule.scheduleType) {
+  switch (self.schedule.scheduleType) {
   case kPacoScheduleTypeDaily: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-        assert([rowData isKindOfClass:[NSNumber class]]);
-      } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        self.schedule.times = rowData;
       } else {
         assert(0);
       }
@@ -319,11 +323,10 @@ NSLog(@"TODO: implement schedule editing hookups");
     }
     break;
   case kPacoScheduleTypeESM: {
-      if ([self isCellType:kCellIdESMFrequency reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdESMPeriod reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdIncludeWeekends reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
+      if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
+        self.schedule.esmStartHour = [rowData longLongValue];
       } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
+        self.schedule.esmEndHour = [rowData longLongValue];
       }else {
         assert(0);
       }

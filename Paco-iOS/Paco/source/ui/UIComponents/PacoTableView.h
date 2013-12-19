@@ -17,6 +17,8 @@
 
 @protocol PacoTableViewDelegate;
 
+@class PacoTableCell;
+
 @interface PacoTableView : UIView
 
 @property (nonatomic, retain) NSArray *data;
@@ -31,5 +33,8 @@
 - (void)registerClass:(Class)cellClass forStringKey:(NSString *)stringKey dataClass:(Class)dataClass;
 
 - (NSArray *)boxInputs:(NSArray *)inputs withKey:(NSString *)key;
+
+- (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
+- (void)dismissDatePicker;
 
 @end

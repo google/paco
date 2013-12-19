@@ -22,7 +22,6 @@
 @interface PacoExperiment : NSObject
 
 @property (nonatomic, retain) PacoExperimentDefinition *definition;
-@property (nonatomic, retain) NSArray *events;
 @property (nonatomic, copy) NSString *instanceId;
 @property (nonatomic, assign) long long lastEventQueryTime;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.

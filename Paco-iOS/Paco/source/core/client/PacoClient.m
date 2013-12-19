@@ -31,6 +31,7 @@
 #import "UILocalNotification+Paco.h"
 #import "PacoScheduleGenerator.h"
 #import "NSMutableArray+Paco.h"
+#import "PacoExperimentSchedule.h"
 
 
 
@@ -652,15 +653,16 @@
 }
 
 #pragma mark join an experiment
-- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition {
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
+                         andSchedule:(PacoExperimentSchedule*)schedule {
   if (definition == nil) {
     return;
   }
-  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:nil];
+  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
   //create a new experiment and save it to cache
-  PacoExperiment *experiment = [self.model addExperimentInstance:definition
-                                                        schedule:definition.schedule
-                                                          events:nil]; //TODO: events will be removed from this method
+  PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
+                                                              schedule:schedule];
+  NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 }
@@ -675,6 +677,9 @@
   if ([experiment isScheduledExperiment]) {
     //clear all scheduled notifications and notifications in the tray for the stopped experiment
     [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+    if ([experiment.schedule isESMSchedule]) {
+      [experiment.definition clearEsmScheduleList];
+    }
   }
   //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
   //is called, since we may need to store missing survey events, which needs the experiment from model

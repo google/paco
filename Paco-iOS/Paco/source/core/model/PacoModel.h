@@ -58,12 +58,8 @@ extern NSString* const PacoFinishRefreshing;
 - (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
-//YMZ:TODO: need refactoring
-//a. events should be removed from this method, since we store events to a different file
-//b. make a better method name
-- (PacoExperiment*)addExperimentInstance:(PacoExperimentDefinition*)definition
-                                schedule:(PacoExperimentSchedule*)schedule
-                                  events:(NSArray*)events;
+- (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition
+                                      schedule:(PacoExperimentSchedule*)schedule;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 

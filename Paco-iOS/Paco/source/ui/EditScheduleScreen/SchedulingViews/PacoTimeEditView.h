@@ -14,12 +14,11 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "PacoTableCell.h"
 
-@class PacoExperimentSchedule;
-@class PacoTableView;
+@interface PacoTimeEditView : PacoTableCell
 
-@interface PacoScheduleEditView : UIView
-@property (nonatomic, retain) UIButton *joinButton;
-@property (nonatomic, retain) PacoExperimentSchedule* schedule;
-@property (nonatomic, retain) PacoTableView *tableView;
+@property(nonatomic, copy) NSString* title;
+@property(nonatomic, retain) NSNumber* time;
+
 @end

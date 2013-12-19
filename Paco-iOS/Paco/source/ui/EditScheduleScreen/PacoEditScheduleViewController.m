@@ -25,6 +25,7 @@
 #import "PacoEventManager.h"
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
+#import "PacoExperimentSchedule.h"
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
@@ -33,7 +34,7 @@
 @end
 
 @implementation PacoEditScheduleViewController
-@synthesize experiment = _experiment;
+@synthesize definition = _definition;
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -47,21 +48,31 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
 
-  PacoScheduleEditView *schedule = [[PacoScheduleEditView alloc] initWithFrame:CGRectZero];
-  [schedule.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
-  self.view = schedule;
-
-  schedule.experiment = self.experiment;
+  PacoScheduleEditView* editView = [[PacoScheduleEditView alloc] initWithFrame:CGRectZero];
+  [editView.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
+  self.view = editView;
+  editView.schedule = self.definition.schedule;
 }
 
-- (void)setExperiment:(PacoExperimentDefinition *)experiment {
-  _experiment = experiment;
-  self.title = experiment.title;
-  [(PacoScheduleEditView *)self.view setExperiment:experiment];
+- (void)setDefinition:(PacoExperimentDefinition *)definition {
+  _definition = definition;
+  self.title = definition.title;
+  [(PacoScheduleEditView *)self.view setSchedule:_definition.schedule];
 }
 
 - (void)onJoin {
-  [[PacoClient sharedInstance] joinExperimentWithDefinition:self.experiment];
+  NSString* errorMsg = [[(PacoScheduleEditView*)self.view schedule] evaluateSchedule];
+  if (errorMsg) {
+    [[[UIAlertView alloc] initWithTitle:@"Oops"
+                                message:errorMsg
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+    return;
+  }
+
+  [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
+                                                andSchedule:self.definition.schedule];
   
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";

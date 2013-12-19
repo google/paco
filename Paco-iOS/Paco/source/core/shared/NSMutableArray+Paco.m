@@ -89,6 +89,38 @@
   return [self count] > 0;
 }
 
+- (NSArray*)pacoSortedNumbers {
+  NSMutableArray* arrayToSort = [NSMutableArray arrayWithArray:self];
+  [arrayToSort sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+    NSNumber* firstNum = (NSNumber*)obj1;
+    NSNumber* secondNum = (NSNumber*)obj2;
+    NSAssert([firstNum isKindOfClass:[NSNumber class]], @"firstNum should be NSNumber");
+    NSAssert([secondNum isKindOfClass:[NSNumber class]], @"secondNum should be NSNumber");
+    return[firstNum compare:secondNum];
+  }];
+  return [NSArray arrayWithArray:arrayToSort];
+}
+
+
+- (BOOL)pacoIsNonDuplicate {
+  NSArray* sortedArray = [self pacoSortedNumbers];
+  NSNumber* lastNum = nil;
+  BOOL nonDuplicate = YES;
+  for (NSNumber* num in sortedArray) {
+    if (!lastNum) {
+      lastNum = num;
+    } else {
+      if ([lastNum isEqualToNumber:num]) {
+        nonDuplicate = NO;
+        break;
+      }
+      lastNum = num;
+    }
+  }
+  return nonDuplicate;
+}
+
+
 - (NSString*)pacoDescriptionForDates {
   NSString* descript = @"(\n";
   for (id object in self) {
@@ -99,6 +131,25 @@
   }
   descript = [descript stringByAppendingString:@")"];
   return descript;
+}
+
+
+- (NSString*)pacoDescriptionForTimeNumbers {
+  int index = 0;
+  NSMutableString* description = [NSMutableString stringWithString:@"["];
+  for (id object in self) {
+    NSNumber* num = (NSNumber*)object;
+    NSAssert([num isKindOfClass:[NSNumber class]], @"num should be NSNumber");
+    long long milliSeconds = [num longLongValue];
+    if (0 == index) {
+      [description appendFormat:@"%@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
+    } else {
+      [description appendFormat:@", %@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
+    }
+    index++;
+  }
+  [description appendString:@"]"];
+  return description;
 }
 
 - (NSString*)pacoDescriptionForNotifications {
