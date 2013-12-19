@@ -25,6 +25,8 @@
 #import "PacoLoginScreenViewController.h"
 #import "PacoUserGuideWebViewController.h"
 #import "PacoContactUsViewController.h"
+#import "PacoInfoView.h"
+#import "PacoWebViewController.h"
 
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
@@ -38,6 +40,10 @@
     if (self) {
       PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
       self.navigationItem.titleView = title;
+
+      UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
+      [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
+      self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:infoButton];
     }
     return self;
 }
@@ -170,6 +176,23 @@
 - (void)onSendFeedback {
   PacoContactUsViewController *controller = [[PacoContactUsViewController alloc] init];
   [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)onInfoSelect:(UIButton *)sender {
+  PacoInfoView* infoView = [[PacoInfoView alloc]initWithFrame:CGRectMake(0, 0, [[UIScreen mainScreen]bounds].size.width, [[UIScreen mainScreen]bounds].size.height)];
+  [infoView.aboutPacoBtn addTarget:self action:@selector(openAboutPaco:) forControlEvents:UIControlEventTouchUpInside];
+  [[[UIApplication sharedApplication] keyWindow] addSubview:infoView];
+}
+
+- (void)openAboutPaco:(UIButton *)sender {
+  [self loadWebView:@"About Paco" andHTML:@"welcome_paco"];
+}
+
+- (void)loadWebView:(NSString *)titleString andHTML:(NSString *)htmlString {
+  PacoWebViewController* webViewController =  [[PacoWebViewController alloc]init];
+  [webViewController setNavigationTitle:titleString];
+  [webViewController loadWebViewWithHTML:htmlString];
+  [self.navigationController pushViewController:webViewController animated:YES];
 }
 
 @end
