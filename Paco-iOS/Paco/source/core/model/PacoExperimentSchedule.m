@@ -137,7 +137,7 @@
           @"times=%@ "
           @"timeout=%d "
           @"minimumBuffer=%d "
-          @"weekDaysScheduled=%d >",
+          @"weekDaysScheduled=%@ >",
           self,
           self.byDayOfMonth,
           self.byDayOfWeek,
@@ -155,7 +155,7 @@
           [self.times pacoDescriptionForTimeNumbers],
           self.timeout,
           self.minimumBuffer,
-          self.weekDaysScheduled,
+          [self weekDaysScheduledString],
           nil];
 }
 
@@ -203,17 +203,21 @@
 }
 
 - (NSString *)weekDaysScheduledString {
+  if (0 == self.weekDaysScheduled) {
+    return @"None";
+  }
   NSString *dayNames[] = { @"Sun", @"Mon", @"Tue", @"Wed", @"Thu", @"Fri", @"Sat" };
   NSMutableString *string = [NSMutableString string];
   for (int i = 0; i < 7; ++i) {
     if (self.weekDaysScheduled & (1 << i)) {
       if ([string length] == 0) {
-        [string appendString:dayNames[i]];
+        [string appendFormat:@"(%@", dayNames[i]];
       } else {
         [string appendFormat:@", %@", dayNames[i]];
       }
     }
   }
+  [string appendString:@")"];
   return string;
 }
 
