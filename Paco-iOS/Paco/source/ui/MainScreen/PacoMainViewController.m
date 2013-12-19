@@ -23,7 +23,6 @@
 #import "PacoTitleView.h"
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
-#import "PacoUserGuideWebViewController.h"
 #import "PacoContactUsViewController.h"
 #import "PacoInfoView.h"
 #import "PacoWebViewController.h"
@@ -164,8 +163,7 @@
 }
 
 - (void)onUserGuide {
-  PacoUserGuideWebViewController *webViewController = [[PacoUserGuideWebViewController alloc] init];
-  [self.navigationController pushViewController:webViewController animated:YES];
+  [self loadWebView:@"User Guide" andHTML:@"help"];
 }
 
 - (void)onFindAllExperiments {
