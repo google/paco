@@ -250,13 +250,7 @@ NSString *kCellIdText = @"text";
 
 }
 
-- (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
-  // When the time picker is active a cell selection triggers dismissal of the time picker.
-  if ([reuseId hasPrefix:kCellIdSignalTimes]) {
-    PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
-    [timeSelect finishTimeSelection];
-  }
-  
+- (void)handleUserTap {
   NSString* errorMsg = [self.schedule evaluateSchedule];
   if (errorMsg) {
     [[[UIAlertView alloc] initWithTitle:@"Oops"
@@ -265,15 +259,28 @@ NSString *kCellIdText = @"text";
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
-  
-  if ([self.schedule isESMSchedule] && !errorMsg) {
-    [self.tableView dismissDatePicker];
-  }
+  [self.tableView dismissDatePicker];
   
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;
     [self.joinButton sizeToFit];
     [self setNeedsLayout];
+  }
+}
+
+
+- (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
+  // When the time picker is active a cell selection triggers dismissal of the time picker.
+  if ([reuseId hasPrefix:kCellIdSignalTimes]) {
+    PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
+    [timeSelect finishTimeSelection];
+  }
+  [self handleUserTap];
+}
+
+- (void)didReceiveTapButNoCellSelected {
+  if ([self.schedule isESMSchedule]) {
+    [self handleUserTap];
   }
 }
 
