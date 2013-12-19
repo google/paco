@@ -25,6 +25,7 @@
 #import "PacoModel.h"
 #import "PacoSliderView.h"
 #import "PacoExperimentInput.h"
+#import "UIImage+Paco.h"
 
 static const int kInvalidIndex = -1;
 
@@ -187,12 +188,14 @@ static const int kInvalidIndex = -1;
 
 - (void)updateChoosePhotoButtonTitle
 {
-  NSString* title = @"Take Photo";
-  if (self.photoSegmentControl.selectedSegmentIndex == 1) {
-    title = @"Choose Photo";
+  if (!self.image) {
+    NSString* title = @"Take Photo";
+    if (self.photoSegmentControl.selectedSegmentIndex == 1) {
+      title = @"Choose Photo";
+    }
+    [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
+    [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
   }
-  [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
 }
 
 - (void)takePhoto
@@ -599,8 +602,11 @@ static const int kInvalidIndex = -1;
     self.image = edited ? edited : orig;
     self.question.responseObject = self.image;
     [self updateConditionals];
-    [self.choosePhotoButton setImage:self.image forState:UIControlStateNormal];
-    [self.choosePhotoButton setImage:self.image forState:UIControlStateHighlighted];
+    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
+    [self.choosePhotoButton setTitle:nil forState:UIControlStateNormal];
+    [self.choosePhotoButton setTitle:nil forState:UIControlStateHighlighted];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateHighlighted];
     [self.choosePhotoButton setNeedsLayout];
   } else if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeMovie]) {
     NSURL *movieURL = [info objectForKey:UIImagePickerControllerMediaURL];
