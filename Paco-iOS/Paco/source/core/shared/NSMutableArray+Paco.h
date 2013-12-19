@@ -36,6 +36,9 @@
 //The receiver must contain only NSDate objects
 - (NSString*)pacoDescriptionForDates;
 
+//The receiver must contain only NSNumber object with long long value
+- (NSString*)pacoDescriptionForTimeNumbers;
+
 //The receiver must contain only NSNumber objects
 - (NSArray*)pacoSortedNumbers;
 

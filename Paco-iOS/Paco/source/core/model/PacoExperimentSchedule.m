@@ -152,7 +152,7 @@
           self.nthOfMonth,
           self.repeatRate,
           self.scheduleType,
-          self.times,
+          [self.times pacoDescriptionForTimeNumbers],
           self.timeout,
           self.minimumBuffer,
           self.weekDaysScheduled,
@@ -229,18 +229,7 @@
     [json appendFormat:@"endHour = %@,", [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour]];
     [json appendFormat:@"weekends = %@,", self.esmWeekends ? @"true" : @"false"];
   }
-  
-  [json appendString:@"times = ["];
-  for (int index=0; index < [self.times count]; index++) {
-    long long milliSeconds = [[self.times objectAtIndex:index] longLongValue];
-    if (0 == index) {
-      [json appendFormat:@"%@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
-    } else {
-      [json appendFormat:@", %@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
-    }
-  }
-  [json appendString:@"],"];
-  
+  [json appendFormat:@"times = %@,", [self.times pacoDescriptionForTimeNumbers]];
   [json appendFormat:@"repeatRate = %d,", self.repeatRate];
   [json appendFormat:@"daysOfWeek = %@,", [self weekDaysScheduledString]];
   [json appendFormat:@"nthOfMonth = %d,", self.nthOfMonth];

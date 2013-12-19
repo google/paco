@@ -133,6 +133,25 @@
   return descript;
 }
 
+
+- (NSString*)pacoDescriptionForTimeNumbers {
+  int index = 0;
+  NSMutableString* description = [NSMutableString stringWithString:@"["];
+  for (id object in self) {
+    NSNumber* num = (NSNumber*)object;
+    NSAssert([num isKindOfClass:[NSNumber class]], @"num should be NSNumber");
+    long long milliSeconds = [num longLongValue];
+    if (0 == index) {
+      [description appendFormat:@"%@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
+    } else {
+      [description appendFormat:@", %@", [PacoDateUtility timeStringFromMilliseconds:milliSeconds]];
+    }
+    index++;
+  }
+  [description appendString:@"]"];
+  return description;
+}
+
 - (NSString*)pacoDescriptionForNotifications {
   NSString* descript = @"(\n";
   for (id object in self) {
