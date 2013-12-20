@@ -626,7 +626,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     }
   }
 
-  private void notifySpeechRecognitionListeners(ArrayList<String> guesses) {
+  private void notifySpeechRecognitionListeners(List<String> guesses) {
+    List<SpeechRecognitionListener> copyOfSpeechListeners = new ArrayList<SpeechRecognitionListener>(speechRecognitionListeners);
     for (SpeechRecognitionListener listener : speechRecognitionListeners) {
       listener.speechRetrieved(guesses);
     }
