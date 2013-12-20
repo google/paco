@@ -13,17 +13,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface PacoColor : NSObject
-
-+ (UIColor *)pacoBlue;
-+ (UIColor *)pacoBackgroundWhite;
-+ (UIColor *)pacoDarkBlue;
-+ (UIColor *)pacoBackgroundBlue;
-+ (UIColor*)pacoSystemButtonBlue;
-+ (UIColor*)pacoSystemButtonHighlightenBlue;
-+ (UIColor*)pacoLightGray; //.8 white
-
+@interface PacoInfoView : UIView
+@property (nonatomic,retain) UIButton* aboutPacoBtn;
 
 @end

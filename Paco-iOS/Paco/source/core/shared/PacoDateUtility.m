@@ -89,6 +89,49 @@
   return [[PacoDateUtility dateFormatterForAlertBody] stringFromDate:date];
 }
 
++ (NSString*)timeStringFromMilliseconds:(long long)milliSeconds {
+  long seconds = milliSeconds / 1000;
+  long minutes = seconds / 60;
+  int hours = minutes / 60;
+  int minutesLeft = minutes - hours * 60;
+  NSString* minutesString = [NSString stringWithFormat:@"%d", minutesLeft];
+  if (minutesLeft < 10) {
+    minutesString = [NSString stringWithFormat:@"0%d", minutesLeft];
+  }
+  int noon = 12;
+  NSString* suffix = hours < noon ?  @"am" : @"pm";
+  if (hours > noon) {
+    hours -= noon;
+  }
+  NSString* timeString = [NSString stringWithFormat:@"%d:%@%@", hours, minutesString, suffix];
+  return timeString;
+}
+
++ (NSString*)timeString24hrFromMilliseconds:(long long)milliSeconds {
+  double hourInMS = 1000 * 60 * 60;
+  double minInMS = 1000 * 60;
+  double hours = milliSeconds / hourInMS;
+  int hrs = floorf(hours);
+  double leftover = milliSeconds - (hrs * hourInMS);
+  double minutes = leftover / minInMS;
+  int mins = floorf(minutes);
+  return [NSString stringWithFormat:@"%02d:%02d", hrs, mins];
+}
+
++ (NSString*)timeStringAMPMFromMilliseconds:(long long)milliSeconds {
+  double hourInMS = 1000 * 60 * 60;
+  double minInMS = 1000 * 60;
+  double hours = milliSeconds / hourInMS;
+  int hrs = floorf(hours);
+  double leftover = milliSeconds - (hrs * hourInMS);
+  double minutes = leftover / minInMS;
+  int mins = floorf(minutes);
+  BOOL isAM = hrs < 12;
+  hrs %= 12;
+  if (hrs == 0)
+    hrs = 12;
+  return [NSString stringWithFormat:@"%2d:%02d %@", hrs, mins, isAM ? @"AM" : @"PM"];
+}
 
 + (int)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];

@@ -26,7 +26,7 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
 
 @implementation UIImage (Paco)
 
-
+#pragma mark Class Methods
 + (NSString*)pacoImageNameFromBoxedName:(NSString*)boxedName {
   if (![boxedName hasPrefix:kPacoImageNamePrefix]) {
     return nil;
@@ -56,14 +56,70 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   return name;
 }
 
-
-- (NSString*)pacoBase64String {
-  NSData *imageData = [self pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
-  NSString* imageStr = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-  if (0 == [imageStr length]) {
-    imageStr = nil;
++ (NSString*)pacoSaveImageToDocumentDir:(UIImage*)image
+                          forDefinition:(NSString*)definitionId
+                                inputId:(NSString*)inputId {
+  NSAssert(definitionId && inputId, @"definitionId and inputId should be valid");
+  if (image == nil) {
+    return nil;
   }
-  return imageStr;
+  NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
+  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
+  
+  UIImage* scaledImage = [image pacoScaleToScreenSize];
+  NSData* imageData = [scaledImage pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
+  if (!imageData) {
+    return nil;
+  }
+  BOOL success = [imageData writeToFile:imagePath atomically:NO];
+  return success ? imageName : nil;
+}
+
++ (NSString*)pacoBase64StringWithImageName:(NSString*)imageName {
+  if (0 == [imageName length]) {
+    return nil;
+  }
+  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
+  UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
+  if (image == nil) {
+    return nil;
+  }
+  NSString* imageString = [image pacoBase64String];
+  return imageString;
+}
+
++ (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
+  CGFloat horizontalRatio = size.width / image.size.width;
+  CGFloat verticalRatio = size.height / image.size.height;
+  CGFloat ratio = MIN(horizontalRatio, verticalRatio);
+  return [image pacoScaledImageByRatio:ratio];
+}
+
+
+#pragma mark Instance Methods
+- (UIImage*)pacoScaledImageByRatio:(CGFloat)scaleRatio {
+  NSAssert(scaleRatio > 0, @"scaleRatio should be larger than 0");
+  
+  CGSize newSize = CGSizeMake(floorf(self.size.width * scaleRatio),
+                              floorf(self.size.height * scaleRatio));
+  UIGraphicsBeginImageContext(newSize);
+  [self drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+  UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  return scaledImage;
+}
+
+//scale the image so that the shorter side of the image will be equal to or less than
+//the shorter side of the screen size (320 for all iPhone devices so far)
+- (UIImage*)pacoScaleToScreenSize {
+  CGRect screenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat screenShorterSideLength = MIN(screenBounds.size.width, screenBounds.size.height);
+  CGFloat imageShorterSideLength = MIN(self.size.width, self.size.height);
+  if (imageShorterSideLength <= screenShorterSideLength) {
+    return self;
+  }
+  CGFloat ratio = screenShorterSideLength / imageShorterSideLength;
+  return [self pacoScaledImageByRatio:ratio];
 }
 
 
@@ -88,36 +144,15 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   }
 }
 
-
-+ (NSString*)pacoSaveImageToDocumentDir:(UIImage*)image
-                          forDefinition:(NSString*)definitionId
-                                inputId:(NSString*)inputId {
-  NSAssert(definitionId && inputId, @"definitionId and inputId should be valid");
-  if (image == nil) {
-    return nil;
+- (NSString*)pacoBase64String {
+  NSData *imageData = [self pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
+  NSString* imageStr = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+  if (0 == [imageStr length]) {
+    imageStr = nil;
   }
-  NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
-  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
-  
-  NSData* imageData = [image pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
-  if (!imageData) {
-    return nil;
-  }
-  BOOL success = [imageData writeToFile:imagePath atomically:NO];
-  return success ? imageName : nil;
+  return imageStr;
 }
 
-+ (NSString*)pacoBase64StringWithImageName:(NSString*)imageName {
-  if (0 == [imageName length]) {
-    return nil;
-  }
-  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
-  UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
-  if (image == nil) {
-    return nil;
-  }
-  NSString* imageString = [image pacoBase64String];
-  return imageString;
-}
+
 
 @end

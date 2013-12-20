@@ -59,11 +59,26 @@
     _tableView.delegate = self;
     _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    UITapGestureRecognizer* tapRecognizer =
+        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnTableView:)];
+    [_tableView addGestureRecognizer:tapRecognizer];
     [self addSubview:_tableView];
     
     [self registerClass:[PacoLoadingTableCell class] forStringKey:@"LOADING" dataClass:[NSString class]];
   }
   return self;
+}
+
+- (void)didTapOnTableView:(UIGestureRecognizer*)recognizer {
+  CGPoint tapLocation = [recognizer locationInView:self.tableView];
+  NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:tapLocation];
+  if (indexPath) { //tap in a tableview cell, let the gesture be handled by the view
+    recognizer.cancelsTouchesInView = NO;
+  } else { //tap in the table but not in any cell
+    if ([self.delegate respondsToSelector:@selector(didReceiveTapButNoCellSelected)]) {
+      [self.delegate didReceiveTapButNoCellSelected];
+    }
+  }
 }
 
 - (UIView *)header {
@@ -216,6 +231,20 @@
   }
 }
 
+- (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell {
+  self.footer = picker;
+  NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+  [self.tableView scrollToRowAtIndexPath:indexPath
+                        atScrollPosition:UITableViewScrollPositionBottom
+                                animated:YES];
+}
+
+- (void)dismissDatePicker {
+  if (self.footer && [self.footer isKindOfClass:[UIDatePicker class]]) {
+    self.footer = nil;
+  }
+}
+
 #pragma mark - Private
 
 - (NSString *)keyForDataClass:(Class)dataClass stringKey:(NSString *)stringKey {
@@ -235,6 +264,10 @@
   if ([dataClassName isEqualToString:@"__NSArrayI"]) {
     dataClassName = @"NSArray";
   }
+  if ([dataClass isSubclassOfClass:[NSArray class]]) {
+    dataClassName = @"NSArray";
+  }
+  
   if ([dataClassName isEqualToString:@"__NSCFBoolean"]) {
     dataClassName = @"NSNumber";
   }

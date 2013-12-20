@@ -15,6 +15,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PacoUserGuideWebViewController : UIViewController
+@interface PacoWebViewController : UIViewController
+
++ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName;
 
 @end

@@ -23,8 +23,9 @@
 #import "PacoTitleView.h"
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
-#import "PacoUserGuideWebViewController.h"
 #import "PacoContactUsViewController.h"
+#import "PacoInfoView.h"
+#import "PacoWebViewController.h"
 
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
@@ -38,6 +39,10 @@
     if (self) {
       PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
       self.navigationItem.titleView = title;
+
+      UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
+      [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
+      self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:infoButton];
     }
     return self;
 }
@@ -147,12 +152,18 @@
 }
 
 - (void)onCreateAnExperiment {
-
+  NSString* msg = @"Since creating experiments involves a fair amount of text entry, "
+                  @"a phone is not so well-suited to creating experiments.\n\n"
+                  @"Please point your browser to\nhttp://pacoapp.com/ to create an experiment.";
+  [[[UIAlertView alloc] initWithTitle:@"How to Create an Experiment"
+                             message:msg
+                            delegate:nil
+                   cancelButtonTitle:@"OK"
+                   otherButtonTitles:nil] show];
 }
 
 - (void)onUserGuide {
-  PacoUserGuideWebViewController *webViewController = [[PacoUserGuideWebViewController alloc] init];
-  [self.navigationController pushViewController:webViewController animated:YES];
+  [self loadWebView:@"User Guide" andHTML:@"help"];
 }
 
 - (void)onFindAllExperiments {
@@ -163,6 +174,27 @@
 - (void)onSendFeedback {
   PacoContactUsViewController *controller = [[PacoContactUsViewController alloc] init];
   [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)onInfoSelect:(UIButton *)sender {
+  NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString*)kCFBundleVersionKey];
+  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"Version %@",version]
+                                                           delegate:self
+                                                  cancelButtonTitle:@"Close"
+                                             destructiveButtonTitle:nil
+                                                  otherButtonTitles:@"About Paco", nil];
+  [actionSheet showInView:self.view];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if (buttonIndex == 0) {
+    [self loadWebView:@"About Paco" andHTML:@"welcome_paco"];
+  }
+}
+
+- (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
+  PacoWebViewController* webViewController =  [PacoWebViewController controllerWithTitle:title andHtml:htmlName];
+  [self.navigationController pushViewController:webViewController animated:YES];
 }
 
 @end

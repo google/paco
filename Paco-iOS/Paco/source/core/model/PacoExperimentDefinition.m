@@ -156,6 +156,10 @@
   }
 }
 
+- (void)clearEsmScheduleList {
+  self.schedule.esmScheduleList = nil;
+}
+
 #pragma mark TEST code
 + (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId {
   NSString* path = [NSString stringWithFormat:@"Test_%@", definitionId];

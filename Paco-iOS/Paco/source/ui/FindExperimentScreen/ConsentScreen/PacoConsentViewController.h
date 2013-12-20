@@ -19,6 +19,6 @@
 
 @interface PacoConsentViewController : UIViewController
 
-+ (PacoConsentViewController*)controllerWithExperiment:(PacoExperimentDefinition *)experiment;
++ (PacoConsentViewController*)controllerWithDefinition:(PacoExperimentDefinition *)definition;
 
 @end

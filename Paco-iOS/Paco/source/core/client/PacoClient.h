@@ -25,6 +25,7 @@
 @class PacoExperimentDefinition;
 @class Reachability;
 @class PacoEventManager;
+@class PacoExperimentSchedule;
 
 /*
  Set both ADD_TEST_DEFINITION and SKIP_LOG_IN to 1 
@@ -86,7 +87,8 @@
 - (void)executeRoutineMajorTaskIfNeeded;
 - (void)uploadPendingEventsInBackground;
 
-- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition;
+- (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
+                         andSchedule:(PacoExperimentSchedule*)schedule;
 - (void)stopExperiment:(PacoExperiment*)experiment;
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs

@@ -18,5 +18,5 @@
 @class PacoExperimentDefinition;
 
 @interface PacoEditScheduleViewController : UIViewController
-@property (nonatomic, retain) PacoExperimentDefinition *experiment;
+@property (nonatomic, retain) PacoExperimentDefinition *definition;
 @end

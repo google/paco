@@ -24,6 +24,6 @@
                           forDefinition:(NSString*)definitionId
                                 inputId:(NSString*)inputId;
 + (NSString*)pacoBase64StringWithImageName:(NSString*)imageName;
-
++ (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size;
 
 @end
