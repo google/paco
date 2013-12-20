@@ -26,7 +26,7 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
 
 @implementation UIImage (Paco)
 
-
+#pragma mark Class Methods
 + (NSString*)pacoImageNameFromBoxedName:(NSString*)boxedName {
   if (![boxedName hasPrefix:kPacoImageNamePrefix]) {
     return nil;
@@ -56,53 +56,6 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   return name;
 }
 
-
-- (NSString*)pacoBase64String {
-  NSData *imageData = [self pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
-  NSString* imageStr = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-  if (0 == [imageStr length]) {
-    imageStr = nil;
-  }
-  return imageStr;
-}
-
-
-- (NSData*)pacoImageDataWithMaxSize:(CGFloat)maxBytes {
-  NSData* imageData = UIImageJPEGRepresentation(self, 1.);
-  if ([imageData length] < maxBytes) {
-    return imageData;
-  }
-  CGFloat compressionQuality = .5;
-  CGFloat MIN_COMPRESSION_QUALITY = .005;
-  while (compressionQuality >= MIN_COMPRESSION_QUALITY) {
-    imageData = UIImageJPEGRepresentation(self, compressionQuality);
-    if ([imageData length] < maxBytes) {
-      break;
-    }
-    compressionQuality /= 2.;
-  }
-  if ([imageData length] < maxBytes) {
-    return imageData;
-  } else {
-    return nil;
-  }
-}
-
-+ (NSData *)pacoGetImageDataAfterScale:(UIImage *)image {
-  CGSize parentFrame = [[UIScreen mainScreen]bounds].size;
-  CGFloat imageLength = image.size.width * image.size.height;
-  CGFloat maxLength = parentFrame.width * parentFrame.height;
-  if (imageLength > maxLength) {
-    if (image.size.width > image.size.height) {
-      image = [self scaleImage:image toSize:CGSizeMake(parentFrame.width, parentFrame.height)];
-    }
-    else {
-      image = [self scaleImage:image toSize:CGSizeMake(parentFrame.height, parentFrame.width)];
-    }
-  }
-  return UIImageJPEGRepresentation(image, 1.0);
-}
-
 + (NSString*)pacoSaveImageToDocumentDir:(UIImage*)image
                           forDefinition:(NSString*)definitionId
                                 inputId:(NSString*)inputId {
@@ -112,7 +65,9 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   }
   NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
   NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
-  NSData* imageData = [self pacoGetImageDataAfterScale:image];
+  
+  UIImage* scaledImage = [image pacoScaleToScreenSize];
+  NSData* imageData = [scaledImage pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
   if (!imageData) {
     return nil;
   }
@@ -137,14 +92,67 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   CGFloat horizontalRatio = size.width / image.size.width;
   CGFloat verticalRatio = size.height / image.size.height;
   CGFloat ratio = MIN(horizontalRatio, verticalRatio);
-
-  CGSize reSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio);
-
-  UIGraphicsBeginImageContext(CGSizeMake(reSize.width, reSize.height));
-  [image drawInRect:CGRectMake(0, 0, reSize.width, reSize.height)];
-  UIImage *scaledimage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-  return scaledimage;
+  return [image pacoScaledImageByRatio:ratio];
 }
+
+
+#pragma mark Instance Methods
+- (UIImage*)pacoScaledImageByRatio:(CGFloat)scaleRatio {
+  NSAssert(scaleRatio > 0, @"scaleRatio should be larger than 0");
+  
+  CGSize newSize = CGSizeMake(floorf(self.size.width * scaleRatio),
+                              floorf(self.size.height * scaleRatio));
+  UIGraphicsBeginImageContext(newSize);
+  [self drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+  UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  return scaledImage;
+}
+
+//scale the image so that the shorter side of the image will be equal to or less than
+//the shorter side of the screen size (320 for all iPhone devices so far)
+- (UIImage*)pacoScaleToScreenSize {
+  CGRect screenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat screenShorterSideLength = MIN(screenBounds.size.width, screenBounds.size.height);
+  CGFloat imageShorterSideLength = MIN(self.size.width, self.size.height);
+  if (imageShorterSideLength <= screenShorterSideLength) {
+    return self;
+  }
+  CGFloat ratio = screenShorterSideLength / imageShorterSideLength;
+  return [self pacoScaledImageByRatio:ratio];
+}
+
+
+- (NSData*)pacoImageDataWithMaxSize:(CGFloat)maxBytes {
+  NSData* imageData = UIImageJPEGRepresentation(self, 1.);
+  if ([imageData length] < maxBytes) {
+    return imageData;
+  }
+  CGFloat compressionQuality = .5;
+  CGFloat MIN_COMPRESSION_QUALITY = .005;
+  while (compressionQuality >= MIN_COMPRESSION_QUALITY) {
+    imageData = UIImageJPEGRepresentation(self, compressionQuality);
+    if ([imageData length] < maxBytes) {
+      break;
+    }
+    compressionQuality /= 2.;
+  }
+  if ([imageData length] < maxBytes) {
+    return imageData;
+  } else {
+    return nil;
+  }
+}
+
+- (NSString*)pacoBase64String {
+  NSData *imageData = [self pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
+  NSString* imageStr = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+  if (0 == [imageStr length]) {
+    imageStr = nil;
+  }
+  return imageStr;
+}
+
+
 
 @end
