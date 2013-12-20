@@ -17,8 +17,11 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="97"
-    android:versionName="2.0.97" >
+    android:versionCode="98"
+    android:versionName="2.0.98" >
+    <uses-feature android:name="android.hardware.location" android:required="false"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     
     <application
         android:debuggable="false"
@@ -271,6 +274,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_TASKS"/>
 
-    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-sdk android:minSdkVersion="8" ></uses-sdk>
 </manifest>
