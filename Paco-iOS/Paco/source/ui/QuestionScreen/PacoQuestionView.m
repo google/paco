@@ -188,15 +188,33 @@ static const int kInvalidIndex = -1;
 
 - (void)updateChoosePhotoButtonTitle
 {
+  NSString* title = @"Tap to Take Photo";
+  if (self.photoSegmentControl.selectedSegmentIndex == 1) {
+    title = @"Tap to Choose Photo";
+  }
+  [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
+  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonBlue] forState:UIControlStateNormal];
+  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonHighlightenBlue]
+                               forState:UIControlStateHighlighted];
   if (!self.image) {
-    NSString* title = @"Take Photo";
-    if (self.photoSegmentControl.selectedSegmentIndex == 1) {
-      title = @"Choose Photo";
-    }
-    [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
-    [self.choosePhotoButton setTitle:title forState:UIControlStateHighlighted];
+    [self.choosePhotoButton setBackgroundColor:[PacoColor pacoLightGray]];
   }
 }
+
+- (void)updateChoosePhotoButtonImage {
+  UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
+  [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+  
+  CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
+  CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
+  self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
+  self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
+                                                            -buttonImage.size.width,
+                                                            0.0,
+                                                            0.0);
+  [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+}
+
 
 - (void)takePhoto
 {
@@ -378,15 +396,13 @@ static const int kInvalidIndex = -1;
     
     self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self updateChoosePhotoButtonTitle];
-    [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self.choosePhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
     [self addSubview:self.choosePhotoButton];
     if (self.question.responseObject) {
       NSAssert([self.question.responseObject isKindOfClass:[UIImage class]],
                @"a non-nil responseObject should be UIImage object");
       UIImage *image = self.question.responseObject;
       self.image = image;
-      [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
+      [self updateChoosePhotoButtonImage];
     }
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
   } else {
@@ -582,8 +598,7 @@ static const int kInvalidIndex = -1;
   self.question.responseObject = image;
   self.image = image;
   [self updateConditionals];
-  [self.choosePhotoButton setImage:image forState:UIControlStateNormal];
-  [self.choosePhotoButton setImage:image forState:UIControlStateHighlighted];
+  [self updateChoosePhotoButtonImage];
   [self.choosePhotoButton setNeedsLayout];
   [[UIApplication sharedApplication].keyWindow.rootViewController
       dismissViewControllerAnimated:YES
@@ -602,11 +617,7 @@ static const int kInvalidIndex = -1;
     self.image = edited ? edited : orig;
     self.question.responseObject = self.image;
     [self updateConditionals];
-    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
-    [self.choosePhotoButton setTitle:nil forState:UIControlStateNormal];
-    [self.choosePhotoButton setTitle:nil forState:UIControlStateHighlighted];
-    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
-    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateHighlighted];
+    [self updateChoosePhotoButtonImage];
     [self.choosePhotoButton setNeedsLayout];
   } else if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeMovie]) {
     NSURL *movieURL = [info objectForKey:UIImagePickerControllerMediaURL];

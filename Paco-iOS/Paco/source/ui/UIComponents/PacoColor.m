@@ -43,4 +43,32 @@
   return color;
 }
 
++ (UIColor*)pacoSystemButtonBlue {
+  static UIColor* color = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    color = [UIColor colorWithRed:(4.0/255.0) green:(114.0/255.0) blue:(219.0/255.0) alpha:1];
+  });
+  return color;
+}
+
++ (UIColor*)pacoSystemButtonHighlightenBlue {
+  static UIColor* color = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    color = [UIColor colorWithRed:(4.0/255.0) green:(114.0/255.0) blue:(219.0/255.0) alpha:.3];
+  });
+  return color;
+}
+
++ (UIColor*)pacoLightGray {
+  static UIColor* color = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    color = [UIColor colorWithWhite:0.8 alpha:1];
+  });
+  return color;
+}
+
+
 @end

@@ -21,5 +21,9 @@
 + (UIColor *)pacoBackgroundWhite;
 + (UIColor *)pacoDarkBlue;
 + (UIColor *)pacoBackgroundBlue;
++ (UIColor*)pacoSystemButtonBlue;
++ (UIColor*)pacoSystemButtonHighlightenBlue;
++ (UIColor*)pacoLightGray; //.8 white
+
 
 @end
