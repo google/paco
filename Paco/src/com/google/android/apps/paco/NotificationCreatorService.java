@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -44,7 +44,8 @@ public class NotificationCreatorService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
-    final Bundle extras = intent.getExtras();
+    final Bundle extras = (intent != null) ? intent.getExtras() : null;
+
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco NotificationCreatorService wakelock");
     wl.acquire();
@@ -57,8 +58,8 @@ public class NotificationCreatorService extends Service {
           long notificationId = -1;
           long alarmTime = -1;
           if (extras != null) {
-            notificationId = extras.getLong(NotificationCreator.NOTIFICATION_ID, -1);      
-            alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);      
+            notificationId = extras.getLong(NotificationCreator.NOTIFICATION_ID, -1);
+            alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);
           }
           if (notificationId != -1) {
             notificationCreator.timeoutNotification(notificationId);
@@ -67,7 +68,7 @@ public class NotificationCreatorService extends Service {
           } else {
             notificationCreator.recreateActiveNotifications();
           }
-          
+
         } finally {
           wl.release();
           stopSelf();
