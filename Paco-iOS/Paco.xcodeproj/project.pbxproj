@@ -67,6 +67,9 @@
 		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
 		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
 		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
+		369F6BBF18657C9C006FB693 /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BBE18657C9C006FB693 /* app_icon.png */; };
+		369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC718657CDF006FB693 /* app_icon_ipad.png */; };
+		369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */; };
 		36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDA17C420F800B93855 /* SSKeychain.m */; };
 		36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDC17C420F800B93855 /* SSKeychainQuery.m */; };
 		36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CE117C4440000B93855 /* NSError+Paco.m */; };
@@ -360,6 +363,9 @@
 		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
 		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
 		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
+		369F6BBE18657C9C006FB693 /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
+		369F6BC718657CDF006FB693 /* app_icon_ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon_ipad.png; sourceTree = "<group>"; };
+		369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon_ipad@2x.png"; sourceTree = "<group>"; };
 		36AD6CD917C420F800B93855 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		36AD6CDA17C420F800B93855 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		36AD6CDB17C420F800B93855 /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychainQuery.h; sourceTree = "<group>"; };
@@ -1033,6 +1039,9 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */,
+				369F6BC718657CDF006FB693 /* app_icon_ipad.png */,
+				369F6BBE18657C9C006FB693 /* app_icon.png */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
@@ -1459,8 +1468,11 @@
 				36B8EBF017568E29004CF035 /* paco128.png in Resources */,
 				36B8EBF117568E29004CF035 /* paco256.png in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
+				369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */,
+				369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */,
 				36B8EBF317568E29004CF035 /* paco64.png in Resources */,
 				36B8EBF417568E29004CF035 /* paco_sil.png in Resources */,
+				369F6BBF18657C9C006FB693 /* app_icon.png in Resources */,
 				367171FD183AFE33005A5058 /* help.html in Resources */,
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				36B8EBF617568E29004CF035 /* question_b16.png in Resources */,
