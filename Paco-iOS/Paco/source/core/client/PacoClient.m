@@ -542,6 +542,17 @@
   [self.model saveExperimentDefinitionsToFile];
 }
 
+
+- (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions {
+  //shut down notification system should happen before applying new definitions and cleaning
+  //existing experiments, since we may need to save survey missing events
+  [self shutDownNotificationSystemIfNeeded];
+  [self applyDefinitionsFromServer:newDefinitions];
+  //clean all experiments, this should happen after the notification system is shut down
+  //and this will also store an empty experiment plist
+  [self.model cleanAllExperiments];
+}
+
 - (void)refreshDefinitions {
   @synchronized(self) {
     if (![self.prefetchState finishLoadingAll]) {
@@ -551,15 +562,9 @@
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
-            //shut down notification system should happen before applying new definitions and cleaning
-            //existing experiments, since we may need to save survey missing events
-            [self shutDownNotificationSystemIfNeeded];
-            [self applyDefinitionsFromServer:definitions];
-            //clean all experiments, this should happen after the notification system is shut down
-            //and this will also store an empty experiment plist
-            [self.model cleanAllExperiments];
+            [self refreshSucceedWithDefinitions:definitions];
           } else {
-            NSLog(@"Failed to prefetch definitions: %@", [error description]);
+            NSLog(@"Failed to refresh definitions: %@", [error description]);
           }
           self.prefetchState.finishLoadingDefinitions = YES;
           self.prefetchState.finishLoadingExperiments = YES;
