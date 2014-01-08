@@ -95,7 +95,7 @@
   [self.view addSubview:desLabel];
 
   UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 140)];
-  descriptionLabel.backgroundColor=[UIColor purpleColor];
+  descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [PacoColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.experimentDescription;
@@ -103,7 +103,7 @@
   [self.view addSubview:descriptionLabel];
 
   int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
-
+  
   if (self.experiment.startDate) {
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
     dateLabel.text = @"Start Date:                 End Date:";
@@ -112,19 +112,17 @@
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
-
     yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
-
+    
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
     NSString* endDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.endDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
-    dateText.text = [NSString stringWithFormat:@"%@               %@",startDate, endDate];
+    dateText.text = [NSString stringWithFormat:@"%@               %@", startDate, endDate];
     dateText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
     dateText.textColor = [PacoColor pacoDarkBlue];
     dateText.backgroundColor = [UIColor clearColor];
     dateText.numberOfLines = 0 ;
     [self.view addSubview:dateText];
-
     yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
   }
 
