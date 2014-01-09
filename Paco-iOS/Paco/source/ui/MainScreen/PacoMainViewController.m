@@ -83,7 +83,7 @@
   [buttonExploreData.button setBackgroundImage:[UIImage imageNamed:@"current_experiments_pressed.png"] forState:UIControlStateHighlighted];
   [buttonExploreData.button setBackgroundImage:[UIImage imageNamed:@"current_experiments_disabled.png"] forState:UIControlStateDisabled];
   [buttonExploreData.button addTarget:self action:@selector(onExploreData) forControlEvents:UIControlEventTouchUpInside];
-  [view addSubview:buttonExploreData];
+//  [view addSubview:buttonExploreData];
   [buttonExploreData sizeToFit];
 
   PacoMenuButton *buttonCreateExperiment = [[PacoMenuButton alloc] init];
@@ -113,7 +113,7 @@
 
   CGRect layoutRect = CGRectInset(view.bounds, 15, 0);
   layoutRect.size.height -= 60;
-  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, buttonExploreData, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
+  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
