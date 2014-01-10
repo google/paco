@@ -132,4 +132,30 @@ static int INVALID_INDEX = -1;
 }
 
 
+- (BOOL)refreshWithSchedule:(PacoExperimentSchedule*)newSchedule {
+  NSAssert(newSchedule, @"newSchedule should be valid");
+  
+  self.schedule.userEditable = newSchedule.userEditable;
+  if ([self.schedule isEqualToSchedule:newSchedule]) {
+    return NO;
+  }
+  long long startHourConfigured = self.schedule.esmStartHour;
+  long long endHourConfigured = self.schedule.esmEndHour;
+  NSArray* timesConfigured = self.schedule.times;
+  PacoExperimentSchedule* oldSchedule = self.schedule;
+  self.schedule = newSchedule;
+  
+  //esm
+  if ([oldSchedule isESMSchedule] && [newSchedule isESMSchedule]) {
+    self.schedule.esmStartHour = startHourConfigured;
+    self.schedule.esmEndHour = endHourConfigured;
+  }
+   //daily, weekdays, weekly, monthly
+  if (![oldSchedule isESMSchedule] && ![newSchedule isESMSchedule] &&
+      [timesConfigured count] == [newSchedule.times count]) {
+    self.schedule.times = timesConfigured;
+  }
+  return YES;
+}
+
 @end

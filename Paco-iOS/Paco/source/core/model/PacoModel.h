@@ -63,5 +63,9 @@ extern NSString* const PacoFinishRefreshing;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 
+- (BOOL)hasRunningExperiments;
+
+- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds))block;
+
 @end
 
