@@ -544,13 +544,23 @@
 
 
 - (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions {
-  //shut down notification system should happen before applying new definitions and cleaning
-  //existing experiments, since we may need to save survey missing events
-  [self shutDownNotificationSystemIfNeeded];
+  //save survey missing events
+  [self.scheduler cleanExpiredNotifications];
+  
   [self applyDefinitionsFromServer:newDefinitions];
-  //clean all experiments, this should happen after the notification system is shut down
-  //and this will also store an empty experiment plist
-  [self.model cleanAllExperiments];
+  
+  if (![self.model hasRunningExperiments]) {
+    return;
+  }
+  
+  [self.model refreshExperimentsWithBlock:^(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds){
+    if (!shouldRefreshSchedules) { //only delete notifications for deleted experiments
+      [self.scheduler stopSchedulingForExperiments:deletedExperimentIds];
+    } else { //reset notification system
+      [self.scheduler restartNotificationSystem];
+    }
+  }];
+  
 }
 
 - (void)refreshDefinitions {

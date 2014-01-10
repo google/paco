@@ -71,16 +71,8 @@
 
 
 - (void)onClickRefresh {
-  [PacoAlertView showAlertWithTitle:@"Note"
-                            message:@"All running experiments will be stopped and their data will be deleted."
-                       dismissBlock:^(NSInteger buttonIndex) {
-                         if (0 == buttonIndex) {
-                           [[PacoLoadingView sharedInstance] showLoadingScreen];
-                           [[PacoClient sharedInstance] refreshDefinitions];
-                         }
-                       }
-                  cancelButtonTitle:nil
-                  otherButtonTitles:@"Refresh", @"Cancel", nil];
+  [[PacoLoadingView sharedInstance] showLoadingScreen];
+  [[PacoClient sharedInstance] refreshDefinitions];
 }
 
 
