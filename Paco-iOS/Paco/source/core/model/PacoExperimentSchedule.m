@@ -247,6 +247,14 @@
   return self.scheduleType == kPacoScheduleTypeESM;
 }
 
+- (BOOL)isSelfReport {
+  return kPacoScheduleTypeSelfReport == self.scheduleType;
+}
+
+- (BOOL)isScheduled {
+  return ![self isSelfReport];
+}
+
 - (NSInteger)minutesPerDayOfESM {
   if (![self isESMSchedule]) {
     return 0;
@@ -295,4 +303,65 @@
   }
   return nil;
 }
+
+
+//Note: userEditable is ignored here
+//ESM startHour and endHour are ignored here
+//times are ignored if the number of times are the same
+- (BOOL)isEqualToSchedule:(PacoExperimentSchedule*)another {
+  if (!another) {
+    return NO;
+  }
+  if (self.scheduleType != another.scheduleType) {
+    return NO;
+  }
+  if (self.scheduleType == kPacoScheduleTypeSelfReport) {
+    return YES;
+  }
+  //common field owned by all schedule types
+  if (self.timeout != another.timeout) {
+    return NO;
+  }
+  
+  switch (self.scheduleType) {
+    case kPacoScheduleTypeDaily:
+      return (self.repeatRate == another.repeatRate && [self.times count] == [another.times count]);
+
+    case kPacoScheduleTypeWeekday:
+      return ([self.times count] == [another.times count]);
+      
+    case kPacoScheduleTypeWeekly:
+      return (self.repeatRate == another.repeatRate &&
+              self.weekDaysScheduled == another.weekDaysScheduled &&
+              [self.times count] == [another.times count]);
+      
+    case kPacoScheduleTypeMonthly:
+    {
+      if (self.repeatRate != another.repeatRate) {
+        return NO;
+      }
+      if ([self.times count] != [another.times count]) {
+        return NO;
+      }
+      if (self.byDayOfMonth) {
+        return self.dayOfMonth == another.dayOfMonth;
+      } else { //by day of week
+        return self.weekDaysScheduled == another.weekDaysScheduled;
+      }
+    }
+
+    case kPacoScheduleTypeESM:
+      return (self.esmFrequency == another.esmFrequency &&
+              self.esmPeriod == another.esmPeriod &&
+              ((self.esmWeekends && another.esmWeekends) || (!self.esmWeekends && !another.esmWeekends)) &&
+              self.minimumBuffer == another.minimumBuffer);
+      
+    default:
+      NSAssert(NO, @"should be a valid schedule type");
+      return NO;
+  }
+}
+
+
+
 @end

@@ -76,9 +76,18 @@ typedef enum {
 - (NSString*)esmStartTimeString;
 - (NSString*)esmEndTimeString;
 - (BOOL)isESMSchedule;
+
+- (BOOL)isSelfReport;
+- (BOOL)isScheduled;
+
 - (NSInteger)minutesPerDayOfESM;
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date;
 
 - (NSString*)evaluateSchedule;
+
+//Note: userEditable is ignored here
+//ESM startHour and endHour are ignored here
+//times are ignored if the number of times are the same
+- (BOOL)isEqualToSchedule:(PacoExperimentSchedule*)another;
 
 @end

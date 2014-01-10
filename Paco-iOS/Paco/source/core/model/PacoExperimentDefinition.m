@@ -90,6 +90,19 @@
   return ![self isFixedLength];
 }
 
+- (BOOL)hasSameDurationWithDefinition:(PacoExperimentDefinition*)another {
+  if ([self isOngoing] && [another isOngoing]) {
+    return YES;
+  }
+  if ([self isFixedLength] &&
+      [another isFixedLength] &&
+      [self.startDate isEqualToDate:another.startDate] &&
+      [self.endDate isEqualToDate:another.endDate]) {
+    return YES;
+  }
+  return NO;
+}
+
 - (BOOL)isExperimentValid {
   return [self isExperimentValidSinceDate:[NSDate date]];
 }
