@@ -223,6 +223,21 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 
+- (void)resetWithPacoNotifications:(NSArray*)notifications {
+  NSLog(@"reset notification system");
+  [self cancelAlliOSNotifications];
+  self.notificationDict = [NSMutableDictionary dictionary];
+  
+  if ([notifications count] > 0) {
+    [self addNotifications:notifications];
+  }
+  [self saveNotificationsToCache];
+  NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+  //schedule the new notifications
+  [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
+}
+
+
 /*
  - Keep the following notifications: 
  a. the active notifications
@@ -309,6 +324,31 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     }
     //Just in case, remove any notificaiton that still exists in OS system
     [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
+  }
+}
+
+- (void)cancelNotificationsForExperiments:(NSArray*)experimentIds {
+  @synchronized(self) {
+    if (0 == [experimentIds count]) {
+      return;
+    }
+    for (NSString* experimentId in experimentIds) {
+      NSAssert([experimentId isKindOfClass:[NSString class]], @"should be a valid ID");
+      
+      NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+      if (notifications != nil) {
+        NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
+        [UILocalNotification pacoCancelNotifications:notifications];
+        [self.notificationDict removeObjectForKey:experimentId];
+      }
+      //Just in case, remove any notificaiton that still exists in OS system
+      [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
+    }
+
+    NSLog("Finish Cancel Notifications for experiments: %@", experimentIds);
+    NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    //save the new notifications
+    [self saveNotificationsToCache];
   }
 }
 
