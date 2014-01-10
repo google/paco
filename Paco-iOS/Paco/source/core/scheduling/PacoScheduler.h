@@ -58,10 +58,16 @@ extern NSInteger const kTotalNumOfNotifications;
 // call this when shutting down the notification system
 - (void)stopSchedulingForAllExperiments;
 
+- (void)stopSchedulingForExperiments:(NSArray*)experimentIds;
+
 // call this when the application goes to InActive to make sure
 // we can persist the notifications state
 - (BOOL)saveNotificationsToFile;
 
 - (void)initializeNotifications;
+
+- (void)cleanExpiredNotifications;
+
+- (void)restartNotificationSystem;
 
 @end
