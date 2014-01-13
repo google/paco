@@ -108,6 +108,13 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.notificationManager cancelAllPacoNotifications];
 }
 
+- (void)stopSchedulingForExperiments:(NSArray*)experimentIds {
+  if ([experimentIds count] > 0) {
+    NSLog(@"stop scheduling for experiments: %@", experimentIds);
+    [self.notificationManager cancelNotificationsForExperiments:experimentIds];
+  }
+}
+
 - (void)executeRoutineMajorTask {
   [self executeMajorTask:NO];
 }
@@ -149,6 +156,15 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.delegate updateNotificationSystem];
 }
 
+- (void)restartNotificationSystem {
+  NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+  [self.notificationManager resetWithPacoNotifications:notificationsToSchedule];
+  [self.delegate updateNotificationSystem];
+}
+
+- (void)cleanExpiredNotifications {
+  [self.notificationManager cleanExpiredNotifications];
+}
 
 - (void)handleRespondedNotification:(UILocalNotification *)notification {
   [self.notificationManager handleRespondedNotification:notification];

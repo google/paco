@@ -32,6 +32,7 @@
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;
+- (void)resetWithPacoNotifications:(NSArray*)notifications;
 - (void)cleanExpiredNotifications;
 
 //call this when the user stops an experiment
@@ -39,6 +40,8 @@
 //2. clear this expeirment's notifications from notification tray
 //3. delete all notifications from cache for this experiment
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId;
+
+- (void)cancelNotificationsForExperiments:(NSArray*)experimentIds;
 
 - (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
 - (BOOL)isNotificationActive:(UILocalNotification*)notification;

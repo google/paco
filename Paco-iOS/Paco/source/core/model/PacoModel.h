@@ -41,6 +41,7 @@ extern NSString* const PacoFinishRefreshing;
 - (BOOL)shouldTriggerNotificationSystem;
 
 - (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentInstancesToFile;
 
 - (BOOL)loadFromFile;
 - (BOOL)deleteFile;
@@ -62,6 +63,10 @@ extern NSString* const PacoFinishRefreshing;
                                       schedule:(PacoExperimentSchedule*)schedule;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
+
+- (BOOL)hasRunningExperiments;
+
+- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds))block;
 
 @end
 

@@ -304,6 +304,10 @@
                                                                  datesToSchedule:dates];
     [allNotifications addObjectsFromArray:notifications];
   }
+  
+  //we need to store generated esm schedules inside experiment plist
+  [self.model saveExperimentInstancesToFile];
+  
   int numOfNotifications = [allNotifications count];
   if (0 == numOfNotifications) {
     return nil;
@@ -542,6 +546,27 @@
   [self.model saveExperimentDefinitionsToFile];
 }
 
+
+- (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions {
+  //save survey missing events
+  [self.scheduler cleanExpiredNotifications];
+  
+  [self applyDefinitionsFromServer:newDefinitions];
+  
+  if (![self.model hasRunningExperiments]) {
+    return;
+  }
+  
+  [self.model refreshExperimentsWithBlock:^(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds){
+    if (!shouldRefreshSchedules) { //only delete notifications for deleted experiments
+      [self.scheduler stopSchedulingForExperiments:deletedExperimentIds];
+    } else { //reset notification system
+      [self.scheduler restartNotificationSystem];
+    }
+  }];
+  
+}
+
 - (void)refreshDefinitions {
   @synchronized(self) {
     if (![self.prefetchState finishLoadingAll]) {
@@ -551,15 +576,9 @@
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
-            //shut down notification system should happen before applying new definitions and cleaning
-            //existing experiments, since we may need to save survey missing events
-            [self shutDownNotificationSystemIfNeeded];
-            [self applyDefinitionsFromServer:definitions];
-            //clean all experiments, this should happen after the notification system is shut down
-            //and this will also store an empty experiment plist
-            [self.model cleanAllExperiments];
+            [self refreshSucceedWithDefinitions:definitions];
           } else {
-            NSLog(@"Failed to prefetch definitions: %@", [error description]);
+            NSLog(@"Failed to refresh definitions: %@", [error description]);
           }
           self.prefetchState.finishLoadingDefinitions = YES;
           self.prefetchState.finishLoadingExperiments = YES;
