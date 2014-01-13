@@ -109,8 +109,10 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 - (void)stopSchedulingForExperiments:(NSArray*)experimentIds {
-  NSLog(@"stop scheduling for experiments: %@", experimentIds);
-  [self.notificationManager cancelNotificationsForExperiments:experimentIds];
+  if ([experimentIds count] > 0) {
+    NSLog(@"stop scheduling for experiments: %@", experimentIds);
+    [self.notificationManager cancelNotificationsForExperiments:experimentIds];
+  }
 }
 
 - (void)executeRoutineMajorTask {

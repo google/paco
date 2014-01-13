@@ -345,7 +345,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
     }
 
-    NSLog("Finish Cancel Notifications for experiments: %@", experimentIds);
+    NSLog(@"Finish Cancel Notifications for experiments: %@", experimentIds);
     NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     //save the new notifications
     [self saveNotificationsToCache];

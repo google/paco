@@ -304,6 +304,10 @@
                                                                  datesToSchedule:dates];
     [allNotifications addObjectsFromArray:notifications];
   }
+  
+  //we need to store generated esm schedules inside experiment plist
+  [self.model saveExperimentInstancesToFile];
+  
   int numOfNotifications = [allNotifications count];
   if (0 == numOfNotifications) {
     return nil;

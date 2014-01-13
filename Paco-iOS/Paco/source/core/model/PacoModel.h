@@ -41,6 +41,7 @@ extern NSString* const PacoFinishRefreshing;
 - (BOOL)shouldTriggerNotificationSystem;
 
 - (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentInstancesToFile;
 
 - (BOOL)loadFromFile;
 - (BOOL)deleteFile;
