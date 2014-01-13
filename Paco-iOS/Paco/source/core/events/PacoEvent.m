@@ -172,26 +172,23 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   event.experimentName = definition.title;
   
   event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
-  NSMutableDictionary *response = [NSMutableDictionary dictionary];
-  NSArray *responses = [NSArray arrayWithObject:response];
   
-  // Special response values to indicate the user is joining this experiement.
-  [response setObject:@"joined" forKey:kPacoResponseKeyName];
-  [response setObject:@"true" forKey:kPacoResponseKeyAnswer];
-  
-  // Adding a schedule to the join event.  The join event is the only way to
-  // edit a schedule.
-  if (schedule &&
-      definition.schedule.scheduleType != kPacoScheduleTypeSelfReport) {
-    [response setObject:@"schedule" forKey:kPacoResponseKeyName];
-    [response setObject:[schedule jsonString] forKey:kPacoResponseKeyAnswer];
-  }
-  
+  //Special response values to indicate the user is joining this experiement.
   //For now, we need to indicate inputId=-1 to avoid server exception,
   //in the future, server needs to fix and accept JOIN and STOP events without inputId
-  [response setObject:@"-1" forKey:kPacoResponseKeyInputId];
+  NSDictionary* joinResponse = @{kPacoResponseKeyName:@"joined",
+                                 kPacoResponseKeyAnswer:@"true",
+                                 kPacoResponseKeyInputId:@"-1"};
+  NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
   
-  event.responses = responses;
+  // Adding a schedule to the join event.
+  if (schedule && [definition.schedule isScheduled]){
+    NSDictionary* scheduleResponse = @{kPacoResponseKeyName:@"schedule",
+                                       kPacoResponseKeyAnswer:[schedule jsonString],
+                                       kPacoResponseKeyInputId:@"-1"};
+    [responseList addObject:scheduleResponse];
+  }
+  event.responses = responseList;
   return event;
 }
 
