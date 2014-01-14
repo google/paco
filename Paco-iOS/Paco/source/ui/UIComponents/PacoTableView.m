@@ -224,7 +224,7 @@
     yStart += headerFrame.size.height;
   }
   
-  self.tableView.frame = CGRectMake(10, yStart, self.frame.size.width - 20, self.frame.size.height - headerFrame.size.height - footerFrame.size.height);
+  self.tableView.frame = CGRectMake(10, yStart, self.frame.size.width - 20, self.frame.size.height - headerFrame.size.height - footerFrame.size.height - 10);
   yStart += self.tableView.frame.size.height;
   if (self.footer) {
     self.footer.frame = CGRectMake(0, yStart, self.frame.size.width, self.frame.size.height - yStart);
