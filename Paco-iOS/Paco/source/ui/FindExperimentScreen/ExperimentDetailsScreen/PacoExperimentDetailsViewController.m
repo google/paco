@@ -115,9 +115,10 @@
     yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
     
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
-    NSString* endDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.endDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
-    dateText.text = [NSString stringWithFormat:@"%@               %@", startDate, endDate];
+    dateText.text = [NSString stringWithFormat:@"%@               %@",
+                     startDate,
+                     self.experiment.inclusiveEndDateString];
     dateText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
     dateText.textColor = [PacoColor pacoDarkBlue];
     dateText.backgroundColor = [UIColor clearColor];

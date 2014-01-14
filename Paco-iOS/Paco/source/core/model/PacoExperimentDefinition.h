@@ -29,7 +29,11 @@
 @property (nonatomic, retain) NSArray *publishedUsers;  // <NSString>
 
 @property(nonatomic, strong, readonly) NSDate* startDate;
+//exclusive, used for computing schedules
 @property(nonatomic, strong, readonly) NSDate* endDate;
+//inclusive, used only for UI display
+@property(nonatomic, strong, readonly) NSString* inclusiveEndDateString;
+
 
 @property (nonatomic, assign) BOOL deleted;
 @property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>

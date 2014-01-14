@@ -23,6 +23,7 @@
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
 @property(nonatomic, strong) NSDate* endDate;
+@property(nonatomic, strong) NSString* inclusiveEndDateString;
 @end
 
 
@@ -58,6 +59,7 @@
   NSString* startDateStr = [definitionMembers objectForKey:@"startDate"];
   NSString* endDateStr = [definitionMembers objectForKey:@"endDate"];
   if (startDateStr && endDateStr) {
+    definition.inclusiveEndDateString = endDateStr;
     definition.startDate = [PacoDateUtility dateFromStringWithYearAndDay:startDateStr];
     NSDate* inclusiveEndDate = [PacoDateUtility dateFromStringWithYearAndDay:endDateStr];
     definition.endDate = [inclusiveEndDate pacoNextDayAtMidnight];
