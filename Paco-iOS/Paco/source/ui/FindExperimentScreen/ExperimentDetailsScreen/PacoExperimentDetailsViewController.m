@@ -21,6 +21,7 @@
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoClient.h"
+#import "PacoDateUtility.h"
 
 @interface PacoExperimentDetailsViewController ()
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
@@ -93,16 +94,40 @@
   desLabel.numberOfLines = 0;
   [self.view addSubview:desLabel];
 
-  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 190)];
-  descriptionLabel.backgroundColor=[UIColor whiteColor];
+  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 140)];
+  descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [PacoColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.experimentDescription;
   descriptionLabel.editable = NO;
   [self.view addSubview:descriptionLabel];
 
-  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20, 300, 20)];
-  NSString *creText = @"Creator:";
+  int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
+  
+  if (self.experiment.startDate) {
+    UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
+    dateLabel.text = @"Start Date:                 End Date:";
+    dateLabel.font = [PacoFont pacoNormalButtonFont];
+    dateLabel.textColor = [PacoColor pacoDarkBlue];
+    dateLabel.backgroundColor = [UIColor clearColor];
+    dateLabel.numberOfLines = 0 ;
+    [self.view addSubview:dateLabel];
+    yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
+    
+    NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
+    NSString* endDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.endDate];
+    UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
+    dateText.text = [NSString stringWithFormat:@"%@               %@", startDate, endDate];
+    dateText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
+    dateText.textColor = [PacoColor pacoDarkBlue];
+    dateText.backgroundColor = [UIColor clearColor];
+    dateText.numberOfLines = 0 ;
+    [self.view addSubview:dateText];
+    yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
+  }
+
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
+  NSString* creText = @"Creator:";
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
   creatorLabel.textColor = [PacoColor pacoDarkBlue];
@@ -136,8 +161,8 @@
   [join sizeToFit];
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
-  joinframe.origin.y = creatorValueLabel.frame.origin.y + creatorValueLabel.frame.size.height + 30;
   joinframe.size.height = 35;
+  joinframe.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
   join.frame = joinframe;
 }
 
