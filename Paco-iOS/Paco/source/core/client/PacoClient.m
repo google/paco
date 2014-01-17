@@ -557,10 +557,8 @@
     return;
   }
   
-  [self.model refreshExperimentsWithBlock:^(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds){
-    if (!shouldRefreshSchedules) { //only delete notifications for deleted experiments
-      [self.scheduler stopSchedulingForExperiments:deletedExperimentIds];
-    } else { //reset notification system
+  [self.model refreshExperimentsWithBlock:^(BOOL shouldRefreshSchedules){
+    if (shouldRefreshSchedules) { //reset notification system
       [self.scheduler restartNotificationSystem];
     }
   }];

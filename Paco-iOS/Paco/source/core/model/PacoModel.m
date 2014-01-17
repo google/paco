@@ -192,15 +192,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules, NSArray* deletedExperimentIds))block {
+- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules))block {
   @synchronized(self) {
     if (0 == [self.experimentInstances count]) {
-      block(NO, nil);
+      block(NO);
       return;
     }
 
     BOOL schedulesChanged = NO;
-    NSMutableArray* experimentsToDelete = [NSMutableArray array];
     for (PacoExperiment* experiment in self.experimentInstances) {
       NSString* definitionId = experiment.definition.experimentId;
       NSAssert(definitionId, @"definitionId should be valid");
@@ -209,10 +208,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
       PacoExperimentDefinition* oldDefinition = experiment.definition;
       NSAssert(oldDefinition, @"oldDefinition should be valid");
 
-      if (!newDefinition) { //the definition expired or was deleted by administrator
-        [experimentsToDelete addObject:experiment];
-      } else {
-        //re-link this experiment to the new definitions
+      /*
+       In the following 3 cases, definition won't be returned from server:
+       a. definition expires 
+       b. definition was purged by administrator
+       c. definition is no longer published to this user
+       **/
+      if (newDefinition) {
+        //replace with the new definition, if newDefinition is nil, then keep the old definition
         experiment.definition = newDefinition;
       }
       
@@ -221,8 +224,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
           (!newDefinition || (newDefinition && [newDefinition.schedule isSelfReport]))) {
         continue;
       }
-      //if the experiment is to be deleted, all its notifications will be deleted from notification
-      //system, unless the whole notification system needs to be refreshed
+      //if newDefinition is nil, then we will still keep the old definition and old schedule
+      //nothing needs to be changed for this experiment
       if (!newDefinition) {
         continue;
       }
@@ -236,14 +239,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
       }
     }
     
-    //delete experiments and save experiments file
-    NSMutableArray* experimentIdList = [NSMutableArray arrayWithCapacity:[experimentsToDelete count]];
-    for (PacoExperiment* experiment in experimentsToDelete) {
-      [self.experimentInstances removeObject:experiment];
-      [experimentIdList addObject:experiment.instanceId];
-    }
     [self saveExperimentInstancesToFile];
-    block(schedulesChanged, experimentIdList);
+    block(schedulesChanged);
   }
 }
 
