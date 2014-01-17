@@ -86,7 +86,7 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)setSchedule:(PacoExperimentSchedule *)schedule {
-  _schedule = schedule;
+  _schedule = [schedule copy];
   _tableView.data = [[self class] dataFromExperimentSchedule:_schedule];
   [self setNeedsLayout];
 }
