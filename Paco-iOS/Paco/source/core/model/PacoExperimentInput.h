@@ -49,6 +49,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL isADependencyForOthers;
 
 + (id)pacoExperimentInputFromJSON:(id)jsonObject;
+- (id)serializeToJSON;
 
 - (NSString*)stringForListChoices;
 - (id)valueForValidation;

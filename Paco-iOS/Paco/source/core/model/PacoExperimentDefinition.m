@@ -84,6 +84,64 @@
   return definition;
 }
 
+- (id)copyWithZone:(NSZone*)zone {
+  PacoExperimentDefinition* another = [[self class] pacoExperimentDefinitionFromJSON:self.jsonObject];
+  return another;
+}
+
+
+- (id)serializeToJSON {
+  NSMutableDictionary* json = [NSMutableDictionary dictionary];
+  if (self.admins) {
+    [json setObject:self.admins forKey:@"admins"];
+  }
+  if (self.creator) {
+    [json setObject:self.creator forKey:@"creator"];
+  }
+  [json setObject:[NSNumber numberWithBool:self.deleted] forKey:@"deleted"];
+  if (self.experimentDescription) {
+    [json setObject:self.experimentDescription forKey:@"description"];
+  }
+  
+  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedback count]];
+  for (PacoExperimentFeedback* feedback in self.feedback) {
+    [feedbackJson addObject:[feedback serializeToJSON]];
+  }
+  [json setObject:feedbackJson forKey:@"feedback"];
+
+  if (self.informedConsentForm) {
+    [json setObject:self.informedConsentForm forKey:@"informedConsentForm"];
+  }
+  [json setObject:[NSNumber numberWithBool:self.fixedDuration] forKey:@"fixedDuration"];
+  [json setObject:[NSNumber numberWithLongLong:[self.experimentId longLongValue]] forKey:@"id"];
+  
+  NSMutableArray* inputJson = [NSMutableArray arrayWithCapacity:[self.inputs count]];
+  for (PacoExperimentInput* input in self.inputs) {
+    [inputJson addObject:[input serializeToJSON]];
+  }
+  [json setObject:inputJson forKey:@"inputs"];
+  
+  if (self.modifyDate) {
+    [json setObject:self.modifyDate forKey:@"modifyDate"];
+  }
+  [json setObject:[NSNumber numberWithBool:self.published] forKey:@"published"];
+  if (self.publishedUsers) {
+    [json setObject:self.publishedUsers forKey:@"publishedUsers"];
+  }
+  if (self.startDate && self.endDate) {
+    [json setObject:[PacoDateUtility stringWithYearAndDayFromDate:self.startDate] forKey:@"startDate"];
+    [json setObject:self.inclusiveEndDateString forKey:@"endDate"];
+  }
+  [json setObject:[NSNumber numberWithBool:self.questionsChange] forKey:@"questionsChange"];
+  [json setObject:[self.schedule serializeToJSON] forKey:@"schedule"];
+  [json setObject:self.title forKey:@"title"];
+  [json setObject:[NSNumber numberWithBool:self.webReccommended] forKey:@"webRecommended"];
+  [json setObject:[NSNumber numberWithInt:self.experimentVersion] forKey:@"version"];
+  return json;
+}
+
+
+
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;
 }

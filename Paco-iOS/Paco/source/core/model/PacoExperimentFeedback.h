@@ -23,5 +23,6 @@
 @property (nonatomic, copy) NSString *type;  // currently only 1 type , 'display'
 @property (nonatomic, retain) id jsonObject;
 + (id)pacoFeedbackFromJSON:(id)jsonObject;
+- (id)serializeToJSON;
 
 @end

@@ -18,42 +18,42 @@
 #import "PacoModel.h"
 #import "NSDate+Paco.h"
 
-@interface PacoExperimentSchedule ()
-- (id)serializeToJSON;
-@end
-
 
 @implementation PacoExperiment
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperiment:%p - "
-          @"definitions=%@>",
+          @"schedule=%@\n"
+          @"definition=%@>",
           self,
+          self.schedule,
           self.definition];
 }
 
 - (id)serializeToJSON {
   id  jsonSchedule = [self.schedule serializeToJSON];
+  id jsonDefinition = [self.definition serializeToJSON];
   return [NSDictionary dictionaryWithObjectsAndKeys:
           self.definition.experimentId, @"experimentId",
           self.instanceId, @"instanceId",
           jsonSchedule, @"schedule",
+          jsonDefinition, @"definition",
           nil];
 }
 
-- (void)deserializeFromJSON:(id)json model:(PacoModel *)model {
-  assert([json isKindOfClass:[NSDictionary class]]);
-  NSDictionary *map = json;
-  self.instanceId = [map objectForKey:@"instanceId"];
-  
-  self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:[map objectForKey:@"schedule"]];
-  
+- (void)deserializeFromJSON:(id)json {
+  NSAssert([json isKindOfClass:[NSDictionary class]], @"json should be a dictionary");
   self.jsonObject = json;
+
+  self.instanceId = [self.jsonObject objectForKey:@"instanceId"];
   
-  NSString *experimentId = [map objectForKey:@"experimentId"];
-  PacoExperimentDefinition *experimentDefinition = [model experimentDefinitionForId:experimentId];
-  NSAssert(experimentDefinition != nil, @"definition doesn't exist!");
-  self.definition = experimentDefinition;
+  NSDictionary* jsonSchedule = [self.jsonObject objectForKey:@"schedule"];
+  self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
+  NSAssert(self.schedule, @"schedule doesn't exist!");
+  
+  NSDictionary* jsonDefinition = [self.jsonObject objectForKey:@"definition"];
+  self.definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonDefinition];
+  NSAssert(self.definition, @"definition doesn't exist!");
 }
 
 - (BOOL)shouldScheduleNotifications {

@@ -29,6 +29,14 @@
   return feedback;
 }
 
+- (id)serializeToJSON {
+  NSMutableDictionary* json = [NSMutableDictionary dictionary];
+  [json setObject:[NSNumber numberWithLongLong:[self.feedbackId longLongValue]] forKey:@"id"];
+  [json setObject:self.type forKey:@"feedbackType"];
+  [json setObject:self.text forKey:@"text"];
+  return json;
+}
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentFeedback:%p - "
           @"feedbackId=%@ "

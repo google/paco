@@ -41,6 +41,42 @@
 }
 
 
+- (id)serializeToJSON {
+  NSMutableDictionary* json = [NSMutableDictionary dictionary];
+  [json setObject:[NSNumber numberWithBool:self.conditional] forKey:@"conditional"];
+  if (self.conditionalExpression) {
+    [json setObject:self.conditionalExpression forKey:@"conditionExpression"];
+  }
+  [json setObject:[NSNumber numberWithLongLong:[self.inputIdentifier longLongValue]] forKey:@"id"];
+  [json setObject:[NSNumber numberWithBool:self.invisibleInput] forKey:@"invisibleInput"];
+  if (self.leftSideLabel) {
+    [json setObject:self.leftSideLabel forKey:@"leftSideLabel"];
+  }
+  if (self.likertSteps) {
+    [json setObject:[NSNumber numberWithInteger:self.likertSteps] forKey:@"likertSteps"];
+  }
+  if (self.listChoices) {
+    [json setObject:self.listChoices forKey:@"listChoices"];
+  }
+  [json setObject:[NSNumber numberWithBool:self.mandatory] forKey:@"mandatory"];
+  [json setObject:[NSNumber numberWithBool:self.multiSelect] forKey:@"multiselect"];
+  [json setObject:self.name forKey:@"name"];
+  if (self.questionType) {
+    [json setObject:self.questionType forKey:@"questionType"];
+  }
+  if (self.responseType) {
+    [json setObject:self.responseType forKey:@"responseType"];
+  }
+  if (self.rightSideLabel) {
+    [json setObject:self.rightSideLabel forKey:@"rightSideLabel"];
+  }
+  if (self.text) {
+    [json setObject:self.text forKey:@"text"];
+  }
+  return json;
+}
+
+
 + (ResponseEnumType)responseEnumTypeFromString:(NSString*)responseTypeString {
   ResponseEnumType enumType = ResponseEnumTypeInvalid;
   

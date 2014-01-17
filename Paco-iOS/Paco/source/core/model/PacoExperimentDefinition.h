@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 @class PacoExperimentSchedule;
 
-@interface PacoExperimentDefinition : NSObject
+@interface PacoExperimentDefinition : NSObject <NSCopying>
 
 @property (nonatomic, copy) NSString *experimentId;
 @property (nonatomic, copy) NSString *title;
@@ -48,6 +48,7 @@
 @property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
+- (id)serializeToJSON;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;

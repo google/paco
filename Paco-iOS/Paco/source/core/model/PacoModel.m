@@ -110,8 +110,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
-    [experiment deserializeFromJSON:jsonExperiment model:self];
-    assert(experiment);
+    [experiment deserializeFromJSON:jsonExperiment];
+    NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
     //PacoExperiment *experiment = [[PacoExperiment alloc] init];
     //experiment.definition = experimentDefinition;
