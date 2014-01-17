@@ -16,28 +16,79 @@
 #import "PacoExperimentInput.h"
 #import <CoreLocation/CoreLocation.h>
 
+static NSString* const INPUT_CONDITIONAL = @"conditional";
+static NSString* const INPUT_CONDITION_EXPRESSION = @"conditionExpression";
+static NSString* const INPUT_ID = @"id";
+static NSString* const INPUT_INVISIBLE_INPUT = @"invisibleInput";
+static NSString* const INPUT_LEFT_SIDE_LABEL = @"leftSideLabel";
+static NSString* const INPUT_RIGHT_SIDE_LABEL = @"rightSideLabel";
+static NSString* const INPUT_LIKERT_STEPS = @"likertSteps";
+static NSString* const INPUT_LIST_CHOICES = @"listChoices";
+static NSString* const INPUT_MANDATORY = @"mandatory";
+static NSString* const INPUT_MULTI_SELECT = @"multiselect";
+static NSString* const INPUT_NAME = @"name";
+static NSString* const INPUT_QUESTION_TYPE = @"questionType";
+static NSString* const INPUT_RESPONSE_TYPE = @"responseType";
+static NSString* const INPUT_TEXT = @"text";
+
 @implementation PacoExperimentInput
 
 + (id)pacoExperimentInputFromJSON:(id)jsonObject {
   PacoExperimentInput *input = [[PacoExperimentInput alloc] init];
   NSDictionary *inputMembers = jsonObject;
-  input.conditional = [[inputMembers objectForKey:@"conditional"] boolValue];
-  input.conditionalExpression = [inputMembers objectForKey:@"conditionExpression"];
-  input.inputIdentifier = [NSString stringWithFormat:@"%ld", [[inputMembers objectForKey:@"id"] longValue]];
-  input.invisibleInput = [[inputMembers objectForKey:@"invisibleInput"] boolValue];
-  input.leftSideLabel = [inputMembers objectForKey:@"leftSideLabel"];
-  input.likertSteps = [[inputMembers objectForKey:@"likertSteps"] intValue];
-  input.listChoices = [inputMembers objectForKey:@"listChoices"];
-  input.mandatory = [[inputMembers objectForKey:@"mandatory"] boolValue];
-  input.multiSelect = [[inputMembers objectForKey:@"multiselect"] boolValue];
-  input.name = [inputMembers objectForKey:@"name"];
-  input.questionType = [inputMembers objectForKey:@"questionType"];
-  input.responseType = [inputMembers objectForKey:@"responseType"];
+  input.conditional = [[inputMembers objectForKey:INPUT_CONDITIONAL] boolValue];
+  input.conditionalExpression = [inputMembers objectForKey:INPUT_CONDITION_EXPRESSION];
+  input.inputIdentifier = [NSString stringWithFormat:@"%ld", [[inputMembers objectForKey:INPUT_ID] longValue]];
+  input.invisibleInput = [[inputMembers objectForKey:INPUT_INVISIBLE_INPUT] boolValue];
+  input.leftSideLabel = [inputMembers objectForKey:INPUT_LEFT_SIDE_LABEL];
+  input.likertSteps = [[inputMembers objectForKey:INPUT_LIKERT_STEPS] intValue];
+  input.listChoices = [inputMembers objectForKey:INPUT_LIST_CHOICES];
+  input.mandatory = [[inputMembers objectForKey:INPUT_MANDATORY] boolValue];
+  input.multiSelect = [[inputMembers objectForKey:INPUT_MULTI_SELECT] boolValue];
+  input.name = [inputMembers objectForKey:INPUT_NAME];
+  input.questionType = [inputMembers objectForKey:INPUT_QUESTION_TYPE];
+  input.responseType = [inputMembers objectForKey:INPUT_RESPONSE_TYPE];
   input.responseEnumType = [PacoExperimentInput responseEnumTypeFromString:input.responseType];
-  input.rightSideLabel = [inputMembers objectForKey:@"rightSideLabel"];
-  input.text = [inputMembers objectForKey:@"text"];
+  input.rightSideLabel = [inputMembers objectForKey:INPUT_RIGHT_SIDE_LABEL];
+  input.text = [inputMembers objectForKey:INPUT_TEXT];
   input.jsonObject = jsonObject;
   return input;
+}
+
+
+- (id)serializeToJSON {
+  NSMutableDictionary* json = [NSMutableDictionary dictionary];
+  [json setObject:[NSNumber numberWithBool:self.conditional] forKey:INPUT_CONDITIONAL];
+  if (self.conditionalExpression) {
+    [json setObject:self.conditionalExpression forKey:INPUT_CONDITION_EXPRESSION];
+  }
+  [json setObject:[NSNumber numberWithLongLong:[self.inputIdentifier longLongValue]] forKey:INPUT_ID];
+  [json setObject:[NSNumber numberWithBool:self.invisibleInput] forKey:INPUT_INVISIBLE_INPUT];
+  if (self.leftSideLabel) {
+    [json setObject:self.leftSideLabel forKey:INPUT_LEFT_SIDE_LABEL];
+  }
+  if (self.likertSteps) {
+    [json setObject:[NSNumber numberWithInteger:self.likertSteps] forKey:INPUT_LIKERT_STEPS];
+  }
+  if (self.listChoices) {
+    [json setObject:self.listChoices forKey:INPUT_LIST_CHOICES];
+  }
+  [json setObject:[NSNumber numberWithBool:self.mandatory] forKey:INPUT_MANDATORY];
+  [json setObject:[NSNumber numberWithBool:self.multiSelect] forKey:INPUT_MULTI_SELECT];
+  [json setObject:self.name forKey:INPUT_NAME];
+  if (self.questionType) {
+    [json setObject:self.questionType forKey:INPUT_QUESTION_TYPE];
+  }
+  if (self.responseType) {
+    [json setObject:self.responseType forKey:INPUT_RESPONSE_TYPE];
+  }
+  if (self.rightSideLabel) {
+    [json setObject:self.rightSideLabel forKey:INPUT_RIGHT_SIDE_LABEL];
+  }
+  if (self.text) {
+    [json setObject:self.text forKey:INPUT_TEXT];
+  }
+  return json;
 }
 
 

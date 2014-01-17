@@ -20,6 +20,28 @@
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
 
+
+static NSString* const DEFINITION_ADMINS = @"admins";
+static NSString* const DEFINITION_CREATOR = @"creator";
+static NSString* const DEFINITION_DELETED = @"deleted";
+static NSString* const DEFINITION_DESCRIPTION = @"description";
+static NSString* const DEFINITION_FEEDBACK = @"feedback";
+static NSString* const DEFINITION_FIXED_DURATION = @"fixedDuration";
+static NSString* const DEFINITION_ID = @"id";
+static NSString* const DEFINITION_INFORMED_CONSENTFORM = @"informedConsentForm";
+static NSString* const DEFINITION_INPUTS = @"inputs";
+static NSString* const DEFINITION_MODIFYDATE = @"modifyDate";
+static NSString* const DEFINITION_PUBLISHED = @"published";
+static NSString* const DEFINITION_PUBLISHED_USERS = @"publishedUsers";
+static NSString* const DEFINITION_STARTDATE = @"startDate";
+static NSString* const DEFINITION_ENDDATE = @"endDate";
+static NSString* const DEFINITION_QUESTIONS_CHANGE = @"questionsChange";
+static NSString* const DEFINITION_SCHEDULE = @"schedule";
+static NSString* const DEFINITION_TITLE = @"title";
+static NSString* const DEFINITION_WEBRECOMMENDED = @"webRecommended";
+static NSString* const DEFINITION_VERSION = @"version";
+
+
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
 @property(nonatomic, strong) NSDate* endDate;
@@ -32,32 +54,32 @@
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject {
   PacoExperimentDefinition *definition = [[PacoExperimentDefinition alloc] init];
   NSDictionary *definitionMembers = jsonObject;
-  definition.admins = [definitionMembers objectForKey:@"admins"];
-  definition.creator = [definitionMembers objectForKey:@"creator"];
-  definition.deleted = [[definitionMembers objectForKey:@"deleted"] boolValue];
-  definition.experimentDescription = [definitionMembers objectForKey:@"description"];
-  NSArray *jsonFeedbackList = [definitionMembers objectForKey:@"feedback"];
+  definition.admins = [definitionMembers objectForKey:DEFINITION_ADMINS];
+  definition.creator = [definitionMembers objectForKey:DEFINITION_CREATOR];
+  definition.deleted = [[definitionMembers objectForKey:DEFINITION_DELETED] boolValue];
+  definition.experimentDescription = [definitionMembers objectForKey:DEFINITION_DESCRIPTION];
+  NSArray *jsonFeedbackList = [definitionMembers objectForKey:DEFINITION_FEEDBACK];
   NSMutableArray *feedbackObjects = [NSMutableArray array];
   for (id jsonFeedback in jsonFeedbackList) {
     [feedbackObjects addObject:[PacoExperimentFeedback pacoFeedbackFromJSON:jsonFeedback]];
   }
   definition.feedback = feedbackObjects;
-  definition.fixedDuration = [[definitionMembers objectForKey:@"fixedDuration"] boolValue];
-  definition.experimentId = [NSString stringWithFormat:@"%ld", [[definitionMembers objectForKey:@"id"] longValue]];
-  definition.informedConsentForm = [definitionMembers objectForKey:@"informedConsentForm"];
-  NSArray *jsonInputList = [definitionMembers objectForKey:@"inputs"];
+  definition.fixedDuration = [[definitionMembers objectForKey:DEFINITION_FIXED_DURATION] boolValue];
+  definition.experimentId = [NSString stringWithFormat:@"%ld", [[definitionMembers objectForKey:DEFINITION_ID] longValue]];
+  definition.informedConsentForm = [definitionMembers objectForKey:DEFINITION_INFORMED_CONSENTFORM];
+  NSArray *jsonInputList = [definitionMembers objectForKey:DEFINITION_INPUTS];
   NSMutableArray *inputObjects = [NSMutableArray array];
   for (id jsonInput in jsonInputList) {
     [inputObjects addObject:[PacoExperimentInput pacoExperimentInputFromJSON:jsonInput]];
   }
   definition.inputs = inputObjects;
-  definition.modifyDate = [definitionMembers objectForKey:@"modifyDate"]; //Format: "2012/01/17"
-  definition.published = [[definitionMembers objectForKey:@"published"] boolValue];
-  definition.publishedUsers = [definitionMembers objectForKey:@"publishedUsers"];
+  definition.modifyDate = [definitionMembers objectForKey:DEFINITION_MODIFYDATE]; //Format: "2012/01/17"
+  definition.published = [[definitionMembers objectForKey:DEFINITION_PUBLISHED] boolValue];
+  definition.publishedUsers = [definitionMembers objectForKey:DEFINITION_PUBLISHED_USERS];
   
   //"2013/10/15"
-  NSString* startDateStr = [definitionMembers objectForKey:@"startDate"];
-  NSString* endDateStr = [definitionMembers objectForKey:@"endDate"];
+  NSString* startDateStr = [definitionMembers objectForKey:DEFINITION_STARTDATE];
+  NSString* endDateStr = [definitionMembers objectForKey:DEFINITION_ENDDATE];
   if (startDateStr && endDateStr) {
     definition.inclusiveEndDateString = endDateStr;
     definition.startDate = [PacoDateUtility dateFromStringWithYearAndDay:startDateStr];
@@ -69,20 +91,78 @@
              @"startDate must be earlier than endDate");
   }
   
-  definition.questionsChange = [[definitionMembers objectForKey:@"questionsChange"] boolValue];
+  definition.questionsChange = [[definitionMembers objectForKey:DEFINITION_QUESTIONS_CHANGE] boolValue];
   
-  id jsonSchedule = [definitionMembers objectForKey:@"schedule"];
+  id jsonSchedule = [definitionMembers objectForKey:DEFINITION_SCHEDULE];
   PacoExperimentSchedule *schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   definition.schedule = schedule;
   
-  definition.title = [definitionMembers objectForKey:@"title"];
-  definition.webReccommended = [[definitionMembers objectForKey:@"webRecommended"] boolValue];
-  definition.experimentVersion = [[definitionMembers objectForKey:@"version"] intValue];
+  definition.title = [definitionMembers objectForKey:DEFINITION_TITLE];
+  definition.webReccommended = [[definitionMembers objectForKey:DEFINITION_WEBRECOMMENDED] boolValue];
+  definition.experimentVersion = [[definitionMembers objectForKey:DEFINITION_VERSION] intValue];
   
   definition.jsonObject = jsonObject;
   
   return definition;
 }
+
+- (id)copyWithZone:(NSZone*)zone {
+  PacoExperimentDefinition* another = [[self class] pacoExperimentDefinitionFromJSON:self.jsonObject];
+  return another;
+}
+
+
+- (id)serializeToJSON {
+  NSMutableDictionary* json = [NSMutableDictionary dictionary];
+  if (self.admins) {
+    [json setObject:self.admins forKey:DEFINITION_ADMINS];
+  }
+  if (self.creator) {
+    [json setObject:self.creator forKey:DEFINITION_CREATOR];
+  }
+  [json setObject:[NSNumber numberWithBool:self.deleted] forKey:DEFINITION_DELETED];
+  if (self.experimentDescription) {
+    [json setObject:self.experimentDescription forKey:DEFINITION_DESCRIPTION];
+  }
+  
+  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedback count]];
+  for (PacoExperimentFeedback* feedback in self.feedback) {
+    [feedbackJson addObject:[feedback serializeToJSON]];
+  }
+  [json setObject:feedbackJson forKey:DEFINITION_FEEDBACK];
+
+  if (self.informedConsentForm) {
+    [json setObject:self.informedConsentForm forKey:DEFINITION_INFORMED_CONSENTFORM];
+  }
+  [json setObject:[NSNumber numberWithBool:self.fixedDuration] forKey:DEFINITION_FIXED_DURATION];
+  [json setObject:[NSNumber numberWithLongLong:[self.experimentId longLongValue]] forKey:DEFINITION_ID];
+  
+  NSMutableArray* inputJson = [NSMutableArray arrayWithCapacity:[self.inputs count]];
+  for (PacoExperimentInput* input in self.inputs) {
+    [inputJson addObject:[input serializeToJSON]];
+  }
+  [json setObject:inputJson forKey:DEFINITION_INPUTS];
+  
+  if (self.modifyDate) {
+    [json setObject:self.modifyDate forKey:DEFINITION_MODIFYDATE];
+  }
+  [json setObject:[NSNumber numberWithBool:self.published] forKey:DEFINITION_PUBLISHED];
+  if (self.publishedUsers) {
+    [json setObject:self.publishedUsers forKey:DEFINITION_PUBLISHED_USERS];
+  }
+  if (self.startDate && self.endDate) {
+    [json setObject:[PacoDateUtility stringWithYearAndDayFromDate:self.startDate] forKey:DEFINITION_STARTDATE];
+    [json setObject:self.inclusiveEndDateString forKey:DEFINITION_ENDDATE];
+  }
+  [json setObject:[NSNumber numberWithBool:self.questionsChange] forKey:DEFINITION_QUESTIONS_CHANGE];
+  [json setObject:[self.schedule serializeToJSON] forKey:DEFINITION_SCHEDULE];
+  [json setObject:self.title forKey:DEFINITION_TITLE];
+  [json setObject:[NSNumber numberWithBool:self.webReccommended] forKey:DEFINITION_WEBRECOMMENDED];
+  [json setObject:[NSNumber numberWithInt:self.experimentVersion] forKey:DEFINITION_VERSION];
+  return json;
+}
+
+
 
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;

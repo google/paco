@@ -72,6 +72,8 @@ typedef enum {
 @property (nonatomic, retain) id jsonObject;
 @property (nonatomic, retain) NSArray *esmScheduleList;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
+- (id)serializeToJSON;
+
 - (NSString *)jsonString;
 - (NSString*)esmStartTimeString;
 - (NSString*)esmEndTimeString;
