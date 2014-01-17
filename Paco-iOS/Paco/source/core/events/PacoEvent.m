@@ -182,7 +182,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
   
   // Adding a schedule to the join event.
-  if (schedule && [definition.schedule isScheduled]){
+  if (schedule && [schedule isScheduled]){
     NSDictionary* scheduleResponse = @{kPacoResponseKeyName:@"schedule",
                                        kPacoResponseKeyAnswer:[schedule jsonString],
                                        kPacoResponseKeyInputId:@"-1"};

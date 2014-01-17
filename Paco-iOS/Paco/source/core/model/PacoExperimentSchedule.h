@@ -42,7 +42,7 @@ typedef enum {
 } PacoScheduleType;
 
 
-@interface PacoExperimentSchedule : NSObject
+@interface PacoExperimentSchedule : NSObject <NSCopying>
 
 @property (nonatomic, assign) BOOL byDayOfMonth;
 @property (nonatomic, assign) BOOL byDayOfWeek;

@@ -119,6 +119,13 @@
   return schedule;
 }
 
+
+- (id)copyWithZone:(NSZone *)zone {
+  PacoExperimentSchedule* another = [[self class] pacoExperimentScheduleFromJSON:self.jsonObject];
+  return another;
+}
+
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentSchedule:%p - "
           @"byDayOfMonth=%d "

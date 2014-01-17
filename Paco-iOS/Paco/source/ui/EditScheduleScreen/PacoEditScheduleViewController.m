@@ -71,8 +71,9 @@
     return;
   }
 
+  PacoExperimentSchedule* modifiedSchedule = [(PacoScheduleEditView*)self.view schedule];
   [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
-                                                andSchedule:self.definition.schedule];
+                                                andSchedule:modifiedSchedule];
   
   NSString* title = @"Congratulations!";
   NSString* message = @"You've successfully joined this experiment!";
