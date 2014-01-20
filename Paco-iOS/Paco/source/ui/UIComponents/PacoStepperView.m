@@ -79,31 +79,31 @@
 
 - (void)setFormat:(NSString *)format {
   _format = format;
-  self.valueLabel.text = [NSString stringWithFormat:format, (int)self.stepper.value];
+  self.valueLabel.text = [NSString stringWithFormat:format, (unsigned long long)self.stepper.value];
   [self.valueLabel sizeToFit];
 }
 
 - (void)setValue:(NSNumber *)value {
   _value = value;
-  self.stepper.value = [_value intValue];
+  self.stepper.value = [_value longLongValue];
   if (value && _format) {
-    self.valueLabel.text = [NSString stringWithFormat:_format, [value intValue]];
+    self.valueLabel.text = [NSString stringWithFormat:_format, [value longLongValue]];
   }
   [self.valueLabel sizeToFit];
 }
 
-- (void)setMaxValue:(int)maxValue {
+- (void)setMaxValue:(unsigned long long)maxValue {
   _maxValue = maxValue;
   self.stepper.maximumValue = maxValue;
 }
 
-- (void)setMinValue:(int)minValue {
+- (void)setMinValue:(unsigned long long)minValue {
   _minValue = minValue;
   self.stepper.minimumValue = minValue;
 }
 
-- (BOOL)valueChangedInRange:(int)value {
-  if (value >= NSIntegerMax) {
+- (BOOL)valueChangedInRange:(unsigned long long)value {
+  if (value >= ULLONG_MAX) {
     return NO;
   }
   return YES;
@@ -111,11 +111,11 @@
 
 - (void)valueChanged:(UIStepper *)stepper {
   [self.valueLabel becomeFirstResponder];
-  int valueIs = stepper.value;
-  self.value = [NSNumber numberWithInt:valueIs];
+  unsigned long long valueIs = stepper.value;
+  self.value = [NSNumber numberWithUnsignedLongLong:valueIs];
   self.valueLabel.text = [NSString stringWithFormat:_format,valueIs];
   [self.tableDelegate dataUpdated:self
-                          rowData:[NSNumber numberWithInt:self.stepper.value]
+                          rowData:[NSNumber numberWithUnsignedLongLong:self.stepper.value]
                           reuseId:self.reuseId];
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
@@ -131,11 +131,11 @@
 #pragma mark--- UITextFieldDelegate
 
 - (void)textFieldDidChange:(UITextField *)textField {
-  self.value = [NSNumber numberWithInt:textField.text.intValue];
+  self.value = [NSNumber numberWithUnsignedLongLong:textField.text.longLongValue];
   self.valueLabel.text = textField.text;
-  self.stepper.value = textField.text.intValue;
+  self.stepper.value = textField.text.longLongValue;
   [self.tableDelegate dataUpdated:self
-                          rowData:[NSNumber numberWithInt:self.stepper.value]
+                          rowData:[NSNumber numberWithUnsignedLongLong:self.stepper.value]
                           reuseId:self.reuseId];
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
@@ -146,7 +146,7 @@
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
   NSString *str = [textField.text stringByAppendingString:string];
-  BOOL edit = [self valueChangedInRange:str.intValue];
+  BOOL edit = [self valueChangedInRange:str.longLongValue];
   if ((!edit) && (![string isEqualToString:@""])) {
     return NO;
   }
@@ -154,7 +154,7 @@
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-  self.value =[NSNumber numberWithInt:textField.text.intValue];
+  self.value =[NSNumber numberWithUnsignedLongLong:textField.text.longLongValue];
   if ([self.delegate respondsToSelector:@selector(onTextFieldEditBegan:)]) {
     [self.delegate onTextFieldEditBegan:textField];
   }

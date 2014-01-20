@@ -358,14 +358,14 @@ UIImagePickerControllerDelegate>
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
                                                       reuseIdentifier:@"question_number"];
-    stepper.format = @"%d";
+    stepper.format = @"%llu";
     if (self.question.responseObject) {
       stepper.value = self.question.responseObject;
     } else {
-      stepper.value = [NSNumber numberWithInt:0];
+      stepper.value = [NSNumber numberWithUnsignedLongLong:0];
     }
     stepper.minValue = 0;
-    stepper.maxValue = NSIntegerMax;
+    stepper.maxValue = ULLONG_MAX;
     stepper.delegate = self;
     self.numberStepper = stepper;
     [self addSubview:stepper];
@@ -696,8 +696,8 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 #pragma mark - PacoStepperViewDelegate
 
 - (void)onStepperValueChanged:(PacoStepperView *)stepper {
-  int value = [stepper.value intValue];
-  self.question.responseObject = [NSNumber numberWithInt:value];
+  int value = [stepper.value longLongValue];
+  self.question.responseObject = [NSNumber numberWithUnsignedLongLong:value];
   [self updateConditionals];
 }
 
