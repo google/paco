@@ -92,7 +92,7 @@ public class ExperimentJsonUploadProcessor {
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());
     Experiment experiment = experimentRetriever.getExperiment(id);
 
-    if (!isUserAdminOfSystem() && experiment != null && !experiment.isWhoAllowedToPostToExperiment(userFromLogin.getEmail().toLowerCase())) {
+    if (!isUserAdminOfSystem() && experiment != null && !experiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");
       return outcome;
     }
