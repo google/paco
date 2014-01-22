@@ -66,7 +66,7 @@ extern NSString* const PacoFinishRefreshing;
 
 - (BOOL)hasRunningExperiments;
 
-- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules))block;
+- (BOOL)refreshExperiments;
 
 @end
 
