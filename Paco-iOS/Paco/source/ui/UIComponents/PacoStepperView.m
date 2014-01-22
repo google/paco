@@ -79,7 +79,7 @@
 
 - (void)setFormat:(NSString *)format {
   _format = format;
-  self.valueLabel.text = [NSString stringWithFormat:format, (unsigned long long)self.stepper.value];
+  self.valueLabel.text = [NSString stringWithFormat:format, (long long)self.stepper.value];
   [self.valueLabel sizeToFit];
 }
 
@@ -92,18 +92,18 @@
   [self.valueLabel sizeToFit];
 }
 
-- (void)setMaxValue:(unsigned long long)maxValue {
+- (void)setMaxValue:(long long)maxValue {
   _maxValue = maxValue;
   self.stepper.maximumValue = maxValue;
 }
 
-- (void)setMinValue:(unsigned long long)minValue {
+- (void)setMinValue:(long long)minValue {
   _minValue = minValue;
   self.stepper.minimumValue = minValue;
 }
 
-- (BOOL)valueChangedInRange:(unsigned long long)value {
-  if (value >= ULLONG_MAX) {
+- (BOOL)valueChangedInRange:(long long)value {
+  if (value >= LONG_LONG_MAX) {
     return NO;
   }
   return YES;
@@ -111,11 +111,11 @@
 
 - (void)valueChanged:(UIStepper *)stepper {
   [self.valueLabel becomeFirstResponder];
-  unsigned long long valueIs = stepper.value;
-  self.value = [NSNumber numberWithUnsignedLongLong:valueIs];
+  long long valueIs = stepper.value;
+  self.value = [NSNumber numberWithLongLong:valueIs];
   self.valueLabel.text = [NSString stringWithFormat:_format,valueIs];
   [self.tableDelegate dataUpdated:self
-                          rowData:[NSNumber numberWithUnsignedLongLong:self.stepper.value]
+                          rowData:[NSNumber numberWithLongLong:self.stepper.value]
                           reuseId:self.reuseId];
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
@@ -131,11 +131,11 @@
 #pragma mark--- UITextFieldDelegate
 
 - (void)textFieldDidChange:(UITextField *)textField {
-  self.value = [NSNumber numberWithUnsignedLongLong:textField.text.longLongValue];
+  self.value = [NSNumber numberWithLongLong:textField.text.longLongValue];
   self.valueLabel.text = textField.text;
   self.stepper.value = textField.text.longLongValue;
   [self.tableDelegate dataUpdated:self
-                          rowData:[NSNumber numberWithUnsignedLongLong:self.stepper.value]
+                          rowData:[NSNumber numberWithLongLong:self.stepper.value]
                           reuseId:self.reuseId];
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
@@ -154,7 +154,7 @@
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-  self.value =[NSNumber numberWithUnsignedLongLong:textField.text.longLongValue];
+  self.value =[NSNumber numberWithLongLong:textField.text.longLongValue];
   if ([self.delegate respondsToSelector:@selector(onTextFieldEditBegan:)]) {
     [self.delegate onTextFieldEditBegan:textField];
   }

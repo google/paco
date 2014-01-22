@@ -30,7 +30,7 @@
 @property (nonatomic, assign) id<PacoStepperViewDelegate> delegate;
 @property (nonatomic, retain) NSString *format;
 @property (nonatomic, retain) NSNumber *value;
-@property (nonatomic, assign) unsigned long long minValue;
-@property (nonatomic, assign) unsigned long long maxValue;
+@property (nonatomic, assign) long long minValue;
+@property (nonatomic, assign) long long maxValue;
 
 @end
