@@ -26,6 +26,7 @@
 #import "PacoLoadingTableCell.h"
 #import "PacoTableView.h"
 #import "PacoLoadingView.h"
+#import "PacoSubtitleTableCell.h"
 
 @interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
 
@@ -52,7 +53,7 @@
 
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
-  [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
+  [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
   table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
@@ -123,7 +124,7 @@
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
     cell.textLabel.textColor = [PacoColor pacoBlue];
-    cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
+    cell.detailTextLabel.text = experiment.creator;
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
