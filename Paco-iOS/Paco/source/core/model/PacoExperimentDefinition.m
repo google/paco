@@ -251,9 +251,6 @@ static NSString* const DEFINITION_VERSION = @"version";
   }
 }
 
-- (void)clearEsmScheduleList {
-  self.schedule.esmScheduleList = nil;
-}
 
 #pragma mark TEST code
 + (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId {
