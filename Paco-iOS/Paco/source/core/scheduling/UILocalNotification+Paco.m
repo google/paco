@@ -259,7 +259,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
     NSAssert([info.experimentId length] > 0, @"experimentId should be valid!");
 
     if ([info.experimentId isEqualToString:experimentInstanceId]) {
-      [[UIApplication sharedApplication] cancelLocalNotification:noti];
+      [UILocalNotification pacoCancelLocalNotification:noti];
     }
   }
 }
@@ -268,12 +268,13 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   for (UILocalNotification* notification in notifications) {
     NSAssert([notification isKindOfClass:[UILocalNotification class]],
              @"should be a UILocalNotification!");
-    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+    [UILocalNotification pacoCancelLocalNotification:notification];
   }
 }
 
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
   if (notification != nil) {
+    NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
     [[UIApplication sharedApplication] cancelLocalNotification:notification];
   }
 }
