@@ -60,11 +60,11 @@
     _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     UITapGestureRecognizer* tapRecognizer =
-        [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnTableView:)];
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnTableView:)];
     [_tableView addGestureRecognizer:tapRecognizer];
     [self addSubview:_tableView];
-    
-    [self registerClass:[PacoLoadingTableCell class] forStringKey:@"LOADING" dataClass:[NSString class]];
+
+    [self registerClass:[PacoLoadingTableCell class] forStringKey:NSLocalizedString(@"LOADING", nil) dataClass:[NSString class]];
   }
   return self;
 }
@@ -134,22 +134,22 @@
 }
 
 - (BOOL)isBoxedDataType:(id)rowData {
-  
+
   if (![rowData isKindOfClass:[NSArray class]]) {
-   /*
-    assert(!"Your data is structured wrong...\n"
-            "  Your data object should be a top level array of {key,object} "
-               "where key is the string key passed when you registered the classes.\n"
-            "  Eg [NSArray arrayWithObjects:\n"
-            "          [NSArray arrayWithObjects:@\"my_data_field_01\", my_data1, nil],\n"
-            "          [NSArray arrayWithObjects:@\"my_data_field_02\", my_data2, nil],\n"
-            "          [NSArray arrayWithObjects:@\"my_data_field_03\", my_data3, nil],\n"
-            "          [NSArray arrayWithObjects:@\"my_data_field_04\", my_data4, nil],\n"
-            "          ,nil]\n");
-            */
+    /*
+     assert(!"Your data is structured wrong...\n"
+     "  Your data object should be a top level array of {key,object} "
+     "where key is the string key passed when you registered the classes.\n"
+     "  Eg [NSArray arrayWithObjects:\n"
+     "          [NSArray arrayWithObjects:@\"my_data_field_01\", my_data1, nil],\n"
+     "          [NSArray arrayWithObjects:@\"my_data_field_02\", my_data2, nil],\n"
+     "          [NSArray arrayWithObjects:@\"my_data_field_03\", my_data3, nil],\n"
+     "          [NSArray arrayWithObjects:@\"my_data_field_04\", my_data4, nil],\n"
+     "          ,nil]\n");
+     */
     return NO;
   }
-  
+
   NSArray *array = rowData;
   if ([array count] != 2) {
     return NO;
@@ -171,17 +171,17 @@
 
 - (void)setLoadingSpinnerEnabledWithLoadingText:(NSString *)loadingText {
   NSArray *loadingTableData =
-      [NSArray arrayWithObjects:
-          [NSArray arrayWithObjects:@"LOADING", loadingText, nil],
-          nil];
+  [NSArray arrayWithObjects:
+   [NSArray arrayWithObjects:NSLocalizedString(@"LOADING", nil), loadingText, nil],
+   nil];
   [self setData:loadingTableData];
 }
 
 - (void)setData:(NSArray *)data {
   @synchronized(self) {
-  
-  
-  
+
+
+
     // Either no arrays in the objects, or all arrays - no mixing.
     BOOL hasArrays = NO;
     BOOL allArrays = YES;
@@ -223,7 +223,7 @@
     self.header.frame = CGRectMake(0, yStart, headerFrame.size.width, headerFrame.size.height);
     yStart += headerFrame.size.height;
   }
-  
+
   self.tableView.frame = CGRectMake(10, yStart, self.frame.size.width - 20, self.frame.size.height - headerFrame.size.height - footerFrame.size.height - 10);
   yStart += self.tableView.frame.size.height;
   if (self.footer) {
@@ -267,11 +267,11 @@
   if ([dataClass isSubclassOfClass:[NSArray class]]) {
     dataClassName = @"NSArray";
   }
-  
+
   if ([dataClassName isEqualToString:@"__NSCFBoolean"]) {
     dataClassName = @"NSNumber";
   }
-   
+
   if ([stringKey length]) {
     return [NSString stringWithFormat:@"%@:%@", stringKey, dataClassName];
   }
@@ -416,10 +416,10 @@
   assert([reuseId length] && viewClass);
   assert([viewClass isSubclassOfClass:[UITableViewCell class]]);
   if ([[viewClass class] respondsToSelector:@selector(heightForData:)]) {
-      id value = [viewClass performSelector:@selector(heightForData:)
-                                 withObject:rowData];
-      assert([value isKindOfClass:[NSNumber class]]);
-      return [value intValue];
+    id value = [viewClass performSelector:@selector(heightForData:)
+                               withObject:rowData];
+    assert([value isKindOfClass:[NSNumber class]]);
+    return [value intValue];
   }
   return 45;
 }
@@ -441,14 +441,14 @@
 //- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section;   // custom view for header. will be adjusted to default or specified header height
 //- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section;   // custom view for footer. will be adjusted to default or specified footer height
 
-// Accessories (disclosures). 
+// Accessories (disclosures).
 
 //- (UITableViewCellAccessoryType)tableView:(UITableView *)tableView accessoryTypeForRowWithIndexPath:(NSIndexPath *)indexPath NS_DEPRECATED_IOS(2_0, 3_0);
 //- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath;
 
 // Selection
 
-// -tableView:shouldHighlightRowAtIndexPath: is called when a touch comes down on a row. 
+// -tableView:shouldHighlightRowAtIndexPath: is called when a touch comes down on a row.
 // Returning NO to that message halts the selection process and does not cause the currently selected row to lose its selected look while the touch is down.
 //- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(6_0);
 //- (void)tableView:(UITableView *)tableView didHighlightRowAtIndexPath:(NSIndexPath *)indexPath NS_AVAILABLE_IOS(6_0);

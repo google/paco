@@ -210,6 +210,8 @@
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		E43DA212185ADDC9007F04F9 /* PacoInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA211185ADDC9007F04F9 /* PacoInfoView.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
+		E480BE161896F3C700662432 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE141896F3C700662432 /* InfoPlist.strings */; };
+		E480BE201896F3E100662432 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE1E1896F3E100662432 /* Localizable.strings */; };
 		E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D5DE851837DE9900E5446A /* MessageUI.framework */; };
 		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
 /* End PBXBuildFile section */
@@ -575,7 +577,11 @@
 		E43DA211185ADDC9007F04F9 /* PacoInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInfoView.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
+		E480BE151896F3C700662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		E480BE1F1896F3E100662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		E4D5DE851837DE9900E5446A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		E4D96CF71896F941007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E4D96CFF1896F95D007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E4E8F350183B21500022613A /* PacoContactUsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoContactUsViewController.h; sourceTree = "<group>"; };
 		E4E8F351183B21500022613A /* PacoContactUsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoContactUsViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1039,6 +1045,7 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				E480BE131896F3C700662432 /* en.lproj */,
 				369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */,
 				369F6BC718657CDF006FB693 /* app_icon_ipad.png */,
 				369F6BBE18657C9C006FB693 /* app_icon.png */,
@@ -1285,6 +1292,15 @@
 			path = WebViewController;
 			sourceTree = "<group>";
 		};
+		E480BE131896F3C700662432 /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				E480BE141896F3C700662432 /* InfoPlist.strings */,
+				E480BE1E1896F3E100662432 /* Localizable.strings */,
+			);
+			path = en.lproj;
+			sourceTree = "<group>";
+		};
 		E4E8F34F183B21500022613A /* ContactScreen */ = {
 			isa = PBXGroup;
 			children = (
@@ -1356,6 +1372,7 @@
 			knownRegions = (
 				en,
 				English,
+				ja,
 			);
 			mainGroup = 319771B9163F0733000AC06B;
 			productRefGroup = 319771C5163F0733000AC06B /* Products */;
@@ -1467,6 +1484,7 @@
 				36B8EBEE17568E29004CF035 /* icon.png in Resources */,
 				36B8EBEF17568E29004CF035 /* list_header_background.png in Resources */,
 				36B8EBF017568E29004CF035 /* paco128.png in Resources */,
+				E480BE161896F3C700662432 /* InfoPlist.strings in Resources */,
 				36B8EBF117568E29004CF035 /* paco256.png in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
 				369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */,
@@ -1478,6 +1496,7 @@
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				36B8EBF617568E29004CF035 /* question_b16.png in Resources */,
 				36B8EBF717568E29004CF035 /* question_b32.png in Resources */,
+				E480BE201896F3E100662432 /* Localizable.strings in Resources */,
 				36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */,
 				36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */,
 				36B8EBFA17568E29004CF035 /* smile_icon2.png in Resources */,
@@ -1699,6 +1718,24 @@
 				36B8EC3A17568E40004CF035 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE141896F3C700662432 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE151896F3C700662432 /* en */,
+				E4D96CFF1896F95D007F8668 /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE1E1896F3E100662432 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE1F1896F3E100662432 /* en */,
+				E4D96CF71896F941007F8668 /* ja */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

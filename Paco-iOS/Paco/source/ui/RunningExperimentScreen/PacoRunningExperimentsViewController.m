@@ -40,7 +40,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = @"Running Experiments";
+    self.navigationItem.title = NSLocalizedString(@"Running Experiments", nil);
     self.navigationItem.hidesBackButton = NO;
 
   }
@@ -62,7 +62,7 @@
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
-    [table setLoadingSpinnerEnabledWithLoadingText:@"Loading Current Experiments ..."];
+    [table setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Current Experiments ...", nil)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
@@ -93,8 +93,8 @@
 - (void)experimentsUpdate:(NSNotification*)notification
 {
   NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  [self updateUIWithError:error];  
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, NSLocalizedString(@"The notification should send an error!", nil));
+  [self updateUIWithError:error];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -119,7 +119,7 @@
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
     NSString *key = [keyAndValue objectAtIndex:0];
-    assert([key isEqualToString:@"LOADING"]);
+    assert([key isEqualToString:NSLocalizedString(@"LOADING", nil)]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
     NSString *loadingText = [keyAndValue objectAtIndex:1];
     loading.loadingText = loadingText;
@@ -131,11 +131,11 @@
     self.selectedExperiment = rowData;
     //TODO: @"Edit Schedule",@"Explore Data"
     UIAlertView *alert =
-      [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Modify %@", self.selectedExperiment.definition.title]
-                                 message:nil
-                                delegate:self
-                       cancelButtonTitle:@"Cancel"
-                       otherButtonTitles:@"Participate", @"Stop Experiment", nil];
+    [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Modify", nil), self.selectedExperiment.definition.title]
+                               message:nil
+                              delegate:self
+                     cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                     otherButtonTitles:NSLocalizedString(@"Participate", nil), NSLocalizedString(@"Stop Experiment", nil), nil];
     [alert show];
   }else{
     self.selectedExperiment = nil;
@@ -155,9 +155,9 @@
   if (self.selectedExperiment == nil) {
     return;
   }
-  
+
   PacoQuestionScreenViewController *questions =
-      [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
+  [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 
@@ -168,11 +168,11 @@
   PacoTableView* tableView = (PacoTableView*)self.view;
   tableView.data = [PacoClient sharedInstance].model.experimentInstances;
 
-  NSString* title = @"Success";
-  NSString* message = @"The experiment was stopped.";
+  NSString* title = NSLocalizedString(@"Success", nil);
+  NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
   [PacoAlertView showAlertWithTitle:title
                             message:message
-                  cancelButtonTitle:@"OK"];  
+                  cancelButtonTitle:@"OK"];
 }
 
 - (void)showStopConfirmAlert
@@ -181,7 +181,7 @@
     switch (buttonIndex) {
       case 0://cancel
         break;
-        
+
       case 1://confirm
         [self stopExperiment];
         break;
@@ -190,12 +190,12 @@
         break;
     }
   };
-  
-  [PacoAlertView showAlertWithTitle:@"Are you sure?"
-                            message:@"All your data will be deleted permanently with this experiment."
+
+  [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Are you sure?", nil)
+                            message:NSLocalizedString(@"All your data will be deleted permanently with this experiment.", nil)
                        dismissBlock:dismissBlock
-                  cancelButtonTitle:@"Cancel"
-                  otherButtonTitles:@"Absolutely Sure!", nil];
+                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                  otherButtonTitles:NSLocalizedString(@"Absolutely Sure!", nil), nil];
 }
 
 
@@ -208,11 +208,11 @@
     case 1: // Participate
       [self showParticipateController];
       break;
-      
+
     case 2: // Stop
       [self showStopConfirmAlert];
       break;
-      
+
     default:
       NSAssert(NO, @"Error!");
       break;

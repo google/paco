@@ -63,14 +63,14 @@ NSString *kCellIdText = @"text";
     [self addSubview:_tableView];
 
     _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [_joinButton setTitle:@"Join" forState:UIControlStateNormal];
+    [_joinButton setTitle:NSLocalizedString(@"Join", nil) forState:UIControlStateNormal];
     if (IS_IOS_7) {
       _joinButton.titleLabel.font = [PacoFont pacoNormalButtonFont];
     }
 
     _tableView.footer = _joinButton;
     [_joinButton sizeToFit];
-    
+
     [_tableView registerClass:[PacoTimeSelectionView class] forStringKey:kCellIdSignalTimes dataClass:[NSArray class]];
     [_tableView registerClass:[PacoRepeatRateSelectionView class] forStringKey:kCellIdRepeat dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoDayOfWeekSelectionView class] forStringKey:kCellIdDaysOfWeek dataClass:[NSNumber class]];
@@ -93,7 +93,7 @@ NSString *kCellIdText = @"text";
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  
+
   CGRect frame = self.frame;
   _tableView.frame = frame;
   _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
@@ -102,38 +102,38 @@ NSString *kCellIdText = @"text";
 
 + (NSArray *)dataFromExperimentSchedule:(PacoExperimentSchedule *)schedule {
   switch (schedule.scheduleType) {
-  case kPacoScheduleTypeDaily:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-                nil];
-  case kPacoScheduleTypeWeekly:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
-                [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
-                [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-                nil];
-  case kPacoScheduleTypeWeekday:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-                nil];
-  case kPacoScheduleTypeMonthly:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
-                [NSArray arrayWithObjects:kCellIdByDaysOfWeekMonth, [NSNumber numberWithBool:schedule.byDayOfWeek], nil],
-                [NSArray arrayWithObjects:((schedule.byDayOfWeek) ? kCellIdWhichFirstDayOfMonth : kCellIdWhichDayOfMonth), [NSNumber numberWithInt:schedule.dayOfMonth], nil],
-                [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
-                nil];
-  case kPacoScheduleTypeESM:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdESMStartTime, [NSNumber numberWithLongLong:schedule.esmStartHour], nil],
-                [NSArray arrayWithObjects:kCellIdESMEndTime, [NSNumber numberWithLongLong:schedule.esmEndHour], nil],
-                nil];
-  case kPacoScheduleTypeSelfReport:
-    return [NSArray arrayWithObjects:
-                [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
-                nil];
-  case kPacoScheduleTypeTesting: // TPE special type only used for iOS Notification testing
-    return nil;
+    case kPacoScheduleTypeDaily:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
+              nil];
+    case kPacoScheduleTypeWeekly:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
+              [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
+              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
+              nil];
+    case kPacoScheduleTypeWeekday:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
+              nil];
+    case kPacoScheduleTypeMonthly:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
+              [NSArray arrayWithObjects:kCellIdByDaysOfWeekMonth, [NSNumber numberWithBool:schedule.byDayOfWeek], nil],
+              [NSArray arrayWithObjects:((schedule.byDayOfWeek) ? kCellIdWhichFirstDayOfMonth : kCellIdWhichDayOfMonth), [NSNumber numberWithInt:schedule.dayOfMonth], nil],
+              [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
+              nil];
+    case kPacoScheduleTypeESM:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdESMStartTime, [NSNumber numberWithLongLong:schedule.esmStartHour], nil],
+              [NSArray arrayWithObjects:kCellIdESMEndTime, [NSNumber numberWithLongLong:schedule.esmEndHour], nil],
+              nil];
+    case kPacoScheduleTypeSelfReport:
+      return [NSArray arrayWithObjects:
+              [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
+              nil];
+    case kPacoScheduleTypeTesting: // TPE special type only used for iOS Notification testing
+      return nil;
   }
   return nil;
 }
@@ -159,7 +159,7 @@ NSString *kCellIdText = @"text";
   //disable user to modify any schedule for now
   cell.userInteractionEnabled = NO;
   switch (self.schedule.scheduleType) {
-  case kPacoScheduleTypeDaily: {
+    case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
@@ -168,8 +168,8 @@ NSString *kCellIdText = @"text";
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeWeekly: {
+      break;
+    case kPacoScheduleTypeWeekly: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
         cellView.repeatStyle = kPacoScheduleRepeatWeeks;
@@ -185,8 +185,8 @@ NSString *kCellIdText = @"text";
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeWeekday: {
+      break;
+    case kPacoScheduleTypeWeekday: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
@@ -194,8 +194,8 @@ NSString *kCellIdText = @"text";
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeMonthly: {
+      break;
+    case kPacoScheduleTypeMonthly: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
         PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
         cellView.repeatStyle = kPacoScheduleRepeatMonths;
@@ -217,35 +217,35 @@ NSString *kCellIdText = @"text";
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeESM: {
+      break;
+    case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
         cellView.time = [self realRowData:rowData];
-        cellView.title = @"Start Time: ";
+        cellView.title = NSLocalizedString(@"Start Time", nil);
         cell.userInteractionEnabled = YES;
       } else if([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
         cellView.time = [self realRowData:rowData];
-        cellView.title = @"End Time: ";
+        cellView.title = NSLocalizedString(@"End Time", nil);
         cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeSelfReport:
-    // do nothing
-    if ([self isCellType:kCellIdText reuseId:reuseId]) {
-      PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
-      cellView.textLabel.text = @"Self scheduled.";
-      cellView.detailTextLabel.text = @"Submit responses whenever you wish.";
+      break;
+    case kPacoScheduleTypeSelfReport:
+      // do nothing
+      if ([self isCellType:kCellIdText reuseId:reuseId]) {
+        PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
+        cellView.textLabel.text = NSLocalizedString(@"Self scheduled.", nil);
+        cellView.detailTextLabel.text = NSLocalizedString(@"Submit responses whenever you wish.", nil);
+      }
+      break;
+    case kPacoScheduleTypeTesting: {
+      // special type for testing Notification
     }
-    break;
-  case kPacoScheduleTypeTesting: {
-    // special type for testing Notification
-    }
-  break;
+      break;
   }
 
 }
@@ -253,14 +253,14 @@ NSString *kCellIdText = @"text";
 - (void)handleUserTap {
   NSString* errorMsg = [self.schedule evaluateSchedule];
   if (errorMsg) {
-    [[[UIAlertView alloc] initWithTitle:@"Oops"
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
                                 message:errorMsg
                                delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
   [self.tableView dismissDatePicker];
-  
+
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;
     [self.joinButton sizeToFit];
@@ -285,17 +285,17 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
-NSLog(@"TODO: implement schedule editing hookups");
+  NSLog(@"TODO: implement schedule editing hookups");
   switch (self.schedule.scheduleType) {
-  case kPacoScheduleTypeDaily: {
+    case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         self.schedule.times = rowData;
       } else {
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeWeekly: {
+      break;
+    case kPacoScheduleTypeWeekly: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
@@ -303,15 +303,15 @@ NSLog(@"TODO: implement schedule editing hookups");
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeWeekday: {
+      break;
+    case kPacoScheduleTypeWeekday: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
       } else {
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeMonthly: {
+      break;
+    case kPacoScheduleTypeMonthly: {
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdByDaysOfWeekMonth reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdWhichFirstDayOfMonth reuseId:reuseId]) {
@@ -321,8 +321,8 @@ NSLog(@"TODO: implement schedule editing hookups");
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeESM: {
+      break;
+    case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         self.schedule.esmStartHour = [rowData longLongValue];
       } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
@@ -331,16 +331,16 @@ NSLog(@"TODO: implement schedule editing hookups");
         assert(0);
       }
     }
-    break;
-  case kPacoScheduleTypeSelfReport:
-    // do nothing
-    break;
-  case kPacoScheduleTypeTesting: {
-    // special type for testing Notification
+      break;
+    case kPacoScheduleTypeSelfReport:
+      // do nothing
+      break;
+    case kPacoScheduleTypeTesting: {
+      // special type for testing Notification
     }
-    break;
+      break;
   }
-
+  
 }
 
 @end

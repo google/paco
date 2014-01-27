@@ -36,7 +36,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = @"Find My Experiments";
+    self.navigationItem.title = NSLocalizedString(@"Find My Experiments", nil);
     self.navigationItem.hidesBackButton = NO;
   }
   return self;
@@ -57,7 +57,7 @@
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
   if (!finishLoading) {
-    [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
+    [table setLoadingSpinnerEnabledWithLoadingText:[NSString stringWithFormat:@"%@ ...", NSLocalizedString(@"Finding Experiments", nil)]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
@@ -83,16 +83,16 @@
     PacoTableView* tableView = (PacoTableView*)self.view;
     if (error) {
       tableView.data = [NSArray array];
-      [[[UIAlertView alloc] initWithTitle:@"Sorry"
-                                  message:@"Something went wrong, please try again later."
+      [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
+                                  message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
                                  delegate:nil
                         cancelButtonTitle:@"OK"
                         otherButtonTitles:nil] show];
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
     }
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Refresh"
+
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
                                                                               style:UIBarButtonItemStyleDone
                                                                              target:self
                                                                              action:@selector(onClickRefresh)];
@@ -106,7 +106,7 @@
 
 - (void)definitionsUpdate:(NSNotification*)notification {
   NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, NSLocalizedString(@"The notification should send an error!", nil));
   [self updateUIWithError:error];
 }
 
@@ -128,7 +128,7 @@
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
     NSString *key = [keyAndValue objectAtIndex:0];
-    assert([key isEqualToString:@"LOADING"]);
+    assert([key isEqualToString:NSLocalizedString(@"LOADING", nil)]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
     NSString *loadingText = [keyAndValue objectAtIndex:1];
     loading.loadingText = loadingText;
@@ -137,14 +137,14 @@
 
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperimentDefinition class]]) {
-  
+
     PacoExperimentDefinition *experiment = rowData;
     if (!experiment) {
       // Must be loading...
       return;
     }
     PacoExperimentDetailsViewController *details =
-        [PacoExperimentDetailsViewController controllerWithExperiment:experiment];
+    [PacoExperimentDetailsViewController controllerWithExperiment:experiment];
     [self.navigationController pushViewController:details animated:YES];
   }
 }
@@ -158,49 +158,49 @@
 }
 
 /*
-#pragma mark - UITableViewDataSource
+ #pragma mark - UITableViewDataSource
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
-  NSLog(@"EXPERIMENTS SCREEN HAS %d EXPERIMENTS", numExperiments);
-  return numExperiments == 0 ? 1 : numExperiments;
-}
+ - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+ int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
+ NSLog(@"EXPERIMENTS SCREEN HAS %d EXPERIMENTS", numExperiments);
+ return numExperiments == 0 ? 1 : numExperiments;
+ }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
-  if (!experiment) {
-    PacoLoadingTableCell *loadingCell = [[PacoLoadingTableCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list loading cell"];
-    loadingCell.loadingText = @"Loading Experiments...";
-    return loadingCell;
-  }
-  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"experiment list cell"];
-  if (!cell) {
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list cell"];
-    cell.backgroundColor = [PacoColor pacoLightBlue];
-    cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
-  }
-  cell.textLabel.text = experiment.title;
-  cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
-  return cell;
-}
+ - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+ PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
+ if (!experiment) {
+ PacoLoadingTableCell *loadingCell = [[PacoLoadingTableCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list loading cell"];
+ loadingCell.loadingText = @"Loading Experiments...";
+ return loadingCell;
+ }
+ UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"experiment list cell"];
+ if (!cell) {
+ cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list cell"];
+ cell.backgroundColor = [PacoColor pacoLightBlue];
+ cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
+ cell.textLabel.font = [PacoFont pacoTableCellFont];
+ cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+ }
+ cell.textLabel.text = experiment.title;
+ cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
+ return cell;
+ }
 
-#pragma mark - UITableViewDelegate
+ #pragma mark - UITableViewDelegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
-  if (!experiment) {
-    // Must be loading...
-    return;
-  }
-  PacoExperimentDetailsViewController *details = [[PacoExperimentDetailsViewController alloc] init];
-  details.experiment = experiment;
-  [self.navigationController pushViewController:details animated:YES];
-  //PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-  //questions.experiment = experiment;
-  //[self.navigationController pushViewController:questions animated:YES];
-  
-}
-*/
+ - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+ PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
+ if (!experiment) {
+ // Must be loading...
+ return;
+ }
+ PacoExperimentDetailsViewController *details = [[PacoExperimentDetailsViewController alloc] init];
+ details.experiment = experiment;
+ [self.navigationController pushViewController:details animated:YES];
+ //PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
+ //questions.experiment = experiment;
+ //[self.navigationController pushViewController:questions animated:YES];
+
+ }
+ */
 @end

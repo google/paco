@@ -91,12 +91,12 @@
   textField.layer.cornerRadius = 5.;
 
   self.emailField = textField;
-  
+
 
   UITextField *textField2 = [[UITextField alloc] initWithFrame:CGRectZero];
   textField2.textColor = [PacoColor pacoBlue];
   textField2.text = @"";
-  textField2.placeholder = @"<password>";
+  textField2.placeholder = NSLocalizedString(@"<password>", nil);
   textField2.keyboardType = UIKeyboardTypeDefault;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
@@ -113,13 +113,13 @@
   textField2.clipsToBounds = YES;
   textField2.layer.cornerRadius = 5.;
   self.pwdField = textField2;
-  
+
   UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
   label.numberOfLines = 3;
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
   label.textColor = [PacoColor pacoBlue];
-  [label setText:@"Hi, Log in with a Google account\n\n  Run Your Paco Experiment Today!"];
+  [label setText:NSLocalizedString(@"Login message", nil)];// @"Hi, Log in with a Google account\n\n  Run Your Paco Experiment Today!"];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];
 
@@ -129,7 +129,7 @@
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
   NSArray *elements = [NSArray arrayWithObjects:textField, textField2, login, nil];
-  [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];  
+  [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -141,8 +141,8 @@
   NSString* emailStr = [self.emailField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   NSString* pwdStr = [self.pwdField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   if (emailStr.length == 0 || pwdStr.length == 0) {
-    [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                message:@"Please input valid email and password."
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
+                                message:NSLocalizedString(@"Login invalid message", nil)
                                delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];

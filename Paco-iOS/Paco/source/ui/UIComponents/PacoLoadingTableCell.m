@@ -37,7 +37,7 @@
     _spinner.frame = CGRectMake(0, 0, 80, 80);
     [self addSubview:_spinner];
     [_spinner startAnimating];
-    
+
     _loadingTextLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     _loadingTextLabel.text = _loadingText;
     _loadingTextLabel.textColor = [UIColor blackColor];
@@ -57,7 +57,8 @@
 }
 
 + (NSNumber *)heightForData:(id)data {
-  CGSize textSize = [PacoLayout textSizeToFitSize:CGSizeMake(320,480) text:@"Loading ..." font:nil];
+  CGSize textSize = [PacoLayout textSizeToFitSize:CGSizeMake(320,480)
+                                             text:NSLocalizedString(@"Loading", nil) font:nil];
   CGSize spinnerSize = CGSizeMake(40,40);
   return [NSNumber numberWithDouble:(10 + textSize.height + 10 + spinnerSize.height + 10)];
 }

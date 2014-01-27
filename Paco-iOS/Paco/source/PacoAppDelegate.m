@@ -46,14 +46,14 @@
     NSLog(@"Notification is not active anymore, cancelling it from the tray...");
     [UILocalNotification pacoCancelLocalNotification:activeNotification];
     activeNotification =
-        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
+    [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
     if (activeNotification) {
       NSLog(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
     } else {
       NSLog(@"No Active Notification Detected. ");
     }
   }
-  
+
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
     if (state == UIApplicationStateInactive) {
@@ -75,22 +75,22 @@
 
 - (void)showNoSurveyNeeded {
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-  NSString* message = @"No need to fill out any survey at this moment for this experiment.";
+  NSString* message = NSLocalizedString(@"No need to fill out any survey at this moment for this experiment.", nil);
   [JCNotificationCenter enqueueNotificationWithTitle:@""
                                              message:message
                                           tapHandler:nil];
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
-  //If there is any view popped up, dismiss it and show a question view 
+  //If there is any view popped up, dismiss it and show a question view
   UINavigationController* navi = self.viewController.navigationController;
   [navi popToRootViewControllerAnimated:NO];
-  
+
   NSString *experimentId = [notification pacoExperimentId];
   NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
   PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
   PacoQuestionScreenViewController *questions =
-      [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+  [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
   [navi pushViewController:questions animated:NO];
 }
 
@@ -107,7 +107,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   // Stir!
   arc4random_stir();
-  
+
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
 
@@ -121,8 +121,8 @@
 
   self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
   [self.window makeKeyAndVisible];
-  
-  
+
+
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
@@ -135,9 +135,9 @@
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
   NSLog(@"==========  Application Background Fetch Working ==========");
-  
+
   [[PacoClient sharedInstance] backgroundFetchStarted];
-  
+
   UIBackgroundFetchResult result = UIBackgroundFetchResultNewData;
   completionHandler(result);
 }
