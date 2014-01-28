@@ -365,7 +365,7 @@ UIImagePickerControllerDelegate>
       stepper.value = [NSNumber numberWithLongLong:0];
     }
     stepper.minValue = 0;
-    stepper.maxValue = LONG_LONG_MAX;
+    stepper.maxValue = 999999999999999;
     stepper.delegate = self;
     self.numberStepper = stepper;
     [self addSubview:stepper];
@@ -696,7 +696,8 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 #pragma mark - PacoStepperViewDelegate
 
 - (void)onStepperValueChanged:(PacoStepperView *)stepper {
-  int value = [stepper.value longLongValue];
+  NSLog(@"S||: %@",stepper.value);
+  long long value = [stepper.value longLongValue];
   self.question.responseObject = [NSNumber numberWithLongLong:value];
   [self updateConditionals];
 }

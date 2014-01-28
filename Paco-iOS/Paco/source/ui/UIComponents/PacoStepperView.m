@@ -103,7 +103,7 @@
 }
 
 - (BOOL)valueChangedInRange:(long long)value {
-  if (value >= LONG_LONG_MAX) {
+  if (value > 999999999999999){
     return NO;
   }
   return YES;
@@ -144,9 +144,10 @@
   [self layoutSubviews];
 }
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range
+replacementString:(NSString *)string{
   NSString *str = [textField.text stringByAppendingString:string];
-  BOOL edit = [self valueChangedInRange:str.longLongValue];
+  BOOL edit = (([self valueChangedInRange:str.longLongValue]) && (str.length <= 15));
   if ((!edit) && (![string isEqualToString:@""])) {
     return NO;
   }
