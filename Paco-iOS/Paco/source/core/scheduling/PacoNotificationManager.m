@@ -224,8 +224,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     
     NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
     
-    //schedule the new notifications
-    [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
+    /*
+     schedule the new notifications, and don't use the following code to set local notifications,
+     since it will clear all notifications in the notification center:
+     [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
+     **/
+    for (UILocalNotification* notification in notifications) {
+      [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+    }
   }
 }
 
@@ -240,7 +246,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
   [self saveNotificationsToCache];
   NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
-  //schedule the new notifications
+  //schedule the new notifications, this API will also clean all fired notifications that
+  //still stay in the notification center.
   [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
 }
 
