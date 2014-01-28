@@ -44,6 +44,13 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 @end
 
 
+@interface PacoExperiment()
+
+@property(nonatomic, retain, readwrite) NSDate* joinTime;
+
+@end
+
+
 @implementation PacoModel
 
 
@@ -425,6 +432,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
   experimentInstance.instanceId = definition.experimentId;
   experimentInstance.lastEventQueryTime = nowdate;
+  experimentInstance.joinTime = nowdate;
   
   //add it to instances array and save the instance file
   [self.experimentInstances addObject:experimentInstance];

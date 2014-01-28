@@ -17,15 +17,24 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoModel.h"
 #import "NSDate+Paco.h"
+#import "PacoDateUtility.h"
+
+@interface PacoExperiment()
+
+@property(nonatomic, retain, readwrite) NSDate* joinTime;
+
+@end
 
 
 @implementation PacoExperiment
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperiment:%p - "
+          @"joinTime=%@\n"
           @"schedule=%@\n"
           @"definition=%@>",
           self,
+          [PacoDateUtility pacoStringForDate:self.joinTime],
           self.schedule,
           self.definition];
 }
@@ -33,8 +42,11 @@
 - (id)serializeToJSON {
   id  jsonSchedule = [self.schedule serializeToJSON];
   id jsonDefinition = [self.definition serializeToJSON];
+  id jsonJoinTime = [PacoDateUtility pacoStringForDate:self.joinTime];
+  
   return [NSDictionary dictionaryWithObjectsAndKeys:
           self.definition.experimentId, @"experimentId",
+          jsonJoinTime, @"joinTime",
           self.instanceId, @"instanceId",
           jsonSchedule, @"schedule",
           jsonDefinition, @"definition",
@@ -46,6 +58,7 @@
   self.jsonObject = json;
 
   self.instanceId = [self.jsonObject objectForKey:@"instanceId"];
+  self.joinTime = [PacoDateUtility pacoDateForString:[self.jsonObject objectForKey:@"joinTime"]];
   
   NSDictionary* jsonSchedule = [self.jsonObject objectForKey:@"schedule"];
   self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
@@ -131,6 +144,9 @@ static int INVALID_INDEX = -1;
   return self.definition.endDate;
 }
 
+- (NSDate*)joinDate {
+  return [self.joinTime pacoCurrentDayAtMidnight];
+}
 
 - (BOOL)refreshWithSchedule:(PacoExperimentSchedule*)newSchedule {
   NSAssert(newSchedule, @"newSchedule should be valid");
