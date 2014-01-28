@@ -696,7 +696,6 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 #pragma mark - PacoStepperViewDelegate
 
 - (void)onStepperValueChanged:(PacoStepperView *)stepper {
-  NSLog(@"S||: %@",stepper.value);
   long long value = [stepper.value longLongValue];
   self.question.responseObject = [NSNumber numberWithLongLong:value];
   [self updateConditionals];
