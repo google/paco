@@ -192,11 +192,10 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (void)refreshExperimentsWithBlock:(void(^)(BOOL shouldRefreshSchedules))block {
+- (BOOL)refreshExperiments {
   @synchronized(self) {
     if (0 == [self.experimentInstances count]) {
-      block(NO);
-      return;
+      return NO;
     }
 
     BOOL schedulesChanged = NO;
@@ -240,7 +239,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     }
     
     [self saveExperimentInstancesToFile];
-    block(schedulesChanged);
+    return schedulesChanged;
   }
 }
 

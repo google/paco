@@ -46,6 +46,7 @@ typedef enum {
 
 @property (nonatomic, assign) BOOL byDayOfMonth;
 @property (nonatomic, assign) BOOL byDayOfWeek;
+//Note: dayOfMonth returned from server is 0 based, but the UI on web is 1 based.
 @property (nonatomic, assign) NSInteger dayOfMonth;
 @property (nonatomic, assign) long long esmEndHour;
 @property (nonatomic, assign) NSInteger esmFrequency;

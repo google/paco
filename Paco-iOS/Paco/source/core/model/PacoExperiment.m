@@ -64,11 +64,11 @@
 }
 
 - (BOOL)isSelfReportExperiment {
-  return self.schedule.scheduleType == kPacoScheduleTypeSelfReport;
+  return [self.schedule isSelfReport];
 }
 
 - (BOOL)isScheduledExperiment {
-  return ![self isSelfReportExperiment];
+  return [self.schedule isScheduled];
 }
 
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {

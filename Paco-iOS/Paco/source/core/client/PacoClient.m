@@ -557,12 +557,10 @@
     return;
   }
   
-  [self.model refreshExperimentsWithBlock:^(BOOL shouldRefreshSchedules){
-    if (shouldRefreshSchedules) { //reset notification system
-      [self.scheduler restartNotificationSystem];
-    }
-  }];
-  
+  BOOL shouldRefreshSchedules = [self.model refreshExperiments];
+  if (shouldRefreshSchedules) { //reset notification system
+    [self.scheduler restartNotificationSystem];
+  }
 }
 
 - (void)refreshDefinitions {
