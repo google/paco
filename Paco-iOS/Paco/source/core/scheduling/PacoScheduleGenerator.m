@@ -65,6 +65,7 @@
   NSDate* startDate = [self getRealStartDateWithTimes:schedule.times
                                     originalStartDate:fromDate
                                   experimentStartDate:experiment.definition.startDate
+                                   experimentJoinDate:[experiment joinDate]
                                            repeatRate:schedule.repeatRate];
   
   int numOfDatesNeeded = numOfDates;
@@ -95,44 +96,33 @@
 //For daily experiment
 + (NSDate*)getRealStartDateWithTimes:(NSArray*)times
                    originalStartDate:(NSDate*)originalStartDate
-                experimentStartDate:(NSDate*)experimentStartDate
-                         repeatRate:(NSInteger)repeatRate {
-  
-  if (experimentStartDate == nil) { //ongoing experiment
-    return [self getStartTimeFromDate:originalStartDate withTimes:times];
-  } else { //fixe-length experiment
-    return [self getStartTimeWithExperimentStartDate:experimentStartDate
-                                            fromDate:originalStartDate
-                                               times:times
-                                          repeatRate:repeatRate];
+                 experimentStartDate:(NSDate*)experimentStartDate
+                  experimentJoinDate:(NSDate*)experimentJoinDate
+                          repeatRate:(NSInteger)repeatRate {
+  NSDate* startDateForAllSchedules = experimentStartDate;
+  if (!startDateForAllSchedules) { //ongoing experiment
+    startDateForAllSchedules = experimentJoinDate;
   }
+  return [self getStartTimeWithStartDate:startDateForAllSchedules
+                                fromDate:originalStartDate
+                                   times:times
+                              repeatRate:repeatRate];
 }
 
 
-+ (NSDate*)getStartTimeFromDate:(NSDate*)fromDate withTimes:(NSArray*)times {
-  //If it's still able to schedule any time from times, then return the current fromDate,
-  //otherwise return the next day's midnight as the new fromDate
-  if ([fromDate pacoCanScheduleTimes:times]) {
-    return fromDate;
-  } else {
-    return [fromDate pacoNextDayAtMidnight];
-  }
-}
-
-
-+ (NSDate*)getStartTimeWithExperimentStartDate:(NSDate*)experimentStartDate
-                                      fromDate:(NSDate*)fromDate
-                                         times:(NSArray*)times
-                                    repeatRate:(NSInteger)repeatRate {
++ (NSDate*)getStartTimeWithStartDate:(NSDate*)startDateForAllSchedules
+                            fromDate:(NSDate*)fromDate
+                               times:(NSArray*)times
+                          repeatRate:(NSInteger)repeatRate {
   //if user joins an experiment before experiment's start date,
   //then we should schedule dates from experiment's start date, not fromDate
-  if ([fromDate pacoNoLaterThanDate:experimentStartDate]) {
-    return experimentStartDate;
+  if ([fromDate pacoNoLaterThanDate:startDateForAllSchedules]) {
+    return startDateForAllSchedules;
   }
 
   //the user joins an experiment after the experiment starts
   int numOfDaysFromStartDate =
-      [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate toDate:fromDate];
+      [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:startDateForAllSchedules toDate:fromDate];
   
   NSAssert(repeatRate >= 1, @"repeatRate should be valid");
   int repeatTimes = numOfDaysFromStartDate / repeatRate;
@@ -148,14 +138,14 @@
   NSDate* newStartDate = nil;
   if (numOfDaysFromStartDate < daysToNewStartDate) { //newStartDate is later than fromDate
     NSAssert(daysToNewStartDate > 0, @"daysToNewStartDate should be larger than 0");
-    newStartDate = [experimentStartDate pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
+    newStartDate = [startDateForAllSchedules pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
   } else { //fromDate and newStartDate are on the same day
     if ([fromDate pacoCanScheduleTimes:times]) {
       newStartDate = fromDate;
     } else {
       repeatTimes++;
       daysToNewStartDate = repeatTimes * repeatRate;
-      newStartDate = [experimentStartDate pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
+      newStartDate = [startDateForAllSchedules pacoDateAtMidnightByAddingDayInterval:daysToNewStartDate];
     }
   }
   NSAssert(newStartDate, @"newStartDate should be valid!");
