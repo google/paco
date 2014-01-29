@@ -23,4 +23,8 @@
 
 @property (strong, nonatomic) PacoMainViewController *viewController;
 
+@property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
+
+- (void)processNotificationIfNeeded;
+
 @end

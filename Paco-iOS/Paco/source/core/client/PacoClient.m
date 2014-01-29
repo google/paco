@@ -328,6 +328,8 @@
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
   [self.scheduler initializeNotifications];
+  NSLog(@"Finish initializing notifications");
+  [(PacoAppDelegate*)[UIApplication sharedApplication].delegate processNotificationIfNeeded];
   [self updateNotificationSystem];
 }
 
