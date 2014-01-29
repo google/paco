@@ -65,8 +65,6 @@
 //clear the old response objects
 - (void)clearInputs;
 
-- (void)clearEsmScheduleList;
-
 //TEST debug code
 + (PacoExperimentDefinition *)testPacoExperimentDefinition;
 + (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId;

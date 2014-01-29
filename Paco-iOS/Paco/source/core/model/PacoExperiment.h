@@ -23,10 +23,17 @@
 
 @property (nonatomic, copy) PacoExperimentDefinition *definition;
 @property (nonatomic, copy) NSString *instanceId;
+
+//the exact time that user joins the experiment
+@property(nonatomic, retain, readonly) NSDate* joinTime;
 @property (nonatomic, assign) long long lastEventQueryTime;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
 //@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
 @property (nonatomic, retain) id jsonObject;
+
++ (PacoExperiment*)experimentWithDefinition:(PacoExperimentDefinition*)definition
+                                   schedule:(PacoExperimentSchedule*)schedule
+                                   joinTime:(NSDate*)joinTime;
 
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json;
@@ -45,6 +52,9 @@
 
 - (NSDate*)startDate;
 - (NSDate*)endDate;
+
+//return the midnight of joinTime
+- (NSDate*)joinDate;
 
 //when definition is refreshed, refresh experiment's schedule
 //but keep the esmStartHour, esmEndHour, or times configured specifically by user
