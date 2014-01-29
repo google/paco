@@ -32,10 +32,10 @@
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   NSLog(@"==========  Application didReceiveLocalNotification  ==========");
-  [self processReceivedNotification:notification];
+  [self processReceivedNotification:notification mustShowSurvey:NO];
 }
 
-- (void)processReceivedNotification:(UILocalNotification*)notification {
+- (void)processReceivedNotification:(UILocalNotification*)notification mustShowSurvey:(BOOL)mustShowSurvey {
   if (!notification) {
     NSLog(@"Ignore a nil notification");
     return;
@@ -56,18 +56,18 @@
   
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
-    if (state == UIApplicationStateInactive) {
-      [self showNoSurveyNeeded];
-    } else {
-      NSLog(@"Ignore this notfication");
-    }
+    [self showNoSurveyNeeded];
   } else {
-    if (state == UIApplicationStateInactive) {
-      NSLog(@"UIApplicationStateInactive");
+    if (mustShowSurvey) {
       [self showSurveyForNotification:activeNotification];
-    } else if (state == UIApplicationStateActive) {
-      NSLog(@"UIApplicationStateActive");
-      [self presentForegroundNotification:activeNotification];
+    } else {
+      if (state == UIApplicationStateInactive) {
+        NSLog(@"UIApplicationStateInactive");
+        [self showSurveyForNotification:activeNotification];
+      } else if (state == UIApplicationStateActive) {
+        NSLog(@"UIApplicationStateActive");
+        [self presentForegroundNotification:activeNotification];
+      }
     }
   }
 }
@@ -82,16 +82,19 @@
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
-  //If there is any view popped up, dismiss it and show a question view 
-  UINavigationController* navi = self.viewController.navigationController;
-  [navi popToRootViewControllerAnimated:NO];
-  
-  NSString *experimentId = [notification pacoExperimentId];
-  NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
-  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-  PacoQuestionScreenViewController *questions =
-      [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
-  [navi pushViewController:questions animated:NO];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    //If there is any view popped up, dismiss it and show a question view
+    UINavigationController* navi = self.viewController.navigationController;
+    [navi popToRootViewControllerAnimated:NO];
+    
+    NSString *experimentId = [notification pacoExperimentId];
+    NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
+    PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+    PacoQuestionScreenViewController *questions =
+        [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+    [navi pushViewController:questions animated:NO];
+  });
+
 }
 
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
@@ -102,6 +105,15 @@
                                           tapHandler:^{
                                             [self showSurveyForNotification:notification];
                                           }];
+}
+
+
+- (void)processNotificationIfNeeded {
+  if (self.notificationFromAppLaunch) {
+    NSLog(@"Start processing notification received from app launch");
+    [self processReceivedNotification:self.notificationFromAppLaunch mustShowSurvey:YES];
+    self.notificationFromAppLaunch = nil;
+  }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -126,7 +138,8 @@
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    [self processReceivedNotification:notification];
+    NSLog(@"The following notification will be processed after notification system is initialized:\n%@", notification);
+    self.notificationFromAppLaunch = notification;
   } else {
     NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
