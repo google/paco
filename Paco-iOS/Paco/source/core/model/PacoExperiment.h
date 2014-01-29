@@ -31,6 +31,10 @@
 //@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
 @property (nonatomic, retain) id jsonObject;
 
++ (PacoExperiment*)experimentWithDefinition:(PacoExperimentDefinition*)definition
+                                   schedule:(PacoExperimentSchedule*)schedule
+                                   joinTime:(NSDate*)joinTime;
+
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json;
 

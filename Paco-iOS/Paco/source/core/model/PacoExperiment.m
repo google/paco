@@ -28,6 +28,20 @@
 
 @implementation PacoExperiment
 
+
++ (PacoExperiment*)experimentWithDefinition:(PacoExperimentDefinition*)definition
+                                   schedule:(PacoExperimentSchedule*)schedule
+                                   joinTime:(NSDate*)joinTime {
+  PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.instanceId = definition.experimentId;
+  experimentInstance.lastEventQueryTime = joinTime;
+  experimentInstance.joinTime = joinTime;
+  return experimentInstance;
+}
+
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperiment:%p - "
           @"joinTime=%@\n"

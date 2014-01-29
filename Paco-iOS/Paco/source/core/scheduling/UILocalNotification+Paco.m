@@ -274,7 +274,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
 
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
   if (notification != nil) {
-    NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
+    //NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
     [[UIApplication sharedApplication] cancelLocalNotification:notification];
   }
 }
