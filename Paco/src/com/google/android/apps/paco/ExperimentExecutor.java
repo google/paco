@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,9 +17,7 @@
 package com.google.android.apps.paco;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.Locale;
 
 import org.joda.time.DateMidnight;
@@ -33,12 +31,14 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.util.Log;
@@ -96,16 +96,16 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     experiment = getExperimentFromIntent();
     if (experiment == null) {
       displayNoExperimentMessage();
-    } else {       
+    } else {
       getSignallingData();
 
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
 
       experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);      
+      experimentProviderUtil.loadFeedbackForExperiment(experiment);
 
-      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);                  
+      mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);
       setContentView(mainLayout);
 
       inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
@@ -137,12 +137,26 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
           deleteNotification();
           finish();
         }
-      });      
+      });
 
       if (experiment.isWebRecommended()) {
         renderWebRecommendedMessage();
       } else {
-        showForm();
+        if (experiment.isCustomRendering() != null && experiment.isCustomRendering()) {
+          Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
+          customExecutorIntent.setData(getIntent().getData());
+
+          Bundle extras = getIntent().getExtras();
+          if (extras != null) {
+            customExecutorIntent.putExtra(Experiment.SCHEDULED_TIME, scheduledTime);
+            customExecutorIntent.putExtra(NotificationCreator.NOTIFICATION_ID, extras.getLong(NotificationCreator.NOTIFICATION_ID));
+          }
+
+          startActivity(customExecutorIntent);
+          finish();
+        } else {
+          showForm();
+        }
       }
     }
 
@@ -158,21 +172,21 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private void getSignallingData() {
     Bundle extras = getIntent().getExtras();
-    if (extras != null) {        
+    if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
       if (notificationHolder != null) {
         scheduledTime = notificationHolder.getAlarmTime();
         Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
-        scheduledTime = null;          
+        scheduledTime = null;
       }
 
       if (isExpiredEsmPing()) {
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
-    } 
+    }
     if (notificationHolderId == null) {
       lookForActiveNotificationForExperiment();
     }
@@ -235,13 +249,13 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       new AlertDialog.Builder(this)
       .setMessage(R.string.gps_message)
       .setCancelable(true)
-      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
+      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           launchGpsSettings();
           dialog.dismiss();
         }
       })
-      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
+      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           dialog.cancel();
         }
@@ -269,20 +283,20 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       lm.requestLocationUpdates(bestProvider, 0, 0, this);
       location = lm.getLastKnownLocation(bestProvider);
       for (InputLayout input : locationInputs) {
-        input.setLocation(location);  
+        input.setLocation(location);
       }
 
     } else {
       new AlertDialog.Builder(this)
       .setMessage(R.string.need_location)
       .setCancelable(true)
-      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {          
+      .setPositiveButton(R.string.enable_button, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           launchGpsSettings();
           dialog.dismiss();
         }
       })
-      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {          
+      .setNegativeButton(R.string.cancel_button, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           dialog.cancel();
         }
@@ -295,8 +309,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   public void onLocationChanged(Location location) {
     this.location = location;
     for (InputLayout input : locationInputs) {
-      input.setLocation(location);  
-    }           
+      input.setLocation(location);
+    }
   }
 
   public void onProviderDisabled(String provider) {
@@ -308,7 +322,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   public void onProviderEnabled(String provider) {
     unregisterLocationListener();
     LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    getBestProvider(lm);    
+    getBestProvider(lm);
   }
 
   public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -323,11 +337,11 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     if (lm != null) {
       lm.removeUpdates(this);
     }
-  }  
+  }
   //End Location
 
   private boolean isExpiredEsmPing() {
-    return (scheduledTime != null && scheduledTime != 0L) && 
+    return (scheduledTime != null && scheduledTime != 0L) &&
         (new DateTime(scheduledTime)).plus(experiment.getExpirationTimeInMillis()).isBefore(new DateTime());
   }
 
@@ -337,19 +351,19 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
 
   private void renderSaveButton() {
-    View saveButtonView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_save_buttons, 
-                                                                                              inputsScrollPane, 
+    View saveButtonView = ((LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_save_buttons,
+                                                                                              inputsScrollPane,
                                                                                               true);
     //    inputsScrollPane.removeView(saveButtonView);
     //LinearLayout saveButtonLayout = (LinearLayout)findViewById(R.id.ExecutorButtonLayout);
     Button saveButton = (Button)findViewById(R.id.SaveResponseButton);
     //saveButtonLayout.removeView(saveButton);
     //    inputsScrollPane.addView(saveButtonView);
-    saveButton.setOnClickListener(new OnClickListener() {        
+    saveButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         save();
       }
-    });   
+    });
 
   }
 
@@ -361,7 +375,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         // to a notification.
         scheduledTime = 0L;
       }
-      Event event = createEvent();
+      Event event = createEvent(experiment, scheduledTime);
       gatherResponses(event);
       experimentProviderUtil.insertEvent(event);
 
@@ -422,24 +436,24 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
       Output responseForInput = new Output();
       String answer = inputView.getValueAsString();
-      if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*|| 
+      if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*||
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
         throw new IllegalStateException(getString(R.string.must_answer) + input.getText());
       }
       responseForInput.setAnswer(answer);
       responseForInput.setName(input.getName());
       responseForInput.setInputServerId(input.getServerId());
-      event.addResponse(responseForInput);  
+      event.addResponse(responseForInput);
     }
   }
 
-  private Event createEvent() {
+  public static Event createEvent(Experiment experiment, Long scheduledTimeLong) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getTitle());
-    if (scheduledTime != null && scheduledTime != 0L) {
-      event.setScheduledTime(new DateTime(scheduledTime));
+    if (scheduledTimeLong != null && scheduledTimeLong != 0L) {
+      event.setScheduledTime(new DateTime(scheduledTimeLong));
     }
     event.setExperimentVersion(experiment.getVersion());
     event.setResponseTime(new DateTime());
@@ -449,7 +463,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private void renderInputs() {
     if (experiment.isQuestionsChange()) {
       DateMidnight dateMidnight = new DateMidnight();
-      boolean hadQuestionForToday = false; 
+      boolean hadQuestionForToday = false;
       for (Input input : experiment.getInputs()) {
         if (dateMidnight.isEqual(new DateMidnight(input.getScheduleDate().getTime()))) {
           hadQuestionForToday = true;
@@ -460,7 +474,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
     } else {
       for (Input input : experiment.getInputs()) {
-        InputLayout inputView = renderInput(input);        
+        InputLayout inputView = renderInput(input);
         inputs.add(inputView);
         inputsScrollPane.addView(inputView);
         inputView.addChangeListener(this);
@@ -487,11 +501,11 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
    * with text and then some input type for the response.
    * In the future, it might make sense to create an InputView class
    * that has control of displaying the prompt (Question text),
-   * and the input type. It just has an api that allows you to 
+   * and the input type. It just has an api that allows you to
    * retrieve the value that was selected. This could make it
-   * easy to create interesting media inputs, or sensor inputs with 
+   * easy to create interesting media inputs, or sensor inputs with
    * no display.
-   * 
+   *
    * @param input
    * @return
    */
@@ -511,7 +525,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
 
   private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();    
+    Uri uri = getIntent().getData();
     if (uri == null) {
       return null;
     }
@@ -530,7 +544,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   public void stopExperiment() {
     experimentProviderUtil.deleteFullExperiment(getIntent().getData());
-    startService(new Intent(this, BeeperService.class));  
+    startService(new Intent(this, BeeperService.class));
     finish();
   }
 
@@ -553,7 +567,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       for (InputLayout inputLayout : inputs) {
         interpreter.addInput(createBindingFromInputView(inputLayout));
       }
-    } 
+    }
     //    else {
     //      if (input != null) {
     //        interpreter.addInput(createBindingFromInputView(input));
@@ -573,9 +587,35 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode == RESULT_OK) {
+      if (requestCode == RESULT_SPEECH) {
+        handleSpeechRecognitionActivityResult(resultCode, data);
+      } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE) {
+        for (InputLayout inputLayout : inputs) {
+          inputLayout.cameraPictureTaken(requestCode);
+        }
+      } else {
+        Uri selectedImage = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-    if (requestCode == RESULT_SPEECH) {
-      handleSpeechRecognitionActivityResult(resultCode, data);
+        try {
+          Cursor cursor = getContentResolver().query(
+                             selectedImage, filePathColumn, null, null, null);
+          cursor.moveToFirst();
+
+          int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+          String filePath = cursor.getString(columnIndex);
+          cursor.close();
+          for (InputLayout inputLayout : inputs) {
+            inputLayout.galleryPicturePicked(filePath, requestCode);
+          }
+        } catch (Exception e) {
+          Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
+          e.printStackTrace();
+        }
+
+      }
+
     }
   }
 
@@ -589,7 +629,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private void notifySpeechRecognitionListeners(ArrayList<String> guesses) {
     for (SpeechRecognitionListener listener : speechRecognitionListeners) {
       listener.speechRetrieved(guesses);
-    }    
+    }
   }
 
   public void removeSpeechRecognitionListener(SpeechRecognitionListener listener) {
@@ -599,14 +639,14 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   public void startSpeechRecognition(SpeechRecognitionListener listener) {
     speechRecognitionListeners .add(listener);
     Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());  
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());
 
     try {
       startActivityForResult(intent, RESULT_SPEECH);
     } catch (ActivityNotFoundException a) {
       Toast t = Toast.makeText(getApplicationContext(), R.string.oops_your_device_doesn_t_support_speech_to_text, Toast.LENGTH_SHORT);
       t.show();
-    }    
+    }
   }
 
 }

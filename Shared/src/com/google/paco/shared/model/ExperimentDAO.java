@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -22,24 +22,24 @@ import java.io.Serializable;
 
 
 /**
- * 
+ *
  * Dumb data object for passing the experiment definition to the
- * GWT client. 
- * 
+ * GWT client.
+ *
  * We use this because GWt serialization won't serialize a JDO nucleus object.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   /**
-   * 
+   *
    */
-  
+
   public static final int SCHEDULED_SIGNALING = 1;
   public static final int TRIGGERED_SIGNALING = 1;
-  
+
   private Boolean questionsChange = false;
 
   private String hash;
@@ -54,7 +54,11 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private Integer version;
   protected SignalingMechanismDAO[] signalingMechanisms;
   protected SignalScheduleDAO schedule;
-  
+  protected Boolean customRendering = false;
+  protected String customRenderingCode;
+  protected Boolean showFeedback = true;
+
+
   /**
    * @param id
    * @param title
@@ -64,14 +68,17 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param fixedDuration
    * @param questionsChange
    * @param hash
-   * @param published TODO
-   * @param admins TODO
+   * @param published
+   * @param admins
+   * @param customRenderingCode
+   * @param showFeedback
+   * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
-      String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange, 
+      String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange,
       String startDate, String endDate, String hash, String joinDate,
-      String modifyDate, Boolean published, String[] admins, String[] publishedUsers, 
-      Boolean deleted, Boolean webRecommended, Integer version) {
+      String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
+      Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode, Boolean showFeedback) {
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
@@ -94,10 +101,17 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.deleted = deleted;
     this.webRecommended = webRecommended;
     this.version = version;
+    if (customRendering != null) {
+      this.customRendering = customRendering;
+    }
+    this.customRenderingCode = customRenderingCode;
+    if (showFeedback != null) {
+      this.showFeedback = showFeedback;
+    }
   }
 
   /**
-   * 
+   *
    */
   public ExperimentDAO() {
     super();
@@ -134,15 +148,15 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setInputs(InputDAO[] inputDAO) {
     inputs = inputDAO;
   }
-  
+
   public InputDAO[] getInputs() {
     return inputs;
   }
-  
+
   public void setFeedback(FeedbackDAO[] feedbackDAO) {
     feedback = feedbackDAO;
   }
-  
+
   public FeedbackDAO[] getFeedback() {
     return feedback;
   }
@@ -153,7 +167,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public Boolean getPublished() {
     return published;
   }
-  
+
   public void setPublished(Boolean published) {
     this.published = published;
   }
@@ -164,7 +178,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public String[] getAdmins() {
     return admins;
   }
-  
+
   public void setAdmins(String[] admins) {
     this.admins = admins;
   }
@@ -199,7 +213,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public Integer getVersion() {
     return version;
   }
-  
+
   public void setVersion(Integer version) {
     this.version = version;
   }
@@ -213,8 +227,8 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   }
 
   public void setScheduleForBackwardCompatibility() {
-    if (getSignalingMechanisms() != null 
-            && getSignalingMechanisms().length > 0 
+    if (getSignalingMechanisms() != null
+            && getSignalingMechanisms().length > 0
             && getSignalingMechanisms()[0] instanceof SignalScheduleDAO) {
       schedule = (SignalScheduleDAO) getSignalingMechanisms()[0];
     } else {
@@ -230,7 +244,29 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setSchedule(SignalScheduleDAO schedule) {
     this.schedule = schedule;
   }
-  
-  
-  
+
+  public Boolean isCustomRendering() {
+    return customRendering;
+  }
+
+  public void setCustomRendering(Boolean isCustom) {
+    customRendering = isCustom;
+  }
+
+  public String getCustomRenderingCode() {
+    return customRenderingCode;
+  }
+
+  public void setCustomRenderingCode(String customRenderingCode) {
+    this.customRenderingCode = customRenderingCode;
+  }
+
+  public Boolean shouldShowFeedback() {
+    return showFeedback;
+  }
+
+  public void setShowFeedback(Boolean showFeedback) {
+    this.showFeedback = showFeedback;
+  }
+
 }

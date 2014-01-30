@@ -1,9 +1,9 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -19,7 +19,6 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,21 +26,18 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
-import com.pacoapp.paco.R;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
-import android.util.Log;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,18 +47,21 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.pacoapp.paco.R;
 
 
 /**
  *
  */
-public class FindExperimentsActivity extends Activity {
+public class FindExperimentsActivity extends FragmentActivity {
 
-  private static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+  static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
   static final int JOINED_EXPERIMENT = 1;
-  
+
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
   private ProgressDialog  p;
@@ -70,7 +69,9 @@ public class FindExperimentsActivity extends Activity {
   public UserPreferences userPrefs;
   protected AvailableExperimentsListAdapter adapter;
   private List<Experiment> experiments;
-  
+  private ProgressDialogFragment newFragment;
+  private ProgressBar progressBar;
+
   private static DownloadShortExperimentsTask experimentDownloadTask;
 
   @Override
@@ -83,26 +84,28 @@ public class FindExperimentsActivity extends Activity {
       intent.setData(ExperimentColumns.CONTENT_URI);
     }
 
-    userPrefs = new UserPreferences(this);    
+    userPrefs = new UserPreferences(this);
     list = (ListView) findViewById(R.id.find_experiments_list);
     createListHeader();
     createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    
+
     Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
     refreshButton.setVisibility(View.VISIBLE);
 
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (!isConnected()) {
-          showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+          showDialogById(DownloadHelper.NO_NETWORK_CONNECTION);
         } else {
           refreshList();
         }
       }
     });
-    
+
+    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
+
 
     reloadAdapter();
     list.setItemsCanFocus(true);
@@ -126,11 +129,11 @@ public class FindExperimentsActivity extends Activity {
     });
     registerForContextMenu(list);
   }
-  
+
   private boolean isConnected() {
     return NetworkUtil.isConnected(this);
   }
-  
+
   @Override
   protected void onResume() {
     super.onResume();
@@ -142,19 +145,18 @@ public class FindExperimentsActivity extends Activity {
         refreshList();
       }
     }
-
   }
-  
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == JOIN_REQUEST_CODE) {
       if (resultCode == JOINED_EXPERIMENT) {
+        setResult(resultCode);
         finish();
       }
     }
-  } 
+  }
 
   private TextView createListHeader() {
 	TextView listHeader = (TextView)findViewById(R.id.ExperimentListTitle);
@@ -164,126 +166,82 @@ public class FindExperimentsActivity extends Activity {
     listHeader.setTextSize(25);
     return listHeader;
   }
-  
+
   private TextView createRefreshHeader() {
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
     DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
     if (lastRefresh == null) {
       listHeader.setVisibility(View.GONE);
     } else {
-      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
       String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
       listHeader.setText(header);
       listHeader.setTextSize(15);
     }
     return listHeader;
   }
-  
+
   private void saveRefreshTime() {
     userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
     TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
     DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
-    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
-    listHeader.setText(header); 
+    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
+    listHeader.setText(header);
   }
 
-  protected Dialog onCreateDialog(int id, Bundle args) {
-    switch (id) {
-      case REFRESHING_EXPERIMENTS_DIALOG_ID: {
-          return getRefreshJoinedDialog();
-      } case DownloadHelper.INVALID_DATA_ERROR: {
-          return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case DownloadHelper.SERVER_ERROR: {
-        return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case DownloadHelper.NO_NETWORK_CONNECTION: {
-        return getNoNetworkDialog();
-      } default: {
-        return null;
-      }
+  void showNetworkConnectionActivity() {
+    try {
+      startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    } catch (Exception e) {
+
     }
   }
 
-  @Override
-  protected Dialog onCreateDialog(int id) {
-    return super.onCreateDialog(id);
-  }
-  
-  private ProgressDialog getRefreshJoinedDialog() {
-    return ProgressDialog.show(this, getString(R.string.experiment_refresh),
-                               getString(R.string.checking_server_for_new_and_updated_experiment_definitions), 
-                               true, true);
-  }
-  
-  private AlertDialog getUnableToJoinDialog(String message) {
-    AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
-    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                           setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-                           finish();
-                         }
-                       });
-    return unableToJoinBldr.create();
-  }
-  
-  private AlertDialog getNoNetworkDialog() {
-    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
-    noNetworkBldr.setTitle(R.string.network_required)
-                 .setMessage(getString(R.string.need_network_connection))
-                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
-                         public void onClick(DialogInterface dialog, int which) {
-                           showNetworkConnectionActivity();
-                         }
-                       })
-                 .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
-                          public void onClick(DialogInterface dialog, int which) {
-                            setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-                            finish();
-                          }
-                    });
-    return noNetworkBldr.create();
-  }
-  
-  private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
-  }
-  
 
-//  @Override
-//  protected Dialog onCreateDialog(int id) {
-//    return super.onCreateDialog(id);
-//  }
-  
-  
-  protected void refreshList() {    
-    DownloadShortExperimentsTaskListener listener = new DownloadShortExperimentsTaskListener() {
-      
+  protected void refreshList() {
+    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+
       @Override
       public void done(String resultCode) {
-        dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        progressBar.setVisibility(View.GONE);
         String contentAsString = experimentDownloadTask.getContentAsString();
         if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
           updateDownloadedExperiments(contentAsString);
           saveRefreshTime();
         } else if (resultCode == DownloadHelper.SUCCESS && contentAsString == null) {
           showFailureDialog("No experiment data retrieved. Try again.");
-        } else {          
+        } else {
           showFailureDialog(resultCode);
         }
       }
+
     };
-    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+    progressBar.setVisibility(View.VISIBLE);
     experimentDownloadTask = new DownloadShortExperimentsTask(this, listener, userPrefs);
     experimentDownloadTask.execute();
   }
-  
+
+  private void dismissAnyDialog() {
+    if (newFragment != null) {
+      newFragment = null;
+      FragmentManager ft = getSupportFragmentManager();
+      DialogFragment prev = (DialogFragment)getSupportFragmentManager().findFragmentByTag("dialog");
+      if (prev != null && prev.isResumed()) {
+        prev.dismissAllowingStateLoss();
+      }
+    }
+  }
+
+
+
+
+
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
     saveDownloadedExperiments(contentAsString);
     reloadAdapter();
   }
-  
+
   private void saveDownloadedExperiments(String contentAsString) {
     try {
       experimentProviderUtil.saveExperimentsToDisk(contentAsString);
@@ -300,37 +258,51 @@ public class FindExperimentsActivity extends Activity {
 
   // Visible for testing
   public void reloadAdapter() {
-    experiments = experimentProviderUtil.loadExperimentsFromDisk();
-    adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this, 
-                                                  R.id.find_experiments_list, 
+    experiments = experimentProviderUtil.loadExperimentsFromDisk(false);
+    adapter = new AvailableExperimentsListAdapter(FindExperimentsActivity.this,
+                                                  R.id.find_experiments_list,
                                                   experiments);
     list.setAdapter(adapter);
   }
-  
+
+  protected void showDialogById(int id) {
+    // DialogFragment.show() will take care of adding the fragment
+    // in a transaction.  We also want to remove any currently showing
+    // dialog, so make our own transaction and take care of that here.
+    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+    if (prev != null) {
+        ft.remove(prev);
+    }
+    ft.addToBackStack(null);
+
+    // Create and show the dialog.
+    newFragment = ProgressDialogFragment.newInstance(id);
+    newFragment.show(ft, "dialog");
+//    ft.commit();
+  }
+
+
+
   private void showFailureDialog(String status) {
     if (status.equals(DownloadHelper.CONTENT_ERROR) ||
         status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+      showDialogById(DownloadHelper.INVALID_DATA_ERROR);
     } else {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
-    }      
+      showDialogById(DownloadHelper.SERVER_ERROR);
+    }
   }
-  
+
+
   private class AvailableExperimentsListAdapter extends ArrayAdapter<Experiment> {
 
     private LayoutInflater mInflater;
 
-    AvailableExperimentsListAdapter(Context context, int resourceId, 
+    AvailableExperimentsListAdapter(Context context, int resourceId,
                                    List<Experiment> experiments) {
-        super(context, resourceId, experiments);
-        mInflater = LayoutInflater.from(context);
-      }
-
-//    @Override
-//    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-//      View v = mInflater.inflate(R.layout.experiments_available_list_row, parent, false);
-//      return v;
-//    }
+      super(context, resourceId, experiments);
+      mInflater = LayoutInflater.from(context);
+    }
 
     public View getView(int position, View convertView, ViewGroup parent){
       View view = convertView;
@@ -360,5 +332,22 @@ public class FindExperimentsActivity extends Activity {
     }
 
   }
+
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+//    if (newFragment != null) {
+//      outState.putInt("dialog_id", newFragment.getDialogTypeId());
+//    }
+    dismissAnyDialog();
+    super.onSaveInstanceState(outState);
+  }
+
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+  }
+
+
 
 }

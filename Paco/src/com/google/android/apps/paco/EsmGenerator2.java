@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -37,11 +37,11 @@ public class EsmGenerator2 {
   // pick "frequency" number of time blocks randomly
   // pick random times within each chosen block
   // skip times within 1 hour of other times
-  public List<DateTime> generateForSchedule(DateTime startDate, SignalSchedule schedule) {    
+  public List<DateTime> generateForSchedule(DateTime startDate, SignalSchedule schedule) {
     this.schedule = schedule;
     this.periodStartDate = adjustStartDateToBeginningOfPeriod(startDate);
     times = new ArrayList<DateTime>();
-    
+
     if (schedule.getEsmFrequency() == null || schedule.getEsmFrequency() == 0) {
       return times;
     }
@@ -63,23 +63,23 @@ public class EsmGenerator2 {
     default:
       throw new IllegalStateException("Cannot get here.");
     }
-            
+
     Minutes dayLengthIntervalInMinutes = Minutes.minutesIn(new Interval(schedule.getEsmStartHour(), schedule.getEsmEndHour()));
     Minutes totalMinutesInPeriod = dayLengthIntervalInMinutes.multipliedBy(schedulableDays.size());
     Minutes sampleBlockTimeInMinutes = totalMinutesInPeriod.dividedBy(schedule.getEsmFrequency());
-    Minutes timeoutInMinutes = Minutes.minutes(schedule.getTimeout());
+    Minutes timeoutInMinutes = Minutes.minutes(schedule.getMinimumBuffer());
     Random rand = new Random();
     for (int signal = 0; signal < schedule.getEsmFrequency(); signal++) {
-      
+
       int candidateTimeInBlock;
       DateTime candidateTime;
       int periodAttempts = 1000;
       do {
         candidateTimeInBlock = rand.nextInt(sampleBlockTimeInMinutes.getMinutes());
         // map candidatePeriod and candidateTime back onto days of period
-        // note, sometimes a candidate period will map across days in period 
+        // note, sometimes a candidate period will map across days in period
         // because start and end hours make for non-contiguous days
-        int totalMinutesToAdd = sampleBlockTimeInMinutes.getMinutes() * signal + candidateTimeInBlock;        
+        int totalMinutesToAdd = sampleBlockTimeInMinutes.getMinutes() * signal + candidateTimeInBlock;
         int daysToAdd = totalMinutesToAdd / dayLengthIntervalInMinutes.getMinutes();
         int minutesToAdd = 0;
         if (totalMinutesToAdd <= dayLengthIntervalInMinutes.getMinutes()) { // within one day
@@ -87,18 +87,18 @@ public class EsmGenerator2 {
         } else {
           minutesToAdd = totalMinutesToAdd % dayLengthIntervalInMinutes.getMinutes();
         }
-        
-        DateTime plusDays = periodStartDate.plusDays(schedulableDays.get(daysToAdd) - 1); 
+
+        DateTime plusDays = periodStartDate.plusDays(schedulableDays.get(daysToAdd) - 1);
         candidateTime = plusDays.withMillisOfDay(schedule.getEsmStartHour().intValue()).plusMinutes(minutesToAdd);
         periodAttempts--;
-      } while (periodAttempts > 0 && 
-          (!isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes) 
+      } while (periodAttempts > 0 &&
+          (!isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes)
               || (!schedule.getEsmWeekends() && TimeUtil.isWeekend(candidateTime))));
       if (isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes) &&
 		  (schedule.getEsmWeekends() || !TimeUtil.isWeekend(candidateTime))) {
         times.add(candidateTime);
       }
-      
+
     }
     return times;
   }
@@ -146,21 +146,21 @@ public class EsmGenerator2 {
 
   private boolean isMinimalBufferedDistanceFromOtherTimes(DateTime plusMinutes, Minutes timeoutInMinutes) {
     for (DateTime time : times) {
-      
+
       Minutes minutesBetween;
       if (time.isAfter(plusMinutes)) {
         minutesBetween = Minutes.minutesBetween(plusMinutes, time);
       } else {
         minutesBetween = Minutes.minutesBetween(time, plusMinutes);
       }
-      
+
       if (minutesBetween.isLessThan(timeoutInMinutes)) {
         return false;
       }
     }
     return true;
   }
-  
-  
+
+
 
 }

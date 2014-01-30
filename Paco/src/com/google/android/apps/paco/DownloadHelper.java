@@ -15,9 +15,9 @@ public class DownloadHelper {
   public static final int INVALID_DATA_ERROR = 1003;
   public static final int SERVER_ERROR = 1004;
   public static final int NO_NETWORK_CONNECTION = 1005;
-  
+
   public static final int ENABLED_NETWORK = 1;
-  
+
   private Context context;
   private UrlContentManager manager;
   private UserPreferences userPrefs;
@@ -35,6 +35,29 @@ public class DownloadHelper {
     this.userPrefs = userPrefs;
   }
 
+  public String downloadMyExperiments() {
+    try {
+      contentAsString = makeMyExperimentsRequest();
+      if (contentAsString == null) {
+        return DownloadHelper.RETRIEVAL_ERROR;
+      }
+      return DownloadHelper.SUCCESS;
+    } catch (Exception e) {
+      Log.e(PacoConstants.TAG, "Exception. Unable to update my experiments, " + e.getMessage());
+      return DownloadHelper.SERVER_COMMUNICATION_ERROR;
+    } finally {
+      if (manager != null) {
+        manager.cleanUp();
+      }
+    }
+  }
+
+  // Visible for testing
+  public String makeMyExperimentsRequest() throws Exception {
+    return makeExperimentRequest("mine");
+  }
+
+
   public String downloadAvailableExperiments() {
     try {
       contentAsString = makeAvailableExperimentsRequest();
@@ -51,7 +74,7 @@ public class DownloadHelper {
       }
     }
   }
-  
+
   // Visible for testing
   public String makeAvailableExperimentsRequest() throws Exception {
     return makeExperimentRequest("short");
@@ -63,7 +86,7 @@ public class DownloadHelper {
       if (contentAsString == null) {
         return DownloadHelper.RETRIEVAL_ERROR;
       }
-      return DownloadHelper.SUCCESS; 
+      return DownloadHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update running experiments, " + e.getMessage());
       return DownloadHelper.SERVER_COMMUNICATION_ERROR;
@@ -73,7 +96,7 @@ public class DownloadHelper {
       }
     }
   }
-  
+
   // Visible for testing
   public String makeRunningExperimentsRequest(List<Long> experimentIds) throws Exception {
     String experimentIdSuffix = formatExperimentIdList(experimentIds);
@@ -94,11 +117,11 @@ public class DownloadHelper {
     String list = Joiner.on(",").join(experimentIds);
     return list;
   }
-  
+
   public String getContentAsString() {
     return contentAsString;
   }
-  
+
   public Request getRequest() {
     return request;
   }

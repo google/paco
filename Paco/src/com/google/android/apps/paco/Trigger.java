@@ -11,16 +11,19 @@ public class Trigger extends SignalingMechanism implements Parcelable{
   public static final int HANGUP = 1;
   public static final int USER_PRESENT = 2;
   public static final int PACO_ACTION_EVENT = 3;
-  
+  public static final int APP_USAGE = 4;
+
+
   public static final Map<Integer, String> EVENT_NAMES;
   static {
     EVENT_NAMES = new HashMap<Integer, String>();
     EVENT_NAMES.put(HANGUP, "Phone Hangup");
     EVENT_NAMES.put(USER_PRESENT, "User Present");
     EVENT_NAMES.put(PACO_ACTION_EVENT, "Paco Action");
+    EVENT_NAMES.put(APP_USAGE, "App Usage");
   }
-  
-  
+
+
   private int eventCode;
   private long delay;
   private String sourceIdentifier;
@@ -36,7 +39,7 @@ public class Trigger extends SignalingMechanism implements Parcelable{
   public Trigger(int eventCode) {
     this.eventCode = eventCode;
   }
-  
+
   public Trigger() {
   }
 
@@ -74,9 +77,9 @@ public class Trigger extends SignalingMechanism implements Parcelable{
       return new Trigger[size];
     }
   }
-  
+
   public static final Creator CREATOR = new Creator();
-  
+
 
   public long getDelay() {
     return delay;
@@ -98,7 +101,7 @@ public class Trigger extends SignalingMechanism implements Parcelable{
   public void setSourceIdentifier(String sourceIdentifier) {
     this.sourceIdentifier = sourceIdentifier;
   }
-  
-  
+
+
 
 }

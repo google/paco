@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,23 +16,20 @@
  */
 package com.google.android.apps.paco;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
-
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
-  private DownloadShortExperimentsTaskListener listener;
+  private DownloadExperimentsTaskListener listener;
   private String contentAsString;
 
   @SuppressWarnings("unchecked")
-  public DownloadShortExperimentsTask(Context activity, 
-                                 DownloadShortExperimentsTaskListener listener, 
+  public DownloadShortExperimentsTask(Context activity,
+                                 DownloadExperimentsTaskListener listener,
                                  UserPreferences userPrefs) {
-    enclosingContext = activity;      
+    enclosingContext = activity;
     this.listener = listener;
     this.userPrefs = userPrefs;
   }
@@ -43,7 +40,7 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;
   }
-  
+
   protected void onProgressUpdate() {
 
   }
@@ -53,7 +50,7 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
       listener.done(errorCode);
     }
   }
-  
+
   public String getContentAsString() {
     return contentAsString;
   }

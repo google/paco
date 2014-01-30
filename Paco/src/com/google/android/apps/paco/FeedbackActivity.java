@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,14 +17,13 @@
 package com.google.android.apps.paco;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.pacoapp.paco.R;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -46,6 +45,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
+import com.pacoapp.paco.R;
+
 public class FeedbackActivity extends Activity {
 
   private static final String TEMP_URL = null;
@@ -55,13 +56,24 @@ public class FeedbackActivity extends Activity {
   private Button rawDataButton;
   boolean showDialog = true;
   private Environment env;
-  
+
   private class JavascriptEmail {
     public void sendEmail(String body, String subject, String userEmail) {
       FeedbackActivity.this.sendEmail(body, subject, userEmail);
     }
   }
-  
+
+  private class JavascriptExperimentLoader {
+    private Experiment experiment;
+    public JavascriptExperimentLoader(Experiment experiment) {
+        this.experiment = experiment;
+    }
+    public String getExperiment() {
+      return experiment.getJson();
+    }
+  }
+
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -74,14 +86,10 @@ public class FeedbackActivity extends Activity {
       experimentProviderUtil.loadFeedbackForExperiment(experiment);
       experimentProviderUtil.loadInputsForExperiment(experiment);
       experimentProviderUtil.loadLastEventForExperiment(experiment);
-      final Feedback feedback = experiment.getFeedback().get(0);
-      
-      final Map<String,String> map = new HashMap<String, String>();      
-      map.put("lastResponse", convertExperimentResultsToJsonString(feedback, experiment));
-      map.put("title", experiment.getTitle());
-      
+
+
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
-      rawDataButton.setOnClickListener(new OnClickListener() {        
+      rawDataButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           Intent rawDataIntent = new Intent(FeedbackActivity.this, RawDataActivity.class);
           rawDataIntent.setData(getIntent().getData());
@@ -91,23 +99,20 @@ public class FeedbackActivity extends Activity {
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 
-      env = new Environment(map);
-      webView.addJavascriptInterface(env, "env");
-      
-      String text = experiment.getFeedback().get(0).getText();                
-      webView.addJavascriptInterface(text, "additions");      
-      webView.addJavascriptInterface(new JavascriptEmail(), "email");
-      webView.addJavascriptInterface(new JavascriptEventLoader(experimentProviderUtil, experiment), "eventLoader");
-            
+      final Feedback feedback = experiment.getFeedback().get(0);
+
+      injectObjectsIntoJavascriptEnvironment(feedback);
+
+
       setWebChromeClientThatHandlesAlertsAsDialogs();
-      
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);      
+
+      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
-      
+
       if (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0))) {
         loadCustomFeedbackIntoWebView();
       } else {
-        loadDefaultFeedbackIntoWebView();  
+        loadDefaultFeedbackIntoWebView();
       }
       if (savedInstanceState != null){
         webView.loadUrl((String) savedInstanceState.get("url"));
@@ -119,7 +124,30 @@ public class FeedbackActivity extends Activity {
         }
       }
     }
-    
+
+  }
+
+  private void injectObjectsIntoJavascriptEnvironment(final Feedback feedback) {
+    final Map<String,String> map = new HashMap<String, String>();
+    map.put("lastResponse", convertLastEventToJsonString(feedback, experiment));
+    map.put("title", experiment.getTitle());
+    map.put("experiment", experiment.getJson());
+    map.put("test", "false");
+
+    String text = experiment.getFeedback().get(0).getText();
+    webView.addJavascriptInterface(text, "additions");
+
+    webView.addJavascriptInterface(new JavascriptEmail(), "email");
+    webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
+
+    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment);
+    webView.addJavascriptInterface(javascriptEventLoader, "db");
+    // deprecated name - use "db" in all new experiments
+    webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
+
+    env = new Environment(map);
+    webView.addJavascriptInterface(env, "env");
+
   }
 
   private void loadDefaultFeedbackIntoWebView() {
@@ -138,7 +166,7 @@ public class FeedbackActivity extends Activity {
         if (uri.getScheme().startsWith("http")) {
           return true; // throw away http requests - we don't want 3rd party javascript sending url requests due to security issues.
         }
-        
+
         String inputIdStr = uri.getQueryParameter("inputId");
         if (inputIdStr == null) {
           return true;
@@ -152,29 +180,29 @@ public class FeedbackActivity extends Activity {
             continue; // missed signal;
           }
           eventJson.put(responseTime.getMillis());
-          
+
           // in this case we are looking for one input from the responses that we are charting.
           for (Output response : event.getResponses()) {
             if (response.getInputServerId() == inputId ) {
               Input inputById = experiment.getInputById(inputId);
-              if (!inputById.isInvisible() && inputById.isNumeric()) {               
+              if (!inputById.isInvisible() && inputById.isNumeric()) {
                 eventJson.put(response.getDisplayOfAnswer(inputById));
                 results.put(eventJson);
                 continue;
               }
             }
           }
-          
+
         }
         env.put("data", results.toString());
         env.put("inputId", inputIdStr);
-        
+
         view.loadUrl(stripQuery(url));
         return true;
       }
 
-      
-      
+
+
     };
     return webViewClient;
   }
@@ -187,7 +215,7 @@ public class FeedbackActivity extends Activity {
     }
     return urlWithoutQuery;
   }
-  
+
   private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     webView.setWebChromeClient(new WebChromeClient() {
       @Override
@@ -198,12 +226,12 @@ public class FeedbackActivity extends Activity {
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
           }
-          
+
         }).create().show();
         result.confirm();
         return true;
       }
-      
+
       public boolean onJsConfirm (WebView view, String url, String message, final JsResult result){
         if (url.contains("file:///android_asset/map.html")){
           if (showDialog == false){
@@ -220,7 +248,7 @@ public class FeedbackActivity extends Activity {
               public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 result.cancel();
-              } 
+              }
             }).create().show();
             return true;
           }
@@ -237,18 +265,33 @@ public class FeedbackActivity extends Activity {
 
       @Override
       public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        Log.d(PacoConstants.TAG,  consoleMessage.message() + " -- From line "
+        Log.d(PacoConstants.TAG,  "*" + consoleMessage.message() + " -- From line "
             + consoleMessage.lineNumber() + " of "
             + consoleMessage.sourceId() );
         return true;
       }
-      
+
     });
   }
 
   public static String convertExperimentResultsToJsonString(final Feedback feedback, final Experiment experiment) {
+    List<Event> events = experiment.getEvents();
+    return convertEventsToJsonString(feedback, experiment, events);
+  }
+
+  public static String convertLastEventToJsonString(final Feedback feedback, final Experiment experiment) {
+    List<Event> events = experiment.getEvents();
+    if (events.isEmpty()) {
+      return "[]";
+    }
+    return convertEventsToJsonString(feedback, experiment, events.subList(0,1));
+  }
+
+  private static String convertEventsToJsonString(final Feedback feedback, final Experiment experiment,
+                                                  List<Event> events) {
+    // TODO use jackson instead. But preserve these synthesized values for backward compatibility.
     final JSONArray experimentData = new JSONArray();
-    for (Event event : experiment.getEvents()) {
+    for (Event event : events) {
       try {
         JSONObject eventObject = new JSONObject();
         boolean missed = event.getResponseTime() == null;
@@ -256,43 +299,46 @@ public class FeedbackActivity extends Activity {
         if (!missed) {
           eventObject.put("responseTime", event.getResponseTime().getMillis());
         }
-        
+
         boolean selfReport = event.getScheduledTime() == null;
         eventObject.put("isSelfReport", selfReport);
         if (!selfReport) {
           eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
         }
-        
-        
-        
+
         JSONArray responses = new JSONArray();
         for (Output response : event.getResponses()) {
           JSONObject responseJson = new JSONObject();
-          Input input = experiment.getInputById(response.getInputServerId());     
+          Input input = experiment.getInputById(response.getInputServerId());
           if (input == null) {
             continue;
           }
           responseJson.put("inputId", input.getServerId());
+          // deprecate inputName in favor of name. Some experiments still use it though
           responseJson.put("inputName", input.getName());
+          responseJson.put("name", input.getName());
           responseJson.put("responseType", input.getResponseType());
           responseJson.put("isMultiselect", input.isMultiselect());
           responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
           responseJson.put("answer", response.getDisplayOfAnswer(input));
-          responseJson.put("answerOrder", response.getAnswer());  
+          // deprecate answerOrder for answerRaw
+          responseJson.put("answerOrder", response.getAnswer());
+          responseJson.put("answerRaw", response.getAnswer());
           responses.put(responseJson);
-        }          
-        
+        }
+
         eventObject.put("responses", responses);
         if (responses.length() > 0) {
           experimentData.put(eventObject);
         }
       } catch (JSONException jse) {
-        // skip this event and do the next event. 
+        // skip this event and do the next event.
       }
     }
     String experimentDataAsJson = experimentData.toString();
     return experimentDataAsJson;
   }
+
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -302,7 +348,7 @@ public class FeedbackActivity extends Activity {
       }
       return super.onKeyDown(keyCode, event);
   }
-  
+
   private void displayNoExperimentMessage() {
   }
 
@@ -314,7 +360,7 @@ public class FeedbackActivity extends Activity {
   }
 
   private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();    
+    Uri uri = getIntent().getData();
     if (uri == null) {
       return null;
     }
@@ -322,16 +368,16 @@ public class FeedbackActivity extends Activity {
     experimentProviderUtil.loadInputsForExperiment(experiment);
     return experiment;
   }
-  
+
   private void sendEmail(String body, String subject, String userEmail) {
     userEmail = findAccount(userEmail);
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
     String aEmailList[] = { userEmail};
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body); 
+    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
     emailIntent.setType("plain/text");
-    
+
     startActivity(emailIntent);
   }
 
@@ -344,8 +390,8 @@ public class FeedbackActivity extends Activity {
     for (Account account : accounts) {
       if (userEmail == null || userEmail.length() == 0) {
         return account.name; // return first
-      } 
-      
+      }
+
       if (domainName != null) {
         int atIndex = account.name.indexOf('@');
         if (atIndex != -1) {
@@ -353,8 +399,8 @@ public class FeedbackActivity extends Activity {
           if (accountDomain.equals(domainName)) {
             return account.name;
           }
-        }  
-      }        
+        }
+      }
     }
     return "";
   }
@@ -364,10 +410,10 @@ public class FeedbackActivity extends Activity {
     outState.putString("url", webView.getUrl());
     outState.putString("showDialog", showDialog+"");
  }
-  
+
   private boolean isDefaultFeedback(Feedback feedback) {
     return feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
       feedback.getText().equals(getString(R.string.thanks_for_participating_message));
   }
-  
+
 }

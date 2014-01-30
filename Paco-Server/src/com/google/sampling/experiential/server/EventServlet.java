@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,14 +24,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -58,9 +54,9 @@ import com.google.sampling.experiential.shared.EventDAO;
 
 /**
  * Servlet that answers queries for Events.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 public class EventServlet extends HttpServlet {
 
@@ -97,7 +93,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
     List<Event> events = getEventsWithQuery(req, query, 0, 20000);
     EventRetriever.sortEvents(events);
     Set<String> whos = new HashSet<String>();
@@ -115,23 +111,6 @@ public class EventServlet extends HttpServlet {
     resp.getWriter().println(mappingOutput.toString());
   }
 
-  public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
-    String tzStr = getParam(req, "tz");
-    if (tzStr != null && !tzStr.isEmpty()) {
-      DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
-      if (jodaTimeZone != null) {
-        return jodaTimeZone;
-      }
-    }
-    
-    Locale clientLocale = req.getLocale();
-    Calendar calendar = Calendar.getInstance(clientLocale);
-    TimeZone clientTimeZone = calendar.getTimeZone();
-    DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);
-    return jodaTimeZone;
-    
-  }
-
   private boolean isDevInstance(HttpServletRequest req) {
     return ExperimentServlet.isDevInstance(req);
   }
@@ -141,23 +120,11 @@ public class EventServlet extends HttpServlet {
     return userService.getCurrentUser();
   }
 
-  private static String getParam(HttpServletRequest req, String paramName) {
-    try {
-      String parameter = req.getParameter(paramName);
-      if (parameter == null || parameter.isEmpty()) {
-        return null;
-      }
-      return URLDecoder.decode(parameter, "UTF-8");
-    } catch (UnsupportedEncodingException e1) {
-      throw new IllegalArgumentException("Unspported encoding");
-    }
-  }
-
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
     List<Event> events = getEventsWithQuery(req, query, 0, 20000);
     EventRetriever.sortEvents(events);
-    String jsonOutput = jsonifyEvents(events, anon, getTimeZoneForClient(req).getID());
+    String jsonOutput = jsonifyEvents(events, anon, TimeUtil.getTimeZoneForClient(req).getID());
     resp.getWriter().println(jsonOutput);
   }
 
@@ -181,11 +148,11 @@ public class EventServlet extends HttpServlet {
         if (scheduledDateTime != null) {
           scheduledTime = scheduledDateTime.toDate();
         }
-        
+
         eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
                                    event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
-                                   responseTime, 
-                                   scheduledTime, 
+                                   responseTime,
+                                   scheduledTime,
                                    null, Long.parseLong(event.getExperimentId()),
                                    event.getExperimentVersion(), event.getTimeZone()));
       }
@@ -205,8 +172,8 @@ public class EventServlet extends HttpServlet {
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
-    
-    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
     String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv");
     // Give the backend time to startup and register the job.
     try {
@@ -214,17 +181,17 @@ public class EventServlet extends HttpServlet {
     } catch (InterruptedException e) {
     }
     resp.sendRedirect("/jobStatus?jobId=" + jobId);
-    
+
   }
-  
-  
+
+
   private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
-    
-    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
     String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html");
     // Give the backend time to startup and register the job.
     try {
@@ -239,8 +206,8 @@ public class EventServlet extends HttpServlet {
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
-    
-    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
     String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip");
     // Give the backend time to startup and register the job.
     try {
@@ -254,7 +221,7 @@ public class EventServlet extends HttpServlet {
 
   /**
    * Triggers a backend instance call to start the potentially-long-running job
-   * 
+   *
    * @param anon
    * @param loggedInuser
    * @param timeZoneForClient
@@ -263,11 +230,11 @@ public class EventServlet extends HttpServlet {
    * @return the jobId to check in on the status of this background job
    * @throws IOException
    */
-  private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient, 
+  private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat) throws IOException {
     BackendService backendsApi = BackendServiceFactory.getBackendService();
     String backendAddress = backendsApi.getBackendAddress("reportworker");
-    
+
     try {
       BufferedReader reader = null;
       try {
@@ -294,12 +261,12 @@ public class EventServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req, 
+  private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
                                        String backendAddress, String reportFormat) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" + 
-            req.getParameter("q") + 
+    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" +
+            req.getParameter("q") +
             "&who="+getWhoFromLogin().getEmail().toLowerCase() +
-            "&anon=" + req.getParameter("anon") + 
+            "&anon=" + req.getParameter("anon") +
             "&tz="+timeZoneForClient +
             "&reportFormat="+reportFormat);
     log.info("URL to backend = " + url.toString());
@@ -331,7 +298,7 @@ public class EventServlet extends HttpServlet {
     if (whoFromLogin != null) {
       who = whoFromLogin.getEmail().toLowerCase();
     }
-    return EventRetriever.getInstance().getEvents(queries, who, getTimeZoneForClient(req), offset, limit);
+    return EventRetriever.getInstance().getEvents(queries, who, TimeUtil.getTimeZoneForClient(req), offset, limit);
   }
 
   @Override
@@ -372,17 +339,17 @@ public class EventServlet extends HttpServlet {
     }
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
-    } 
+    }
 
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);    
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }
 
-  private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp) 
+  private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)
       throws UnsupportedEncodingException {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
