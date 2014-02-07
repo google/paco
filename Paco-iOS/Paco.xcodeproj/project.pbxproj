@@ -58,8 +58,6 @@
 		367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
 		367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
 		367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */; };
-		36844285187632660027C72F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36844284187632660027C72F /* Default-568h@2x.png */; };
-		36844287187632BE0027C72F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36844286187632BE0027C72F /* Default@2x.png */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
@@ -68,9 +66,6 @@
 		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
 		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
 		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
-		369F6BBF18657C9C006FB693 /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BBE18657C9C006FB693 /* app_icon.png */; };
-		369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC718657CDF006FB693 /* app_icon_ipad.png */; };
-		369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */; };
 		36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDA17C420F800B93855 /* SSKeychain.m */; };
 		36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDC17C420F800B93855 /* SSKeychainQuery.m */; };
 		36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CE117C4440000B93855 /* NSError+Paco.m */; };
@@ -210,6 +205,19 @@
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		E43DA212185ADDC9007F04F9 /* PacoInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA211185ADDC9007F04F9 /* PacoInfoView.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
+		E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */; };
+		E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */; };
+		E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */; };
+		E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */; };
+		E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */; };
+		E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */; };
+		E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */; };
+		E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */; };
+		E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */; };
+		E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */; };
+		E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */; };
+		E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */; };
+		E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */; };
 		E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */; };
 		E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D5DE851837DE9900E5446A /* MessageUI.framework */; };
 		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
@@ -349,8 +357,6 @@
 		367233DF180619A5006611E6 /* PacoScheduleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduleGenerator.h; sourceTree = "<group>"; };
 		367233E0180619A5006611E6 /* PacoScheduleGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGenerator.m; sourceTree = "<group>"; };
 		367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorTests.m; sourceTree = "<group>"; };
-		36844284187632660027C72F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		36844286187632BE0027C72F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
 		368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtilityTests.m; sourceTree = "<group>"; };
@@ -366,9 +372,6 @@
 		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
 		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
 		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
-		369F6BBE18657C9C006FB693 /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
-		369F6BC718657CDF006FB693 /* app_icon_ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon_ipad.png; sourceTree = "<group>"; };
-		369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon_ipad@2x.png"; sourceTree = "<group>"; };
 		36AD6CD917C420F800B93855 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		36AD6CDA17C420F800B93855 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		36AD6CDB17C420F800B93855 /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychainQuery.h; sourceTree = "<group>"; };
@@ -577,6 +580,19 @@
 		E43DA211185ADDC9007F04F9 /* PacoInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInfoView.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
+		E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_76.png; sourceTree = "<group>"; };
+		E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_152.png; sourceTree = "<group>"; };
+		E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_iphone_120.png; sourceTree = "<group>"; };
+		E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_29.png; sourceTree = "<group>"; };
+		E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_58.png; sourceTree = "<group>"; };
+		E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_40.png; sourceTree = "<group>"; };
+		E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_80.png; sourceTree = "<group>"; };
+		E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x960.png; sourceTree = "<group>"; };
+		E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x1136.png; sourceTree = "<group>"; };
+		E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_768x1024.png; sourceTree = "<group>"; };
+		E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_1024x768.png; sourceTree = "<group>"; };
+		E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_1024x768@2x.png"; sourceTree = "<group>"; };
+		E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
 		E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSubtitleTableCell.h; sourceTree = "<group>"; };
 		E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSubtitleTableCell.m; sourceTree = "<group>"; };
 		E4D5DE851837DE9900E5446A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -1039,8 +1055,12 @@
 		36B8EB8F17568E22004CF035 /* config */ = {
 			isa = PBXGroup;
 			children = (
-				36844286187632BE0027C72F /* Default@2x.png */,
-				36844284187632660027C72F /* Default-568h@2x.png */,
+				E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */,
+				E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */,
+				E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */,
+				E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */,
+				E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */,
+				E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */,
 				36B8EB9117568E22004CF035 /* Paco-Info.plist */,
 			);
 			path = config;
@@ -1049,9 +1069,13 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */,
-				369F6BC718657CDF006FB693 /* app_icon_ipad.png */,
-				369F6BBE18657C9C006FB693 /* app_icon.png */,
+				E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */,
+				E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */,
+				E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */,
+				E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */,
+				E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */,
+				E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */,
+				E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
@@ -1449,14 +1473,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				36B8EBD517568E29004CF035 /* arrow_icon.png in Resources */,
+				E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
+				E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
+				E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
-				36844287187632BE0027C72F /* Default@2x.png in Resources */,
 				36B8EBDB17568E29004CF035 /* InfoPlist.strings in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
+				E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
 				36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */,
@@ -1465,25 +1492,25 @@
 				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
 				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
-				36844285187632660027C72F /* Default-568h@2x.png in Resources */,
 				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
 				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
+				E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
 				36B8EBEA17568E29004CF035 /* help_disabled.png in Resources */,
+				E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */,
 				36B8EBEB17568E29004CF035 /* help_focused.png in Resources */,
 				36B8EBEC17568E29004CF035 /* help_normal.png in Resources */,
 				36B8EBED17568E29004CF035 /* help_pressed.png in Resources */,
+				E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */,
 				36B8EBEE17568E29004CF035 /* icon.png in Resources */,
 				36B8EBEF17568E29004CF035 /* list_header_background.png in Resources */,
 				36B8EBF017568E29004CF035 /* paco128.png in Resources */,
+				E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */,
 				36B8EBF117568E29004CF035 /* paco256.png in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
-				369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */,
-				369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */,
 				36B8EBF317568E29004CF035 /* paco64.png in Resources */,
 				36B8EBF417568E29004CF035 /* paco_sil.png in Resources */,
-				369F6BBF18657C9C006FB693 /* app_icon.png in Resources */,
 				367171FD183AFE33005A5058 /* help.html in Resources */,
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				36B8EBF617568E29004CF035 /* question_b16.png in Resources */,
@@ -1508,13 +1535,18 @@
 				36B8EC0917568E29004CF035 /* timepicker_input_pressed.9.png in Resources */,
 				36B8EC0A17568E29004CF035 /* timepicker_input_selected.9.png in Resources */,
 				36B8EC0B17568E29004CF035 /* timepicker_up_disabled.9.png in Resources */,
+				E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */,
 				36B8EC0C17568E29004CF035 /* timepicker_up_disabled_focused.9.png in Resources */,
+				E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */,
+				E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */,
 				36B8EC0D17568E29004CF035 /* timepicker_up_normal.9.png in Resources */,
 				36B8EC0E17568E29004CF035 /* timepicker_up_pressed.9.png in Resources */,
 				36B8EC0F17568E29004CF035 /* timepicker_up_selected.9.png in Resources */,
+				E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */,
 				36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */,
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				36B8EC3217568E33004CF035 /* GTMOAuth2ViewTouch.xib in Resources */,
+				E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
 			);
