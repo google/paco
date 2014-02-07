@@ -75,7 +75,7 @@
 
 - (void)showNoSurveyNeeded {
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-  NSString* message = @"No need to fill out any survey at this moment for this experiment.";
+  NSString* message = @"This notification has expired. No need to respond to this experiment at this time.";
   [JCNotificationCenter enqueueNotificationWithTitle:@""
                                              message:message
                                           tapHandler:nil];
