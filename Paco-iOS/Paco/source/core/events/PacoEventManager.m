@@ -58,7 +58,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                             options:NSDataReadingMappedIfSafe
                                               error:&error];
   if (error != nil && ![error pacoIsFileNotExistError]) {
-    NSLog(@"[Error]Failed to load %@: %@",
+    DDLogError(@"[Error]Failed to load %@: %@",
           fileName,
           error.description ? error.description : @"unknown error");
     return nil;
@@ -72,7 +72,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                                options:NSJSONReadingAllowFragments
                                                  error:&jsonError];
   if (jsonError) {
-    NSLog(@"[Error]Failed to serialize %@: %@",
+    DDLogError(@"[Error]Failed to serialize %@: %@",
           fileName,
           error.description ? error.description : @"unknown error");
     return nil;
@@ -86,7 +86,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
-    NSLog(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
+    DDLogError(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
     return jsonError;
   }
   NSAssert(jsonData != nil, @"jsonData should not be nil!");
@@ -96,9 +96,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                 options:NSDataWritingFileProtectionComplete
                   error:&saveError];
   if (saveError) {
-    NSLog(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
+    DDLogError(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
   }else {
-    NSLog(@"Succeeded to save %@.", fileName);    
+    DDLogInfo(@"Succeeded to save %@.", fileName);
   }
   return saveError;
 }
@@ -130,7 +130,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       id events = [dict objectForKey:definitionId];
       [allEventsDict setObject:[self deserializedEvents:events] forKey:definitionId];
     }      
-    NSLog(@"Fetched all events.");
+    DDLogInfo(@"Fetched all events.");
     self.eventsDict = allEventsDict;
   }
 }
@@ -145,7 +145,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if (events != nil) {
       pendingEvents = [self deserializedEvents:events];
     }
-    NSLog(@"Fetched %d pending events.", [pendingEvents count]);
+    DDLogInfo(@"Fetched %d pending events.", [pendingEvents count]);
     self.pendingEvents = pendingEvents;
   }
 }
@@ -181,7 +181,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   if (self.pendingEvents == nil) {
     return;
   }
-  NSLog(@"Saving %d pending events", [self.pendingEvents count]);
+  DDLogInfo(@"Saving %d pending events", [self.pendingEvents count]);
   NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
   [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
 }
@@ -215,14 +215,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     for (PacoEvent* event in events) {
       int index = [self.pendingEvents indexOfObject:event];
       if (index == NSNotFound) {
-        NSLog(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
+        DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
       }
       [self.pendingEvents removeObject:event];
     }
     
     [self savePendingEventsToFile];
-    NSLog(@"[Mark Complete] %d events! ", [events count]);
-    NSLog(@"[Pending Events] %d.", [self.pendingEvents count]);
+    DDLogInfo(@"[Mark Complete] %d events! ", [events count]);
+    DDLogInfo(@"[Pending Events] %d.", [self.pendingEvents count]);
   }
 }
 
@@ -265,14 +265,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule {
   PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
-  NSLog(@"Save a join event");
+  DDLogInfo(@"Save a join event");
   [self saveEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
   PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
-  NSLog(@"Save a stop event");
+  DDLogInfo(@"Save a stop event");
   [self saveEvent:event];
 }
 
@@ -280,7 +280,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                 andInputs:(NSArray*)visibleInputs {
   PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
                                                         withInputs:visibleInputs];
-  NSLog(@"Save a self-report event");
+  DDLogInfo(@"Save a self-report event");
   [self saveEvent:surveyEvent];
 }
 
@@ -291,7 +291,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
                                                              withInputs:inputs
                                                        andScheduledTime:scheduledTime];
-  NSLog(@"Save a survey submitted event");
+  DDLogInfo(@"Save a survey submitted event");
   [self saveEvent:surveyEvent];
 }
 
@@ -305,15 +305,15 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   @synchronized(self) {
     NSArray* pendingEvents = [self allPendingEvents];
     if ([pendingEvents count] == 0) {
-      NSLog(@"No pending events to upload.");
+      DDLogInfo(@"No pending events to upload.");
       return;
     }
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
     if (state == UIApplicationStateActive) {
-      NSLog(@"There are %d pending events to upload.", [pendingEvents count]);
+      DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
       [self.uploader startUploading];
     } else {
-      NSLog(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
+      DDLogInfo(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
     }
   }
 }

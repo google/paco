@@ -128,13 +128,13 @@
     }else{//localserver
       self.serverDomain = @"http://127.0.0.1";
     }
-    NSLog(@"PacoClient initializing...");
+    DDLogInfo(@"PacoClient initializing...");
   }
   return self;
 }
 
 - (void)dealloc {
-  NSLog(@"PacoClient deallocating...");
+  DDLogInfo(@"PacoClient deallocating...");
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -214,7 +214,7 @@
     //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
     dispatch_async(dispatch_get_main_queue(), ^{
       if (self.location == nil) {
-        NSLog(@"***********  PacoLocation is allocated ***********");
+        DDLogInfo(@"***********  PacoLocation is allocated ***********");
         self.location = [[PacoLocation alloc] init];
         self.location.delegate = self;
         [self.location enableLocationService];
@@ -231,7 +231,7 @@
     if (self.location == nil) {
       return;
     }
-    NSLog(@"Shut down notification system ...");
+    DDLogInfo(@"Shut down notification system ...");
     [self.scheduler stopSchedulingForAllExperiments];
     
     [self disableBackgroundFetch];
@@ -269,7 +269,7 @@
   }
   NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
-  NSLog(@"Save %d notification expired events", [eventList count]);
+  DDLogInfo(@"Save %d notification expired events", [eventList count]);
   [self.eventManager saveEvents:eventList];
 }
 
@@ -328,7 +328,7 @@
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
   [self.scheduler initializeNotifications];
-  NSLog(@"Finish initializing notifications");
+  DDLogInfo(@"Finish initializing notifications");
   [(PacoAppDelegate*)[UIApplication sharedApplication].delegate processNotificationIfNeeded];
   [self updateNotificationSystem];
 }
@@ -337,7 +337,7 @@
   if ([self isNotificationSystemOn]) {
     [self.scheduler executeRoutineMajorTask];
   } else {
-    NSLog(@"Skip Executing Major Task, notification system is off");
+    DDLogInfo(@"Skip Executing Major Task, notification system is off");
   }
 }
 
@@ -350,7 +350,7 @@
 }
 
 - (void)disableBackgroundFetch {
-  NSLog(@"Disable background fetch");
+  DDLogInfo(@"Disable background fetch");
   [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
@@ -397,14 +397,14 @@
         self.service.authenticator = self.authenticator;
         [self uploadPendingEventsInBackground];
       } else {
-        NSLog(@"[ERROR]: failed to re-authenticate user!!!");
+        DDLogError(@"[ERROR]: failed to re-authenticate user!!!");
         [self showLoginScreenWithCompletionBlock:nil];
       }
     }];
     
-    NSLog(@"[Reachable]: Online Now!");
+    DDLogWarn(@"[Reachable]: Online Now!");
   }else {
-    NSLog(@"[Reachable]: Offline Now!");
+    DDLogWarn(@"[Reachable]: Offline Now!");
   }
 }
 
@@ -457,7 +457,7 @@
 
   
   if ([self.authenticator setupWithCookie]) {
-    NSLog(@"Valid cookie detected, no need to log in!");
+    DDLogInfo(@"Valid cookie detected, no need to log in!");
     [self startWorkingAfterLogIn];
     
     if (block != nil) {
@@ -543,7 +543,7 @@
 }
 
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
-  NSLog(@"Fetched %d definitions from server", [definitions count]);
+  DDLogInfo(@"Fetched %d definitions from server", [definitions count]);
   [self.model applyDefinitionJSON:definitions];
   [self.model saveExperimentDefinitionsToFile];
 }
@@ -576,7 +576,7 @@
           if (!error) {
             [self refreshSucceedWithDefinitions:definitions];
           } else {
-            NSLog(@"Failed to refresh definitions: %@", [error description]);
+            DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
           self.prefetchState.finishLoadingDefinitions = YES;
           self.prefetchState.finishLoadingExperiments = YES;
@@ -637,7 +637,7 @@
     
     [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
       if (error) {
-        NSLog(@"Failed to prefetch definitions: %@", [error description]);
+        DDLogError(@"Failed to prefetch definitions: %@", [error description]);
         [self definitionsLoadedWithError:error];
         if (completionBlock) {
           completionBlock();
@@ -679,7 +679,7 @@
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
                                                               schedule:schedule];
-  NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
+  DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 }

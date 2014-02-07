@@ -20,6 +20,7 @@
 #import "NSError+Paco.h"
 #import "NSString+Paco.h"
 #import "NSMutableArray+Paco.h"
+#import "PacoClient.h"
 
 static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
@@ -46,14 +47,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 - (void)adjustBadgeNumber {
   int numOfActiveNotifications = [self totalNumberOfActiveNotifications];
-  NSLog(@"Badge number set to %d", numOfActiveNotifications);
+  DDLogInfo(@"Badge number set to %d", numOfActiveNotifications);
   [UIApplication sharedApplication].applicationIconBadgeNumber = numOfActiveNotifications;
 }
 
 - (void)cancelAlliOSNotifications {
-  NSLog(@"Cancel All Local Notifications!");
+  DDLogInfo(@"Cancel All Local Notifications!");
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
-  NSLog(@"Badge number set to 0");
+  DDLogInfo(@"Badge number set to 0");
   [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
@@ -74,7 +75,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
   //reset notification dictionary
   self.notificationDict = [NSMutableDictionary dictionary];
-  NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+  DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
   [self saveNotificationsToCache];
 }
 
@@ -82,7 +83,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   if (notification == nil) {
     return;
   }
-  NSLog(@"Handling responded notification...");
+  DDLogInfo(@"Handling responded notification...");
   //Since this notification is responded successfully, cancelling it will clear it from the notification tray
   [UILocalNotification pacoCancelLocalNotification:notification];
 
@@ -95,7 +96,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
   [notifications removeObject:notification];
   [self.notificationDict setObject:notifications forKey:experimentId];
-  NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+  DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
   [self saveNotificationsToCache];
 }
 
@@ -156,19 +157,19 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
  b. delete them from the local cache
  **/
 - (void)purgeCachedNotifications {
-  NSLog(@"Purge cached notifications...");
+  DDLogInfo(@"Purge cached notifications...");
   [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
-    NSLog(@"There are %d expired notifications.", [expiredNotifications count]);
-    NSLog(@"There are %d not fired notifications.", [notFiredNotifications count]);
+    DDLogInfo(@"There are %d expired notifications.", [expiredNotifications count]);
+    DDLogInfo(@"There are %d not fired notifications.", [notFiredNotifications count]);
     
     int numOfActiveNotifications = 0;
     for (NSString* experimentId in newNotificationDict) {
       numOfActiveNotifications += [[newNotificationDict objectForKey:experimentId] count];
     }
-    NSLog(@"There are %d active notifications.", numOfActiveNotifications);
+    DDLogInfo(@"There are %d active notifications.", numOfActiveNotifications);
     
     self.notificationDict = newNotificationDict;
     if (expiredNotifications) {
@@ -222,7 +223,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     //save the new notifications
     [self saveNotificationsToCache];
     
-    NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
     
     /*
      schedule the new notifications, and don't use the following code to set local notifications,
@@ -237,7 +238,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 
 - (void)resetWithPacoNotifications:(NSArray*)notifications {
-  NSLog(@"reset notification system");
+  DDLogInfo(@"reset notification system");
   [self cancelAlliOSNotifications];
   self.notificationDict = [NSMutableDictionary dictionary];
   
@@ -245,7 +246,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     [self addNotifications:notifications];
   }
   [self saveNotificationsToCache];
-  NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+  DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
   //schedule the new notifications, this API will also clean all fired notifications that
   //still stay in the notification center.
   [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
@@ -286,12 +287,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       };
       [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
     }
-    NSLog(@"Clean %d expired notifications...", [allExpiredNotifications count]);
+    DDLogInfo(@"Clean %d expired notifications...", [allExpiredNotifications count]);
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
       [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
       [self.delegate handleExpiredNotifications:allExpiredNotifications];
-      NSLog(@"New Notification Dict: %@", [newNotificationDict pacoDescriptionForNotificationDict]);
+      DDLogInfo(@"New Notification Dict: %@", [newNotificationDict pacoDescriptionForNotificationDict]);
     }
     //set the new notification dict, and save it to cache
     self.notificationDict = newNotificationDict;
@@ -332,7 +333,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
       [UILocalNotification pacoCancelNotifications:notifications];
       [self.notificationDict removeObjectForKey:experimentId];
-      NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+      DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
       //save the new notifications
       [self saveNotificationsToCache];
     }
@@ -359,8 +360,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
     }
 
-    NSLog(@"Finish Cancel Notifications for experiments: %@", experimentIds);
-    NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    DDLogInfo(@"Finish Cancel Notifications for experiments: %@", experimentIds);
+    DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     //save the new notifications
     [self saveNotificationsToCache];
   }
@@ -416,9 +417,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
   BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
   if (success) {
-    NSLog(@"Successfully saved notifications!");
+    DDLogInfo(@"Successfully saved notifications!");
   } else {
-    NSLog(@"Failed to save notifications!");
+    DDLogInfo(@"Failed to save notifications!");
   }
   return success;
 }

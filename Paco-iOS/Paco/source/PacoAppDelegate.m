@@ -27,30 +27,34 @@
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "PacoEventManager.h"
 #import "UILocalNotification+Paco.h"
+#import "DDLog.h"
+#import "DDASLLogger.h"
+#import "DDFileLogger.h"
+#import "DDTTYLogger.h"
 
 @implementation PacoAppDelegate
 
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-  NSLog(@"==========  Application didReceiveLocalNotification  ==========");
+  DDLogInfo(@"==========  Application didReceiveLocalNotification  ==========");
   [self processReceivedNotification:notification mustShowSurvey:NO];
 }
 
 - (void)processReceivedNotification:(UILocalNotification*)notification mustShowSurvey:(BOOL)mustShowSurvey {
   if (!notification) {
-    NSLog(@"Ignore a nil notification");
+    DDLogWarn(@"Ignore a nil notification");
     return;
   }
-  NSLog(@"Detail: %@", [notification pacoDescription]);
+  DDLogInfo(@"Detail: %@", [notification pacoDescription]);
   UILocalNotification* activeNotification = notification;
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
-    NSLog(@"Notification is not active anymore, cancelling it from the tray...");
+    DDLogInfo(@"Notification is not active anymore, cancelling it from the tray...");
     [UILocalNotification pacoCancelLocalNotification:activeNotification];
     activeNotification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
     if (activeNotification) {
-      NSLog(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
+      DDLogInfo(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
     } else {
-      NSLog(@"No Active Notification Detected. ");
+      DDLogInfo(@"No Active Notification Detected. ");
     }
   }
   
@@ -110,7 +114,7 @@
 
 - (void)processNotificationIfNeeded {
   if (self.notificationFromAppLaunch) {
-    NSLog(@"Start processing notification received from app launch");
+    DDLogVerbose(@"Start processing notification received from app launch");
     [self processReceivedNotification:self.notificationFromAppLaunch mustShowSurvey:YES];
     self.notificationFromAppLaunch = nil;
   }
@@ -119,6 +123,13 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   // Stir!
   arc4random_stir();
+  
+  [DDLog addLogger:[DDASLLogger sharedInstance]];
+  [DDLog addLogger:[DDTTYLogger sharedInstance]];
+  DDFileLogger* logger = [[DDFileLogger alloc] init];
+  logger.rollingFrequency = 2 * 24 * 60 * 60; //48 hours rolling
+  logger.logFileManager.maximumNumberOfLogFiles = 7;
+  [DDLog addLogger:logger];
   
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
@@ -137,17 +148,17 @@
   
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
-    NSLog(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    NSLog(@"The following notification will be processed after notification system is initialized:\n%@", notification);
+    DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
+    DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@", notification);
     self.notificationFromAppLaunch = notification;
   } else {
-    NSLog(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
+    DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
   return YES;
 }
 
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
-  NSLog(@"==========  Application Background Fetch Working ==========");
+  DDLogInfo(@"==========  Application Background Fetch Working ==========");
   
   [[PacoClient sharedInstance] backgroundFetchStarted];
   
@@ -156,27 +167,27 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-  NSLog(@"==========  Application applicationDidBecomeActive  ==========");
+  DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
   [[PacoClient sharedInstance] uploadPendingEventsInBackground];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-  NSLog(@"==========  Application applicationWillResignActive  ==========");
+  DDLogInfo(@"==========  Application applicationWillResignActive  ==========");
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  NSLog(@"==========  Application applicationWillTerminate  ==========");
+  DDLogInfo(@"==========  Application applicationWillTerminate  ==========");
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-  NSLog(@"==========  Application applicationDidEnterBackground  ==========");
+  DDLogInfo(@"==========  Application applicationDidEnterBackground  ==========");
   if ([PacoClient sharedInstance].location != nil) {
     [[PacoClient sharedInstance].location enableLocationService];
   }
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-  NSLog(@"==========  Application applicationWillEnterForeground  ==========");
+  DDLogInfo(@"==========  Application applicationWillEnterForeground  ==========");
   [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
 
