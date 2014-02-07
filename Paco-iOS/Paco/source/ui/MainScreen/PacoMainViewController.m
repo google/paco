@@ -26,7 +26,7 @@
 #import "PacoContactUsViewController.h"
 #import "PacoInfoView.h"
 #import "PacoWebViewController.h"
-
+#import "PacoModel.h"
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
@@ -58,6 +58,11 @@
   UIView *view = self.view;
   assert(view);
   view.backgroundColor = [PacoColor pacoBackgroundWhite];
+
+  //if user has running experiments, load RunningExperimentsViewController
+  if ([[PacoClient sharedInstance]hasRunningExperiments]) {
+    [self onRunningExperiments];
+  }
 
   PacoMenuButton *buttonFind = [[PacoMenuButton alloc] init];
   buttonFind.text.text = @"Find My Experiments";
@@ -134,7 +139,6 @@
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
 }
-
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];

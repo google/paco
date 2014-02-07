@@ -81,6 +81,7 @@
 - (NSError*)errorOfPrefetchingDefinitions;
 - (BOOL)prefetchedExperiments;
 - (NSError*)errorOfPrefetchingexperiments;
+- (BOOL)hasRunningExperiments;
 
 - (void)backgroundFetchStarted;
 
