@@ -28,6 +28,9 @@
 #import "PacoAlertView.h"
 #import "PacoEvent.h"
 #import "PacoEventManager.h"
+#import "PacoSubtitleTableCell.h"
+#import "PacoScheduler.h"
+#import "UILocalNotification+Paco.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -57,7 +60,7 @@
 
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
-  [table registerClass:[UITableViewCell class] forStringKey:nil dataClass:[PacoExperiment class]];
+  [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperiment class]];
   table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
@@ -115,6 +118,23 @@
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
+    if ([experiment isSelfReportExperiment]) {
+      cell.detailTextLabel.text = @"Self-Report";
+      cell.detailTextLabel.textColor = [UIColor brownColor];
+    } else {
+      UILocalNotification *notification =
+      [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experiment.instanceId];
+      if (!notification) {
+        cell.detailTextLabel.text = @"Inactive";
+        cell.detailTextLabel.textColor = [UIColor grayColor];
+      } else {
+        NSDate *now = [NSDate date];
+        NSInteger minutes = floor([now timeIntervalSinceDate:[notification pacoFireDate]] / 60);
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"Active: Last notified %d minute(s) ago", minutes];
+        cell.detailTextLabel.textColor = [UIColor redColor];
+      }
+    }
+
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
