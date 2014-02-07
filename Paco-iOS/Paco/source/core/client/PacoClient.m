@@ -543,7 +543,7 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
 }
 
 - (BOOL)hasRunningExperiments {
-  return [[NSUserDefaults standardUserDefaults]boolForKey:RunningExperimentsKey];
+  return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
 }
 
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
@@ -710,9 +710,9 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
   if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
     [self shutDownNotificationSystemIfNeeded];
   }
-  if (!self.model.hasRunningExperiments) {
-    [[NSUserDefaults standardUserDefaults]setBool:NO forKey:RunningExperimentsKey];
-    [[NSUserDefaults standardUserDefaults]synchronize];
+  if (![self.model hasRunningExperiments]) {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:RunningExperimentsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
