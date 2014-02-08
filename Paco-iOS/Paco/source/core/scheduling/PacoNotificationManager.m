@@ -51,6 +51,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   [UIApplication sharedApplication].applicationIconBadgeNumber = numOfActiveNotifications;
 }
 
+
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  if (!self.delegate) {
+    DDLogError(@"PacoNotificationManager's delegate should be a valid PacoScheduler's object!");
+  }
+  [self.delegate handleExpiredNotifications:expiredNotifications];
+}
+
 - (void)cancelAlliOSNotifications {
   DDLogInfo(@"Cancel All Local Notifications!");
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
@@ -69,7 +77,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     if (expiredNotifications) {
-      [self.delegate handleExpiredNotifications:expiredNotifications];
+      [self handleExpiredNotifications:expiredNotifications];
     }
   }];
 
@@ -174,7 +182,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     self.notificationDict = newNotificationDict;
     if (expiredNotifications) {
       [UILocalNotification pacoCancelNotifications:expiredNotifications];
-      [self.delegate handleExpiredNotifications:expiredNotifications];
+      [self handleExpiredNotifications:expiredNotifications];
     }
     if (notFiredNotifications) {
       [UILocalNotification pacoCancelNotifications:notFiredNotifications];
@@ -291,7 +299,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
       [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
-      [self.delegate handleExpiredNotifications:allExpiredNotifications];
+      [self handleExpiredNotifications:allExpiredNotifications];
       DDLogInfo(@"New Notification Dict: %@", [newNotificationDict pacoDescriptionForNotificationDict]);
     }
     //set the new notification dict, and save it to cache

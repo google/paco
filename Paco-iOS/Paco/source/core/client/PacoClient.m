@@ -98,9 +98,11 @@
 #pragma mark Object Life Cycle
 + (PacoClient *)sharedInstance {
   static PacoClient *client = nil;
-  if (!client) {
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
     client = [[PacoClient alloc] init];
-  }
+  });
   return client;
 }
 

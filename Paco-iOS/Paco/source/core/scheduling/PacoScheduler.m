@@ -180,6 +180,9 @@ NSInteger const kTotalNumOfNotifications = 60;
 
 #pragma mark PacoNotificationManagerDelegate
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  if (!self.delegate) {
+    DDLogError(@"PacoScheduler's delegate should be a valid PacoClient object!");
+  }
   [self.delegate handleExpiredNotifications:expiredNotifications];
 }
 
