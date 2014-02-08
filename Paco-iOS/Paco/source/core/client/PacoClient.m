@@ -33,7 +33,7 @@
 #import "NSMutableArray+Paco.h"
 #import "PacoExperimentSchedule.h"
 
-
+static NSString* const RunningExperimentsKey = @"has_running_experiments";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -542,6 +542,10 @@
   return self.prefetchState.errorLoadingExperiments;
 }
 
+- (BOOL)hasRunningExperiments {
+  return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
+}
+
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
   NSLog(@"Fetched %d definitions from server", [definitions count]);
   [self.model applyDefinitionJSON:definitions];
@@ -682,6 +686,9 @@
   NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
+
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:RunningExperimentsKey];
+  [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark stop an experiment
@@ -702,6 +709,10 @@
   //shut down notification if needed after experiment is deleted from model
   if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
     [self shutDownNotificationSystemIfNeeded];
+  }
+  if (![self.model hasRunningExperiments]) {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:RunningExperimentsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
