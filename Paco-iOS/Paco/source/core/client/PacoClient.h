@@ -15,6 +15,7 @@
 
 #import <Foundation/Foundation.h>
 #import "PacoLoginScreenViewController.h"
+#import "DDLog.h"
 
 @class PacoAuthenticator;
 @class PacoLocation;
@@ -26,6 +27,14 @@
 @class Reachability;
 @class PacoEventManager;
 @class PacoExperimentSchedule;
+
+
+
+#ifdef DEBUG
+static const int ddLogLevel = LOG_LEVEL_VERBOSE;
+#else
+static const int ddLogLevel = LOG_LEVEL_VERBOSE;
+#endif
 
 /*
  Set both ADD_TEST_DEFINITION and SKIP_LOG_IN to 1 

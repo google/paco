@@ -70,10 +70,10 @@ static int const kMaxNumOfEventsToUpload = 50;
     
     @synchronized(self) {
       if ([reach isReachable] && self.isWorking) {
-        NSLog(@"[Reachable]: Online Now!");
+        DDLogInfo(@"[Reachable]: Online Now!");
         [self uploadEvents];
       }else {
-        NSLog(@"[Reachable]: Offline Now!");
+        DDLogInfo(@"[Reachable]: Offline Now!");
       }
     }    
   }); 
@@ -160,10 +160,10 @@ static int const kMaxNumOfEventsToUpload = 50;
         
         if (error == nil) {
           if ([successEventIndexes count] < [events count]) {
-            NSLog(@"[Error]%d events successfully uploaded, %d events failed!",
+            DDLogError(@"[Error]%d events successfully uploaded, %d events failed!",
                   [successEventIndexes count], [events count] - [successEventIndexes count]);
           } else {
-            NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
+            DDLogInfo(@"%d events successfully uploaded!", [successEventIndexes count]);
           }
           
           NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
@@ -178,12 +178,12 @@ static int const kMaxNumOfEventsToUpload = 50;
             [self startObserveReachability];
           } else {
             //authentication error, server 500 error, client 400 error, etc.
-            NSLog(@"Failed to upload %d events! Error: %@", [events count], [error description]);
+            DDLogError(@"Failed to upload %d events! Error: %@", [events count], [error description]);
           }
         }
         
         if (numOfFinishedEvents == totalNumOfEvents) {
-          NSLog(@"Finished uploading!");
+          DDLogInfo(@"Finished uploading!");
           [self stopUploading];
         }
         
@@ -206,18 +206,18 @@ static int const kMaxNumOfEventsToUpload = 50;
   @synchronized(self) {
     //if user is not logged in yet, wait until log in finishes
     if (![[PacoClient sharedInstance] isLoggedIn]) {
-      NSLog(@"EventUploader failed to start uploading since user is not logged in");
+      DDLogError(@"EventUploader failed to start uploading since user is not logged in");
       return;
     }
     if (self.isWorking) {
-      NSLog(@"EventUploading is already working.");
+      DDLogWarn(@"EventUploading is already working.");
       return;
     }
     if (![self.delegate hasPendingEvents]) {
-      NSLog(@"EventUploader won't start uploading since there isn't any pending events");
+      DDLogWarn(@"EventUploader won't start uploading since there isn't any pending events");
       return;
     }
-    NSLog(@"EventUploader starts uploading ...");
+    DDLogInfo(@"EventUploader starts uploading ...");
     [self uploadEvents];
   }
 }
