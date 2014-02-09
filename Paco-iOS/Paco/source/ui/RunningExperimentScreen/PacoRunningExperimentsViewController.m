@@ -130,7 +130,8 @@
       } else {
         NSDate *now = [NSDate date];
         NSInteger minutes = floor([now timeIntervalSinceDate:[notification pacoFireDate]] / 60);
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"Active: Last notified %d minute(s) ago", minutes];
+        NSString *minuteString = minutes > 1 ? @"minutes" : @"minute";
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"Active: Last notified %d %@ ago", minutes, minuteString];
         cell.detailTextLabel.textColor = [UIColor redColor];
       }
     }
