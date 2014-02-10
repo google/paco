@@ -341,6 +341,7 @@ UIImagePickerControllerDelegate>
       }
       self.textView.text = self.question.responseObject;
       self.textView.textColor = [UIColor blackColor];
+      self.textView.font = [UIFont systemFontOfSize:15];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // TODO: radio list UI implementation
@@ -667,11 +668,17 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
   if ([textView.text isEqualToString:@"<type response here>"]) {
     textView.text = @"";
     textView.textColor = [UIColor blackColor];
+    textView.font = [UIFont systemFontOfSize:15];
   }
   [self moveCellViewToTop];
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)textView {
+  if ([textView.text isEqualToString:@""]) {
+    textView.text = @"<type response here>";
+    textView.textColor = [UIColor lightGrayColor];
+    textView.font = [UIFont systemFontOfSize:12];
+  }
   return YES;
 }
 
