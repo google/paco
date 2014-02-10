@@ -257,7 +257,13 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
     shouldUpdate = NO;
   }
   if (shouldUpdate) {
-    [self executeRoutineMajorTaskIfNeeded];
+    if (![self isNotificationSystemOn]) {
+      DDLogInfo(@"Skip Executing Major Task, notification system is off");
+      [self disableBackgroundFetch];
+    } else {
+      [self.scheduler executeRoutineMajorTask];
+      [self.eventManager startUploadingEventsInBackgroundWithBlock:nil];
+    }
     [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
   }
@@ -345,9 +351,8 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
   if (![self isNotificationSystemOn]) {
-    DDLogInfo(@"Disable background fetch");
     DDLogInfo(@"Skip Executing Major Task, notification system is off");
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+    [self disableBackgroundFetch];
     if (completionBlock) {
       completionBlock(UIBackgroundFetchResultNoData);
     }
