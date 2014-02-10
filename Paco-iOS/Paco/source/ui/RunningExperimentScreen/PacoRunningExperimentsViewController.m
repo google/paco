@@ -87,6 +87,11 @@
       tableView.data = [NSArray array];
       [PacoAlertView showGeneralErrorAlert];
     }else{
+      if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
+        [PacoAlertView showAlertWithTitle:@"You haven't joined any experiment yet."
+                                  message:@"Go to Find My Experiments to select an experiment to join"
+                        cancelButtonTitle:@"OK"];
+      }
       tableView.data = [PacoClient sharedInstance].model.experimentInstances;
     }
   });
