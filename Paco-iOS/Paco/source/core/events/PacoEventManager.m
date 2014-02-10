@@ -311,10 +311,40 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
     if (state == UIApplicationStateActive) {
       DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
-      [self.uploader startUploading];
+      [self.uploader startUploadingWithBlock:nil];
     } else {
       DDLogInfo(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
     }
+  }
+}
+
+
+- (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
+  @synchronized(self) {
+    NSArray* pendingEvents = [self allPendingEvents];
+    if ([pendingEvents count] == 0) {
+      DDLogInfo(@"No pending events to upload.");
+      if (completionBlock) {
+        completionBlock(UIBackgroundFetchResultNoData);
+      }
+      return;
+    }
+    
+    DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateActive) {
+      DDLogInfo(@"App State:UIApplicationStateActive");
+    } else if (state == UIApplicationStateBackground) {
+      DDLogInfo(@"App State:UIApplicationStateBackground");
+    } else {
+      DDLogInfo(@"App State:UIApplicationStateInActive");
+    }
+    [self.uploader startUploadingWithBlock:^(BOOL success) {
+      UIBackgroundFetchResult result = success ? UIBackgroundFetchResultNewData : UIBackgroundFetchResultFailed;
+      if (completionBlock) {
+        completionBlock(result);
+      }
+    }];
   }
 }
 

@@ -92,7 +92,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 - (NSError*)errorOfPrefetchingexperiments;
 - (BOOL)hasRunningExperiments;
 
-- (void)backgroundFetchStarted;
+- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
 - (void)executeRoutineMajorTaskIfNeeded;
 - (void)uploadPendingEventsInBackground;

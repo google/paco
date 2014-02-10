@@ -343,11 +343,17 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
   }
 }
 
-- (void)backgroundFetchStarted {
+- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
   if (![self isNotificationSystemOn]) {
-    [self disableBackgroundFetch];
+    DDLogInfo(@"Disable background fetch");
+    DDLogInfo(@"Skip Executing Major Task, notification system is off");
+    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+    if (completionBlock) {
+      completionBlock(UIBackgroundFetchResultNoData);
+    }
   } else {
-    [self executeRoutineMajorTaskIfNeeded];
+    [self.scheduler executeRoutineMajorTask];
+    [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
   }
 }
 
@@ -576,10 +582,12 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
     if (![self.prefetchState finishLoadingAll]) {
       return;
     }
+    DDLogInfo(@"Start refreshing definitions...");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
+            DDLogInfo(@"Succeeded to refreshing definitions.");
             [self refreshSucceedWithDefinitions:definitions];
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);

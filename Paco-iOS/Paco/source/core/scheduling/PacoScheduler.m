@@ -157,6 +157,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 - (void)restartNotificationSystem {
+  DDLogInfo(@"restart notification system...");
   NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
   [self.notificationManager resetWithPacoNotifications:notificationsToSchedule];
   [self.delegate updateNotificationSystem];

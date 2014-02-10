@@ -27,6 +27,7 @@ static int const kMaxNumOfEventsToUpload = 50;
 @interface PacoEventUploader ()
 
 @property(atomic, assign) BOOL isWorking;
+@property(nonatomic, copy) UploadCompletionBlock completionBlock;
 
 @end
 
@@ -185,8 +186,10 @@ static int const kMaxNumOfEventsToUpload = 50;
         if (numOfFinishedEvents == totalNumOfEvents) {
           DDLogInfo(@"Finished uploading!");
           [self stopUploading];
+          if (self.completionBlock) {
+            self.completionBlock(YES);
+          }
         }
-        
       });
     };
     
@@ -202,22 +205,33 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 
 #pragma mark Public API
-- (void)startUploading {
+- (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock {
   @synchronized(self) {
     //if user is not logged in yet, wait until log in finishes
     if (![[PacoClient sharedInstance] isLoggedIn]) {
       DDLogError(@"EventUploader failed to start uploading since user is not logged in");
+      if (completionBlock) {
+        completionBlock(NO);
+      }
       return;
     }
     if (self.isWorking) {
       DDLogWarn(@"EventUploading is already working.");
+      if (completionBlock) {
+        completionBlock(NO);
+      }
       return;
     }
+
     if (![self.delegate hasPendingEvents]) {
       DDLogWarn(@"EventUploader won't start uploading since there isn't any pending events");
+      if (completionBlock) {
+        completionBlock(YES);
+      }
       return;
     }
     DDLogInfo(@"EventUploader starts uploading ...");
+    self.completionBlock = completionBlock;
     [self uploadEvents];
   }
 }

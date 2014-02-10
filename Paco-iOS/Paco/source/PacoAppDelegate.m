@@ -160,10 +160,7 @@
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
   DDLogInfo(@"==========  Application Background Fetch Working ==========");
   
-  [[PacoClient sharedInstance] backgroundFetchStarted];
-  
-  UIBackgroundFetchResult result = UIBackgroundFetchResultNewData;
-  completionHandler(result);
+  [[PacoClient sharedInstance] backgroundFetchStartedWithBlock:completionHandler];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
