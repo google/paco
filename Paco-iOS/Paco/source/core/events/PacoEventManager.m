@@ -93,7 +93,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   
   NSError* saveError = nil;
   [jsonData writeToFile:[NSString pacoDocumentDirectoryFilePathWithName:fileName]
-                options:NSDataWritingFileProtectionComplete
+                options:NSDataWritingAtomic
                   error:&saveError];
   if (saveError) {
     DDLogError(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
