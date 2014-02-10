@@ -127,6 +127,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   notification.fireDate = fireDate;
   notification.alertBody = alertBody;
   notification.soundName = kNotificationSoundName;
+  notification.applicationIconBadgeNumber = 1;
   notification.userInfo = [PacoNotificationInfo userInfoDictionaryWithExperimentId:experimentId
                                                                           fireDate:fireDate
                                                                        timeOutDate:timeOutDate];

@@ -47,8 +47,10 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 - (void)adjustBadgeNumber {
   int numOfActiveNotifications = [self totalNumberOfActiveNotifications];
-  DDLogInfo(@"Badge number set to %d", numOfActiveNotifications);
-  [UIApplication sharedApplication].applicationIconBadgeNumber = numOfActiveNotifications;
+  DDLogInfo(@"There are %d active notifications", numOfActiveNotifications);
+  int badgeNumber = numOfActiveNotifications > 0 ? 1 : 0;
+  DDLogInfo(@"Badge number set to %d", badgeNumber);
+  [UIApplication sharedApplication].applicationIconBadgeNumber = badgeNumber;
 }
 
 
@@ -106,6 +108,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   [self.notificationDict setObject:notifications forKey:experimentId];
   DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
   [self saveNotificationsToCache];
+  
+  [self adjustBadgeNumber];
 }
 
 
@@ -241,6 +245,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     for (UILocalNotification* notification in notifications) {
       [[UIApplication sharedApplication] scheduleLocalNotification:notification];
     }
+    
+    [self adjustBadgeNumber];
   }
 }
 
@@ -305,6 +311,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     //set the new notification dict, and save it to cache
     self.notificationDict = newNotificationDict;
     [self saveNotificationsToCache];
+    [self adjustBadgeNumber];
   }
 }
 
