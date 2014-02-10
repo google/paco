@@ -257,7 +257,13 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
     shouldUpdate = NO;
   }
   if (shouldUpdate) {
-    [self executeRoutineMajorTaskIfNeeded];
+    if (![self isNotificationSystemOn]) {
+      DDLogInfo(@"Skip Executing Major Task, notification system is off");
+      [self disableBackgroundFetch];
+    } else {
+      [self.scheduler executeRoutineMajorTask];
+      [self.eventManager startUploadingEventsInBackgroundWithBlock:nil];
+    }
     [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
   }
@@ -343,11 +349,16 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
   }
 }
 
-- (void)backgroundFetchStarted {
+- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
   if (![self isNotificationSystemOn]) {
+    DDLogInfo(@"Skip Executing Major Task, notification system is off");
     [self disableBackgroundFetch];
+    if (completionBlock) {
+      completionBlock(UIBackgroundFetchResultNoData);
+    }
   } else {
-    [self executeRoutineMajorTaskIfNeeded];
+    [self.scheduler executeRoutineMajorTask];
+    [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
   }
 }
 
@@ -576,10 +587,12 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
     if (![self.prefetchState finishLoadingAll]) {
       return;
     }
+    DDLogInfo(@"Start refreshing definitions...");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
+            DDLogInfo(@"Succeeded to refreshing definitions.");
             [self refreshSucceedWithDefinitions:definitions];
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);

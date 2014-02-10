@@ -50,7 +50,7 @@
     // Client Login
     [request setValue:self.authenticator.cookie forHTTPHeaderField:@"Cookie"];
   } else {
-    NSLog(@"Error authenticating request.");
+    DDLogError(@"Error authenticating request.");
   }
 }
 
@@ -71,7 +71,7 @@
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       if (error) {
-        NSLog(@"Service Call Failed [%@]", error);
+        DDLogError(@"Service Call Failed [%@]", error);
       }
       // Convert to string and return.
       id jsonObj = nil;
@@ -79,8 +79,8 @@
       if ([data length]) {
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
-          NSLog(@"JSON PARSE ERROR = %@\n", jsonError);
-          NSLog(@"PROBABLY AN AUTH ERROR");
+          DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
+          DDLogError(@"PROBABLY AN AUTH ERROR");
           
           [[PacoClient sharedInstance] invalidateUserAccount];
         }
@@ -182,7 +182,7 @@
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                      timeoutInterval:120];
+                      timeoutInterval:20];
   [request setHTTPMethod:@"POST"];
   
   // Serialize to JSON for the request body.
@@ -208,7 +208,7 @@
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
-               NSLog(@"Event Upload RESPONSE = %@", jsonData);
+               DDLogInfo(@"Event Upload RESPONSE = %@", jsonData);
                NSMutableArray* successEventIndexes = [NSMutableArray array];
                if (error == nil) {
                  NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");

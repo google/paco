@@ -259,6 +259,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     [self.pendingEvents addObject:event];
   }
   [self saveDataToFile];
+}
+
+- (void)saveAndUploadEvent:(PacoEvent*)event {
+  [self saveEvent:event];
   [self startUploadingEvents];
 }
 
@@ -266,14 +270,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                        withSchedule:(PacoExperimentSchedule*)schedule {
   PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
   DDLogInfo(@"Save a join event");
-  [self saveEvent:joinEvent];
+  [self saveAndUploadEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
   PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
   DDLogInfo(@"Save a stop event");
-  [self saveEvent:event];
+  [self saveAndUploadEvent:event];
 }
 
 - (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
@@ -281,7 +285,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
                                                         withInputs:visibleInputs];
   DDLogInfo(@"Save a self-report event");
-  [self saveEvent:surveyEvent];
+  [self saveAndUploadEvent:surveyEvent];
 }
 
 
@@ -292,7 +296,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                                              withInputs:inputs
                                                        andScheduledTime:scheduledTime];
   DDLogInfo(@"Save a survey submitted event");
-  [self saveEvent:surveyEvent];
+  [self saveAndUploadEvent:surveyEvent];
 }
 
 
@@ -311,10 +315,40 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
     if (state == UIApplicationStateActive) {
       DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
-      [self.uploader startUploading];
+      [self.uploader startUploadingWithBlock:nil];
     } else {
       DDLogInfo(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
     }
+  }
+}
+
+
+- (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
+  @synchronized(self) {
+    NSArray* pendingEvents = [self allPendingEvents];
+    if ([pendingEvents count] == 0) {
+      DDLogInfo(@"No pending events to upload.");
+      if (completionBlock) {
+        completionBlock(UIBackgroundFetchResultNoData);
+      }
+      return;
+    }
+    
+    DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateActive) {
+      DDLogInfo(@"App State:UIApplicationStateActive");
+    } else if (state == UIApplicationStateBackground) {
+      DDLogInfo(@"App State:UIApplicationStateBackground");
+    } else {
+      DDLogInfo(@"App State:UIApplicationStateInActive");
+    }
+    [self.uploader startUploadingWithBlock:^(BOOL success) {
+      UIBackgroundFetchResult result = success ? UIBackgroundFetchResultNewData : UIBackgroundFetchResultFailed;
+      if (completionBlock) {
+        completionBlock(result);
+      }
+    }];
   }
 }
 

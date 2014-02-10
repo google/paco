@@ -15,6 +15,9 @@
 
 #import <Foundation/Foundation.h>
 
+
+typedef void(^UploadCompletionBlock)(BOOL success);
+
 @protocol PacoEventUploaderDelegate <NSObject>
 @required
 - (NSArray*)allPendingEvents;
@@ -26,7 +29,7 @@
 @property(nonatomic, weak) id<PacoEventUploaderDelegate> delegate;
 
 + (PacoEventUploader*)uploaderWithDelegate:(id<PacoEventUploaderDelegate>)delegate;
-- (void)startUploading;
+- (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock;
 - (void)stopUploading;
 
 
