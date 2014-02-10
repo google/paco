@@ -17,6 +17,7 @@
 
 #import <MapKit/MapKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <QuartzCore/QuartzCore.h>
 
 #import "PacoCheckboxView.h"
 #import "PacoColor.h"
@@ -32,7 +33,7 @@ static const int kInvalidIndex = -1;
 @interface PacoQuestionView () <MKMapViewDelegate,
 PacoCheckboxViewDelegate,
 PacoStepperViewDelegate,
-UITextFieldDelegate,
+UITextViewDelegate,
 UINavigationControllerDelegate,
 UIImagePickerControllerDelegate>
 
@@ -46,7 +47,7 @@ UIImagePickerControllerDelegate>
 @property (nonatomic, retain, readwrite) PacoStepperView *numberStepper;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
-@property (nonatomic, retain, readwrite) UITextField *textField;
+@property (nonatomic, retain, readwrite) UITextView *textView;
 @property (nonatomic, retain, readwrite) NSArray* rightLeftLabels;
 
 // TODO(gregvance): add location and photo
@@ -113,7 +114,7 @@ UIImagePickerControllerDelegate>
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
   }
-  [self.textField removeFromSuperview];
+  [self.textView removeFromSuperview];
 
   self.photoSegmentControl = nil;
   self.choosePhotoButton = nil;
@@ -125,7 +126,7 @@ UIImagePickerControllerDelegate>
   self.numberStepper = nil;
   self.questionText = nil;
   self.smileysButtons = nil;
-  self.textField = nil;
+  self.textView = nil;
   self.rightLeftLabels = nil;
 }
 
@@ -323,18 +324,23 @@ UIImagePickerControllerDelegate>
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     // Open Text Field
-    self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
-    self.textField.placeholder = @"<type response here>";
-    self.textField.borderStyle = UITextBorderStyleRoundedRect;
-
-    [self addSubview:self.textField];
-    self.textField.delegate = self;
+    self.textView = [[UITextView alloc] initWithFrame:CGRectZero];
+    [self.textView.layer setBorderColor:[[[UIColor lightGrayColor] colorWithAlphaComponent:0.5] CGColor]];
+    [self.textView.layer setBorderWidth:1];
+    [self.textView.layer setCornerRadius:5];
+    self.textView.text = @"<type response here>";
+    self.textView.textColor = [UIColor lightGrayColor];
+    self.textView.editable = YES;
+    self.textView.returnKeyType = UIReturnKeyDone;
+    [self addSubview:self.textView];
+    self.textView.delegate = self;
     if (self.question.responseObject) {
       if (![self.question.responseObject isKindOfClass:[NSString class]]) {
         //NSString *reponseType = NSStringFromClass([self.question.responseObject class]);
         assert(0); // should clear map thing for sure between table instantiations, or sometinng, make sure either way
       }
-      self.textField.text = self.question.responseObject;
+      self.textView.text = self.question.responseObject;
+      self.textView.textColor = [UIColor blackColor];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // TODO: radio list UI implementation
@@ -546,7 +552,7 @@ UIImagePickerControllerDelegate>
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-    self.textField.frame = bounds;
+    self.textView.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
@@ -641,9 +647,6 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
    }];
 }
 
-
-#pragma mark - UITextFieldDelegate
-
 //considering the diffenernce in view hierarchies for ios versions
 - (UITableView *)tableViewforCell:(UITableViewCell*)cell {
   id view = [cell superview];
@@ -653,31 +656,34 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
   return (UITableView*)view;
 }
 
-//- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-
-- (void)textFieldDidBeginEditing:(UITextField *)textField {
+- (void)moveCellViewToTop {
   UITableView* tableView = [self tableViewforCell:self];
   [tableView setContentOffset:CGPointMake(0, self.frame.origin.y) animated:YES];
 }
 
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-  // return YES to allow editing to stop and to resign first responder status.
-  //        NO to disallow the editing session to end
+#pragma mark - UITextViewDelegate
+
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+  if ([textView.text isEqualToString:@"<type response here>"]) {
+    textView.text = @"";
+    textView.textColor = [UIColor blackColor];
+  }
+  [self moveCellViewToTop];
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView {
   return YES;
 }
 
-//- (void)textFieldDidEndEditing:(UITextField *)textField;             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
-
-//- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
-
-//- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-  // called when 'return' key pressed. return NO to ignore.
-  [textField endEditing:YES];
-  self.question.responseObject = textField.text;
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range
+ replacementText:(NSString *)text {
+  if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location == NSNotFound) {
+    return YES;
+  }
+  [textView endEditing:YES];
+  self.question.responseObject = textView.text;
   [self updateConditionals];
-  return YES;
+  return NO;
 }
 
 #pragma mark - PacoCheckboxViewDelegate
@@ -702,7 +708,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 }
 
 - (void)onTextFieldEditBegan:(UITextField *)textField {
-  [self textFieldDidBeginEditing:textField];
+  [self moveCellViewToTop];
 }
 
 #pragma mark MKMapViewDelegate
