@@ -22,7 +22,6 @@
 #import "PacoMainViewController.h"
 #import "PacoQuestionScreenViewController.h"
 #import "PacoScheduler.h"
-#import "PacoLocation.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "PacoEventManager.h"
@@ -178,9 +177,6 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidEnterBackground  ==========");
-  if ([PacoClient sharedInstance].location != nil) {
-    [[PacoClient sharedInstance].location enableLocationService];
-  }
   
   //http request will time out in 20 seconds, we need to request a little bit more time to allow
   //it finish, so we use UIBackgroundTaskIdentifier to request some more time to finish up

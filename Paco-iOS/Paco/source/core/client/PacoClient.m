@@ -16,7 +16,6 @@
 #import "PacoClient.h"
 
 #import "PacoAuthenticator.h"
-#import "PacoLocation.h"
 #import "PacoModel.h"
 #import "PacoScheduler.h"
 #import "PacoService.h"
@@ -34,6 +33,7 @@
 #import "PacoExperimentSchedule.h"
 
 static NSString* const RunningExperimentsKey = @"has_running_experiments";
+static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -80,9 +80,8 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
-@interface PacoClient () <PacoLocationDelegate, PacoSchedulerDelegate>
+@interface PacoClient () <PacoSchedulerDelegate>
 @property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
-@property (nonatomic, retain, readwrite) PacoLocation *location;
 @property (nonatomic, retain, readwrite) PacoModel *model;
 @property (nonatomic, strong, readwrite) PacoEventManager* eventManager;
 @property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
@@ -112,7 +111,6 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
     [self checkIfUserFirstLaunchPaco];
     
     self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
-    self.location = nil;//[[PacoLocation alloc] init];
     self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
@@ -204,68 +202,32 @@ static NSString* const RunningExperimentsKey = @"has_running_experiments";
 }
 
 - (BOOL)isNotificationSystemOn {
-  return self.location != nil;
+  BOOL turnedOn = [[NSUserDefaults standardUserDefaults] boolForKey:kPacoNotificationSystemTurnedOn];
+  return turnedOn;
 }
 
 - (void)triggerNotificationSystemIfNeeded {
   @synchronized(self) {
-    if (self.location != nil) {
-      return;
+    if (![self isNotificationSystemOn]) {
+      DDLogInfo(@"Turn on notification system.");
+      [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPacoNotificationSystemTurnedOn];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+      //set background fetch min internval to be 15 minutes
+      [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
     }
-    //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
-    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (self.location == nil) {
-        DDLogInfo(@"***********  PacoLocation is allocated ***********");
-        self.location = [[PacoLocation alloc] init];
-        self.location.delegate = self;
-        [self.location enableLocationService];
-        
-        //set background fetch min internval to be 15 minutes
-        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
-      }
-    });
   }
 }
 
 - (void)shutDownNotificationSystemIfNeeded {
   @synchronized(self) {
-    if (self.location == nil) {
-      return;
-    }
-    DDLogInfo(@"Shut down notification system ...");
-    [self.scheduler stopSchedulingForAllExperiments];
-    
-    [self disableBackgroundFetch];
-    self.location.delegate = nil;
-    [self.location disableLocationService];
-    self.location = nil;
-  }
-}
-
-#pragma mark PacoLocationDelegate
-- (void)locationChangedSignificantly {
-  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-  if (state != UIApplicationStateBackground) {
-    return;
-  }
-  BOOL shouldUpdate = YES;
-  static NSString* lastUpdateDateKey = @"last_update_key";
-  NSDate* lastUpdateDate  = [[NSUserDefaults standardUserDefaults] objectForKey:lastUpdateDateKey];
-  NSDate* now = [NSDate date];
-  if (lastUpdateDate != nil && [now timeIntervalSinceDate:lastUpdateDate] < 15 * 60) {//less than 15 minutes
-    shouldUpdate = NO;
-  }
-  if (shouldUpdate) {
-    if (![self isNotificationSystemOn]) {
-      DDLogInfo(@"Skip Executing Major Task, notification system is off");
+    if ([self isNotificationSystemOn]) {
+      DDLogInfo(@"Shut down notification system.");
+      [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kPacoNotificationSystemTurnedOn];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+      
+      [self.scheduler stopSchedulingForAllExperiments];
       [self disableBackgroundFetch];
-    } else {
-      [self.scheduler executeRoutineMajorTask];
-      [self.eventManager startUploadingEventsInBackgroundWithBlock:nil];
     }
-    [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
