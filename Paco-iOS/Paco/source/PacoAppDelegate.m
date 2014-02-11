@@ -181,6 +181,26 @@
   if ([PacoClient sharedInstance].location != nil) {
     [[PacoClient sharedInstance].location enableLocationService];
   }
+  
+  //http request will time out in 20 seconds, we need to request a little bit more time to allow
+  //it finish, so we use UIBackgroundTaskIdentifier to request some more time to finish up
+  __block UIBackgroundTaskIdentifier bgTask =
+      [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^{
+        // Clean up any unfinished task business by marking where you
+        // stopped or ending the task outright.
+        [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+        bgTask = UIBackgroundTaskInvalid;
+      }];
+  
+  // Start the long-running task and return immediately.
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    // Do the work associated with the task, preferably in chunks.
+    DDLogInfo(@"Waiting for possible http requests to be finished ...");
+    sleep(30);
+    DDLogInfo(@"Wake up and will end background task");
+    [[UIApplication sharedApplication] endBackgroundTask:bgTask];
+    bgTask = UIBackgroundTaskInvalid;
+  });
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
