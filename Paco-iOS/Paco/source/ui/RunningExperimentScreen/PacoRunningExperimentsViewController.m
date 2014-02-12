@@ -118,24 +118,12 @@
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
-    if ([experiment isSelfReportExperiment]) {
-      cell.detailTextLabel.text = @"Self-Report";
-      cell.detailTextLabel.textColor = [UIColor brownColor];
-    } else {
-      UILocalNotification *notification =
-      [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experiment.instanceId];
-      if (!notification) {
-        cell.detailTextLabel.text = @"Inactive";
-        cell.detailTextLabel.textColor = [UIColor grayColor];
-      } else {
-        NSDate *now = [NSDate date];
-        NSInteger minutes = floor([now timeIntervalSinceDate:[notification pacoFireDate]] / 60);
-        NSString *minuteString = minutes > 1 ? @"minutes" : @"minute";
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"Active: Last notified %d %@ ago", minutes, minuteString];
-        cell.detailTextLabel.textColor = [UIColor redColor];
-      }
+    UILocalNotification *notification =
+    [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experiment.instanceId];
+    if (notification) {
+      cell.detailTextLabel.text = @"Time to participate!";
+      cell.detailTextLabel.textColor = [UIColor greenColor];
     }
-
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
