@@ -30,9 +30,6 @@
 #import "DDASLLogger.h"
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
-#import "PacoExperiment.h"
-#import "PacoExperimentDefinition.h"
-#import "PacoExperimentSchedule.h"
 
 @implementation PacoAppDelegate
 
@@ -62,8 +59,7 @@
   
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
-    PacoExperiment* experiment = [[PacoClient sharedInstance].model experimentForId:[notification pacoExperimentId]];
-    [self showNoSurveyNeededWithExperimentTitle:experiment.definition.title andTimeout:experiment.schedule.timeout];
+    [self showNoSurveyNeededForNotification:notification];
   } else {
     if (mustShowSurvey) {
       [self showSurveyForNotification:activeNotification];
@@ -80,14 +76,14 @@
 }
 
 
-- (void)showNoSurveyNeededWithExperimentTitle:(NSString*)title andTimeout:(int)timeout{
+- (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification {
   JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
   [JCNotificationCenter sharedCenter].presenter = style;
   
   NSString* format = @"This notification has expired for this experiment."
                      @" (It's notifications expire after %d minutes.)";
-  NSString* message = [NSString stringWithFormat:format, timeout];
-  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:title
+  NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];
+  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:[notification pacoExperimentTitle]
                                                                      message:message
                                                                      timeout:7.
                                                                   tapHandler:nil];
