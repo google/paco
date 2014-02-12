@@ -88,9 +88,23 @@
       [PacoAlertView showGeneralErrorAlert];
     }else{
       if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
-        [PacoAlertView showAlertWithTitle:@"You haven't joined any experiment yet."
-                                  message:@"Go to Find My Experiments to select an experiment to join"
-                        cancelButtonTitle:@"OK"];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+        [label setText:@"You haven't joined any experiment yet."];
+        [label setFont:[UIFont systemFontOfSize:15.0]];
+        label.textAlignment = NSTextAlignmentCenter;
+        [label sizeToFit];
+        label.center = CGPointMake(self.view.center.x, self.view.center.y - 35);
+        [self.view addSubview:label];
+
+        UILabel *label2 = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+        label2.numberOfLines = 2;
+        [label2 setText:@"Go to Find My Experiments \nto select an experiment to join"];
+        [label2 setFont:[UIFont systemFontOfSize:12.0]];
+        [label2 setTextColor:[UIColor darkGrayColor]];
+        label2.textAlignment = NSTextAlignmentCenter;
+        [label2 sizeToFit];
+        label2.center = CGPointMake(self.view.center.x, self.view.center.y);
+        [self.view addSubview:label2];
       }
       tableView.data = [PacoClient sharedInstance].model.experimentInstances;
     }
