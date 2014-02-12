@@ -80,8 +80,8 @@
   JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
   [JCNotificationCenter sharedCenter].presenter = style;
   
-  NSString* format = @"This notification has expired for this experiment."
-                     @" (It's notifications expire after %d minutes.)";
+  NSString* format = @"This notification has expired.\n"
+                     @"(It's notifications expire after %d minutes.)";
   NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];
   JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:[notification pacoExperimentTitle]
                                                                      message:message
