@@ -2,8 +2,8 @@
 
 @implementation JCNotificationBannerViewIOSStyle
 
-- (id) initWithNotification:(JCNotificationBanner*)notification {
-  self = [super initWithNotification:notification];
+- (id)initWithNotification:(JCNotificationBanner*)notification andMessageFont:(UIFont *)messageFont{
+  self = [super initWithNotification:notification andMessageFont:messageFont];
   if (self) {
     self.titleLabel.textColor = [UIColor darkTextColor];
     self.messageLabel.textColor = [UIColor darkTextColor];

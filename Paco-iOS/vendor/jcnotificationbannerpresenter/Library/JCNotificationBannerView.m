@@ -20,7 +20,11 @@ const CGFloat kJCNotificationBannerViewMarginY = 5.0;
 @synthesize titleLabel;
 @synthesize messageLabel;
 
-- (id) initWithNotification:(JCNotificationBanner*)notification {
+- (id)initWithNotification:(JCNotificationBanner*)notification  {
+  return [self initWithNotification:notification andMessageFont:nil];
+}
+
+- (id)initWithNotification:(JCNotificationBanner*)notification andMessageFont:(UIFont*)messageFont {
   self = [super init];
   if (self) {
     isPresentedMutex = [NSObject new];
@@ -34,7 +38,11 @@ const CGFloat kJCNotificationBannerViewMarginY = 5.0;
     self.titleLabel.backgroundColor = [UIColor clearColor];
     [self addSubview:self.titleLabel];
     self.messageLabel = [UILabel new];
-    self.messageLabel.font = [UIFont systemFontOfSize:14];
+    if (messageFont) {
+      self.messageLabel.font = messageFont;
+    } else {
+      self.messageLabel.font = [UIFont systemFontOfSize:14];
+    }
     self.messageLabel.textColor = [UIColor lightTextColor];
     self.messageLabel.backgroundColor = [UIColor clearColor];
     self.messageLabel.numberOfLines = 0;
@@ -83,6 +91,29 @@ const CGFloat kJCNotificationBannerViewMarginY = 5.0;
 
   CGPathRelease(outlinePath);
 }
+
+
+- (CGFloat)estimatedHeightWithWidth:(CGFloat)bannerWidth {
+  CGFloat borderX = kJCNotificationBannerViewOutlineWidth + kJCNotificationBannerViewMarginX;
+  CGFloat contentWidth = bannerWidth - (borderX * 2.0);
+  
+  CGFloat estimatedHeight = 0.;
+  BOOL hasTitle = notificationBanner ? (notificationBanner.title.length > 0) : NO;
+  if (hasTitle) {
+    estimatedHeight += 22.;
+  }
+  
+  NSDictionary* attributes = @{NSFontAttributeName:self.messageLabel.font};
+  NSAttributedString* attributedText = [[NSAttributedString alloc] initWithString:self.messageLabel.text
+                                                                       attributes:attributes];
+  CGRect rect = [attributedText boundingRectWithSize:(CGSize){contentWidth, CGFLOAT_MAX}
+                                             options:NSStringDrawingUsesLineFragmentOrigin
+                                             context:nil];
+  CGFloat borderY = kJCNotificationBannerViewOutlineWidth + kJCNotificationBannerViewMarginY;
+  estimatedHeight += rect.size.height + borderY * 2. + 5.;
+  return estimatedHeight;
+}
+
 
 - (void) layoutSubviews {
   if (!(self.frame.size.width > 0)) { return; }
