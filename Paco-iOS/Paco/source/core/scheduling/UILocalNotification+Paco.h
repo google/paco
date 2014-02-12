@@ -27,12 +27,14 @@ typedef enum {
 
 extern NSString* const kNotificationSoundName;
 extern NSString* const kUserInfoKeyExperimentId;
+extern NSString* const kUserInfoKeyExperimentTitle;
 extern NSString* const kUserInfoKeyNotificationFireDate;
 extern NSString* const kUserInfoKeyNotificationTimeoutDate;
 
 
 @interface PacoNotificationInfo : NSObject
 @property(nonatomic, copy, readonly) NSString* experimentId;
+@property(nonatomic, copy, readonly) NSString* experimentTitle;
 @property(nonatomic, strong, readonly) NSDate* fireDate;
 @property(nonatomic, strong, readonly) NSDate* timeOutDate;
 @end
@@ -60,8 +62,11 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
                            datesToSchedule:(NSArray*)datesToSchedule;
 
 - (NSString*)pacoExperimentId;
+- (NSString*)pacoExperimentTitle;
 - (NSDate*)pacoFireDate;
 - (NSDate*)pacoTimeoutDate;
+- (long)pacoTimeoutMinutes;
+
 + (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId;
 + (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId;
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
