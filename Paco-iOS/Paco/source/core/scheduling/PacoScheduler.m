@@ -176,6 +176,13 @@ NSInteger const kTotalNumOfNotifications = 60;
   return [self.notificationManager activeNotificationForExperiment:experimentId];
 }
 
+- (BOOL)hasActiveNotificationForExperiment:(NSString*)experimentId {
+  if (0 == [experimentId length]) {
+    return NO;
+  }
+  return [self activeNotificationForExperiment:experimentId] != nil;
+}
+
 - (BOOL)isNotificationActive:(UILocalNotification*)notification {
   return [self.notificationManager isNotificationActive:notification];
 }

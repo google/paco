@@ -118,11 +118,10 @@
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
-    UILocalNotification *notification =
-    [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:experiment.instanceId];
-    if (notification) {
+    if ([experiment isScheduledExperiment] &&
+        [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {
       cell.detailTextLabel.text = @"Time to participate!";
-      cell.detailTextLabel.textColor = [UIColor greenColor];
+      cell.detailTextLabel.textColor = [UIColor colorWithRed:65./256. green:186./256. blue:34./256. alpha:.85];
     }
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);

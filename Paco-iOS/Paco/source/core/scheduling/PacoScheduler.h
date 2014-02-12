@@ -45,6 +45,8 @@ extern NSInteger const kTotalNumOfNotifications;
 - (void)handleRespondedNotification:(UILocalNotification *)notification;
 
 - (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId;
+- (BOOL)hasActiveNotificationForExperiment:(NSString*)experimentId;
+
 - (BOOL)isNotificationActive:(UILocalNotification*)notification;
 
 - (void)executeRoutineMajorTask;
