@@ -6,8 +6,8 @@
 
 @implementation JCNotificationBannerPresenterSmokeStyle
 
-- (id) init {
-  if (self = [super init]) {
+- (id)initWithMessageFont:(UIFont*)messageFont {
+  if (self = [super initWithMessageFont:messageFont]) {
     self.minimumHorizontalMargin = 10.0;
     self.bannerMaxWidth = 350.0;
     self.bannerHeight = 60.0;
@@ -34,11 +34,16 @@
   containerView.bounds = view.bounds;
   containerView.transform = view.transform;
   [banner getCurrentPresentingStateAndAtomicallySetPresentingState:YES];
-
+  
+  CGFloat bannerWidth = MIN(self.bannerMaxWidth,
+                            view.bounds.size.width - self.minimumHorizontalMargin * 2.0);
+  self.bannerHeight = [banner estimatedHeightWithWidth:bannerWidth];
+  
   CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
   // Make the banner fill the width of the screen, minus any requested margins,
   // up to self.bannerMaxWidth.
-  CGSize bannerSize = CGSizeMake(MIN(self.bannerMaxWidth, view.bounds.size.width - self.minimumHorizontalMargin * 2.0), self.bannerHeight);
+  CGSize bannerSize = CGSizeMake(bannerWidth, self.bannerHeight);
+  
   // Center the banner horizontally.
   CGFloat x = (MAX(statusBarSize.width, statusBarSize.height) / 2) - (bannerSize.width / 2);
   // Position the banner offscreen vertically.

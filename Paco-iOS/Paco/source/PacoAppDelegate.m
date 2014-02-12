@@ -59,7 +59,7 @@
   
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
-    [self showNoSurveyNeeded];
+    [self showNoSurveyNeededForNotification:notification];
   } else {
     if (mustShowSurvey) {
       [self showSurveyForNotification:activeNotification];
@@ -76,12 +76,18 @@
 }
 
 
-- (void)showNoSurveyNeeded {
-  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-  NSString* message = @"This notification has expired. No need to respond to this experiment at this time.";
-  [JCNotificationCenter enqueueNotificationWithTitle:@""
-                                             message:message
-                                          tapHandler:nil];
+- (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification {
+  JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+  [JCNotificationCenter sharedCenter].presenter = style;
+  
+  NSString* format = @"This notification has expired for this experiment."
+                     @" (It's notifications expire after %d minutes.)";
+  NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];
+  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:[notification pacoExperimentTitle]
+                                                                     message:message
+                                                                     timeout:7.
+                                                                  tapHandler:nil];
+  [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
@@ -153,6 +159,7 @@
   } else {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
+  
   return YES;
 }
 
