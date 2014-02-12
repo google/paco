@@ -88,23 +88,23 @@
       [PacoAlertView showGeneralErrorAlert];
     }else{
       if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
-        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-        [label setText:@"You haven't joined any experiment yet."];
-        [label setFont:[UIFont systemFontOfSize:15.0]];
-        label.textAlignment = NSTextAlignmentCenter;
-        [label sizeToFit];
-        label.center = CGPointMake(self.view.center.x, self.view.center.y - 35);
-        [self.view addSubview:label];
+        UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+        [msgLabel setText:@"You haven't joined any experiment yet."];
+        [msgLabel setFont:[UIFont systemFontOfSize:15.0]];
+        msgLabel.textAlignment = NSTextAlignmentCenter;
+        [msgLabel sizeToFit];
+        msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 35);
+        [self.view addSubview:msgLabel];
 
-        UILabel *label2 = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-        label2.numberOfLines = 2;
-        [label2 setText:@"Go to Find My Experiments \nto select an experiment to join"];
-        [label2 setFont:[UIFont systemFontOfSize:12.0]];
-        [label2 setTextColor:[UIColor darkGrayColor]];
-        label2.textAlignment = NSTextAlignmentCenter;
-        [label2 sizeToFit];
-        label2.center = CGPointMake(self.view.center.x, self.view.center.y);
-        [self.view addSubview:label2];
+        UILabel *subLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+        subLabel.numberOfLines = 2;
+        [subLabel setText:@"Go to Find My Experiments \nto select an experiment to join"];
+        [subLabel setFont:[UIFont systemFontOfSize:12.0]];
+        [subLabel setTextColor:[UIColor darkGrayColor]];
+        subLabel.textAlignment = NSTextAlignmentCenter;
+        [subLabel sizeToFit];
+        subLabel.center = CGPointMake(self.view.center.x, self.view.center.y);
+        [self.view addSubview:subLabel];
       }
       tableView.data = [PacoClient sharedInstance].model.experimentInstances;
     }
@@ -212,7 +212,10 @@
   NSString* message = @"The experiment was stopped.";
   [PacoAlertView showAlertWithTitle:title
                             message:message
-                  cancelButtonTitle:@"OK"];  
+                  cancelButtonTitle:@"OK"];
+  if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
+    [self updateUIWithError:nil];
+  }
 }
 
 - (void)showStopConfirmAlert
