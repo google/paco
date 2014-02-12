@@ -30,6 +30,9 @@
 #import "DDASLLogger.h"
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
+#import "PacoExperiment.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoExperimentSchedule.h"
 
 @implementation PacoAppDelegate
 
@@ -59,7 +62,8 @@
   
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
-    [self showNoSurveyNeeded];
+    PacoExperiment* experiment = [[PacoClient sharedInstance].model experimentForId:[notification pacoExperimentId]];
+    [self showNoSurveyNeededWithExperimentTitle:experiment.definition.title andTimeout:experiment.schedule.timeout];
   } else {
     if (mustShowSurvey) {
       [self showSurveyForNotification:activeNotification];
@@ -76,12 +80,18 @@
 }
 
 
-- (void)showNoSurveyNeeded {
-  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
-  NSString* message = @"This notification has expired. No need to respond to this experiment at this time.";
-  [JCNotificationCenter enqueueNotificationWithTitle:@""
-                                             message:message
-                                          tapHandler:nil];
+- (void)showNoSurveyNeededWithExperimentTitle:(NSString*)title andTimeout:(int)timeout{
+  JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+  [JCNotificationCenter sharedCenter].presenter = style;
+  
+  NSString* format = @"This notification has expired for this experiment."
+                     @" (It's notifications expire after %d minutes.)";
+  NSString* message = [NSString stringWithFormat:format, timeout];
+  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:title
+                                                                     message:message
+                                                                     timeout:7.
+                                                                  tapHandler:nil];
+  [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
 }
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
@@ -153,6 +163,7 @@
   } else {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
+  
   return YES;
 }
 

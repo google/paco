@@ -46,6 +46,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 - (id)initWithFirstLaunchFlag:(BOOL)firstLaunch {
   self = [super init];
   if (self) {
+    DDLogInfo(@"PacoScheduler initializing...");
     _notificationManager = [PacoNotificationManager managerWithDelegate:self
                                                         firstLaunchFlag:firstLaunch];
   }
