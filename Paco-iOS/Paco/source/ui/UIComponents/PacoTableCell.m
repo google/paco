@@ -32,12 +32,18 @@
   return self;
 }
 
+//consider the diffenernce in view hierarchies in ios versions
 - (PacoTableView*)pacoTableView {
   UIView* view = [self superview];
   while (view && ![view isKindOfClass:[PacoTableView class]]) {
     view = [view superview];
   }
   return (PacoTableView*)view;
+}
+
+- (UITableView*)tableView {
+  PacoTableView* pacoTableView = [self pacoTableView];
+  return pacoTableView.tableView;
 }
 
 @end

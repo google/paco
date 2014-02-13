@@ -26,5 +26,6 @@
 @property (nonatomic) __weak id<PacoTableViewDelegate> tableDelegate;
 
 - (PacoTableView*)pacoTableView;
+- (UITableView*)tableView;
 
 @end

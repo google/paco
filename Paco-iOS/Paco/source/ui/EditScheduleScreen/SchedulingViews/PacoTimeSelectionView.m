@@ -66,27 +66,11 @@
 
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
 
-  UITableView *table = [self tableViewforCell:self];
-  PacoTableView *pacoTable = [self pacoTableViewforCell:self];
+  UITableView *table = [self tableView];
+  PacoTableView *pacoTable = [self pacoTableView];
   pacoTable.footer = self.picker;
   NSIndexPath *indexPath = [table indexPathForCell:self];
   [table scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-}
-
-- (UITableView *)tableViewforCell:(UITableViewCell *)cell {//consider the diffenernce in view hierarchies in ios versions
-  id view = [cell superview];
-  while ([view isKindOfClass:[UITableView class]] == NO) {
-    view = [view superview];
-  }
-  return (UITableView*)view;
-}
-
-- (PacoTableView *)pacoTableViewforCell:(UITableViewCell *)cell {//consider the diffenernce in view hierarchies in ios versions
-  id view = [cell superview];
-  while ([view isKindOfClass:[PacoTableView class]] == NO) {
-    view = [view superview];
-  }
-  return (PacoTableView*)view;
 }
 
 - (void)onDateChange {
@@ -103,7 +87,7 @@
   if (_editIndex != NSNotFound) {
     [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
-    PacoTableView *pacoTable = [self pacoTableViewforCell:self];
+    PacoTableView *pacoTable = [self pacoTableView];
     pacoTable.footer = nil;
     [pacoTable setNeedsLayout];
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
