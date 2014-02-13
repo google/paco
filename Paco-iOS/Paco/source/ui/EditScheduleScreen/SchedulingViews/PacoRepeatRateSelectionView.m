@@ -31,7 +31,7 @@
     self.minValue = 1;
     self.maxValue = 30;
     self.value = [NSNumber numberWithInt:1];
-    self.format = @"Repeat every %d day(s)";
+    self.format = NSLocalizedString(@"Repeat every %d day(s)", nil);
   }
   return self;
 }
@@ -39,24 +39,24 @@
 - (void)setRepeatStyle:(PacoScheduleRepeatStyle)repeatStyle {
   _repeatStyle = repeatStyle;
   switch (_repeatStyle) {
-  case kPacoScheduleRepeatDays:
-    self.format = @"Repeat every %d day(s)";
-    self.minValue = 1;
-    self.maxValue = 30;
-    self.value = [NSNumber numberWithInt:1];
-    break;
-  case kPacoScheduleRepeatWeeks:
-    self.format = @"Repeat every %d weeks.";
-    self.minValue = 1;
-    self.maxValue = 52;
-    self.value = [NSNumber numberWithInt:1];
-    break;
-  case kPacoScheduleRepeatMonths:
-    self.format = @"Repeat every %d month(s).";
-    self.minValue = 1;
-    self.maxValue = 12;
-    self.value = [NSNumber numberWithInt:1];
-    break;
+    case kPacoScheduleRepeatDays:
+      self.format = NSLocalizedString(@"Repeat every %d day(s)", nil);
+      self.minValue = 1;
+      self.maxValue = 30;
+      self.value = [NSNumber numberWithInt:1];
+      break;
+    case kPacoScheduleRepeatWeeks:
+      self.format = NSLocalizedString(@"Repeat every %d weeks.", nil);
+      self.minValue = 1;
+      self.maxValue = 52;
+      self.value = [NSNumber numberWithInt:1];
+      break;
+    case kPacoScheduleRepeatMonths:
+      self.format = NSLocalizedString(@"Repeat every %d month(s).", nil);
+      self.minValue = 1;
+      self.maxValue = 12;
+      self.value = [NSNumber numberWithInt:1];
+      break;
   }
 }
 

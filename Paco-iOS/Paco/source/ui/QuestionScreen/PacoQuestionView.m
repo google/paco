@@ -188,9 +188,9 @@ UIImagePickerControllerDelegate>
 
 - (void)updateChoosePhotoButtonTitle
 {
-  NSString* title = @"Tap to Take Photo";
+  NSString* title = NSLocalizedString(@"Tap to Take Photo", nil);
   if (self.photoSegmentControl.selectedSegmentIndex == 1) {
-    title = @"Tap to Choose Photo";
+    title = NSLocalizedString(@"Tap to Choose Photo", nil);
   }
   [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
   [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonBlue] forState:UIControlStateNormal];
@@ -324,7 +324,7 @@ UIImagePickerControllerDelegate>
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     // Open Text Field
     self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
-    self.textField.placeholder = @"<type response here>";
+    self.textField.placeholder = NSLocalizedString(@"<type response here>", nil);
     self.textField.borderStyle = UITextBorderStyleRoundedRect;
 
     [self addSubview:self.textField];
@@ -372,7 +372,7 @@ UIImagePickerControllerDelegate>
 
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
-      self.questionText.text = @"Attaching your location ...";
+      self.questionText.text = NSLocalizedString(@"Attaching your location ...", nil);
       [self.questionText sizeToFit];
     }
     if (!self.map) {
@@ -387,10 +387,10 @@ UIImagePickerControllerDelegate>
     [self addSubview:self.map];
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
-      self.questionText.text = @"Attach a photo.";
+      self.questionText.text = NSLocalizedString(@"Attach a photo.", nil);
       [self.questionText sizeToFit];
     }
-    self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"Camera", @"Library"]];
+    self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"Camera", nil), NSLocalizedString(@"Library", nil)]];
     self.photoSegmentControl.selectedSegmentIndex = 0;
     [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
     [self addSubview:self.photoSegmentControl];

@@ -53,7 +53,7 @@
                                                           message:message
                                                      dismissBlock:dismissBlock
                                                 cancelButtonTitle:cancelButtonTitle];
-  
+
   va_list args;
   va_start(args, otherButtonTitles);
   for (NSString* buttonTitle = otherButtonTitles;
@@ -62,7 +62,7 @@
     [alertView addButtonWithTitle:buttonTitle];
   }
   va_end(args);
-  
+
   [alertView show];
 }
 
@@ -71,20 +71,20 @@
          cancelButtonTitle:(NSString *)cancelButtonTitle
 {
   [[[UIAlertView alloc] initWithTitle:title
-                             message:message
-                            delegate:nil
-                   cancelButtonTitle:cancelButtonTitle
-                   otherButtonTitles:nil] show];
-  
+                              message:message
+                             delegate:nil
+                    cancelButtonTitle:cancelButtonTitle
+                    otherButtonTitles:nil] show];
+
 }
 
 + (void)showGeneralErrorAlert
 {
-  [[[UIAlertView alloc] initWithTitle:@"Sorry"
-                              message:@"Something went wrong, please try again later."
+  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
+                              message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
                              delegate:nil
                     cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil] show];  
+                    otherButtonTitles:nil] show];
 }
 
 #pragma mark UIAlertViewDelegate implementation
@@ -93,11 +93,11 @@
   if (self != alertView) {
     return;
   }
-  
+
   if (self.dismissBlock != nil) {
     self.dismissBlock(buttonIndex);
     self.dismissBlock = nil;
-  }  
+  }
 }
 
 

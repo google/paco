@@ -34,7 +34,7 @@
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.radioStyle = YES;
-    self.optionLabels = [NSArray arrayWithObjects:@"Day", @"Week", @"Month", nil];
+    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"Day", nil), NSLocalizedString(@"Week", nil), NSLocalizedString(@"Month", nil), nil];
   }
   return self;
 }

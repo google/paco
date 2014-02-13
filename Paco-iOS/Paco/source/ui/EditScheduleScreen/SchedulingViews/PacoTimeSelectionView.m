@@ -63,9 +63,9 @@
   NSNumber *time = [self.times objectAtIndex:timeIndex];
   [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [self.picker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
-  
+
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-  
+
   UITableView *table = [self tableViewforCell:self];
   PacoTableView *pacoTable = [self pacoTableViewforCell:self];
   pacoTable.footer = self.picker;
@@ -118,7 +118,7 @@
     self.timeEditButtons = [NSMutableArray array];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
-    label.text = @"Signal Time(s)";
+    label.text = NSLocalizedString(@"Signal Time(s)", nil);
     label.backgroundColor = [UIColor clearColor];
     self.label = label;
     [self addSubview:label];
@@ -155,7 +155,7 @@
   if ([self.times count] == 0) {
     self.times = [NSArray arrayWithObject:[NSDate dateWithTimeIntervalSince1970:0]];
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
-    [button setTitle:@"Enter a time" forState:UIControlStateNormal];
+    [button setTitle:NSLocalizedString(@"Enter a time", nil) forState:UIControlStateNormal];
     [self addSubview:button];
     self.timePickers = [NSMutableArray arrayWithObject:button];
     [self setNeedsLayout];
@@ -183,8 +183,8 @@
     button.backgroundColor = [PacoColor pacoBlue];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [button setTitle:@"Edit" forState:UIControlStateNormal];
-    [button setTitle:@"Edit" forState:UIControlStateHighlighted];
+    [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
+    [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateHighlighted];
     [button addTarget:self action:@selector(onEdit:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:button];
     [_timeEditButtons addObject:button];

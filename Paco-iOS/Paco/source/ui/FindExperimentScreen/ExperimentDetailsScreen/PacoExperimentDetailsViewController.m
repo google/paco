@@ -68,7 +68,7 @@
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
   self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
-  
+
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
   titleLabel.text = labelText;
@@ -86,7 +86,7 @@
   [titleLabel sizeToFit];
 
   UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, self.view.frame.size.width - 20, 20)];
-  NSString* desText = @"Description:";
+  NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
   desLabel.textColor = [PacoColor pacoDarkBlue];
@@ -103,17 +103,18 @@
   [self.view addSubview:descriptionLabel];
 
   int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
-  
+
   if (self.experiment.startDate) {
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
-    dateLabel.text = @"Start Date:                 End Date:";
+    dateLabel.text = [NSString stringWithFormat:@"%@                  %@",
+                      NSLocalizedString(@"Start Date:", nil), NSLocalizedString(@"End Date:", nil)];
     dateLabel.font = [PacoFont pacoNormalButtonFont];
     dateLabel.textColor = [PacoColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
     yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
-    
+
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
     dateText.text = [NSString stringWithFormat:@"%@               %@",
@@ -128,7 +129,7 @@
   }
 
   UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20)];
-  NSString* creText = @"Creator:";
+  NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
   creatorLabel.textColor = [PacoColor pacoDarkBlue];
@@ -153,7 +154,7 @@
   [creatorValueLabel sizeToFit];
 
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [join setTitle:@"Join this Experiment" forState:UIControlStateNormal];
+  [join setTitle:NSLocalizedString(@"Join this Experiment", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
     join.titleLabel.font = [PacoFont pacoNormalButtonFont];
   }
@@ -169,13 +170,12 @@
 - (void)onJoin {
   BOOL joined = [[PacoClient sharedInstance] hasJoinedExperimentWithId:self.experiment.experimentId];
   if (joined) {
-    [[[UIAlertView alloc] initWithTitle:@"Congratulations!"
-                                message:@"You have joined this experiment,\n"
-                                         "Check it out in Current Experiments."
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Congratulations!", nil)
+                                message:NSLocalizedString(@"Joined Experiment Alert", nil)
                                delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
     return;
   }
-  
+
   PacoConsentViewController *consent =
       [PacoConsentViewController controllerWithDefinition:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];

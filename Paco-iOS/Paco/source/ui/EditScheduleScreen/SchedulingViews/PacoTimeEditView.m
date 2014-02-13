@@ -39,15 +39,15 @@
     [self addSubview:titleLabel];
     self.titleLabel = titleLabel;
     [self.titleLabel sizeToFit];
-    
+
     UILabel* timeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     timeLabel.backgroundColor = [UIColor clearColor];
     [self addSubview:timeLabel];
     self.timeLabel = timeLabel;
     [self.timeLabel sizeToFit];
-    
+
     UIButton* editButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [editButton setTitle:@"Edit" forState:UIControlStateNormal];
+    [editButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
     [editButton.titleLabel setFont:[PacoFont pacoTableCellFont]];
     [editButton addTarget:self action:@selector(onEditTime:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:editButton];

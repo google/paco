@@ -36,7 +36,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
   if (self) {
     self.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.valueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    self.valueLabel.text = @"Value";
+    self.valueLabel.text = NSLocalizedString(@"Value", nil);
     self.valueLabel.font = [PacoFont pacoTableCellFont];
     self.valueLabel.backgroundColor = [UIColor clearColor];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -73,7 +73,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
   if (value && _format) {
     self.valueLabel.text = [NSString stringWithFormat:_format, [value intValue]];
   }
-  
+
   [self.valueLabel sizeToFit];
   [self setNeedsLayout];
 }

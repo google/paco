@@ -49,10 +49,10 @@ NSString *kCellIdQuestion = @"question";
       andNotification:(UILocalNotification*)notification{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = @"Participate!";
+    self.navigationItem.title = NSLocalizedString(@"Participate!", nil);
     self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
-    [[UIBarButtonItem alloc] initWithTitle:@"Submit"
+    [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Submit", nil)
                                      style:UIBarButtonItemStyleDone
                                     target:self
                                     action:@selector(onDone)];
@@ -100,7 +100,7 @@ NSString *kCellIdQuestion = @"question";
   [super viewWillAppear:animated];
   NSLog(@"Survey shows up:");
   [self processAttachedNotificationIfNeeded];
-  
+
   if (self.evaluator.experiment.definition.webReccommended) {
     [self showRecommendationAlert];
   }
@@ -113,8 +113,8 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)showRecommendationAlert {
-  NSString* title = [NSString stringWithFormat:@"Hi %@", [[PacoClient sharedInstance] userName]];
-  NSString* message = @"It is recommended that you fill this study out on your computer instead.";
+  NSString* title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Hi", nil), [[PacoClient sharedInstance] userName]];
+  NSString* message = NSLocalizedString(@"It is recommended that you fill this study out on your computer instead.", nil);
   [PacoAlertView showAlertWithTitle:title
                             message:message
                        dismissBlock:^(NSInteger buttonIndex) {
@@ -123,7 +123,7 @@ NSString *kCellIdQuestion = @"question";
                          }
                          [self.navigationController popViewControllerAnimated:YES];
                        }
-                  cancelButtonTitle:@"I will respond on the web"
+                  cancelButtonTitle:NSLocalizedString(@"I will respond on the web", nil)
                   otherButtonTitles:nil];
 }
 
@@ -143,7 +143,7 @@ NSString *kCellIdQuestion = @"question";
         needToDetectActiveNotification = YES;
         NSLog(@"Need to detect active notification.");
   }
-  
+
   if (needToDetectActiveNotification) {
     if (self.notification) {
       NSLog(@"Cancelling current notification from the tray");
@@ -164,29 +164,28 @@ NSString *kCellIdQuestion = @"question";
   }
 }
 
-
 - (void)onDone {
   NSError* error = [self.evaluator validateVisibleInputs];
   if (error) {
-    [[[UIAlertView alloc] initWithTitle:@"Required Answer Missing:"
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Required Answer Missing:", nil)
                                 message:error.localizedDescription
                                delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
     return;
   }
-  
+
   [self processAttachedNotificationIfNeeded];
-  
+
   [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
                                              surveyInputs:self.evaluator.visibleInputs
                                              notification:self.notification];
 
-  //clear all inputs' submitted responseObject for the definition 
+  //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];
-  
-  NSString* title = @"Nice";
-  NSString* message = @"Your survey was successfully submitted!";  
+
+  NSString* title = NSLocalizedString(@"Nice", nil);
+  NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
   [PacoAlertView showAlertWithTitle:title
                             message:message
                        dismissBlock:^(NSInteger buttonIndex) {
@@ -214,7 +213,7 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
-  
+
 }
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
