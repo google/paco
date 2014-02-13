@@ -198,6 +198,9 @@ public class Main implements EntryPoint, ExperimentListener {
       return new HTML(resources.helpHtml_ja().getText());
     }
 
+    protected HTML getPtVersion() {
+      return new HTML(resources.helpHtml_pt().getText());
+    }
   };
 
 

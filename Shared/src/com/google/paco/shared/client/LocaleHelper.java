@@ -21,6 +21,8 @@ public abstract class LocaleHelper<T> {
       return getJaVersion();
     } else if (language.equals("ja")) { 
       return getFiVersion();
+    } else if (language.equals("pt")) { 
+      return getPtVersion();
     } else {
       return getEnVersion();
     }
@@ -37,5 +39,10 @@ public abstract class LocaleHelper<T> {
   protected T getFiVersion() {
     return getEnVersion();
   }
+
+  protected T getPtVersion() {
+    return getEnVersion();
+  }
+
 
 }
