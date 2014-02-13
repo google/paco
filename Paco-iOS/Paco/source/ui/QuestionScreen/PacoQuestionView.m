@@ -403,7 +403,6 @@ UIImagePickerControllerDelegate>
                @"a non-nil responseObject should be UIImage object");
       UIImage *image = self.question.responseObject;
       self.image = image;
-      [self updateChoosePhotoButtonImage];
     }
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
   } else {
@@ -580,6 +579,8 @@ UIImagePickerControllerDelegate>
                                          self.frame.size.width - marginHorizontal*2,
                                          photoButtonHeight);
     self.choosePhotoButton.frame = photoButtonFrame;
+    [self updateChoosePhotoButtonImage];
+
   }
 }
 
