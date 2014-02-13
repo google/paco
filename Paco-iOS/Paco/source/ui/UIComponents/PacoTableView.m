@@ -64,7 +64,9 @@
     [_tableView addGestureRecognizer:tapRecognizer];
     [self addSubview:_tableView];
 
-    [self registerClass:[PacoLoadingTableCell class] forStringKey:NSLocalizedString(@"LOADING", nil) dataClass:[NSString class]];
+    [self registerClass:[PacoLoadingTableCell class]
+           forStringKey:@"LOADING"
+              dataClass:[NSString class]];
   }
   return self;
 }
@@ -172,7 +174,7 @@
 - (void)setLoadingSpinnerEnabledWithLoadingText:(NSString *)loadingText {
   NSArray *loadingTableData =
       [NSArray arrayWithObjects:
-          [NSArray arrayWithObjects:NSLocalizedString(@"LOADING", nil), loadingText, nil],
+          [NSArray arrayWithObjects:@"LOADING", loadingText, nil],
           nil];
   [self setData:loadingTableData];
 }

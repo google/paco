@@ -146,7 +146,7 @@
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
     NSString *key = [keyAndValue objectAtIndex:0];
-    assert([key isEqualToString:NSLocalizedString(@"LOADING", nil)]);
+    assert([key isEqualToString:@"LOADING"]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
     NSString *loadingText = [keyAndValue objectAtIndex:1];
     loading.loadingText = loadingText;
