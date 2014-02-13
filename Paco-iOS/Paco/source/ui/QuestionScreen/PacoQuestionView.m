@@ -202,17 +202,19 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)updateChoosePhotoButtonImage {
-  UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
-  [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+  if (self.image) {
+    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
 
-  CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
-  CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
-  self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
-  self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
-                                                            -buttonImage.size.width,
-                                                            0.0,
-                                                            0.0);
-  [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+    CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
+    CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
+    self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
+    self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
+                                                              -buttonImage.size.width,
+                                                              0.0,
+                                                              0.0);
+    [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+  }
 }
 
 
