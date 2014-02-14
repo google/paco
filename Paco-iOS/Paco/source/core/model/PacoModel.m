@@ -74,11 +74,9 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  // TODO TPE: temporary disabled this comment since it's quite verbose
-  // NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectDefinitions = jsonObject;
-  //NSMutableArray *experiments = [NSMutableArray array];
   NSMutableArray *definitions = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
@@ -86,13 +84,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
         [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonExperiment];
     assert(experimentDefinition);
     [definitions addObject:experimentDefinition];
-    //PacoExperiment *experiment = [[PacoExperiment alloc] init];
-    //experiment.definition = experimentDefinition;
-    //experiment.events = nil;
-    //[experiment.definition tagQuestionsForDependencies];
-    //[experiments addObject:experiment];
   }
-  //self.experimentInstances = experiments;
   [self updateExperimentDefinitions:definitions];
 }
 
@@ -106,20 +98,13 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 //  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectInstances = jsonObject;
-  //NSMutableArray *experiments = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
     [experiment deserializeFromJSON:jsonExperiment];
     NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
-    //PacoExperiment *experiment = [[PacoExperiment alloc] init];
-    //experiment.definition = experimentDefinition;
-    //experiment.events = nil;
-    //[experiment.definition tagQuestionsForDependencies];
-    //[experiments addObject:experiment];
   }
-  //self.experimentInstances = experiments;
   [self updateExperimentInstances:instances];
 }
 
