@@ -32,4 +32,13 @@
   return fileFullPath;
 }
 
++ (NSString *)pacoImageFolderInDocumentsDirectory:(NSString *)fileName {
+  NSString *folderPath = [[NSString pacoDocumentDirectory] stringByAppendingPathComponent:@"/Images"];
+  NSError *error;
+  if (![[NSFileManager defaultManager] fileExistsAtPath:folderPath]) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:&error];
+  }
+  NSString *fullFilePath = [folderPath stringByAppendingPathComponent:fileName];
+  return fullFilePath;
+}
 @end
