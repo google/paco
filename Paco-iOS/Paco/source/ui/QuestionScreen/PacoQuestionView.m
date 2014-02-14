@@ -202,17 +202,19 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)updateChoosePhotoButtonImage {
-  UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
-  [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+  if (self.image) {
+    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
 
-  CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
-  CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
-  self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
-  self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
-                                                            -buttonImage.size.width,
-                                                            0.0,
-                                                            0.0);
-  [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+    CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
+    CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
+    self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
+    self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
+                                                              -buttonImage.size.width,
+                                                              0.0,
+                                                              0.0);
+    [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+  }
 }
 
 
@@ -403,7 +405,6 @@ UIImagePickerControllerDelegate>
                @"a non-nil responseObject should be UIImage object");
       UIImage *image = self.question.responseObject;
       self.image = image;
-      [self updateChoosePhotoButtonImage];
     }
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
   } else {
@@ -580,6 +581,8 @@ UIImagePickerControllerDelegate>
                                          self.frame.size.width - marginHorizontal*2,
                                          photoButtonHeight);
     self.choosePhotoButton.frame = photoButtonFrame;
+    [self updateChoosePhotoButtonImage];
+
   }
 }
 
