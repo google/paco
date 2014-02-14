@@ -666,7 +666,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 #pragma mark - UITextViewDelegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-  if ([textView.text isEqualToString:[NSString stringWithFormat:@"%@",kPlaceHolderString]]) {
+  if ([textView.text isEqualToString:[NSString stringWithFormat:@"%@", kPlaceHolderString]]) {
     textView.text = @"";
     textView.textColor = [UIColor blackColor];
     textView.font = [UIFont systemFontOfSize:15];
@@ -682,7 +682,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
   NSString* text = [textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   if (0 == [text length]) {
     self.question.responseObject = nil;
-    textView.text = [NSString stringWithFormat:@"%@",kPlaceHolderString];
+    textView.text = [NSString stringWithFormat:@"%@", kPlaceHolderString];
     textView.textColor = [UIColor lightGrayColor];
     textView.font = [UIFont systemFontOfSize:12];
   } else {
