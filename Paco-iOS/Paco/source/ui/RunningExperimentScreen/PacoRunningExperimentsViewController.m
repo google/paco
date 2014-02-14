@@ -44,8 +44,10 @@
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     self.navigationItem.title = NSLocalizedString(@"Running Experiments", nil);
-    self.navigationItem.hidesBackButton = NO;
-
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(gotoMainPage)];
   }
   return self;
 }
@@ -75,6 +77,10 @@
                                            selector:@selector(experimentsUpdate:)
                                                name:PacoFinishRefreshing
                                              object:nil];
+}
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 

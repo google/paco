@@ -36,7 +36,11 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     self.navigationItem.title = NSLocalizedString(@"Ways to talk to Paco", nil);
-  }
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(gotoMainPage)];
+ }
   return self;
 }
 
@@ -87,6 +91,12 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
   CGRect rect = [PacoLayout centerRect:buttonBrowseWebsite.frame.size inRect:centerInRect];
   buttonBrowseWebsite.frame = rect;
 }
+
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
 
 - (void)onEmailUserGroup {
   if ([MFMailComposeViewController canSendMail]) {

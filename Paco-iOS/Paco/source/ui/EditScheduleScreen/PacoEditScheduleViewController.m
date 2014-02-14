@@ -41,7 +41,6 @@
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     self.navigationItem.title = NSLocalizedString(@"Scheduling", nil);
-    self.navigationItem.hidesBackButton = NO;
   }
   return self;
 }

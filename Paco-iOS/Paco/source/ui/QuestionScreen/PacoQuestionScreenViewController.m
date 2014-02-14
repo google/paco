@@ -50,7 +50,6 @@ NSString *kCellIdQuestion = @"question";
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
     self.navigationItem.title = NSLocalizedString(@"Participate!", nil);
-    self.navigationItem.hidesBackButton = NO;
     self.navigationItem.rightBarButtonItem =
     [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Submit", nil)
                                      style:UIBarButtonItemStyleDone

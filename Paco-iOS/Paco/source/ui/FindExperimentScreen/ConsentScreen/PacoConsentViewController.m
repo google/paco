@@ -37,7 +37,6 @@
       [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
   controller.definition = definition;
   controller.navigationItem.title = definition.title;
-  controller.navigationItem.hidesBackButton = NO;
   return controller;
 }
 
