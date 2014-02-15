@@ -190,6 +190,7 @@ NSString *kCellIdText = @"text";
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
+        cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
@@ -306,6 +307,7 @@ NSString *kCellIdText = @"text";
       break;
     case kPacoScheduleTypeWeekday: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        self.schedule.times = rowData;
       } else {
         assert(0);
       }
