@@ -181,6 +181,7 @@ NSString *kCellIdText = @"text";
       } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
+        cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
@@ -299,6 +300,7 @@ NSString *kCellIdText = @"text";
       if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
       } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        self.schedule.times = rowData;
       } else {
         assert(0);
       }
