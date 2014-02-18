@@ -188,17 +188,16 @@
   // Serialize to JSON for the request body.
   NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
   for (PacoEvent* event in eventList) {
-    id jsonObject = [event generateJsonObject];
+    id jsonObject = [event payloadJsonWithImageString];
     NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
     [body addObject:jsonObject];
   }
   
   //YMZ:TODO: error handling here
   NSError *jsonError = nil;
-  NSData *jsonData =
-  [NSJSONSerialization dataWithJSONObject:body
-                                  options:NSJSONWritingPrettyPrinted
-                                    error:&jsonError];
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&jsonError];
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]

@@ -46,34 +46,6 @@ static int const kMaxNumOfEventsToUpload = 50;
 }
 
 
-- (void)composePayloadWithImagesIfNeeded:(NSArray*)events {
-  for (PacoEvent* event in events) {
-    NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:event.responses];
-    for (int index=0; index<[event.responses count]; index++) {
-      id responseDict = [event.responses objectAtIndex:index];
-      if (![responseDict isKindOfClass:[NSDictionary class]]) {
-        continue;
-      }
-      id answer = [(NSDictionary*)responseDict objectForKey:kPacoResponseKeyAnswer];
-      if (![answer isKindOfClass:[NSString class]]) {
-        continue;
-      }
-      NSString* imageName = [UIImage pacoImageNameFromBoxedName:(NSString*)answer];
-      if (!imageName) {
-        continue;
-      }
-      NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
-      if ([imageString length] > 0) {
-        NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
-        [newResponseDict setObject:imageString forKey:kPacoResponseKeyAnswer];
-        [newReponseList replaceObjectAtIndex:index withObject:newResponseDict];
-      }
-    }
-    event.responses = newReponseList;
-  }
-}
-
-
 - (void)uploadEvents {
   @synchronized(self) {
     if (![[PacoClient sharedInstance].reachability isReachable]) {
@@ -148,7 +120,6 @@ static int const kMaxNumOfEventsToUpload = 50;
       });
     };
     
-    [self composePayloadWithImagesIfNeeded:events];
     [[PacoClient sharedInstance].service submitEventList:events
                                      withCompletionBlock:finalBlock];
     
