@@ -108,6 +108,11 @@ NSString *kCellIdQuestion = @"question";
 - (void)onCancel:(id)sender {
   //clear all inputs' submitted responseObject for the definition when user clicks on back button
   [self.evaluator.experiment.definition clearInputs];
+  [self dismiss];
+}
+
+
+- (void)dismiss {
   [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -120,7 +125,7 @@ NSString *kCellIdQuestion = @"question";
                          if (self.notification) {
                            [[PacoClient sharedInstance].scheduler handleRespondedNotification:self.notification];
                          }
-                         [self.navigationController popViewControllerAnimated:YES];
+                         [self dismiss];
                        }
                   cancelButtonTitle:NSLocalizedString(@"I will respond on the web", nil)
                   otherButtonTitles:nil];
@@ -188,7 +193,7 @@ NSString *kCellIdQuestion = @"question";
   [PacoAlertView showAlertWithTitle:title
                             message:message
                        dismissBlock:^(NSInteger buttonIndex) {
-                         [self.navigationController popToRootViewControllerAnimated:YES];
+                         [self dismiss];
                        }
                   cancelButtonTitle:@"OK"
                   otherButtonTitles:nil];

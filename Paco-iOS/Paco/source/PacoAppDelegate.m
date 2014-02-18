@@ -92,15 +92,12 @@
 
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
   dispatch_async(dispatch_get_main_queue(), ^{
-    //If there is any view popped up, dismiss it and show a question view
-    UINavigationController* navi = self.viewController.navigationController;
-    [navi popToRootViewControllerAnimated:NO];
-    
     NSString *experimentId = [notification pacoExperimentId];
     NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
     PacoQuestionScreenViewController *questions =
         [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+    UINavigationController* navi = self.viewController.navigationController;
     [navi pushViewController:questions animated:NO];
   });
 
