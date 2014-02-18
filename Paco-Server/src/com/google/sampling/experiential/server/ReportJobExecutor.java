@@ -14,21 +14,21 @@ import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.shared.EventDAO;
 
 /**
- * Setup a job as a background thread to run a report. 
+ * Setup a job as a background thread to run a report.
  * This runs in a backend instance.
  * Also, update the ReportJobStatus.
- * 
+ *
  * The reportservlet will ask this to kick off a job.
  * It will also ask it for the status, which will include pending, completed, failed.
  * If completed, the client can then access the report that was generated at a location.
- * 
+ *
  * @author bobevans
  *
  */
 public class ReportJobExecutor {
-  
+
   private static final Logger log = Logger.getLogger(ReportJobExecutor.class.getName());
-  
+
   private static ReportJobExecutor instance;
 
   public static ReportJobExecutor getInstance() {
@@ -45,21 +45,21 @@ public class ReportJobExecutor {
     statusMgr = new ReportJobStatusManager();
   }
 
-  public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient, 
+  public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
                              final List<Query> query, final boolean anon, final String reportFormat) {
     // TODO get a real id function for jobs
-    
+
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
     log.info("In runReportJob for job: " + jobId);
     statusMgr.startReport(requestorEmail, jobId);
-    
-    final ClassLoader cl = getClass().getClassLoader();    
-    final Thread thread2 = ThreadManager.createBackgroundThread(new Runnable() {      
+
+    final ClassLoader cl = getClass().getClassLoader();
+    final Thread thread2 = ThreadManager.createBackgroundThread(new Runnable() {
       @Override
       public void run() {
         log.info("ReportJobExecutor running");
-        Thread.currentThread().setContextClassLoader(cl);        
-        try {                    
+        Thread.currentThread().setContextClassLoader(cl);
+        try {
           String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
@@ -73,8 +73,9 @@ public class ReportJobExecutor {
     return jobId;
   }
 
-  protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId, 
+  protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
                          String reportFormat) throws IOException {
+    log.info("starting doJob");
     String experimentId = null;
     for (Query query2 : query) {
       if (query2.getKey().equals("experimentId")) {
@@ -82,12 +83,12 @@ public class ReportJobExecutor {
       }
     }
 
-    // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved. 
+    // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
     log.info("Getting events for job: " + jobId);
     List<Event> events = EventRetriever.getInstance().getEvents(query, requestorEmail, timeZoneForClient, 0, 20000);
     EventRetriever.sortEvents(events);
     log.info("Got events for job: " + jobId);
-    
+
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
       return generateCSVReport(anon, jobId, experimentId, events, timeZoneForClient);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
@@ -97,7 +98,7 @@ public class ReportJobExecutor {
     }
   }
 
-  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon, DateTimeZone timeZoneForClient) {    
+  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon, DateTimeZone timeZoneForClient) {
       return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, events, jobId, timeZoneForClient.getID());
   }
 
@@ -120,7 +121,7 @@ public class ReportJobExecutor {
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
       return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient);
     }
-    return null;    
+    return null;
   }
 
   private String generateCSVReport(boolean anon, String jobId, String experimentId, List<Event> events, DateTimeZone clientTimezone)
@@ -141,6 +142,6 @@ public class ReportJobExecutor {
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
       return new CSVBlobWriter().writeEndOfDayExperimentEventsAsCSV(anon, dailyPingEodEventDAOs, jobId, clientTimezone);
     }
-    return null;    
+    return null;
   }
 }

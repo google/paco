@@ -263,9 +263,9 @@ public class EventServlet extends HttpServlet {
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
                                        String backendAddress, String reportFormat) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q='" +
+    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" +
             req.getParameter("q") +
-            "'&who="+getWhoFromLogin().getEmail().toLowerCase() +
+            "&who="+getWhoFromLogin().getEmail().toLowerCase() +
             "&anon=" + req.getParameter("anon") +
             "&tz="+timeZoneForClient +
             "&reportFormat="+reportFormat);
