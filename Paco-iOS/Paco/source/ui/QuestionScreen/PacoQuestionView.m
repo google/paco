@@ -652,17 +652,9 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
    }];
 }
 
-//considering the diffenernce in view hierarchies for ios versions
-- (UITableView *)tableViewforCell:(UITableViewCell*)cell {
-  id view = [cell superview];
-  while ([view isKindOfClass:[UITableView class]] == NO) {
-    view = [view superview];
-  }
-  return (UITableView*)view;
-}
 
 - (void)moveCellViewToTop {
-  UITableView* tableView = [self tableViewforCell:self];
+  UITableView* tableView = [self tableView];
   [tableView setContentOffset:CGPointMake(0, self.frame.origin.y) animated:YES];
 }
 
