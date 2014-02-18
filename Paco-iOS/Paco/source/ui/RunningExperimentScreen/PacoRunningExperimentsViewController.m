@@ -147,6 +147,7 @@
         [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {
       cell.detailTextLabel.text = @"Time to participate!";
       cell.detailTextLabel.textColor = [UIColor colorWithRed:65./256. green:186./256. blue:34./256. alpha:.85];
+      cell.detailTextLabel.font = [PacoFont pacoBoldFont];
     }
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);

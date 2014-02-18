@@ -50,7 +50,7 @@
 
   UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
   boldTitle.text = NSLocalizedString(@"Data Handling & Privacy Agreement between You and the Experiment Creator", nil);
-  boldTitle.font = [PacoFont pacoConsentBoldFont];
+  boldTitle.font = [PacoFont pacoBoldFont];
   boldTitle.textColor = [UIColor blackColor];
   boldTitle.backgroundColor = [UIColor clearColor];
   boldTitle.numberOfLines = 0;
