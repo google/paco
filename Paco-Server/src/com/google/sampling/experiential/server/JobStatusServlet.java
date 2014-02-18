@@ -64,6 +64,7 @@ public class JobStatusServlet extends HttpServlet {
     if (user == null) {
       resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
     } else {
+      boolean cmdline = getParam(req, "cmdline") != null;
       String location = getParam(req, "location");
       String jobId = getParam(req, "jobId");
       String who = getWhoFromLogin().getEmail().toLowerCase();
@@ -77,7 +78,19 @@ public class JobStatusServlet extends HttpServlet {
       } else if (!Strings.isNullOrEmpty(jobId)) {
         ReportJobStatus jobReport = getJobReport(who, jobId);
         if (jobReport != null && jobReport.getRequestor().equals(who)) {
-          writeJobStatus(resp, jobReport, jobId, who);
+          if (cmdline) {
+            if (!Strings.isNullOrEmpty(jobReport.getLocation())) {
+              blobstoreService.serve(new BlobKey(jobReport.getLocation()), resp);
+            } else {
+              resp.getWriter().println("pending");
+            }
+          } else {
+//            if (!Strings.isNullOrEmpty(jobReport.getLocation())) {
+//              resp.sendRedirect(getReportLink(jobId, who, jobReport.getLocation()));
+//            } else {
+              writeJobStatus(resp, jobReport, jobId, who);
+//            }
+          }
         } else {
           resp.getWriter().println("Unknown job ID: " + jobId + ". The report generator may not have started the job yet. Try Refreshing the page once.");
         }
@@ -105,7 +118,7 @@ public class JobStatusServlet extends HttpServlet {
     out.append(jobReport.getId());
     out.append(" -->");
 
-    out.append("<div><p>" + "The page will refresh every 5 seconds until your job is finished." + "</p></div>");
+    out.append("<div><p>" + "The page will refresh every 5 seconds until your job is finished. Then it will download your report automatically." + "</p></div>");
     out.append("<div><table class=gridtable>");
 
     out.append("<tr><th>" + "Status: " + "</th>");
@@ -139,7 +152,12 @@ public class JobStatusServlet extends HttpServlet {
     if (Strings.isNullOrEmpty(location)) {
       return "";
     }
-    return "<a href=\"/jobStatus?who=" + who + "&jobId=" + jobId + "&location=" + location + "\">Your Report</a>";
+    return "<a href=\"" + getReportLink(jobId, who, location) + "\">Your Report</a>";
+  }
+
+  private String getReportLink(String jobId, String who, String location) {
+    String actualLink = "/jobStatus?who=" + who + "&jobId=" + jobId + "&location=" + location;
+    return actualLink;
   }
 
   private String getNameForStatus(ReportJobStatus jobReport) {

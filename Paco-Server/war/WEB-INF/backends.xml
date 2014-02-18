@@ -1,6 +1,6 @@
 <backends>
  <backend name="reportworker">
-     <class>B4</class>
+     <class>B8</class>
    <options>
      <dynamic>true</dynamic>
      <public>false</public>     

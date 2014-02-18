@@ -463,8 +463,12 @@ public class Experiment {
   @JsonIgnore
   public boolean isWhoAllowedToPostToExperiment(String who) {
     who = who.toLowerCase();
-    return getAdmins().contains(who) ||
+    return isAdmin(who) ||
       (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
+  }
+
+  public boolean isAdmin(String who) {
+    return getAdmins().contains(who);
   }
 
   public Integer getVersion() {

@@ -148,7 +148,7 @@ public class ExperimentServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, getWhoFromLogin(), appIdHeader, pacoVersion);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -30,16 +30,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
+import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 
 /**
  * Servlet that receives request from frontend to start csv report job.
- * 
+ *
  * Runs on backend.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class BackendReportJobExecutorServlet extends HttpServlet {
@@ -70,7 +71,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     } else {
       log.info("Backend generating html report");
       showEvents(req, resp, anon);
-    }    
+    }
   }
 
   private void dumpPhotoZip(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
@@ -81,16 +82,16 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     resp.getWriter().println(jobId);
   }
 
-  
+
   private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
-    String requestorEmail = getRequestorEmail(req);    
+    String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
     String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv");
     resp.setContentType("text/plain;charset=UTF-8");
-    resp.getWriter().println(jobId);   
+    resp.getWriter().println(jobId);
   }
-  
+
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(getParam(req, "q")));
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
@@ -103,15 +104,19 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
     String tzStr = getParam(req, "tz");
     if (tzStr != null && !tzStr.isEmpty()) {
-      DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
-      return jodaTimeZone;
-    } else {
-      Locale clientLocale = req.getLocale();
-      Calendar calendar = Calendar.getInstance(clientLocale);
-      TimeZone clientTimeZone = calendar.getTimeZone();
-      DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);
-      return jodaTimeZone;
+      try {
+        DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
+        return jodaTimeZone;
+      } catch (Exception e) {
+        Log.debug("Could not get DateTimeZone for string: " + tzStr);
+      }
     }
+    Locale clientLocale = req.getLocale();
+    Calendar calendar = Calendar.getInstance(clientLocale);
+    TimeZone clientTimeZone = calendar.getTimeZone();
+    DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);
+    return jodaTimeZone;
+
   }
 
   private static String getParam(HttpServletRequest req, String paramName) {
@@ -153,9 +158,9 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) {
     throw new RuntimeException("This does not exist on the backend yet!");
-    
+
   }
 
 
-  
+
 }

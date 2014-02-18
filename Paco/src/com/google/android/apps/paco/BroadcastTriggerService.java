@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.util.Log;
 
 public class BroadcastTriggerService extends Service {
 
@@ -21,8 +22,12 @@ public class BroadcastTriggerService extends Service {
 
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
+    if (intent == null) {
+      Log.e(PacoConstants.TAG, "Null intent on broadcast trigger!");
+      return;
+    }
     final Bundle extras = intent.getExtras();
-    final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);       
+    final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
     final int event = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
 
@@ -36,8 +41,8 @@ public class BroadcastTriggerService extends Service {
         try {
           DateTime time = null;
           if (timeStr != null) {
-            time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);            
-          }      
+            time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);
+          }
           notifyExperimentsThatCare(time, event, sourceIdentifier);
         } finally {
           wl.release();
@@ -67,7 +72,7 @@ public class BroadcastTriggerService extends Service {
   private void setRecentlyTriggered(DateTime now, long experimentId) {
     UserPreferences prefs = new UserPreferences(getApplicationContext());
     prefs.setRecentlyTriggeredTime(experimentId, now);
-    
+
   }
 
   private boolean recentlyTriggered(long experimentId, Integer minimumBufferInMinutes) {
@@ -76,5 +81,5 @@ public class BroadcastTriggerService extends Service {
     return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBufferInMinutes).isAfterNow();
   }
 
-  
+
 }
