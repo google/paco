@@ -29,7 +29,7 @@
 #import "UIImage+Paco.h"
 
 static const int kInvalidIndex = -1;
-static const NSString *kPlaceHolderString = @"<type response here>";
+static NSString* const kPlaceHolderString = @"<type response here>";
 
 @interface PacoQuestionView () <MKMapViewDelegate,
 PacoCheckboxViewDelegate,
@@ -331,7 +331,7 @@ UIImagePickerControllerDelegate>
     [self.textView.layer setBorderColor:[[[UIColor lightGrayColor] colorWithAlphaComponent:0.5] CGColor]];
     [self.textView.layer setBorderWidth:1];
     [self.textView.layer setCornerRadius:5];
-    self.textView.text = kPlaceHolderString;
+    self.textView.text = NSLocalizedString(kPlaceHolderString, nil);
     self.textView.textColor = [UIColor lightGrayColor];
     self.textView.editable = YES;
     self.textView.returnKeyType = UIReturnKeyDone;
@@ -669,7 +669,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 #pragma mark - UITextViewDelegate
 
 - (void)textViewDidBeginEditing:(UITextView *)textView {
-  if ([textView.text isEqualToString:[NSString stringWithFormat:@"%@", kPlaceHolderString]]) {
+  if ([textView.text isEqualToString:NSLocalizedString(kPlaceHolderString, nil)]) {
     textView.text = @"";
     textView.textColor = [UIColor blackColor];
     textView.font = [UIFont systemFontOfSize:15];
@@ -685,7 +685,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
   NSString* text = [textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   if (0 == [text length]) {
     self.question.responseObject = nil;
-    textView.text = [NSString stringWithFormat:@"%@", kPlaceHolderString];
+    textView.text = NSLocalizedString(kPlaceHolderString, nil);
     textView.textColor = [UIColor lightGrayColor];
     textView.font = [UIFont systemFontOfSize:12];
   } else {
