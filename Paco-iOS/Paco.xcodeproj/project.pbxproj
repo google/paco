@@ -66,6 +66,8 @@
 		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
 		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
 		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
+		36A8200D18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8200C18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m */; };
+		36A8200E18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8200C18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m */; };
 		36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDA17C420F800B93855 /* SSKeychain.m */; };
 		36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDC17C420F800B93855 /* SSKeychainQuery.m */; };
 		36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CE117C4440000B93855 /* NSError+Paco.m */; };
@@ -377,6 +379,8 @@
 		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
 		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
 		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
+		36A8200B18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+DailyAndWeekdays.h"; sourceTree = "<group>"; };
+		36A8200C18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+DailyAndWeekdays.m"; sourceTree = "<group>"; };
 		36AD6CD917C420F800B93855 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		36AD6CDA17C420F800B93855 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		36AD6CDB17C420F800B93855 /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychainQuery.h; sourceTree = "<group>"; };
@@ -866,6 +870,8 @@
 				367233D31803956E006611E6 /* UILocalNotification+Paco.m */,
 				367233DF180619A5006611E6 /* PacoScheduleGenerator.h */,
 				367233E0180619A5006611E6 /* PacoScheduleGenerator.m */,
+				36A8200B18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.h */,
+				36A8200C18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m */,
 				365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */,
 				365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */,
 			);
@@ -1642,6 +1648,7 @@
 				36B8EB7317568DAF004CF035 /* PacoDayOfWeekSelectionView.m in Sources */,
 				36B8EB7417568DAF004CF035 /* PacoESMFrequencySelectionView.m in Sources */,
 				36B8EB7517568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m in Sources */,
+				36A8200D18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m in Sources */,
 				36B8EB7617568DAF004CF035 /* PacoESMPeriodSelectionView.m in Sources */,
 				36B8EB7717568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m in Sources */,
 				36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */,
@@ -1746,6 +1753,7 @@
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
 				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,
 				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
+				36A8200E18B53DF600FE83A5 /* PacoScheduleGenerator+DailyAndWeekdays.m in Sources */,
 				365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
 				365D20E8181B198D0097F379 /* NSString+Paco.m in Sources */,
 				36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */,
