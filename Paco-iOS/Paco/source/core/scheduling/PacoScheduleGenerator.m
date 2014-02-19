@@ -16,7 +16,7 @@
 #import "PacoExperiment.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoScheduleGenerator+ESM.h"
-#import "PacoScheduleGenerator+DailyAndWeekdays.h"
+#import "PacoScheduleGenerator+Daily.h"
 
 
 @implementation PacoScheduleGenerator

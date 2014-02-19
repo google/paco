@@ -15,10 +15,6 @@
 
 #import "PacoScheduleGenerator.h"
 
-@interface PacoScheduleGenerator (DailyAndWeekdays)
-
-+ (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
-                             numOfDates:(NSInteger)numOfDates
-                               fromDate:(NSDate*)fromDate;
+@interface PacoScheduleGenerator (Weekdays)
 
 @end

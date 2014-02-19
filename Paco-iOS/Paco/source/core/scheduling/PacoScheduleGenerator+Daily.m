@@ -21,9 +21,9 @@
 #import "NSDate+Paco.h"
 #import "NSCalendar+Paco.h"
 
-#import "PacoScheduleGenerator+DailyAndWeekdays.h"
+#import "PacoScheduleGenerator+Daily.h"
 
-@implementation PacoScheduleGenerator (DailyAndWeekdays)
+@implementation PacoScheduleGenerator (Daily)
 
 
 
