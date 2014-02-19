@@ -251,22 +251,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 
-- (void)resetWithPacoNotifications:(NSArray*)notifications {
-  DDLogInfo(@"reset notification system");
-  [self cancelAlliOSNotifications];
-  self.notificationDict = [NSMutableDictionary dictionary];
-  
-  if ([notifications count] > 0) {
-    [self addNotifications:notifications];
-  }
-  [self saveNotificationsToCache];
-  DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
-  //schedule the new notifications, this API will also clean all fired notifications that
-  //still stay in the notification center.
-  [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
-}
-
-
 /*
  - Keep the following notifications: 
  a. the active notifications

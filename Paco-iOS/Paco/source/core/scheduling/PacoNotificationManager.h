@@ -32,7 +32,6 @@
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;
-- (void)resetWithPacoNotifications:(NSArray*)notifications;
 - (void)cleanExpiredNotifications;
 
 //call this when the user stops an experiment

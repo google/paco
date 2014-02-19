@@ -157,10 +157,16 @@ NSInteger const kTotalNumOfNotifications = 60;
   [self.delegate updateNotificationSystem];
 }
 
+
+//keep all active notifications
+//cancel all scheduled notifications
+//schedule new notifications
+//adjust badge number
+//adjust notification system
 - (void)restartNotificationSystem {
   DDLogInfo(@"restart notification system...");
   NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-  [self.notificationManager resetWithPacoNotifications:notificationsToSchedule];
+  [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   [self.delegate updateNotificationSystem];
 }
 
