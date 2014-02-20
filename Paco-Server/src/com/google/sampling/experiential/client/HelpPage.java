@@ -39,6 +39,9 @@ public class HelpPage extends Composite {
       return new HTML(parent.resources.helpHtml_fi().getText());
     }
 
+    protected HTML getPtVersion() {
+      return new HTML(parent.resources.helpHtml_pt().getText());
+    }
   };
 
 

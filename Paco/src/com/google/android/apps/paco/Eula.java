@@ -58,6 +58,10 @@ class Eula {
       return R.raw.eula_fi;
     }    
 
+    @Override
+    protected Integer getPtVersion() {
+      return R.raw.eula_pt;
+    }    
   };
 
   /**

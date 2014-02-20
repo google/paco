@@ -61,6 +61,10 @@ public class WelcomeActivity extends Activity {
       return "file:///android_asset/welcome_paco_fi.html";
     }
 
+    @Override
+    protected String getPtVersion() {
+      return "file:///android_asset/welcome_paco_pt.html";
+    }
   }
   
   @Override
