@@ -338,9 +338,7 @@
       return ([self.times count] == [another.times count]);
       
     case kPacoScheduleTypeWeekly:
-      return (self.repeatRate == another.repeatRate &&
-              self.weekDaysScheduled == another.weekDaysScheduled &&
-              [self.times count] == [another.times count]);
+      return ([self.times count] == [another.times count]);
       
     case kPacoScheduleTypeMonthly:
     {
