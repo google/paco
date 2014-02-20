@@ -66,18 +66,24 @@
   [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperiment class]];
   table.backgroundColor = [PacoColor pacoBackgroundWhite];
   self.view = table;
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(experimentsUpdate:)
+                                               name:PacoFinishRefreshing
+                                             object:nil];
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
-    [table setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Current Experiments ...", nil)];
+    [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Current Experiments ...", nil)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
     [self updateUIWithError:prefetchError];
   }
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(experimentsUpdate:)
-                                               name:PacoFinishRefreshing
-                                             object:nil];
 }
 
 - (void)gotoMainPage {
@@ -147,7 +153,6 @@
     cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.textColor = [PacoColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
     if ([experiment isScheduledExperiment] &&
@@ -155,6 +160,8 @@
       cell.detailTextLabel.text = NSLocalizedString(@"Time to participate!", nil);
       cell.detailTextLabel.textColor = [UIColor colorWithRed:65./256. green:186./256. blue:34./256. alpha:.85];
       cell.detailTextLabel.font = [PacoFont pacoBoldFont];
+    } else {
+      cell.detailTextLabel.text = nil;
     }
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
