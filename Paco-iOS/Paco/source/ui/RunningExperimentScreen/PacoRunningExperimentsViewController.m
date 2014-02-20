@@ -31,6 +31,7 @@
 #import "PacoSubtitleTableCell.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoFindExperimentsViewController.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -95,33 +96,40 @@
     }else{
       if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
         UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-        [msgLabel setText:@"You haven't joined any experiment yet."];
+        [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
         [msgLabel setFont:[UIFont systemFontOfSize:15.0]];
         msgLabel.textAlignment = NSTextAlignmentCenter;
         [msgLabel sizeToFit];
         msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 35);
         [self.view addSubview:msgLabel];
 
-        UILabel *subLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-        subLabel.numberOfLines = 2;
-        [subLabel setText:@"Go to Find My Experiments \nto select an experiment to join"];
-        [subLabel setFont:[UIFont systemFontOfSize:12.0]];
-        [subLabel setTextColor:[UIColor darkGrayColor]];
-        subLabel.textAlignment = NSTextAlignmentCenter;
-        [subLabel sizeToFit];
-        subLabel.center = CGPointMake(self.view.center.x, self.view.center.y);
-        [self.view addSubview:subLabel];
+        UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
+        msgButton.titleLabel.font = [UIFont systemFontOfSize:12.0];
+        msgButton.titleLabel.numberOfLines = 2;
+        msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+        [msgButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:msgButton];
+        [msgButton sizeToFit];
+        msgButton.center = CGPointMake(self.view.center.x, self.view.center.y);
       }
       tableView.data = [PacoClient sharedInstance].model.experimentInstances;
     }
   });
 }
 
+- (void)goToFindMyExperiments:(UIButton*)button {
+  UINavigationController* navigationController = self.navigationController;
+  [navigationController popToRootViewControllerAnimated:NO];
+  PacoFindExperimentsViewController* controller = [[PacoFindExperimentsViewController alloc] init];
+  [navigationController pushViewController:controller animated:YES];
+}
 
 - (void)experimentsUpdate:(NSNotification*)notification
 {
   NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, NSLocalizedString(@"The notification should send an error!", nil));
   [self updateUIWithError:error];
 }
 
@@ -145,7 +153,7 @@
     cell.textLabel.text = experiment.definition.title;
     if ([experiment isScheduledExperiment] &&
         [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {
-      cell.detailTextLabel.text = @"Time to participate!";
+      cell.detailTextLabel.text = NSLocalizedString(@"Time to participate!", nil);
       cell.detailTextLabel.textColor = [UIColor colorWithRed:65./256. green:186./256. blue:34./256. alpha:.85];
       cell.detailTextLabel.font = [PacoFont pacoBoldFont];
     }
