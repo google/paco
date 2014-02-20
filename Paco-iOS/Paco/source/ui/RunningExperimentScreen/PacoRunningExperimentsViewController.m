@@ -122,7 +122,7 @@
   UINavigationController* navigationController = self.navigationController;
   [navigationController popToRootViewControllerAnimated:NO];
   PacoFindExperimentsViewController* controller = [[PacoFindExperimentsViewController alloc] init];
-  [navigationController pushViewController:controller animated:YES];
+  [navigationController pushViewController:controller animated:NO];
 }
 
 - (void)experimentsUpdate:(NSNotification*)notification
