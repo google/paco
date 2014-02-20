@@ -97,22 +97,21 @@
       if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
         UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
         [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
-        [msgLabel setFont:[UIFont systemFontOfSize:15.0]];
+        [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+        [msgLabel setTextColor:[UIColor darkGrayColor]];
         msgLabel.textAlignment = NSTextAlignmentCenter;
         [msgLabel sizeToFit];
-        msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 35);
+        msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
         [self.view addSubview:msgLabel];
 
         UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
-        msgButton.titleLabel.font = [UIFont systemFontOfSize:12.0];
         msgButton.titleLabel.numberOfLines = 2;
         msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        [msgButton setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
         [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
         [self.view addSubview:msgButton];
         [msgButton sizeToFit];
-        msgButton.center = CGPointMake(self.view.center.x, self.view.center.y);
+        msgButton.center = self.view.center;
       }
       tableView.data = [PacoClient sharedInstance].model.experimentInstances;
     }
@@ -129,7 +128,7 @@
 - (void)experimentsUpdate:(NSNotification*)notification
 {
   NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, NSLocalizedString(@"The notification should send an error!", nil));
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
   [self updateUIWithError:error];
 }
 
