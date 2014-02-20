@@ -52,6 +52,10 @@ public class HelpActivity extends Activity {
       return "file:///android_asset/help_fi.html";
     }
 
+    @Override
+    protected String getPtVersion() {
+      return "file:///android_asset/help_pt.html";
+    }
 
     
   }
