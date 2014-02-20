@@ -72,7 +72,9 @@
 "Are you sure?" = "Are you sure?";
 "All your data will be deleted permanently with this experiment." = "All your data will be deleted permanently with this experiment.";
 "Absolutely Sure!" = "Absolutely Sure!";
-
+"Go to Find My Experiments" = "Go to Find My Experiments \nto select an experiment to join";
+"You haven't joined any experiment yet." = "You haven't joined any experiment yet.";
+"Time to participate!" = "Time to participate!";
 //Delegate
 "No need to fill out any survey at this moment for this experiment." = "No need to fill out any survey at this moment for this experiment.";
 
