@@ -50,7 +50,7 @@ public class ExperimentProviderUtil {
   private Context context;
   private ContentResolver contentResolver;
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
-  private static final String FILENAME = "experiments";
+  private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
@@ -583,6 +583,24 @@ public class ExperimentProviderUtil {
 
     return null;
   }
+
+  public String getJson(List<Experiment> experiments) {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
+    try {
+      return mapper.writeValueAsString(experiments);
+    } catch (JsonGenerationException e) {
+      Log.e(PacoConstants.TAG, "Json generation error " + e);
+    } catch (JsonMappingException e) {
+      Log.e(PacoConstants.TAG, "JsonMapping error getting experiment json: " + e.getMessage());
+    } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "IO error getting experiment: " + e.getMessage());
+    }
+
+    return null;
+  }
+
 
   public void loadInputsForExperiment(Experiment experiment) {
     String select = InputColumns.EXPERIMENT_ID + " = " + experiment.getId();
@@ -1635,7 +1653,7 @@ public class ExperimentProviderUtil {
 
 
   public void saveExperimentsToDisk(String contentAsString) throws IOException {
-    FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+    FileOutputStream fos = context.openFileOutput(PUBLIC_EXPERIMENTS_FILENAME, Context.MODE_PRIVATE);
     fos.write(contentAsString.getBytes());
     fos.close();
   }
@@ -1645,15 +1663,34 @@ public class ExperimentProviderUtil {
     if (myExperimentsFile) {
       filename = MY_EXPERIMENTS_FILENAME;
     } else {
-      filename = FILENAME;
+      filename = PUBLIC_EXPERIMENTS_FILENAME;
     }
     List<Experiment> experiments = null;
     try {
-      experiments = createObjectsFromJsonStream(context.openFileInput(filename));
+      FileInputStream openFileInput = context.openFileInput(filename);
+      experiments = createObjectsFromJsonStream(openFileInput);
     } catch (IOException e) {
       Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
     }
     return ensureExperiments(experiments);
+  }
+
+  public void addExperimentToExperimentsOnDisk(String contentAsString) {
+    List<Experiment> existing = loadExperimentsFromDisk(false);
+    List<Experiment> newEx;
+    try {
+      newEx = createObjectsFromJsonStream(contentAsString);
+      existing.addAll(newEx);
+      String newJson = getJson(existing);
+      if (newJson != null) {
+        saveExperimentsToDisk(newJson);
+      }
+    } catch (JsonParseException e) {
+    } catch (JsonMappingException e) {
+    } catch (IOException e) {
+    }
+
+
   }
 
   private List<Experiment> ensureExperiments(List<Experiment> experiments) {
@@ -1669,6 +1706,19 @@ public class ExperimentProviderUtil {
       ObjectMapper mapper = new ObjectMapper();
       mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
       return mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Lists.newArrayList();
+  }
+
+  private List<Experiment> createObjectsFromJsonStream(String fis) throws IOException, JsonParseException,
+                                                                           JsonMappingException {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.readValue(fis, new TypeReference<List<Experiment>>() {
+      });
     } catch (Exception e) {
       e.printStackTrace();
     }

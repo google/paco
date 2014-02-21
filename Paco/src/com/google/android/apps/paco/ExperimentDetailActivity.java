@@ -16,6 +16,7 @@
 */
 package com.google.android.apps.paco;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -35,6 +36,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 
 public class ExperimentDetailActivity extends Activity {
@@ -58,9 +60,13 @@ public class ExperimentDetailActivity extends Activity {
 
   private boolean useMyExperimentsDiskFile;
 
+
+  private DownloadFullExperimentsTask experimentDownloadTask;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 	super.onCreate(savedInstanceState);
+
 	setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
     uri = intent.getData();
@@ -70,34 +76,11 @@ public class ExperimentDetailActivity extends Activity {
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
+  }
 
-    if (uri.getLastPathSegment().startsWith("0000")) {
-      String realServerId = uri.getLastPathSegment().substring(4);
-      List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(realServerId));
-      if (experiments != null && experiments.size() > 0) {
-        experiment = experiments.get(0);
-        uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getId()));
-      }
-    } else {
-      if (showingJoinedExperiments) {
-        experiment = experimentProviderUtil.getExperiment(uri);
-      } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
-        uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
-      }
-    }
 
-    if (experiment == null) {
-      new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
-
-        public void onClick(DialogInterface dialog, int which) {
-          refreshList();
-        }
-      }).show();
-
-    } else {
-      showExperiment();
-    }
+  private boolean isLaunchedFromQRCode() {
+    return uri.getLastPathSegment().startsWith("0000");
   }
 
   @Override
@@ -252,28 +235,94 @@ public class ExperimentDetailActivity extends Activity {
   }
 
 
-  protected void refreshList() {
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
+  protected void refreshList(final String realServerId) {
+    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
 
       @Override
-      public void done(String unusedResult) {
-          experiment = experimentProviderUtil.getExperimentFromDisk(new Long(uri.getLastPathSegment().substring(4)), useMyExperimentsDiskFile);
-          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-          if (experiment != null) {
-            uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
-            showExperiment();
-          } else {
-            ExperimentDetailActivity.this.finish();
+      public void done(String resultCode) {
+
+        if (resultCode.equals(DownloadHelper.SUCCESS)) {
+          experimentProviderUtil.addExperimentToExperimentsOnDisk(experimentDownloadTask.getContentAsString());
+          List<Experiment> experiments = experimentProviderUtil.loadExperimentsFromDisk(false);
+          Long serverId = Long.parseLong(realServerId);
+          for (Iterator iterator = experiments.iterator(); iterator.hasNext();) {
+            Experiment currentExperiment = (Experiment) iterator.next();
+            if (currentExperiment.getServerId().equals(serverId)) {
+              experiment = currentExperiment;
+            }
           }
+          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+        } else {
+          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
+          showFailureDialog(resultCode);
+        }
+
+        if (experiment != null) {
+          String serverId = Long.toString(experiment.getServerId());
+          uri = Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, serverId);
+          showExperiment();
+        } else {
+          ExperimentDetailActivity.this.finish();
+        }
 
       }
     };
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    new DownloadShortExperimentsTask(this, listener, userPrefs).execute();
-
+    List<Long> experimentServerIds = Lists.newArrayList(Long.parseLong(realServerId));
+    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentServerIds);
+    experimentDownloadTask.execute(null);
   }
 
 
+  private void showFailureDialog(String status) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    } else {
+      showDialog(DownloadHelper.SERVER_ERROR, null);
+    }
+  }
+
+
+  @Override
+  protected void onResume() {
+    if (isLaunchedFromQRCode() && userPrefs.getSelectedAccount() == null) {
+      Intent acctChooser = new Intent(this, AccountChooser.class);
+      this.startActivity(acctChooser);
+    } else {
+
+      if (isLaunchedFromQRCode()) {
+        String realServerId = uri.getLastPathSegment().substring(4);
+        List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(realServerId));
+        if (experiments != null && experiments.size() > 0) {
+          experiment = experiments.get(0);
+          uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getId()));
+        }
+      } else {
+        if (showingJoinedExperiments) {
+          experiment = experimentProviderUtil.getExperiment(uri);
+        } else {
+          experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
+          uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
+        }
+      }
+
+      if (isLaunchedFromQRCode() && experiment == null) {
+        new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+
+          public void onClick(DialogInterface dialog, int which) {
+            String realServerId = uri.getLastPathSegment().substring(4);
+            refreshList(realServerId);
+          }
+        }).show();
+
+      } else {
+        showExperiment();
+      }
+    }
+
+    super.onResume();
+  }
 
 
 
