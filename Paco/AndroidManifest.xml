@@ -253,7 +253,7 @@
 
         <activity
             android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
-            android:label="@string/title_activity_find_my_or_all_experiments_chooser" >
+            >
         </activity>
 
         <service android:name="com.google.android.apps.paco.ProcessService"></service>
