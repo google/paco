@@ -19,6 +19,7 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
 #import "PacoExpressionExecutor.h"
+#import "PacoClient.h"
 
 @interface PacoInputEvaluator ()
 
@@ -110,14 +111,14 @@
     NSString* rawExpression = input.conditionalExpression;
     //we should be able to handle bad data on server safely
     if (0 == [rawExpression length]) { 
-      NSLog(@"Error: expression should not be empty!");
+      DDLogError(@"Error: expression should not be empty!");
       continue;
     }
     
     void(^completionBlock)(NSPredicate*, NSArray*) =
         ^(NSPredicate* predicate, NSArray* dependencyVariables){
           if (predicate == nil) {
-            NSLog(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
+            DDLogError(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
                   input.name, rawExpression);
           }else {
             [dict setObject:predicate forKey:input.name];
@@ -130,7 +131,7 @@
   }
   
   self.expressionDict = dict;
-  NSLog(@"Finished building expression dict: \n %@", [self.expressionDict description]);
+  DDLogInfo(@"Finished building expression dict: \n %@", [self.expressionDict description]);
 }
 
 //run time: 2 * N
@@ -166,7 +167,7 @@
   }
   NSPredicate* predicate = [self.expressionDict objectForKey:input.name];
   if (predicate == nil) {
-    NSLog(@"[ERROR]No predicate to evaluate inputName: %@", input.name);
+    DDLogError(@"[ERROR]No predicate to evaluate inputName: %@", input.name);
     return YES;
   }
   
@@ -176,7 +177,7 @@
   }
   @catch (NSException *exception) {
     satisfied = YES;
-    NSLog(@"[ERROR]%@", [exception description]);
+    DDLogError(@"[ERROR]Exception to evaluate single input: %@", [exception description]);
   }
   @finally {
     if (satisfied) {
