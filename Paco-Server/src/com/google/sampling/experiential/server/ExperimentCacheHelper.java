@@ -1,19 +1,22 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.jsr107cache.Cache;
-import net.sf.jsr107cache.CacheException;
-import net.sf.jsr107cache.CacheFactory;
-import net.sf.jsr107cache.CacheManager;
-
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 
 public class ExperimentCacheHelper {
+
+  private static final String PUBLIC_EXPERIMENT_KEY = "public_experiments";
 
   public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
 
@@ -30,8 +33,9 @@ public class ExperimentCacheHelper {
     return instance;
   }
 
-  private Cache cache = null;
   private ExperimentRetriever experimentRetriever;
+
+  private MemcacheService cache;
 
   private ExperimentCacheHelper() {
     super();
@@ -41,17 +45,13 @@ public class ExperimentCacheHelper {
 
   public void clearCache() {
     if (cache != null) {
-      cache.clear();
+      cache.clearAll();
     }
   }
 
   private void createCache() {
-    try {
-      CacheFactory cacheFactory = CacheManager.getInstance().getCacheFactory();
-      cache = cacheFactory.createCache(Collections.emptyMap());
-    } catch (CacheException e) {
-      log.warning("Could not get a cache in the ExperimentCacheHelper ctor: " + e.getMessage());
-    }
+    cache = MemcacheServiceFactory.getMemcacheService();
+    cache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
   }
 
   /**
@@ -121,7 +121,8 @@ public class ExperimentCacheHelper {
   private void cacheExperimentsByKey(String experimentCacheKey, List<ExperimentDAO> experimentDAOs) {
     if (cache != null && !experimentDAOs.isEmpty()) {
       try {
-        cache.put(experimentCacheKey, experimentDAOs);
+        // we want the cache to be flushed every night so that experiments which have expired are no longer cached. (well, at least not for more than a day.)
+        cache.put(experimentCacheKey, experimentDAOs, Expiration.onDate(new DateMidnight().plusDays(1).toDate()));
       } catch (Exception e) {
         log.severe("Could not put experiment entry in cache:" + e.getMessage());
       }
@@ -133,6 +134,27 @@ public class ExperimentCacheHelper {
       return (List<ExperimentDAO>) cache.get(experimentCacheKey);
     }
     return null;
+  }
+
+  public void addPublicExperiment(ExperimentDAO newExperimentDAO) {
+    List<ExperimentDAO> currentExperiments = getCachedExperimentsByKey(PUBLIC_EXPERIMENT_KEY);
+    List<ExperimentDAO> newExperiments = Lists.newArrayList();
+    for (ExperimentDAO experimentDAO : currentExperiments) {
+      if (!experimentDAO.getId().equals(newExperimentDAO.getId())) {
+        newExperiments.add(experimentDAO);
+      }
+    }
+    newExperiments.add(newExperimentDAO);
+    cacheExperimentsByKey(PUBLIC_EXPERIMENT_KEY, newExperiments);
+  }
+
+  public List<ExperimentDAO> getPublicExperiments(DateTimeZone dateTimeZone) {
+    List<ExperimentDAO> cachedExperiments = getCachedExperimentsByKey(PUBLIC_EXPERIMENT_KEY);
+    if (cachedExperiments == null) {
+      cachedExperiments = experimentRetriever.getExperimentsPublishedPublicly(dateTimeZone);
+      cacheExperimentsByKey(PUBLIC_EXPERIMENT_KEY, cachedExperiments);
+    }
+    return cachedExperiments;
   }
 
 }

@@ -23,7 +23,7 @@ abstract class ExperimentServletHandler {
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    return ExperimentCacheHelper.getInstance().getJoinableExperiments(email, timezone);
+    return ExperimentCacheHelper.getInstance().getPublicExperiments(timezone);
   }
 
   protected abstract String jsonify(List<ExperimentDAO> availableExperiments);

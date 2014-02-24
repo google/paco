@@ -286,7 +286,11 @@ public class ExperimentRetriever {
 
     if (committed) {
       ExperimentVersionEntity.saveExperimentAsEntity(experiment);
-      ExperimentCacheHelper.getInstance().clearCache();
+      ExperimentCacheHelper.getInstance().clearCache(); // TODO do we need this
+      if (experiment.getPublished() && experiment.getPublishedUsers().size() > 0) {
+        ExperimentDAO newExperimentDAO = DAOConverter.createDAO(experiment);
+        ExperimentCacheHelper.getInstance().addPublicExperiment(newExperimentDAO);
+      }
       addAnyNewPeopleToTheWhitelist(experiment);
     }
     return true;
@@ -456,6 +460,26 @@ public class ExperimentRetriever {
     @SuppressWarnings("unchecked")
     List<Experiment> experiments = (List<Experiment>)jdoQuery.getQuery().execute(jdoQuery.getParameters());
     return experiments;
+  }
+
+  public List<ExperimentDAO> getExperimentsPublishedPublicly(DateTimeZone dateTimeZone) {
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      ExperimentJDOQuery jdoQuery = new ExperimentJDOQuery(pm.newQuery(Experiment.class));
+      jdoQuery.addFilters("publishedUsers == NULL", "published == true");
+      @SuppressWarnings("unchecked")
+      List<Experiment> experiments = (List<Experiment>) jdoQuery.getQuery().execute(jdoQuery.getParameters());
+      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+      markEndOfDayExperiments(pm, experimentDAOs);
+      removeSensitiveFields(experimentDAOs);
+      sortExperiments(experimentDAOs);
+      return filterFinishedAndDeletedExperiments(dateTimeZone, experimentDAOs);
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
   }
 
   private List<ExperimentDAO> filterFinishedAndDeletedExperiments(DateTimeZone dateTimeZone, List<ExperimentDAO> experiments) {

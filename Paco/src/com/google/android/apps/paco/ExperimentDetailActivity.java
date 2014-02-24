@@ -75,7 +75,6 @@ public class ExperimentDetailActivity extends Activity {
     userPrefs = new UserPreferences(this);
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
-
   }
 
 
