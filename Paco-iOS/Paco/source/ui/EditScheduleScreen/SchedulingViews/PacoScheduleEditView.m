@@ -108,8 +108,6 @@ NSString *kCellIdText = @"text";
               nil];
     case kPacoScheduleTypeWeekly:
       return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
-              [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
               [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
               nil];
     case kPacoScheduleTypeWeekday:
@@ -170,17 +168,10 @@ NSString *kCellIdText = @"text";
     }
       break;
     case kPacoScheduleTypeWeekly: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-        PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
-        cellView.repeatStyle = kPacoScheduleRepeatWeeks;
-        cellView.repeatNumberValue = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
-        PacoDayOfWeekSelectionView *cellView = (PacoDayOfWeekSelectionView *)cell;
-        cellView.onlyAllowOneDay = NO;
-        cellView.daysOfWeek = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
         cellView.times = [self realRowData:rowData];
+        cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
@@ -297,9 +288,8 @@ NSString *kCellIdText = @"text";
     }
       break;
     case kPacoScheduleTypeWeekly: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        self.schedule.times = rowData;
       } else {
         assert(0);
       }
