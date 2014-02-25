@@ -46,10 +46,7 @@
 }
 
 - (BOOL)isCustomFeedback {
-  if ([self.text isEqualToString:@"Thanks for Participating!"]) {
-    return YES;
-  }
-  return NO;
+  return ![self.text isEqualToString:@"Thanks for Participating!"];
 }
 
 @end

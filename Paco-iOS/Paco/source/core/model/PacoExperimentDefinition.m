@@ -164,11 +164,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 }
 
 - (BOOL)hasCustomFeedback {
-  if (self.feedback) {
-    PacoExperimentFeedback* feedbackObject = [self.feedback objectAtIndex:0];
-    return [feedbackObject isCustomFeedback];
-  }
-  return NO;
+  return [[self.feedback firstObject] isCustomFeedback];
 }
 
 - (BOOL)isFixedLength {
@@ -216,7 +212,8 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           @"deleted=%d "
           @"experimentDescription=%@ "
           @"feedback=%@ "
-          @"isCustomRendering=%d "
+          @"isCustomRendering=%@ "
+          @"hasCustomFeedback=%@ "
           @"fixedDuration=%d "
           @"informedConsentForm=%@ "
           @"inputs=%@ "
@@ -237,7 +234,8 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           self.deleted,
           self.experimentDescription,
           self.feedback,
-          self.isCustomRendering,
+          self.isCustomRendering ? @"YES" : @"NO",
+          [self hasCustomFeedback] ?  @"YES" : @"NO",
           self.fixedDuration,
           self.informedConsentForm,
           self.inputs,
