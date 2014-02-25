@@ -40,7 +40,7 @@ static NSString* const DEFINITION_SCHEDULE = @"schedule";
 static NSString* const DEFINITION_TITLE = @"title";
 static NSString* const DEFINITION_WEBRECOMMENDED = @"webRecommended";
 static NSString* const DEFINITION_VERSION = @"version";
-
+static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
@@ -64,6 +64,7 @@ static NSString* const DEFINITION_VERSION = @"version";
     [feedbackObjects addObject:[PacoExperimentFeedback pacoFeedbackFromJSON:jsonFeedback]];
   }
   definition.feedback = feedbackObjects;
+  definition.isCustomRendering = [[definitionMembers objectForKey:DEFINITION_CUSTOM_RENDERING] boolValue];
   definition.fixedDuration = [[definitionMembers objectForKey:DEFINITION_FIXED_DURATION] boolValue];
   definition.experimentId = [NSString stringWithFormat:@"%ld", [[definitionMembers objectForKey:DEFINITION_ID] longValue]];
   definition.informedConsentForm = [definitionMembers objectForKey:DEFINITION_INFORMED_CONSENTFORM];
@@ -130,7 +131,7 @@ static NSString* const DEFINITION_VERSION = @"version";
     [feedbackJson addObject:[feedback serializeToJSON]];
   }
   [json setObject:feedbackJson forKey:DEFINITION_FEEDBACK];
-
+  [json setObject:[NSNumber numberWithBool:self.isCustomRendering] forKey:DEFINITION_CUSTOM_RENDERING];
   if (self.informedConsentForm) {
     [json setObject:self.informedConsentForm forKey:DEFINITION_INFORMED_CONSENTFORM];
   }
@@ -162,7 +163,13 @@ static NSString* const DEFINITION_VERSION = @"version";
   return json;
 }
 
-
+- (BOOL)hasCustomFeedback {
+  if (self.feedback) {
+    PacoExperimentFeedback* feedbackObject = [self.feedback objectAtIndex:0];
+    return [feedbackObject isCustomFeedback];
+  }
+  return NO;
+}
 
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;
@@ -209,6 +216,7 @@ static NSString* const DEFINITION_VERSION = @"version";
           @"deleted=%d "
           @"experimentDescription=%@ "
           @"feedback=%@ "
+          @"isCustomRendering=%d "
           @"fixedDuration=%d "
           @"informedConsentForm=%@ "
           @"inputs=%@ "
@@ -229,6 +237,7 @@ static NSString* const DEFINITION_VERSION = @"version";
           self.deleted,
           self.experimentDescription,
           self.feedback,
+          self.isCustomRendering,
           self.fixedDuration,
           self.informedConsentForm,
           self.inputs,

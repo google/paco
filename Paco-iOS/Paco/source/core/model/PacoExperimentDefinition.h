@@ -37,6 +37,7 @@
 
 @property (nonatomic, assign) BOOL deleted;
 @property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>
+@property (nonatomic, assign) BOOL isCustomRendering;
 @property (nonatomic, assign) BOOL fixedDuration;
 @property (nonatomic, copy) NSString *informedConsentForm;
 @property (nonatomic, retain) NSArray *inputs;  // <PacoExperimentInput>
@@ -49,6 +50,8 @@
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (id)serializeToJSON;
+
+- (BOOL)hasCustomFeedback;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;

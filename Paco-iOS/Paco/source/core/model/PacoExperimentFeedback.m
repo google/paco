@@ -45,4 +45,11 @@
           self, self.feedbackId, self.type, self.text, nil];
 }
 
+- (BOOL)isCustomFeedback {
+  if ([self.text isEqualToString:@"Thanks for Participating!"]) {
+    return YES;
+  }
+  return NO;
+}
+
 @end
