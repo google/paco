@@ -118,7 +118,7 @@
   label.numberOfLines = 3;
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
-  label.textColor = [PacoColor pacoBlue];
+  label.textColor = [UIColor darkGrayColor];
   [label setText:NSLocalizedString(@"Login message", nil)];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];

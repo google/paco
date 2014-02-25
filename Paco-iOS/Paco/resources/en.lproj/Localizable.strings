@@ -51,7 +51,7 @@
 //Login
 "Oops" = "Oops";
 "Login invalid message" = "Please input valid email and password.";
-"Login message" = "Hi, Log in with a Google account\n\n  Run Your Paco Experiment Today!";
+"Login message" = "Log in with a Google account\n\n  Run Your Paco Experiment Today!";
 "<password>" = "<password>";
 
 //Find Experiment
