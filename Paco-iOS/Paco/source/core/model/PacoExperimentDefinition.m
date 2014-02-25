@@ -210,13 +210,13 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           @"admins=%@ "
           @"creator=%@ "
           @"deleted=%d "
-          @"experimentDescription=%@ "
+//          @"experimentDescription=%@ "
           @"feedback=%@ "
           @"isCustomRendering=%@ "
           @"hasCustomFeedback=%@ "
           @"fixedDuration=%d "
-          @"informedConsentForm=%@ "
-          @"inputs=%@ "
+//          @"informedConsentForm=%@ "
+//          @"inputs=%@ "
           @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
@@ -232,13 +232,13 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           self.admins,
           self.creator,
           self.deleted,
-          self.experimentDescription,
+//          self.experimentDescription,
           self.feedback,
           self.isCustomRendering ? @"YES" : @"NO",
           [self hasCustomFeedback] ?  @"YES" : @"NO",
           self.fixedDuration,
-          self.informedConsentForm,
-          self.inputs,
+//          self.informedConsentForm,
+//          self.inputs,
           self.modifyDate,
           self.published,
           self.publishedUsers,
