@@ -30,6 +30,7 @@
 
 @interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
 
+@property (nonatomic, retain) UILabel* createExperimentLabel;
 @end
 
 @implementation PacoFindExperimentsViewController
@@ -99,17 +100,18 @@
                         otherButtonTitles:nil] show];
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
-      if ([tableView.data count] == 0) {
-        UILabel* createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
-        [createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
-        [createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-        [createExperimentLabel setTextColor:[UIColor darkGrayColor]];
-        createExperimentLabel.textAlignment = NSTextAlignmentCenter;
-        createExperimentLabel.numberOfLines = 0;
-        [createExperimentLabel sizeToFit];
-        createExperimentLabel.center = self.view.center;
-        [self.view addSubview:createExperimentLabel];
+      if (!self.createExperimentLabel) {
+        self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+        [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
+        [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+        [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
+        self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
+        self.createExperimentLabel.numberOfLines = 0;
+        [self.createExperimentLabel sizeToFit];
+        self.createExperimentLabel.center = self.view.center;
+        [self.view addSubview:self.createExperimentLabel];
       }
+      [tableView.data count] == 0 ? [self.createExperimentLabel setHidden:NO] : [self.createExperimentLabel setHidden:YES];
     }
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
