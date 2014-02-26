@@ -50,7 +50,7 @@ UIImagePickerControllerDelegate>
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
 @property (nonatomic, retain, readwrite) UITextView *textView;
 @property (nonatomic, retain, readwrite) NSArray* rightLeftLabels;
-
+@property (nonatomic, retain) UILabel* messageLabel;
 // TODO(gregvance): add location and photo
 
 - (void)clearUI;
@@ -112,6 +112,10 @@ UIImagePickerControllerDelegate>
   [self.map removeFromSuperview];
   [self.numberStepper removeFromSuperview];
   [self.questionText removeFromSuperview];
+  if (self.messageLabel) {
+    [self.messageLabel removeFromSuperview];
+    self.messageLabel = nil;
+  }
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
   }
@@ -385,6 +389,15 @@ UIImagePickerControllerDelegate>
       self.questionText.text = NSLocalizedString(@"Attaching your location ...", nil);
       [self.questionText sizeToFit];
     }
+    self.messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+    self.messageLabel.numberOfLines = 0;
+    self.messageLabel.backgroundColor = [UIColor clearColor];
+    self.messageLabel.textColor = [UIColor darkGrayColor];
+    [self.messageLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+    [self.messageLabel setText:NSLocalizedString(@"This is the location that will be recorded for your response.", nil)];
+    self.messageLabel.textAlignment = NSTextAlignmentCenter;
+    [self.messageLabel sizeToFit];
+    [self addSubview:self.messageLabel];
     if (!self.map) {
       self.map = [[MKMapView alloc] initWithFrame:CGRectZero];
       self.map.delegate = self;
@@ -570,8 +583,10 @@ UIImagePickerControllerDelegate>
 
     self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
-    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-
+    CGFloat segmentY = textsize.height + 10;
+    self.messageLabel.frame = CGRectMake(self.center.x - self.messageLabel.frame.size.width / 2, segmentY, self.messageLabel.frame.size.width, self.messageLabel.frame.size.height);
+    segmentY = segmentY + self.messageLabel.frame.size.height + 10;
+    CGRect bounds = CGRectMake(10, segmentY, self.frame.size.width - 20, self.frame.size.height - segmentY - 20);
     self.map.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     CGFloat segmentY = self.questionText.frame.origin.y + self.questionText.frame.size.height + 10;
