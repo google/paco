@@ -56,7 +56,7 @@
 "2-factor Authentication message" = "Have a problem logging in?\nYour Account probably uses 2-factor Authentication.";
 "Check how to generate your app password" = "Check how to generate your app password";
 "2-factor title" = "2-factor Authentication Instruction";
-"2-factpr Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";
+"2-factor Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";
 "Go to Safari" = "Go to Safari";
 
 //Find Experiment

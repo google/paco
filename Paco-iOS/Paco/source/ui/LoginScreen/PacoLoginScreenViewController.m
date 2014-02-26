@@ -25,7 +25,7 @@
 #import "PacoLoadingView.h"
 #import "PacoFont.h"
 
-static NSString *const googleSecuritySettingsURL = @"https://www.google.com/settings/security";
+static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/settings/security";
 
 @interface PacoClient ()
 - (void)loginWithClientLogin:(NSString *)email
@@ -160,21 +160,20 @@ static NSString *const googleSecuritySettingsURL = @"https://www.google.com/sett
 }
 
 - (void)displayInstructions:(UIButton*)button {
-  UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"2-factor title", nil) message:NSLocalizedString(@"2-factpr Instruction", nil) delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", nil) otherButtonTitles:NSLocalizedString(@"Go to Safari", nil), nil];
-  [alert show];
-
+  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"2-factor title", nil)
+                              message:NSLocalizedString(@"2-factor Instruction", nil)
+                             delegate:self
+                    cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                    otherButtonTitles:NSLocalizedString(@"Go to Safari", nil), nil] show];
 }
 
 #pragma mark UIAlertViewDelegate implementation
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
   if (buttonIndex == 1) {
-    [self launchSafariWithURl];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:kGoogleSecuritySettingsURL]];
   }
 }
 
-- (void)launchSafariWithURl {
-  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:googleSecuritySettingsURL]];
-}
 
 - (void)onLogin {
   NSString* emailStr = [self.emailField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
