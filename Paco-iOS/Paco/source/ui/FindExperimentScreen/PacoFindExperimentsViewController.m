@@ -99,6 +99,17 @@
                         otherButtonTitles:nil] show];
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+      if ([tableView.data count] == 0) {
+        UILabel* createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+        [createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
+        [createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+        [createExperimentLabel setTextColor:[UIColor darkGrayColor]];
+        createExperimentLabel.textAlignment = NSTextAlignmentCenter;
+        createExperimentLabel.numberOfLines = 0;
+        [createExperimentLabel sizeToFit];
+        createExperimentLabel.center = self.view.center;
+        [self.view addSubview:createExperimentLabel];
+      }
     }
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
