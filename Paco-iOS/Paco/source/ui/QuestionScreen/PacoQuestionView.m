@@ -584,7 +584,7 @@ UIImagePickerControllerDelegate>
     self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     CGFloat segmentY = textsize.height + 10;
-    self.messageLabel.frame = CGRectMake(self.center.x - self.messageLabel.frame.size.width / 2 , segmentY, self.messageLabel.frame.size.width, self.messageLabel.frame.size.height);
+    self.messageLabel.frame = CGRectMake(self.center.x - self.messageLabel.frame.size.width / 2, segmentY, self.messageLabel.frame.size.width, self.messageLabel.frame.size.height);
     segmentY = segmentY + self.messageLabel.frame.size.height + 10;
     CGRect bounds = CGRectMake(10, segmentY, self.frame.size.width - 20, self.frame.size.height - segmentY - 20);
     self.map.frame = bounds;
