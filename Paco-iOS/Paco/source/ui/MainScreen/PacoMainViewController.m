@@ -161,9 +161,7 @@
 }
 
 - (void)setBadgeText:(int)badgeNumber {
-  if (self.badge) {
-    [self.badge setBadgeText:[NSString stringWithFormat:@"%d", badgeNumber]];
-  }
+  [self.badge setBadgeText:[NSString stringWithFormat:@"%d", badgeNumber]];
 }
 
 - (int)checkForActiveExperiments {
