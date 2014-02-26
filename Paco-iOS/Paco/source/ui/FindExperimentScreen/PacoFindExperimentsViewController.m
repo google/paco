@@ -31,6 +31,7 @@
 @interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
 
 @property (nonatomic, retain) UILabel* createExperimentLabel;
+
 @end
 
 @implementation PacoFindExperimentsViewController
