@@ -60,6 +60,7 @@
 "Something went wrong, please try again later." = "Something went wrong, please try again later.";
 "Refresh" = "Refresh";
 "The notification should send an error!" = "The notification should send an error!";
+"Paco CreateExperiments Message" = "There isn't any experiments created by or published to you. You can go to paco website to create your experiments now.";
 
 //Running Experiments
 "Running Experiments" = "Running Experiments";
