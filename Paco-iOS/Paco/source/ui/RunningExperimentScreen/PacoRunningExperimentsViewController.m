@@ -70,6 +70,10 @@
                                            selector:@selector(experimentsUpdate:)
                                                name:PacoFinishRefreshing
                                              object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(appBecomeActive)
+                                               name:PacoAppBecomeActive
+                                             object:nil];
 }
 
 
@@ -151,6 +155,12 @@
   }
 }
 
+
+- (void)appBecomeActive {
+  [self updateUIWithExperiments];
+}
+
+
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
 }
@@ -226,12 +236,17 @@
   //stop an experiment and update UI
   [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment];
 
-  NSString* title = NSLocalizedString(@"Success", nil);
-  NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
-  [PacoAlertView showAlertWithTitle:title
-                            message:message
-                  cancelButtonTitle:@"OK"];
-  [self updateUIWithExperiments];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSString* title = NSLocalizedString(@"Success", nil);
+    NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
+    [PacoAlertView showAlertWithTitle:title
+                              message:message
+                         dismissBlock:^(NSInteger buttonIndex) {
+                           [self updateUIWithExperiments];
+                         }
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil];
+  });
 }
 
 - (void)showStopConfirmAlert

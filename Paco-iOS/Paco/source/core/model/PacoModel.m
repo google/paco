@@ -29,6 +29,7 @@
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
 NSString* const PacoFinishRefreshing = @"PacoFinishRefreshing";
+NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
 
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";

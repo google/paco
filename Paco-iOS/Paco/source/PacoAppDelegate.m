@@ -169,6 +169,8 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
   [[PacoClient sharedInstance] uploadPendingEventsInBackground];
+  
+  [[NSNotificationCenter defaultCenter] postNotificationName:PacoAppBecomeActive object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

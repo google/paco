@@ -18,7 +18,7 @@
 extern NSString* const PacoFinishLoadingDefinitionNotification;
 extern NSString* const PacoFinishLoadingExperimentNotification;
 extern NSString* const PacoFinishRefreshing;
-
+extern NSString* const PacoAppBecomeActive;
 
 @class PacoModel;
 @class PacoExperimentSchedule;
