@@ -36,7 +36,7 @@
 
 
 @property (nonatomic, assign) BOOL deleted;
-@property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>
+@property (nonatomic, retain) NSArray *feedbackList;  // <PacoExperimentFeedback>
 @property (nonatomic, assign) BOOL isCustomRendering;
 @property (nonatomic, assign) BOOL fixedDuration;
 @property (nonatomic, copy) NSString *informedConsentForm;

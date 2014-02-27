@@ -63,7 +63,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   for (id jsonFeedback in jsonFeedbackList) {
     [feedbackObjects addObject:[PacoExperimentFeedback pacoFeedbackFromJSON:jsonFeedback]];
   }
-  definition.feedback = feedbackObjects;
+  definition.feedbackList = feedbackObjects;
   definition.isCustomRendering = [[definitionMembers objectForKey:DEFINITION_CUSTOM_RENDERING] boolValue];
   definition.fixedDuration = [[definitionMembers objectForKey:DEFINITION_FIXED_DURATION] boolValue];
   definition.experimentId = [NSString stringWithFormat:@"%ld", [[definitionMembers objectForKey:DEFINITION_ID] longValue]];
@@ -126,8 +126,8 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
     [json setObject:self.experimentDescription forKey:DEFINITION_DESCRIPTION];
   }
   
-  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedback count]];
-  for (PacoExperimentFeedback* feedback in self.feedback) {
+  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedbackList count]];
+  for (PacoExperimentFeedback* feedback in self.feedbackList) {
     [feedbackJson addObject:[feedback serializeToJSON]];
   }
   [json setObject:feedbackJson forKey:DEFINITION_FEEDBACK];
@@ -164,7 +164,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 }
 
 - (BOOL)hasCustomFeedback {
-  return [[self.feedback firstObject] isCustomFeedback];
+  return [[self.feedbackList firstObject] isCustomFeedback];
 }
 
 - (BOOL)isFixedLength {
@@ -233,7 +233,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           self.creator,
           self.deleted,
 //          self.experimentDescription,
-          self.feedback,
+          self.feedbackList,
           self.isCustomRendering ? @"YES" : @"NO",
           [self hasCustomFeedback] ?  @"YES" : @"NO",
           self.fixedDuration,
