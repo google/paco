@@ -101,18 +101,23 @@
                         otherButtonTitles:nil] show];
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
-      if (!self.createExperimentLabel) {
-        self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
-        [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
-        [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-        [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
-        self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
-        self.createExperimentLabel.numberOfLines = 0;
-        [self.createExperimentLabel sizeToFit];
-        self.createExperimentLabel.center = self.view.center;
-        [self.view addSubview:self.createExperimentLabel];
+      if ([tableView.data count] > 0) {
+        [self.createExperimentLabel setHidden:YES];
+      } else {
+        //lazy initialization
+        if (!self.createExperimentLabel) {
+          self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+          [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
+          [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+          [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
+          self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
+          self.createExperimentLabel.numberOfLines = 0;
+          [self.createExperimentLabel sizeToFit];
+          self.createExperimentLabel.center = self.view.center;
+          [self.view addSubview:self.createExperimentLabel];
+        }
+        [self.createExperimentLabel setHidden:NO];
       }
-      [tableView.data count] == 0 ? [self.createExperimentLabel setHidden:NO] : [self.createExperimentLabel setHidden:YES];
     }
 
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
