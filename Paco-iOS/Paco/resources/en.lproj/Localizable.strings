@@ -53,7 +53,7 @@
 "Login invalid message" = "Please input valid email and password.";
 "Login message" = "Log in with a Google account\n\n  Run Your Paco Experiment Today!";
 "<password>" = "<password>";
-"2-factor Authentication message" = "Have a problem logging in?\nYour Account probably uses 2-factor Authentication.";
+"2-factor Authentication message" = "Have a problem logging in?\nYour account probably uses 2-factor authentication.";
 "Check how to generate your app password" = "Check how to generate your app password";
 "2-factor title" = "2-factor Authentication Instruction";
 "2-factor Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";

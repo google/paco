@@ -187,12 +187,6 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }else{
-    if ([self.emailField isFirstResponder]) {
-      [self.emailField resignFirstResponder];
-    }
-    if ([self.pwdField isFirstResponder]) {
-      [self.pwdField resignFirstResponder];
-    }
     [self loginWithEmail:emailStr password:pwdStr];
   }
 }
@@ -225,6 +219,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
 // called when 'return' key pressed. return NO to ignore.
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
   [textField resignFirstResponder];
+  [self onLogin];
   return YES;
 }
 
