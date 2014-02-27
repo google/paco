@@ -82,7 +82,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
-    [self updateUIWithError:prefetchError];
+    if (prefetchError) {
+      [self updateUIWithError:prefetchError];
+    } else {
+      [self updateUIWithExperiments];
+    }
   }
 }
 
@@ -91,36 +95,41 @@
 }
 
 
-- (void)updateUIWithError:(NSError*)error
-{
+- (void)updateUIWithError:(NSError*)error {
+  NSAssert(error, @"error should be valid");
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
-    if (error) {
-      tableView.data = [NSArray array];
-      [PacoAlertView showGeneralErrorAlert];
-    }else{
-      if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
-        UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-        [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
-        [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-        [msgLabel setTextColor:[UIColor darkGrayColor]];
-        msgLabel.textAlignment = NSTextAlignmentCenter;
-        [msgLabel sizeToFit];
-        msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
-        [self.view addSubview:msgLabel];
+    tableView.data = [NSArray array];
+    [PacoAlertView showGeneralErrorAlert];
+  });
+}
 
-        UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
-        msgButton.titleLabel.numberOfLines = 2;
-        msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
-        [self.view addSubview:msgButton];
-        [msgButton sizeToFit];
-        msgButton.center = self.view.center;
-      }
-      tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+
+- (void)updateUIWithExperiments {
+  //send UI update to main thread to avoid potential crash
+  dispatch_async(dispatch_get_main_queue(), ^{
+    PacoTableView* tableView = (PacoTableView*)self.view;
+    if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
+      UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+      [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
+      [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+      [msgLabel setTextColor:[UIColor darkGrayColor]];
+      msgLabel.textAlignment = NSTextAlignmentCenter;
+      [msgLabel sizeToFit];
+      msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
+      [self.view addSubview:msgLabel];
+      
+      UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+      [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
+      msgButton.titleLabel.numberOfLines = 2;
+      msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+      [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
+      [self.view addSubview:msgButton];
+      [msgButton sizeToFit];
+      msgButton.center = self.view.center;
     }
+    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
   });
 }
 
@@ -135,7 +144,11 @@
 {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  [self updateUIWithError:error];
+  if (error) {
+    [self updateUIWithError:error];
+  } else {
+    [self updateUIWithExperiments];
+  }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -213,17 +226,12 @@
   //stop an experiment and update UI
   [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment];
 
-  PacoTableView* tableView = (PacoTableView*)self.view;
-  tableView.data = [PacoClient sharedInstance].model.experimentInstances;
-
   NSString* title = NSLocalizedString(@"Success", nil);
   NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
   [PacoAlertView showAlertWithTitle:title
                             message:message
                   cancelButtonTitle:@"OK"];
-  if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
-    [self updateUIWithError:nil];
-  }
+  [self updateUIWithExperiments];
 }
 
 - (void)showStopConfirmAlert
