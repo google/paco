@@ -81,6 +81,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField.returnKeyType = UIReturnKeyDone;
   textField.delegate = self;
   [self.view addSubview:textField];
   [textField sizeToFit];
@@ -104,6 +105,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField2.secureTextEntry = YES;
   textField2.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField2.returnKeyType = UIReturnKeyDone;
   textField2.delegate = self;
   [self.view addSubview:textField2];
   [textField2 sizeToFit];
@@ -222,7 +224,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
 #pragma mark - UITextFieldDelegate
 // called when 'return' key pressed. return NO to ignore.
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-  [self onLogin];
+  [textField resignFirstResponder];
   return YES;
 }
 
