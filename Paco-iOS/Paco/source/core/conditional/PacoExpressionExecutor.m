@@ -68,7 +68,7 @@
     
     NSString* newToken = [NSString stringWithFormat:@"$%@", token];
     int nextIndex = index + 1;
-    if ([value boolValue] &&  nextIndex < [tokenList count]) {//variable is a list
+    if ([value boolValue] &&  nextIndex < [tokenList count]) {//variable is a multi-selected list
       NSString* nextToken = [tokenList objectAtIndex:nextIndex];
       if ([nextToken isEqualToString:@"=="] || [nextToken isEqualToString:@"!="]) {
         [processedTokens replaceObjectAtIndex:nextIndex withObject:@"contains"];

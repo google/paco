@@ -98,8 +98,8 @@
   NSMutableDictionary* variableDict = [NSMutableDictionary dictionary];
   for (PacoExperimentInput* input in self.experiment.definition.inputs) {
     NSAssert([input.name length] > 0, @"input name should non empty!");
-    BOOL isList = (input.responseEnumType == ResponseEnumTypeList);
-    [variableDict setObject:[NSNumber numberWithBool:isList] forKey:input.name];
+    BOOL isMultiSelectedList = (input.responseEnumType == ResponseEnumTypeList && input.multiSelect);
+    [variableDict setObject:[NSNumber numberWithBool:isMultiSelectedList] forKey:input.name];
   }
   
   //run time: N
