@@ -29,6 +29,11 @@
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
+#import "PacoNotificationManager.h"
+
+@interface PacoNotificationManager ()
+- (NSUInteger)totalNumberOfActiveNotifications;
+@end
 
 @implementation PacoMainViewController
 
@@ -44,6 +49,11 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:infoButton];
   }
   return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+  int badgeNumber = [self checkForActiveExperiments];
+  badgeNumber > 0 ? [self.badge setBadgeText:[NSString stringWithFormat:@"%d", badgeNumber]] : [self.badge setHidden:YES];
 }
 
 - (void)viewDidLoad {
@@ -80,6 +90,12 @@
   [buttonRunningExperiment.button addTarget:self action:@selector(onRunningExperiments) forControlEvents:UIControlEventTouchUpInside];
   [view addSubview:buttonRunningExperiment];
   [buttonRunningExperiment sizeToFit];
+
+  self.badge = [[PacoNotificationBadge alloc] init];
+  self.badge.center = CGPointMake(buttonRunningExperiment.frame.size.width - 10, -10);
+  [buttonRunningExperiment addSubview:_badge];
+  int badgeNumber = [self checkForActiveExperiments];
+  badgeNumber > 0 ? [self.badge setBadgeText:[NSString stringWithFormat:@"%d", badgeNumber]] : [self.badge setHidden:YES];
 
   PacoMenuButton *buttonExploreData = [[PacoMenuButton alloc] init];
   buttonExploreData.text.text = NSLocalizedString(@"Explore Your Data",nil);
@@ -142,6 +158,20 @@
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
   // Dispose of any resources that can be recreated.
+}
+
+- (void)setBadgeText:(int)badgeNumber {
+  [self.badge setBadgeText:[NSString stringWithFormat:@"%d", badgeNumber]];
+}
+
+- (int)checkForActiveExperiments {
+  int totalCount = 0;
+  PacoNotificationManager* notificationManager = [PacoNotificationManager managerWithDelegate:nil firstLaunchFlag:YES];
+  BOOL success = [notificationManager loadNotificationsFromCache];
+  if (success) {
+    totalCount = [notificationManager totalNumberOfActiveNotifications];
+  }
+  return totalCount;
 }
 
 #pragma mark - Button Callbacks

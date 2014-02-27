@@ -13,11 +13,12 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-#import "PacoNotificationBadge.h"
+#import <UIKit/UIKit.h>
 
-@interface PacoMainViewController : UIViewController <UIActionSheetDelegate>
+@interface PacoNotificationBadge : UIView
 
-@property (nonatomic, retain) PacoNotificationBadge* badge;
+@property (nonatomic, retain) UIButton* msgButton;
+
+- (void)setBadgeText:(NSString*)badgeNumber;
 
 @end

@@ -227,6 +227,8 @@
 		E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */; };
 		E480BE161896F3C700662432 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE141896F3C700662432 /* InfoPlist.strings */; };
 		E480BE201896F3E100662432 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE1E1896F3E100662432 /* Localizable.strings */; };
+		E485A10D18BE692E00D08EA1 /* notification_badge.png in Resources */ = {isa = PBXBuildFile; fileRef = E485A10C18BE692E00D08EA1 /* notification_badge.png */; };
+		E485A11718BE697200D08EA1 /* PacoNotificationBadge.m in Sources */ = {isa = PBXBuildFile; fileRef = E485A11618BE697200D08EA1 /* PacoNotificationBadge.m */; };
 		E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */; };
 		E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D5DE851837DE9900E5446A /* MessageUI.framework */; };
 		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
@@ -615,6 +617,9 @@
 		E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
 		E480BE151896F3C700662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		E480BE1F1896F3E100662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		E485A10C18BE692E00D08EA1 /* notification_badge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = notification_badge.png; sourceTree = "<group>"; };
+		E485A11518BE697200D08EA1 /* PacoNotificationBadge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoNotificationBadge.h; sourceTree = "<group>"; };
+		E485A11618BE697200D08EA1 /* PacoNotificationBadge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationBadge.m; sourceTree = "<group>"; };
 		E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSubtitleTableCell.h; sourceTree = "<group>"; };
 		E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSubtitleTableCell.m; sourceTree = "<group>"; };
 		E4D5DE851837DE9900E5446A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
@@ -1047,6 +1052,8 @@
 		36B8EB5117568DAF004CF035 /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				E485A11518BE697200D08EA1 /* PacoNotificationBadge.h */,
+				E485A11618BE697200D08EA1 /* PacoNotificationBadge.m */,
 				36B8EB5217568DAF004CF035 /* PacoCheckboxView.h */,
 				36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */,
 				36B8EB5417568DAF004CF035 /* PacoColor.h */,
@@ -1098,6 +1105,7 @@
 			isa = PBXGroup;
 			children = (
 				E480BE131896F3C700662432 /* en.lproj */,
+				E485A10C18BE692E00D08EA1 /* notification_badge.png */,
 				E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */,
 				E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */,
 				E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */,
@@ -1547,6 +1555,7 @@
 				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
 				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
 				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
+				E485A10D18BE692E00D08EA1 /* notification_badge.png in Resources */,
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
 				E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
@@ -1693,6 +1702,7 @@
 				36B8EC2E17568E33004CF035 /* GTMHTTPFetcher.m in Sources */,
 				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
 				36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */,
+				E485A11718BE697200D08EA1 /* PacoNotificationBadge.m in Sources */,
 				36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */,
 				36B8EC3017568E33004CF035 /* GTMOAuth2SignIn.m in Sources */,
 				36B8EC3117568E33004CF035 /* GTMOAuth2ViewControllerTouch.m in Sources */,
