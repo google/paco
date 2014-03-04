@@ -173,7 +173,7 @@ replacementString:(NSString *)string{
   CGSize sizeSlider = self.stepper.frame.size;
   CGRect labelRect = [PacoLayout centerRect:sizeLabel inRect:top];
   CGRect sliderRect = [PacoLayout centerRect:sizeSlider inRect:bottom];
-  self.valueLabel.frame = CGRectMake(0, labelRect.origin.y, self.frame.size.width, 30);// labelRect;
+  self.valueLabel.frame = CGRectMake(0, labelRect.origin.y, self.frame.size.width, 30);
   self.stepper.frame = sliderRect;
 }
 
