@@ -191,9 +191,20 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   return json;
 }
 
+- (BOOL)isTriggerExperiment {
+  NSAssert([self.signalMechanismList count] > 0, @"signalMechanismList should have element");
+  return [[self.signalMechanismList firstObject] isKindOfClass:[PacoTriggerSignal class]];
+}
+
 - (BOOL)hasCustomFeedback {
   return [[self.feedbackList firstObject] isCustomFeedback];
 }
+
+
+- (BOOL)isCompatibleOnIOS {
+  return ![self isTriggerExperiment] && ![self hasCustomFeedback] && !self.isCustomRendering;
+}
+
 
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;
@@ -233,6 +244,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentDefinition:%p - "
+          @"trigger = %@ "
           @"experimentId=%@ "
           @"title=%@ "
           @"admins=%@ "
@@ -256,6 +268,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           @"webReccommended=%d "
           @"experimentVersion=%d >",
           self,
+          [self isTriggerExperiment] ? @"YES" : @"NO",
           self.experimentId,
           self.title,
           self.admins,

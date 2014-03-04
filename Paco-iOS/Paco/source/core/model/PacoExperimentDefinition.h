@@ -53,7 +53,10 @@
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (id)serializeToJSON;
 
+- (BOOL)isTriggerExperiment;
 - (BOOL)hasCustomFeedback;
+
+- (BOOL)isCompatibleOnIOS;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;
