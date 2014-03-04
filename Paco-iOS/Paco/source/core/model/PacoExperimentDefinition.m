@@ -205,6 +205,31 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   return ![self isTriggerExperiment] && ![self hasCustomFeedback] && !self.isCustomRendering;
 }
 
+- (NSString*)reasonOfIncompatibleOnIOS {
+  NSString* reason = nil;
+  if ([self isCompatibleOnIOS]) {
+    return reason;
+  }
+  
+  if ([self isTriggerExperiment]) {
+    reason = NSLocalizedString(@"it is a trigger signal experiment, which won't work on iOS", nil);
+  } else {
+    if (self.isCustomRendering && [self hasCustomFeedback]) {
+      reason = NSLocalizedString(@"it is custom rendering and has a custom feedback, which are not supported on iOS yet", nil);
+      ;
+    } else {
+      if (self.isCustomRendering) {
+        reason = NSLocalizedString(@"it is custom rendering, which is not supported on iOS yet", nil);
+      }
+      if ([self hasCustomFeedback]) {
+        reason = NSLocalizedString(@"it has a custom feedback, which is not supported on iOS yet", nil);
+      }
+    }
+  }
+  NSAssert(reason, @"reason should be valid");
+  NSString* format = NSLocalizedString(@"This experiment is not compatible on iOS because %@.", nil);
+  return [NSString stringWithFormat:format, reason];
+}
 
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;

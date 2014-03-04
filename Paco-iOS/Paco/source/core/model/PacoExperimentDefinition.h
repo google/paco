@@ -57,6 +57,7 @@
 - (BOOL)hasCustomFeedback;
 
 - (BOOL)isCompatibleOnIOS;
+- (NSString*)reasonOfIncompatibleOnIOS;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;
