@@ -69,7 +69,7 @@
            forControlEvents:UIControlEventValueChanged];
     [self addSubview:self.valueLabel];
     [self addSubview:self.stepper];
-    [self.valueLabel sizeToFit];
+   // [self.valueLabel sizeToFit];
     [self.stepper sizeToFit];
 
     [self layoutSubviews];
@@ -80,7 +80,7 @@
 - (void)setFormat:(NSString *)format {
   _format = format;
   self.valueLabel.text = [NSString stringWithFormat:format, (long long)self.stepper.value];
-  [self.valueLabel sizeToFit];
+  //[self.valueLabel sizeToFit];
 }
 
 - (void)setValue:(NSNumber *)value {
@@ -89,7 +89,7 @@
   if (value && _format) {
     self.valueLabel.text = [NSString stringWithFormat:_format, [value longLongValue]];
   }
-  [self.valueLabel sizeToFit];
+ // [self.valueLabel sizeToFit];
 }
 
 - (void)setMaxValue:(long long)maxValue {
@@ -110,7 +110,7 @@
 }
 
 - (void)valueChanged:(UIStepper *)stepper {
-  [self.valueLabel becomeFirstResponder];
+  //[self.valueLabel becomeFirstResponder];
   long long valueIs = stepper.value;
   self.value = [NSNumber numberWithLongLong:valueIs];
   self.valueLabel.text = [NSString stringWithFormat:_format,valueIs];
@@ -120,7 +120,7 @@
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
   }
-  [self.valueLabel sizeToFit];
+  //[self.valueLabel sizeToFit];
   [self layoutSubviews];
 }
 
@@ -140,7 +140,7 @@
   if ([self.delegate respondsToSelector:@selector(onStepperValueChanged:)]) {
     [self.delegate onStepperValueChanged:self];
   }
-  [self.valueLabel sizeToFit];
+  //[self.valueLabel sizeToFit];
   [self layoutSubviews];
 }
 
@@ -179,7 +179,7 @@ replacementString:(NSString *)string{
   CGSize sizeSlider = self.stepper.frame.size;
   CGRect labelRect = [PacoLayout centerRect:sizeLabel inRect:top];
   CGRect sliderRect = [PacoLayout centerRect:sizeSlider inRect:bottom];
-  self.valueLabel.frame = labelRect;
+  self.valueLabel.frame = CGRectMake(0, labelRect.origin.y, self.frame.size.width, 30);// labelRect;
   self.stepper.frame = sliderRect;
 }
 
