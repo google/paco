@@ -84,7 +84,7 @@
 }
 
 - (BOOL)shouldScheduleNotifications {
-  if ([self isSelfReportExperiment]) {
+  if ([self isSelfReportExperiment] || [self.definition isTriggerExperiment]) {
     return NO;
   }
   return [self.definition isExperimentValid];
