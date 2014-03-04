@@ -19,7 +19,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
-
+#import "PacoTriggerSignal.h"
 
 static NSString* const DEFINITION_ADMINS = @"admins";
 static NSString* const DEFINITION_CREATOR = @"creator";
@@ -37,6 +37,7 @@ static NSString* const DEFINITION_STARTDATE = @"startDate";
 static NSString* const DEFINITION_ENDDATE = @"endDate";
 static NSString* const DEFINITION_QUESTIONS_CHANGE = @"questionsChange";
 static NSString* const DEFINITION_SCHEDULE = @"schedule";
+static NSString* const DEFINITION_SIGNAL_MECHANISMS = @"signalingMechanisms";
 static NSString* const DEFINITION_TITLE = @"title";
 static NSString* const DEFINITION_WEBRECOMMENDED = @"webRecommended";
 static NSString* const DEFINITION_VERSION = @"version";
@@ -46,6 +47,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 @property(nonatomic, strong) NSDate* startDate;
 @property(nonatomic, strong) NSDate* endDate;
 @property(nonatomic, strong) NSString* inclusiveEndDateString;
+@property (nonatomic, strong) NSArray* signalMechanismList;
 @end
 
 
@@ -97,6 +99,21 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   id jsonSchedule = [definitionMembers objectForKey:DEFINITION_SCHEDULE];
   PacoExperimentSchedule *schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   definition.schedule = schedule;
+  
+  id jsonSignalMechanismList = [definitionMembers objectForKey:DEFINITION_SIGNAL_MECHANISMS];
+  NSAssert([jsonSignalMechanismList isKindOfClass:[NSArray class]], @"signal mechanisms should be an array");
+  NSMutableArray* signalingMechanisms = [NSMutableArray arrayWithCapacity:[jsonSignalMechanismList count]];
+  for (id signalJson in jsonSignalMechanismList) {
+    id signal = nil;
+    if ([[signalJson objectForKey:kSignalType] isEqualToString:kTriggerSignal]) { //trigger signal
+      signal = [PacoTriggerSignal signalFromJson:signalJson];
+    } else { //schedule signal
+      signal = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:signalJson];
+    }
+    NSAssert(signal, @"signal should be valid");
+    [signalingMechanisms addObject:signal];
+  }
+  definition.signalMechanismList = signalingMechanisms;
   
   definition.title = [definitionMembers objectForKey:DEFINITION_TITLE];
   definition.webReccommended = [[definitionMembers objectForKey:DEFINITION_WEBRECOMMENDED] boolValue];
@@ -157,6 +174,17 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   }
   [json setObject:[NSNumber numberWithBool:self.questionsChange] forKey:DEFINITION_QUESTIONS_CHANGE];
   [json setObject:[self.schedule serializeToJSON] forKey:DEFINITION_SCHEDULE];
+  
+  NSMutableArray* signalMechanisms = [NSMutableArray arrayWithCapacity:[self.signalMechanismList count]];
+  for (id signal in self.signalMechanismList) {
+    NSAssert([signal respondsToSelector:@selector(serializeToJSON)],
+             @"PacoExperimentSchedule and PacoTriggerSignal should both implement serializeToJSON");
+    id json = [signal performSelector:@selector(serializeToJSON) withObject:nil];
+    NSAssert(json, @"json should be valid");
+    [signalMechanisms addObject:json];
+  }
+  [json setObject:signalMechanisms forKey:DEFINITION_SIGNAL_MECHANISMS];
+
   [json setObject:self.title forKey:DEFINITION_TITLE];
   [json setObject:[NSNumber numberWithBool:self.webReccommended] forKey:DEFINITION_WEBRECOMMENDED];
   [json setObject:[NSNumber numberWithInt:self.experimentVersion] forKey:DEFINITION_VERSION];
@@ -223,6 +251,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           @"startDate=%@"
           @"endDate=%@"
           @"questionsChange=%d "
+          @"signalMechanisms=%@ "
           @"schedule=%@ "
           @"webReccommended=%d "
           @"experimentVersion=%d >",
@@ -245,6 +274,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
           self.startDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.startDate] : @"None",
           self.endDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.endDate] : @"None",
           self.questionsChange,
+          self.signalMechanismList,
           self.schedule,
           self.webReccommended,
           self.experimentVersion,

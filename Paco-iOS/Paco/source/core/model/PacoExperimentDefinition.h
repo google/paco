@@ -44,6 +44,8 @@
 @property (nonatomic, copy) NSString* modifyDate;
 @property (nonatomic, assign) BOOL questionsChange;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;
+@property (nonatomic, strong, readonly) NSArray* signalMechanismList; // <PacoExperimentSchedule/PacoTriggerSignal>
+
 @property (nonatomic, assign) BOOL webReccommended;
 @property (nonatomic, retain) id jsonObject;
 @property (nonatomic, assign) int experimentVersion;
