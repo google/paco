@@ -136,7 +136,7 @@
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
-  yPosition = yPosition + 30;
+  yPosition += 30;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
@@ -153,9 +153,9 @@
   creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
-  yPosition = yPosition + creatorValueLabel.frame.size.height + 10;
+  yPosition += creatorValueLabel.frame.size.height + 10;
 
-  if (![self.experiment isCompatibleWithIOS]) {
+  if ([self.experiment isCompatibleWithIOS]) {
     UIImage* lockImage = [UIImage imageNamed:@"lock.png"];
     UIImageView* lockView = [[UIImageView alloc] initWithFrame:
                              CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
