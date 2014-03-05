@@ -100,7 +100,7 @@
 }
 
 - (BOOL)valueChangedInRange:(long long)value {
-  if (value > 999999999999999){
+  if (value > self.maxValue){
     return NO;
   }
   return YES;

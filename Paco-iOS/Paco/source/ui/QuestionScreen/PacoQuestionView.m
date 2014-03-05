@@ -378,14 +378,16 @@ UIImagePickerControllerDelegate>
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
                                                       reuseIdentifier:@"question_number"];
+    stepper.minValue = 0;
+    //need to set the maxValue before setting stepper's value, otherwise it may cause a bug that
+    //any value larger than 100 will not be set correctly, since the default max value is 100
+    stepper.maxValue = kPacoStepperMaxValue;
     stepper.format = @"%lli";
     if (self.question.responseObject) {
       stepper.value = self.question.responseObject;
     } else {
       stepper.value = [NSNumber numberWithLongLong:0];
     }
-    stepper.minValue = 0;
-    stepper.maxValue = 999999999999999;
     stepper.delegate = self;
     self.numberStepper = stepper;
     [self addSubview:stepper];

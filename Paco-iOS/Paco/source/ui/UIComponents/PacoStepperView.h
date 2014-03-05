@@ -17,6 +17,8 @@
 
 #import "PacoTableCell.h"
 
+static const long long kPacoStepperMaxValue = 999999999999999;
+
 @class PacoStepperView;
 @protocol PacoStepperViewDelegate <NSObject>
 
