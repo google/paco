@@ -281,7 +281,7 @@ static NSString* const INPUT_TEXT = @"text";
   CLLocation *location = responseObject;
   NSAssert([location isKindOfClass:[CLLocation class]],
            @"responseObject should be class of CLLocation!");
-  NSString *locationString = [NSString stringWithFormat:@"(%f,%f)",
+  NSString *locationString = [NSString stringWithFormat:@"%f,%f",
                                   location.coordinate.latitude, location.coordinate.longitude];
   return locationString;
 }
