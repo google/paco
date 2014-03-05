@@ -126,7 +126,13 @@ UIImagePickerControllerDelegate>
   self.checkboxes = nil;
   self.image = nil;
   self.imagePicker = nil;
+  
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
+  //set delegate to nil, otherwise the map updating may set the responseObject to
+  //a non-map question, and thus cause crash when trying to update the question view's UI
+  //according to responseObject's value(a CLLocation object)
+  self.map.delegate = nil;
+  
   self.numberButtons = nil;
   self.numberStepper = nil;
   self.questionText = nil;
@@ -400,13 +406,13 @@ UIImagePickerControllerDelegate>
     [self addSubview:self.messageLabel];
     if (!self.map) {
       self.map = [[MKMapView alloc] initWithFrame:CGRectZero];
-      self.map.delegate = self;
       self.map.showsUserLocation = YES;
       self.map.zoomEnabled = NO;
       self.map.userInteractionEnabled = NO;
       self.map.userTrackingMode = MKUserTrackingModeFollow;
       self.map.mapType = MKMapTypeHybrid;// MKMapTypeStandard,MKMapTypeSatellite,MKMapTypeHybrid
     }
+    self.map.delegate = self;
     [self addSubview:self.map];
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
