@@ -82,7 +82,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
-  if (![experiment shouldScheduleNotifications]) {
+  if (![experiment shouldScheduleNotificationsFromNow]) {
     DDLogInfo(@"Skip scheduling for newly-joined expeirment: %@", experiment.instanceId);
     return;
   }

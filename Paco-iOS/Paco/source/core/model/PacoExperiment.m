@@ -83,11 +83,11 @@
   NSAssert(self.definition, @"definition doesn't exist!");
 }
 
-- (BOOL)shouldScheduleNotifications {
+- (BOOL)shouldScheduleNotificationsFromNow {
   if ([self isSelfReportExperiment] || [self.definition isTriggerExperiment]) {
     return NO;
   }
-  return [self.definition isExperimentValid];
+  return [self.definition isExperimentValidSinceNow];
 }
 
 - (BOOL)isSelfReportExperiment {

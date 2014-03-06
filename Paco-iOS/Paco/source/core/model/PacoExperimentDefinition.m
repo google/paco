@@ -226,7 +226,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   return NO;
 }
 
-- (BOOL)isExperimentValid {
+- (BOOL)isExperimentValidSinceNow {
   return [self isExperimentValidSinceDate:[NSDate date]];
 }
 

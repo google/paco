@@ -264,7 +264,7 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
   
   NSDate* now = [NSDate date];
   for (PacoExperiment* experiment in [self.model experimentInstances]) {
-    if (![experiment shouldScheduleNotifications]) {
+    if (![experiment shouldScheduleNotificationsFromNow]) {
       continue;
     }
     NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:experiment
