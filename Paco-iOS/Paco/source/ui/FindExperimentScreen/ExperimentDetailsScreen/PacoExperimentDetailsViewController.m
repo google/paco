@@ -211,7 +211,7 @@
 
 - (void)loadConsentViewController {
   PacoConsentViewController *consent =
-  [PacoConsentViewController controllerWithDefinition:self.experiment];
+      [PacoConsentViewController controllerWithDefinition:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
 }
 
