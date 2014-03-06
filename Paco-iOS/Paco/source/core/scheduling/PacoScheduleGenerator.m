@@ -18,6 +18,7 @@
 #import "PacoScheduleGenerator+ESM.h"
 #import "PacoScheduleGenerator+Daily.h"
 #import "PacoScheduleGenerator+Weekdays.h"
+#import "PacoScheduleGenerator+Weekly.h"
 
 @implementation PacoScheduleGenerator
 
@@ -37,7 +38,10 @@
   if (schedule.scheduleType == kPacoScheduleTypeWeekday) {
     return [self nextDatesForWeekdaysExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
   }
-
+  if (schedule.scheduleType == kPacoScheduleTypeWeekly) {
+    return [self nextDatesForWeeklyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
+  }
+  
   //TODO:
   return nil;
 }
