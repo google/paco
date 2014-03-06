@@ -189,6 +189,13 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   }else{
     [self loginWithEmail:emailStr password:pwdStr];
   }
+  
+  if ([self.emailField isFirstResponder]) {
+    [self.emailField resignFirstResponder];
+  }
+  if ([self.pwdField isFirstResponder]) {
+    [self.pwdField resignFirstResponder];
+  }
 }
 
 - (void)loginWithEmail:(NSString*)email password:(NSString*)password {
