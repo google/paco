@@ -156,14 +156,14 @@
   yPosition += creatorValueLabel.frame.size.height + 10;
 
   if (![self.experiment isCompatibleWithIOS]) {
-    UIImage* lockImage = [UIImage imageNamed:@"lock.png"];
+    UIImage* lockImage = [UIImage imageNamed:@"lock"];
     UIImageView* lockView = [[UIImageView alloc] initWithFrame:
                              CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
     [lockView setImage:lockImage];
     [self.view addSubview:lockView];
 
     UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
-    [incompatibilityMsg setText:NSLocalizedString(@"Incompatible on iOS", nil)];
+    [incompatibilityMsg setText:NSLocalizedString(@"Incompatible with iOS", nil)];
     incompatibilityMsg.font = [PacoFont pacoBoldFont];
     incompatibilityMsg.textColor = [UIColor redColor];
     incompatibilityMsg.backgroundColor = [UIColor clearColor];

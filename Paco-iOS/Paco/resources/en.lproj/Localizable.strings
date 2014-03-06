@@ -99,8 +99,8 @@
 "Creator:" = "Creator:";
 "Join this Experiment" = "Join this Experiment";
 "Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Current Experiments.";
-"Incompatible on iOS" = "Incompatible on iOS";
-"Experiment Incompatibility alertview message" = "This experiment is not compatible with iOS, thus won't work as expected on your iOS device";
+"Incompatible with iOS" = "Incompatible with iOS";
+"Experiment Incompatibility alertview message" = "This experiment is not compatible with iOS, thus won't work as expected on your iOS device.";
 "Join anyway" = "Join anyway";
 "Skip joining" = "Skip joining";
 
