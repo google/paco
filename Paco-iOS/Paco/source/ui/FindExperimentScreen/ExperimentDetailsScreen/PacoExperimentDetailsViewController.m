@@ -23,7 +23,7 @@
 #import "PacoClient.h"
 #import "PacoDateUtility.h"
 
-@interface PacoExperimentDetailsViewController ()
+@interface PacoExperimentDetailsViewController ()<UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
@@ -136,6 +136,7 @@
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
+  yPosition += 30;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
@@ -152,6 +153,28 @@
   creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
+  yPosition += creatorValueLabel.frame.size.height + 10;
+
+  if (![self.experiment isCompatibleWithIOS]) {
+    UIImage* lockImage = [UIImage imageNamed:@"lock.png"];
+    UIImageView* lockView = [[UIImageView alloc] initWithFrame:
+                             CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
+    [lockView setImage:lockImage];
+    [self.view addSubview:lockView];
+
+    UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
+    [incompatibilityMsg setText:NSLocalizedString(@"Incompatible on iOS", nil)];
+    incompatibilityMsg.font = [PacoFont pacoBoldFont];
+    incompatibilityMsg.textColor = [UIColor redColor];
+    incompatibilityMsg.backgroundColor = [UIColor clearColor];
+    [incompatibilityMsg sizeToFit];
+    [self.view addSubview:incompatibilityMsg];
+    CGRect textFrame = incompatibilityMsg.frame;
+    textFrame.origin.x = lockImage.size.width + 15;
+    textFrame.origin.y = yPosition + lockImage.size.height - incompatibilityMsg.frame.size.height;
+    textFrame.size = incompatibilityMsg.frame.size;
+    incompatibilityMsg.frame = textFrame;
+  }
 
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [join setTitle:NSLocalizedString(@"Join this Experiment", nil) forState:UIControlStateNormal];
@@ -175,10 +198,34 @@
                                delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
     return;
   }
+  if (![self.experiment isCompatibleWithIOS]) {
+    [[[UIAlertView alloc] initWithTitle:nil
+                               message:NSLocalizedString(@"Experiment Incompatibility alertview message", nil)
+                              delegate:self
+                     cancelButtonTitle:NSLocalizedString(@"Join anyway", nil)
+                     otherButtonTitles:NSLocalizedString(@"Skip joining", nil), nil] show];
+    return;
+  }
+  [self loadConsentViewController];
+}
 
+- (void)loadConsentViewController {
   PacoConsentViewController *consent =
       [PacoConsentViewController controllerWithDefinition:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  switch (buttonIndex) {
+    case 0:
+      [self loadConsentViewController];
+      break;
+    case 1:
+      [self.navigationController popViewControllerAnimated:YES];
+      break;
+    default:
+      break;
+  }
 }
 
 - (void)didReceiveMemoryWarning {
