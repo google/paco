@@ -39,6 +39,7 @@
 - (void)deserializeFromJSON:(id)json;
 
 - (BOOL)shouldScheduleNotificationsFromNow;
+- (BOOL)shouldScheduleNotificationsFromDate:(NSDate*)fromDate;
 
 - (BOOL)isSelfReportExperiment;
 - (BOOL)isScheduledExperiment;

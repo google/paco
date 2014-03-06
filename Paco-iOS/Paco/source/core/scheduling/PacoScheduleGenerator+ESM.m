@@ -34,10 +34,6 @@
            @"start and end date should be consistent");
   NSAssert(experiment.schedule.scheduleType == kPacoScheduleTypeESM, @"should be an ESM experiment");
   
-  //experiment already finished
-  if (![experiment isExperimentValidSinceDate:fromDate]) {
-    return nil;
-  }
   NSArray* result = [self datesToScheduleForESMExperiment:experiment
                                               numOfDates:numOfDates
                                                 fromDate:fromDate];

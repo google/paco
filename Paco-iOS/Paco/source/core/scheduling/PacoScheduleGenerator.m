@@ -26,6 +26,12 @@
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
                         numOfDates:(NSInteger)numOfDates
                           fromDate:(NSDate*)fromDate {
+  //experiment is a self-report or trigger experiment
+  //experiment is fixed-length and already finished
+  if (![experiment shouldScheduleNotificationsFromDate:fromDate]) {
+    return nil;
+  }
+  
   PacoExperimentSchedule* schedule = experiment.schedule;
   if (schedule.scheduleType == kPacoScheduleTypeDaily) {
     return [self nextDatesForDailyExperiment:experiment
