@@ -156,7 +156,7 @@
   yPosition += creatorValueLabel.frame.size.height + 10;
 
   if (![self.experiment isCompatibleWithIOS]) {
-    UIImage* lockImage = [UIImage imageNamed:@"lock"];
+    UIImage* lockImage = [UIImage imageNamed:@"incompatible"];
     UIImageView* lockView = [[UIImageView alloc] initWithFrame:
                              CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
     [lockView setImage:lockImage];

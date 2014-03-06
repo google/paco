@@ -148,7 +148,7 @@
     cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     if (![experiment isCompatibleWithIOS]) {
-      cell.imageView.image = [UIImage imageNamed:@"lock"];
+      cell.imageView.image = [UIImage imageNamed:@"incompatible"];
     }
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];

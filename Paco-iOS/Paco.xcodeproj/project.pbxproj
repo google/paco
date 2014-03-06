@@ -41,7 +41,7 @@
 		3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3647926718171D7600409E87 /* PacoSchedulerTests.m */; };
 		36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
 		36488B8818BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
-		36488BAC18C69E05004517E2 /* lock@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36488BAB18C69E05004517E2 /* lock@2x.png */; };
+		36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36488BB418C8FB2E004517E2 /* incompatible@2x.png */; };
 		365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */; };
@@ -352,7 +352,7 @@
 		3647926718171D7600409E87 /* PacoSchedulerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSchedulerTests.m; sourceTree = "<group>"; };
 		36488B8518BFDC46004517E2 /* PacoTriggerSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTriggerSignal.h; sourceTree = "<group>"; };
 		36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTriggerSignal.m; sourceTree = "<group>"; };
-		36488BAB18C69E05004517E2 /* lock@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lock@2x.png"; sourceTree = "<group>"; };
+		36488BB418C8FB2E004517E2 /* incompatible@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "incompatible@2x.png"; sourceTree = "<group>"; };
 		365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Paco.h"; sourceTree = "<group>"; };
 		365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Paco.m"; sourceTree = "<group>"; };
 		365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSErrorCategoryTests.m; sourceTree = "<group>"; };
@@ -1106,8 +1106,8 @@
 			isa = PBXGroup;
 			children = (
 				E480BE131896F3C700662432 /* en.lproj */,
+				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
 				E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */,
-				36488BAB18C69E05004517E2 /* lock@2x.png */,
 				E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */,
 				E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */,
 				E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */,
@@ -1540,8 +1540,8 @@
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
 				E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */,
-				36488BAC18C69E05004517E2 /* lock@2x.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
+				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
 				E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
