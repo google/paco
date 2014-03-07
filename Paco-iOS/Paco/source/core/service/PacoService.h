@@ -27,6 +27,10 @@
 // Load all experiement definitions from the server.
 - (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
+
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(void(^)(id, NSError*))block;
+
+
 - (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
 // Batch submit a list of events

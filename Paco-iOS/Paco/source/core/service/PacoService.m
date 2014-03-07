@@ -91,7 +91,7 @@
     }];
 }
 
-- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(void (^)(id, NSError*))completionBlock {
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
@@ -112,6 +112,18 @@
 
 - (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
   [self sendGetHTTPRequestWithEndPoint:@"experiments" andBlock:completionBlock];
+}
+
+
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(void(^)(id, NSError*))block {
+  NSString* endPoint = @"/experiments?public";
+  if ([cursor length] > 0) {
+    endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
+  }
+  if (limit > 0) {
+    endPoint = [endPoint stringByAppendingFormat:@"&limit=%d", limit];
+  }
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }
 
 
