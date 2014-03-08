@@ -20,15 +20,16 @@
 @class PacoExperimentDefinition;
 @class PacoExperimentSchedule;
 
+
+typedef void(^PacoPaginatedResponseBlock)(NSArray* items, NSString* cursor, NSError* error);
+
+
 @interface PacoService : NSObject
 
 @property (nonatomic, retain) PacoAuthenticator *authenticator;
 
-// Load all experiement definitions from the server.
-- (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
 
-
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(void(^)(id, NSError*))block;
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block;
 
 
 - (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;

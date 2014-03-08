@@ -91,7 +91,8 @@
     }];
 }
 
-- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(void (^)(id, NSError*))completionBlock {
+//http request to load paginated experiment definitions
+- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(PacoPaginatedResponseBlock)block {
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
@@ -103,19 +104,17 @@
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
-    if (completionBlock) {
-      completionBlock(jsonData, error);
+    NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
+    if (block) {
+      NSString* cursor = [jsonData objectForKey:@"cursor"];
+      NSArray* results = [jsonData objectForKey:@"results"];
+      block(results, cursor, error);
     }
   }];
 }
 
 
-- (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments" andBlock:completionBlock];
-}
-
-
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(void(^)(id, NSError*))block {
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block {
   NSString* endPoint = @"/experiments?public";
   if ([cursor length] > 0) {
     endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
@@ -128,13 +127,21 @@
 
 
 - (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:completionBlock];
+  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+    if (completionBlock) {
+      completionBlock(items, error);
+    }
+  }];
 }
 
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
-  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:completionBlock];
+  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
+    if (completionBlock) {
+      completionBlock(items, error);
+    }
+  }];
 }
 
 - (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
