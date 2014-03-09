@@ -59,7 +59,7 @@ public class BroadcastTriggerService extends Service {
     DateTime now = new DateTime();
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
-      if (!experiment.isOver(now)
+      if (experiment.isRunning(now)
           && experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)
           && !recentlyTriggered(experiment.getServerId(),
                                 experiment.getSignalingMechanisms().get(0).getMinimumBuffer())) {

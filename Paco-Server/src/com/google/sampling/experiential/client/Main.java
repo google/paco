@@ -56,6 +56,7 @@ import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -72,6 +73,8 @@ import com.google.sampling.experiential.shared.PacoServiceAsync;
  *
  */
 public class Main implements EntryPoint, ExperimentListener {
+
+  private static final Integer DEFAULT_LIMIT_SIZE = 20;
 
   public static String ERROR_HIGHLIGHT = "error-highlight";
 
@@ -96,6 +99,8 @@ public class Main implements EntryPoint, ExperimentListener {
   protected MyConstants myConstants;
   protected MyMessages myMessages;
   private ScrollPanel leftSidePanel;
+
+  protected String cursor;
 
 
   public void onModuleLoad() {
@@ -407,7 +412,6 @@ public class Main implements EntryPoint, ExperimentListener {
     setContentTitle(myConstants.findExperiments());
     contentPanel.clear();
     experimentPanel.setVisible(true);
-    statusLabel.setVisible(false);
     getExperiments(false, false, true);
   }
 
@@ -471,7 +475,7 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   private void getExperiments(final boolean joinedExperimentsView, final boolean experimentsDirty, final boolean findExperimentsView) {
-    AsyncCallback<List<ExperimentDAO>> callback = new AsyncCallback<List<ExperimentDAO>>() {
+    AsyncCallback<ExperimentQueryResult> callback = new AsyncCallback<ExperimentQueryResult>() {
       @Override
       public void onFailure(Throwable caught) {
         Window.alert(myMessages.loadExperimentsFailed(caught.getMessage()));
@@ -479,8 +483,9 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(List<ExperimentDAO> result) {
-        Collections.sort(result, new Comparator<ExperimentDAO>() {
+      public void onSuccess(ExperimentQueryResult result) {
+        List<ExperimentDAO> experimentResults = result.getExperiments();
+        Collections.sort(experimentResults, new Comparator<ExperimentDAO>() {
 
           @Override
           public int compare(ExperimentDAO arg0, ExperimentDAO arg1) {
@@ -488,18 +493,24 @@ public class Main implements EntryPoint, ExperimentListener {
           }
 
         });
-        experiments = result;
-        addRowsToTable(createExperimentRows(joinedExperimentsView, experiments, findExperimentsView));
+        experiments = experimentResults;
+        cursor = result.getCursor();
+        if (experiments == null || experiments.size() == 0) {
+          Window.alert(myConstants.noExperimentsReturned());
+        } else {
+          addRowsToTable(createExperimentRows(joinedExperimentsView, experiments, findExperimentsView));
+        }
         statusLabel.setVisible(false);
 
       }
     };
     if (findExperimentsView) {
-      pacoService.getAllJoinableExperiments(TimeUtil.getTimezone(), callback);
+      pacoService.getMyJoinableExperiments(TimeUtil.getTimezone(), null, null, callback);
+//      pacoService.getAllJoinableExperiments(TimeUtil.getTimezone(), null, null, callback);
     } else if (joinedExperimentsView) {
-      pacoService.getUsersJoinedExperiments(callback);
+      pacoService.getUsersJoinedExperiments(DEFAULT_LIMIT_SIZE, cursor, callback);
     } else {
-      pacoService.getUsersAdministeredExperiments(callback);
+      pacoService.getUsersAdministeredExperiments(DEFAULT_LIMIT_SIZE, cursor, callback);
     }
   }
 

@@ -8,7 +8,6 @@ import org.joda.time.DateTimeZone;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.sampling.experiential.datastore.JsonConverter;
 
 public class ExperimentServletSelectedExperimentsFullLoadHandler extends ExperimentServletHandler {
 
@@ -16,7 +15,7 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
 
   public ExperimentServletSelectedExperimentsFullLoadHandler(String email, DateTimeZone timezone,
                                                              String selectedExperimentsParam) {
-    super(email, timezone);
+    super(email, timezone, null, null);
     this.selectedExperimentsParam = selectedExperimentsParam;
   }
 
@@ -31,11 +30,6 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
 
   protected List<ExperimentDAO> getFullExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
     return ExperimentCacheHelper.getInstance().getExperimentsById(experimentIds, email, timezone);
-  }
-
-  @Override
-  protected String jsonify(List<ExperimentDAO> availableExperiments) {
-    return JsonConverter.jsonify(availableExperiments);
   }
 
   private List<Long> parseExperimentIds(String expStr) {

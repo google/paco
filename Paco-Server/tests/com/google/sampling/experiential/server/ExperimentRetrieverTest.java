@@ -69,11 +69,11 @@ public class ExperimentRetrieverTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_ADMIN);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER2_ADMIN);
     DateTimeZone email1Timezone = DateTime.now().getZone();
-    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone);
+    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 1);
     assertEquals("PhotoMonkeyUser1", experiments.get(0).getTitle());
 
-    experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user2@gmail.com", email1Timezone);
+    experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user2@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 2);
     assertEquals("PhotoMonkeyUser1", experiments.get(0).getTitle());
     assertEquals("PhotoMonkeyUser2", experiments.get(1).getTitle());
@@ -82,7 +82,7 @@ public class ExperimentRetrieverTest extends TestCase {
   public void testRetrieveMyExperimentsUserPublishedUserButNotPublished() throws Exception {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_PUBLISHED_USER_NOT_PUBLISHED);
     DateTimeZone email1Timezone = DateTime.now().getZone();
-    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone);
+    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 0);
   }
 

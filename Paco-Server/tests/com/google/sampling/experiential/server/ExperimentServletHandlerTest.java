@@ -2,9 +2,11 @@ package com.google.sampling.experiential.server;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
+import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -56,8 +58,8 @@ public class ExperimentServletHandlerTest extends TestCase {
 
 
   public void testShortLoadIsShortButComplete() {
-    ExperimentServletHandler shortHandler = new ExperimentServletShortLoadHandler(email, null);
-    ExperimentServletHandler longHandler = new ExperimentServletAllExperimentsFullLoadHandler(userId, email, null);
+    ExperimentServletHandler shortHandler = new ExperimentServletShortLoadHandler(email, null, null, null);
+    ExperimentServletHandler longHandler = new ExperimentServletAllExperimentsFullLoadHandler(email, null, null, null);
 
     String shortContent = shortHandler.performLoad();
     String longContent = longHandler.performLoad();
@@ -115,6 +117,92 @@ public class ExperimentServletHandlerTest extends TestCase {
     assertEquals(experiments.size(), 2);
   }
 
+  public void testPublicExperimentNoPagination() {
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, null, null);
+    String content = handler.performLoad();
+
+    assertTrue(content != null);
+    List<ExperimentDAO> experiments = getExperimentList(content);
+    assertEquals(4, experiments.size());
+  }
+
+  public void testPublicExperimentWithPaginationCoveringAll() {
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, null);
+    String content = handler.performLoad();
+
+
+    assertTrue(content != null);
+    List<ExperimentDAO> experiments = getExperimentList(content);
+    assertEquals(4, experiments.size());
+
+    String cursor = handler.cursor;
+    assertNotNull(cursor);
+
+    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, cursor);
+    String content2 = handler2.performLoad();
+
+    assertNotSame(cursor, handler2.cursor);
+
+    assertTrue(content2 != null);
+    List<ExperimentDAO> experiments2 = getExperimentList(content2);
+    assertEquals(0, experiments2.size());
+  }
+
+
+  public void testPublicExperimentWithPaginationOnMultiplePages() {
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, null);
+    String content = handler.performLoad();
+
+
+    assertTrue(content != null);
+    List<ExperimentDAO> experiments = getExperimentList(content);
+    assertEquals(2, experiments.size());
+
+    String cursor = handler.cursor;
+    assertNotNull(cursor);
+
+    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, cursor);
+    String content2 = handler2.performLoad();
+
+    assertNotSame(cursor, handler2.cursor);
+
+    assertTrue(content2 != null);
+    List<ExperimentDAO> experiments2 = getExperimentList(content2);
+    assertEquals(2, experiments2.size());
+
+    List<String> experimentsGroup1Names = Lists.newArrayList();
+    for (int i=0; i < experiments.size(); i++) {
+      ExperimentDAO experimentDAO = experiments.get(i);
+      experimentsGroup1Names.add(experimentDAO.getTitle());
+    }
+    for (ExperimentDAO experimentDAO : experiments2) {
+      assertTrue(experimentDAO.getTitle() + " should not be in first page of experiments", !experimentsGroup1Names.contains(experimentDAO.getTitle()));
+    }
+
+    ExperimentServletHandler handler3 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, handler2.cursor);
+    String content3 = handler3.performLoad();
+
+    assertNotSame(handler2.cursor, handler3.cursor);
+
+    assertTrue(content3 != null);
+    List<ExperimentDAO> experiments3 = getExperimentList(content3);
+    assertEquals(0, experiments3.size());
+
+  }
+
+
 
   protected void tearDown() throws Exception {
     super.tearDown();
@@ -126,7 +214,8 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   private List<ExperimentDAO> getExperimentList(String content) {
-    List<ExperimentDAO> experiments = JsonConverter.fromEntitiesJson(content);
+    Map<String, Object> results = JsonConverter.fromEntitiesJson(content);
+    List<ExperimentDAO> experiments = (List<ExperimentDAO>) results.get("results");
     return experiments;
   }
 

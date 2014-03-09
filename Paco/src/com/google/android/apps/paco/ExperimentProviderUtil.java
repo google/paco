@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -206,7 +207,8 @@ public class ExperimentProviderUtil {
   }
 
   public void updateExistingExperiments(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
-    List<Experiment> experimentList = getExperimentsFromJson(contentAsString);
+    Map<String, Object> results = fromEntitiesJson(contentAsString);
+    List<Experiment> experimentList = (List<Experiment>) results.get("results");
     updateExistingExperiments(experimentList);
   }
 
@@ -1778,10 +1780,20 @@ public class ExperimentProviderUtil {
     return null;
   }
 
-  public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+  public static Map<String, Object> fromEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    return mapper.readValue(contentAsString, new TypeReference<List<Experiment>>() {});
+      Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {});
+      Object experimentResults = resultObjects.get("results");
+      String experimentJson = mapper.writeValueAsString(experimentResults);
+      List<Experiment> experiments = mapper.readValue(experimentJson, new TypeReference<List<Experiment>>() {});
+      resultObjects.put("results", experiments);
+      return resultObjects;
+  }
+
+  public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
+    Map<String, Object> results = fromEntitiesJson(contentAsString);
+    return (List<Experiment>) results.get("results");
   }
 
   public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {

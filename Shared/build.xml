@@ -8,7 +8,7 @@
       <property name="gwt.args" value="-style PRETTY" />
 
   
-  <property name="gwt.sdk" location="../tools/gwt-2.1.0" />
+  <property name="gwt.sdk" location="../tools/gwt-2.6.0" />
 
   <path id="gwt.project.class.path">
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>

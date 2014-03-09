@@ -461,7 +461,8 @@ public class Experiment implements Parcelable {
     return lookupNextTimeOnEsmSchedule(nextPeriod, context);
   }
 
-  private DateTime getEndDateTime() {
+  @JsonIgnore
+  public DateTime getEndDateTime() {
     DateTime lastTime = null;
     for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
       DateTime lastTimeForSignalGroup = null;
@@ -485,8 +486,34 @@ public class Experiment implements Parcelable {
     return lastTime;
   }
 
+  @JsonIgnore
+  public DateTime getStartDateTime() {
+    DateTime firstTime = null;
+    for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
+      DateTime firstTimeForSignalGroup = null;
+      if (signalingMechanism instanceof SignalSchedule) {
+        if (((SignalSchedule) signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)) {
+          List<Long> times = schedule.getTimes();
+          Collections.sort(times);
+          DateTime firstTimeForDay = new DateTime().plus(times.get(0));
+          firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime()
+                                                                      .withMillisOfDay(firstTimeForDay.getMillisOfDay());
+        } else {
+          firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime();
+        }
+      } else {
+        firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime();
+      }
+      if (firstTime == null || firstTimeForSignalGroup.isBefore(firstTime)) {
+        firstTime = firstTimeForSignalGroup;
+      }
+    }
+    return firstTime;
+  }
+
+
   private boolean isExperimentOver(DateTime now) {
-    return isFixedDuration() && now.isAfter(getEndDateTime());
+    return isFixedDuration() != null && isFixedDuration() && now.isAfter(getEndDateTime());
   }
 
   private DateTime lookupNextTimeOnEsmSchedule(DateTime now, Context context) {
@@ -684,6 +711,15 @@ public class Experiment implements Parcelable {
 
   public void setShowFeedback(Boolean show) {
     this.shouldShowFeedback = show;
+  }
+
+  public boolean isRunning(DateTime now) {
+    return  isFixedDuration() == null || isStarted(now) && !isOver(now);
+  }
+
+  public boolean isStarted(DateTime now) {
+    return isFixedDuration() != null && isFixedDuration()
+            && (!now.isBefore(getStartDateAsDateMidnight()) || now.isAfter(getStartDateTime()));
   }
 
 

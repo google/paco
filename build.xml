@@ -7,8 +7,8 @@
     <property name="Paco-Server.location" value="Paco-Server"/>
     <property name="Shared.location" value="Shared"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
     <path id="Shared.classpath">
         <pathelement location="bin"/>
     </path>

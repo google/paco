@@ -45,6 +45,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.What;
@@ -176,7 +177,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     return ExperimentRetriever.getInstance().deleteExperiment(experimentDAO, loggedInUserEmail);
   }
 
-  public List<ExperimentDAO> getUsersAdministeredExperiments() {
+  public ExperimentQueryResult getUsersAdministeredExperiments(Integer limit, String cursor) {
     User user = getWhoFromLogin();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
 
@@ -204,7 +205,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
         pm.close();
       }
     }
-    return experimentDAOs;
+    return new ExperimentQueryResult(cursor, experimentDAOs);
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -326,7 +327,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     return dateMidnight;
   }
 
-  public List<ExperimentDAO> getUsersJoinedExperiments() {
+  public ExperimentQueryResult getUsersJoinedExperiments(Integer limit, String cursor) {
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + getWhoFromLogin().getEmail().toLowerCase());
       List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(),
           TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
@@ -339,7 +340,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       }
       List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
       if (experimentIds.size() == 0) {
-        return experimentDAOs;
+        return new ExperimentQueryResult(cursor, experimentDAOs);
       }
 
       ArrayList<Long> idList = Lists.newArrayList(experimentIds);
@@ -370,7 +371,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
           pm.close();
         }
       }
-      return experimentDAOs;
+      return new ExperimentQueryResult(cursor, experimentDAOs);
   }
 
   private List<String> getIds(Set<String> experimentsForAdmin) {
@@ -455,13 +456,13 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   @Override
-  public List<ExperimentDAO> getAllJoinableExperiments(String tz) {
-    return ExperimentCacheHelper.getInstance().getJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+  public ExperimentQueryResult getAllJoinableExperiments(String tz, Integer limit, String cursor) {
+    return ExperimentCacheHelper.getInstance().getJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), limit, cursor);
   }
 
   @Override
-  public List<ExperimentDAO> getMyJoinableExperiments(String tz) {
-    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()));
+  public ExperimentQueryResult getMyJoinableExperiments(String tz, Integer limit, String cursor) {
+    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), limit, cursor);
   }
 
 

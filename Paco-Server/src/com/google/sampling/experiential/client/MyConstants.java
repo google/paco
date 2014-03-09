@@ -434,4 +434,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Enter html and javascript for custom rendering of experiment")
   String customRenderingInstructions();
+
+  @DefaultStringValue("There are no experiments.")
+  String noExperimentsReturned();
 }

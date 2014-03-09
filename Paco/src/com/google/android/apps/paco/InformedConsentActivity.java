@@ -39,7 +39,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.pacoapp.paco.R;
 
 public class InformedConsentActivity extends Activity {
@@ -121,7 +120,12 @@ public class InformedConsentActivity extends Activity {
         public void done(String resultCode) {
           dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
           if (resultCode.equals(DownloadHelper.SUCCESS)) {
-            saveDownloadedExperimentBeforeScheduling();
+            List<Experiment> experimentList = getDownloadedExperimentsList();
+            if (experimentList == null || experimentList.isEmpty()) {
+              showFailureDialog(getString(R.string.could_not_load_full_experiment_));
+            } else {
+              saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
+            }
           } else {
             showFailureDialog(resultCode);
           }
@@ -134,12 +138,6 @@ public class InformedConsentActivity extends Activity {
                                                                experimentServerIds);
       experimentDownloadTask.execute();
     }
-  }
-
-  private void saveDownloadedExperimentBeforeScheduling() {
-    List<Experiment> experimentList = getDownloadedExperimentsList();
-    Preconditions.checkArgument(experimentList.size() == 1);
-    saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
   }
 
   private List<Experiment> getDownloadedExperimentsList() {

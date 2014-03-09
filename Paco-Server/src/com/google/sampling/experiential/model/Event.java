@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -37,7 +37,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.mortbay.log.Log;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -48,19 +47,21 @@ import com.google.sampling.experiential.shared.TimeUtil;
 
 /**
  * Class that holds a response to an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Event {
 
+  private static final long serialVersionUID = -1407635488794262589l;
+
   public static final String SALT = "zyzzyfoo";
 
-  public static final List<String> eventProperties = Lists.newArrayList("who", 
-      "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime", 
+  public static final List<String> eventProperties = Lists.newArrayList("who",
+      "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime",
       "scheduledTime");
-  
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;
@@ -91,7 +92,7 @@ public class Event {
 
   @Persistent
   private Integer experimentVersion;
-  
+
   @Persistent
   private Date scheduledTime;
 
@@ -105,11 +106,11 @@ public class Event {
   @Persistent
   @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private List<String> keysList;
-  
+
   @Persistent
   @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private List<String> valuesList;
-  
+
   @Persistent
   private Boolean shared = false;
 
@@ -131,7 +132,7 @@ public class Event {
   }
 
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
-      Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion, 
+      Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
       Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
     super();
     if (/*what.size() == 0 || */who == null || when == null) {
@@ -159,7 +160,7 @@ public class Event {
 
   /**
    * Only difference from the other constructor is the newWhat format as a Map instead of a string
-   * 
+   *
    * @param who2
    * @param lat2
    * @param lon2
@@ -250,7 +251,7 @@ public class Event {
     setWhatMap(what);
   }
 
-  
+
   public String getExperimentName() {
     return experimentName;
   }
@@ -315,7 +316,7 @@ public class Event {
     return keysList;
   }
 
-  
+
   public List<PhotoBlob> getBlobs() {
     return blobs;
   }
@@ -354,11 +355,11 @@ public class Event {
     parts[csvIndex++] = experimentId;
     parts[csvIndex++] = experimentName;
     parts[csvIndex++] = experimentVersion != null ? Integer.toString(experimentVersion) : "0";
-    
+
     parts[csvIndex++] = responseTime != null ? jodaTimeFormatter.print(getResponseTimeWithTimeZone(null)) : null;
     parts[csvIndex++] = scheduledTime != null ? jodaTimeFormatter.print(getScheduledTimeWithTimeZone(null)) : null;
     parts[csvIndex++] = timeZone;
-    
+
     Map<String, String> whatMap = getWhatMap();
     for (String key : columnNames) {
       String value = whatMap.get(key);
@@ -373,7 +374,7 @@ public class Event {
 
     StringBuilder buf = new StringBuilder();
     buf.append(who).append("\n");
-    buf.append(simpleDateFormat.format(when)).append("\n");    
+    buf.append(simpleDateFormat.format(when)).append("\n");
     buf.append(experimentId).append("\n");
     buf.append(experimentName).append("\n");
     buf.append(responseTime != null ? simpleDateFormat.format(getResponseTimeWithTimeZone(null)) : null).append("\n");
@@ -395,7 +396,7 @@ public class Event {
     try {
       messageDigest = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
-      Log.info("Could not get MD5 algorithm");
+      //Log.info("Could not get MD5 algorithm");
       return null;
     }
     messageDigest.reset();
@@ -424,13 +425,13 @@ public class Event {
     DateTime timeZoneAdjustedDate = getTimeZoneAdjustedDate(getScheduledTime(), defaultTimeZone);
     return timeZoneAdjustedDate == null ? null : timeZoneAdjustedDate;
   }
-  
+
   public DateTime getResponseTimeWithTimeZone(String defaultTimeZone) {
     DateTime timeZoneAdjustedDate = getTimeZoneAdjustedDate(getResponseTime(), defaultTimeZone);
     return timeZoneAdjustedDate == null ? null : timeZoneAdjustedDate;
   }
-  
-  
+
+
   public DateTime getTimeZoneAdjustedDate(Date time, String defaultTimeZone) {
     return getTimeZoneAdjustedDate(time, defaultTimeZone, getTimeZone());
   }
@@ -455,7 +456,7 @@ public class Event {
       if (hours.startsWith("+")) {
         hours = hours.substring(1);
       }
-      
+
       int parseInt;
       try {
         parseInt = Integer.parseInt(hours);

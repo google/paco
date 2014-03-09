@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -46,21 +46,20 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.widgetideas.client.Spinner.SpinnerResources;
 import com.google.gwt.widgetideas.client.SpinnerListener;
-import com.google.gwt.widgetideas.client.ValueSpinner;
-import com.google.gwt.widgetideas.client.ValueSpinner.ValueSpinnerResources;
+
 
 /**
- * 
- * This is a copy of package com.google.gwt.gen2.picker.client; 
- * that fixes a bug in which the time editing events do not actually get fired. 
- * See bug report: 
+ *
+ * This is a copy of package com.google.gwt.gen2.picker.client;
+ * that fixes a bug in which the time editing events do not actually get fired.
+ * See bug report:
  * http://code.google.com/p/google-web-toolkit-incubator/issues/detail?id=267
- * 
+ *
  * @author Bob Evans
  *
  */
 public class TimePickerFixed extends Composite implements HasValueChangeHandlers<Date> {
-  private class TimeSpinner extends ValueSpinner {
+  private class TimeSpinner extends ValueSpinnerFixed {
     private DateTimeFormat dateTimeFormat;
 
     public TimeSpinner(Date date, DateTimeFormat dateTimeFormat, int step,
@@ -155,7 +154,7 @@ public class TimePickerFixed extends Composite implements HasValueChangeHandlers
    *
    */
   public TimePickerFixed(Date date, DateTimeFormat amPmFormat, DateTimeFormat hoursFormat,
-      DateTimeFormat minutesFormat, DateTimeFormat secondsFormat, ValueSpinnerResources styles,
+      DateTimeFormat minutesFormat, DateTimeFormat secondsFormat, ValueSpinnerFixed.ValueSpinnerResources styles,
       SpinnerResources images) {
     this.dateInMillis = date.getTime();
     HorizontalPanel horizontalPanel = new HorizontalPanel();

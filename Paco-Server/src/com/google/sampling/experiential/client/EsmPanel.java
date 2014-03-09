@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -32,12 +32,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.client.SpinnerListener;
-import com.google.gwt.widgetideas.client.ValueSpinner;
 import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel for configuring the ESM scheduling for an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -61,7 +60,7 @@ public class EsmPanel extends Composite {
     Label lblFrequency = new Label(myConstants.frequency() + ":");
     lblFrequency.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblFrequency);
-    ValueSpinner frequencySpinner = new ValueSpinner(schedule.getEsmFrequency(), 0, 100);
+    ValueSpinnerFixed frequencySpinner = new ValueSpinnerFixed(schedule.getEsmFrequency(), 0, 100);
     frequencySpinner.getTextBox().setWidth("18px");
     frequencySpinner.setWidth("35px");
     horizontalPanel.add(frequencySpinner);
@@ -194,11 +193,11 @@ public class EsmPanel extends Composite {
         schedule.setEsmEndHour(offset);
       }
     });
-    
+
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
-    
+
     MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
     verticalPanel.add(minimumBufferPanel);
     minimumBufferPanel.setWidth("286px");

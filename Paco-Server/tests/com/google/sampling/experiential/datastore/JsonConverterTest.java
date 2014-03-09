@@ -29,8 +29,8 @@ public class JsonConverterTest extends TestCase {
   }
 
   public void testShortJsonifyShortening() throws Exception {
-    String longJson = JsonConverter.jsonify(experimentList);
-    String shortJson = JsonConverter.shortJsonify(experimentList);
+    String longJson = JsonConverter.jsonify(experimentList, null, null);
+    String shortJson = JsonConverter.shortJsonify(experimentList, null, null);
     assertTrue(shortJson.length() <= longJson.length());
   }
 

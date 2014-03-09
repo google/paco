@@ -16,6 +16,11 @@
  ~ under the License.
  -->
 <datastore-indexes autoGenerate="true">
+    <datastore-index kind="Experiment" ancestor="false">
+  <property name="published" direction="asc" />
+  <property name="publishedUsers" direction="asc" />
+</datastore-index>
+
     <datastore-index kind="Experiment" ancestor="false" source="manual">
         <property name="published" direction="asc"/>
         <property name="publishedUsers" direction="asc"/>

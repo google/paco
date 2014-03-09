@@ -234,7 +234,8 @@
     <string name="distributions">Distributions</string>
     <string name="raw_data_button_text">Go to Raw Data</string>
     <string name="your_current_experiments">Your Current Experiments</string>
-    <string name="refresh_experiments_list_from_server">Refresh Experiments List From Server</string>
+    <string name="refresh_experiments_list_from_server">Refresh Experiments List from Server</string>
+    <string name="load_more_experiments_from_server">Load More Experiments from Server</string>
     <string name="data_handling_title">Data Handling &amp; Privacy Agreement between You and the Experiment Creator</string>
     <string name="informed_consent_preamble">By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment.</string>
     <string name="consent_checkbox_text">"          I consent"</string>
@@ -291,5 +292,7 @@
     <string name="action_settings">Settings</string>
     <string name="find_my_experiments">Find My Experiments</string>
     <string name="find_all_public_experiments">Find All Public Experiments</string>
+    <string name="could_not_load_full_experiment_">Could not load full experiment.</string>
+    <string name="no_more_experiments_on_server">No more experiments on server</string>
 
 </resources>

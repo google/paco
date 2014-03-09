@@ -24,18 +24,22 @@ class DownloadShortExperimentsTask extends AsyncTask<Void, Void, String> {
   private UserPreferences userPrefs;
   private DownloadExperimentsTaskListener listener;
   private String contentAsString;
+  private String cursor;
+  private Integer limit;
 
   @SuppressWarnings("unchecked")
   public DownloadShortExperimentsTask(Context activity,
                                  DownloadExperimentsTaskListener listener,
-                                 UserPreferences userPrefs) {
+                                 UserPreferences userPrefs, Integer limit, String experimentCursor) {
     enclosingContext = activity;
     this.listener = listener;
     this.userPrefs = userPrefs;
+    this.limit = limit;
+    this.cursor = experimentCursor;
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs);
+    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs, limit, cursor);
     String errorCode = downloadHelper.downloadAvailableExperiments();
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;

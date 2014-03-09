@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
-import org.mortbay.log.Log;
 
 import com.google.common.collect.Lists;
 
@@ -108,7 +107,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
         DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
         return jodaTimeZone;
       } catch (Exception e) {
-        Log.debug("Could not get DateTimeZone for string: " + tzStr);
+        log.warning("Could not get DateTimeZone for string: " + tzStr);
       }
     }
     Locale clientLocale = req.getLocale();

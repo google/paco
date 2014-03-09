@@ -33,7 +33,7 @@ public class ExperimentJsonUploadProcessor {
 
   public String processJsonExperiments(String postBodyString, User userFromLogin, String appIdHeader, String pacoVersion) {
     if (postBodyString.startsWith("[")) {
-      List<ExperimentDAO> experiments = JsonConverter.fromEntitiesJson(postBodyString);
+      List<ExperimentDAO> experiments = JsonConverter.fromEntitiesJsonUpload(postBodyString);
       return toJson(processDAOs(experiments, userFromLogin, appIdHeader, pacoVersion));
     } else {
       ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(postBodyString);
@@ -90,7 +90,13 @@ public class ExperimentJsonUploadProcessor {
 
     Long id = experimentDAO.getId();
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());
-    Experiment experiment = experimentRetriever.getExperiment(id);
+    Experiment experiment = null;
+    if (id != null) {
+      experiment = experimentRetriever.getExperiment(id);
+    }
+    if (experiment == null) {
+      experimentDAO.setId(null);
+    }
 
     if (!isUserAdminOfSystem() && experiment != null && !experiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");

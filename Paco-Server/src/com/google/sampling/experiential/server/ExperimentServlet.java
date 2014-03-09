@@ -43,6 +43,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 @SuppressWarnings("serial")
 public class ExperimentServlet extends HttpServlet {
 
+  private static final int EXPERIMENT_LIMIT_MAX = 50;
   public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
   public static final String DEV_HOST = "<Your machine name here>";
   private UserService userService;
@@ -66,17 +67,37 @@ public class ExperimentServlet extends HttpServlet {
       String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
       String selectedExperimentsParam = req.getParameter("id");
+      String experimentsPublishedPubliclyParam = req.getParameter("public");
+      String experimentsAdministeredByUserParam = req.getParameter("admin");
+
+      //String offset = req.getParameter("offset");
+      String limitStr = req.getParameter("limit");
+      Integer limit = null;
+      if (limitStr != null) {
+        try {
+          limit = Integer.parseInt(limitStr);
+        } catch (NumberFormatException e) {
+        }
+      }
+      if (limit != null && (limit <= 0 || limit >= EXPERIMENT_LIMIT_MAX)) {
+        throw new IllegalArgumentException("Invalid limit. must be greater than 0 and less than or equal to 50");
+      }
+      String cursor = req.getParameter("cursor");
 
       String experimentsJson = null;
       ExperimentServletHandler handler;
       if (experimentsPublishedToMeParam != null) {
-        handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone);
+        handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor);
       } else if (shortParam != null) {
-        handler = new ExperimentServletShortLoadHandler(email, timezone);
+        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor);
       } else if (selectedExperimentsParam != null) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam);
+      } else if (experimentsPublishedPubliclyParam != null) {
+        handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor);
+      } else if (experimentsAdministeredByUserParam != null) {
+        handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor);
       } else {
-        handler = new ExperimentServletAllExperimentsFullLoadHandler(user.getUserId(), email, timezone);
+        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor);
       }
       experimentsJson = handler.performLoad();
       resp.getWriter().println(scriptBust(experimentsJson));
@@ -128,6 +149,7 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    userService = UserServiceFactory.getUserService();
     if (userService.isUserAdmin()) {
       readExperimentDefinitions(req, resp);
     }

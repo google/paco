@@ -60,6 +60,8 @@ import com.google.sampling.experiential.shared.TimeUtil;
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Experiment {
 
+  private static final long serialVersionUID = -1407635488794262589l;
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Long id;

@@ -15,7 +15,7 @@
  ~ under the License.
  -->
  <project default="build" basedir=".">
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.7.5" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.0" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
@@ -149,7 +149,7 @@
   <property name="gwt.args" value="-style PRETTY" />
 
   <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="../tools/gwt-2.5.0" />
+  <property name="gwt.sdk" location="../tools/gwt-2.6.0" />
 
   <path id="gwt.project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
