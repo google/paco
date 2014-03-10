@@ -6,11 +6,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
 import com.google.sampling.experiential.shared.PacoService;

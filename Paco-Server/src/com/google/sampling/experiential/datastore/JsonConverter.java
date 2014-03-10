@@ -33,7 +33,7 @@ public class JsonConverter {
    * @param printWriter
    * @return
    */
-  public static String jsonify(List<ExperimentDAO> experiments, Integer limit, String cursor) {
+  public static String jsonify(List<? extends ExperimentDAOCore> experiments, Integer limit, String cursor) {
     if (experiments == null) {
       experiments = Collections.EMPTY_LIST;
     }
@@ -63,7 +63,7 @@ public class JsonConverter {
 
   public static String shortJsonify(List<ExperimentDAO> experiments, Integer limit, String cursor) {
     List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
-    return jsonify(experiments, limit, cursor);
+    return jsonify(shortExperiments, limit, cursor);
   }
 
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
