@@ -551,7 +551,7 @@
   STAssertEqualObjects(firstDayInMonth, expect, @"should be first day in month");
 }
 
-- (void)testPacoFirstDayInCurrentWeekFromWeekday {
+- (void)testPacoSundayInCurrentWeekFromWeekday {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
   STAssertNotNil(timeZone, @"timezone should be valid");
@@ -565,7 +565,7 @@
   NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
   //Mon, 11/4, 2013, 10:00:00
   NSDate* date = [gregorian dateFromComponents:comp];
-  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  NSDate* firstDayInWeek = [date pacoSundayInCurrentWeek];
   [comp setMonth:11];
   [comp setDay:3];
   [comp setHour:0];
@@ -576,7 +576,7 @@
   STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
 }
 
-- (void)testPacoFirstDayInCurrentWeekFromSunday {
+- (void)testPacoSundayInCurrentWeekFromSunday {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
   STAssertNotNil(timeZone, @"timezone should be valid");
@@ -590,7 +590,7 @@
   NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
   //Sun, 11/3, 2013, 10:00:00
   NSDate* date = [gregorian dateFromComponents:comp];
-  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  NSDate* firstDayInWeek = [date pacoSundayInCurrentWeek];
   [comp setMonth:11];
   [comp setDay:3];
   [comp setHour:0];
@@ -601,7 +601,7 @@
   STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
 }
 
-- (void)testPacoFirstDayInCurrentWeekFromSaturday {
+- (void)testPacoSundayInCurrentWeekFromSaturday {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
   STAssertNotNil(timeZone, @"timezone should be valid");
@@ -615,7 +615,7 @@
   NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
   //Sat, 11/9, 2013, 10:00:00
   NSDate* date = [gregorian dateFromComponents:comp];
-  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  NSDate* firstDayInWeek = [date pacoSundayInCurrentWeek];
   [comp setMonth:11];
   [comp setDay:3];
   [comp setHour:0];
@@ -627,7 +627,7 @@
 }
 
 
-- (void)testPacoFirstDayInCurrentWeekOnYearLastDay {
+- (void)testPacoSundayInCurrentWeekOnYearLastDay {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
   STAssertNotNil(timeZone, @"timezone should be valid");
@@ -641,7 +641,7 @@
   NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
   //Tues, 12/31, 2013, 18:00:00
   NSDate* date = [gregorian dateFromComponents:comp];
-  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  NSDate* firstDayInWeek = [date pacoSundayInCurrentWeek];
   
   [comp setYear:2013];
   [comp setMonth:12];
@@ -656,7 +656,7 @@
 }
 
 
-- (void)testPacoFirstDayInCurrentWeekOnYearFirstDay {
+- (void)testPacoSundayInCurrentWeekOnYearFirstDay {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
   STAssertNotNil(timeZone, @"timezone should be valid");
@@ -670,7 +670,7 @@
   NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
   //Sun, 1/1, 2014, 10:00:00
   NSDate* date = [gregorian dateFromComponents:comp];
-  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  NSDate* firstDayInWeek = [date pacoSundayInCurrentWeek];
   
   [comp setYear:2013];
   [comp setMonth:12];

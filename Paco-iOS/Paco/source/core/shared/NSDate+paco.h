@@ -42,7 +42,7 @@
 - (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
 
 - (NSDate*)pacoFirstDayInCurrentMonth;
-- (NSDate*)pacoFirstDayInCurrentWeek;
+- (NSDate*)pacoSundayInCurrentWeek;
 
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
 

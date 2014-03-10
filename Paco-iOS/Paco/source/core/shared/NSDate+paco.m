@@ -177,7 +177,7 @@ static NSUInteger kSaturdayIndex = 7;
   return [calendar dateFromComponents:components];
 }
 
-- (NSDate*)pacoFirstDayInCurrentWeek {
+- (NSDate*)pacoSundayInCurrentWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];

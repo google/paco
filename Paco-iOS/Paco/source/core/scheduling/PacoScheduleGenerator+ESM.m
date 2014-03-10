@@ -88,7 +88,7 @@ static int kPacoNumOfDaysInWeek = 7;
   //weekly
   if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
     if (experimentStartDate == nil ) { //ongoing
-      result = [date pacoFirstDayInCurrentWeek];
+      result = [date pacoSundayInCurrentWeek];
     } else { //fixed-length
       int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
                                                                     toDate:date];
@@ -142,7 +142,7 @@ static int kPacoNumOfDaysInWeek = 7;
     }
   } else { //ongoing
     if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
-      realStartDate = [fromDate pacoFirstDayInCurrentWeek];
+      realStartDate = [fromDate pacoSundayInCurrentWeek];
     } else if (repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
       realStartDate = [fromDate pacoFirstDayInCurrentMonth];
     }
