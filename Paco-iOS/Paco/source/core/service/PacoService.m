@@ -104,11 +104,17 @@
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
-    NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
-    if (block) {
-      NSString* cursor = [jsonData objectForKey:@"cursor"];
-      NSArray* results = [jsonData objectForKey:@"results"];
-      block(results, cursor, error);
+    if (!error) {
+      NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
+      if (block) {
+        NSString* cursor = [jsonData objectForKey:@"cursor"];
+        NSArray* results = [jsonData objectForKey:@"results"];
+        block(results, cursor, nil);
+      }
+    } else {
+      if (block) {
+        block(nil, nil, error);
+      }
     }
   }];
 }
