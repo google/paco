@@ -25,16 +25,18 @@
 
 //https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/DatesAndTimes/Articles/dtCalendricalCalculations.html#//apple_ref/doc/uid/TP40007836-SW8
 - (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
-  startDate = [startDate pacoCurrentDayAtMidnight];
-  endDate = [endDate pacoCurrentDayAtMidnight];
+  NSDate* midnightOnStartDate = [startDate pacoCurrentDayAtMidnight];
+  NSDate* midnightOnendDate = [endDate pacoCurrentDayAtMidnight];
   NSInteger startDay = [self ordinalityOfUnit:NSDayCalendarUnit
                                        inUnit:NSEraCalendarUnit
-                                      forDate:startDate];
+                                      forDate:midnightOnStartDate];
   NSInteger endDay = [self ordinalityOfUnit:NSDayCalendarUnit
                                      inUnit:NSEraCalendarUnit
-                                    forDate:endDate];
+                                    forDate:midnightOnendDate];
   NSInteger numOfDaysInBetween = endDay - startDay;
   return numOfDaysInBetween;
 }
+
+
 
 @end
