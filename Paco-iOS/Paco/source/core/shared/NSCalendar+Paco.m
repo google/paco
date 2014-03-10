@@ -38,5 +38,11 @@
 }
 
 
+- (NSInteger)pacoWeeksFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
+  NSDate* sundayOfStartDate = [startDate pacoSundayInCurrentWeek];
+  NSDate* sundayOfEndDate = [endDate pacoSundayInCurrentWeek];
+  NSInteger numOfDaysInBetween = [self pacoDaysFromDate:sundayOfStartDate toDate:sundayOfEndDate];
+  return numOfDaysInBetween / 7;
+}
 
 @end
