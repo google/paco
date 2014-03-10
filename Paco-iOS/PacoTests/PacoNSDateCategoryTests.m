@@ -626,6 +626,65 @@
   STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
 }
 
+
+- (void)testPacoFirstDayInCurrentWeekOnYearLastDay {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:12];
+  [comp setDay:31];
+  [comp setHour:18];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Tues, 12/31, 2013, 18:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  
+  [comp setYear:2013];
+  [comp setMonth:12];
+  [comp setDay:29];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Sun, 12/29, 2013, 00:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  
+  STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
+}
+
+
+- (void)testPacoFirstDayInCurrentWeekOnYearFirstDay {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:1];
+  [comp setDay:1];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //Sun, 1/1, 2014, 10:00:00
+  NSDate* date = [gregorian dateFromComponents:comp];
+  NSDate* firstDayInWeek = [date pacoFirstDayInCurrentWeek];
+  
+  [comp setYear:2013];
+  [comp setMonth:12];
+  [comp setDay:29];
+  [comp setHour:0];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Sun, 12/29, 2013, 00:00:00
+  NSDate* expect = [gregorian dateFromComponents:comp];
+  STAssertEqualObjects(firstDayInWeek, expect, @"should be first day in week");
+}
+
+
+
 - (void)testPacoCycleStartDateOfMonthWithOriginalStartDate {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
