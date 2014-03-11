@@ -114,7 +114,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     return NO;
   }
   for (PacoExperiment* experiment in self.experimentInstances) {
-    if ([experiment shouldScheduleNotifications]) {
+    if ([experiment shouldScheduleNotificationsFromNow]) {
       return YES;
     }
   }

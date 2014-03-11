@@ -37,12 +37,16 @@
 //The array of times should be already sorted!
 - (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate;
 
+- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times
+                            generateTime:(NSDate*)generateTime
+                              andEndDate:(NSDate*)endDate;
+
 - (BOOL)pacoCanScheduleTimes:(NSArray*)times;
 
 - (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
 
 - (NSDate*)pacoFirstDayInCurrentMonth;
-- (NSDate*)pacoFirstDayInCurrentWeek;
+- (NSDate*)pacoSundayInCurrentWeek;
 
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
 

@@ -18,6 +18,7 @@
 #import "PacoScheduleGenerator+ESM.h"
 #import "PacoScheduleGenerator+Daily.h"
 #import "PacoScheduleGenerator+Weekdays.h"
+#import "PacoScheduleGenerator+Weekly.h"
 
 @implementation PacoScheduleGenerator
 
@@ -25,6 +26,12 @@
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
                         numOfDates:(NSInteger)numOfDates
                           fromDate:(NSDate*)fromDate {
+  //experiment is a self-report or trigger experiment
+  //experiment is fixed-length and already finished
+  if (![experiment shouldScheduleNotificationsFromDate:fromDate]) {
+    return nil;
+  }
+  
   PacoExperimentSchedule* schedule = experiment.schedule;
   if (schedule.scheduleType == kPacoScheduleTypeDaily) {
     return [self nextDatesForDailyExperiment:experiment
@@ -37,7 +44,10 @@
   if (schedule.scheduleType == kPacoScheduleTypeWeekday) {
     return [self nextDatesForWeekdaysExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
   }
-
+  if (schedule.scheduleType == kPacoScheduleTypeWeekly) {
+    return [self nextDatesForWeeklyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
+  }
+  
   //TODO:
   return nil;
 }

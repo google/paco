@@ -226,16 +226,13 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   return NO;
 }
 
-- (BOOL)isExperimentValid {
-  return [self isExperimentValidSinceDate:[NSDate date]];
-}
-
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
-  if (fromDate == nil) {
-    return NO;
-  }
+  //if experiment is ongoing, it should always be valid
   if ([self isOngoing]) {
     return YES;
+  }
+  if (fromDate == nil) {
+    return NO;
   }
   return [self.endDate pacoLaterThanDate:fromDate];
 }

@@ -66,8 +66,6 @@
 
 //An on-going experiment is always valid
 //For a fixed-length experiment, if it doesn't finish yet, then it's valid; otherwise it's invalid
-- (BOOL)isExperimentValid;
-
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
 
 //clear the old response objects

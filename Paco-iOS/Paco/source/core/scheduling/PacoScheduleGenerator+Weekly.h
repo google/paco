@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "PacoScheduleGenerator.h"
 
-@interface NSCalendar (Paco)
+@interface PacoScheduleGenerator (Weekly)
 
-+ (NSCalendar*)pacoGregorianCalendar;
-
-- (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
-
-- (NSInteger)pacoWeeksFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
++ (NSArray*)nextDatesForWeeklyExperiment:(PacoExperiment*)experiment
+                              numOfDates:(NSInteger)numOfDates
+                                fromDate:(NSDate*)fromDate;
 
 @end

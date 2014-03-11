@@ -34,10 +34,6 @@
            @"start and end date should be consistent");
   NSAssert(experiment.schedule.scheduleType == kPacoScheduleTypeESM, @"should be an ESM experiment");
   
-  //experiment already finished
-  if (![experiment isExperimentValidSinceDate:fromDate]) {
-    return nil;
-  }
   NSArray* result = [self datesToScheduleForESMExperiment:experiment
                                               numOfDates:numOfDates
                                                 fromDate:fromDate];
@@ -72,7 +68,6 @@
 }
 
 
-static int kPacoNumOfDaysInWeek = 7;
 /*
    Daily:                return current day at midnight
   Weekly:a.ongoing:      return the first day in current calendar week
@@ -92,7 +87,7 @@ static int kPacoNumOfDaysInWeek = 7;
   //weekly
   if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
     if (experimentStartDate == nil ) { //ongoing
-      result = [date pacoFirstDayInCurrentWeek];
+      result = [date pacoSundayInCurrentWeek];
     } else { //fixed-length
       int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
                                                                     toDate:date];
@@ -146,7 +141,7 @@ static int kPacoNumOfDaysInWeek = 7;
     }
   } else { //ongoing
     if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
-      realStartDate = [fromDate pacoFirstDayInCurrentWeek];
+      realStartDate = [fromDate pacoSundayInCurrentWeek];
     } else if (repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
       realStartDate = [fromDate pacoFirstDayInCurrentMonth];
     }

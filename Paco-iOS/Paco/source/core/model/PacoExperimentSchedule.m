@@ -228,6 +228,24 @@
   return string;
 }
 
+
+- (NSArray*)weeklyConfigureTable {
+  if (self.scheduleType != kPacoScheduleTypeWeekly) {
+    return nil;
+  }
+  if (0 == self.weekDaysScheduled) { //none of any day is selected, should be validated by server
+    return nil;
+  }
+  
+  NSMutableArray* table = [NSMutableArray arrayWithCapacity:kPacoNumOfDaysInWeek];
+  for (int digit = 0; digit < kPacoNumOfDaysInWeek; digit++) {
+    BOOL daySelected = (self.weekDaysScheduled & (1 << digit));
+    [table addObject:[NSNumber numberWithBool:daySelected]];
+  }
+  return table;
+}
+
+
 - (NSString *)jsonString {
   NSMutableString *json = [NSMutableString stringWithString:@"{"];
   

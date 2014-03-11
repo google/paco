@@ -147,6 +147,34 @@ static NSUInteger kSaturdayIndex = 7;
 }
 
 
+- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times
+                            generateTime:(NSDate*)generateTime
+                              andEndDate:(NSDate*)endDate {
+  NSAssert([times count] > 0, @"times should be valid!");
+  
+  NSDate* dateToSchedule = nil;
+  NSMutableArray* dates = [NSMutableArray arrayWithCapacity:[times count]];
+  for (NSNumber* millisecondsNumber in times) {
+    NSAssert([millisecondsNumber isKindOfClass:[NSNumber class]], @"time should be NSNumber!");
+    
+    dateToSchedule = [self pacoTimeFromMidnightWithMilliSeconds:millisecondsNumber];
+    NSAssert(dateToSchedule, @"dateToSchedule should be valid");
+    
+    //if the dateToSchedule is later than or equal to endDate,
+    //we should stop adding dates.
+    if (endDate && [dateToSchedule pacoNoEarlierThanDate:endDate]) {
+      break;
+    }
+    
+    if ([dateToSchedule pacoLaterThanDate:generateTime]) {
+      [dates addObject:dateToSchedule];
+    }
+  }
+  return [dates count] > 0 ? dates : nil;
+}
+
+
+
 - (BOOL)pacoCanScheduleTimes:(NSArray*)times {
   NSAssert([times count] > 0, @"times should be valid!");
   return [self pacoFirstAvailableTimeWithTimes:times] != nil;
@@ -177,7 +205,7 @@ static NSUInteger kSaturdayIndex = 7;
   return [calendar dateFromComponents:components];
 }
 
-- (NSDate*)pacoFirstDayInCurrentWeek {
+- (NSDate*)pacoSundayInCurrentWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];
