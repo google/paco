@@ -385,7 +385,8 @@
       if (self.byDayOfMonth) {
         return self.dayOfMonth == another.dayOfMonth;
       } else { //by day of week
-        return self.weekDaysScheduled == another.weekDaysScheduled;
+        return (self.weekDaysScheduled == another.weekDaysScheduled &&
+                self.nthOfMonth == another.nthOfMonth);
       }
     }
 
