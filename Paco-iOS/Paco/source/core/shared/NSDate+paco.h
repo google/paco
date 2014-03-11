@@ -46,6 +46,11 @@
 - (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
 
 - (NSDate*)pacoFirstDayInCurrentMonth;
+
+//dayIndex starts from 1, and ends up to 31
+//if dayIndex exceeds the max days in the current month, a nil object will be returned
+- (NSDate*)pacoDayInCurrentMonth:(NSUInteger)dayIndex;
+
 - (NSDate*)pacoSundayInCurrentWeek;
 
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;

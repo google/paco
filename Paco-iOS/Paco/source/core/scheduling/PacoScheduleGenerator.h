@@ -22,4 +22,7 @@
                         numOfDates:(NSInteger)numOfDates
                           fromDate:(NSDate*)fromDate;
 
+
++ (NSDate*)adjustedGenerateTime:(NSDate*)originalGenerateTime forExperiment:(PacoExperiment*)experiment;
+
 @end

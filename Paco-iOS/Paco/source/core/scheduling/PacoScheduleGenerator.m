@@ -19,6 +19,10 @@
 #import "PacoScheduleGenerator+Daily.h"
 #import "PacoScheduleGenerator+Weekdays.h"
 #import "PacoScheduleGenerator+Weekly.h"
+#import "PacoScheduleGenerator+Monthly.h"
+#import "PacoDateUtility.h"
+#import "NSDate+Paco.h"
+#import "NSCalendar+Paco.h"
 
 @implementation PacoScheduleGenerator
 
@@ -53,6 +57,22 @@
   return nil;
 }
 
+
+//adjust the generate time if the experiment is fixed-length and the original generate time is
+//earlier than the experiment start date
++ (NSDate*)adjustedGenerateTime:(NSDate*)originalGenerateTime forExperiment:(PacoExperiment*)experiment {
+  if ([experiment isOngoing]) {
+    NSAssert([originalGenerateTime pacoNoEarlierThanDate:experiment.joinTime],
+             @"for an ongoing experiment, should always generate schedules after the user joined it");
+  }
+  
+  //fixed-length experiment, and user joined before or when experiment starts
+  if ([experiment isFixedLength] && [originalGenerateTime pacoNoLaterThanDate:[experiment startDate]]) {
+    return [experiment startDate];
+  } else {
+    return originalGenerateTime;
+  }
+}
 
 
 @end
