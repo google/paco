@@ -253,13 +253,24 @@ static NSUInteger kSaturdayIndex = 7;
   return startDateInCurrentMonth;
 }
 
+
+- (BOOL)pacoInSameMonthWith:(NSDate*)another {
+  return [[self pacoFirstDayInCurrentMonth] isEqualToDate:[another pacoFirstDayInCurrentMonth]];
+}
+
+
 - (BOOL)pacoIsWeekend {
+  NSUInteger weekdayIndex = [self pacoIndexInWeek];
+  return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
+}
+
+- (NSUInteger)pacoIndexInWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];
   NSAssert(weekdayIndex >= kSundayIndex && weekdayIndex <= kSaturdayIndex,
            @"weekday index should be between 1 and 7");
-  return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
+  return weekdayIndex;
 }
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight {

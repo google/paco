@@ -246,6 +246,20 @@
 }
 
 
+- (int)dayIndexByDayOfWeek {
+  if (self.scheduleType != kPacoScheduleTypeMonthly || !self.byDayOfWeek) {
+    return 0;
+  }
+  for (int digit = 0; digit < kPacoNumOfDaysInWeek; digit++) {
+    BOOL daySelected = (self.weekDaysScheduled & (1 << digit));
+    if (daySelected) {
+      return digit + 1;
+    }
+  }
+  return 0;
+}
+
+
 - (NSString *)jsonString {
   NSMutableString *json = [NSMutableString stringWithString:@"{"];
   

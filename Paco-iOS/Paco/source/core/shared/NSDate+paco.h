@@ -53,9 +53,12 @@
 
 - (NSDate*)pacoSundayInCurrentWeek;
 
+- (BOOL)pacoInSameMonthWith:(NSDate*)another;
+
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
 
 - (BOOL)pacoIsWeekend;
+- (NSUInteger)pacoIndexInWeek;
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight;
 
