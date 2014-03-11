@@ -45,4 +45,22 @@
   return numOfDaysInBetween / 7;
 }
 
+
+- (NSInteger)pacoMonthsFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
+  NSCalendarUnit units =  NSYearCalendarUnit | NSMonthCalendarUnit;
+  NSDateComponents* compStart = [self components:units fromDate:startDate];
+  NSDateComponents* compEnd = [self components:units fromDate:endDate];
+  int month = [compEnd month] - [compStart month];
+  int year = [compEnd year] - [compStart year];
+  if (0 == year) { //in same year
+    return month;
+  } else {
+    return (year - 1) * 12 + (12 - ([compStart month] - 1)) + ([compEnd month] - 1);
+  }
+}
+
+
+
+
+
 @end

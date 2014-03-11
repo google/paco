@@ -205,6 +205,29 @@ static NSUInteger kSaturdayIndex = 7;
   return [calendar dateFromComponents:components];
 }
 
+
+- (NSDate*)pacoDayInCurrentMonth:(NSUInteger)dayIndex {
+  NSCalendar *calendar = [NSCalendar currentCalendar];
+  NSCalendarUnit units =  NSYearCalendarUnit |
+                          NSMonthCalendarUnit |
+                          NSDayCalendarUnit |
+                          NSHourCalendarUnit |
+                          NSMinuteCalendarUnit |
+                          NSSecondCalendarUnit |
+                          NSWeekdayCalendarUnit |
+                          NSWeekOfYearCalendarUnit;
+  NSDateComponents *components = [calendar components:units fromDate:self];
+  components.day = dayIndex;
+  components.hour = 0;
+  components.minute = 0;
+  components.second = 0;
+  NSDate* result = [calendar dateFromComponents:components];
+  
+  NSDateComponents* compResult = [calendar components:units fromDate:result];
+  NSDateComponents* compCurrentDate = [calendar components:units fromDate:self];
+  return compResult.month == compCurrentDate.month ? result : nil;
+}
+
 - (NSDate*)pacoSundayInCurrentWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
@@ -230,13 +253,24 @@ static NSUInteger kSaturdayIndex = 7;
   return startDateInCurrentMonth;
 }
 
+
+- (BOOL)pacoInSameMonthWith:(NSDate*)another {
+  return [[self pacoFirstDayInCurrentMonth] isEqualToDate:[another pacoFirstDayInCurrentMonth]];
+}
+
+
 - (BOOL)pacoIsWeekend {
+  NSUInteger weekdayIndex = [self pacoIndexInWeek];
+  return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
+}
+
+- (NSUInteger)pacoIndexInWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];
   NSAssert(weekdayIndex >= kSundayIndex && weekdayIndex <= kSaturdayIndex,
            @"weekday index should be between 1 and 7");
-  return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
+  return weekdayIndex;
 }
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight {

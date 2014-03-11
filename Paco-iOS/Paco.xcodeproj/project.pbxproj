@@ -56,6 +56,10 @@
 		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
 		3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */; };
 		366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 366292851821C2EF00FC647A /* PacoUtilityTests.m */; };
+		366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
+		366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
 		367171FD183AFE33005A5058 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = 367171FC183AFE33005A5058 /* help.html */; };
 		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
@@ -369,6 +373,10 @@
 		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
 		3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentScheduleTests.m; sourceTree = "<group>"; };
 		366292851821C2EF00FC647A /* PacoUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtilityTests.m; sourceTree = "<group>"; };
+		366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.h"; sourceTree = "<group>"; };
+		366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.m"; sourceTree = "<group>"; };
+		366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.h"; sourceTree = "<group>"; };
+		366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.m"; sourceTree = "<group>"; };
 		367171FC183AFE33005A5058 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
 		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
 		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
@@ -894,6 +902,10 @@
 				365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */,
 				36488BB618C90D9A004517E2 /* PacoScheduleGenerator+Weekly.h */,
 				36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */,
+				366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */,
+				366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */,
+				366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */,
+				366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */,
 			);
 			path = scheduling;
 			sourceTree = "<group>";
@@ -1725,6 +1737,7 @@
 				36488BB818C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */,
 				C5C4F5E817B17520009E9F18 /* JCNotificationBanner.m in Sources */,
 				C5C4F5EA17B17520009E9F18 /* JCNotificationBannerPresenter.m in Sources */,
+				366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
 				369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */,
 				C5C4F5EC17B17520009E9F18 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
 				E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */,
@@ -1734,6 +1747,7 @@
 				C5C4F5F417B17520009E9F18 /* JCNotificationBannerViewIOSStyle.m in Sources */,
 				C5C4F5F617B17520009E9F18 /* JCNotificationBannerWindow.m in Sources */,
 				36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
+				366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
 				C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */,
 				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
@@ -1772,9 +1786,11 @@
 				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
 				36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */,
 				366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */,
+				366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
 				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
 				36B5A4DF18272028004DB894 /* PacoScheduleGeneratorESMTests.m in Sources */,
 				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
+				366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
 				36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,

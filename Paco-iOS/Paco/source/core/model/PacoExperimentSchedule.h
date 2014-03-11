@@ -83,6 +83,8 @@ static const int kPacoNumOfDaysInWeek = 7;
 - (BOOL)isESMSchedule;
 
 - (NSArray*)weeklyConfigureTable;
+//index in a week, sunday is 1, monday is 2, etc.
+- (int)dayIndexByDayOfWeek;
 
 - (BOOL)isSelfReport;
 - (BOOL)isScheduled;
