@@ -61,6 +61,7 @@
   NSAssert([version length] > 0, @"version number is not valid!");
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
   [request setValue:version forHTTPHeaderField:@"paco.version"];
+  [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
