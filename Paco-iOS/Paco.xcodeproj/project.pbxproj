@@ -58,6 +58,7 @@
 		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
 		3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */; };
 		366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 366292851821C2EF00FC647A /* PacoUtilityTests.m */; };
+		366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */; };
 		367171FD183AFE33005A5058 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = 367171FC183AFE33005A5058 /* help.html */; };
 		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
@@ -373,6 +374,8 @@
 		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
 		3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentScheduleTests.m; sourceTree = "<group>"; };
 		366292851821C2EF00FC647A /* PacoUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtilityTests.m; sourceTree = "<group>"; };
+		366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoPublicExperimentController.h; sourceTree = "<group>"; };
+		366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicExperimentController.m; sourceTree = "<group>"; };
 		367171FC183AFE33005A5058 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
 		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
 		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
@@ -774,6 +777,15 @@
 			path = conditional;
 			sourceTree = "<group>";
 		};
+		366F46A918CF829800789A54 /* PublicExperimentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */,
+				366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */,
+			);
+			path = PublicExperimentScreen;
+			sourceTree = "<group>";
+		};
 		36AD6CD817C420F800B93855 /* sskeychain */ = {
 			isa = PBXGroup;
 			children = (
@@ -931,6 +943,7 @@
 		36B8EB1C17568DAF004CF035 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				366F46A918CF829800789A54 /* PublicExperimentScreen */,
 				E43DA21A185ADDD2007F04F9 /* WebViewController */,
 				E4E8F34F183B21500022613A /* ContactScreen */,
 				36B8EB4117568DAF004CF035 /* LoginScreen */,
@@ -1723,6 +1736,7 @@
 				36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */,
 				36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */,
 				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
+				366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */,
 				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
 				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
