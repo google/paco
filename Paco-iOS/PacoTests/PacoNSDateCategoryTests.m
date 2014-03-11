@@ -408,9 +408,52 @@
   STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
-- (void)testPacoDateByAddingMonthInterval {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
+- (void)testPacoDateByAddingMonthIntervalSameYear {
+  [self.comp setYear:2014];
+  [self.comp setMonth:3];
+  [self.comp setDay:6];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //testDate: 3/6, 9:35:50, 2014
+  NSDate* testDate = [self.calendar dateFromComponents:self.comp];
+  
+  NSDate* threeMonthsLater = [testDate pacoDateByAddingMonthInterval:3];
+  [self.comp setYear:2014];
+  [self.comp setMonth:6];
+  [self.comp setDay:6];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //threeMonthsLater: 6/6, 9:35:50, 2014
+  NSDate* expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(threeMonthsLater, expect, @"should be three months later");
 }
+
+
+- (void)testPacoDateByAddingMonthIntervalAcrossYears {
+  [self.comp setYear:2013];
+  [self.comp setMonth:11];
+  [self.comp setDay:6];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //testDate: 11/6, 9:35:50, 2013
+  NSDate* testDate = [self.calendar dateFromComponents:self.comp];
+  
+  NSDate* twoMonthsLater = [testDate pacoDateByAddingMonthInterval:2];
+  [self.comp setYear:2014];
+  [self.comp setMonth:1];
+  [self.comp setDay:6];
+  [self.comp setHour:9];
+  [self.comp setMinute:35];
+  [self.comp setSecond:50];
+  //twoMonthsLater: 1/6, 9:35:50, 2014
+  NSDate* expect = [self.calendar dateFromComponents:self.comp];
+  STAssertEqualObjects(twoMonthsLater, expect, @"should be two months later");
+  
+}
+
 
 - (void)testPacoDateByAddingWeekInterval {
   [self.comp setYear:2013];

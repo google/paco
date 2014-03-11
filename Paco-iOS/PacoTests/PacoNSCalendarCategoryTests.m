@@ -234,6 +234,127 @@
 }
 
 
+- (void)testPacoMonthsSameMonth {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:2];
+  [comp setDay:1];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //2/1, 2014, 10:00:00
+  NSDate* fromDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(fromDate, @"fromDate should be valid");
+  
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:2];
+  [comp setDay:28];
+  [comp setHour:18];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //2/28, 2014, 18:00:00
+  NSDate* endDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(endDate, @"endDate should be valid");
+  STAssertEquals([self.calendar pacoMonthsFromDate:fromDate toDate:endDate], 0, @"should be in the same month");
+}
+
+
+- (void)testPacoMonthsThreeMonthsApart {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:2];
+  [comp setDay:3];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //2/3, 2014, 10:00:00
+  NSDate* fromDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(fromDate, @"fromDate should be valid");
+  
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:5];
+  [comp setDay:31];
+  [comp setHour:18];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //Wed, 5/31, 2014, 18:00:00
+  NSDate* endDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(endDate, @"endDate should be valid");
+  STAssertEquals([self.calendar pacoMonthsFromDate:fromDate toDate:endDate], 3, @"should not be 3 months apart");
+}
+
+- (void)testPacoMonthsOneYearApart {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:30];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //11/30, 2013, 10:00:00
+  NSDate* fromDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(fromDate, @"fromDate should be valid");
+  
+  [comp setTimeZone:timeZone];
+  [comp setYear:2014];
+  [comp setMonth:4];
+  [comp setDay:1];
+  [comp setHour:18];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //4/01, 2014, 18:00:00
+  NSDate* endDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(endDate, @"endDate should be valid");
+  STAssertEquals([self.calendar pacoMonthsFromDate:fromDate toDate:endDate], 5, @"should 5 month apart");
+}
+
+
+- (void)testPacoMonthsTwoYearsApart {
+  NSDateComponents* comp = [[NSDateComponents alloc] init];
+  NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
+  STAssertNotNil(timeZone, @"timezone should be valid");
+  [comp setTimeZone:timeZone];
+  [comp setYear:2013];
+  [comp setMonth:11];
+  [comp setDay:30];
+  [comp setHour:10];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  NSCalendar* gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+  //11/30, 2013, 10:00:00
+  NSDate* fromDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(fromDate, @"fromDate should be valid");
+  
+  
+  [comp setTimeZone:timeZone];
+  [comp setYear:2015];
+  [comp setMonth:2];
+  [comp setDay:27];
+  [comp setHour:18];
+  [comp setMinute:0];
+  [comp setSecond:0];
+  //2/27, 2015, 18:00:00
+  NSDate* endDate = [gregorian dateFromComponents:comp];
+  STAssertNotNil(endDate, @"endDate should be valid");
+  STAssertEquals([self.calendar pacoMonthsFromDate:fromDate toDate:endDate], 15, @"should 15 months apart");
+}
+
+
+
 
 
 

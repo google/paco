@@ -65,6 +65,7 @@
 
 - (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays;
 - (NSDate*)pacoDateByAddingWeekInterval:(NSUInteger)weekInterval;
+- (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval;
 
 - (NSUInteger)pacoNumOfDaysInCurrentMonth;
 - (NSUInteger)pacoNumOfWeekdaysInCurrentMonth;
