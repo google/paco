@@ -37,11 +37,11 @@
     NSArray* dates = [self datesForMonth:monthToSchedule
                            forExperiment:experiment
                             generateTime:adjustedGenerateTime];
-    int numOfDates = [dates count];
-    if (0 == numOfDates) {
+    int numOfCurrentDates = [dates count];
+    if (0 == numOfCurrentDates) {
       break;
     }
-    int numOfDatesToAdd = (numOfDates > numOfDatesNeeded) ? numOfDatesNeeded : numOfDates;
+    int numOfDatesToAdd = (numOfCurrentDates > numOfDatesNeeded) ? numOfDatesNeeded : numOfCurrentDates;
     NSIndexSet* indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, numOfDatesToAdd)];
     [results addObjectsFromArray:[dates objectsAtIndexes:indexSet]];
     
@@ -89,7 +89,7 @@
   if (!monthToSchedule) {
     return nil;
   }
-  NSDate* midnight = [monthToSchedule pacoDayInCurrentMonth:experiment.schedule.dayOfMonth];
+  NSDate* midnight = [monthToSchedule pacoDayInCurrentMonth:(experiment.schedule.dayOfMonth + 1)];
   NSArray* results = [midnight pacoDatesToScheduleWithTimes:experiment.schedule.times
                                                generateTime:generateTime
                                                  andEndDate:[experiment endDate]];
