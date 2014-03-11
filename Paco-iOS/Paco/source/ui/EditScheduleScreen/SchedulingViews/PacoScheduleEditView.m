@@ -116,10 +116,7 @@ NSString *kCellIdText = @"text";
               nil];
     case kPacoScheduleTypeMonthly:
       return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdRepeat, [NSNumber numberWithInt:(1 << schedule.repeatRate)], nil],
-              [NSArray arrayWithObjects:kCellIdByDaysOfWeekMonth, [NSNumber numberWithBool:schedule.byDayOfWeek], nil],
-              [NSArray arrayWithObjects:((schedule.byDayOfWeek) ? kCellIdWhichFirstDayOfMonth : kCellIdWhichDayOfMonth), [NSNumber numberWithInt:schedule.dayOfMonth], nil],
-              [NSArray arrayWithObjects:kCellIdDaysOfWeek, [NSNumber numberWithUnsignedInt:schedule.weekDaysScheduled], nil],
+              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
               nil];
     case kPacoScheduleTypeESM:
       return [NSArray arrayWithObjects:
@@ -188,23 +185,10 @@ NSString *kCellIdText = @"text";
     }
       break;
     case kPacoScheduleTypeMonthly: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-        PacoRepeatRateSelectionView *cellView = (PacoRepeatRateSelectionView *)cell;
-        cellView.repeatStyle = kPacoScheduleRepeatMonths;
-        cellView.repeatNumberValue = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdByDaysOfWeekMonth reuseId:reuseId]) {
-        PacoByWeekOrMonthSelectionView *cellView = (PacoByWeekOrMonthSelectionView *)cell;
-        cellView.byWeek = [[self realRowData:rowData] boolValue];
-      } else if ([self isCellType:kCellIdWhichFirstDayOfMonth reuseId:reuseId]) {
-        PacoFirstDayOfMonthSelectionView *cellView = (PacoFirstDayOfMonthSelectionView *)cell;
-        cellView.firstDayOfMonth = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdWhichDayOfMonth reuseId:reuseId]) {
-        PacoDayOfMonthSelectionView *cellView = (PacoDayOfMonthSelectionView *)cell;
-        cellView.dayOfMonth = [self realRowData:rowData];
-      } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
-        PacoDayOfWeekSelectionView *cellView = (PacoDayOfWeekSelectionView *)cell;
-        cellView.onlyAllowOneDay = YES;
-        cellView.daysOfWeek = [self realRowData:rowData];
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+        cellView.times = [self realRowData:rowData];
+        cell.userInteractionEnabled = YES;
       } else {
         assert(0);
       }
@@ -304,11 +288,8 @@ NSString *kCellIdText = @"text";
     }
       break;
     case kPacoScheduleTypeMonthly: {
-      if ([self isCellType:kCellIdRepeat reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdByDaysOfWeekMonth reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdWhichFirstDayOfMonth reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdWhichDayOfMonth reuseId:reuseId]) {
-      } else if ([self isCellType:kCellIdDaysOfWeek reuseId:reuseId]) {
+      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
+        self.schedule.times = rowData;
       } else {
         assert(0);
       }
