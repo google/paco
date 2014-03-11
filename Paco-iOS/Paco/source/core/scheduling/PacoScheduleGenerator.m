@@ -34,9 +34,7 @@
   
   PacoExperimentSchedule* schedule = experiment.schedule;
   if (schedule.scheduleType == kPacoScheduleTypeDaily) {
-    return [self nextDatesForDailyExperiment:experiment
-                                  numOfDates:numOfDates
-                                    fromDate:fromDate];
+    return [self nextDatesForDailyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
   }
   if (schedule.scheduleType == kPacoScheduleTypeESM) {
     return [self nextDatesForESMExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
@@ -48,7 +46,10 @@
     return [self nextDatesForWeeklyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
   }
   
-  //TODO:
+  if (schedule.scheduleType == kPacoScheduleTypeMonthly) {
+    return [self nextDatesForMonthlyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
+  }
+  NSAssert(NO, @"schedule type should be daily, esm, weekday, weekly, or monthly");
   return nil;
 }
 

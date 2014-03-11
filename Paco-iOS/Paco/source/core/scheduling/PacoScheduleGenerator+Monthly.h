@@ -17,4 +17,9 @@
 
 @interface PacoScheduleGenerator (Monthly)
 
+
++ (NSArray*)nextDatesForMonthlyExperiment:(PacoExperiment*)experiment
+                               numOfDates:(NSInteger)numOfDates
+                                 fromDate:(NSDate*)fromDate;
+
 @end
