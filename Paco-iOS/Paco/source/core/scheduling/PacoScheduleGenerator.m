@@ -19,7 +19,8 @@
 #import "PacoScheduleGenerator+Daily.h"
 #import "PacoScheduleGenerator+Weekdays.h"
 #import "PacoScheduleGenerator+Weekly.h"
-#import "PacoScheduleGenerator+Monthly.h"
+#import "PacoScheduleGenerator+MonthlyByDayOfMonth.h"
+#import "PacoScheduleGenerator+MonthlyByDayOfWeek.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
 #import "NSCalendar+Paco.h"
@@ -54,6 +55,20 @@
     return [self nextDatesForMonthlyExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
   }
   NSAssert(NO, @"schedule type should be daily, esm, weekday, weekly, or monthly");
+  return nil;
+}
+
+
++ (NSArray*)nextDatesForMonthlyExperiment:(PacoExperiment*)experiment
+                               numOfDates:(NSInteger)numOfDates
+                                 fromDate:(NSDate*)fromDate {
+  if (experiment.schedule.byDayOfMonth) {
+    return [self nextDatesByDayOfMonthForExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
+  }
+  if (experiment.schedule.byDayOfWeek) {
+    return [self nextDatesByDayOfWeekForExperiment:experiment numOfDates:numOfDates fromDate:fromDate];
+  }
+  NSAssert(NO, @"monthly schedule should be either by day of month of by day of week");
   return nil;
 }
 

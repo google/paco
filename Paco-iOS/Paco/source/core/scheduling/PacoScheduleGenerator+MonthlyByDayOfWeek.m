@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-#import "PacoScheduleGenerator.h"
+#import "PacoScheduleGenerator+MonthlyByDayOfWeek.h"
 
-@interface PacoScheduleGenerator (Monthly)
+@implementation PacoScheduleGenerator (MonthlyByDayOfWeek)
 
-
-+ (NSArray*)nextDatesForMonthlyExperiment:(PacoExperiment*)experiment
-                               numOfDates:(NSInteger)numOfDates
-                                 fromDate:(NSDate*)fromDate;
++ (NSArray*)nextDatesByDayOfWeekForExperiment:(PacoExperiment*)experiment
+                                   numOfDates:(NSInteger)numOfDates
+                                     fromDate:(NSDate*)fromDate {
+  return nil;
+}
 
 @end
