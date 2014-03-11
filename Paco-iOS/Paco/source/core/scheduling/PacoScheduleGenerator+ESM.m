@@ -68,7 +68,6 @@
 }
 
 
-static int kPacoNumOfDaysInWeek = 7;
 /*
    Daily:                return current day at midnight
   Weekly:a.ongoing:      return the first day in current calendar week
