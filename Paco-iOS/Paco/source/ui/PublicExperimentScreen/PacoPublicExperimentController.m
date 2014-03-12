@@ -17,6 +17,9 @@
 #import "PacoPublicDefinitionLoader.h"
 #import "PacoEnumerator.h"
 #import "PacoColor.h"
+#import "PacoExperimentDetailsViewController.h"
+#import "PacoClient.h"
+#import "PacoService.h"
 
 @interface PacoPublicExperimentController () <UITableViewDelegate, UITableViewDataSource>
 @property(nonatomic, strong) UITableView* tableView;
@@ -83,14 +86,17 @@
   }];
 }
 
+- (void)showErrorAlert {
+  [[[UIAlertView alloc] initWithTitle:@"Oops"
+                              message:@"Something went wrong, please try again."
+                             delegate:nil
+                    cancelButtonTitle:@"ok"
+                    otherButtonTitles:nil] show];
+}
 
 -(void)handleDataItems:(NSArray*)dataItems error:(NSError*)error {
   if (error) {
-    [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                message:@"Something went wrong, please try again"
-                               delegate:nil
-                      cancelButtonTitle:@"OK"
-                      otherButtonTitles:nil] show];
+    [self showErrorAlert];
   }
   
   if(dataItems.count > 0) {
@@ -135,6 +141,12 @@
   }
 }
 
+- (void)goToDefinitionDetailControllerWithDefinition:(PacoExperimentDefinition*)definition {
+  PacoExperimentDetailsViewController* details =
+      [PacoExperimentDetailsViewController controllerWithExperiment:definition];
+  [self.navigationController pushViewController:details animated:YES];
+}
+
 
 #pragma mark UITableViewDataSource
 -(NSInteger)numberOfSectionsInTableView:(UITableView*)tableView {
@@ -161,7 +173,8 @@
   if (!cell) {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                   reuseIdentifier:@"experimentCell"];
-    cell.textLabel.textColor = [UIColor darkGrayColor];
+    cell.textLabel.textColor = [PacoColor pacoSystemButtonBlue];
+    cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }
   NSDictionary* dict = [self.definitions objectAtIndex:indexPath.row];
   NSAssert([dict isKindOfClass:[NSDictionary class]], @"definition should be a dictionary");
@@ -174,8 +187,26 @@
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
   if (indexPath.row == [self rowOfLastCell]) {
     [self loadNextPage];
+  } else {
+    NSDictionary* dict = [self.definitions objectAtIndex:indexPath.row];
+    NSAssert([dict isKindOfClass:[NSDictionary class]], @"definition should be a dictionary");
+    NSString* definitionId = [NSString stringWithFormat:@"%lld",
+                              [[dict objectForKey:@"id"] longLongValue]];
+    
+    [[PacoClient sharedInstance].service
+        loadFullDefinitionWithID:definitionId
+                        andBlock:^(PacoExperimentDefinition* definition, NSError* error) {
+                          dispatch_async(dispatch_get_main_queue(), ^{
+                            if (error) {
+                              [self showErrorAlert];
+                            } else {
+                              [self goToDefinitionDetailControllerWithDefinition:definition];
+                            }
+                          });
+                        }];
   }
 }
+
 
 
 

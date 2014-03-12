@@ -31,6 +31,7 @@ typedef void(^PacoPaginatedResponseBlock)(NSArray* items, NSString* cursor, NSEr
 
 - (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block;
 
+- (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock;
 
 - (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;
 

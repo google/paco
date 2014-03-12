@@ -151,6 +151,21 @@
   }];
 }
 
+- (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock {
+  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSArray* definitionList, NSError* error) {
+    PacoExperimentDefinition* definition = nil;
+    if (!error) {
+      id json = [definitionList firstObject];
+      NSAssert([json isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
+      definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:json];
+      NSAssert(definition, @"definition should be valid");
+    }
+    if (completionBlock) {
+      completionBlock(definition, error);
+    }
+  }];
+}
+
 - (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
   [self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
     if (error == nil) {
