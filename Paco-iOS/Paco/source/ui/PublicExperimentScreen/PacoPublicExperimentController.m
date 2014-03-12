@@ -35,6 +35,13 @@
     _enumerator = [PacoPublicDefinitionLoader enumerator];
 
     self.edgesForExtendedLayout = UIRectEdgeNone;
+    
+    self.navigationItem.title = NSLocalizedString(@"Public Experiments", nil);
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(gotoMainPage)];
+
     CGRect frame = self.view.frame;
     CGFloat adjustedHeight = frame.size.height - 20. - 64; //minus status bar and navigation bar
     frame = CGRectMake(0, 0, frame.size.width, adjustedHeight);
@@ -50,6 +57,11 @@
   [super viewDidLoad];
   [self loadNextPage];
 }
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
 
 -(void)loadNextPage {
   if (self.isLoading) {
