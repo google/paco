@@ -61,6 +61,7 @@
   NSAssert([version length] > 0, @"version number is not valid!");
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
   [request setValue:version forHTTPHeaderField:@"paco.version"];
+  [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
@@ -91,7 +92,8 @@
     }];
 }
 
-- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+//http request to load paginated experiment definitions
+- (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(PacoPaginatedResponseBlock)block {
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
@@ -103,26 +105,65 @@
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
-    if (completionBlock) {
-      completionBlock(jsonData, error);
+    if (!error) {
+      NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
+      if (block) {
+        NSString* cursor = [jsonData objectForKey:@"cursor"];
+        NSArray* results = [jsonData objectForKey:@"results"];
+        block(results, cursor, nil);
+      }
+    } else {
+      if (block) {
+        block(nil, nil, error);
+      }
     }
   }];
 }
 
 
-- (void)loadAllFullDefinitionListWithCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments" andBlock:completionBlock];
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block {
+  NSString* endPoint = @"/experiments?public";
+  if ([cursor length] > 0) {
+    endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
+  }
+  if (limit > 0) {
+    endPoint = [endPoint stringByAppendingFormat:@"&limit=%d", limit];
+  }
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }
 
 
 - (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:completionBlock];
+  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+    if (completionBlock) {
+      completionBlock(items, error);
+    }
+  }];
 }
 
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
-  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:completionBlock];
+  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
+    if (completionBlock) {
+      completionBlock(items, error);
+    }
+  }];
+}
+
+- (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock {
+  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSArray* definitionList, NSError* error) {
+    PacoExperimentDefinition* definition = nil;
+    if (!error) {
+      id json = [definitionList firstObject];
+      NSAssert([json isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
+      definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:json];
+      NSAssert(definition, @"definition should be valid");
+    }
+    if (completionBlock) {
+      completionBlock(definition, error);
+    }
+  }];
 }
 
 - (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {

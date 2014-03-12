@@ -29,6 +29,8 @@
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
+#import "PacoPublicExperimentController.h"
+
 
 @implementation PacoMainViewController
 
@@ -81,6 +83,21 @@
   [view addSubview:buttonRunningExperiment];
   [buttonRunningExperiment sizeToFit];
 
+  
+  PacoMenuButton* publicExperimentButton = [[PacoMenuButton alloc] init];
+  publicExperimentButton.text.text = NSLocalizedString(@"Find Public Experiments",nil);
+  [publicExperimentButton.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_normal.png"]
+                                           forState:UIControlStateNormal];
+  [publicExperimentButton.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_pressed.png"]
+                                           forState:UIControlStateHighlighted];
+  [publicExperimentButton.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_disabled.png"]
+                                           forState:UIControlStateDisabled];
+  [publicExperimentButton.button addTarget:self
+                                     action:@selector(onExplorePublicExperiments)
+                           forControlEvents:UIControlEventTouchUpInside];
+  [view addSubview:publicExperimentButton];
+  [publicExperimentButton sizeToFit];
+
   PacoMenuButton *buttonExploreData = [[PacoMenuButton alloc] init];
   buttonExploreData.text.text = NSLocalizedString(@"Explore Your Data",nil);
   [buttonExploreData.button setBackgroundImage:[UIImage imageNamed:@"current_experiments_normal.png"] forState:UIControlStateNormal];
@@ -117,7 +134,7 @@
 
   CGRect layoutRect = CGRectInset(view.bounds, 15, 0);
   layoutRect.size.height -= 60;
-  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
+  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, publicExperimentButton, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
@@ -148,6 +165,11 @@
 
 - (void)onRunningExperiments {
   PacoRunningExperimentsViewController *controller = [[PacoRunningExperimentsViewController alloc] init];
+  [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)onExplorePublicExperiments {
+  PacoPublicExperimentController* controller = [[PacoPublicExperimentController alloc] initWithNibName:nil bundle:nil];
   [self.navigationController pushViewController:controller animated:YES];
 }
 
