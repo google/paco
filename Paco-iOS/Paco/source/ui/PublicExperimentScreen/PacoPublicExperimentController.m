@@ -20,6 +20,7 @@
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoClient.h"
 #import "PacoService.h"
+#import "PacoFont.h"
 
 @interface PacoPublicExperimentController () <UITableViewDelegate, UITableViewDataSource>
 @property(nonatomic, strong) UITableView* tableView;
@@ -46,7 +47,7 @@
                                                                             action:@selector(gotoMainPage)];
 
     CGRect frame = self.view.frame;
-    CGFloat adjustedHeight = frame.size.height - 20. - 64; //minus status bar and navigation bar
+    CGFloat adjustedHeight = frame.size.height - 64; //minus navigation bar
     frame = CGRectMake(0, 0, frame.size.width, adjustedHeight);
     _tableView = [[UITableView alloc] initWithFrame:frame style:UITableViewStylePlain];
     _tableView.delegate = self;
@@ -164,6 +165,7 @@
     if (!cell) {
       cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"LoadMoreCell"];
       cell.textLabel.textAlignment = NSTextAlignmentCenter;
+      cell.textLabel.font = [PacoFont pacoNormalButtonFont];
     }
     [self updateLoadMoreCell:cell];
     return cell;
@@ -173,12 +175,15 @@
   if (!cell) {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                   reuseIdentifier:@"experimentCell"];
+
+    cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.textLabel.textColor = [PacoColor pacoSystemButtonBlue];
+    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }
   NSDictionary* dict = [self.definitions objectAtIndex:indexPath.row];
   NSAssert([dict isKindOfClass:[NSDictionary class]], @"definition should be a dictionary");
-  cell.textLabel.text = [dict objectForKey:@"title"];
+  cell.textLabel.text = [NSString stringWithFormat:@"%d. %@", indexPath.row + 1, [dict objectForKey:@"title"]];
   cell.detailTextLabel.text = [dict objectForKey:@"creator"];
   return cell;
 }

@@ -85,7 +85,7 @@
 
   
   PacoMenuButton* publicExperimentButton = [[PacoMenuButton alloc] init];
-  publicExperimentButton.text.text = NSLocalizedString(@"Public Experiments",nil);
+  publicExperimentButton.text.text = NSLocalizedString(@"Find Public Experiments",nil);
   [publicExperimentButton.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_normal.png"]
                                            forState:UIControlStateNormal];
   [publicExperimentButton.button setBackgroundImage:[UIImage imageNamed:@"find_experiments_pressed.png"]
