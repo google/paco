@@ -17,7 +17,6 @@
 				<string>icon_ios7_settings_58</string>
 				<string>icon_ios7_spotlight_80</string>
 				<string>icon_ios7_iphone_120</string>
-				<string>app_icon</string>
 			</array>
 		</dict>
 	</dict>
@@ -33,8 +32,6 @@
 				<string>icon_ios7_spotlight_40</string>
 				<string>icon_ios7_ipad_152</string>
 				<string>icon_ios7_ipad_76</string>
-				<string>app_icon_ipad</string>
-				<string>app_icon</string>
 			</array>
 		</dict>
 	</dict>

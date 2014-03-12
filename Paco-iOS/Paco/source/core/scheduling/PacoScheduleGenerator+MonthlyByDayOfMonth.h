@@ -13,16 +13,14 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-@class PacoExperiment;
+#import "PacoScheduleGenerator.h"
 
-@interface PacoScheduleGenerator : NSObject
-
-+ (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
-                        numOfDates:(NSInteger)numOfDates
-                          fromDate:(NSDate*)fromDate;
+@interface PacoScheduleGenerator (MonthlyByDayOfMonth)
 
 
-+ (NSDate*)adjustedGenerateTime:(NSDate*)originalGenerateTime forExperiment:(PacoExperiment*)experiment;
++ (NSArray*)nextDatesByDayOfMonthForExperiment:(PacoExperiment*)experiment
+                                    numOfDates:(NSInteger)numOfDates
+                                      fromDate:(NSDate*)fromDate;
+
 
 @end

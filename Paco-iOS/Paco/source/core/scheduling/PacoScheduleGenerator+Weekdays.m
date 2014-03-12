@@ -31,10 +31,6 @@
   PacoExperimentSchedule* schedule = experiment.schedule;
   NSAssert(schedule.scheduleType == kPacoScheduleTypeWeekday, @"should be a weekday experiment");
   
-  //experiment already finished
-  if ([experiment endDate] != nil && [[experiment endDate] pacoNoLaterThanDate:fromDate]) {
-    return nil;
-  }
   
   NSMutableArray* results = [NSMutableArray arrayWithCapacity:numOfDates];
   NSDate* startTime = [self getStartTimeToScheduleTimes:schedule.times
