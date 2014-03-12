@@ -189,6 +189,10 @@
 }
 
 #pragma mark UITableViewDelegate
+-(CGFloat)tableView:(UITableView*)tableView heightForRowAtIndexPath:(NSIndexPath*)indexPath {
+  return 55.0f;
+}
+
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
   if (indexPath.row == [self rowOfLastCell]) {
     [self loadNextPage];
