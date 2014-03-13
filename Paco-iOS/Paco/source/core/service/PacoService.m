@@ -173,7 +173,7 @@
       for (NSDictionary* dict in definitionList) {
         NSNumber* idNum = [dict objectForKey:@"id"];
         NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
-        NSString* definitionId = [NSString stringWithFormat:@"%ld", [idNum longValue]];
+        NSString* definitionId = [NSString stringWithFormat:@"%lld", [idNum longLongValue]];
         [result addObject:definitionId];
       }
       if (completionBlock) {
