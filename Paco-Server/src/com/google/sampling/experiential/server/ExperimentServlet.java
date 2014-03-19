@@ -19,18 +19,24 @@ package com.google.sampling.experiential.server;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javax.jdo.PersistenceManager;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.sampling.experiential.datastore.PublicExperimentList;
+import com.google.sampling.experiential.model.Experiment;
 
 /**
  * Servlet that answers requests for experiments.
@@ -47,6 +53,42 @@ public class ExperimentServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
   public static final String DEV_HOST = "<Your machine name here>";
   private UserService userService;
+
+
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    doMigrateWork();
+  }
+
+
+
+  private void doMigrateWork() {
+    populatePublicExperimentsList();
+
+  }
+
+
+
+  private void populatePublicExperimentsList() {
+    if (!PublicExperimentList.getPublicExperiments(null).isEmpty()) {
+      return;
+    }
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
+      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
+      PublicExperimentList.updatePublicExperimentsList(experiments, new DateTime());
+    } finally  {
+      pm.close();
+    }
+
+
+  }
+
+
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
@@ -70,6 +112,8 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
 
+      String pacoProtocol = req.getHeader("pacoProtocol");
+
       //String offset = req.getParameter("offset");
       String limitStr = req.getParameter("limit");
       Integer limit = null;
@@ -87,17 +131,17 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsJson = null;
       ExperimentServletHandler handler;
       if (experimentsPublishedToMeParam != null) {
-        handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor);
+        handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (shortParam != null) {
-        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor);
+        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (selectedExperimentsParam != null) {
-        handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam);
+        handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
-        handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor);
+        handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (experimentsAdministeredByUserParam != null) {
-        handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor);
+        handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
-        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor);
+        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
       experimentsJson = handler.performLoad();
       resp.getWriter().println(scriptBust(experimentsJson));
@@ -170,7 +214,8 @@ public class ExperimentServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, getWhoFromLogin(), appIdHeader, pacoVersion);
+    DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

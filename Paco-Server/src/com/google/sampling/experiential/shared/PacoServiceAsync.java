@@ -41,6 +41,7 @@ public interface PacoServiceAsync {
       boolean shared, AsyncCallback<Void> asyncCallback);
 
   /**
+   * @param timeZone
    * @param title
    * @param description
    * @param kvPairs
@@ -49,7 +50,7 @@ public interface PacoServiceAsync {
    * @param feedbackType
    * @param asyncCallback
    */
-  void saveExperiment(ExperimentDAO experiment, AsyncCallback<Void> asyncCallback);
+  void saveExperiment(ExperimentDAO experiment, String timeZone, AsyncCallback<Void> asyncCallback);
 
   void getAllJoinableExperiments(String tz, Integer limit, String cursor, AsyncCallback<ExperimentQueryResult> callback);
 

@@ -54,9 +54,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.InputDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -737,7 +737,7 @@ public class Main implements EntryPoint, ExperimentListener {
   private void saveToServer(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
 
-    pacoService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
 
       // PRIYA - see how this is
       @Override
@@ -763,7 +763,7 @@ public class Main implements EntryPoint, ExperimentListener {
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
 
-    pacoService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {

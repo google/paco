@@ -1681,7 +1681,7 @@ public class ExperimentProviderUtil {
     List<Experiment> existing = loadExperimentsFromDisk(false);
     List<Experiment> newEx;
     try {
-      newEx = createObjectsFromJsonStream(contentAsString);
+      newEx = (List<Experiment>) fromEntitiesJson(contentAsString).get("results");
       existing.addAll(newEx);
       String newJson = getJson(existing);
       if (newJson != null) {

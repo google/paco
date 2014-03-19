@@ -54,6 +54,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.pacoapp.paco.R;
 
 
@@ -265,7 +266,14 @@ public class FindExperimentsActivity extends FragmentActivity {
         experimentCursor = newExperimentCursor;
         saveExperimentsToDisk();
       } else {
-        experiments.addAll(newExperiments); // we are mid-pagination so just add the new batch to the existing.
+        Map<Long, Experiment> existingAndNewExperimentsMap = Maps.newConcurrentMap();
+        for(Experiment existingExperiment : experiments) {
+          existingAndNewExperimentsMap.put(existingExperiment.getServerId(), existingExperiment);
+        }
+        for (Experiment experiment : newExperiments) {
+          existingAndNewExperimentsMap.put(experiment.getServerId(), experiment);
+        }
+        experiments = Lists.newArrayList(existingAndNewExperimentsMap.values());
         Collections.sort(experiments, new Comparator<Experiment>() {
 
           @Override

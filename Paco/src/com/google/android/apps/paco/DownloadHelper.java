@@ -2,6 +2,8 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -116,10 +118,12 @@ public class DownloadHelper {
     if (limit != null) {
       path += "&limit=" + limit;
     }
+    path += "&tz=" + new DateTime().getZone().getID();
     request = manager.createRequest();
     Response response = request.setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
         .addHeader("http.useragent", "Android")
-        .addHeader("paco.version", AndroidUtils.getAppVersion(context)).execute();
+        .addHeader("paco.version", AndroidUtils.getAppVersion(context))
+        .addHeader("pacoProtocol", "3.0").execute();
     return response.getContentAsString();
   }
 

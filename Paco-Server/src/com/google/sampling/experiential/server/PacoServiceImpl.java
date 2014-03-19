@@ -165,9 +165,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   @Override
-  public void saveExperiment(ExperimentDAO experimentDAO) {
+  public void saveExperiment(ExperimentDAO experimentDAO, String timezone) {
     User loggedInUser = getWhoFromLogin();
-    ExperimentRetriever.getInstance().saveExperiment(experimentDAO, loggedInUser);
+    ExperimentRetriever.getInstance().saveExperiment(experimentDAO, loggedInUser, timezone);
   }
 
   public Boolean deleteExperiment(ExperimentDAO experimentDAO) {

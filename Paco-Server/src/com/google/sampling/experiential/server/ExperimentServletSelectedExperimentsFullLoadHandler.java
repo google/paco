@@ -14,8 +14,8 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
   private String selectedExperimentsParam;
 
   public ExperimentServletSelectedExperimentsFullLoadHandler(String email, DateTimeZone timezone,
-                                                             String selectedExperimentsParam) {
-    super(email, timezone, null, null);
+                                                             String selectedExperimentsParam, String pacoProtocol) {
+    super(email, timezone, null, null, pacoProtocol);
     this.selectedExperimentsParam = selectedExperimentsParam;
   }
 

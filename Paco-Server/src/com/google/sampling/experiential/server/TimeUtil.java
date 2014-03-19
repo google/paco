@@ -27,6 +27,12 @@ public class TimeUtil {
     return TimeUtil.adjustToTimezone(dateTimeZone, datetime);
   }
 
+  public static DateTime getNowInUserTimezone(String dateTimeZoneId) {
+    DateTimeZone dateTimeZone = DateTimeZone.forID(dateTimeZoneId);
+    DateTime datetime = new DateTime();
+    return TimeUtil.adjustToTimezone(dateTimeZone, datetime);
+  }
+
   private static DateTime adjustToTimezone(DateTimeZone dateTimeZone, DateTime datetime) {
     if (dateTimeZone != null) {
       return datetime.withZone(dateTimeZone);

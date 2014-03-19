@@ -10,8 +10,8 @@ import com.google.paco.shared.model.ExperimentQueryResult;
 
 public class ExperimentServletExperimentsForMeLoadHandler extends ExperimentServletShortLoadHandler {
 
-  public ExperimentServletExperimentsForMeLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor) {
-    super(email, timezone, limit, cursor);
+  public ExperimentServletExperimentsForMeLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor, String pacoProtocol) {
+    super(email, timezone, limit, cursor, pacoProtocol);
   }
 
   @Override

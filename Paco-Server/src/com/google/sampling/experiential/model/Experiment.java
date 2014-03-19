@@ -276,6 +276,12 @@ public class Experiment {
     return getDateAsString(endDate, TimeUtil.DATE_FORMAT);
   }
 
+  @JsonIgnore
+  public Date getEndDateAsDate() {
+    return endDate;
+  }
+
+
   public void setEndDate(String endDateStr) {
       setFormattedEndDate(endDateStr);
   }
@@ -428,8 +434,14 @@ public class Experiment {
   }
 
   @JsonIgnore
+  public boolean isPublic() {
+    return (getPublished() != null && getPublished() == true) &&
+            (getPublishedUsers() == null || getPublishedUsers().isEmpty());
+  }
+
+  @JsonIgnore
   private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
+    if (getSchedule() != null && getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
       List<Long> times = schedule.getTimes();
       // get the latest time
       Collections.sort(times);

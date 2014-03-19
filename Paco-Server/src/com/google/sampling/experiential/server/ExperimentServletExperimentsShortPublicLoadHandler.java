@@ -10,8 +10,8 @@ import com.google.paco.shared.model.ExperimentQueryResult;
 
 public class ExperimentServletExperimentsShortPublicLoadHandler extends ExperimentServletShortLoadHandler {
 
-  public ExperimentServletExperimentsShortPublicLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor) {
-    super(email, timezone, limit, cursor);
+  public ExperimentServletExperimentsShortPublicLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor, String pacoProtocol) {
+    super(email, timezone, limit, cursor, pacoProtocol);
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {

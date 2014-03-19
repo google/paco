@@ -29,6 +29,7 @@ public class ExperimentServletHandlerTest extends TestCase {
 
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(),
                                                                            new LocalMemcacheServiceTestConfig());
+  private String pacoProtocol = null;
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -58,8 +59,8 @@ public class ExperimentServletHandlerTest extends TestCase {
 
 
   public void testShortLoadIsShortButComplete() {
-    ExperimentServletHandler shortHandler = new ExperimentServletShortLoadHandler(email, null, null, null);
-    ExperimentServletHandler longHandler = new ExperimentServletAllExperimentsFullLoadHandler(email, null, null, null);
+    ExperimentServletHandler shortHandler = new ExperimentServletShortLoadHandler(email, null, null, null, pacoProtocol);
+    ExperimentServletHandler longHandler = new ExperimentServletAllExperimentsFullLoadHandler(email, null, null, null, pacoProtocol);
 
     String shortContent = shortHandler.performLoad();
     String longContent = longHandler.performLoad();
@@ -74,7 +75,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   public void testSelectedLoadReturningNoExperiments() {
     List<Integer> experimentIds = Arrays.asList(NONEXISTANT_EXPERIMENT_ID);
     String param = createExperimentIdParam(experimentIds);
-    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param);
+    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param, pacoProtocol);
 
     String content = handler.performLoad();
     assertTrue(content != null);
@@ -85,7 +86,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   public void testSelectedLoadReturningOneExperiment() {
     List<Integer> experimentIds = Arrays.asList(FIRST_EXPERIMENT_ID);
     String param = createExperimentIdParam(experimentIds);
-    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param);
+    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param, pacoProtocol);
 
     String content = handler.performLoad();
     assertTrue(content != null);
@@ -97,7 +98,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     List<Integer> experimentIds = Arrays.asList(FIRST_EXPERIMENT_ID, SECOND_EXPERIMENT_ID,
                                                 THIRD_EXPERIMENT_ID);
     String param = createExperimentIdParam(experimentIds);
-    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param);
+    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param, pacoProtocol);
 
     String content = handler.performLoad();
     assertTrue(content != null);
@@ -109,7 +110,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     List<Integer> experimentIds = Arrays.asList(FIRST_EXPERIMENT_ID, NONEXISTANT_EXPERIMENT_ID,
                                                 THIRD_EXPERIMENT_ID);
     String param = createExperimentIdParam(experimentIds);
-    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param);
+    ExperimentServletHandler handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, null, param, pacoProtocol);
 
     String content = handler.performLoad();
     assertTrue(content != null);
@@ -122,7 +123,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
-    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, null, null);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, null, null, pacoProtocol );
     String content = handler.performLoad();
 
     assertTrue(content != null);
@@ -135,7 +136,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
-    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, null);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, null, pacoProtocol);
     String content = handler.performLoad();
 
 
@@ -146,7 +147,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     String cursor = handler.cursor;
     assertNotNull(cursor);
 
-    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, cursor);
+    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, cursor, pacoProtocol);
     String content2 = handler2.performLoad();
 
     assertNotSame(cursor, handler2.cursor);
@@ -162,7 +163,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
-    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, null);
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, null, pacoProtocol);
     String content = handler.performLoad();
 
 
@@ -173,7 +174,7 @@ public class ExperimentServletHandlerTest extends TestCase {
     String cursor = handler.cursor;
     assertNotNull(cursor);
 
-    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, cursor);
+    ExperimentServletHandler handler2 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, cursor, pacoProtocol);
     String content2 = handler2.performLoad();
 
     assertNotSame(cursor, handler2.cursor);
@@ -191,7 +192,7 @@ public class ExperimentServletHandlerTest extends TestCase {
       assertTrue(experimentDAO.getTitle() + " should not be in first page of experiments", !experimentsGroup1Names.contains(experimentDAO.getTitle()));
     }
 
-    ExperimentServletHandler handler3 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, handler2.cursor);
+    ExperimentServletHandler handler3 = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, handler2.cursor, pacoProtocol);
     String content3 = handler3.performLoad();
 
     assertNotSame(handler2.cursor, handler3.cursor);
@@ -210,7 +211,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    mapService.saveExperiment(experiment);
+    mapService.saveExperiment(experiment, null);
   }
 
   private List<ExperimentDAO> getExperimentList(String content) {

@@ -30,10 +30,37 @@ public class JsonConverter {
 
   /**
    * @param experiments
+   * @param pacoProtocol TODO
    * @param printWriter
    * @return
    */
-  public static String jsonify(List<? extends ExperimentDAOCore> experiments, Integer limit, String cursor) {
+  public static String jsonify(List<? extends ExperimentDAOCore> experiments, Integer limit, String cursor, String pacoProtocol) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
+      if (pacoProtocol == null) {
+        if (experiments == null) {
+          experiments = Collections.EMPTY_LIST;
+        }
+        return mapper.writeValueAsString(experiments);
+      } else if (pacoProtocol.equals("3.0")) {
+        Map<String, Object> preJsonObject = buildV3ProtocolJson(experiments, limit, cursor);
+        return mapper.writeValueAsString(preJsonObject);
+      }
+
+    } catch (JsonGenerationException e) {
+      log.severe("Json generation error " + e);
+    } catch (JsonMappingException e) {
+      log.severe("JsonMapping error getting experiments: " + e.getMessage());
+    } catch (IOException e) {
+      log.severe("IO error getting experiments: " + e.getMessage());
+    }
+    return null;
+  }
+
+  private static Map<String, Object> buildV3ProtocolJson(List<? extends ExperimentDAOCore> experiments, Integer limit,
+                                                         String cursor) {
     if (experiments == null) {
       experiments = Collections.EMPTY_LIST;
     }
@@ -46,24 +73,12 @@ public class JsonConverter {
     if (cursor != null) {
       preJsonObject.put("cursor", cursor);
     }
-
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-    try {
-      return mapper.writeValueAsString(preJsonObject);
-    } catch (JsonGenerationException e) {
-      log.severe("Json generation error " + e);
-    } catch (JsonMappingException e) {
-      log.severe("JsonMapping error getting experiments: " + e.getMessage());
-    } catch (IOException e) {
-      log.severe("IO error getting experiments: " + e.getMessage());
-    }
-    return null;
+    return preJsonObject;
   }
 
-  public static String shortJsonify(List<ExperimentDAO> experiments, Integer limit, String cursor) {
+  public static String shortJsonify(List<ExperimentDAO> experiments, Integer limit, String cursor, String pacoProtocol) {
     List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
-    return jsonify(shortExperiments, limit, cursor);
+    return jsonify(shortExperiments, limit, cursor, pacoProtocol);
   }
 
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
