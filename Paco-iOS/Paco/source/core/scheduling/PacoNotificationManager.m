@@ -25,8 +25,10 @@
 static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 @interface PacoNotificationManager ()
-@property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
-@property (nonatomic, weak, readwrite) id<PacoNotificationManagerDelegate> delegate;
+@property (atomic, retain) NSMutableDictionary* notificationDict;
+@property (nonatomic, weak) id<PacoNotificationManagerDelegate> delegate;
+@property (atomic, assign) BOOL areNotificationsLoaded;
+
 
 - (void)purgeCachedNotifications;
 
@@ -413,30 +415,36 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (BOOL)saveNotificationsToCache {
-  NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
-  BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
-  if (success) {
-    DDLogInfo(@"Successfully saved notifications!");
-  } else {
-    DDLogInfo(@"Failed to save notifications!");
+  @synchronized (self) {
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
+    BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
+    if (success) {
+      DDLogInfo(@"Successfully saved notifications!");
+    } else {
+      DDLogInfo(@"Failed to save notifications!");
+    }
+    return success;
   }
-  return success;
 }
 
 - (BOOL)loadNotificationsFromCache {
-  NSError* error = nil;
-  NSData* data = [NSData dataWithContentsOfFile:[self notificationPlistPath]
-                                        options:NSDataReadingMappedIfSafe
-                                          error:&error];
-  if (error == nil) {
-    self.notificationDict = (NSMutableDictionary*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
-  } else {
-    self.notificationDict = [NSMutableDictionary dictionary];
-  }
-  if (error != nil && ![error pacoIsFileNotExistError]) {
-    return NO;
-  } else {
-    return YES;
+  @synchronized (self) {
+    NSError* error = nil;
+    NSData* data = [NSData dataWithContentsOfFile:[self notificationPlistPath]
+                                          options:NSDataReadingMappedIfSafe
+                                            error:&error];
+    if (error == nil) {
+      self.notificationDict = (NSMutableDictionary*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+    } else {
+      self.notificationDict = [NSMutableDictionary dictionary];
+    }
+    self.areNotificationsLoaded = YES;
+    
+    if (error != nil && ![error pacoIsFileNotExistError]) {
+      return NO;
+    } else {
+      return YES;
+    }
   }
 }
 

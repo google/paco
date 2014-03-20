@@ -38,6 +38,7 @@ extern NSString* const PacoAppBecomeActive;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
+- (BOOL)areRunningExperimentsLoaded;
 - (BOOL)shouldTriggerNotificationSystem;
 
 - (BOOL)saveExperimentDefinitionsToFile;

@@ -26,6 +26,8 @@
 
 @interface PacoNotificationManager : NSObject
 
+@property (atomic, assign, readonly) BOOL areNotificationsLoaded;
+
 + (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
                                 firstLaunchFlag:(BOOL)firstLaunchFlag;
 
