@@ -133,6 +133,7 @@
           @"dayOfMonth=%d "
           @"esmStartHour=%@ "
           @"esmEndHour=%@ "
+          @"esmMinBuffer=%d "
           @"esmFrequency=%d "
           @"esmPeriodInDays=%lld "
           @"esmPeriod=%@ "
@@ -151,6 +152,7 @@
           self.dayOfMonth,
           [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour],
           [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour],
+          self.minimumBuffer,
           self.esmFrequency,
           self.esmPeriodInDays,
           [self periodString],

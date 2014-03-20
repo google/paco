@@ -89,6 +89,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     DDLogError(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
     return jsonError;
   }
+  if (!jsonData) {
+    DDLogError(@"jsonData is nil!");
+  }
   NSAssert(jsonData != nil, @"jsonData should not be nil!");
   
   NSError* saveError = nil;
@@ -329,6 +332,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if ([pendingEvents count] == 0) {
       DDLogInfo(@"No pending events to upload.");
       if (completionBlock) {
+        DDLogInfo(@"UIBackgroundFetchResultNoData");
         completionBlock(UIBackgroundFetchResultNoData);
       }
       return;
@@ -346,6 +350,11 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     [self.uploader startUploadingWithBlock:^(BOOL success) {
       UIBackgroundFetchResult result = success ? UIBackgroundFetchResultNewData : UIBackgroundFetchResultFailed;
       if (completionBlock) {
+        if (success) {
+          DDLogInfo(@"UIBackgroundFetchResultNewData");
+        } else {
+          DDLogInfo(@"UIBackgroundFetchResultFailed");
+        }
         completionBlock(result);
       }
     }];

@@ -316,12 +316,14 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
     DDLogInfo(@"Skip Executing Major Task, notification system is off");
     [self disableBackgroundFetch];
     if (completionBlock) {
+      DDLogInfo(@"UIBackgroundFetchResultNoData");
       completionBlock(UIBackgroundFetchResultNoData);
     }
   } else {
     [self.scheduler executeRoutineMajorTask];
     [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
   }
+  DDLogInfo(@"Background fetch finished!");
 }
 
 - (void)disableBackgroundFetch {
