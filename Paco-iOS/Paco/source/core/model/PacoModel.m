@@ -109,8 +109,17 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   [self updateExperimentInstances:instances];
 }
 
+- (BOOL)areRunningExperimentsLoaded {
+  return self.experimentInstances != nil;
+}
+
 - (BOOL)shouldTriggerNotificationSystem {
-  if (0 == self.experimentInstances.count) {
+  if (!self.experimentInstances) {
+    DDLogError(@"Running experiments are not loaded yet!");
+  }
+  
+  if (0 == [self.experimentInstances count]) {
+    DDLogInfo(@"No running experiments.");
     return NO;
   }
   for (PacoExperiment* experiment in self.experimentInstances) {
@@ -118,6 +127,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
       return YES;
     }
   }
+  DDLogInfo(@"There are %d running experiments, none of them should schedule notifications.",
+            [self.experimentInstances count]);
   return NO;
 }
 
