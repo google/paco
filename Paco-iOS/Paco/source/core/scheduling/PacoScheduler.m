@@ -79,6 +79,9 @@ NSInteger const kTotalNumOfNotifications = 60;
   return [self.notificationManager saveNotificationsToCache];
 }
 
+- (BOOL)isDoneLoadingNotifications {
+  return self.notificationManager.areNotificationsLoaded;
+}
 
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
@@ -139,7 +142,12 @@ NSInteger const kTotalNumOfNotifications = 60;
  **/
 //YMZ:TODO: this method can be improved to be more efficient
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
-  @synchronized(self) {    
+  @synchronized(self) {
+    if (![self.delegate isDoneInitializationForMajorTask]) {
+      DDLogInfo(@"Skip executing major task: PacoClient isn't ready");
+      return;
+    }
+    
     DDLogInfo(@"Executing Major Task...");
     BOOL needToScheduleNewNotifications = YES;
     NSArray* notificationsToSchedule = nil;

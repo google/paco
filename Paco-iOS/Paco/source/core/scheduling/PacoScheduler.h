@@ -26,7 +26,7 @@ extern NSInteger const kTotalNumOfNotifications;
 @protocol PacoSchedulerDelegate
 @required
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
-
+- (BOOL)isDoneInitializationForMajorTask;
 - (BOOL)needsNotificationSystem;
 - (void)updateNotificationSystem;
 - (NSArray*)nextNotificationsToSchedule;
@@ -66,6 +66,9 @@ extern NSInteger const kTotalNumOfNotifications;
 // we can persist the notifications state
 - (BOOL)saveNotificationsToFile;
 
+//return YES if notification plist is loaded, otherwise return NO
+- (BOOL)isDoneLoadingNotifications;
+// call this AFTER running experiments are loaded
 - (void)initializeNotifications;
 
 - (void)cleanExpiredNotifications;
