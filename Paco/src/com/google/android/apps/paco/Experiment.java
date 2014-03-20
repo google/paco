@@ -718,9 +718,7 @@ public class Experiment implements Parcelable {
   }
 
   public boolean isStarted(DateTime now) {
-    return (isFixedDuration() == null || !isFixedDuration())
-            || (isFixedDuration() && (!now.isBefore(getStartDateAsDateMidnight()) ||
-                                       now.isAfter(getStartDateTime())));
+    return isFixedDuration() == null || !isFixedDuration() || !now.isBefore(getStartDateTime());
   }
 
 
