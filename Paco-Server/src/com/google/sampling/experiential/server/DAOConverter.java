@@ -97,9 +97,11 @@ public class DAOConverter {
     String customRenderingCode = experiment.getCustomRenderingCode();
     Boolean showFeedback = experiment.shouldShowFeedback();
 
+    Boolean hasCustomFeedback = experiment.hasCustomFeedback();
+
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, showFeedback);
+            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, showFeedback, hasCustomFeedback);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -139,7 +141,7 @@ public class DAOConverter {
     if (feedbackKey != null) {
       id = feedbackKey.getId();
     }
-    return new FeedbackDAO(id, feedback.getFeedbackType(), feedback.getLongText());
+    return new FeedbackDAO(id, feedback.getLongText());
   }
 
   public static InputDAO createDAO(Input input) {
@@ -209,6 +211,7 @@ public class DAOConverter {
     experiment.setInputs(fromInputDAOs(key, experimentDAO.getInputs(),
         experiment.getQuestionsChange()));
     experiment.setFeedback(fromFeedbackDAOs(key, experimentDAO.getFeedback()));
+    experiment.setShowFeedback(experimentDAO.shouldShowFeedback());
 
     experiment.setPublished(experimentDAO.getPublished());
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
@@ -218,7 +221,6 @@ public class DAOConverter {
     experiment.setCustomRendering(experimentDAO.isCustomRendering());
     experiment.setCustomRenderingCode(experimentDAO.getCustomRenderingCode());
 
-    experiment.setShowFeedback(experimentDAO.shouldShowFeedback());
     return experiment;
   }
 
@@ -271,8 +273,7 @@ public class DAOConverter {
   private static List<Feedback> fromFeedbackDAOs(Key experimentKey, FeedbackDAO[] feedbackDAOs) {
     List<Feedback> feedback = Lists.newArrayList();
     for (FeedbackDAO feedbackDAO : feedbackDAOs) {
-      feedback.add(new Feedback(experimentKey, feedbackDAO.getId(), feedbackDAO.getFeedbackType(),
-          feedbackDAO.getText()));
+      feedback.add(new Feedback(experimentKey, feedbackDAO.getId(), feedbackDAO.getText()));
     }
     return feedback;
   }

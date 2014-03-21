@@ -117,6 +117,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private AceEditor customRenderingEditor;
   private AceEditor customFeedbackEditor;
+  private CheckBox showFeedbackCheckBox;
 
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -298,28 +299,52 @@ public class ExperimentDefinitionPanel extends Composite {
    * @return
    */
   private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
-    // checkbox for default or custom feedback "[] Create Custom Feedback Page"
-    // if custom selected then fill with feedback from experiment in TextArea
-    HorizontalPanel feedbackPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null &&
-        experiment.getFeedback().length > 0 &&
-        !defaultFeedback(experiment.getFeedback()[0]));
-    feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    feedbackPanel.add(feedbackLabel);
+    VerticalPanel feedbackPanel = new VerticalPanel();
+    feedbackPanel.add(createShowFeedbackCheckboxPanel());
+    feedbackPanel.add(createCustomFeedbackCheckboxPanel());
     formPanel.add(feedbackPanel);
 
-    createCustomFeedbackDisclosurePanel(experiment);
+    customFeedbackPanel = createCustomFeedbackDisclosurePanel(experiment);
     formPanel.add(customFeedbackPanel);
     return feedbackPanel;
   }
 
+  private HorizontalPanel createShowFeedbackCheckboxPanel() {
+    HorizontalPanel showFeedbackPanel = new HorizontalPanel();
+    showFeedbackCheckBox = new CheckBox();
+    showFeedbackCheckBox.setValue(experiment.shouldShowFeedback());
+    showFeedbackPanel.add(showFeedbackCheckBox);
+    Label showFeedbackLabel = new Label(myConstants.showFeedback());
+    showFeedbackPanel.add(showFeedbackLabel);
+    return showFeedbackPanel;
+  }
+
+  private HorizontalPanel createCustomFeedbackCheckboxPanel() {
+    HorizontalPanel customFeedbackCheckboxPanel = new HorizontalPanel();
+    customFeedbackCheckBox = new CheckBox();
+    customFeedbackCheckBox.setValue(hasNonDefaultFeedback());
+    customFeedbackCheckboxPanel.add(customFeedbackCheckBox);
+    Label feedbackLabel = new Label(myConstants.customFeedback());
+    customFeedbackCheckboxPanel.add(feedbackLabel);
+    return customFeedbackCheckboxPanel;
+  }
+
+  private boolean hasNonDefaultFeedback() {
+    return (experiment.hasCustomFeedback() != null && experiment.hasCustomFeedback()) || oldMethodBasedOnNonDefaultFeedbackText();
+  }
+
+  private boolean oldMethodBasedOnNonDefaultFeedbackText() {
+    return experiment.getFeedback() != null &&
+        experiment.getFeedback().length > 0 &&
+        !defaultFeedback(experiment.getFeedback()[0]);
+  }
+
   /**
    * @param experiment2
+   * @return
    */
-  private void createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
-    customFeedbackPanel = new DisclosurePanel();
+  private DisclosurePanel createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
+    final DisclosurePanel customFeedbackPanel = new DisclosurePanel();
 
     final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
                                                                                false,
@@ -347,10 +372,6 @@ public class ExperimentDefinitionPanel extends Composite {
     Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
     userContentPanel.add(instructionLabel);
 
-//    customFeedbackText = new TextArea();
-//    customFeedbackText.setCharacterWidth(100);
-//    customFeedbackText.setHeight("100");
-
     customFeedbackEditor = new AceEditor();
     customFeedbackEditor.setWidth("600px");
     customFeedbackEditor.setHeight("400px");
@@ -367,6 +388,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
     userContentPanel.add(customFeedbackEditor);
     customFeedbackPanel.setContent(userContentPanel);
+    return customFeedbackPanel;
   }
 
   /**
@@ -374,8 +396,7 @@ public class ExperimentDefinitionPanel extends Composite {
    * @return
    */
   private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE)
-           && feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+    return feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
   }
 
   private PanelPair createTitlePanel(ExperimentDAO experiment) {
@@ -855,12 +876,12 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private void setFeedbackOn(ExperimentDAO experiment) {
+    experiment.setHasCustomFeedback(customFeedbackCheckBox.getValue());
+    experiment.setShowFeedback(showFeedbackCheckBox.getValue());
     if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
-                                                                 FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
+      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
     } else {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DISPLAY_FEEBACK_TYPE,
-                                                                 customFeedbackEditor.getText()) });
+      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, customFeedbackEditor.getText()) });
     }
   }
 

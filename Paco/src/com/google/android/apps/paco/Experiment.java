@@ -85,6 +85,7 @@ public class Experiment implements Parcelable {
       experiment.customRenderingCode = source.readString();
 
       experiment.shouldShowFeedback = source.readInt() == 1;
+      experiment.hasCustomFeedback = source.readInt() == 1;
       return experiment;
     }
 
@@ -132,6 +133,7 @@ public class Experiment implements Parcelable {
   @JsonIgnore
   private String json;
   private Boolean shouldShowFeedback = true;
+  private Boolean hasCustomFeedback;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -355,6 +357,7 @@ public class Experiment implements Parcelable {
     dest.writeInt(customRendering ? 1 : 0);
     dest.writeString(customRenderingCode);
     dest.writeInt(shouldShowFeedback ? 1 : 0);
+    dest.writeInt(hasCustomFeedback ? 1 : 0);
   }
 
   @JsonIgnore
@@ -712,6 +715,15 @@ public class Experiment implements Parcelable {
   public void setShowFeedback(Boolean show) {
     this.shouldShowFeedback = show;
   }
+
+  public Boolean hasCustomFeedback() {
+    return this.hasCustomFeedback  ;
+  }
+
+  public void setHasCustomFeedback(Boolean hasCustomFeedback) {
+    this.hasCustomFeedback = hasCustomFeedback;
+  }
+
 
   public boolean isRunning(DateTime now) {
     return  (isFixedDuration() == null || !isFixedDuration()) || (isFixedDuration() && isStarted(now) && !isOver(now));

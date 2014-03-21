@@ -109,7 +109,8 @@ public class FeedbackActivity extends Activity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0))) {
+      if ((experiment.hasCustomFeedback() != null && experiment.hasCustomFeedback()) ||
+              (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0)))) {
         loadCustomFeedbackIntoWebView();
       } else {
         loadDefaultFeedbackIntoWebView();
@@ -412,8 +413,7 @@ public class FeedbackActivity extends Activity {
  }
 
   private boolean isDefaultFeedback(Feedback feedback) {
-    return feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
-      feedback.getText().equals(getString(R.string.thanks_for_participating_message));
+    return feedback.getText().equals(getString(R.string.thanks_for_participating_message));
   }
 
 }

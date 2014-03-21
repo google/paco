@@ -492,6 +492,8 @@ public class ExperimentProviderUtil {
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
         Boolean shouldShowFeedback = experimentFromJson.shouldShowFeedback();
         experiment.setShowFeedback(shouldShowFeedback != null ? shouldShowFeedback : true);
+        Boolean hasCustomFeedback = experimentFromJson.hasCustomFeedback();
+        experiment.setHasCustomFeedback(hasCustomFeedback); // let it be null for now since feedback objects are loaded separately - Or are they?
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {
@@ -943,7 +945,6 @@ public class ExperimentProviderUtil {
     int idIndex = cursor.getColumnIndexOrThrow(FeedbackColumns._ID);
     int serverIdIndex = cursor.getColumnIndexOrThrow(FeedbackColumns.SERVER_ID);
     int experimentIndex = cursor.getColumnIndex(FeedbackColumns.EXPERIMENT_ID);
-    int feedbackTypeIndex = cursor.getColumnIndex(FeedbackColumns.FEEDBACK_TYPE);
     int textIndex = cursor.getColumnIndex(FeedbackColumns.TEXT);
 
     Feedback input = new Feedback();
@@ -962,9 +963,6 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(textIndex)) {
       input.setText(cursor.getString(textIndex));
     }
-    if (!cursor.isNull(feedbackTypeIndex)) {
-      input.setFeedbackType(cursor.getString(feedbackTypeIndex));
-    }
     return input;
   }
 
@@ -979,9 +977,6 @@ public class ExperimentProviderUtil {
     }
     if (feedback.getExperimentId() != null) {
       values.put(FeedbackColumns.EXPERIMENT_ID, feedback.getExperimentId());
-    }
-    if (feedback.getFeedbackType() != null) {
-      values.put(FeedbackColumns.FEEDBACK_TYPE, feedback.getFeedbackType());
     }
     if (feedback.getText() != null) {
       values.put(FeedbackColumns.TEXT, feedback.getText() );

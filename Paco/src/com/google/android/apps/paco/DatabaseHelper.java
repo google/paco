@@ -1,13 +1,8 @@
 package com.google.android.apps.paco;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -30,7 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //	  this.sqlInput = in;
 	  this.context = context;
 	}
-  
+
   // For testing
   DatabaseHelper(Context context, String dbName, int dbVersion) {
     super(context, dbName, null, dbVersion);
@@ -49,7 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + ExperimentColumns.CREATOR + " TEXT, "
         + ExperimentColumns.INFORMED_CONSENT + " TEXT, "
         + ExperimentColumns.HASH + " TEXT, "
-        + ExperimentColumns.FIXED_DURATION + " INTEGER, "		  
+        + ExperimentColumns.FIXED_DURATION + " INTEGER, "
         + ExperimentColumns.START_DATE + " TEXT, "
         + ExperimentColumns.END_DATE + " TEXT, "
         + ExperimentColumns.JOIN_DATE + " TEXT, "
@@ -59,9 +54,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + ExperimentColumns.JSON + " TEXT "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ("
-        + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
+        + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + SignalScheduleColumns.SERVER_ID + " INTEGER, "
-        + SignalScheduleColumns.EXPERIMENT_ID + " INTEGER, "          
+        + SignalScheduleColumns.EXPERIMENT_ID + " INTEGER, "
         + SignalScheduleColumns.SCHEDULE_TYPE + " INTEGER, "
         + SignalScheduleColumns.ESM_FREQUENCY + " INTEGER, "
         + SignalScheduleColumns.ESM_PERIOD + " INTEGER, "
@@ -80,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
-        + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
+        + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + InputColumns.EXPERIMENT_ID + " INTEGER, "
         + InputColumns.SERVER_ID + " INTEGER, "
         + InputColumns.NAME + " TEXT,"
@@ -98,7 +93,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + InputColumns.MULTISELECT + " INTEGER"
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.EVENTS_TABLE_NAME + " ("
-        + EventColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "          
+        + EventColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + EventColumns.EXPERIMENT_ID + " INTEGER, "
         + EventColumns.EXPERIMENT_SERVER_ID + " INTEGER, "
         + EventColumns.EXPERIMENT_NAME + " TEXT, "
@@ -110,27 +105,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     db.execSQL("CREATE TABLE " + ExperimentProvider.OUTPUTS_TABLE_NAME + " ("
         + OutputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + OutputColumns.EVENT_ID + " INTEGER, "
-        + OutputColumns.INPUT_SERVER_ID + " INTEGER, "          
+        + OutputColumns.INPUT_SERVER_ID + " INTEGER, "
         + OutputColumns.NAME + " TEXT,"
         + OutputColumns.ANSWER + " TEXT"
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.FEEDBACK_TABLE_NAME + " ("
-        + FeedbackColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " 
+        + FeedbackColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + FeedbackColumns.EXPERIMENT_ID + " INTEGER, "
         + FeedbackColumns.SERVER_ID + " INTEGER, "
-        + FeedbackColumns.FEEDBACK_TYPE + " TEXT,"
         + FeedbackColumns.TEXT + " TEXT"
         + ");");
 
     db.execSQL("CREATE TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ("
-        + NotificationHolderColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "         
+        + NotificationHolderColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + NotificationHolderColumns.ALARM_TIME + " INTEGER, "
         + NotificationHolderColumns.EXPERIMENT_ID + " INTEGER, "
         + NotificationHolderColumns.NOTICE_COUNT + " INTEGER, "
         + NotificationHolderColumns.TIMEOUT_MILLIS + " INTEGER"
         + ");");
 
-    //	  insertValues(db);	  
+    //	  insertValues(db);
   }
 
   @Override
@@ -142,7 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("ALTER TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ADD "
           + InputColumns.MULTISELECT + " INTEGER default 0"
           + ";");
-    }  
+    }
 
     if (oldVersion <= 9) {
       db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
@@ -153,7 +147,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
           + ExperimentColumns.WEB_RECOMMENDED + " INTEGER default 0"
           + ";");
-    }  
+    }
     if (oldVersion <= 11) {
       db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
           + ExperimentColumns.VERSION + " INTEGER default 0"
@@ -177,33 +171,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       }
     }
     if (oldVersion <= 13) {
-      
-      HashMap<Integer, String> startDatePairs = convertDateLongsToStrings(db, 
+
+      HashMap<Integer, String> startDatePairs = convertDateLongsToStrings(db,
                                                                           ExperimentProvider.EXPERIMENTS_TABLE_NAME,
                                                                           ExperimentColumns.START_DATE, ExperimentColumns._ID);
-      HashMap<Integer, String> endDatePairs = convertDateLongsToStrings(db, 
-                                                                        ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+      HashMap<Integer, String> endDatePairs = convertDateLongsToStrings(db,
+                                                                        ExperimentProvider.EXPERIMENTS_TABLE_NAME,
                                                                         ExperimentColumns.END_DATE, ExperimentColumns._ID);
-      HashMap<Integer, String> joinDatePairs = convertDateLongsToTzStrings(db, 
-                                                                           ExperimentProvider.EXPERIMENTS_TABLE_NAME, 
+      HashMap<Integer, String> joinDatePairs = convertDateLongsToTzStrings(db,
+                                                                           ExperimentProvider.EXPERIMENTS_TABLE_NAME,
                                                                            ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
       createTruncatedExperimentsTable(db);
-      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, startDatePairs, 
+      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, startDatePairs,
                                   ExperimentColumns.START_DATE, ExperimentColumns._ID);
-      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs, 
+      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, endDatePairs,
                                   ExperimentColumns.END_DATE, ExperimentColumns._ID);
-      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs, 
-                                  ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);      
+      insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs,
+                                  ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
     }
     if (oldVersion <= 14) {
       db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
               + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER"
-              + ";");      
+              + ";");
     }
   }
 
-  private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db, 
-                                                                    String tableName, 
+  private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db,
+                                                                    String tableName,
                                                                     String dateCol, String refCol) {
     String[] columns = {dateCol, refCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
@@ -217,7 +211,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String dateStr = TimeUtil.formatDate(longVal);
             Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
             data.put(id, dateStr);
-          } 
+          }
         }
       }
     } finally {
@@ -226,8 +220,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     return data;
   }
 
-  private static HashMap<Integer, String> convertDateLongsToTzStrings(SQLiteDatabase db, 
-                                                                      String tableName, 
+  private static HashMap<Integer, String> convertDateLongsToTzStrings(SQLiteDatabase db,
+                                                                      String tableName,
                                                                       String dateCol, String refCol) {
     String[] columns = {dateCol, refCol};
     HashMap<Integer, String> data = new HashMap<Integer, String>();
@@ -241,7 +235,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String dateStr = TimeUtil.formatDateWithZone(longVal);
             Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
             data.put(id, dateStr);
-          } 
+          }
         }
       }
     } finally {
@@ -277,7 +271,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ExperimentColumns.CREATOR + ", " +
         ExperimentColumns.INFORMED_CONSENT + ", " +
         ExperimentColumns.HASH + ", " +
-        ExperimentColumns.FIXED_DURATION + ", " +     
+        ExperimentColumns.FIXED_DURATION + ", " +
         ExperimentColumns.QUESTIONS_CHANGE + ", " +
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
@@ -291,7 +285,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ExperimentColumns.CREATOR + ", " +
         ExperimentColumns.INFORMED_CONSENT + ", " +
         ExperimentColumns.HASH + ", " +
-        ExperimentColumns.FIXED_DURATION + ", " +     
+        ExperimentColumns.FIXED_DURATION + ", " +
         ExperimentColumns.QUESTIONS_CHANGE + ", " +
         ExperimentColumns.ICON + ", " +
         ExperimentColumns.WEB_RECOMMENDED + ", " +
@@ -301,12 +295,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     db.execSQL("ALTER TABLE " + tempTable + " RENAME TO " + ExperimentProvider.EXPERIMENTS_TABLE_NAME);
   }
 
-  private static void insertNewDateColumnWithData(SQLiteDatabase db, String tableName, 
-                                                  HashMap<Integer,String> data, 
+  private static void insertNewDateColumnWithData(SQLiteDatabase db, String tableName,
+                                                  HashMap<Integer,String> data,
                                                   String dateCol, String refCol) {
     db.execSQL("ALTER TABLE " + tableName + " ADD " + dateCol + " TEXT " + ";");
     for (Map.Entry<Integer, String> entry : data.entrySet()) {
-      db.execSQL("UPDATE " + tableName + 
+      db.execSQL("UPDATE " + tableName +
                  " SET " + dateCol + " = " + "\'" + entry.getValue() + "\'" +
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }

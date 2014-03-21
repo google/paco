@@ -57,6 +57,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected Boolean customRendering = false;
   protected String customRenderingCode;
   protected Boolean showFeedback = true;
+  protected Boolean hasCustomFeedback;
 
 
   /**
@@ -72,13 +73,16 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param admins
    * @param customRenderingCode
    * @param showFeedback
+   * @param hasCustomFeedback
    * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
       String email, SignalingMechanismDAO[] signalingMechanisms, Boolean fixedDuration, Boolean questionsChange,
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
-      Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode, Boolean showFeedback) {
+      Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
+      Boolean showFeedback, Boolean hasCustomFeedback) {
+
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
     this.title = title;
@@ -105,9 +109,8 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       this.customRendering = customRendering;
     }
     this.customRenderingCode = customRenderingCode;
-    if (showFeedback != null) {
-      this.showFeedback = showFeedback;
-    }
+    this.showFeedback = showFeedback;
+    this.hasCustomFeedback = hasCustomFeedback;
   }
 
   /**
@@ -267,6 +270,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   public void setShowFeedback(Boolean showFeedback) {
     this.showFeedback = showFeedback;
+  }
+
+  public void setHasCustomFeedback(Boolean value) {
+    this.hasCustomFeedback = value;
+  }
+
+  public Boolean hasCustomFeedback() {
+    return hasCustomFeedback;
   }
 
 }

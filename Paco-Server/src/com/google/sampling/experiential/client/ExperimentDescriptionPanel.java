@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,15 +17,10 @@
 package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -37,7 +32,6 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -47,7 +41,7 @@ import com.google.sampling.experiential.shared.LoginInfo;
  * Also used as the basis of creation and editing of experiments.
  * Delegates specific parts of experiment definition to sub panels.
  * Handles communication with subpanels about state of edits.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -55,7 +49,7 @@ public class ExperimentDescriptionPanel extends Composite {
 
   private ExperimentDAO experiment;
   private LoginInfo loginInfo;
-  
+
   private ArrayList<ExperimentListener> listeners;
 
   protected MyConstants myConstants;
@@ -70,7 +64,7 @@ public class ExperimentDescriptionPanel extends Composite {
   private Label creatorPanel;
   private TextArea descriptionPanel;
 
-  
+
   public ExperimentDescriptionPanel() {
     super();
   }
@@ -82,17 +76,17 @@ public class ExperimentDescriptionPanel extends Composite {
 
     this.experiment = experiment;
     this.loginInfo = loginInfo;
-    
+
     this.listeners = new ArrayList<ExperimentListener>();
     if (listener != null) {
       listeners.add(listener);
     }
     mainPanel = new VerticalPanel();
-    initWidget(mainPanel);    
+    initWidget(mainPanel);
     createExperimentForm();
   }
 
-  private Widget createVersionPanel(ExperimentDAO experiment) {    
+  private Widget createVersionPanel(ExperimentDAO experiment) {
     String experimentVersionStr = "1";
     if (experiment.getVersion() != null) {
       experimentVersionStr = experiment.getVersion().toString();
@@ -115,44 +109,15 @@ public class ExperimentDescriptionPanel extends Composite {
     mainPanel.add(createTitlePanel(experiment));
     mainPanel.add(createCreatorPanel(experiment));
     mainPanel.add(createVersionPanel(experiment));
-    mainPanel.add(createDescriptionPanel(experiment));    
+    mainPanel.add(createDescriptionPanel(experiment));
     mainPanel.add(createInformedConsentPanel(experiment));
     mainPanel.add(createSectionHeader(myConstants.signaling()));
     mainPanel.add(createDurationPanel(experiment));
     mainPanel.add(createSchedulePanel(experiment));
     //mainPanel.add(createSectionHeader(myConstants.inputs()));
-    //mainPanel.add(createInputsListPanel(experiment));    
+    //mainPanel.add(createInputsListPanel(experiment));
     //createFeedbackEntryPanel(experiment);
     createButtonPanel(experiment);
-  }
-
-  /**
-   * @param experiment2
-   * @return
-   */
-  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
-    HorizontalPanel feedbackPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked(experiment.getFeedback() != null && 
-        experiment.getFeedback().length > 0 && 
-        !defaultFeedback(experiment.getFeedback()[0]));
-    customFeedbackCheckBox.setEnabled(false);
-    feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    feedbackPanel.add(feedbackLabel);
-    mainPanel.add(feedbackPanel);
-
-    return feedbackPanel;
-  }
-
-
-  /**
-   * @param feedbackDAO
-   * @return
-   */
-  private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getFeedbackType().equals(FeedbackDAO.DISPLAY_FEEBACK_TYPE) &&
-    feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
   }
 
 
@@ -189,7 +154,7 @@ public class ExperimentDescriptionPanel extends Composite {
       return createFormLine(myConstants.duration(), myConstants.ongoingDuration());
     }
 }
-  
+
   private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
     InputsListPanel inputsListPanel = new InputsListPanel(experiment);
     inputsListPanel.setStyleName("left");
@@ -225,8 +190,8 @@ public class ExperimentDescriptionPanel extends Composite {
     if (scheduleType == SignalScheduleDAO.ESM) {
       panel.add(spacer);
       panel.add(new Label(", "));
-      panel.add(new Label(signalScheduleDAO.getEsmFrequency().toString() + " / " + 
-          SignalScheduleDAO.ESM_PERIODS_NAMES[signalScheduleDAO.getEsmPeriodInDays()]));      
+      panel.add(new Label(signalScheduleDAO.getEsmFrequency().toString() + " / " +
+          SignalScheduleDAO.ESM_PERIODS_NAMES[signalScheduleDAO.getEsmPeriodInDays()]));
       //panel.add(spacer);
       //panel.add(new Label(experiment.getSchedule().getEsmStartHour() + " - " + experiment.getSchedule().getEsmEndHour()));
     } else {
@@ -234,7 +199,7 @@ public class ExperimentDescriptionPanel extends Composite {
 //      panel.add(new Label(", "));
 //      Long[] times = experiment.getSchedule().getTimes();
 //      List<String> timeStrs = Lists.newArrayList();
-//      for (Long long1 : times) {        
+//      for (Long long1 : times) {
 //        long hour = long1 / 1000 * 60 * 60;
 //        long minute = (long1 - hour)
 //        timeStrs .add(Long.toString(hour +":" + minute));

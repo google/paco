@@ -1067,10 +1067,4 @@ private String findAccount(String userEmail) {
 
 // end duplicate from inputlayout
 
-  private boolean isDefaultFeedback(Feedback feedback) {
-    return feedback.getFeedbackType().equals(Feedback.DISPLAY_FEEBACK_TYPE) &&
-      feedback.getText().equals(getString(R.string.thanks_for_participating_message));
-  }
-
-
 }

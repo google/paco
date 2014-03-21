@@ -146,6 +146,9 @@ public class Experiment {
   @Persistent
   private Boolean showFeedback;
 
+  @Persistent
+  private Boolean hasCustomFeedback;
+
 
   /**
    * @param id
@@ -515,11 +518,16 @@ public class Experiment {
   }
 
   public Boolean shouldShowFeedback() {
-    return showFeedback;
+ // default to showing feedback because that is the historical way.
+    return (showFeedback != null) ? showFeedback : Boolean.TRUE;
   }
 
   public void setShowFeedback(Boolean show) {
     this.showFeedback = show;
+  }
+
+  public Boolean hasCustomFeedback() {
+   return hasCustomFeedback;
   }
 
 

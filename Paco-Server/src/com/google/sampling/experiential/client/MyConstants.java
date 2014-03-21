@@ -437,4 +437,7 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("There are no experiments.")
   String noExperimentsReturned();
+
+  @DefaultStringValue("Show Feedback (leave checked unless your custom rendering code handles feedback presentation)")
+  String showFeedback();
 }
