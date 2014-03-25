@@ -142,6 +142,10 @@ static int INVALID_INDEX = -1;
   return result;
 }
 
+- (NSDate*)lastESMScheduleDate {
+  return [self.schedule.esmScheduleList lastObject];
+}
+
 - (NSUInteger)numOfESMSchedulesFromDate:(NSDate*)fromDate {
   NSArray* esmSchedules = [self ESMSchedulesFromDate:fromDate];
   return [esmSchedules count];

@@ -49,7 +49,14 @@
 - (BOOL)isFixedLength;
 - (BOOL)isOngoing;
 
+//return all esm dates generated and stored for an esm experiment that are later than fromDate,
+//if there aren't any esm dates generated yet, return nil
 - (NSArray*)ESMSchedulesFromDate:(NSDate*)fromDate;
+
+//The last ESM schedule date generated and stored for an esm experiment
+//we use it to determine the next esm cycle start date to generate future esm schedule dates
+//if there aren't any esm dates generated yet, return nil
+- (NSDate*)lastESMScheduleDate;
 
 - (NSDate*)startDate;
 - (NSDate*)endDate;
