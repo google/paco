@@ -238,6 +238,8 @@ public class ExperimentDefinitionPanel extends Composite {
     renderingPanel.add(customRenderingCheckBox);
     Label renderingLabel = new Label(myConstants.customRendering());
     renderingPanel.add(renderingLabel);
+    HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
+    renderingPanel.add(html);
     formPanel.add(renderingPanel);
 
     createCustomRenderingDisclosurePanel(experiment);
@@ -326,6 +328,9 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackCheckboxPanel.add(customFeedbackCheckBox);
     Label feedbackLabel = new Label(myConstants.customFeedback());
     customFeedbackCheckboxPanel.add(feedbackLabel);
+
+    HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
+    customFeedbackCheckboxPanel.add(html);
     return customFeedbackCheckboxPanel;
   }
 

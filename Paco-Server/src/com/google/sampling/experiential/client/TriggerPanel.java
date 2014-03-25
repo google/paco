@@ -21,6 +21,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -45,6 +46,7 @@ public class TriggerPanel extends Composite {
 
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
+    verticalPanel.add(createIosIncompatibleLabel());
     verticalPanel.add(createTriggerChooser());
     sourceIdentifierPanel = createTriggerSourceIdentifierChooser();
     verticalPanel.add(sourceIdentifierPanel);
@@ -57,6 +59,12 @@ public class TriggerPanel extends Composite {
     MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(trigger);
     verticalPanel.add(minimumBufferPanel);
     minimumBufferPanel.setWidth("286px");
+  }
+
+  private Widget createIosIncompatibleLabel() {
+    HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\" weight=\"bold\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
+
+    return html;
   }
 
   private Widget createTriggerSourceIdentifierChooser() {

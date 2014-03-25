@@ -440,4 +440,8 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Show Feedback (leave checked unless your custom rendering code handles feedback presentation)")
   String showFeedback();
+
+  @DefaultStringValue("This feature is not currently not compatible with iOS")
+  String iOSIncompatible();
+
 }
