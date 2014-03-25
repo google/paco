@@ -223,7 +223,7 @@
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                      timeoutInterval:20];
+                      timeoutInterval:25];
   [request setHTTPMethod:@"POST"];
   
   // Serialize to JSON for the request body.
