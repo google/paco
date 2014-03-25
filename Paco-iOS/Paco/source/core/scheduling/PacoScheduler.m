@@ -70,6 +70,7 @@ NSInteger const kTotalNumOfNotifications = 60;
   if (![self.delegate needsNotificationSystem]) {
     [self.notificationManager cancelAllPacoNotifications];
   } else {
+    DDLogInfo(@"Finished initializing notifications, start executing routine major task.");
     [self executeRoutineMajorTask];
   }
 }
@@ -132,6 +133,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 }
 
 - (void)executeMajorTaskForChangedExperimentModel {
+  DDLogInfo(@"Execute major task for changed model.");
   [self executeMajorTask:YES];
 }
 
@@ -172,6 +174,7 @@ NSInteger const kTotalNumOfNotifications = 60;
       [self.notificationManager cleanExpiredNotifications];
     }
     [self.delegate updateNotificationSystem];
+    DDLogInfo(@"Finished major task.");
   }
   
 }

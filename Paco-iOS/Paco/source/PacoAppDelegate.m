@@ -151,7 +151,8 @@
   UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@", notification);
+    DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@",
+                 [notification pacoDescription]);
     self.notificationFromAppLaunch = notification;
   } else {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
@@ -206,7 +207,7 @@
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-  DDLogInfo(@"==========  Application applicationWillEnterForeground  ==========");
+  DDLogInfo(@"==========  Application applicationWillEnterForeground, start executing routine major task if needed  ==========");
   [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
 
