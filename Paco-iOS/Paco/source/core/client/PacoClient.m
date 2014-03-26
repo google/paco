@@ -326,6 +326,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   if (self.backgroundFetchBlock) {
     [self.eventManager startUploadingEventsInBackgroundWithBlock:self.backgroundFetchBlock];
     self.backgroundFetchBlock = nil;
+    DDLogInfo(@"backgroundFetchBlock is set to nil!");
   }
 }
 
@@ -345,17 +346,19 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
       DDLogInfo(@"UIBackgroundFetchResultNoData");
       completionBlock(UIBackgroundFetchResultNoData);
     }
+    DDLogInfo(@"Background fetch finished!");
   } else {
     if ([self isDoneInitializationForMajorTask]) {
+      DDLogInfo(@"PacoClient finished initialization, start routine major task.");
       [self.scheduler executeRoutineMajorTask];
       [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
     } else {
       //if Paco is launched by background fetch API, we need to keep the background fetch completion
       //handler, and trigger it when PacoClient finishes setting up notication system, see setUpNotificationSystem
+      DDLogInfo(@"PacoClient isn't done with initialization, waiting...");
       self.backgroundFetchBlock = completionBlock;
     }
   }
-  DDLogInfo(@"Background fetch finished!");
 }
 
 - (void)disableBackgroundFetch {

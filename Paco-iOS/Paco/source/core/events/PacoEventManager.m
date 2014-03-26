@@ -341,8 +341,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if ([pendingEvents count] == 0) {
       DDLogInfo(@"No pending events to upload.");
       if (completionBlock) {
-        DDLogInfo(@"UIBackgroundFetchResultNewData");
         completionBlock(UIBackgroundFetchResultNewData);
+        DDLogInfo(@"Background fetch finished!");
       }
       return;
     }
@@ -358,8 +358,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     }
     [self.uploader startUploadingWithBlock:^(BOOL success) {
       if (completionBlock) {
-        DDLogInfo(@"UIBackgroundFetchResultNewData");
         completionBlock(UIBackgroundFetchResultNewData);
+        DDLogInfo(@"Background fetch finished!");
       }
     }];
   }
