@@ -148,7 +148,7 @@
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [scrollView addSubview:creatorLabel];
-  yPosition += 25	;
+  yPosition += 25;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
