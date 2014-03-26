@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Strings;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -130,15 +131,14 @@ public class ChartPanel extends Composite {
       likertSteps = 0;
     }
     String[] choices = new String[likertSteps];
-    if (input.getLeftSideLabel() != null) {
+    if (!Strings.isNullOrEmpty(input.getLeftSideLabel())) {
       choices[0] = input.getLeftSideLabel();
     }
-    choices[0] = choices[0] + " (1)";
-    if (input.getRightSideLabel() != null) {
+    choices[0] = (choices[0] != null ? choices[0] + " " : "") + "(1)";
+    if (!Strings.isNullOrEmpty(input.getRightSideLabel())) {
       choices[likertSteps - 1] = input.getRightSideLabel();
     }
-    choices[likertSteps - 1] = choices[likertSteps - 1]
-                                                   + " (" + likertSteps + ")";
+    choices[likertSteps - 1] = (choices[likertSteps - 1] != null ? choices[likertSteps - 1] + " " : "") + " (" + likertSteps + ")";
     for (int i=1;i < (likertSteps - 1); i++) {
       choices[i] = "(" + (i + 1) + ")";
     }
