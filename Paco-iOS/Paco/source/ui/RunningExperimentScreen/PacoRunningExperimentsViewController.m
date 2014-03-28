@@ -37,6 +37,9 @@
 
 @property(nonatomic, strong) PacoExperiment* selectedExperiment;
 
+@property(nonatomic, strong) UILabel* msgLabel;
+@property(nonatomic, strong) UIButton* goToDefinitionButton;
+
 @end
 
 @implementation PacoRunningExperimentsViewController
@@ -110,29 +113,44 @@
 }
 
 
+- (void)updateLabelAndButton:(BOOL)visible {
+  if (visible && !self.msgLabel && !self.goToDefinitionButton) {
+    UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+    [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
+    [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+    [msgLabel setTextColor:[UIColor darkGrayColor]];
+    msgLabel.textAlignment = NSTextAlignmentCenter;
+    [msgLabel sizeToFit];
+    msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
+    [self.view addSubview:msgLabel];
+    self.msgLabel = msgLabel;
+    
+    UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
+    msgButton.titleLabel.numberOfLines = 2;
+    msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:msgButton];
+    [msgButton sizeToFit];
+    msgButton.center = self.view.center;
+    self.goToDefinitionButton = msgButton;
+  }
+  self.msgLabel.hidden = !visible;
+  self.goToDefinitionButton.hidden = !visible;
+}
+
+
 - (void)updateUIWithExperiments {
+  if (![[PacoClient sharedInstance].model areRunningExperimentsLoaded]) {
+    DDLogError(@"Try to update view controller without running experiments loaded.");
+    return;
+  }
+  
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
-    if ([[PacoClient sharedInstance].model.experimentInstances count] == 0) {
-      UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-      [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
-      [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-      [msgLabel setTextColor:[UIColor darkGrayColor]];
-      msgLabel.textAlignment = NSTextAlignmentCenter;
-      [msgLabel sizeToFit];
-      msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
-      [self.view addSubview:msgLabel];
-      
-      UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-      [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
-      msgButton.titleLabel.numberOfLines = 2;
-      msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-      [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
-      [self.view addSubview:msgButton];
-      [msgButton sizeToFit];
-      msgButton.center = self.view.center;
-    }
+    BOOL visible = [[PacoClient sharedInstance].model hasRunningExperiments] ? NO : YES;
+    [self updateLabelAndButton:visible];
     tableView.data = [PacoClient sharedInstance].model.experimentInstances;
   });
 }
@@ -157,7 +175,11 @@
 
 
 - (void)appBecomeActive {
-  [self updateUIWithExperiments];
+  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
+  NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
+  if (finishLoading && !prefetchError) {
+    [self updateUIWithExperiments];
+  }
 }
 
 

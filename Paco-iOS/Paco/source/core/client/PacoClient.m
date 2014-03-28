@@ -80,16 +80,21 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
+
+typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
+
 @interface PacoClient () <PacoSchedulerDelegate>
-@property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
-@property (nonatomic, retain, readwrite) PacoModel *model;
-@property (nonatomic, strong, readwrite) PacoEventManager* eventManager;
-@property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
-@property (nonatomic, retain, readwrite) PacoService *service;
+@property (nonatomic, retain) PacoAuthenticator *authenticator;
+@property (nonatomic, retain) PacoModel *model;
+@property (nonatomic, strong) PacoEventManager* eventManager;
+@property (nonatomic, retain) PacoScheduler *scheduler;
+@property (nonatomic, retain) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
-@property (nonatomic, retain, readwrite) NSString *serverDomain;
-@property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
-@property (nonatomic, assign, readwrite) BOOL firstLaunch;
+@property (nonatomic, retain) NSString *serverDomain;
+@property (nonatomic, retain) PacoPrefetchState *prefetchState;
+@property (nonatomic, assign) BOOL firstLaunch;
+@property (nonatomic, copy) BackgroundFetchCompletionBlock backgroundFetchBlock;
+
 @end
 
 @implementation PacoClient
@@ -243,6 +248,19 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
   [self.eventManager saveEvents:eventList];
 }
 
+//return YES if Paco finishes loading both running experiments and also notifications
+- (BOOL)isDoneInitializationForMajorTask {
+  if (![self.model areRunningExperimentsLoaded]) {
+    DDLogInfo(@"PacoClient: running experiments are not loaded yet!");
+    return NO;
+  }
+  if (![self.scheduler isDoneLoadingNotifications]) {
+    DDLogInfo(@"PacoClient: notifications are not loaded yet!");
+    return NO;
+  }
+  return YES;
+}
+
 - (BOOL)needsNotificationSystem {
   return [self.model shouldTriggerNotificationSystem];
 }
@@ -292,15 +310,24 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
 }
 
 #pragma mark set up notification system
-//After date model is loaded successfully, Paco needs to
+//After data model is loaded successfully, Paco needs to
 //a. load notifications from cache
 //b. perform major task if needed
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
+  DDLogInfo(@"Setting up notification system...");
   [self.scheduler initializeNotifications];
   DDLogInfo(@"Finish initializing notifications");
   [(PacoAppDelegate*)[UIApplication sharedApplication].delegate processNotificationIfNeeded];
   [self updateNotificationSystem];
+  
+  //if the setup finishes during Paco launch caused by background fetch API,
+  //then need to trigger the background fetch completion handler to finish up
+  if (self.backgroundFetchBlock) {
+    [self.eventManager startUploadingEventsInBackgroundWithBlock:self.backgroundFetchBlock];
+    self.backgroundFetchBlock = nil;
+    DDLogInfo(@"backgroundFetchBlock is set to nil!");
+  }
 }
 
 - (void)executeRoutineMajorTaskIfNeeded {
@@ -316,11 +343,21 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
     DDLogInfo(@"Skip Executing Major Task, notification system is off");
     [self disableBackgroundFetch];
     if (completionBlock) {
+      DDLogInfo(@"UIBackgroundFetchResultNoData");
       completionBlock(UIBackgroundFetchResultNoData);
     }
+    DDLogInfo(@"Background fetch finished!");
   } else {
-    [self.scheduler executeRoutineMajorTask];
-    [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
+    if ([self isDoneInitializationForMajorTask]) {
+      DDLogInfo(@"PacoClient finished initialization, start routine major task.");
+      [self.scheduler executeRoutineMajorTask];
+      [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
+    } else {
+      //if Paco is launched by background fetch API, we need to keep the background fetch completion
+      //handler, and trigger it when PacoClient finishes setting up notication system, see setUpNotificationSystem
+      DDLogInfo(@"PacoClient isn't done with initialization, waiting...");
+      self.backgroundFetchBlock = completionBlock;
+    }
   }
 }
 
