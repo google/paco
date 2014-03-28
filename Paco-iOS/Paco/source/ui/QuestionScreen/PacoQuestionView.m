@@ -27,6 +27,7 @@
 #import "PacoStepperView.h"
 #import "PacoExperimentInput.h"
 #import "UIImage+Paco.h"
+#import "PacoClient.h"
 
 static const int kInvalidIndex = -1;
 static NSString* const kPlaceHolderString = @"<type response here>";
@@ -747,16 +748,32 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 }
 
 #pragma mark MKMapViewDelegate
-
-//- (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated;
-//- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated;
-
-//- (void)mapViewWillStartLoadingMap:(MKMapView *)mapView;
-- (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView {
-  NSLog(@"Found Location %f,%f", self.map.userLocation.location.coordinate.latitude, self.map.userLocation.location.coordinate.longitude);
-  self.question.responseObject = self.map.userLocation.location;
-  [self updateConditionals];
+- (void)updateLocation:(CLLocation*)currentLocation {
+  if (!currentLocation) {
+    return;
+  }
+  CLLocation* prevLocation = self.question.responseObject;
+  //avoid updating too often
+  if (prevLocation.coordinate.latitude != currentLocation.coordinate.latitude ||
+      prevLocation.coordinate.longitude != currentLocation.coordinate.longitude) {
+    self.question.responseObject = currentLocation;
+  }
 }
 
+- (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView {
+  [self updateLocation:mapView.userLocation.location];
+}
+
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation {
+  [self updateLocation:userLocation.location];
+}
+
+
+- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
+  DDLogInfo(@"Fail to locate user (%f,%f), error: %@",
+            self.map.userLocation.location.coordinate.latitude,
+            self.map.userLocation.location.coordinate.longitude,
+            [error description]);
+}
 
 @end
