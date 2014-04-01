@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		368F4D9017EA5DF800CFC2E4 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */; };
-		368F4D9417EA5E0400CFC2E4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368F4D9317EA5E0400CFC2E4 /* Foundation.framework */; };
+		368DB08B18EB439A0033DFFF /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 368DB08A18EB439A0033DFFF /* libicucore.dylib */; };
+		368DB08D18EB43A10033DFFF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368DB08C18EB43A10033DFFF /* Foundation.framework */; };
 		D302C69D0EF044810090E714 /* TDPlistParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D36568A60EEF9FE900226554 /* TDPlistParser.m */; };
 		D30805BA155ECB1F0000BC60 /* PKPattern.m in Sources */ = {isa = PBXBuildFile; fileRef = D34BAF380FF9E18300D7773A /* PKPattern.m */; };
 		D30805BB155ECB220000BC60 /* RegexKitLite.m in Sources */ = {isa = PBXBuildFile; fileRef = D36C55FD0FD3617B00141CB7 /* RegexKitLite.m */; };
@@ -1122,6 +1122,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		368DB08A18EB439A0033DFFF /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
+		368DB08C18EB43A10033DFFF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/usr/lib/libicucore.dylib; sourceTree = DEVELOPER_DIR; };
 		368F4D9317EA5E0400CFC2E4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		8DC2EF5B0486A6940098B216 /* ParseKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ParseKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1979,8 +1981,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				368F4D9417EA5E0400CFC2E4 /* Foundation.framework in Frameworks */,
-				368F4D9017EA5DF800CFC2E4 /* libicucore.dylib in Frameworks */,
+				368DB08D18EB43A10033DFFF /* Foundation.framework in Frameworks */,
+				368DB08B18EB439A0033DFFF /* libicucore.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2005,6 +2007,8 @@
 		0867D691FE84028FC02AAC07 /* TODParseKit */ = {
 			isa = PBXGroup;
 			children = (
+				368DB08C18EB43A10033DFFF /* Foundation.framework */,
+				368DB08A18EB439A0033DFFF /* libicucore.dylib */,
 				368F4D9317EA5E0400CFC2E4 /* Foundation.framework */,
 				368F4D8F17EA5DF800CFC2E4 /* libicucore.dylib */,
 				D34F538517421715008700F3 /* OCMock.xcodeproj */,
@@ -5264,13 +5268,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/ParseKitMobile_Prefix.pch;
 				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_NAME = ParseKitMobile;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -5281,12 +5286,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				COPY_PHASE_STRIP = YES;
 				EXECUTABLE_PREFIX = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/ParseKitMobile_Prefix.pch;
 				HEADER_SEARCH_PATHS = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = ParseKitMobile;
 				SDKROOT = iphoneos;
