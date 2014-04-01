@@ -35,3 +35,5 @@ Paco-Server/war/WEB-INF/lib/shared.jar
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcuserdata/*
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*
+Paco-iOS/ParseKit/ParseKit.xcodeproj/xcuserdata/*
+Paco-iOS/ParseKit/lib/OCMock/OCMock.xcodeproj/xcuserdata/*
