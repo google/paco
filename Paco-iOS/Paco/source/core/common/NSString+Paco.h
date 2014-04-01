@@ -17,5 +17,6 @@
 @interface NSString (Paco)
 
 + (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName;
++ (NSString*)pacoImageFolderInDocumentsDirectory:(NSString*)fileName;
 
 @end

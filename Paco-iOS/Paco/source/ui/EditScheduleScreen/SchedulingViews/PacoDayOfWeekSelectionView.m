@@ -29,7 +29,7 @@
   if (self) {
     self.backgroundColor = [PacoColor pacoBackgroundWhite];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.optionLabels = [NSArray arrayWithObjects:@"S", @"M", @"T", @"W", @"T", @"F", @"S", nil];
+    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"S", nil), NSLocalizedString(@"M", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"W", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"F", nil), NSLocalizedString(@"S", nil), nil];
   }
   return self;
 }

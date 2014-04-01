@@ -30,6 +30,8 @@
 
 @interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
 
+@property (nonatomic, retain) UILabel* createExperimentLabel;
+
 @end
 
 @implementation PacoFindExperimentsViewController
@@ -37,8 +39,11 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = @"Find My Experiments";
-    self.navigationItem.hidesBackButton = NO;
+    self.navigationItem.title = NSLocalizedString(@"Find My Experiments", nil);
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(gotoMainPage)];
   }
   return self;
 }
@@ -58,7 +63,7 @@
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
   if (!finishLoading) {
-    [table setLoadingSpinnerEnabledWithLoadingText:@"Finding Experiments ..."];
+    [table setLoadingSpinnerEnabledWithLoadingText:[NSString stringWithFormat:@"%@ ...", NSLocalizedString(@"Finding Experiments", nil)]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
@@ -68,6 +73,11 @@
                                            selector:@selector(refreshFinished:)
                                                name:PacoFinishRefreshing
                                              object:nil];
+}
+
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 
@@ -84,16 +94,33 @@
     PacoTableView* tableView = (PacoTableView*)self.view;
     if (error) {
       tableView.data = [NSArray array];
-      [[[UIAlertView alloc] initWithTitle:@"Sorry"
-                                  message:@"Something went wrong, please try again later."
+      [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
+                                  message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
                                  delegate:nil
                         cancelButtonTitle:@"OK"
                         otherButtonTitles:nil] show];
     }else{
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+      if ([tableView.data count] > 0) {
+        [self.createExperimentLabel setHidden:YES];
+      } else {
+        //lazy initialization
+        if (!self.createExperimentLabel) {
+          self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+          [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
+          [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+          [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
+          self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
+          self.createExperimentLabel.numberOfLines = 0;
+          [self.createExperimentLabel sizeToFit];
+          self.createExperimentLabel.center = self.view.center;
+          [self.view addSubview:self.createExperimentLabel];
+        }
+        [self.createExperimentLabel setHidden:NO];
+      }
     }
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Refresh"
+
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
                                                                               style:UIBarButtonItemStyleDone
                                                                              target:self
                                                                              action:@selector(onClickRefresh)];
@@ -120,6 +147,9 @@
     PacoExperimentDefinition *experiment = rowData;
     cell.backgroundColor = [PacoColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
+    if (![experiment isCompatibleWithIOS]) {
+      cell.imageView.image = [UIImage imageNamed:@"incompatible"];
+    }
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
@@ -138,7 +168,7 @@
 
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperimentDefinition class]]) {
-  
+
     PacoExperimentDefinition *experiment = rowData;
     if (!experiment) {
       // Must be loading...
@@ -158,50 +188,4 @@
   NSLog(@" ");
 }
 
-/*
-#pragma mark - UITableViewDataSource
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  int numExperiments = [[PacoClient sharedInstance].model.experimentDefinitions count];
-  NSLog(@"EXPERIMENTS SCREEN HAS %d EXPERIMENTS", numExperiments);
-  return numExperiments == 0 ? 1 : numExperiments;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
-  if (!experiment) {
-    PacoLoadingTableCell *loadingCell = [[PacoLoadingTableCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list loading cell"];
-    loadingCell.loadingText = @"Loading Experiments...";
-    return loadingCell;
-  }
-  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"experiment list cell"];
-  if (!cell) {
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"experiment list cell"];
-    cell.backgroundColor = [PacoColor pacoLightBlue];
-    cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
-  }
-  cell.textLabel.text = experiment.title;
-  cell.detailTextLabel.text = [experiment.admins objectAtIndex:0];
-  return cell;
-}
-
-#pragma mark - UITableViewDelegate
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  PacoExperimentDefinition *experiment = [[PacoClient sharedInstance].model.experimentDefinitions objectAtIndex:indexPath.row];
-  if (!experiment) {
-    // Must be loading...
-    return;
-  }
-  PacoExperimentDetailsViewController *details = [[PacoExperimentDetailsViewController alloc] init];
-  details.experiment = experiment;
-  [self.navigationController pushViewController:details animated:YES];
-  //PacoQuestionScreenViewController *questions = [[PacoQuestionScreenViewController alloc] init];
-  //questions.experiment = experiment;
-  //[self.navigationController pushViewController:questions animated:YES];
-  
-}
-*/
 @end

@@ -19,6 +19,7 @@ Code Overview
 ./paco/Paco-iOS/vendor/touchengine/	         	(used for GoogleAppEngine login code, https://code.google.com/p/touchengine/)
 ./paco/Paco-iOS/vendor/google-toolbox-for-mac/	(public version, used for OAuth2, https://code.google.com/p/google-toolbox-for-mac/)
 ./paco/Paco-iOS/vendor/sskeychain			    (v1.2.0, keychain wrapper library, https://github.com/soffes/sskeychain)
+./paco/Paco-iOS/vendor/lumberjack			    (v1.8.0, logging library, https://github.com/CocoaLumberjack/CocoaLumberjack)
 ./paco/Paco-iOS/PacoTests/		            	(unit tests)
 
 ----- Files of Interest ------------------------------------------------------

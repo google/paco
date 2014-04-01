@@ -21,7 +21,7 @@
 #import "NSCalendar+Paco.h"
 #import "PacoUtility.h"
 #import "NSMutableArray+Paco.h"
-
+#import "PacoClient.h"
 
 @implementation PacoScheduleGenerator (ESM)
 
@@ -34,10 +34,6 @@
            @"start and end date should be consistent");
   NSAssert(experiment.schedule.scheduleType == kPacoScheduleTypeESM, @"should be an ESM experiment");
   
-  //experiment already finished
-  if (![experiment isExperimentValidSinceDate:fromDate]) {
-    return nil;
-  }
   NSArray* result = [self datesToScheduleForESMExperiment:experiment
                                               numOfDates:numOfDates
                                                 fromDate:fromDate];
@@ -49,12 +45,11 @@
                                  numOfDates:(NSInteger)numOfDates
                                    fromDate:(NSDate*)fromDate {
   NSArray* datesToSchedule = [experiment ESMSchedulesFromDate:fromDate];
-  int datesCount = [datesToSchedule count];
-  if (datesCount < numOfDates) {
-    int extraNumOfDates = numOfDates - datesCount;
+  int extraNumOfDates = numOfDates - [datesToSchedule count];
+  if (extraNumOfDates > 0) {
     NSArray* extraDates = [self generateESMDatesForExperiment:experiment
                                             minimumNumOfDates:extraNumOfDates
-                                                 lastSchedule:[datesToSchedule lastObject]
+                                                 lastSchedule:[experiment lastESMScheduleDate]
                                                      fromDate:fromDate];
     if ([extraDates pacoIsNotEmpty]) {
       NSMutableArray* result = [NSMutableArray arrayWithArray:datesToSchedule];
@@ -62,8 +57,19 @@
       datesToSchedule = result;
     }
   }
-  experiment.schedule.esmScheduleList = datesToSchedule;
-  NSLog(@"%@", [datesToSchedule pacoDescriptionForDates]);
+  
+  if (0 < [datesToSchedule count]) {
+    experiment.schedule.esmScheduleList = datesToSchedule;
+    DDLogInfo(@"New esm schedule list: %@", [datesToSchedule pacoDescriptionForDates]);
+  } else {
+    //NOTE: don't save empty datesToSchedule, we need to keep the last generated esm schedule in the last cycle,
+    //in order to calculate the next esm cycle start correctly. If we save the empty datesToSchedule,
+    //next time major task is executed, it will treat it as it's the first time generating esm schedules
+    //for this experiment, thus re-generate schedules for the last esm cycle, and this may end up generating
+    //extra esm schedules for the last cycle of any fixed-length experiment.
+    DDLogInfo(@"No esm schedules, looks like this experiment is finished already.");
+  }
+  
   if ([datesToSchedule count] <= numOfDates) {
     return datesToSchedule;
   } else {
@@ -72,7 +78,6 @@
 }
 
 
-static int kPacoNumOfDaysInWeek = 7;
 /*
    Daily:                return current day at midnight
   Weekly:a.ongoing:      return the first day in current calendar week
@@ -92,7 +97,7 @@ static int kPacoNumOfDaysInWeek = 7;
   //weekly
   if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
     if (experimentStartDate == nil ) { //ongoing
-      result = [date pacoFirstDayInCurrentWeek];
+      result = [date pacoSundayInCurrentWeek];
     } else { //fixed-length
       int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
                                                                     toDate:date];
@@ -146,7 +151,7 @@ static int kPacoNumOfDaysInWeek = 7;
     }
   } else { //ongoing
     if (repeatPeriod == kPacoScheduleRepeatPeriodWeek) {
-      realStartDate = [fromDate pacoFirstDayInCurrentWeek];
+      realStartDate = [fromDate pacoSundayInCurrentWeek];
     } else if (repeatPeriod == kPacoScheduleRepeatPeriodMonth) {
       realStartDate = [fromDate pacoFirstDayInCurrentMonth];
     }

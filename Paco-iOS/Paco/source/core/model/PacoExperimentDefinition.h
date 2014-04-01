@@ -36,19 +36,27 @@
 
 
 @property (nonatomic, assign) BOOL deleted;
-@property (nonatomic, retain) NSArray *feedback;  // <PacoExperimentFeedback>
+@property (nonatomic, retain) NSArray *feedbackList;  // <PacoExperimentFeedback>
+@property (nonatomic, assign) BOOL isCustomRendering;
 @property (nonatomic, assign) BOOL fixedDuration;
 @property (nonatomic, copy) NSString *informedConsentForm;
 @property (nonatomic, retain) NSArray *inputs;  // <PacoExperimentInput>
 @property (nonatomic, copy) NSString* modifyDate;
 @property (nonatomic, assign) BOOL questionsChange;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;
+@property (nonatomic, strong, readonly) NSArray* signalMechanismList; // <PacoExperimentSchedule/PacoTriggerSignal>
+
 @property (nonatomic, assign) BOOL webReccommended;
 @property (nonatomic, retain) id jsonObject;
 @property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
 - (id)serializeToJSON;
+
+- (BOOL)isTriggerExperiment;
+- (BOOL)hasCustomFeedback;
+
+- (BOOL)isCompatibleWithIOS;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;
@@ -58,8 +66,6 @@
 
 //An on-going experiment is always valid
 //For a fixed-length experiment, if it doesn't finish yet, then it's valid; otherwise it's invalid
-- (BOOL)isExperimentValid;
-
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate;
 
 //clear the old response objects

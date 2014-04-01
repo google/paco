@@ -22,13 +22,15 @@
 
 NSString* const kNotificationSoundName = @"deepbark_trial.mp3";
 
-static int const kNumOfKeysInUserInfo = 3;
-NSString* const kUserInfoKeyExperimentId = @"experimentInstanceId";
-NSString* const kUserInfoKeyNotificationFireDate = @"notificationFireDate";
-NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate";
+static int const kNumOfKeysInUserInfo = 4;
+NSString* const kUserInfoKeyExperimentId = @"id";
+NSString* const kUserInfoKeyExperimentTitle = @"title";
+NSString* const kUserInfoKeyNotificationFireDate = @"fireDate";
+NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
 
 @interface PacoNotificationInfo ()
 @property(nonatomic, copy) NSString* experimentId;
+@property(nonatomic, copy) NSString* experimentTitle;
 @property(nonatomic, strong) NSDate* fireDate;
 @property(nonatomic, strong) NSDate* timeOutDate;
 @end
@@ -41,28 +43,32 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
   
   NSString* experimentId = [infoDict objectForKey:kUserInfoKeyExperimentId];
+  NSString* experimentTitle = [infoDict objectForKey:kUserInfoKeyExperimentTitle];
   NSDate* fireDate = [infoDict objectForKey:kUserInfoKeyNotificationFireDate];
   NSDate* timeOutDate = [infoDict objectForKey:kUserInfoKeyNotificationTimeoutDate];
-  if (0 == [experimentId length] || fireDate == nil || timeOutDate == nil ||
-      [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
+  if (0 == [experimentId length] || 0 == [experimentTitle length] ||
+      fireDate == nil || timeOutDate == nil || [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
     return nil;
   }
   PacoNotificationInfo* info = [[PacoNotificationInfo alloc] init];
   info.experimentId = experimentId;
+  info.experimentTitle = experimentTitle;
   info.fireDate = fireDate;
   info.timeOutDate = timeOutDate;
   return info;
 }
 
 + (NSDictionary*)userInfoDictionaryWithExperimentId:(NSString*)experimentId
+                                    experimentTitle:(NSString*)experimentTitle
                                            fireDate:(NSDate*)fireDate
                                         timeOutDate:(NSDate*)timeOutDate {
-  if (0 == [experimentId length] || fireDate == nil || timeOutDate == nil ||
-      [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
+  if (0 == [experimentId length] || 0 == [experimentTitle length] ||
+      fireDate == nil || timeOutDate == nil || [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
     return nil;
   }
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   [userInfo setObject:experimentId forKey:kUserInfoKeyExperimentId];
+  [userInfo setObject:experimentTitle forKey:kUserInfoKeyExperimentTitle];
   [userInfo setObject:fireDate forKey:kUserInfoKeyNotificationFireDate];
   [userInfo setObject:timeOutDate forKey:kUserInfoKeyNotificationTimeoutDate];
   return userInfo;
@@ -82,10 +88,16 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   }
 }
 
+- (long)timeoutMinutes {
+  return [self.timeOutDate timeIntervalSinceDate:self.fireDate] / 60;
+}
+
 - (NSString*)description {
   NSString* description = @"{";
   description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
                                                       kUserInfoKeyExperimentId, self.experimentId]];
+  description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
+                                                      kUserInfoKeyExperimentTitle, self.experimentTitle]];
   description = [description stringByAppendingString:[NSString stringWithFormat:@"%@:%@; ",
                                                       kUserInfoKeyNotificationFireDate,
                                                       [PacoDateUtility pacoStringForDate:self.fireDate]]];
@@ -98,6 +110,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
 
 - (BOOL)isEqualToNotificationInfo:(PacoNotificationInfo*)info {
   if ([self.experimentId isEqualToString:info.experimentId] &&
+      [self.experimentTitle isEqualToString:info.experimentTitle] &&
       [self.fireDate isEqualToDate:info.fireDate] &&
       [self.timeOutDate isEqualToDate:info.timeOutDate]) {
     return YES;
@@ -127,7 +140,9 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   notification.fireDate = fireDate;
   notification.alertBody = alertBody;
   notification.soundName = kNotificationSoundName;
+  notification.applicationIconBadgeNumber = 1;
   notification.userInfo = [PacoNotificationInfo userInfoDictionaryWithExperimentId:experimentId
+                                                                   experimentTitle:experimentTitle
                                                                           fireDate:fireDate
                                                                        timeOutDate:timeOutDate];
   return notification;
@@ -219,6 +234,11 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   return info.experimentId;
 }
 
+- (NSString*)pacoExperimentTitle {
+  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  return info.experimentTitle;
+}
+
 - (NSDate*)pacoFireDate {
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.fireDate;
@@ -229,6 +249,10 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"notificationTimeoutDate"
   return info.timeOutDate;
 }
 
+- (long)pacoTimeoutMinutes {
+  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  return [info timeoutMinutes];
+}
 
 + (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId {
   NSAssert([experimentInstanceId length] > 0, @"id should be valid!");

@@ -20,18 +20,18 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self) {
-      self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.4];
-      [self initUI];
-    }
-    return self;
+  self = [super initWithFrame:frame];
+  if (self) {
+    self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.4];
+    [self initUI];
+  }
+  return self;
 }
 
 - (void)initUI {
   UIButton* closeButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   closeButton.frame = CGRectMake(10, self.frame.size.height - 60, self.frame.size.width - 20, 50);
-  [closeButton setTitle:@"Close" forState:UIControlStateNormal];
+  [closeButton setTitle:NSLocalizedString(@"Close", nil) forState:UIControlStateNormal];
   closeButton.titleLabel.font = [UIFont fontWithName:@"Helvetica-Bold" size:18];
   [closeButton setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
   [closeButton setBackgroundColor:[UIColor whiteColor]];
@@ -41,7 +41,7 @@
 
   _aboutPacoBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   _aboutPacoBtn.frame = CGRectMake(10, closeButton.frame.origin.y - 55, self.frame.size.width - 20, 50);
-  [_aboutPacoBtn setTitle:@"About Paco" forState:UIControlStateNormal];
+  [_aboutPacoBtn setTitle:NSLocalizedString(@"About Paco", nil) forState:UIControlStateNormal];
   _aboutPacoBtn.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:19];
   [_aboutPacoBtn setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
   [_aboutPacoBtn setBackgroundColor:[UIColor whiteColor]];
@@ -54,7 +54,7 @@
 
   UIButton* versionInfoBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   versionInfoBtn.frame = CGRectMake(10, self.aboutPacoBtn.frame.origin.y - 50.5, self.frame.size.width - 20, 50);
-  [versionInfoBtn setTitle:[NSString stringWithFormat:@"Version: %@",version] forState:UIControlStateNormal];
+  [versionInfoBtn setTitle:[NSString stringWithFormat:@"%@: %@", NSLocalizedString(@"Version", nil), version] forState:UIControlStateNormal];
   versionInfoBtn.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:12];
   [versionInfoBtn setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
   [versionInfoBtn setBackgroundColor:[UIColor whiteColor]];

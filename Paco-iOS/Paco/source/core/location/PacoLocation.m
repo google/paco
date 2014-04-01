@@ -17,8 +17,7 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import "PacoDateUtility.h"
-
-
+#import "PacoClient.h"
 
 @interface PacoLocation () <CLLocationManagerDelegate>
 @property (nonatomic, copy, readwrite) CLLocation *location;
@@ -39,13 +38,13 @@
 }
 
 - (void)enableLocationService {
-  NSLog(@"Paco background Location Service got enabled");
+  DDLogInfo(@"Paco background Location Service got enabled");
   self.manager.delegate = self;
   [self.manager startMonitoringSignificantLocationChanges];
 }
 
 - (void)disableLocationService {
-  NSLog(@"Paco background Location Service got disabled");
+  DDLogInfo(@"Paco background Location Service got disabled");
   self.manager.delegate = nil;
   [self.manager stopMonitoringSignificantLocationChanges];
 }
@@ -67,7 +66,7 @@
  *    locations is an array of CLLocation objects in chronological order.
  */
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-  NSLog(@"[LocationManager] Low Energy didUpdateLocations");
+  DDLogInfo(@"[LocationManager] Low Energy didUpdateLocations");
   [self.delegate locationChangedSignificantly];
 }
 
@@ -87,7 +86,7 @@
            fromLocation:(CLLocation *)oldLocation {
   
   //CLLocationCoordinate2D coord = newLocation.coordinate;
-  NSLog(@"[LocationManager] Location updated!");
+  DDLogInfo(@"[LocationManager] Location updated!");
   
   self.location = newLocation;
   self.numUpdates = self.numUpdates + 1;
@@ -108,7 +107,7 @@
  */
 - (void)locationManager:(CLLocationManager *)manager
        didFailWithError:(NSError *)error {
-  NSLog(@"[LocationManager] Failed to update location, error:%@", [error description]);
+  DDLogError(@"[LocationManager] Failed to update location, error:%@", [error description]);
 }
 
 

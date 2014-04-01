@@ -67,7 +67,7 @@
   return font;
 }
 
-+ (UIFont *)pacoConsentBoldFont {
++ (UIFont *)pacoBoldFont {
   static UIFont* font = nil;
 
   static dispatch_once_t onceToken;

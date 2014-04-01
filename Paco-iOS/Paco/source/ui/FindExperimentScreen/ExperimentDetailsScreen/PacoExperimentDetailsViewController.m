@@ -23,7 +23,7 @@
 #import "PacoClient.h"
 #import "PacoDateUtility.h"
 
-@interface PacoExperimentDetailsViewController ()
+@interface PacoExperimentDetailsViewController ()<UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition *experiment;
 @end
 
@@ -68,7 +68,7 @@
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
   self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
-  
+
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
   titleLabel.text = labelText;
@@ -86,7 +86,7 @@
   [titleLabel sizeToFit];
 
   UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, self.view.frame.size.width - 20, 20)];
-  NSString* desText = @"Description:";
+  NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
   desLabel.textColor = [PacoColor pacoDarkBlue];
@@ -103,17 +103,18 @@
   [self.view addSubview:descriptionLabel];
 
   int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
-  
+
   if (self.experiment.startDate) {
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
-    dateLabel.text = @"Start Date:                 End Date:";
+    dateLabel.text = [NSString stringWithFormat:@"%@                  %@",
+                      NSLocalizedString(@"Start Date:", nil), NSLocalizedString(@"End Date:", nil)];
     dateLabel.font = [PacoFont pacoNormalButtonFont];
     dateLabel.textColor = [PacoColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
     yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
-    
+
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
     dateText.text = [NSString stringWithFormat:@"%@               %@",
@@ -128,13 +129,14 @@
   }
 
   UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20)];
-  NSString* creText = @"Creator:";
+  NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
   creatorLabel.textColor = [PacoColor pacoDarkBlue];
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
+  yPosition += 30;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
@@ -151,9 +153,31 @@
   creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
+  yPosition += creatorValueLabel.frame.size.height + 10;
+
+  if (![self.experiment isCompatibleWithIOS]) {
+    UIImage* lockImage = [UIImage imageNamed:@"incompatible"];
+    UIImageView* lockView = [[UIImageView alloc] initWithFrame:
+                             CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
+    [lockView setImage:lockImage];
+    [self.view addSubview:lockView];
+
+    UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
+    [incompatibilityMsg setText:NSLocalizedString(@"Incompatible with iOS", nil)];
+    incompatibilityMsg.font = [PacoFont pacoBoldFont];
+    incompatibilityMsg.textColor = [UIColor redColor];
+    incompatibilityMsg.backgroundColor = [UIColor clearColor];
+    [incompatibilityMsg sizeToFit];
+    [self.view addSubview:incompatibilityMsg];
+    CGRect textFrame = incompatibilityMsg.frame;
+    textFrame.origin.x = lockImage.size.width + 15;
+    textFrame.origin.y = yPosition + lockImage.size.height - incompatibilityMsg.frame.size.height;
+    textFrame.size = incompatibilityMsg.frame.size;
+    incompatibilityMsg.frame = textFrame;
+  }
 
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [join setTitle:@"Join this Experiment" forState:UIControlStateNormal];
+  [join setTitle:NSLocalizedString(@"Join this Experiment", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
     join.titleLabel.font = [PacoFont pacoNormalButtonFont];
   }
@@ -169,16 +193,39 @@
 - (void)onJoin {
   BOOL joined = [[PacoClient sharedInstance] hasJoinedExperimentWithId:self.experiment.experimentId];
   if (joined) {
-    [[[UIAlertView alloc] initWithTitle:@"Congratulations!"
-                                message:@"You have joined this experiment,\n"
-                                         "Check it out in Current Experiments."
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Congratulations!", nil)
+                                message:NSLocalizedString(@"Joined Experiment Alert", nil)
                                delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
     return;
   }
-  
+  if (![self.experiment isCompatibleWithIOS]) {
+    [[[UIAlertView alloc] initWithTitle:nil
+                               message:NSLocalizedString(@"Experiment Incompatibility alertview message", nil)
+                              delegate:self
+                     cancelButtonTitle:NSLocalizedString(@"Join anyway", nil)
+                     otherButtonTitles:NSLocalizedString(@"Skip joining", nil), nil] show];
+    return;
+  }
+  [self loadConsentViewController];
+}
+
+- (void)loadConsentViewController {
   PacoConsentViewController *consent =
       [PacoConsentViewController controllerWithDefinition:self.experiment];
   [self.navigationController pushViewController:consent animated:YES];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  switch (buttonIndex) {
+    case 0:
+      [self loadConsentViewController];
+      break;
+    case 1:
+      [self.navigationController popViewControllerAnimated:YES];
+      break;
+    default:
+      break;
+  }
 }
 
 - (void)didReceiveMemoryWarning {

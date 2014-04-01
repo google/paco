@@ -44,6 +44,7 @@ extern NSString* const kPacoResponseKeyInputId;
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)jsonObject;
 - (id)generateJsonObject;
+- (id)payloadJsonWithImageString;
 
 + (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment;
 + (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition

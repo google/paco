@@ -19,7 +19,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
-
+#import "PacoTriggerSignal.h"
 
 static NSString* const DEFINITION_ADMINS = @"admins";
 static NSString* const DEFINITION_CREATOR = @"creator";
@@ -37,15 +37,17 @@ static NSString* const DEFINITION_STARTDATE = @"startDate";
 static NSString* const DEFINITION_ENDDATE = @"endDate";
 static NSString* const DEFINITION_QUESTIONS_CHANGE = @"questionsChange";
 static NSString* const DEFINITION_SCHEDULE = @"schedule";
+static NSString* const DEFINITION_SIGNAL_MECHANISMS = @"signalingMechanisms";
 static NSString* const DEFINITION_TITLE = @"title";
 static NSString* const DEFINITION_WEBRECOMMENDED = @"webRecommended";
 static NSString* const DEFINITION_VERSION = @"version";
-
+static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
 @property(nonatomic, strong) NSDate* endDate;
 @property(nonatomic, strong) NSString* inclusiveEndDateString;
+@property (nonatomic, strong) NSArray* signalMechanismList;
 @end
 
 
@@ -63,9 +65,10 @@ static NSString* const DEFINITION_VERSION = @"version";
   for (id jsonFeedback in jsonFeedbackList) {
     [feedbackObjects addObject:[PacoExperimentFeedback pacoFeedbackFromJSON:jsonFeedback]];
   }
-  definition.feedback = feedbackObjects;
+  definition.feedbackList = feedbackObjects;
+  definition.isCustomRendering = [[definitionMembers objectForKey:DEFINITION_CUSTOM_RENDERING] boolValue];
   definition.fixedDuration = [[definitionMembers objectForKey:DEFINITION_FIXED_DURATION] boolValue];
-  definition.experimentId = [NSString stringWithFormat:@"%ld", [[definitionMembers objectForKey:DEFINITION_ID] longValue]];
+  definition.experimentId = [NSString stringWithFormat:@"%lld", [[definitionMembers objectForKey:DEFINITION_ID] longLongValue]];
   definition.informedConsentForm = [definitionMembers objectForKey:DEFINITION_INFORMED_CONSENTFORM];
   NSArray *jsonInputList = [definitionMembers objectForKey:DEFINITION_INPUTS];
   NSMutableArray *inputObjects = [NSMutableArray array];
@@ -97,6 +100,21 @@ static NSString* const DEFINITION_VERSION = @"version";
   PacoExperimentSchedule *schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   definition.schedule = schedule;
   
+  id jsonSignalMechanismList = [definitionMembers objectForKey:DEFINITION_SIGNAL_MECHANISMS];
+  NSAssert([jsonSignalMechanismList isKindOfClass:[NSArray class]], @"signal mechanisms should be an array");
+  NSMutableArray* signalingMechanisms = [NSMutableArray arrayWithCapacity:[jsonSignalMechanismList count]];
+  for (id signalJson in jsonSignalMechanismList) {
+    id signal = nil;
+    if ([[signalJson objectForKey:kSignalType] isEqualToString:kTriggerSignal]) { //trigger signal
+      signal = [PacoTriggerSignal signalFromJson:signalJson];
+    } else { //schedule signal
+      signal = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:signalJson];
+    }
+    NSAssert(signal, @"signal should be valid");
+    [signalingMechanisms addObject:signal];
+  }
+  definition.signalMechanismList = signalingMechanisms;
+  
   definition.title = [definitionMembers objectForKey:DEFINITION_TITLE];
   definition.webReccommended = [[definitionMembers objectForKey:DEFINITION_WEBRECOMMENDED] boolValue];
   definition.experimentVersion = [[definitionMembers objectForKey:DEFINITION_VERSION] intValue];
@@ -125,12 +143,12 @@ static NSString* const DEFINITION_VERSION = @"version";
     [json setObject:self.experimentDescription forKey:DEFINITION_DESCRIPTION];
   }
   
-  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedback count]];
-  for (PacoExperimentFeedback* feedback in self.feedback) {
+  NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedbackList count]];
+  for (PacoExperimentFeedback* feedback in self.feedbackList) {
     [feedbackJson addObject:[feedback serializeToJSON]];
   }
   [json setObject:feedbackJson forKey:DEFINITION_FEEDBACK];
-
+  [json setObject:[NSNumber numberWithBool:self.isCustomRendering] forKey:DEFINITION_CUSTOM_RENDERING];
   if (self.informedConsentForm) {
     [json setObject:self.informedConsentForm forKey:DEFINITION_INFORMED_CONSENTFORM];
   }
@@ -156,13 +174,36 @@ static NSString* const DEFINITION_VERSION = @"version";
   }
   [json setObject:[NSNumber numberWithBool:self.questionsChange] forKey:DEFINITION_QUESTIONS_CHANGE];
   [json setObject:[self.schedule serializeToJSON] forKey:DEFINITION_SCHEDULE];
+  
+  NSMutableArray* signalMechanisms = [NSMutableArray arrayWithCapacity:[self.signalMechanismList count]];
+  for (id signal in self.signalMechanismList) {
+    NSAssert([signal respondsToSelector:@selector(serializeToJSON)],
+             @"PacoExperimentSchedule and PacoTriggerSignal should both implement serializeToJSON");
+    id json = [signal performSelector:@selector(serializeToJSON) withObject:nil];
+    NSAssert(json, @"json should be valid");
+    [signalMechanisms addObject:json];
+  }
+  [json setObject:signalMechanisms forKey:DEFINITION_SIGNAL_MECHANISMS];
+
   [json setObject:self.title forKey:DEFINITION_TITLE];
   [json setObject:[NSNumber numberWithBool:self.webReccommended] forKey:DEFINITION_WEBRECOMMENDED];
   [json setObject:[NSNumber numberWithInt:self.experimentVersion] forKey:DEFINITION_VERSION];
   return json;
 }
 
+- (BOOL)isTriggerExperiment {
+  NSAssert([self.signalMechanismList count] > 0, @"signalMechanismList should have element");
+  return [[self.signalMechanismList firstObject] isKindOfClass:[PacoTriggerSignal class]];
+}
 
+- (BOOL)hasCustomFeedback {
+  return [[self.feedbackList firstObject] isCustomFeedback];
+}
+
+
+- (BOOL)isCompatibleWithIOS {
+  return ![self isTriggerExperiment] && ![self hasCustomFeedback] && !self.isCustomRendering;
+}
 
 - (BOOL)isFixedLength {
   return self.startDate && self.endDate;
@@ -185,16 +226,13 @@ static NSString* const DEFINITION_VERSION = @"version";
   return NO;
 }
 
-- (BOOL)isExperimentValid {
-  return [self isExperimentValidSinceDate:[NSDate date]];
-}
-
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
-  if (fromDate == nil) {
-    return NO;
-  }
+  //if experiment is ongoing, it should always be valid
   if ([self isOngoing]) {
     return YES;
+  }
+  if (fromDate == nil) {
+    return NO;
   }
   return [self.endDate pacoLaterThanDate:fromDate];
 }
@@ -202,42 +240,50 @@ static NSString* const DEFINITION_VERSION = @"version";
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoExperimentDefinition:%p - "
+          @"trigger = %@ "
           @"experimentId=%@ "
           @"title=%@ "
           @"admins=%@ "
           @"creator=%@ "
           @"deleted=%d "
-          @"experimentDescription=%@ "
+//          @"experimentDescription=%@ "
           @"feedback=%@ "
+          @"isCustomRendering=%@ "
+          @"hasCustomFeedback=%@ "
           @"fixedDuration=%d "
-          @"informedConsentForm=%@ "
-          @"inputs=%@ "
+//          @"informedConsentForm=%@ "
+//          @"inputs=%@ "
           @"modifyDate=%@ "
           @"published=%d "
           @"publishedUsers=%@ "
           @"startDate=%@"
           @"endDate=%@"
           @"questionsChange=%d "
+          @"signalMechanisms=%@ "
           @"schedule=%@ "
           @"webReccommended=%d "
           @"experimentVersion=%d >",
           self,
+          [self isTriggerExperiment] ? @"YES" : @"NO",
           self.experimentId,
           self.title,
           self.admins,
           self.creator,
           self.deleted,
-          self.experimentDescription,
-          self.feedback,
+//          self.experimentDescription,
+          self.feedbackList,
+          self.isCustomRendering ? @"YES" : @"NO",
+          [self hasCustomFeedback] ?  @"YES" : @"NO",
           self.fixedDuration,
-          self.informedConsentForm,
-          self.inputs,
+//          self.informedConsentForm,
+//          self.inputs,
           self.modifyDate,
           self.published,
           self.publishedUsers,
           self.startDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.startDate] : @"None",
           self.endDate ? [PacoDateUtility stringWithYearAndDayFromDate:self.endDate] : @"None",
           self.questionsChange,
+          self.signalMechanismList,
           self.schedule,
           self.webReccommended,
           self.experimentVersion,

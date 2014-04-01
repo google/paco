@@ -17,6 +17,7 @@
 #import "UILocalNotification+Paco.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
+#import "PacoClient.h"
 
 @implementation NSMutableArray (Paco)
 
@@ -73,6 +74,8 @@
     if (![currentFireDate isEqualToDate:prevFireDate]) {
       [nonDuplicateArray addObject:current];
       prevIndex = currentIndex;
+    } else {
+      DDLogError(@"Error: duplicate notification date: %@", [PacoDateUtility pacoStringForDate:currentFireDate]);
     }
     currentIndex++;
   }

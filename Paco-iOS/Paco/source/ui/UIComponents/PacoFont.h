@@ -22,5 +22,5 @@
 + (UIFont *)pacoMenuButtonFont;
 + (UIFont *)pacoNavbarTitleFont;
 + (UIFont *)pacoNormalButtonFont;
-+ (UIFont *)pacoConsentBoldFont;
++ (UIFont *)pacoBoldFont;
 @end

@@ -37,7 +37,6 @@
       [[PacoConsentViewController alloc] initWithNibName:nil bundle:nil];
   controller.definition = definition;
   controller.navigationItem.title = definition.title;
-  controller.navigationItem.hidesBackButton = NO;
   return controller;
 }
 
@@ -48,10 +47,10 @@
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
   self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
-  
+
   UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
-  boldTitle.text = @"Data Handling & Privacy Agreement between You and the Experiment Creator";
-  boldTitle.font = [PacoFont pacoConsentBoldFont];
+  boldTitle.text = NSLocalizedString(@"Data Handling & Privacy Agreement between You and the Experiment Creator", nil);
+  boldTitle.font = [PacoFont pacoBoldFont];
   boldTitle.textColor = [UIColor blackColor];
   boldTitle.backgroundColor = [UIColor clearColor];
   boldTitle.numberOfLines = 0;
@@ -59,9 +58,7 @@
   [boldTitle sizeToFit];
 
   UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, self.view.frame.size.width - 20, 0)];
-  consentText.text = @"By joining this experiment, you may be sharing data with the creator and "
-  @"administrators of this experiment. Read the data handling policy they have provided below to "
-  @"decide on whether you want to participate in this experiment.";
+  consentText.text = NSLocalizedString(@"Consent Text", nil);
   consentText.font = [PacoFont pacoTableCellDetailFont];
   consentText.textColor = [UIColor blackColor];
   consentText.backgroundColor = [UIColor clearColor];
@@ -78,7 +75,7 @@
   [self.view addSubview:expViewText];
 
   UIButton* iConsent = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  [iConsent setTitle:@"I Consent" forState:UIControlStateNormal];
+  [iConsent setTitle:NSLocalizedString(@"I Consent", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
     iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
   }
@@ -95,9 +92,9 @@
   if (!self.definition.schedule.userEditable) {
     [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
                                                   andSchedule:self.definition.schedule];
-    
-    NSString* title = @"Congratulations!";
-    NSString* message = @"You've successfully joined this experiment!";
+
+    NSString* title = NSLocalizedString(@"Congratulations!", nil);
+    NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
     [PacoAlertView showAlertWithTitle:title
                               message:message
                          dismissBlock:^(NSInteger buttonIndex) {

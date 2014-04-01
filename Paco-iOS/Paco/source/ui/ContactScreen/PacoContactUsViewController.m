@@ -33,11 +33,15 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-      self.navigationItem.title = @"Ways to talk to Paco";
-    }
-    return self;
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    self.navigationItem.title = NSLocalizedString(@"Ways to talk to Paco", nil);
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                             style:UIBarButtonItemStylePlain
+                                                                            target:self
+                                                                            action:@selector(gotoMainPage)];
+ }
+  return self;
 }
 
 - (void)viewDidLoad {
@@ -52,21 +56,21 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
   view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
   PacoMenuButton* buttonEmailUserGroup = [[PacoMenuButton alloc] init];
-  buttonEmailUserGroup.text.text = @"Email user group";
+  buttonEmailUserGroup.text.text = NSLocalizedString(@"Email user group", nil);
   [buttonEmailUserGroup.button setBackgroundImage:[UIImage imageNamed:@"feedback_normal.png"] forState:UIControlStateNormal];
   [buttonEmailUserGroup.button addTarget:self action:@selector(onEmailUserGroup) forControlEvents:UIControlEventTouchUpInside];
   [view addSubview:buttonEmailUserGroup];
   [buttonEmailUserGroup sizeToFit];
-  
+
   PacoMenuButton* buttonBrowseUserGroup = [[PacoMenuButton alloc] init];
-  buttonBrowseUserGroup.text.text = @"Browse user group";
+  buttonBrowseUserGroup.text.text = NSLocalizedString(@"Browse user group", nil);
   [buttonBrowseUserGroup.button setBackgroundImage:[UIImage imageNamed:@"feedback_normal.png"] forState:UIControlStateNormal];
   [buttonBrowseUserGroup.button addTarget:self action:@selector(onBrowseUserGroup) forControlEvents:UIControlEventTouchUpInside];
   [view addSubview:buttonBrowseUserGroup];
   [buttonBrowseUserGroup sizeToFit];
 
   PacoMenuButton* buttonBrowseWebsite = [[PacoMenuButton alloc] init];
-  buttonBrowseWebsite.text.text = @"Browse Website";
+  buttonBrowseWebsite.text.text = NSLocalizedString(@"Browse Website", nil);
   [buttonBrowseWebsite.button setBackgroundImage:[UIImage imageNamed:@"feedback_normal.png"] forState:UIControlStateNormal];
   [buttonBrowseWebsite.button addTarget:self action:@selector(onBrowseWebsite) forControlEvents:UIControlEventTouchUpInside];
   [view addSubview:buttonBrowseWebsite];
@@ -88,43 +92,49 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
   buttonBrowseWebsite.frame = rect;
 }
 
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+
 - (void)onEmailUserGroup {
   if ([MFMailComposeViewController canSendMail]) {
     MFMailComposeViewController* mailer = [[MFMailComposeViewController alloc] init];
     mailer.mailComposeDelegate = self;
-    [mailer setSubject:@"Paco Feedback"];
+    [mailer setSubject:NSLocalizedString(@"Paco Feedback",nil)];
     NSArray* toRecipients = [NSArray arrayWithObject:@"paco-users@googlegroups.com"];
     [mailer setToRecipients:toRecipients];
     [self presentViewController:mailer animated:YES completion:nil];
   }
   else {
-    NSString* title = @"Email not configured";
-    NSString* message = @"Please configure your email account to send messages";
+    NSString* title = NSLocalizedString(@"Email not configured", nil);
+    NSString* message = NSLocalizedString(@"Configure email message", nil);
     [PacoAlertView showAlertWithTitle:title message:message cancelButtonTitle:@"OK"];
   }
 }
 
 - (void)onBrowseUserGroup {
-  [PacoAlertView showAlertWithTitle:@"Note"
-                            message:@"You are about to leave Paco and visit Safari."
+  [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Note", nil)
+                            message:NSLocalizedString(@"Safari Launch Message", nil)
                        dismissBlock:^(NSInteger buttonIndex) {
                          if (buttonIndex == 1) {
                            [self launchBrowserWithURL:browseUserGroupURL];
                          }
                        }
-                  cancelButtonTitle:@"Cancel"
+                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
                   otherButtonTitles:@"OK", nil];
 }
 
 - (void)onBrowseWebsite {
-  [PacoAlertView showAlertWithTitle:@"Note"
-                            message:@"You are about to leave Paco and visit Safari."
+  [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Note", nil)
+                            message:NSLocalizedString(@"Safari Launch Message", nil)
                        dismissBlock:^(NSInteger buttonIndex) {
                          if (buttonIndex == 1) {
                            [self launchBrowserWithURL:browsePacoWebsite];
                          }
                        }
-                  cancelButtonTitle:@"Cancel"
+                  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
                   otherButtonTitles:@"OK", nil];
 }
 
@@ -140,19 +150,19 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
   NSString* resultString;
   switch (result) {
     case MFMailComposeResultCancelled: {
-      resultString = @"Email sending cancelled";
+      resultString = NSLocalizedString(@"Email Cancelled", nil);
       break;
     }
     case MFMailComposeResultSaved: {
-      resultString = @"Email successfully saved in drafts folder";
+      resultString = NSLocalizedString(@"Email Saved", nil);
       break;
     }
     case MFMailComposeResultSent: {
-      resultString = @"Email successfully sent";
+      resultString = NSLocalizedString(@"Email Sent", nil);
       break;
     }
     case MFMailComposeResultFailed: {
-      resultString = @"Something went wrong, please try again later.";
+      resultString = NSLocalizedString(@"Email Failed", nil);
       break;
     }
 
@@ -160,13 +170,13 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
       break;
   }
   [self dismissViewControllerAnimated:YES completion:nil];
-  [PacoAlertView showAlertWithTitle:@"Mail Status" message:resultString cancelButtonTitle:@"OK"];
+  [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Mail Status", nil) message:resultString cancelButtonTitle:@"OK"];
 }
 
 - (void)didReceiveMemoryWarning
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+  [super didReceiveMemoryWarning];
+  // Dispose of any resources that can be recreated.
 }
 
 @end

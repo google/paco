@@ -18,7 +18,7 @@
 extern NSString* const PacoFinishLoadingDefinitionNotification;
 extern NSString* const PacoFinishLoadingExperimentNotification;
 extern NSString* const PacoFinishRefreshing;
-
+extern NSString* const PacoAppBecomeActive;
 
 @class PacoModel;
 @class PacoExperimentSchedule;
@@ -38,6 +38,7 @@ extern NSString* const PacoFinishRefreshing;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 - (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
+- (BOOL)areRunningExperimentsLoaded;
 - (BOOL)shouldTriggerNotificationSystem;
 
 - (BOOL)saveExperimentDefinitionsToFile;

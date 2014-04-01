@@ -9,7 +9,12 @@
 @property (nonatomic) UILabel* titleLabel;
 @property (nonatomic) UILabel* messageLabel;
 
-- (id) initWithNotification:(JCNotificationBanner*)notification;
+- (CGFloat)estimatedHeightWithWidth:(CGFloat)bannerWidth;
+
+//designated initializer
+- (id)initWithNotification:(JCNotificationBanner*)notification andMessageFont:(UIFont*)messageFont;
+- (id)initWithNotification:(JCNotificationBanner*)notification;
+
 - (BOOL) getCurrentPresentingStateAndAtomicallySetPresentingState:(BOOL)state;
 
 @end

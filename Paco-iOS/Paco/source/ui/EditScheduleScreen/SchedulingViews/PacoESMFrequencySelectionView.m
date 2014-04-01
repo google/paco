@@ -23,7 +23,7 @@
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.format = @"Frequency %d";
+    self.format = NSLocalizedString(@"Frequency", nil);
     self.value = [NSNumber numberWithInt:1];
     self.minValue = 1;
     self.maxValue = 100;

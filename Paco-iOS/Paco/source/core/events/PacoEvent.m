@@ -51,10 +51,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
 - (id)init {
   self = [super init];
   if (self) {
-    NSString* appID = [[[NSBundle mainBundle] infoDictionary]
-                       objectForKey:(NSString*)kCFBundleIdentifierKey];
-    NSAssert([appID length] > 0, @"appID is not valid!");
-    _appId = appID;
+    _appId = @"iOS";
     
     NSString *version = [[[NSBundle mainBundle] infoDictionary]
                          objectForKey:(NSString*)kCFBundleVersionKey];
@@ -161,6 +158,41 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   }
   return [NSDictionary dictionaryWithDictionary:dictionary];
 }
+
+
+- (id)payloadJsonWithImageString {
+  if (0 == [self.responses count]) {
+    return [self generateJsonObject];
+  }
+  
+  NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:self.responses];
+  for (int index=0; index<[self.responses count]; index++) {
+    id responseDict = [self.responses objectAtIndex:index];
+    if (![responseDict isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
+    id answer = [(NSDictionary*)responseDict objectForKey:kPacoResponseKeyAnswer];
+    if (![answer isKindOfClass:[NSString class]]) {
+      continue;
+    }
+    NSString* imageName = [UIImage pacoImageNameFromBoxedName:(NSString*)answer];
+    if (!imageName) {
+      continue;
+    }
+    NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
+    if ([imageString length] > 0) {
+      NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
+      [newResponseDict setObject:imageString forKey:kPacoResponseKeyAnswer];
+      [newReponseList replaceObjectAtIndex:index withObject:newResponseDict];
+    }
+  }
+  NSMutableDictionary* jsonPayload =
+      [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
+  [jsonPayload setObject:newReponseList forKey:kPacoEventKeyResponses];
+  return jsonPayload;
+}
+
+
 
 + (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition
                         withSchedule:(PacoExperimentSchedule*)schedule {

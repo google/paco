@@ -14,6 +14,7 @@
  */
 
 #import "NSString+Paco.h"
+#import "PacoClient.h"
 
 @implementation NSString (Paco)
 
@@ -32,4 +33,18 @@
   return fileFullPath;
 }
 
++ (NSString*)pacoImageFolderInDocumentsDirectory:(NSString*)fileName {
+  NSString* folderPath = [[NSString pacoDocumentDirectory] stringByAppendingPathComponent:@"img"];
+  NSError* error;
+  if (![[NSFileManager defaultManager] fileExistsAtPath:folderPath]) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:folderPath withIntermediateDirectories:NO attributes:nil error:&error];
+    if (error) {
+      DDLogError(@"Failed to create image dir: %@", [error description]);
+    } else {
+      DDLogInfo(@"Succeeded to create image dir.");
+    }
+  }
+  NSString* fullFilePath = [folderPath stringByAppendingPathComponent:fileName];
+  return fullFilePath;
+}
 @end

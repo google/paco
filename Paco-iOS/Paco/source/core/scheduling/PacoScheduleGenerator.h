@@ -18,13 +18,11 @@
 
 @interface PacoScheduleGenerator : NSObject
 
-+ (NSDate*)nextScheduledDateFromNow:(PacoExperiment*)experiment;
-+ (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
-                             numOfDates:(NSInteger)numOfDates
-                               fromDate:(NSDate*)fromDate;
-
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
                         numOfDates:(NSInteger)numOfDates
                           fromDate:(NSDate*)fromDate;
+
+
++ (NSDate*)adjustedGenerateTime:(NSDate*)originalGenerateTime forExperiment:(PacoExperiment*)experiment;
 
 @end

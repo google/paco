@@ -27,6 +27,15 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.edgesForExtendedLayout = UIRectEdgeNone;
+  
+  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
+                                                                           style:UIBarButtonItemStylePlain
+                                                                          target:self
+                                                                          action:@selector(gotoMainPage)];
+}
+
+- (void)gotoMainPage {
+  [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 - (void)loadWebViewWithHTML:(NSString*)htmlName {

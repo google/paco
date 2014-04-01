@@ -21,4 +21,8 @@
 
 - (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
 
+- (NSInteger)pacoWeeksFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
+
+- (NSInteger)pacoMonthsFromDate:(NSDate*)startDate toDate:(NSDate*)endDate;
+
 @end

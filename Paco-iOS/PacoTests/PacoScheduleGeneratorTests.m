@@ -20,6 +20,7 @@
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
 #import "NSDate+Paco.h"
+#import "PacoScheduleGenerator+Daily.h"
 
 //Ongoing, Fixed interval, Daily, Repeat every 1 day, timeout 479 minutes
 //9:30 am, 12:50 pm, 6:11 pm

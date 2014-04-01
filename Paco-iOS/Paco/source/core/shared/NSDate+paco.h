@@ -37,16 +37,28 @@
 //The array of times should be already sorted!
 - (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate;
 
+- (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times
+                            generateTime:(NSDate*)generateTime
+                              andEndDate:(NSDate*)endDate;
+
 - (BOOL)pacoCanScheduleTimes:(NSArray*)times;
 
 - (BOOL)pacoOnSameDayWithDate:(NSDate*)anotherDate;
 
 - (NSDate*)pacoFirstDayInCurrentMonth;
-- (NSDate*)pacoFirstDayInCurrentWeek;
+
+//dayIndex starts from 1, and ends up to 31
+//if dayIndex exceeds the max days in the current month, a nil object will be returned
+- (NSDate*)pacoDayInCurrentMonth:(NSUInteger)dayIndex;
+
+- (NSDate*)pacoSundayInCurrentWeek;
+
+- (BOOL)pacoInSameMonthWith:(NSDate*)another;
 
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
 
 - (BOOL)pacoIsWeekend;
+- (NSUInteger)pacoIndexInWeek;
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight;
 
@@ -56,6 +68,7 @@
 
 - (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays;
 - (NSDate*)pacoDateByAddingWeekInterval:(NSUInteger)weekInterval;
+- (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval;
 
 - (NSUInteger)pacoNumOfDaysInCurrentMonth;
 - (NSUInteger)pacoNumOfWeekdaysInCurrentMonth;

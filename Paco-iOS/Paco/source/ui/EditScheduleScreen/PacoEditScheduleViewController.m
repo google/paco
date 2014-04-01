@@ -40,8 +40,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = @"Scheduling";
-    self.navigationItem.hidesBackButton = NO;
+    self.navigationItem.title = NSLocalizedString(@"Scheduling", nil);
   }
   return self;
 }
@@ -63,7 +62,7 @@
 - (void)onJoin {
   NSString* errorMsg = [[(PacoScheduleEditView*)self.view schedule] evaluateSchedule];
   if (errorMsg) {
-    [[[UIAlertView alloc] initWithTitle:@"Oops"
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
                                 message:errorMsg
                                delegate:nil
                       cancelButtonTitle:@"OK"
@@ -74,9 +73,9 @@
   PacoExperimentSchedule* modifiedSchedule = [(PacoScheduleEditView*)self.view schedule];
   [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
                                                 andSchedule:modifiedSchedule];
-  
-  NSString* title = @"Congratulations!";
-  NSString* message = @"You've successfully joined this experiment!";
+
+  NSString* title = NSLocalizedString(@"Congratulations!", nil);
+  NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
   [[[UIAlertView alloc] initWithTitle:title
                               message:message
                              delegate:self

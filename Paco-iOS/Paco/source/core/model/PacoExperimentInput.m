@@ -144,7 +144,9 @@ static NSString* const INPUT_TEXT = @"text";
   return choices;
 }
 
-- (NSArray*)choicesForList {
+//return a NSNumber object or nil for single-selected list
+//return a NSArray object or nil for multi-selected list
+- (id)answerForList {
   if (ResponseEnumTypeList != self.responseEnumType) {
     return nil;
   }
@@ -152,19 +154,33 @@ static NSString* const INPUT_TEXT = @"text";
   int sizeOfList = [self.listChoices count];
   NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
                                                    sizeOfList:sizeOfList];
-  return choices;
+  if (self.multiSelect) {
+    return choices;
+  } else {
+    NSAssert([choices count] < 2, @"Radio list should not have more than one selection!");
+    return [choices firstObject];
+  }
 }
 
 - (NSString*)stringForListChoices {
   if (![self.responseType isEqualToString:@"list"]) {
     return nil;
   }
-  NSArray* choices = [self choicesForList];
-  NSAssert(!(!self.multiSelect && [choices count] > 1), @"Radio list should not have more than one selection!");
-  if (0 == [choices count]) {
+  id answer = [self answerForList];
+  if (!answer) {
     return @"";
-  }else{
-    return [choices componentsJoinedByString:@","];
+  }
+  
+  if (self.multiSelect) {
+    NSAssert([answer isKindOfClass:[NSArray class]], @"answer should be an array for multi-select list");
+    if (0 == [answer count]) {
+      return @"";
+    }else{
+      return [answer componentsJoinedByString:@","];
+    }
+  } else {
+    NSAssert([answer isKindOfClass:[NSNumber class]], @"answer should be a number for single-select list");
+    return [NSString stringWithFormat:@"%d", [answer intValue]];
   }
 }
 
@@ -209,7 +225,7 @@ static NSString* const INPUT_TEXT = @"text";
     NSLog(@"[ERROR]input's questionType is not equal to question!");
     return value;
   }
-  if (self.responseObject == nil) {
+  if (!self.responseObject) {
     return value;
   }
     
@@ -236,7 +252,7 @@ static NSString* const INPUT_TEXT = @"text";
       
     case ResponseEnumTypeList: 
       NSAssert([answerObj isKindOfClass:[NSNumber class]], @"The answer to list should be a number!");
-      value = [self choicesForList];
+      value = [self answerForList];
       break;
       
     case ResponseEnumTypeNumber:
@@ -255,7 +271,7 @@ static NSString* const INPUT_TEXT = @"text";
       NSAssert(NO, @"Invalid response enum type!");
       break;
   }
-  if (value == nil) {
+  if (!value) {
     value = [NSNull null];
   }
   return value;
@@ -265,13 +281,13 @@ static NSString* const INPUT_TEXT = @"text";
   CLLocation *location = responseObject;
   NSAssert([location isKindOfClass:[CLLocation class]],
            @"responseObject should be class of CLLocation!");
-  NSString *locationString = [NSString stringWithFormat:@"(%f,%f)",
+  NSString *locationString = [NSString stringWithFormat:@"%f,%f",
                                   location.coordinate.latitude, location.coordinate.longitude];
   return locationString;
 }
 
 - (id)payloadObject {
-  if (self.responseObject == nil) {
+  if (!self.responseObject) {
     return nil;
   }
   if (![self.questionType isEqualToString:@"question"]) {

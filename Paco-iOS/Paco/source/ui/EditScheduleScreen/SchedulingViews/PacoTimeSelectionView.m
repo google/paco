@@ -63,30 +63,14 @@
   NSNumber *time = [self.times objectAtIndex:timeIndex];
   [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [self.picker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
-  
+
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-  
-  UITableView *table = [self tableViewforCell:self];
-  PacoTableView *pacoTable = [self pacoTableViewforCell:self];
+
+  UITableView *table = [self tableView];
+  PacoTableView *pacoTable = [self pacoTableView];
   pacoTable.footer = self.picker;
   NSIndexPath *indexPath = [table indexPathForCell:self];
   [table scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
-}
-
-- (UITableView *)tableViewforCell:(UITableViewCell *)cell {//consider the diffenernce in view hierarchies in ios versions
-  id view = [cell superview];
-  while ([view isKindOfClass:[UITableView class]] == NO) {
-    view = [view superview];
-  }
-  return (UITableView*)view;
-}
-
-- (PacoTableView *)pacoTableViewforCell:(UITableViewCell *)cell {//consider the diffenernce in view hierarchies in ios versions
-  id view = [cell superview];
-  while ([view isKindOfClass:[PacoTableView class]] == NO) {
-    view = [view superview];
-  }
-  return (PacoTableView*)view;
 }
 
 - (void)onDateChange {
@@ -103,7 +87,7 @@
   if (_editIndex != NSNotFound) {
     [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
-    PacoTableView *pacoTable = [self pacoTableViewforCell:self];
+    PacoTableView *pacoTable = [self pacoTableView];
     pacoTable.footer = nil;
     [pacoTable setNeedsLayout];
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
@@ -118,7 +102,7 @@
     self.timeEditButtons = [NSMutableArray array];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
-    label.text = @"Signal Time(s)";
+    label.text = NSLocalizedString(@"Signal Time(s)", nil);
     label.backgroundColor = [UIColor clearColor];
     self.label = label;
     [self addSubview:label];
@@ -155,7 +139,7 @@
   if ([self.times count] == 0) {
     self.times = [NSArray arrayWithObject:[NSDate dateWithTimeIntervalSince1970:0]];
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
-    [button setTitle:@"Enter a time" forState:UIControlStateNormal];
+    [button setTitle:NSLocalizedString(@"Enter a time", nil) forState:UIControlStateNormal];
     [self addSubview:button];
     self.timePickers = [NSMutableArray arrayWithObject:button];
     [self setNeedsLayout];
@@ -183,8 +167,8 @@
     button.backgroundColor = [PacoColor pacoBlue];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    [button setTitle:@"Edit" forState:UIControlStateNormal];
-    [button setTitle:@"Edit" forState:UIControlStateHighlighted];
+    [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
+    [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateHighlighted];
     [button addTarget:self action:@selector(onEdit:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:button];
     [_timeEditButtons addObject:button];

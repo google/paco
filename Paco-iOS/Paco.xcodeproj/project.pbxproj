@@ -39,6 +39,15 @@
 		36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE7180DCA9600335B74 /* NSDate+Paco.m */; };
 		3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3647925E181711D100409E87 /* PacoNotificationManagerTests.m */; };
 		3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3647926718171D7600409E87 /* PacoSchedulerTests.m */; };
+		36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
+		36488B8818BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
+		36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36488BB418C8FB2E004517E2 /* incompatible@2x.png */; };
+		36488BB818C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */; };
+		36488BB918C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */; };
+		36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
+		36488BBF18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
+		36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
+		36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
 		365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */; };
@@ -51,6 +60,11 @@
 		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
 		3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */; };
 		366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 366292851821C2EF00FC647A /* PacoUtilityTests.m */; };
+		366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
+		366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
+		366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */; };
 		367171FD183AFE33005A5058 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = 367171FC183AFE33005A5058 /* help.html */; };
 		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
 		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
@@ -58,8 +72,6 @@
 		367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
 		367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
 		367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */; };
-		36844285187632660027C72F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36844284187632660027C72F /* Default-568h@2x.png */; };
-		36844287187632BE0027C72F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36844286187632BE0027C72F /* Default@2x.png */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
 		368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
@@ -68,9 +80,10 @@
 		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
 		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
 		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
-		369F6BBF18657C9C006FB693 /* app_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BBE18657C9C006FB693 /* app_icon.png */; };
-		369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC718657CDF006FB693 /* app_icon_ipad.png */; };
-		369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */; };
+		36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
+		36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
+		36A8201C18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */; };
+		36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */; };
 		36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDA17C420F800B93855 /* SSKeychain.m */; };
 		36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CDC17C420F800B93855 /* SSKeychainQuery.m */; };
 		36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CE117C4440000B93855 /* NSError+Paco.m */; };
@@ -124,7 +137,6 @@
 		36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9817568E29004CF035 /* current_experiments_focused.png */; };
 		36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9917568E29004CF035 /* current_experiments_normal.png */; };
 		36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */; };
-		36B8EBDB17568E29004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9B17568E29004CF035 /* InfoPlist.strings */; };
 		36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA117568E29004CF035 /* experiment_disabled.png */; };
 		36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA217568E29004CF035 /* experiment_focused.png */; };
 		36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA317568E29004CF035 /* experiment_normal.png */; };
@@ -188,6 +200,10 @@
 		36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC3717568E40004CF035 /* PacoTests.m */; };
 		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
 		36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */; };
+		36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */; };
+		36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */; };
+		36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33C18A4DEEE00D8FE59 /* DDLog.m */; };
+		36C4A34918A4DFEC00D8FE59 /* DDTTYLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */; };
 		36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
 		36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D4249F17E64917003BCD61 /* PacoESMDateTests.m */; };
@@ -210,9 +226,25 @@
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		E43DA212185ADDC9007F04F9 /* PacoInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA211185ADDC9007F04F9 /* PacoInfoView.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
+		E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */; };
+		E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */; };
+		E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */; };
+		E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */; };
+		E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */; };
+		E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */; };
+		E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */; };
+		E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */; };
+		E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */; };
+		E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */; };
+		E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */; };
+		E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */; };
+		E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */; };
+		E480BE161896F3C700662432 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE141896F3C700662432 /* InfoPlist.strings */; };
+		E480BE201896F3E100662432 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE1E1896F3E100662432 /* Localizable.strings */; };
 		E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */; };
 		E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D5DE851837DE9900E5446A /* MessageUI.framework */; };
 		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
+		E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F9A79718899F39006A2803 /* PacoStepperView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -329,6 +361,15 @@
 		36417BE7180DCA9600335B74 /* NSDate+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Paco.m"; sourceTree = "<group>"; };
 		3647925E181711D100409E87 /* PacoNotificationManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManagerTests.m; sourceTree = "<group>"; };
 		3647926718171D7600409E87 /* PacoSchedulerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSchedulerTests.m; sourceTree = "<group>"; };
+		36488B8518BFDC46004517E2 /* PacoTriggerSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTriggerSignal.h; sourceTree = "<group>"; };
+		36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTriggerSignal.m; sourceTree = "<group>"; };
+		36488BB418C8FB2E004517E2 /* incompatible@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "incompatible@2x.png"; sourceTree = "<group>"; };
+		36488BB618C90D9A004517E2 /* PacoScheduleGenerator+Weekly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Weekly.h"; sourceTree = "<group>"; };
+		36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Weekly.m"; sourceTree = "<group>"; };
+		36488BBC18CA598C004517E2 /* PacoPublicDefinitionLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoPublicDefinitionLoader.h; sourceTree = "<group>"; };
+		36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicDefinitionLoader.m; sourceTree = "<group>"; };
+		36488BC718CA5E67004517E2 /* PacoEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEnumerator.h; sourceTree = "<group>"; };
+		36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEnumerator.m; sourceTree = "<group>"; };
 		365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Paco.h"; sourceTree = "<group>"; };
 		365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Paco.m"; sourceTree = "<group>"; };
 		365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSErrorCategoryTests.m; sourceTree = "<group>"; };
@@ -341,6 +382,12 @@
 		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
 		3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentScheduleTests.m; sourceTree = "<group>"; };
 		366292851821C2EF00FC647A /* PacoUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtilityTests.m; sourceTree = "<group>"; };
+		366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.h"; sourceTree = "<group>"; };
+		366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.m"; sourceTree = "<group>"; };
+		366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.h"; sourceTree = "<group>"; };
+		366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.m"; sourceTree = "<group>"; };
+		366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoPublicExperimentController.h; sourceTree = "<group>"; };
+		366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicExperimentController.m; sourceTree = "<group>"; };
 		367171FC183AFE33005A5058 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
 		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
 		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
@@ -348,8 +395,6 @@
 		367233DF180619A5006611E6 /* PacoScheduleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduleGenerator.h; sourceTree = "<group>"; };
 		367233E0180619A5006611E6 /* PacoScheduleGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGenerator.m; sourceTree = "<group>"; };
 		367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorTests.m; sourceTree = "<group>"; };
-		36844284187632660027C72F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		36844286187632BE0027C72F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
 		368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtilityTests.m; sourceTree = "<group>"; };
@@ -365,9 +410,10 @@
 		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
 		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
 		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
-		369F6BBE18657C9C006FB693 /* app_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon.png; sourceTree = "<group>"; };
-		369F6BC718657CDF006FB693 /* app_icon_ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = app_icon_ipad.png; sourceTree = "<group>"; };
-		369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "app_icon_ipad@2x.png"; sourceTree = "<group>"; };
+		36A8201618B556CC00FE83A5 /* PacoScheduleGenerator+Daily.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Daily.h"; sourceTree = "<group>"; };
+		36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Daily.m"; sourceTree = "<group>"; };
+		36A8201A18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Weekdays.h"; sourceTree = "<group>"; };
+		36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Weekdays.m"; sourceTree = "<group>"; };
 		36AD6CD917C420F800B93855 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		36AD6CDA17C420F800B93855 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		36AD6CDB17C420F800B93855 /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychainQuery.h; sourceTree = "<group>"; };
@@ -469,7 +515,6 @@
 		36B8EB9817568E29004CF035 /* current_experiments_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_focused.png; sourceTree = "<group>"; };
 		36B8EB9917568E29004CF035 /* current_experiments_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_normal.png; sourceTree = "<group>"; };
 		36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_pressed.png; sourceTree = "<group>"; };
-		36B8EB9C17568E29004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		36B8EBA117568E29004CF035 /* experiment_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_disabled.png; sourceTree = "<group>"; };
 		36B8EBA217568E29004CF035 /* experiment_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_focused.png; sourceTree = "<group>"; };
 		36B8EBA317568E29004CF035 /* experiment_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_normal.png; sourceTree = "<group>"; };
@@ -544,6 +589,14 @@
 		36B8EC3A17568E40004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PacoTests-Info.plist"; sourceTree = "<group>"; };
 		36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoIOSLocalNotificationTests.m; sourceTree = "<group>"; };
+		36C4A33718A4DEEE00D8FE59 /* DDASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDASLLogger.h; sourceTree = "<group>"; };
+		36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDASLLogger.m; sourceTree = "<group>"; };
+		36C4A33918A4DEEE00D8FE59 /* DDFileLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFileLogger.h; sourceTree = "<group>"; };
+		36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFileLogger.m; sourceTree = "<group>"; };
+		36C4A33B18A4DEEE00D8FE59 /* DDLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDLog.h; sourceTree = "<group>"; };
+		36C4A33C18A4DEEE00D8FE59 /* DDLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDLog.m; sourceTree = "<group>"; };
+		36C4A34718A4DFEC00D8FE59 /* DDTTYLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDTTYLogger.h; sourceTree = "<group>"; };
+		36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDTTYLogger.m; sourceTree = "<group>"; };
 		36D4249E17E64917003BCD61 /* PacoESMDateTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMDateTests.h; sourceTree = "<group>"; };
 		36D4249F17E64917003BCD61 /* PacoESMDateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMDateTests.m; sourceTree = "<group>"; };
 		36D8B54E17F153A100F7698E /* PacoClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTests.m; sourceTree = "<group>"; };
@@ -576,11 +629,30 @@
 		E43DA211185ADDC9007F04F9 /* PacoInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInfoView.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
+		E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_76.png; sourceTree = "<group>"; };
+		E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_152.png; sourceTree = "<group>"; };
+		E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_iphone_120.png; sourceTree = "<group>"; };
+		E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_29.png; sourceTree = "<group>"; };
+		E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_58.png; sourceTree = "<group>"; };
+		E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_40.png; sourceTree = "<group>"; };
+		E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_80.png; sourceTree = "<group>"; };
+		E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x960.png; sourceTree = "<group>"; };
+		E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x1136.png; sourceTree = "<group>"; };
+		E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_768x1024.png; sourceTree = "<group>"; };
+		E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_1024x768.png; sourceTree = "<group>"; };
+		E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_1024x768@2x.png"; sourceTree = "<group>"; };
+		E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
+		E480BE151896F3C700662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		E480BE1F1896F3E100662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSubtitleTableCell.h; sourceTree = "<group>"; };
 		E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSubtitleTableCell.m; sourceTree = "<group>"; };
 		E4D5DE851837DE9900E5446A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		E4D96CF71896F941007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E4D96CFF1896F95D007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E4E8F350183B21500022613A /* PacoContactUsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoContactUsViewController.h; sourceTree = "<group>"; };
 		E4E8F351183B21500022613A /* PacoContactUsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoContactUsViewController.m; sourceTree = "<group>"; };
+		E4F9A79618899F39006A2803 /* PacoStepperView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoStepperView.h; sourceTree = "<group>"; };
+		E4F9A79718899F39006A2803 /* PacoStepperView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoStepperView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -717,6 +789,15 @@
 			path = conditional;
 			sourceTree = "<group>";
 		};
+		366F46A918CF829800789A54 /* PublicExperimentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */,
+				366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */,
+			);
+			path = PublicExperimentScreen;
+			sourceTree = "<group>";
+		};
 		36AD6CD817C420F800B93855 /* sskeychain */ = {
 			isa = PBXGroup;
 			children = (
@@ -812,10 +893,16 @@
 				36946B07177A385A005E0C04 /* PacoExperimentInput.m */,
 				36946B09177A3967005E0C04 /* PacoExperimentSchedule.h */,
 				36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */,
+				36488B8518BFDC46004517E2 /* PacoTriggerSignal.h */,
+				36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */,
 				36946B0C177A55B9005E0C04 /* PacoExperimentDefinition.h */,
 				36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */,
 				36946B12177A5781005E0C04 /* PacoExperiment.h */,
 				36946B13177A5782005E0C04 /* PacoExperiment.m */,
+				36488BBC18CA598C004517E2 /* PacoPublicDefinitionLoader.h */,
+				36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */,
+				36488BC718CA5E67004517E2 /* PacoEnumerator.h */,
+				36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -831,8 +918,18 @@
 				367233D31803956E006611E6 /* UILocalNotification+Paco.m */,
 				367233DF180619A5006611E6 /* PacoScheduleGenerator.h */,
 				367233E0180619A5006611E6 /* PacoScheduleGenerator.m */,
+				36A8201618B556CC00FE83A5 /* PacoScheduleGenerator+Daily.h */,
+				36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */,
+				36A8201A18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.h */,
+				36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */,
 				365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */,
 				365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */,
+				36488BB618C90D9A004517E2 /* PacoScheduleGenerator+Weekly.h */,
+				36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */,
+				366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */,
+				366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */,
+				366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */,
+				366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */,
 			);
 			path = scheduling;
 			sourceTree = "<group>";
@@ -864,6 +961,7 @@
 		36B8EB1C17568DAF004CF035 /* ui */ = {
 			isa = PBXGroup;
 			children = (
+				366F46A918CF829800789A54 /* PublicExperimentScreen */,
 				E43DA21A185ADDD2007F04F9 /* WebViewController */,
 				E4E8F34F183B21500022613A /* ContactScreen */,
 				36B8EB4117568DAF004CF035 /* LoginScreen */,
@@ -1027,6 +1125,8 @@
 				368C2EE0178DFFBA00546918 /* PacoAlertView.m */,
 				369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */,
 				369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */,
+				E4F9A79618899F39006A2803 /* PacoStepperView.h */,
+				E4F9A79718899F39006A2803 /* PacoStepperView.m */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -1034,8 +1134,12 @@
 		36B8EB8F17568E22004CF035 /* config */ = {
 			isa = PBXGroup;
 			children = (
-				36844286187632BE0027C72F /* Default@2x.png */,
-				36844284187632660027C72F /* Default-568h@2x.png */,
+				E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */,
+				E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */,
+				E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */,
+				E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */,
+				E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */,
+				E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */,
 				36B8EB9117568E22004CF035 /* Paco-Info.plist */,
 			);
 			path = config;
@@ -1044,9 +1148,15 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				369F6BC918657D3F006FB693 /* app_icon_ipad@2x.png */,
-				369F6BC718657CDF006FB693 /* app_icon_ipad.png */,
-				369F6BBE18657C9C006FB693 /* app_icon.png */,
+				E480BE131896F3C700662432 /* en.lproj */,
+				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
+				E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */,
+				E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */,
+				E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */,
+				E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */,
+				E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */,
+				E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */,
+				E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
@@ -1057,7 +1167,6 @@
 				36B8EB9817568E29004CF035 /* current_experiments_focused.png */,
 				36B8EB9917568E29004CF035 /* current_experiments_normal.png */,
 				36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */,
-				36B8EB9B17568E29004CF035 /* InfoPlist.strings */,
 				36B8EBA117568E29004CF035 /* experiment_disabled.png */,
 				36B8EBA217568E29004CF035 /* experiment_focused.png */,
 				36B8EBA317568E29004CF035 /* experiment_normal.png */,
@@ -1117,6 +1226,7 @@
 		36B8EC1217568E33004CF035 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				36C4A33618A4DEEE00D8FE59 /* lumberjack */,
 				C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */,
 				36AD6CD817C420F800B93855 /* sskeychain */,
 				363E211017AF8420007DE3CE /* reachability */,
@@ -1255,6 +1365,21 @@
 			path = resources;
 			sourceTree = "<group>";
 		};
+		36C4A33618A4DEEE00D8FE59 /* lumberjack */ = {
+			isa = PBXGroup;
+			children = (
+				36C4A34718A4DFEC00D8FE59 /* DDTTYLogger.h */,
+				36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */,
+				36C4A33718A4DEEE00D8FE59 /* DDASLLogger.h */,
+				36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */,
+				36C4A33918A4DEEE00D8FE59 /* DDFileLogger.h */,
+				36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */,
+				36C4A33B18A4DEEE00D8FE59 /* DDLog.h */,
+				36C4A33C18A4DEEE00D8FE59 /* DDLog.m */,
+			);
+			path = lumberjack;
+			sourceTree = "<group>";
+		};
 		C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */ = {
 			isa = PBXGroup;
 			children = (
@@ -1288,6 +1413,15 @@
 				E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */,
 			);
 			path = WebViewController;
+			sourceTree = "<group>";
+		};
+		E480BE131896F3C700662432 /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				E480BE141896F3C700662432 /* InfoPlist.strings */,
+				E480BE1E1896F3E100662432 /* Localizable.strings */,
+			);
+			path = en.lproj;
 			sourceTree = "<group>";
 		};
 		E4E8F34F183B21500022613A /* ContactScreen */ = {
@@ -1361,6 +1495,7 @@
 			knownRegions = (
 				en,
 				English,
+				ja,
 			);
 			mainGroup = 319771B9163F0733000AC06B;
 			productRefGroup = 319771C5163F0733000AC06B /* Products */;
@@ -1444,14 +1579,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				36B8EBD517568E29004CF035 /* arrow_icon.png in Resources */,
+				E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
+				E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
+				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
+				E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
-				36844287187632BE0027C72F /* Default@2x.png in Resources */,
-				36B8EBDB17568E29004CF035 /* InfoPlist.strings in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
+				E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
 				36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */,
@@ -1460,29 +1598,31 @@
 				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
 				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
-				36844285187632660027C72F /* Default-568h@2x.png in Resources */,
 				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
 				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
+				E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
 				36B8EBEA17568E29004CF035 /* help_disabled.png in Resources */,
+				E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */,
 				36B8EBEB17568E29004CF035 /* help_focused.png in Resources */,
 				36B8EBEC17568E29004CF035 /* help_normal.png in Resources */,
 				36B8EBED17568E29004CF035 /* help_pressed.png in Resources */,
+				E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */,
 				36B8EBEE17568E29004CF035 /* icon.png in Resources */,
 				36B8EBEF17568E29004CF035 /* list_header_background.png in Resources */,
 				36B8EBF017568E29004CF035 /* paco128.png in Resources */,
+				E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */,
+				E480BE161896F3C700662432 /* InfoPlist.strings in Resources */,
 				36B8EBF117568E29004CF035 /* paco256.png in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
-				369F6BCA18657D3F006FB693 /* app_icon_ipad@2x.png in Resources */,
-				369F6BC818657CDF006FB693 /* app_icon_ipad.png in Resources */,
 				36B8EBF317568E29004CF035 /* paco64.png in Resources */,
 				36B8EBF417568E29004CF035 /* paco_sil.png in Resources */,
-				369F6BBF18657C9C006FB693 /* app_icon.png in Resources */,
 				367171FD183AFE33005A5058 /* help.html in Resources */,
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				36B8EBF617568E29004CF035 /* question_b16.png in Resources */,
 				36B8EBF717568E29004CF035 /* question_b32.png in Resources */,
+				E480BE201896F3E100662432 /* Localizable.strings in Resources */,
 				36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */,
 				36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */,
 				36B8EBFA17568E29004CF035 /* smile_icon2.png in Resources */,
@@ -1503,13 +1643,18 @@
 				36B8EC0917568E29004CF035 /* timepicker_input_pressed.9.png in Resources */,
 				36B8EC0A17568E29004CF035 /* timepicker_input_selected.9.png in Resources */,
 				36B8EC0B17568E29004CF035 /* timepicker_up_disabled.9.png in Resources */,
+				E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */,
 				36B8EC0C17568E29004CF035 /* timepicker_up_disabled_focused.9.png in Resources */,
+				E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */,
+				E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */,
 				36B8EC0D17568E29004CF035 /* timepicker_up_normal.9.png in Resources */,
 				36B8EC0E17568E29004CF035 /* timepicker_up_pressed.9.png in Resources */,
 				36B8EC0F17568E29004CF035 /* timepicker_up_selected.9.png in Resources */,
+				E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */,
 				36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */,
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				36B8EC3217568E33004CF035 /* GTMOAuth2ViewTouch.xib in Resources */,
+				E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
 			);
@@ -1565,6 +1710,7 @@
 				36B8EB7617568DAF004CF035 /* PacoESMPeriodSelectionView.m in Sources */,
 				36B8EB7717568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m in Sources */,
 				36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */,
+				36C4A34918A4DFEC00D8FE59 /* DDTTYLogger.m in Sources */,
 				36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */,
 				E43DA212185ADDC9007F04F9 /* PacoInfoView.m in Sources */,
 				36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */,
@@ -1586,6 +1732,7 @@
 				36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */,
 				363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
 				36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */,
+				36A8201C18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
 				367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */,
 				365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */,
@@ -1598,33 +1745,45 @@
 				36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */,
 				36B8EC2E17568E33004CF035 /* GTMHTTPFetcher.m in Sources */,
 				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
+				36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */,
 				36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */,
 				36B8EC3017568E33004CF035 /* GTMOAuth2SignIn.m in Sources */,
 				36B8EC3117568E33004CF035 /* GTMOAuth2ViewControllerTouch.m in Sources */,
+				E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */,
 				36B8EC3317568E33004CF035 /* GoogleAppEngineAuth.m in Sources */,
 				36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */,
 				36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */,
+				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
+				366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */,
 				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
 				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
 				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
+				36488BB818C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */,
 				C5C4F5E817B17520009E9F18 /* JCNotificationBanner.m in Sources */,
 				C5C4F5EA17B17520009E9F18 /* JCNotificationBannerPresenter.m in Sources */,
+				366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
 				369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */,
 				C5C4F5EC17B17520009E9F18 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
 				E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */,
 				C5C4F5EE17B17520009E9F18 /* JCNotificationBannerPresenterSmokeStyle.m in Sources */,
+				36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
 				C5C4F5F017B17520009E9F18 /* JCNotificationBannerView.m in Sources */,
 				C5C4F5F217B17520009E9F18 /* JCNotificationBannerViewController.m in Sources */,
 				C5C4F5F417B17520009E9F18 /* JCNotificationBannerViewIOSStyle.m in Sources */,
 				C5C4F5F617B17520009E9F18 /* JCNotificationBannerWindow.m in Sources */,
+				36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
+				36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
+				366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
 				C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */,
 				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
+				36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
 				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
 				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
 				365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */,
+				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
 				363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */,
 				36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */,
@@ -1639,6 +1798,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
 				36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */,
 				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
@@ -1647,18 +1807,23 @@
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */,
+				36488BB918C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */,
 				36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */,
 				36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */,
 				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
 				36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */,
 				366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */,
+				366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
 				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
 				36B5A4DF18272028004DB894 /* PacoScheduleGeneratorESMTests.m in Sources */,
 				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
+				366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
+				36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
+				36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
 				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,
 				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
 				365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
@@ -1669,6 +1834,8 @@
 				3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */,
 				36B5A4FD18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m in Sources */,
 				3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */,
+				36488B8818BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
+				36488BBF18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
 				36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */,
 				363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
 				367233DE1803AEE9006611E6 /* PacoNotificationCategoryTests.m in Sources */,
@@ -1691,20 +1858,30 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		36B8EB9B17568E29004CF035 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				36B8EB9C17568E29004CF035 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
 		36B8EC3917568E40004CF035 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				36B8EC3A17568E40004CF035 /* en */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE141896F3C700662432 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE151896F3C700662432 /* en */,
+				E4D96CFF1896F95D007F8668 /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE1E1896F3E100662432 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE1F1896F3E100662432 /* en */,
+				E4D96CF71896F941007F8668 /* ja */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1756,6 +1933,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Tom Pennings (3962CV8FL3)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Tom Pennings (3962CV8FL3)";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;

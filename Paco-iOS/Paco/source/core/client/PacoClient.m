@@ -16,7 +16,6 @@
 #import "PacoClient.h"
 
 #import "PacoAuthenticator.h"
-#import "PacoLocation.h"
 #import "PacoModel.h"
 #import "PacoScheduler.h"
 #import "PacoService.h"
@@ -33,7 +32,8 @@
 #import "NSMutableArray+Paco.h"
 #import "PacoExperimentSchedule.h"
 
-
+static NSString* const RunningExperimentsKey = @"has_running_experiments";
+static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -80,17 +80,21 @@
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 @end
 
-@interface PacoClient () <PacoLocationDelegate, PacoSchedulerDelegate>
-@property (nonatomic, retain, readwrite) PacoAuthenticator *authenticator;
-@property (nonatomic, retain, readwrite) PacoLocation *location;
-@property (nonatomic, retain, readwrite) PacoModel *model;
-@property (nonatomic, strong, readwrite) PacoEventManager* eventManager;
-@property (nonatomic, retain, readwrite) PacoScheduler *scheduler;
-@property (nonatomic, retain, readwrite) PacoService *service;
+
+typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
+
+@interface PacoClient () <PacoSchedulerDelegate>
+@property (nonatomic, retain) PacoAuthenticator *authenticator;
+@property (nonatomic, retain) PacoModel *model;
+@property (nonatomic, strong) PacoEventManager* eventManager;
+@property (nonatomic, retain) PacoScheduler *scheduler;
+@property (nonatomic, retain) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
-@property (nonatomic, retain, readwrite) NSString *serverDomain;
-@property (nonatomic, retain, readwrite) PacoPrefetchState *prefetchState;
-@property (nonatomic, assign, readwrite) BOOL firstLaunch;
+@property (nonatomic, retain) NSString *serverDomain;
+@property (nonatomic, retain) PacoPrefetchState *prefetchState;
+@property (nonatomic, assign) BOOL firstLaunch;
+@property (nonatomic, copy) BackgroundFetchCompletionBlock backgroundFetchBlock;
+
 @end
 
 @implementation PacoClient
@@ -98,9 +102,11 @@
 #pragma mark Object Life Cycle
 + (PacoClient *)sharedInstance {
   static PacoClient *client = nil;
-  if (!client) {
+  
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
     client = [[PacoClient alloc] init];
-  }
+  });
   return client;
 }
 
@@ -110,7 +116,6 @@
     [self checkIfUserFirstLaunchPaco];
     
     self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
-    self.location = nil;//[[PacoLocation alloc] init];
     self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
@@ -128,13 +133,13 @@
     }else{//localserver
       self.serverDomain = @"http://127.0.0.1";
     }
-    NSLog(@"PacoClient initializing...");
+    DDLogInfo(@"PacoClient initializing...");
   }
   return self;
 }
 
 - (void)dealloc {
-  NSLog(@"PacoClient deallocating...");
+  DDLogInfo(@"PacoClient deallocating...");
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -202,62 +207,32 @@
 }
 
 - (BOOL)isNotificationSystemOn {
-  return self.location != nil;
+  BOOL turnedOn = [[NSUserDefaults standardUserDefaults] boolForKey:kPacoNotificationSystemTurnedOn];
+  return turnedOn;
 }
 
 - (void)triggerNotificationSystemIfNeeded {
   @synchronized(self) {
-    if (self.location != nil) {
-      return;
+    if (![self isNotificationSystemOn]) {
+      DDLogInfo(@"Turn on notification system.");
+      [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPacoNotificationSystemTurnedOn];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+      //set background fetch min internval to be 15 minutes
+      [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
     }
-    //NOTE:CLLocationManager need to be initialized in the main thread to work correctly
-    //http://stackoverflow.com/questions/7857323/ios5-what-does-discarding-message-for-event-0-because-of-too-many-unprocessed-m
-    dispatch_async(dispatch_get_main_queue(), ^{
-      if (self.location == nil) {
-        NSLog(@"***********  PacoLocation is allocated ***********");
-        self.location = [[PacoLocation alloc] init];
-        self.location.delegate = self;
-        [self.location enableLocationService];
-        
-        //set background fetch min internval to be 15 minutes
-        [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:15 * 60];
-      }
-    });
   }
 }
 
 - (void)shutDownNotificationSystemIfNeeded {
   @synchronized(self) {
-    if (self.location == nil) {
-      return;
+    if ([self isNotificationSystemOn]) {
+      DDLogInfo(@"Shut down notification system.");
+      [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kPacoNotificationSystemTurnedOn];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+      
+      [self.scheduler stopSchedulingForAllExperiments];
+      [self disableBackgroundFetch];
     }
-    NSLog(@"Shut down notification system ...");
-    [self.scheduler stopSchedulingForAllExperiments];
-    
-    [self disableBackgroundFetch];
-    self.location.delegate = nil;
-    [self.location disableLocationService];
-    self.location = nil;
-  }
-}
-
-#pragma mark PacoLocationDelegate
-- (void)locationChangedSignificantly {
-  UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-  if (state != UIApplicationStateBackground) {
-    return;
-  }
-  BOOL shouldUpdate = YES;
-  static NSString* lastUpdateDateKey = @"last_update_key";
-  NSDate* lastUpdateDate  = [[NSUserDefaults standardUserDefaults] objectForKey:lastUpdateDateKey];
-  NSDate* now = [NSDate date];
-  if (lastUpdateDate != nil && [now timeIntervalSinceDate:lastUpdateDate] < 15 * 60) {//less than 15 minutes
-    shouldUpdate = NO;
-  }
-  if (shouldUpdate) {
-    [self executeRoutineMajorTaskIfNeeded];
-    [[NSUserDefaults standardUserDefaults] setObject:now forKey:lastUpdateDateKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 
@@ -269,8 +244,21 @@
   }
   NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
-  NSLog(@"Save %d notification expired events", [eventList count]);
+  DDLogInfo(@"Save %d notification expired events", [eventList count]);
   [self.eventManager saveEvents:eventList];
+}
+
+//return YES if Paco finishes loading both running experiments and also notifications
+- (BOOL)isDoneInitializationForMajorTask {
+  if (![self.model areRunningExperimentsLoaded]) {
+    DDLogInfo(@"PacoClient: running experiments are not loaded yet!");
+    return NO;
+  }
+  if (![self.scheduler isDoneLoadingNotifications]) {
+    DDLogInfo(@"PacoClient: notifications are not loaded yet!");
+    return NO;
+  }
+  return YES;
 }
 
 - (BOOL)needsNotificationSystem {
@@ -294,7 +282,7 @@
   
   NSDate* now = [NSDate date];
   for (PacoExperiment* experiment in [self.model experimentInstances]) {
-    if (![experiment shouldScheduleNotifications]) {
+    if (![experiment shouldScheduleNotificationsFromNow]) {
       continue;
     }
     NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:experiment
@@ -322,35 +310,59 @@
 }
 
 #pragma mark set up notification system
-//After date model is loaded successfully, Paco needs to
+//After data model is loaded successfully, Paco needs to
 //a. load notifications from cache
 //b. perform major task if needed
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
+  DDLogInfo(@"Setting up notification system...");
   [self.scheduler initializeNotifications];
-  NSLog(@"Finish initializing notifications");
+  DDLogInfo(@"Finish initializing notifications");
   [(PacoAppDelegate*)[UIApplication sharedApplication].delegate processNotificationIfNeeded];
   [self updateNotificationSystem];
+  
+  //if the setup finishes during Paco launch caused by background fetch API,
+  //then need to trigger the background fetch completion handler to finish up
+  if (self.backgroundFetchBlock) {
+    [self.eventManager startUploadingEventsInBackgroundWithBlock:self.backgroundFetchBlock];
+    self.backgroundFetchBlock = nil;
+    DDLogInfo(@"backgroundFetchBlock is set to nil!");
+  }
 }
 
 - (void)executeRoutineMajorTaskIfNeeded {
   if ([self isNotificationSystemOn]) {
     [self.scheduler executeRoutineMajorTask];
   } else {
-    NSLog(@"Skip Executing Major Task, notification system is off");
+    DDLogInfo(@"Skip Executing Major Task, notification system is off");
   }
 }
 
-- (void)backgroundFetchStarted {
+- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
   if (![self isNotificationSystemOn]) {
+    DDLogInfo(@"Skip Executing Major Task, notification system is off");
     [self disableBackgroundFetch];
+    if (completionBlock) {
+      DDLogInfo(@"UIBackgroundFetchResultNoData");
+      completionBlock(UIBackgroundFetchResultNoData);
+    }
+    DDLogInfo(@"Background fetch finished!");
   } else {
-    [self executeRoutineMajorTaskIfNeeded];
+    if ([self isDoneInitializationForMajorTask]) {
+      DDLogInfo(@"PacoClient finished initialization, start routine major task.");
+      [self.scheduler executeRoutineMajorTask];
+      [self.eventManager startUploadingEventsInBackgroundWithBlock:completionBlock];
+    } else {
+      //if Paco is launched by background fetch API, we need to keep the background fetch completion
+      //handler, and trigger it when PacoClient finishes setting up notication system, see setUpNotificationSystem
+      DDLogInfo(@"PacoClient isn't done with initialization, waiting...");
+      self.backgroundFetchBlock = completionBlock;
+    }
   }
 }
 
 - (void)disableBackgroundFetch {
-  NSLog(@"Disable background fetch");
+  DDLogInfo(@"Disable background fetch");
   [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
@@ -397,14 +409,14 @@
         self.service.authenticator = self.authenticator;
         [self uploadPendingEventsInBackground];
       } else {
-        NSLog(@"[ERROR]: failed to re-authenticate user!!!");
+        DDLogError(@"[ERROR]: failed to re-authenticate user!!!");
         [self showLoginScreenWithCompletionBlock:nil];
       }
     }];
     
-    NSLog(@"[Reachable]: Online Now!");
+    DDLogWarn(@"[Reachable]: Online Now!");
   }else {
-    NSLog(@"[Reachable]: Offline Now!");
+    DDLogWarn(@"[Reachable]: Offline Now!");
   }
 }
 
@@ -457,7 +469,7 @@
 
   
   if ([self.authenticator setupWithCookie]) {
-    NSLog(@"Valid cookie detected, no need to log in!");
+    DDLogInfo(@"Valid cookie detected, no need to log in!");
     [self startWorkingAfterLogIn];
     
     if (block != nil) {
@@ -542,8 +554,12 @@
   return self.prefetchState.errorLoadingExperiments;
 }
 
+- (BOOL)hasRunningExperiments {
+  return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
+}
+
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
-  NSLog(@"Fetched %d definitions from server", [definitions count]);
+  DDLogInfo(@"Fetched %d definitions from server", [definitions count]);
   [self.model applyDefinitionJSON:definitions];
   [self.model saveExperimentDefinitionsToFile];
 }
@@ -570,13 +586,15 @@
     if (![self.prefetchState finishLoadingAll]) {
       return;
     }
+    DDLogInfo(@"Start refreshing definitions...");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
+            DDLogInfo(@"Succeeded to refreshing definitions.");
             [self refreshSucceedWithDefinitions:definitions];
           } else {
-            NSLog(@"Failed to refresh definitions: %@", [error description]);
+            DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
           self.prefetchState.finishLoadingDefinitions = YES;
           self.prefetchState.finishLoadingExperiments = YES;
@@ -637,7 +655,7 @@
     
     [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
       if (error) {
-        NSLog(@"Failed to prefetch definitions: %@", [error description]);
+        DDLogError(@"Failed to prefetch definitions: %@", [error description]);
         [self definitionsLoadedWithError:error];
         if (completionBlock) {
           completionBlock();
@@ -679,9 +697,12 @@
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
                                                               schedule:schedule];
-  NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
+  DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
+
+  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:RunningExperimentsKey];
+  [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark stop an experiment
@@ -702,6 +723,10 @@
   //shut down notification if needed after experiment is deleted from model
   if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
     [self shutDownNotificationSystemIfNeeded];
+  }
+  if (![self.model hasRunningExperiments]) {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:RunningExperimentsKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 

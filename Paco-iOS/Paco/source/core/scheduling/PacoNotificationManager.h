@@ -26,13 +26,14 @@
 
 @interface PacoNotificationManager : NSObject
 
+@property (atomic, assign, readonly) BOOL areNotificationsLoaded;
+
 + (PacoNotificationManager*)managerWithDelegate:(id<PacoNotificationManagerDelegate>)delegate
                                 firstLaunchFlag:(BOOL)firstLaunchFlag;
 
 
 //notifications MUST be sorted already
 - (void)schedulePacoNotifications:(NSArray*)notifications;
-- (void)resetWithPacoNotifications:(NSArray*)notifications;
 - (void)cleanExpiredNotifications;
 
 //call this when the user stops an experiment

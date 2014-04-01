@@ -83,11 +83,16 @@
   NSAssert(self.definition, @"definition doesn't exist!");
 }
 
-- (BOOL)shouldScheduleNotifications {
-  if ([self isSelfReportExperiment]) {
+- (BOOL)shouldScheduleNotificationsFromNow {
+  return [self shouldScheduleNotificationsFromDate:[NSDate date]];
+}
+
+- (BOOL)shouldScheduleNotificationsFromDate:(NSDate*)fromDate {
+  //should never schedule notifications for a self-report or trigger experiment
+  if ([self isSelfReportExperiment] || [self.definition isTriggerExperiment]) {
     return NO;
   }
-  return [self.definition isExperimentValid];
+  return [self.definition isExperimentValidSinceDate:fromDate];
 }
 
 - (BOOL)isSelfReportExperiment {
@@ -135,6 +140,10 @@ static int INVALID_INDEX = -1;
     result = [dates subarrayWithRange:NSMakeRange(index, count)];
   }
   return result;
+}
+
+- (NSDate*)lastESMScheduleDate {
+  return [self.schedule.esmScheduleList lastObject];
 }
 
 - (NSUInteger)numOfESMSchedulesFromDate:(NSDate*)fromDate {

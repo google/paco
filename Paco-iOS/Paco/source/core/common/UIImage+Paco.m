@@ -64,8 +64,7 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
     return nil;
   }
   NSString* imageName = [self imageNameForExperiment:definitionId inputId:inputId];
-  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
-  
+  NSString* imagePath = [NSString pacoImageFolderInDocumentsDirectory:imageName];
   UIImage* scaledImage = [image pacoScaleToScreenSize];
   NSData* imageData = [scaledImage pacoImageDataWithMaxSize:kPacoMaxBytesOfImageSize];
   if (!imageData) {
@@ -79,7 +78,7 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
   if (0 == [imageName length]) {
     return nil;
   }
-  NSString* imagePath = [NSString pacoDocumentDirectoryFilePathWithName:imageName];
+  NSString* imagePath = [NSString pacoImageFolderInDocumentsDirectory:imageName];
   UIImage* image = [UIImage imageWithContentsOfFile:imagePath];
   if (image == nil) {
     return nil;
@@ -124,18 +123,18 @@ static CGFloat kPacoMaxBytesOfImageSize = 1024. * 1024.;
 
 
 - (NSData*)pacoImageDataWithMaxSize:(CGFloat)maxBytes {
-  NSData* imageData = UIImageJPEGRepresentation(self, 1.);
+  NSData* imageData = UIImageJPEGRepresentation(self, 1.0);
   if ([imageData length] < maxBytes) {
     return imageData;
   }
-  CGFloat compressionQuality = .5;
-  CGFloat MIN_COMPRESSION_QUALITY = .005;
+  CGFloat compressionQuality = 0.5;
+  CGFloat MIN_COMPRESSION_QUALITY = 0.005;
   while (compressionQuality >= MIN_COMPRESSION_QUALITY) {
     imageData = UIImageJPEGRepresentation(self, compressionQuality);
     if ([imageData length] < maxBytes) {
       break;
     }
-    compressionQuality /= 2.;
+    compressionQuality /= 2.0;
   }
   if ([imageData length] < maxBytes) {
     return imageData;

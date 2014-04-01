@@ -25,16 +25,42 @@
 
 //https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/DatesAndTimes/Articles/dtCalendricalCalculations.html#//apple_ref/doc/uid/TP40007836-SW8
 - (NSInteger)pacoDaysFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
-  startDate = [startDate pacoCurrentDayAtMidnight];
-  endDate = [endDate pacoCurrentDayAtMidnight];
+  NSDate* midnightOnStartDate = [startDate pacoCurrentDayAtMidnight];
+  NSDate* midnightOnendDate = [endDate pacoCurrentDayAtMidnight];
   NSInteger startDay = [self ordinalityOfUnit:NSDayCalendarUnit
                                        inUnit:NSEraCalendarUnit
-                                      forDate:startDate];
+                                      forDate:midnightOnStartDate];
   NSInteger endDay = [self ordinalityOfUnit:NSDayCalendarUnit
                                      inUnit:NSEraCalendarUnit
-                                    forDate:endDate];
+                                    forDate:midnightOnendDate];
   NSInteger numOfDaysInBetween = endDay - startDay;
   return numOfDaysInBetween;
 }
+
+
+- (NSInteger)pacoWeeksFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
+  NSDate* sundayOfStartDate = [startDate pacoSundayInCurrentWeek];
+  NSDate* sundayOfEndDate = [endDate pacoSundayInCurrentWeek];
+  NSInteger numOfDaysInBetween = [self pacoDaysFromDate:sundayOfStartDate toDate:sundayOfEndDate];
+  return numOfDaysInBetween / 7;
+}
+
+
+- (NSInteger)pacoMonthsFromDate:(NSDate*)startDate toDate:(NSDate*)endDate {
+  NSCalendarUnit units =  NSYearCalendarUnit | NSMonthCalendarUnit;
+  NSDateComponents* compStart = [self components:units fromDate:startDate];
+  NSDateComponents* compEnd = [self components:units fromDate:endDate];
+  int month = [compEnd month] - [compStart month];
+  int year = [compEnd year] - [compStart year];
+  if (0 == year) { //in same year
+    return month;
+  } else {
+    return (year - 1) * 12 + (12 - ([compStart month] - 1)) + ([compEnd month] - 1);
+  }
+}
+
+
+
+
 
 @end

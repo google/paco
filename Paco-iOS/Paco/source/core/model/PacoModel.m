@@ -29,6 +29,7 @@
 NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
 NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
 NSString* const PacoFinishRefreshing = @"PacoFinishRefreshing";
+NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
 
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
@@ -74,11 +75,9 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  // TODO TPE: temporary disabled this comment since it's quite verbose
-  // NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectDefinitions = jsonObject;
-  //NSMutableArray *experiments = [NSMutableArray array];
   NSMutableArray *definitions = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
@@ -86,13 +85,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
         [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonExperiment];
     assert(experimentDefinition);
     [definitions addObject:experimentDefinition];
-    //PacoExperiment *experiment = [[PacoExperiment alloc] init];
-    //experiment.definition = experimentDefinition;
-    //experiment.events = nil;
-    //[experiment.definition tagQuestionsForDependencies];
-    //[experiments addObject:experiment];
   }
-  //self.experimentInstances = experiments;
   [self updateExperimentDefinitions:definitions];
 }
 
@@ -106,32 +99,36 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 //  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
   self.jsonObjectInstances = jsonObject;
-  //NSMutableArray *experiments = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
     [experiment deserializeFromJSON:jsonExperiment];
     NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
-    //PacoExperiment *experiment = [[PacoExperiment alloc] init];
-    //experiment.definition = experimentDefinition;
-    //experiment.events = nil;
-    //[experiment.definition tagQuestionsForDependencies];
-    //[experiments addObject:experiment];
   }
-  //self.experimentInstances = experiments;
   [self updateExperimentInstances:instances];
 }
 
+- (BOOL)areRunningExperimentsLoaded {
+  return self.experimentInstances != nil;
+}
+
 - (BOOL)shouldTriggerNotificationSystem {
-  if (0 == self.experimentInstances.count) {
+  if (!self.experimentInstances) {
+    DDLogError(@"Running experiments are not loaded yet!");
+  }
+  
+  if (0 == [self.experimentInstances count]) {
+    DDLogInfo(@"No running experiments.");
     return NO;
   }
   for (PacoExperiment* experiment in self.experimentInstances) {
-    if ([experiment shouldScheduleNotifications]) {
+    if ([experiment shouldScheduleNotificationsFromNow]) {
       return YES;
     }
   }
+  DDLogInfo(@"There are %d running experiments, none of them should schedule notifications.",
+            [self.experimentInstances count]);
   return NO;
 }
 
@@ -254,14 +251,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
-    NSLog(@"ERROR serializing to JSON %@", jsonError);
+    DDLogError(@"ERROR serializing to JSON %@", jsonError);
   }
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   BOOL success =  [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
   if (success) {
-    NSLog(@"Succeeded to save %@", fileName);
+    DDLogInfo(@"Succeeded to save %@", fileName);
   } else {
-    NSLog(@"Failed to save %@", fileName);
+    DDLogError(@"Failed to save %@", fileName);
   }
   return success;
 }
@@ -276,14 +273,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
-    NSLog(@"ERROR serializing to JSON %@", jsonError);
+    DDLogError(@"ERROR serializing to JSON %@", jsonError);
   }
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
   BOOL success = [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
   if (success) {
-    NSLog(@"Succeeded to save %@", fileName);
+    DDLogInfo(@"Succeeded to save %@", fileName);
   } else {
-    NSLog(@"Failed to save %@", fileName);
+    DDLogError(@"Failed to save %@", fileName);
   }
   return success;
 }
@@ -302,23 +299,23 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 #pragma mark file reading operations
 - (BOOL)loadExperimentDefinitionsFromFile {
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
-  NSLog(@"Loading from %@", fileName);
+  DDLogInfo(@"Loading from %@", fileName);
   
   NSError* error = nil;
   NSData* fileData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
   if (error && [error pacoIsFileNotExistError]) {
-    NSLog(@"Definition plist doesn't exist.");
+    DDLogWarn(@"Definition plist doesn't exist.");
     return NO;
   }
   if (error) {
-    NSLog(@"Failed to load data for file %@", fileName);
+    DDLogError(@"Failed to load data for file %@", fileName);
   }
   NSError *jsonError = nil;
   id jsonObj = !fileData ? nil : [NSJSONSerialization JSONObjectWithData:fileData
                                                                  options:NSJSONReadingAllowFragments
                                                                    error:&jsonError];
   if (!jsonObj || jsonError) {
-    NSLog(@"Failed to parse definition json");
+    DDLogError(@"Failed to parse definition json");
     return NO;
   }
   // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
@@ -330,25 +327,25 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 - (NSError*)loadExperimentInstancesFromFile {
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistName];
-  NSLog(@"Loading from %@", fileName);
+  DDLogInfo(@"Loading from %@", fileName);
   
   NSError* error = nil;
   NSData* jsonData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
   if (error != nil) {
     //We should ignore error of "No such file or directory"
     if ([error pacoIsFileNotExistError]) {
-      NSLog(@"Instances plist doesn't exist.");
+      DDLogWarn(@"Instances plist doesn't exist.");
       [self applyInstanceJSON:nil];
       return nil;
     }
     
-    NSLog(@"[Error]Failed to load instances: %@",
+    DDLogError(@"[Error]Failed to load instances: %@",
           error.description ? error.description : @"unknown error");
     return error;
   }
   
   if (jsonData == nil) {
-    NSLog(@"Loaded 0 instances from file \n");
+    DDLogInfo(@"Loaded 0 instances from file \n");
     [self applyInstanceJSON:nil];
     return nil;
   }
@@ -356,7 +353,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSError *jsonError = nil;
   id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
   if (jsonError) {
-    NSLog(@"[Error]Failed to parse instances json data: %@",
+    DDLogError(@"[Error]Failed to parse instances json data: %@",
           error.description ? error.description : @"unknown error");
     return jsonError;
   }
@@ -365,7 +362,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
   [self applyInstanceJSON:jsonObj];
   NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
-  NSLog(@"Loaded %d instances from file \n", [self.jsonObjectInstances count]);
+  DDLogInfo(@"Loaded %d instances from file \n", [self.jsonObjectInstances count]);
   return nil;
 }
 

@@ -17,24 +17,27 @@
 
 #import <MapKit/MapKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <QuartzCore/QuartzCore.h>
 
 #import "PacoCheckboxView.h"
 #import "PacoColor.h"
 #import "PacoFont.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
-#import "PacoSliderView.h"
+#import "PacoStepperView.h"
 #import "PacoExperimentInput.h"
 #import "UIImage+Paco.h"
+#import "PacoClient.h"
 
 static const int kInvalidIndex = -1;
+static NSString* const kPlaceHolderString = @"<type response here>";
 
 @interface PacoQuestionView () <MKMapViewDelegate,
-                                PacoCheckboxViewDelegate,
-                                PacoSliderViewDelegate,
-                                UITextFieldDelegate,
-                                UINavigationControllerDelegate,
-                                UIImagePickerControllerDelegate>
+PacoCheckboxViewDelegate,
+PacoStepperViewDelegate,
+UITextViewDelegate,
+UINavigationControllerDelegate,
+UIImagePickerControllerDelegate>
 
 @property (nonatomic, retain, readwrite) PacoCheckboxView *checkboxes;
 @property (nonatomic, retain, readwrite) UISegmentedControl* photoSegmentControl;
@@ -43,12 +46,12 @@ static const int kInvalidIndex = -1;
 @property (nonatomic, retain, readwrite) UIImagePickerController *imagePicker;
 @property (nonatomic, retain, readwrite) MKMapView *map;
 @property (nonatomic, retain, readwrite) NSArray *numberButtons;
-@property (nonatomic, retain, readwrite) PacoSliderView *numberSlider;
+@property (nonatomic, retain, readwrite) PacoStepperView *numberStepper;
 @property (nonatomic, retain, readwrite) UILabel *questionText;
 @property (nonatomic, retain, readwrite) NSArray *smileysButtons;
-@property (nonatomic, retain, readwrite) UITextField *textField;
+@property (nonatomic, retain, readwrite) UITextView *textView;
 @property (nonatomic, retain, readwrite) NSArray* rightLeftLabels;
-
+@property (nonatomic, retain) UILabel* messageLabel;
 // TODO(gregvance): add location and photo
 
 - (void)clearUI;
@@ -108,24 +111,34 @@ static const int kInvalidIndex = -1;
   }
   [self.imagePicker dismissViewControllerAnimated:NO completion:nil];
   [self.map removeFromSuperview];
-  [self.numberSlider removeFromSuperview];
+  [self.numberStepper removeFromSuperview];
   [self.questionText removeFromSuperview];
+  if (self.messageLabel) {
+    [self.messageLabel removeFromSuperview];
+    self.messageLabel = nil;
+  }
   for (UIButton *button in self.smileysButtons) {
     [button removeFromSuperview];
   }
-  [self.textField removeFromSuperview];
+  [self.textView removeFromSuperview];
 
   self.photoSegmentControl = nil;
   self.choosePhotoButton = nil;
   self.checkboxes = nil;
   self.image = nil;
   self.imagePicker = nil;
+  
   //self.map = nil;  // Dont clear the map, it takes too much time to refresh
+  //set delegate to nil, otherwise the map updating may set the responseObject to
+  //a non-map question, and thus cause crash when trying to update the question view's UI
+  //according to responseObject's value(a CLLocation object)
+  self.map.delegate = nil;
+  
   self.numberButtons = nil;
-  self.numberSlider = nil;
+  self.numberStepper = nil;
   self.questionText = nil;
   self.smileysButtons = nil;
-  self.textField = nil;
+  self.textView = nil;
   self.rightLeftLabels = nil;
 }
 
@@ -188,9 +201,9 @@ static const int kInvalidIndex = -1;
 
 - (void)updateChoosePhotoButtonTitle
 {
-  NSString* title = @"Tap to Take Photo";
+  NSString* title = NSLocalizedString(@"Tap to Take Photo", nil);
   if (self.photoSegmentControl.selectedSegmentIndex == 1) {
-    title = @"Tap to Choose Photo";
+    title = NSLocalizedString(@"Tap to Choose Photo", nil);
   }
   [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
   [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonBlue] forState:UIControlStateNormal];
@@ -202,17 +215,19 @@ static const int kInvalidIndex = -1;
 }
 
 - (void)updateChoosePhotoButtonImage {
-  UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
-  [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
-  
-  CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
-  CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
-  self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
-  self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
-                                                            -buttonImage.size.width,
-                                                            0.0,
-                                                            0.0);
-  [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+  if (self.image) {
+    UIImage* buttonImage = [UIImage scaleImage:self.image toSize:self.choosePhotoButton.frame.size];
+    [self.choosePhotoButton setImage:buttonImage forState:UIControlStateNormal];
+
+    CGFloat buttonWidth = self.choosePhotoButton.frame.size.width;
+    CGFloat imageMargin = (buttonWidth - buttonImage.size.width) / 2.;
+    self.choosePhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, imageMargin, 0.0, 0.0);
+    self.choosePhotoButton.titleEdgeInsets = UIEdgeInsetsMake(0,
+                                                              -buttonImage.size.width,
+                                                              0.0,
+                                                              0.0);
+    [self.choosePhotoButton setBackgroundColor:[UIColor clearColor]];
+  }
 }
 
 
@@ -220,7 +235,7 @@ static const int kInvalidIndex = -1;
 {
   UIImagePickerController* imagePicker = [[UIImagePickerController alloc] init];
   imagePicker.delegate = self;
-  
+
   switch (self.photoSegmentControl.selectedSegmentIndex) {
     case 0:
       imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -228,18 +243,18 @@ static const int kInvalidIndex = -1;
     case 1:
       imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
       break;
-      
+
     default:
       NSAssert(NO, @"photoSegmentControl receive a wrong selected status!");
       break;
   }
   self.imagePicker = imagePicker;
-  
+
   [[UIApplication sharedApplication].keyWindow.rootViewController
-     presentViewController:self.imagePicker
-     animated:YES
-     completion:nil];
-  
+   presentViewController:self.imagePicker
+   animated:YES
+   completion:nil];
+
   [self updateConditionals];
 }
 
@@ -247,7 +262,7 @@ static const int kInvalidIndex = -1;
   if (self.question == nil) {
     return;
   }
-  
+
   if (![self.question.questionType isEqualToString:@"question"]) {
     NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
     return;
@@ -273,7 +288,7 @@ static const int kInvalidIndex = -1;
       [button sizeToFit];
       [button addTarget:self action:@selector(onSmiley:) forControlEvents:UIControlEventTouchUpInside];
     }
-    
+
     self.smileysButtons = buttons;
     if (self.question.responseObject) {
       NSNumber *number = self.question.responseObject;
@@ -323,18 +338,24 @@ static const int kInvalidIndex = -1;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     // Open Text Field
-    self.textField = [[UITextField alloc] initWithFrame:CGRectZero];
-    self.textField.placeholder = @"<type response here>";
-    self.textField.borderStyle = UITextBorderStyleRoundedRect;
-    
-    [self addSubview:self.textField];
-    self.textField.delegate = self;
+    self.textView = [[UITextView alloc] initWithFrame:CGRectZero];
+    [self.textView.layer setBorderColor:[[[UIColor lightGrayColor] colorWithAlphaComponent:0.5] CGColor]];
+    [self.textView.layer setBorderWidth:1];
+    [self.textView.layer setCornerRadius:5];
+    self.textView.text = NSLocalizedString(kPlaceHolderString, nil);
+    self.textView.textColor = [UIColor lightGrayColor];
+    self.textView.editable = YES;
+    self.textView.returnKeyType = UIReturnKeyDone;
+    [self addSubview:self.textView];
+    self.textView.delegate = self;
     if (self.question.responseObject) {
       if (![self.question.responseObject isKindOfClass:[NSString class]]) {
         //NSString *reponseType = NSStringFromClass([self.question.responseObject class]);
         assert(0); // should clear map thing for sure between table instantiations, or sometinng, make sure either way
       }
-      self.textField.text = self.question.responseObject;
+      self.textView.text = self.question.responseObject;
+      self.textView.textColor = [UIColor blackColor];
+      self.textView.font = [UIFont systemFontOfSize:15];
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // TODO: radio list UI implementation
@@ -347,7 +368,7 @@ static const int kInvalidIndex = -1;
                                                            reuseIdentifier:listIdentifier];
     checkboxes.optionLabels = self.question.listChoices;
     checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
-    checkboxes.radioStyle = !self.question.multiSelect;  
+    checkboxes.radioStyle = !self.question.multiSelect;
     checkboxes.vertical = YES;
     checkboxes.delegate = self;
     self.checkboxes = checkboxes;
@@ -356,44 +377,56 @@ static const int kInvalidIndex = -1;
       checkboxes.bitFlags = self.question.responseObject;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
-    PacoSliderView *slider = [[PacoSliderView alloc] initWithStyle:UITableViewStylePlain reuseIdentifier:@"question_number"];
-    slider.format = @"%d";
+    PacoStepperView* stepper = [[PacoStepperView alloc] initWithStyle:UITableViewStylePlain
+                                                      reuseIdentifier:@"question_number"];
+    stepper.minValue = 0;
+    //need to set the maxValue before setting stepper's value, otherwise it may cause a bug that
+    //any value larger than 100 will not be set correctly, since the default max value is 100
+    stepper.maxValue = kPacoStepperMaxValue;
+    stepper.format = @"%lli";
     if (self.question.responseObject) {
-      slider.value = self.question.responseObject;
+      stepper.value = self.question.responseObject;
     } else {
-      slider.value = [NSNumber numberWithInt:0];
+      stepper.value = [NSNumber numberWithLongLong:0];
     }
-    slider.minValue = 0;
-    slider.maxValue = 100;
-    slider.delegate = self;
-    self.numberSlider = slider;
-    [self addSubview:slider];
+    stepper.delegate = self;
+    self.numberStepper = stepper;
+    [self addSubview:stepper];
 
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
     if ([self.question.text length] == 0) {
-      self.questionText.text = @"Attaching your location ...";
+      self.questionText.text = NSLocalizedString(@"Attaching your location ...", nil);
       [self.questionText sizeToFit];
     }
+    self.messageLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+    self.messageLabel.numberOfLines = 0;
+    self.messageLabel.backgroundColor = [UIColor clearColor];
+    self.messageLabel.textColor = [UIColor darkGrayColor];
+    [self.messageLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:11]];
+    [self.messageLabel setText:NSLocalizedString(@"This is the location that will be recorded for your response.", nil)];
+    self.messageLabel.textAlignment = NSTextAlignmentCenter;
+    [self.messageLabel sizeToFit];
+    [self addSubview:self.messageLabel];
     if (!self.map) {
       self.map = [[MKMapView alloc] initWithFrame:CGRectZero];
-      self.map.delegate = self;
       self.map.showsUserLocation = YES;
       self.map.zoomEnabled = NO;
       self.map.userInteractionEnabled = NO;
       self.map.userTrackingMode = MKUserTrackingModeFollow;
       self.map.mapType = MKMapTypeHybrid;// MKMapTypeStandard,MKMapTypeSatellite,MKMapTypeHybrid
     }
+    self.map.delegate = self;
     [self addSubview:self.map];
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
-      self.questionText.text = @"Attach a photo.";
+      self.questionText.text = NSLocalizedString(@"Attach a photo.", nil);
       [self.questionText sizeToFit];
     }
-    self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[@"Camera", @"Library"]];
+    self.photoSegmentControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"Camera", nil), NSLocalizedString(@"Library", nil)]];
     self.photoSegmentControl.selectedSegmentIndex = 0;
     [self.photoSegmentControl addTarget:self action:@selector(updateChoosePhotoButtonTitle) forControlEvents:UIControlEventValueChanged];
     [self addSubview:self.photoSegmentControl];
-    
+
     self.choosePhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [self updateChoosePhotoButtonTitle];
     [self addSubview:self.choosePhotoButton];
@@ -402,7 +435,6 @@ static const int kInvalidIndex = -1;
                @"a non-nil responseObject should be UIImage object");
       UIImage *image = self.question.responseObject;
       self.image = image;
-      [self updateChoosePhotoButtonImage];
     }
     [self.choosePhotoButton addTarget:self action:@selector(takePhoto) forControlEvents:UIControlEventTouchUpInside];
   } else {
@@ -439,7 +471,7 @@ static const int kInvalidIndex = -1;
   NSArray *array = (NSArray *)data;
   PacoExperimentInput *question = (PacoExperimentInput *)[array objectAtIndex:1];
   CGSize textSize = [self textSizeToFitSize:CGSizeMake(320, 10000) text:question.text font:nil];
-  
+
   if (question == nil) {
     return [NSNumber numberWithInt:140 + (textSize.height)];
   }
@@ -448,7 +480,7 @@ static const int kInvalidIndex = -1;
     NSLog(@"TODO: implement question type \"%@\" [%@]", question.questionType, question.text);
     return [NSNumber numberWithInt:140 + (textSize.height)];
   }
-  
+
   if (question.responseEnumType == ResponseEnumTypeLikertSmileys) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeLikert) {
@@ -477,11 +509,11 @@ static const int kInvalidIndex = -1;
   CGSize textsize = [self.class textSizeToFitSize:self.questionText.frame.size
                                              text:self.questionText.text
                                              font:self.questionText.font];
-  
+
   if (self.question == nil) {
     return;
   }
-  
+
   if (![self.question.questionType isEqualToString:@"question"]) {
     NSLog(@"TODO: implement question type \"%@\" [%@]", self.question.questionType, self.question.text);
     return;
@@ -545,23 +577,28 @@ static const int kInvalidIndex = -1;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeOpenText) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-    self.textField.frame = bounds;
+    self.textView.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
     self.checkboxes.frame = bounds;
-//      int numChoices = self.question.listChoices.count;
-//      NSArray *choices = [PacoLayout splitRectVertically:bounds numSections:numChoices];
-//      for (int i = 0; i < numChoices; ++i) {
-//
-//      }
+    //      int numChoices = self.question.listChoices.count;
+    //      NSArray *choices = [PacoLayout splitRectVertically:bounds numSections:numChoices];
+    //      for (int i = 0; i < numChoices; ++i) {
+    //
+    //      }
   } else if (self.question.responseEnumType == ResponseEnumTypeNumber) {
     CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
 
-    self.numberSlider.frame = bounds;
+    self.numberStepper.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypeLocation) {
-    CGRect bounds = CGRectMake(10, textsize.height + 10, self.frame.size.width - 20, self.frame.size.height - textsize.height - 20);
-
+    CGFloat segmentY = textsize.height + 10;
+    self.messageLabel.frame = CGRectMake(self.center.x - self.messageLabel.frame.size.width / 2,
+                                         segmentY,
+                                         self.messageLabel.frame.size.width,
+                                         self.messageLabel.frame.size.height);
+    segmentY += self.messageLabel.frame.size.height + 10;
+    CGRect bounds = CGRectMake(10, segmentY, self.frame.size.width - 20, self.frame.size.height - segmentY - 20);
     self.map.frame = bounds;
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     CGFloat segmentY = self.questionText.frame.origin.y + self.questionText.frame.size.height + 10;
@@ -579,6 +616,8 @@ static const int kInvalidIndex = -1;
                                          self.frame.size.width - marginHorizontal*2,
                                          photoButtonHeight);
     self.choosePhotoButton.frame = photoButtonFrame;
+    [self updateChoosePhotoButtonImage];
+
   }
 }
 
@@ -601,15 +640,15 @@ static const int kInvalidIndex = -1;
   [self updateChoosePhotoButtonImage];
   [self.choosePhotoButton setNeedsLayout];
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker
-    didFinishPickingMediaWithInfo:(NSDictionary *)info {
-  
+didFinishPickingMediaWithInfo:(NSDictionary *)info {
+
   NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
   if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeImage]) {
     UIImage *orig = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -625,58 +664,62 @@ static const int kInvalidIndex = -1;
   }
 
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
   self.question.responseObject = nil;
   [[UIApplication sharedApplication].keyWindow.rootViewController
-      dismissViewControllerAnimated:YES
-      completion:^{
-        self.imagePicker = nil;
-      }];
+   dismissViewControllerAnimated:YES
+   completion:^{
+     self.imagePicker = nil;
+   }];
 }
 
 
-#pragma mark - UITextFieldDelegate
-
-//considering the diffenernce in view hierarchies for ios versions
-- (UITableView *)tableViewforCell:(UITableViewCell*)cell {
-  id view = [cell superview];
-  while ([view isKindOfClass:[UITableView class]] == NO) {
-    view = [view superview];
-  }
-  return (UITableView*)view;
-}
-
-//- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
-
-- (void)textFieldDidBeginEditing:(UITextField *)textField {
-  UITableView* tableView = [self tableViewforCell:self];
+- (void)moveCellViewToTop {
+  UITableView* tableView = [self tableView];
   [tableView setContentOffset:CGPointMake(0, self.frame.origin.y) animated:YES];
 }
 
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-  // return YES to allow editing to stop and to resign first responder status.
-  //        NO to disallow the editing session to end
+#pragma mark - UITextViewDelegate
+
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+  if ([textView.text isEqualToString:NSLocalizedString(kPlaceHolderString, nil)]) {
+    textView.text = @"";
+    textView.textColor = [UIColor blackColor];
+    textView.font = [UIFont systemFontOfSize:15];
+  }
+  [self moveCellViewToTop];
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView {
   return YES;
 }
 
-//- (void)textFieldDidEndEditing:(UITextField *)textField;             // may be called if forced even if shouldEndEditing returns NO (e.g. view removed from window) or endEditing:YES called
+-(void)textViewDidEndEditing:(UITextView *)textView {
+  NSString* text = [textView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  if (0 == [text length]) {
+    self.question.responseObject = nil;
+    textView.text = NSLocalizedString(kPlaceHolderString, nil);
+    textView.textColor = [UIColor lightGrayColor];
+    textView.font = [UIFont systemFontOfSize:12];
+  } else {
+    self.question.responseObject = text;
+    [self updateConditionals];
+  }
+}
 
-//- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;   // return NO to not change text
-
-//- (BOOL)textFieldShouldClear:(UITextField *)textField;               // called when clear button pressed. return NO to ignore (no notifications)
-
-- (BOOL)textFieldShouldReturn:(UITextField *)textField {
-  // called when 'return' key pressed. return NO to ignore.
-  [textField endEditing:YES];
-  self.question.responseObject = textField.text;
-  [self updateConditionals];
-  return YES;
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range
+ replacementText:(NSString *)text {
+  if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location == NSNotFound) {
+    return YES;
+  }
+  [textView endEditing:YES];
+  return NO;
 }
 
 #pragma mark - PacoCheckboxViewDelegate
@@ -692,207 +735,45 @@ static const int kInvalidIndex = -1;
   [self updateConditionals];
 }
 
-#pragma mark - PacoSliderViewDelegate
+#pragma mark - PacoStepperViewDelegate
 
-- (void)onSliderChanged:(PacoSliderView *)slider {
-  int value = [slider.value intValue];
-  self.question.responseObject = [NSNumber numberWithInt:value];
+- (void)onStepperValueChanged:(PacoStepperView *)stepper {
+  long long value = [stepper.value longLongValue];
+  self.question.responseObject = [NSNumber numberWithLongLong:value];
   [self updateConditionals];
+}
+
+- (void)onTextFieldEditBegan:(UITextField *)textField {
+  [self moveCellViewToTop];
 }
 
 #pragma mark MKMapViewDelegate
+- (void)updateLocation:(CLLocation*)currentLocation {
+  if (!currentLocation) {
+    return;
+  }
+  CLLocation* prevLocation = self.question.responseObject;
+  //avoid updating too often
+  if (prevLocation.coordinate.latitude != currentLocation.coordinate.latitude ||
+      prevLocation.coordinate.longitude != currentLocation.coordinate.longitude) {
+    self.question.responseObject = currentLocation;
+  }
+}
 
-//- (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated;
-//- (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated;
-
-//- (void)mapViewWillStartLoadingMap:(MKMapView *)mapView;
 - (void)mapViewDidFinishLoadingMap:(MKMapView *)mapView {
-  NSLog(@"Found Location %f,%f", self.map.userLocation.location.coordinate.latitude, self.map.userLocation.location.coordinate.longitude);
-  self.question.responseObject = self.map.userLocation.location;
-  [self updateConditionals];
+  [self updateLocation:mapView.userLocation.location];
 }
-//- (void)mapViewDidFailLoadingMap:(MKMapView *)mapView withError:(NSError *)error;
 
-// mapView:viewForAnnotation: provides the view for each annotation.
-// This method may be called for all or some of the added annotations.
-// For MapKit provided annotations (eg. MKUserLocation) return nil to use the MapKit provided annotation view.
-//- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation;
-
-// mapView:didAddAnnotationViews: is called after the annotation views have been added and positioned in the map.
-// The delegate can implement this method to animate the adding of the annotations views.
-// Use the current positions of the annotation views as the destinations of the animation.
-//- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views;
-
-// mapView:annotationView:calloutAccessoryControlTapped: is called when the user taps on left & right callout accessory UIControls.
-//- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
-
-//- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(NA, 4_0);
-//- (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view NS_AVAILABLE(NA, 4_0);
-
-//- (void)mapViewWillStartLocatingUser:(MKMapView *)mapView NS_AVAILABLE(NA, 4_0);
-//- (void)mapViewDidStopLocatingUser:(MKMapView *)mapView NS_AVAILABLE(NA, 4_0);
-//- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation NS_AVAILABLE(NA, 4_0);
-//- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error NS_AVAILABLE(NA, 4_0);
-
-//- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view didChangeDragState:(MKAnnotationViewDragState)newState
-  // fromOldState:(MKAnnotationViewDragState)oldState NS_AVAILABLE(NA, 4_0);
-
-//- (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay NS_AVAILABLE(NA, 4_0);
-
-// Called after the provided overlay views have been added and positioned in the map.
-//- (void)mapView:(MKMapView *)mapView didAddOverlayViews:(NSArray *)overlayViews NS_AVAILABLE(NA, 4_0);
-
-//- (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated NS_AVAILABLE(NA, 5_0);
-
-/*
-
-inputs =         (
-                        {
-  conditional = 0;
-  id = 3;
-  invisibleInput = 0;
-  leftSideLabel = "<left>";
-  likertSteps = 5;
-  listChoices =                 (
-      ""
-  );
-  mandatory = 1;
-  name = "<name1>";
-  questionType = question;
-  responseType = "likert_smileys";
-  rightSideLabel = "<right>";
-  text = "<input_prompt1>";
-},
-          {
-  conditional = 0;
-  id = 5;
-  invisibleInput = 0;
-  leftSideLabel = left;
-  likertSteps = 7;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name2>";
-  questionType = question;
-  responseType = likert;
-  rightSideLabel = right;
-  text = "<input_prompt2>";
-},
-          {
-  conditional = 0;
-  id = 6;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name3>";
-  questionType = question;
-  responseType = "open text";
-  text = "<input prompt3>";
-},
-          {
-  conditional = 0;
-  id = 7;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-      "choice 1",
-      "choice 2",
-      "choice 3",
-      "choice 4"
-  );
-  mandatory = 1;
-  name = "<name4>";
-  questionType = question;
-  responseType = list;
-  text = "<input prompt4>";
-},
-          {
-  conditional = 0;
-  id = 8;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 5>";
-  questionType = question;
-  responseType = number;
-  text = "<input prompt5>";
-},
-          {
-  conditional = 0;
-  id = 9;
-  invisibleInput = 1;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 6>";
-  questionType = question;
-  responseType = location;
-  text = "";
-},
-          {
-  conditional = 0;
-  id = 10;
-  invisibleInput = 1;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = "<name 7>";
-  questionType = question;
-  responseType = photo;
-  text = "";
-},
-          {
-  conditional = 0;
-  id = 11;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 1;
-  name = root;
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt root>";
-},
-          {
-  conditionExpression = "root < 3";
-  conditional = 1;
-  id = 12;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 0;
-  name = "<leafL>";
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt leafL>";
-},
-          {
-  conditionExpression = "root >= 3";
-  conditional = 1;
-  id = 13;
-  invisibleInput = 0;
-  likertSteps = 5;
-  listChoices =                 (
-  );
-  mandatory = 0;
-  name = "<leafR>";
-  questionType = question;
-  responseType = "likert_smileys";
-  text = "<input prompt leafR>";
+- (void)mapView:(MKMapView *)mapView didUpdateUserLocation:(MKUserLocation *)userLocation {
+  [self updateLocation:userLocation.location];
 }
-);
 
 
-*/
-
-
+- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
+  DDLogInfo(@"Fail to locate user (%f,%f), error: %@",
+            self.map.userLocation.location.coordinate.latitude,
+            self.map.userLocation.location.coordinate.longitude,
+            [error description]);
+}
 
 @end

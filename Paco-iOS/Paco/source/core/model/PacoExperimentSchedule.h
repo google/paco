@@ -42,6 +42,8 @@ typedef enum {
 } PacoScheduleType;
 
 
+static const int kPacoNumOfDaysInWeek = 7;
+
 @interface PacoExperimentSchedule : NSObject <NSCopying>
 
 @property (nonatomic, assign) BOOL byDayOfMonth;
@@ -79,6 +81,10 @@ typedef enum {
 - (NSString*)esmStartTimeString;
 - (NSString*)esmEndTimeString;
 - (BOOL)isESMSchedule;
+
+- (NSArray*)weeklyConfigureTable;
+//index in a week, sunday is 1, monday is 2, etc.
+- (int)dayIndexByDayOfWeek;
 
 - (BOOL)isSelfReport;
 - (BOOL)isScheduled;

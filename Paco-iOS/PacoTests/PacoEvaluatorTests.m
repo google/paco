@@ -79,7 +79,7 @@
    }];
 }
 
-- (void)testList {
+- (void)testMultiSelectedList {
   NSString* exp = @" a >9 ||list  ==  1";
   NSDictionary* variableDict = @{@"a" : @NO, @"list":@YES};
   [PacoExpressionExecutor
@@ -93,7 +93,7 @@
    }];
 }
 
-- (void)testList2 {
+- (void)testMultiSelectedList2 {
   NSString* exp = @" a >9 &&list  !=b";
   NSDictionary* variableDict = @{@"a" : @NO, @"list":@YES};
   [PacoExpressionExecutor
@@ -123,7 +123,8 @@
    }];
 }
 
-- (void)testListContains {
+#pragma mark predicate evaluation for multi-selected list
+- (void)testMultiSelectedListContains {
   NSString* exp1 = @"list contains 1";
   NSDictionary* variableDict = @{@"list" : @YES};
   
@@ -140,7 +141,7 @@
   }];
 }
 
-- (void)testListNotContains {
+- (void)testMultiSelectedListNotContains {
   NSString* exp1 = @"!(list contains 1)";
   NSDictionary* variableDict = @{@"list" : @YES};
   
@@ -160,7 +161,7 @@
  }];
 }
 
-- (void)testListNotContains2 {
+- (void)testMultiSelectedListNotContains2 {
   NSString* exp1 = @"not list contains 1";
   NSDictionary* variableDict = @{@"list" : @YES};
   
@@ -181,7 +182,7 @@
 }
 
 
-- (void)testListNotContainsCompound {
+- (void)testMultiSelectedListNotContainsCompound {
   NSString* exp1 = @"var > 1 ||not list contains 1";
   NSDictionary* variableDict = @{@"list" : @YES, @"var" : @NO};
   
@@ -202,7 +203,7 @@
 }
 
 
-- (void)testListEquals {
+- (void)testMultiSelectedListEquals {
   NSString* exp1 = @"list == 1";
   NSDictionary* variableDict = @{@"list" : @YES};
   
@@ -220,7 +221,7 @@
    }];
 }
 
-- (void)testListNotEquals {
+- (void)testMultiSelectedListNotEquals {
   NSString* exp1 = @"list != 1";
   NSDictionary* variableDict = @{@"list" : @YES};
   
@@ -238,6 +239,147 @@
    }];
 }
 
+
+#pragma mark predicate evaluation for single-selected list
+- (void)testSingleSelectedListContains {
+  NSString* exp1 = @"list contains 1";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     STAssertThrows([predicate evaluateWithObject:nil substitutionVariables:dict],
+                    @"Can't user contains for NSNumber, since it's not a collection");
+   }];
+}
+
+
+- (void)testSingleSelectedListEquals {
+  NSString* exp1 = @"list == 1";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be equal to 1");
+     
+     dict = @{@"list" : @2};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should not be equal to 1");
+   }];
+}
+
+- (void)testSingleSelectedListNotEquals {
+  NSString* exp1 = @"list != 1";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should not be equal to 1");
+     
+     dict = @{@"list" : @2};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should not be equal to 1");
+   }];
+}
+
+- (void)testSingleSelectedListLessThan {
+  NSString* exp1 = @"list < 4";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be less than 4");
+     
+     dict = @{@"list" : @4};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should not be less than 4");
+
+     dict = @{@"list" : @5};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should not be less than 4");
+  }];
+}
+
+- (void)testSingleSelectedListLessThanOrEqualTo {
+  NSString* exp1 = @"list <= 4";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be less than or equal to 4");
+     
+     dict = @{@"list" : @4};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be less than or equal to 4");
+     
+     dict = @{@"list" : @5};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should not be less than or equal to 4");
+   }];
+}
+
+
+- (void)testSingleSelectedListLargerThan {
+  NSString* exp1 = @"list > 4";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should be less than 4");
+     
+     dict = @{@"list" : @4};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should be equal to 4");
+     
+     dict = @{@"list" : @5};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be larger than 4");
+   }];
+}
+
+- (void)testSingleSelectedListLargerThanOrEqualTo {
+  NSString* exp1 = @"list >= 4";
+  NSDictionary* variableDict = @{@"list" : @NO};
+  
+  [PacoExpressionExecutor
+   predicateWithRawExpression:exp1
+   withVariableDictionary:variableDict
+   andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
+     NSDictionary* dict = @{@"list" : @1};
+     BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertFalse(satisfied, @"list should less than 4");
+     
+     dict = @{@"list" : @4};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should be equal to 4");
+     
+     dict = @{@"list" : @5};
+     satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
+     STAssertTrue(satisfied, @"list should larger than 4");
+   }];
+}
 
 
 

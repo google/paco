@@ -37,7 +37,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 @interface PacoScheduler () <PacoNotificationManagerDelegate>
 @property (nonatomic, assign) id<PacoSchedulerDelegate> delegate;
 @property (atomic, retain) PacoNotificationManager* notificationManager;
-
+@property (atomic, assign) BOOL isExecutingRoutineMajorTask;
 @end
 
 @implementation PacoScheduler
@@ -46,6 +46,7 @@ NSInteger const kTotalNumOfNotifications = 60;
 - (id)initWithFirstLaunchFlag:(BOOL)firstLaunch {
   self = [super init];
   if (self) {
+    DDLogInfo(@"PacoScheduler initializing...");
     _notificationManager = [PacoNotificationManager managerWithDelegate:self
                                                         firstLaunchFlag:firstLaunch];
   }
@@ -63,12 +64,13 @@ NSInteger const kTotalNumOfNotifications = 60;
 - (void)initializeNotifications {
   BOOL success = [self.notificationManager loadNotificationsFromCache];
   if (!success) {
-    NSLog(@"Serious Error: failed to load notifications!");
+    DDLogInfo(@"Serious Error: failed to load notifications!");
   }
   
   if (![self.delegate needsNotificationSystem]) {
     [self.notificationManager cancelAllPacoNotifications];
   } else {
+    DDLogInfo(@"Finished initializing notifications, start executing routine major task.");
     [self executeRoutineMajorTask];
   }
 }
@@ -78,11 +80,14 @@ NSInteger const kTotalNumOfNotifications = 60;
   return [self.notificationManager saveNotificationsToCache];
 }
 
+- (BOOL)isDoneLoadingNotifications {
+  return self.notificationManager.areNotificationsLoaded;
+}
 
 #pragma mark Public Methods
 -(void)startSchedulingForExperimentIfNeeded:(PacoExperiment*)experiment {
-  if (![experiment shouldScheduleNotifications]) {
-    NSLog(@"Skip scheduling for newly-joined expeirment: %@", experiment.instanceId);
+  if (![experiment shouldScheduleNotificationsFromNow]) {
+    DDLogInfo(@"Skip scheduling for newly-joined expeirment: %@", experiment.instanceId);
     return;
   }
   
@@ -99,27 +104,36 @@ NSInteger const kTotalNumOfNotifications = 60;
   if (experiment == nil || [experiment isSelfReportExperiment]) {
     return;
   }
-  NSLog(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
+  DDLogInfo(@"Stop scheduling notifications for experiment: %@", experiment.instanceId);
   [self.notificationManager cancelNotificationsForExperiment:experiment.instanceId];
 }
 
 - (void)stopSchedulingForAllExperiments {
-  NSLog(@"stop scheduling for all experiments");
+  DDLogInfo(@"stop scheduling for all experiments");
   [self.notificationManager cancelAllPacoNotifications];
 }
 
 - (void)stopSchedulingForExperiments:(NSArray*)experimentIds {
   if ([experimentIds count] > 0) {
-    NSLog(@"stop scheduling for experiments: %@", experimentIds);
+    DDLogInfo(@"stop scheduling for experiments: %@", experimentIds);
     [self.notificationManager cancelNotificationsForExperiments:experimentIds];
   }
 }
 
 - (void)executeRoutineMajorTask {
-  [self executeMajorTask:NO];
+  @synchronized(self){
+    if (self.isExecutingRoutineMajorTask) {
+      DDLogInfo(@"Already executing routine major task, skip it!");
+      return;
+    }
+    self.isExecutingRoutineMajorTask = YES;
+    [self executeMajorTask:NO];
+    self.isExecutingRoutineMajorTask = NO;
+  }
 }
 
 - (void)executeMajorTaskForChangedExperimentModel {
+  DDLogInfo(@"Execute major task for changed model.");
   [self executeMajorTask:YES];
 }
 
@@ -130,35 +144,51 @@ NSInteger const kTotalNumOfNotifications = 60;
  **/
 //YMZ:TODO: this method can be improved to be more efficient
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
-  NSLog(@"Executing Major Task...");
-  BOOL needToScheduleNewNotifications = YES;
-  NSArray* notificationsToSchedule = nil;
-  
-  if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
-    needToScheduleNewNotifications = NO;
-    NSLog(@"No need to schedule new notifications, there are 60 notifications already.");
-  }
-  if (needToScheduleNewNotifications) {
-    notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-  }
-  if (!experimentModelChanged &&
-      needToScheduleNewNotifications &&
-      [self.notificationManager numOfScheduledNotifications] == [notificationsToSchedule count]) {
-      NSLog(@"There are already %d notifications scheduled, skip scheduling new notifications.", [notificationsToSchedule count]);
+  @synchronized(self) {
+    if (![self.delegate isDoneInitializationForMajorTask]) {
+      DDLogInfo(@"Skip executing major task: PacoClient isn't ready");
+      return;
+    }
+    
+    DDLogInfo(@"Executing Major Task...");
+    BOOL needToScheduleNewNotifications = YES;
+    NSArray* notificationsToSchedule = nil;
+    
+    if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
       needToScheduleNewNotifications = NO;
+      DDLogInfo(@"No need to schedule new notifications, there are 60 notifications already.");
+    }
+    if (needToScheduleNewNotifications) {
+      notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
+    }
+    if (!experimentModelChanged &&
+        needToScheduleNewNotifications &&
+        [self.notificationManager numOfScheduledNotifications] == [notificationsToSchedule count]) {
+      DDLogInfo(@"There are already %d notifications scheduled, skip scheduling new notifications.", [notificationsToSchedule count]);
+      needToScheduleNewNotifications = NO;
+    }
+    if (needToScheduleNewNotifications) {
+      DDLogInfo(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
+      [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
+    } else {
+      [self.notificationManager cleanExpiredNotifications];
+    }
+    [self.delegate updateNotificationSystem];
+    DDLogInfo(@"Finished major task.");
   }
-  if (needToScheduleNewNotifications) {
-    NSLog(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
-    [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
-  } else {
-    [self.notificationManager cleanExpiredNotifications];
-  }
-  [self.delegate updateNotificationSystem];
+  
 }
 
+
+//keep all active notifications
+//cancel all scheduled notifications
+//schedule new notifications
+//adjust badge number
+//adjust notification system
 - (void)restartNotificationSystem {
+  DDLogInfo(@"restart notification system...");
   NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-  [self.notificationManager resetWithPacoNotifications:notificationsToSchedule];
+  [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
   [self.delegate updateNotificationSystem];
 }
 
@@ -174,12 +204,22 @@ NSInteger const kTotalNumOfNotifications = 60;
   return [self.notificationManager activeNotificationForExperiment:experimentId];
 }
 
+- (BOOL)hasActiveNotificationForExperiment:(NSString*)experimentId {
+  if (0 == [experimentId length]) {
+    return NO;
+  }
+  return [self activeNotificationForExperiment:experimentId] != nil;
+}
+
 - (BOOL)isNotificationActive:(UILocalNotification*)notification {
   return [self.notificationManager isNotificationActive:notification];
 }
 
 #pragma mark PacoNotificationManagerDelegate
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+  if (!self.delegate) {
+    DDLogError(@"PacoScheduler's delegate should be a valid PacoClient object!");
+  }
   [self.delegate handleExpiredNotifications:expiredNotifications];
 }
 

@@ -27,6 +27,7 @@ static int const kMaxNumOfEventsToUpload = 50;
 @interface PacoEventUploader ()
 
 @property(atomic, assign) BOOL isWorking;
+@property(nonatomic, copy) UploadCompletionBlock completionBlock;
 
 @end
 
@@ -44,95 +45,27 @@ static int const kMaxNumOfEventsToUpload = 50;
   return [[PacoEventUploader alloc] initWithDelegate:delegate];
 }
 
-- (void)dealloc {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)startObserveReachability {
-  @synchronized(self) {
-    if (!self.isWorking) {
-      return;
-    }
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reachabilityChanged:)
-                                                 name:kReachabilityChangedNotification
-                                               object:nil];
-  }
-}
-
-- (void)stopObserveReachability {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)reachabilityChanged:(NSNotification*)notification {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    Reachability* reach = (Reachability*)[notification object];
-    
-    @synchronized(self) {
-      if ([reach isReachable] && self.isWorking) {
-        NSLog(@"[Reachable]: Online Now!");
-        [self uploadEvents];
-      }else {
-        NSLog(@"[Reachable]: Offline Now!");
-      }
-    }    
-  }); 
-}
-
-
-- (void)composePayloadWithImagesIfNeeded:(NSArray*)events {
-  for (PacoEvent* event in events) {
-    NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:event.responses];
-    for (int index=0; index<[event.responses count]; index++) {
-      id responseDict = [event.responses objectAtIndex:index];
-      if (![responseDict isKindOfClass:[NSDictionary class]]) {
-        continue;
-      }
-      id answer = [(NSDictionary*)responseDict objectForKey:kPacoResponseKeyAnswer];
-      if (![answer isKindOfClass:[NSString class]]) {
-        continue;
-      }
-      NSString* imageName = [UIImage pacoImageNameFromBoxedName:(NSString*)answer];
-      if (!imageName) {
-        continue;
-      }
-      NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
-      if ([imageString length] > 0) {
-        NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
-        [newResponseDict setObject:imageString forKey:kPacoResponseKeyAnswer];
-        [newReponseList replaceObjectAtIndex:index withObject:newResponseDict];
-      }
-    }
-    event.responses = newReponseList;
-  }
-}
-
 
 - (void)uploadEvents {
   @synchronized(self) {
+    if (![[PacoClient sharedInstance].reachability isReachable]) {
+      DDLogWarn(@"[Reachable]: Offline Now, won't upload events.");
+      if (self.completionBlock) {
+        self.completionBlock(NO);
+      }
+      return;
+    }
+    
     NSArray* pendingEvents = [self.delegate allPendingEvents];
     NSAssert([pendingEvents count] > 0, @"there should be pending events!");
     
     self.isWorking = YES;
-    if ([[PacoClient sharedInstance].reachability isReachable]) {
-      [self stopObserveReachability];
-      
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self submitAllPendingEvents:pendingEvents];
-      });
-    }else {
-      [self startObserveReachability];
-    }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      [self submitAllPendingEvents:pendingEvents];
+    });
   }
 }
 
-- (BOOL)isOfflineError:(NSError*)error {
-  if (error == nil) {
-    return NO;
-  } else {
-    return [error isOfflineError];
-  }
-}
 
 - (void)submitAllPendingEvents:(NSArray*)allPendingEvents {
   int totalNumOfEvents = [allPendingEvents count];
@@ -140,6 +73,7 @@ static int const kMaxNumOfEventsToUpload = 50;
   int size = MIN(totalNumOfEvents, kMaxNumOfEventsToUpload);
   
   __block int numOfFinishedEvents = 0;
+  __block int numOfSuccessUploading = 0;
 
   while (size > 0) {
     NSRange range = NSMakeRange(start, size);
@@ -152,18 +86,17 @@ static int const kMaxNumOfEventsToUpload = 50;
         NSAssert([successEventIndexes count] <= [events count],
                  @"successEventIndexes count is not correct!");
         
-        //If the error is not nil and is an offline error, we will wait until internet is online
-        //and refetch all pending events and try to re-submit them again 
-        if (![self isOfflineError:error]) {
-          numOfFinishedEvents += [events count];
-        }
+        numOfFinishedEvents += [events count];
         
-        if (error == nil) {
+        if (error) {
+          //offline error, authentication error, server 500 error, client 400 error, etc.
+          DDLogError(@"Failed to upload %d events! Error: %@", [events count], [error description]);
+        } else {
           if ([successEventIndexes count] < [events count]) {
-            NSLog(@"[Error]%d events successfully uploaded, %d events failed!",
-                  [successEventIndexes count], [events count] - [successEventIndexes count]);
+            DDLogError(@"[Error]%d events successfully uploaded, %d events failed!",
+                       [successEventIndexes count], [events count] - [successEventIndexes count]);
           } else {
-            NSLog(@"%d events successfully uploaded!", [successEventIndexes count]);
+            DDLogInfo(@"%d events successfully uploaded!", [successEventIndexes count]);
           }
           
           NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
@@ -172,25 +105,21 @@ static int const kMaxNumOfEventsToUpload = 50;
           }
           if ([successEvents count] > 0) {
             [self.delegate markEventsComplete:successEvents];
-          }
-        } else {
-          if ([self isOfflineError:error]) {
-            [self startObserveReachability];
-          } else {
-            //authentication error, server 500 error, client 400 error, etc.
-            NSLog(@"Failed to upload %d events! Error: %@", [events count], [error description]);
+            numOfSuccessUploading += [successEvents count];
           }
         }
         
         if (numOfFinishedEvents == totalNumOfEvents) {
-          NSLog(@"Finished uploading!");
+          DDLogInfo(@"Finished uploading!");
           [self stopUploading];
+          BOOL success = (numOfSuccessUploading > 0) ? YES : NO;
+          if (self.completionBlock) {
+            self.completionBlock(success);
+          }
         }
-        
       });
     };
     
-    [self composePayloadWithImagesIfNeeded:events];
     [[PacoClient sharedInstance].service submitEventList:events
                                      withCompletionBlock:finalBlock];
     
@@ -202,22 +131,33 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 
 #pragma mark Public API
-- (void)startUploading {
+- (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock {
   @synchronized(self) {
     //if user is not logged in yet, wait until log in finishes
     if (![[PacoClient sharedInstance] isLoggedIn]) {
-      NSLog(@"EventUploader failed to start uploading since user is not logged in");
+      DDLogError(@"EventUploader failed to start uploading since user is not logged in");
+      if (completionBlock) {
+        completionBlock(NO);
+      }
       return;
     }
     if (self.isWorking) {
-      NSLog(@"EventUploading is already working.");
+      DDLogWarn(@"EventUploading is already working.");
+      if (completionBlock) {
+        completionBlock(NO);
+      }
       return;
     }
+
     if (![self.delegate hasPendingEvents]) {
-      NSLog(@"EventUploader won't start uploading since there isn't any pending events");
+      DDLogWarn(@"EventUploader won't start uploading since there isn't any pending events");
+      if (completionBlock) {
+        completionBlock(YES);
+      }
       return;
     }
-    NSLog(@"EventUploader starts uploading ...");
+    DDLogInfo(@"EventUploader starts uploading ...");
+    self.completionBlock = completionBlock;
     [self uploadEvents];
   }
 }
@@ -226,7 +166,6 @@ static int const kMaxNumOfEventsToUpload = 50;
 - (void)stopUploading {
   @synchronized(self) {
     self.isWorking = NO;
-    [self stopObserveReachability];
   }
 }
 

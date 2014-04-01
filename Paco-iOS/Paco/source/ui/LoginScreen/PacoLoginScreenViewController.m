@@ -25,6 +25,8 @@
 #import "PacoLoadingView.h"
 #import "PacoFont.h"
 
+static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/settings/security";
+
 @interface PacoClient ()
 - (void)loginWithClientLogin:(NSString *)email
                     password:(NSString *)password
@@ -32,7 +34,7 @@
 @end
 
 
-@interface PacoLoginScreenViewController () <UITextFieldDelegate>
+@interface PacoLoginScreenViewController () <UITextFieldDelegate, UIAlertViewDelegate>
 
 @property(strong, nonatomic) UITextField* emailField;
 @property(strong, nonatomic) UITextField* pwdField;
@@ -79,6 +81,7 @@
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField.returnKeyType = UIReturnKeyDone;
   textField.delegate = self;
   [self.view addSubview:textField];
   [textField sizeToFit];
@@ -91,17 +94,18 @@
   textField.layer.cornerRadius = 5.;
 
   self.emailField = textField;
-  
+
 
   UITextField *textField2 = [[UITextField alloc] initWithFrame:CGRectZero];
   textField2.textColor = [PacoColor pacoBlue];
   textField2.text = @"";
-  textField2.placeholder = @"<password>";
+  textField2.placeholder = NSLocalizedString(@"<password>", nil);
   textField2.keyboardType = UIKeyboardTypeDefault;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField2.secureTextEntry = YES;
   textField2.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField2.returnKeyType = UIReturnKeyDone;
   textField2.delegate = self;
   [self.view addSubview:textField2];
   [textField2 sizeToFit];
@@ -113,15 +117,35 @@
   textField2.clipsToBounds = YES;
   textField2.layer.cornerRadius = 5.;
   self.pwdField = textField2;
-  
+
   UILabel* label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
   label.numberOfLines = 3;
   label.center = self.view.center;
   label.backgroundColor = [UIColor clearColor];
-  label.textColor = [PacoColor pacoBlue];
-  [label setText:@"Hi, Log in with a Google account\n\n  Run Your Paco Experiment Today!"];
+  label.textColor = [UIColor darkGrayColor];
+  [label setText:NSLocalizedString(@"Login message", nil)];
   label.textAlignment = NSTextAlignmentCenter;
   [self.view addSubview:label];
+
+  UIButton *displayInstructionBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  [displayInstructionBtn setTitle:NSLocalizedString(@"Check how to generate your app password", nil) forState:UIControlStateNormal];
+  [displayInstructionBtn setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [displayInstructionBtn.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+  [displayInstructionBtn addTarget:self action:@selector(displayInstructions:) forControlEvents:UIControlEventTouchUpInside];
+  [displayInstructionBtn sizeToFit];
+  displayInstructionBtn.center = CGPointMake(self.view.center.x, self.view.frame.size.height - 40);
+  [self.view addSubview:displayInstructionBtn];
+
+  UILabel* twoFactorLoginMsg = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+  twoFactorLoginMsg.numberOfLines = 2;
+  twoFactorLoginMsg.backgroundColor = [UIColor clearColor];
+  twoFactorLoginMsg.textColor = [UIColor lightGrayColor];
+  [twoFactorLoginMsg setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
+  [twoFactorLoginMsg setText:NSLocalizedString(@"2-factor Authentication message", nil)];
+  twoFactorLoginMsg.textAlignment = NSTextAlignmentCenter;
+  [twoFactorLoginMsg sizeToFit];
+  twoFactorLoginMsg.center = CGPointMake(self.view.center.x, displayInstructionBtn.center.y - 30);
+  [self.view addSubview:twoFactorLoginMsg];
 
   CGRect layoutRect = self.view.bounds;
   layoutRect.origin.y += 40;
@@ -129,7 +153,7 @@
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
   NSArray *elements = [NSArray arrayWithObjects:textField, textField2, login, nil];
-  [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];  
+  [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -137,23 +161,40 @@
   // Dispose of any resources that can be recreated.
 }
 
+- (void)displayInstructions:(UIButton*)button {
+  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"2-factor title", nil)
+                              message:NSLocalizedString(@"2-factor Instruction", nil)
+                             delegate:self
+                    cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                    otherButtonTitles:NSLocalizedString(@"Go to Safari", nil), nil] show];
+}
+
+#pragma mark UIAlertViewDelegate implementation
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if (buttonIndex == 1) {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:kGoogleSecuritySettingsURL]];
+  }
+}
+
+
 - (void)onLogin {
   NSString* emailStr = [self.emailField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   NSString* pwdStr = [self.pwdField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
   if (emailStr.length == 0 || pwdStr.length == 0) {
-    [[[UIAlertView alloc] initWithTitle:@"Oops"
-                                message:@"Please input valid email and password."
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
+                                message:NSLocalizedString(@"Login invalid message", nil)
                                delegate:nil
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }else{
-    if ([self.emailField isFirstResponder]) {
-      [self.emailField resignFirstResponder];
-    }
-    if ([self.pwdField isFirstResponder]) {
-      [self.pwdField resignFirstResponder];
-    }
     [self loginWithEmail:emailStr password:pwdStr];
+  }
+  
+  if ([self.emailField isFirstResponder]) {
+    [self.emailField resignFirstResponder];
+  }
+  if ([self.pwdField isFirstResponder]) {
+    [self.pwdField resignFirstResponder];
   }
 }
 
@@ -184,6 +225,7 @@
 #pragma mark - UITextFieldDelegate
 // called when 'return' key pressed. return NO to ignore.
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
+  [textField resignFirstResponder];
   [self onLogin];
   return YES;
 }

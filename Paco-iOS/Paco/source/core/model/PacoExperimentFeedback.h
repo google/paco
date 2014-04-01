@@ -24,5 +24,5 @@
 @property (nonatomic, retain) id jsonObject;
 + (id)pacoFeedbackFromJSON:(id)jsonObject;
 - (id)serializeToJSON;
-
+- (BOOL)isCustomFeedback;
 @end
