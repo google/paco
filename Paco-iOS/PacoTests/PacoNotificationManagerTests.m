@@ -14,7 +14,7 @@
  */
 
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PacoNotificationManager.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoDateUtility.h"
@@ -29,7 +29,7 @@
 
 @end
 
-@interface PacoNotificationManagerTests : SenTestCase
+@interface PacoNotificationManagerTests : XCTestCase
 @property(nonatomic, strong) PacoNotificationManager* testManager;
 @property(nonatomic, assign) NSTimeInterval sleepTime;
 
@@ -74,15 +74,15 @@
 
 - (void)testLoadNotificationsForFirstLaunch {
   BOOL success = [self.testManager loadNotificationsFromCache];
-  STAssertTrue(success, @"should ignore non-existing error");
-  STAssertTrue(0 == [self.testManager.notificationDict count] &&
+  XCTAssertTrue(success, @"should ignore non-existing error");
+  XCTAssertTrue(0 == [self.testManager.notificationDict count] &&
                [self.testManager.notificationDict isKindOfClass:[NSMutableDictionary class]],
                @"should be empty");
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
 }
 
 - (void)testCancelAllPacoNotifications {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testSaveAndLoadNotifications {
@@ -160,20 +160,20 @@
   
   self.testManager.notificationDict = notificationDict;
   BOOL success = [self.testManager saveNotificationsToCache];
-  STAssertTrue(success, @"should be saved successfully");
+  XCTAssertTrue(success, @"should be saved successfully");
   
   //reset current notificationDict
   self.testManager.notificationDict = nil;
   success = [self.testManager loadNotificationsFromCache];
-  STAssertTrue(success, @"should be loaded successfully");
-  STAssertEquals([[self.testManager notificationDict] count], (NSUInteger)2, @"should have 2 key-value pairs");
-  STAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
+  XCTAssertTrue(success, @"should be loaded successfully");
+  XCTAssertEqual([[self.testManager notificationDict] count], (NSUInteger)2, @"should have 2 key-value pairs");
+  XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
   NSMutableArray* notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
-  STAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(notificationsForExperiment1,allNotificationsForExperiment1, @"should be loaded correctly");
+  XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(notificationsForExperiment1,allNotificationsForExperiment1, @"should be loaded correctly");
   NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
-  STAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(notificationsForExperiment2, allNotifications2,@"should be loaded correctly");
+  XCTAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(notificationsForExperiment2, allNotifications2,@"should be loaded correctly");
   
   //create a new notification with the same information as noti3:
   UILocalNotification* notiToRemove =
@@ -184,7 +184,7 @@
 
   [notificationsForExperiment1 removeObject:notiToRemove];
   NSMutableArray* newNotificationsForExperiment1 = [NSMutableArray arrayWithObjects:noti1, noti2, noti4, noti5, nil];
-  STAssertEqualObjects([[self.testManager notificationDict] objectForKey:experimentId1],
+  XCTAssertEqualObjects([[self.testManager notificationDict] objectForKey:experimentId1],
                        newNotificationsForExperiment1,
                        @"should be able to remove noti3 successfully");
   
@@ -194,16 +194,16 @@
   //reset current notificationDict
   self.testManager.notificationDict = nil;
   success = [self.testManager loadNotificationsFromCache];
-  STAssertTrue(success, @"should be loaded successfully");
-  STAssertEquals([[self.testManager notificationDict] count], (NSUInteger)1, @"should have 1 key-value pairs");
-  STAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
+  XCTAssertTrue(success, @"should be loaded successfully");
+  XCTAssertEqual([[self.testManager notificationDict] count], (NSUInteger)1, @"should have 1 key-value pairs");
+  XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
   notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
-  STAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(notificationsForExperiment1,newNotificationsForExperiment1, @"should be loaded correctly");
+  XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(notificationsForExperiment1,newNotificationsForExperiment1, @"should be loaded correctly");
   notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
-  STAssertNil(notificationsForExperiment2, @"should be nil");
+  XCTAssertNil(notificationsForExperiment2, @"should be nil");
   
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
 }
 
 
@@ -303,13 +303,13 @@
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
-  STAssertEquals((int)[notificationsToSchedule count], 9, @"should have 9 notifications in total");
+  XCTAssertEqual((int)[notificationsToSchedule count], 9, @"should have 9 notifications in total");
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
-  STAssertEquals((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 9,
+  XCTAssertEqual((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 9,
                  @"should have 9 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 
   sleep(self.sleepTime);
   
@@ -317,18 +317,18 @@
                                                           NSArray* expiredNotifications,
                                                           NSArray* notFiredNotifications) {
     NSDictionary* expectNewDict = @{@"1":@[self.activeNotification]};
-    STAssertEqualObjects(newNotificationDict, expectNewDict, @"should have one active notification");
+    XCTAssertEqualObjects(newNotificationDict, expectNewDict, @"should have one active notification");
 
-    STAssertEqualObjects(expiredNotifications, self.expectExpiredNotifications,
+    XCTAssertEqualObjects(expiredNotifications, self.expectExpiredNotifications,
                          @"should have 4 expired notifications");
     
     NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
     NSArray* expectScheduled = @[self.scheduled11, self.scheduled21, self.scheduled22, self.scheduled12];
     NSArray* expectNotFired = @[self.scheduled11, self.scheduled12, self.scheduled21, self.scheduled22];
-    STAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
-    STAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
   }];
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
 }
 
 
@@ -396,13 +396,13 @@
   [notificationsToSchedule addObjectsFromArray:allNotifications];
   [notificationDict setObject:allNotifications forKey:experimentId];
   
-  STAssertEquals((int)[notificationsToSchedule count], 5, @"should have 5 notifications in total");
+  XCTAssertEqual((int)[notificationsToSchedule count], 5, @"should have 5 notifications in total");
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
-  STAssertEquals((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 5,
+  XCTAssertEqual((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 5,
                  @"should have 5 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
@@ -410,16 +410,16 @@
                                                           NSArray* expiredNotifications,
                                                           NSArray* notFiredNotifications) {
     NSDictionary* expectNewDict = @{@"1":@[self.activeNotification]};
-    STAssertEqualObjects(newNotificationDict, expectNewDict, @"should have one active notification");
-    STAssertNil(expiredNotifications, @"should be nil");
+    XCTAssertEqualObjects(newNotificationDict, expectNewDict, @"should have one active notification");
+    XCTAssertNil(expiredNotifications, @"should be nil");
     
     NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
     NSArray* expectScheduled = @[self.scheduled11, self.scheduled21, self.scheduled22, self.scheduled12];
     NSArray* expectNotFired = @[self.scheduled11, self.scheduled12, self.scheduled21, self.scheduled22];
-    STAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
-    STAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
   }];
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 1, @"should have one active notification");
 }
 
 - (void)testProcessCachedNotificationsWithoutScheduledNotifications {
@@ -492,13 +492,13 @@
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
-  STAssertEquals((int)[notificationsToSchedule count], 6, @"should have 6 notifications in total");
+  XCTAssertEqual((int)[notificationsToSchedule count], 6, @"should have 6 notifications in total");
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
-  STAssertEquals((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 6,
+  XCTAssertEqual((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 6,
                  @"should have 6 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
@@ -506,15 +506,15 @@
                                                           NSArray* expiredNotifications,
                                                           NSArray* notFiredNotifications) {
     NSDictionary* expectNewDict = @{@"1":@[activeNoti11], @"2":@[activeNoti21]};
-    STAssertEqualObjects(newNotificationDict, expectNewDict, @"should have two active notifications");
-    STAssertEqualObjects(expiredNotifications, self.expectExpiredNotifications,
+    XCTAssertEqualObjects(newNotificationDict, expectNewDict, @"should have two active notifications");
+    XCTAssertEqualObjects(expiredNotifications, self.expectExpiredNotifications,
                          @"should have 4 expired notifications");
     
-    STAssertNil(notFiredNotifications, @"should be nil");
+    XCTAssertNil(notFiredNotifications, @"should be nil");
     NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
-    STAssertEqualObjects(scheduled, @[], @"should be empty");
+    XCTAssertEqualObjects(scheduled, @[], @"should be empty");
   }];
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have two active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have two active notifications");
 }
 
 - (void)testProcessCachedNotificationsWithoutActiveNotifications {
@@ -605,30 +605,30 @@
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
-  STAssertEquals((int)[notificationsToSchedule count], 8, @"should have 8 notifications in total");
+  XCTAssertEqual((int)[notificationsToSchedule count], 8, @"should have 8 notifications in total");
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
-  STAssertEquals((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 8,
+  XCTAssertEqual((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 8,
                  @"should have 8 notifications scheduled");
   
   self.testManager.notificationDict = notificationDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   sleep(self.sleepTime);
   
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have no active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have no active notifications");
   [self.testManager processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
                                                           NSArray* expiredNotifications,
                                                           NSArray* notFiredNotifications) {
-    STAssertEquals((int)[newNotificationDict count], 0, @"should be empty");
+    XCTAssertEqual((int)[newNotificationDict count], 0, @"should be empty");
     
-    STAssertEqualObjects(expiredNotifications, [NSArray arrayWithArray:self.expectExpiredNotifications],
+    XCTAssertEqualObjects(expiredNotifications, [NSArray arrayWithArray:self.expectExpiredNotifications],
                          @"should have 4 expired notifications");
     
     NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
     NSArray* expectScheduled = @[self.scheduled11, self.scheduled21, self.scheduled22, self.scheduled12];
     NSArray* expectNotFired = @[self.scheduled11, self.scheduled12, self.scheduled21, self.scheduled22];
-    STAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
-    STAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(notFiredNotifications, expectNotFired, @"should have 4 notification scheduled");
+    XCTAssertEqualObjects(scheduled, expectScheduled, @"should have 4 notification scheduled");
   }];
 }
 
@@ -709,7 +709,7 @@
   [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
   //There are 2 active notifications inside notificationDict
   self.testManager.notificationDict = originalDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
   //allNotifications: all are scheduled in the future
   //id:1, fireDate:date4
@@ -718,7 +718,7 @@
   //id:2, fireDate:date2
   [self.testManager addNotifications:allNotifications];
   
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
@@ -729,7 +729,7 @@
   [expect setObject:notifications3 forKey:experimentId3];
   
   NSMutableDictionary* result = (NSMutableDictionary*)[self.testManager valueForKey:@"notificationDict"];
-  STAssertEqualObjects(result, expect,
+  XCTAssertEqualObjects(result, expect,
                        @"add notifications should work correctly");
 }
 
@@ -815,7 +815,7 @@
                                                                               timeOutDate:secondTimeout];
   [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
   self.testManager.notificationDict = originalDict;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
   //allNotifications:
   //notification1: id:1, fireDate:date4
@@ -824,7 +824,7 @@
   //notification4: id:2, fireDate:date2
   [self.testManager addNotifications:allNotifications];
   
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification4, notification2, nil];
@@ -834,7 +834,7 @@
   [expect setObject:notifications3 forKey:experimentId3];
   
   NSMutableDictionary* result = (NSMutableDictionary*)[self.testManager valueForKey:@"notificationDict"];
-  STAssertEqualObjects(result, expect,
+  XCTAssertEqualObjects(result, expect,
                        @"add notifications should work correctly");
 }
 
@@ -894,14 +894,14 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 2 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 2 active notifications");
   [self.testManager handleRespondedNotification:nil];
-  STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore nil notification");
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore nil notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 - (void)testCancelAllNotificationsForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testHandleRespondedNotificationNotExist {
@@ -959,7 +959,7 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 
   
   NSString* experimentId3 = @"3";
@@ -970,8 +970,8 @@
                                                fireDate:date3
                                             timeOutDate:timeout3];
   [self.testManager handleRespondedNotification:notificationToHandle];
-  STAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore non-existing notification");
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore non-existing notification");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 - (void)testHandleRespondedNotification {
@@ -1027,10 +1027,10 @@
   [UIApplication sharedApplication].scheduledLocalNotifications =
       @[notification11, notification12, notification21, notification22, notification23];
   NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
-  STAssertEquals([scheduled count],
+  XCTAssertEqual([scheduled count],
                  (NSUInteger)5, @"should have 5 notifications scheduled successfully");
   NSUInteger index = [scheduled indexOfObject:notification22];
-  STAssertEquals(index, (NSUInteger)2, @"should be at position 2");
+  XCTAssertEqual(index, (NSUInteger)2, @"should be at position 2");
 
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
@@ -1038,7 +1038,7 @@
   [expect setObject:notifications1 forKey:experimentId1];
   [expect setObject:notifications2 forKey:experimentId2];
   self.testManager.notificationDict = expect;
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   //remove notification22
   UILocalNotification* notificationToHandle =
@@ -1046,50 +1046,50 @@
                                         experimentTitle:title2
                                                fireDate:date3
                                             timeOutDate:timeout3];
-  STAssertFalse(notification22 == notificationToHandle, @"pointers should be different");
+  XCTAssertFalse(notification22 == notificationToHandle, @"pointers should be different");
   [self.testManager handleRespondedNotification:notificationToHandle];
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
   scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
-  STAssertEquals([scheduled count],
+  XCTAssertEqual([scheduled count],
                  (NSUInteger)4, @"should have notification22 cancelled");
   index = [scheduled indexOfObject:notification22];
-  STAssertTrue(index != 2, @"should have notification22 cancelled");
-  STAssertFalse([scheduled containsObject:notification22], @"should not contain notification22");
+  XCTAssertTrue(index != 2, @"should have notification22 cancelled");
+  XCTAssertFalse([scheduled containsObject:notification22], @"should not contain notification22");
 
   NSMutableArray* newNotifications2 = [self.testManager.notificationDict objectForKey:experimentId2];
   NSMutableArray* expectNotifications2 = [NSMutableArray arrayWithObjects:notification21,notification23, nil];
-  STAssertTrue([newNotifications2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(newNotifications2, expectNotifications2, @"should successfully delete notification22");
+  XCTAssertTrue([newNotifications2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(newNotifications2, expectNotifications2, @"should successfully delete notification22");
   
   //reset current notificationDict
   self.testManager.notificationDict = nil;
   BOOL success = [self.testManager loadNotificationsFromCache];
-  STAssertTrue(success, @"should be loaded successfully");
-  STAssertEquals([[self.testManager notificationDict] count], (NSUInteger)2,
+  XCTAssertTrue(success, @"should be loaded successfully");
+  XCTAssertEqual([[self.testManager notificationDict] count], (NSUInteger)2,
                  @"should have 2 key-value pairs");
-  STAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]],
+  XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]],
                @"should be a mutable dictionary");
   NSMutableArray* notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
-  STAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(notificationsForExperiment1,notifications1, @"should be loaded correctly");
+  XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(notificationsForExperiment1,notifications1, @"should be loaded correctly");
   NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
-  STAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
-  STAssertEqualObjects(notificationsForExperiment2, expectNotifications2,@"should be loaded correctly");
-  STAssertEquals((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
+  XCTAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
+  XCTAssertEqualObjects(notificationsForExperiment2, expectNotifications2,@"should be loaded correctly");
+  XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
 
 - (void)testActiveNotificationForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testIsNotificationActiveForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testCleanExpiredNotifications {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 @end

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PacoClient.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
@@ -32,7 +32,7 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
 - (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications;
 @end
 
-@interface PacoClientTests : SenTestCase
+@interface PacoClientTests : XCTestCase
 
 @property(nonatomic, strong) PacoClient* client;
 
@@ -51,16 +51,16 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                       options:NSJSONReadingAllowFragments
                                                         error:&error];
-  STAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
                @"esmExperimentTemplate should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
-  STAssertNotNil(definition, @"definition should not be nil!");
+  XCTAssertNotNil(definition, @"definition should not be nil!");
   
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
   experimentInstance.definition = definition;
   experimentInstance.instanceId = definition.experimentId;
-  STAssertNotNil(experimentInstance, @"experimentInstance should not be nil!");
+  XCTAssertNotNil(experimentInstance, @"experimentInstance should not be nil!");
   
   NSMutableArray* definitionList = [NSMutableArray arrayWithObject:definition];
   NSMutableArray* experimentList = [NSMutableArray arrayWithObject:experimentInstance];
@@ -78,35 +78,35 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
 {
   NSString* version = @"7.0.0";
   float floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)7.0, @"version number should be correct.");
-  STAssertTrue(floatVersion >= 7.0, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)7.0, @"version number should be correct.");
+  XCTAssertTrue(floatVersion >= 7.0, @"version number should be correct.");
 
   version = @"7.0.1";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)7.0, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)7.0, @"version number should be correct.");
 
   version = @"7.2.1";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)7.2, @"version number should be correct.");
-  STAssertTrue(floatVersion >= 7.0, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)7.2, @"version number should be correct.");
+  XCTAssertTrue(floatVersion >= 7.0, @"version number should be correct.");
 
   version = @"7.2.0";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)7.2, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)7.2, @"version number should be correct.");
   
   version = @"6.2.3";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)6.2, @"version number should be correct.");
-  STAssertFalse(floatVersion >= 7.0, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)6.2, @"version number should be correct.");
+  XCTAssertFalse(floatVersion >= 7.0, @"version number should be correct.");
   
   version = @"6.0.0";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)6.0, @"version number should be correct.");
-  STAssertFalse(floatVersion >= 7.0, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)6.0, @"version number should be correct.");
+  XCTAssertFalse(floatVersion >= 7.0, @"version number should be correct.");
   
   version = @"6.3.3.6";
   floatVersion = [version floatValue];
-  STAssertEquals(floatVersion, (float)6.3, @"version number should be correct.");
+  XCTAssertEqual(floatVersion, (float)6.3, @"version number should be correct.");
 }
 
 //id: 10948007
@@ -133,26 +133,26 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date2]];
   NSArray* allNotifications = @[timeoutNoti, obsoleteNoti];
   NSArray* events = [self.client eventsFromExpiredNotifications:allNotifications];
-  STAssertEquals([events count], (NSUInteger)2, @"should have 2 events");
+  XCTAssertEqual([events count], (NSUInteger)2, @"should have 2 events");
   PacoEvent* first = [events firstObject];
-  STAssertEqualObjects(first.who, @"testuser@gmail.com", @"should be correct");
-  STAssertEqualObjects(first.experimentId, @"10948007", @"should be correct");
-  STAssertEqualObjects(first.experimentName, @"Notification - ESM Test", @"should be correct");
-  STAssertEquals(first.experimentVersion, 10, @"should be correct");
-  STAssertNil(first.responseTime, @"should be nil");
-  STAssertEqualObjects(first.scheduledTime, date1, @"should be correct");
+  XCTAssertEqualObjects(first.who, @"testuser@gmail.com", @"should be correct");
+  XCTAssertEqualObjects(first.experimentId, @"10948007", @"should be correct");
+  XCTAssertEqualObjects(first.experimentName, @"Notification - ESM Test", @"should be correct");
+  XCTAssertEqual(first.experimentVersion, 10, @"should be correct");
+  XCTAssertNil(first.responseTime, @"should be nil");
+  XCTAssertEqualObjects(first.scheduledTime, date1, @"should be correct");
   
   PacoEvent* last = [events lastObject];
-  STAssertEqualObjects(last.who, @"testuser@gmail.com", @"should be correct");
-  STAssertEqualObjects(last.experimentId, @"10948007", @"should be correct");
-  STAssertEqualObjects(last.experimentName, @"Notification - ESM Test", @"should be correct");
-  STAssertEquals(last.experimentVersion, 10, @"should be correct");
-  STAssertNil(last.responseTime, @"should be nil");
-  STAssertEqualObjects(last.scheduledTime, date2, @"should be correct");
+  XCTAssertEqualObjects(last.who, @"testuser@gmail.com", @"should be correct");
+  XCTAssertEqualObjects(last.experimentId, @"10948007", @"should be correct");
+  XCTAssertEqualObjects(last.experimentName, @"Notification - ESM Test", @"should be correct");
+  XCTAssertEqual(last.experimentVersion, 10, @"should be correct");
+  XCTAssertNil(last.responseTime, @"should be nil");
+  XCTAssertEqualObjects(last.scheduledTime, date2, @"should be correct");
 }
 
 - (void)testNextNotificationsToSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 @end

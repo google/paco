@@ -11,7 +11,6 @@
 		3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3129004116DAAC9D008FF617 /* MapKit.framework */; };
 		319771C9163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
 		319771CB163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
-		319771F0163F0733000AC06B /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771EF163F0733000AC06B /* SenTestingKit.framework */; };
 		319771F1163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
 		319771F2163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
 		31977219163F2655000AC06B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31977218163F2655000AC06B /* CFNetwork.framework */; };
@@ -73,6 +72,7 @@
 		367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
 		367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */; };
 		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
+		368DB0C818EB55D20033DFFF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 368DB0C718EB55D20033DFFF /* Images.xcassets */; };
 		368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */; };
 		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
 		36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B07177A385A005E0C04 /* PacoExperimentInput.m */; };
@@ -153,7 +153,6 @@
 		36B8EBEB17568E29004CF035 /* help_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBAE17568E29004CF035 /* help_focused.png */; };
 		36B8EBEC17568E29004CF035 /* help_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBAF17568E29004CF035 /* help_normal.png */; };
 		36B8EBED17568E29004CF035 /* help_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB017568E29004CF035 /* help_pressed.png */; };
-		36B8EBEE17568E29004CF035 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB117568E29004CF035 /* icon.png */; };
 		36B8EBEF17568E29004CF035 /* list_header_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB217568E29004CF035 /* list_header_background.png */; };
 		36B8EBF017568E29004CF035 /* paco128.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB317568E29004CF035 /* paco128.png */; };
 		36B8EBF117568E29004CF035 /* paco256.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB417568E29004CF035 /* paco256.png */; };
@@ -226,19 +225,6 @@
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		E43DA212185ADDC9007F04F9 /* PacoInfoView.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA211185ADDC9007F04F9 /* PacoInfoView.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
-		E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */; };
-		E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */; };
-		E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */; };
-		E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */; };
-		E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */; };
-		E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */; };
-		E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */ = {isa = PBXBuildFile; fileRef = E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */; };
-		E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */; };
-		E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */; };
-		E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */; };
-		E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */ = {isa = PBXBuildFile; fileRef = E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */; };
-		E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */; };
-		E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */; };
 		E480BE161896F3C700662432 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE141896F3C700662432 /* InfoPlist.strings */; };
 		E480BE201896F3E100662432 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE1E1896F3E100662432 /* Localizable.strings */; };
 		E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */; };
@@ -326,8 +312,7 @@
 		319771C4163F0733000AC06B /* Paco.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		319771C8163F0733000AC06B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		319771CA163F0733000AC06B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		319771EE163F0733000AC06B /* PacoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PacoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		319771EF163F0733000AC06B /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		319771EE163F0733000AC06B /* PacoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PacoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		31977218163F2655000AC06B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		3197721A163F265B000AC06B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		3197721C163F2672000AC06B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -397,6 +382,7 @@
 		367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorTests.m; sourceTree = "<group>"; };
 		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
 		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
+		368DB0C718EB55D20033DFFF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtilityTests.m; sourceTree = "<group>"; };
 		36946B03177A37CE005E0C04 /* PacoExperimentFeedback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentFeedback.h; sourceTree = "<group>"; };
 		36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentFeedback.m; sourceTree = "<group>"; };
@@ -531,7 +517,6 @@
 		36B8EBAE17568E29004CF035 /* help_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = help_focused.png; sourceTree = "<group>"; };
 		36B8EBAF17568E29004CF035 /* help_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = help_normal.png; sourceTree = "<group>"; };
 		36B8EBB017568E29004CF035 /* help_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = help_pressed.png; sourceTree = "<group>"; };
-		36B8EBB117568E29004CF035 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		36B8EBB217568E29004CF035 /* list_header_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = list_header_background.png; sourceTree = "<group>"; };
 		36B8EBB317568E29004CF035 /* paco128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paco128.png; sourceTree = "<group>"; };
 		36B8EBB417568E29004CF035 /* paco256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paco256.png; sourceTree = "<group>"; };
@@ -629,19 +614,6 @@
 		E43DA211185ADDC9007F04F9 /* PacoInfoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInfoView.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
-		E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_76.png; sourceTree = "<group>"; };
-		E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_ipad_152.png; sourceTree = "<group>"; };
-		E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_iphone_120.png; sourceTree = "<group>"; };
-		E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_29.png; sourceTree = "<group>"; };
-		E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_settings_58.png; sourceTree = "<group>"; };
-		E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_40.png; sourceTree = "<group>"; };
-		E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_ios7_spotlight_80.png; sourceTree = "<group>"; };
-		E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x960.png; sourceTree = "<group>"; };
-		E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x1136.png; sourceTree = "<group>"; };
-		E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_768x1024.png; sourceTree = "<group>"; };
-		E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_1024x768.png; sourceTree = "<group>"; };
-		E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_1024x768@2x.png"; sourceTree = "<group>"; };
-		E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
 		E480BE151896F3C700662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		E480BE1F1896F3E100662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
 		E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSubtitleTableCell.h; sourceTree = "<group>"; };
@@ -680,7 +652,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				319771F0163F0733000AC06B /* SenTestingKit.framework in Frameworks */,
 				319771F1163F0733000AC06B /* UIKit.framework in Frameworks */,
 				319771F2163F0733000AC06B /* Foundation.framework in Frameworks */,
 				C5C4F5D317B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
@@ -706,7 +677,7 @@
 			isa = PBXGroup;
 			children = (
 				319771C4163F0733000AC06B /* Paco.app */,
-				319771EE163F0733000AC06B /* PacoTests.octest */,
+				319771EE163F0733000AC06B /* PacoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -726,7 +697,6 @@
 				31977218163F2655000AC06B /* CFNetwork.framework */,
 				319771C8163F0733000AC06B /* UIKit.framework */,
 				319771CA163F0733000AC06B /* Foundation.framework */,
-				319771EF163F0733000AC06B /* SenTestingKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1134,12 +1104,7 @@
 		36B8EB8F17568E22004CF035 /* config */ = {
 			isa = PBXGroup;
 			children = (
-				E46132A218A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png */,
-				E461329418A14342009AFFD9 /* splash_ios_mobile_640x960.png */,
-				E461329518A14342009AFFD9 /* splash_ios_mobile_640x1136.png */,
-				E461329618A14342009AFFD9 /* splash_ios_tablet_768x1024.png */,
-				E461329718A14342009AFFD9 /* splash_ios_tablet_1024x768.png */,
-				E46132A018A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png */,
+				368DB0C718EB55D20033DFFF /* Images.xcassets */,
 				36B8EB9117568E22004CF035 /* Paco-Info.plist */,
 			);
 			path = config;
@@ -1150,13 +1115,6 @@
 			children = (
 				E480BE131896F3C700662432 /* en.lproj */,
 				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
-				E461328618A14328009AFFD9 /* icon_ios7_ipad_76.png */,
-				E461328718A14328009AFFD9 /* icon_ios7_ipad_152.png */,
-				E461328818A14328009AFFD9 /* icon_ios7_iphone_120.png */,
-				E461328918A14328009AFFD9 /* icon_ios7_settings_29.png */,
-				E461328A18A14328009AFFD9 /* icon_ios7_settings_58.png */,
-				E461328B18A14328009AFFD9 /* icon_ios7_spotlight_40.png */,
-				E461328C18A14328009AFFD9 /* icon_ios7_spotlight_80.png */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
@@ -1183,7 +1141,6 @@
 				36B8EBAE17568E29004CF035 /* help_focused.png */,
 				36B8EBAF17568E29004CF035 /* help_normal.png */,
 				36B8EBB017568E29004CF035 /* help_pressed.png */,
-				36B8EBB117568E29004CF035 /* icon.png */,
 				36B8EBB217568E29004CF035 /* list_header_background.png */,
 				36B8EBB317568E29004CF035 /* paco128.png */,
 				36B8EBB417568E29004CF035 /* paco256.png */,
@@ -1470,8 +1427,8 @@
 			);
 			name = PacoTests;
 			productName = PacoTests;
-			productReference = 319771EE163F0733000AC06B /* PacoTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = 319771EE163F0733000AC06B /* PacoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1579,17 +1536,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				36B8EBD517568E29004CF035 /* arrow_icon.png in Resources */,
-				E461328F18A14328009AFFD9 /* icon_ios7_iphone_120.png in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
-				E461329118A14328009AFFD9 /* icon_ios7_settings_58.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
-				E461328D18A14328009AFFD9 /* icon_ios7_ipad_76.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
-				E461329C18A14342009AFFD9 /* splash_ios_tablet_768x1024.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
 				36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */,
@@ -1597,22 +1550,18 @@
 				36B8EBE317568E29004CF035 /* feedback_focused.png in Resources */,
 				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
+				368DB0C818EB55D20033DFFF /* Images.xcassets in Resources */,
 				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
 				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
 				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
-				E461329B18A14342009AFFD9 /* splash_ios_mobile_640x1136.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
 				36B8EBEA17568E29004CF035 /* help_disabled.png in Resources */,
-				E461329A18A14342009AFFD9 /* splash_ios_mobile_640x960.png in Resources */,
 				36B8EBEB17568E29004CF035 /* help_focused.png in Resources */,
 				36B8EBEC17568E29004CF035 /* help_normal.png in Resources */,
 				36B8EBED17568E29004CF035 /* help_pressed.png in Resources */,
-				E461328E18A14328009AFFD9 /* icon_ios7_ipad_152.png in Resources */,
-				36B8EBEE17568E29004CF035 /* icon.png in Resources */,
 				36B8EBEF17568E29004CF035 /* list_header_background.png in Resources */,
 				36B8EBF017568E29004CF035 /* paco128.png in Resources */,
-				E461329018A14328009AFFD9 /* icon_ios7_settings_29.png in Resources */,
 				E480BE161896F3C700662432 /* InfoPlist.strings in Resources */,
 				36B8EBF117568E29004CF035 /* paco256.png in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
@@ -1643,18 +1592,13 @@
 				36B8EC0917568E29004CF035 /* timepicker_input_pressed.9.png in Resources */,
 				36B8EC0A17568E29004CF035 /* timepicker_input_selected.9.png in Resources */,
 				36B8EC0B17568E29004CF035 /* timepicker_up_disabled.9.png in Resources */,
-				E46132A118A146B6009AFFD9 /* splash_ios_tablet_1024x768@2x.png in Resources */,
 				36B8EC0C17568E29004CF035 /* timepicker_up_disabled_focused.9.png in Resources */,
-				E46132A318A146F2009AFFD9 /* splash_ios_tablet_768x1024@2x.png in Resources */,
-				E461329218A14328009AFFD9 /* icon_ios7_spotlight_40.png in Resources */,
 				36B8EC0D17568E29004CF035 /* timepicker_up_normal.9.png in Resources */,
 				36B8EC0E17568E29004CF035 /* timepicker_up_pressed.9.png in Resources */,
 				36B8EC0F17568E29004CF035 /* timepicker_up_selected.9.png in Resources */,
-				E461329318A14328009AFFD9 /* icon_ios7_spotlight_80.png in Resources */,
 				36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */,
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				36B8EC3217568E33004CF035 /* GTMOAuth2ViewTouch.xib in Resources */,
-				E461329D18A14342009AFFD9 /* splash_ios_tablet_1024x768.png in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
 			);
@@ -1953,6 +1897,8 @@
 		31977201163F0733000AC06B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1973,6 +1919,8 @@
 		31977202163F0733000AC06B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1997,13 +1945,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -2014,13 +1962,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
 					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
