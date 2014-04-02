@@ -34,7 +34,7 @@
   @[@"a-0",@"==",@"2",@"||",@"b_1",@"!=",@"4",@"&&",@"(",@"c0",@">=",@"5",@"||",@"d",@"<=",@"8",@")",
     @"&&", @"c", @"contains", @"1"];
   
-  STAssertEqualObjects(tokenList,expectResult, @"tokenize isn't correct!");
+  XCTAssertEqualObjects(tokenList,expectResult, @"tokenize isn't correct!");
 }
 
 
@@ -48,10 +48,10 @@
       processRawExpression:exp1
       withVariableDictionary:variableDict
       andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-    STAssertEqualObjects(finalExpression, @"$a1 == $a10", @"failed to apply $ correctly!");
-    STAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
-    STAssertTrue([dependencyVariables containsObject:@"a1" ], @"dependency should contain a1");
-    STAssertTrue([dependencyVariables containsObject:@"a10"], @"dependency should contain a10");
+    XCTAssertEqualObjects(finalExpression, @"$a1 == $a10", @"failed to apply $ correctly!");
+    XCTAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
+    XCTAssertTrue([dependencyVariables containsObject:@"a1" ], @"dependency should contain a1");
+    XCTAssertTrue([dependencyVariables containsObject:@"a10"], @"dependency should contain a10");
   }];
 }
 
@@ -62,8 +62,8 @@
    processRawExpression:exp1
    withVariableDictionary:variableDict
    andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-     STAssertEqualObjects(finalExpression, @"$a_1 == $a10", @"failed to parse underscore!");
-     STAssertEqualObjects(dependencyVariables, [variableDict allKeys], @"dependency not detected correctly!");
+     XCTAssertEqualObjects(finalExpression, @"$a_1 == $a10", @"failed to parse underscore!");
+     XCTAssertEqualObjects(dependencyVariables, [variableDict allKeys], @"dependency not detected correctly!");
    }];
 }
 
@@ -74,8 +74,8 @@
    processRawExpression:exp1
    withVariableDictionary:variableDict
    andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-     STAssertEqualObjects(finalExpression, @"$a-1 == $a10", @"failed to parse dash!");
-     STAssertEqualObjects(dependencyVariables, [variableDict allKeys], @"dependency not detected correctly!");
+     XCTAssertEqualObjects(finalExpression, @"$a-1 == $a10", @"failed to parse dash!");
+     XCTAssertEqualObjects(dependencyVariables, [variableDict allKeys], @"dependency not detected correctly!");
    }];
 }
 
@@ -86,10 +86,10 @@
    processRawExpression:exp
    withVariableDictionary:variableDict
    andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-     STAssertEqualObjects(finalExpression, @"$a > 9 || $list contains 1", @"failed to process == for list!");
-     STAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
-     STAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
-     STAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
+     XCTAssertEqualObjects(finalExpression, @"$a > 9 || $list contains 1", @"failed to process == for list!");
+     XCTAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
+     XCTAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
+     XCTAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
    }];
 }
 
@@ -100,10 +100,10 @@
    processRawExpression:exp
    withVariableDictionary:variableDict
    andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-     STAssertEqualObjects(finalExpression, @"$a > 9 && not $list contains b", @"failed to process != for list!");
-     STAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
-     STAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
-     STAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
+     XCTAssertEqualObjects(finalExpression, @"$a > 9 && not $list contains b", @"failed to process != for list!");
+     XCTAssertTrue([dependencyVariables count] == 2, @"dependency should have two objects!");
+     XCTAssertTrue([dependencyVariables containsObject:@"a" ], @"dependency should contain a");
+     XCTAssertTrue([dependencyVariables containsObject:@"list"], @"dependency should contain list");
    }];
   
 }
@@ -118,8 +118,8 @@
    processRawExpression:exp1
    withVariableDictionary:variableDict
    andBlock:^(NSString* finalExpression, NSArray* dependencyVariables) {
-     STAssertEqualObjects(finalExpression, @"$a contains 1", @"failed to parse contains!");
-     STAssertEqualObjects(dependencyVariables, @[@"a"], @"dependency not detected correctly!");
+     XCTAssertEqualObjects(finalExpression, @"$a contains 1", @"failed to parse contains!");
+     XCTAssertEqualObjects(dependencyVariables, @[@"a"], @"dependency not detected correctly!");
    }];
 }
 
@@ -134,10 +134,10 @@
       andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
         NSDictionary* dict = @{@"list" : @[@2, @3]};
         BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-        STAssertFalse(satisfied, @"contains doesn't work");
+        XCTAssertFalse(satisfied, @"contains doesn't work");
         dict = @{@"list" : @[@1, @3]};
         satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-        STAssertTrue(satisfied, @"contains doesn't work");
+        XCTAssertTrue(satisfied, @"contains doesn't work");
   }];
 }
 
@@ -151,13 +151,13 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @[@2, @3]};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     XCTAssertTrue(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@1, @3]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     XCTAssertFalse(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@3, @1, @4]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     XCTAssertFalse(satisfied, @"ListNotContains doesn't work");
  }];
 }
 
@@ -171,13 +171,13 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @[@2, @3]};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     XCTAssertTrue(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@1, @3]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     XCTAssertFalse(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@3, @1, @4]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     XCTAssertFalse(satisfied, @"ListNotContains doesn't work");
    }];
 }
 
@@ -192,13 +192,13 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @[@2, @3], @"var" : @0};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     XCTAssertTrue(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@1, @3],  @"var" : @0};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"ListNotContains doesn't work");
+     XCTAssertFalse(satisfied, @"ListNotContains doesn't work");
      dict = @{@"list" : @[@3, @1, @4],  @"var" : @2};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"ListNotContains doesn't work");
+     XCTAssertTrue(satisfied, @"ListNotContains doesn't work");
    }];
 }
 
@@ -213,11 +213,11 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @[@1, @3]};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"Equals shouldn't work");
+     XCTAssertTrue(satisfied, @"Equals shouldn't work");
 
      dict = @{@"list" : @[@2]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"Equals shouldn't work");
+     XCTAssertFalse(satisfied, @"Equals shouldn't work");
    }];
 }
 
@@ -231,11 +231,11 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @[@1, @3]};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"Equals shouldn't work");
+     XCTAssertFalse(satisfied, @"Equals shouldn't work");
      
      dict = @{@"list" : @[@2]};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"Equals shouldn't work");
+     XCTAssertTrue(satisfied, @"Equals shouldn't work");
    }];
 }
 
@@ -250,7 +250,7 @@
    withVariableDictionary:variableDict
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
-     STAssertThrows([predicate evaluateWithObject:nil substitutionVariables:dict],
+     XCTAssertThrows([predicate evaluateWithObject:nil substitutionVariables:dict],
                     @"Can't user contains for NSNumber, since it's not a collection");
    }];
 }
@@ -266,11 +266,11 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be equal to 1");
+     XCTAssertTrue(satisfied, @"list should be equal to 1");
      
      dict = @{@"list" : @2};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should not be equal to 1");
+     XCTAssertFalse(satisfied, @"list should not be equal to 1");
    }];
 }
 
@@ -284,11 +284,11 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should not be equal to 1");
+     XCTAssertFalse(satisfied, @"list should not be equal to 1");
      
      dict = @{@"list" : @2};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should not be equal to 1");
+     XCTAssertTrue(satisfied, @"list should not be equal to 1");
    }];
 }
 
@@ -302,15 +302,15 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be less than 4");
+     XCTAssertTrue(satisfied, @"list should be less than 4");
      
      dict = @{@"list" : @4};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should not be less than 4");
+     XCTAssertFalse(satisfied, @"list should not be less than 4");
 
      dict = @{@"list" : @5};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should not be less than 4");
+     XCTAssertFalse(satisfied, @"list should not be less than 4");
   }];
 }
 
@@ -324,15 +324,15 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be less than or equal to 4");
+     XCTAssertTrue(satisfied, @"list should be less than or equal to 4");
      
      dict = @{@"list" : @4};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be less than or equal to 4");
+     XCTAssertTrue(satisfied, @"list should be less than or equal to 4");
      
      dict = @{@"list" : @5};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should not be less than or equal to 4");
+     XCTAssertFalse(satisfied, @"list should not be less than or equal to 4");
    }];
 }
 
@@ -347,15 +347,15 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should be less than 4");
+     XCTAssertFalse(satisfied, @"list should be less than 4");
      
      dict = @{@"list" : @4};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should be equal to 4");
+     XCTAssertFalse(satisfied, @"list should be equal to 4");
      
      dict = @{@"list" : @5};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be larger than 4");
+     XCTAssertTrue(satisfied, @"list should be larger than 4");
    }];
 }
 
@@ -369,15 +369,15 @@
    andBlock:^(NSPredicate *predicate, NSArray *dependencyVariables) {
      NSDictionary* dict = @{@"list" : @1};
      BOOL satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertFalse(satisfied, @"list should less than 4");
+     XCTAssertFalse(satisfied, @"list should less than 4");
      
      dict = @{@"list" : @4};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should be equal to 4");
+     XCTAssertTrue(satisfied, @"list should be equal to 4");
      
      dict = @{@"list" : @5};
      satisfied = [predicate evaluateWithObject:nil substitutionVariables:dict];
-     STAssertTrue(satisfied, @"list should larger than 4");
+     XCTAssertTrue(satisfied, @"list should larger than 4");
    }];
 }
 

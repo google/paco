@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PacoExperimentScheduleTests : SenTestCase
+@interface PacoExperimentScheduleTests : XCTestCase
 
 @end
 
@@ -32,11 +32,11 @@
 }
 
 - (void)testMinutesPerDayOfESM {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testESMStartTimeOnDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 @end

@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PacoScheduleGenerator+ESM.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
@@ -39,7 +39,7 @@
 
 @end
 
-@interface PacoScheduleGeneratorESMTests : SenTestCase
+@interface PacoScheduleGeneratorESMTests : XCTestCase
 
 @end
 
@@ -56,23 +56,23 @@
 }
 
 - (void)testDatesToScheduleForESMExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testEsmCycleStartDateForSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testNextCycleStartDateForSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testGenerateESMDatesForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testCreateESMScheduleDates {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 

@@ -37,7 +37,7 @@
     int valueA = 5;
     int valueB = 10;
     
-    STAssertTrue(valueA + valueB == 15, @"The expected value of the addition should be 15");
+    XCTAssertTrue(valueA + valueB == 15, @"The expected value of the addition should be 15");
 }
 
 // This method should be running different test suites on the PacoDate object
@@ -68,7 +68,7 @@
     // Keep in mind that pacoStringForDate will convert the datetime to the local timezone of the iOS device
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
-    STAssertEqualObjects([PacoDateUtility pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
+    XCTAssertEqualObjects([PacoDateUtility pacoStringForDate:testDate], [dateFormatter stringFromDate:testDate], @"pacoStringForDate failed");
 }
 
 @end

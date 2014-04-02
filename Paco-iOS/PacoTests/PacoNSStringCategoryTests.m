@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "NSString+Paco.h"
 
 @interface NSString ()
@@ -21,7 +21,7 @@
 @end
 
 
-@interface PacoNSStringCategoryTests : SenTestCase
+@interface PacoNSStringCategoryTests : XCTestCase
 
 @end
 
@@ -39,14 +39,14 @@
 
 - (void)testDocumentDirectory {
   NSString* dir = [NSString pacoDocumentDirectory];
-  STAssertTrue([dir length] > 0, @"should be valid");
+  XCTAssertTrue([dir length] > 0, @"should be valid");
 }
 
 - (void)testFilePathWithName {
   NSString* fullPath = [NSString pacoDocumentDirectoryFilePathWithName:@"notification.plist"];
-  STAssertTrue([fullPath length] > 0, @"should be valid");
+  XCTAssertTrue([fullPath length] > 0, @"should be valid");
   NSString* expectSuffix = @"/Documents/notification.plist";
   BOOL valid = [fullPath hasSuffix:expectSuffix];
-  STAssertTrue(valid, @"should have valid suffix");
+  XCTAssertTrue(valid, @"should have valid suffix");
 }
 @end

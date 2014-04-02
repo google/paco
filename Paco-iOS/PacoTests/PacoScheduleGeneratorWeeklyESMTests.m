@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PacoScheduleGenerator+ESM.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
@@ -50,7 +50,7 @@
  **/
 static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\"description\":\"fdf\",\"informedConsentForm\":\"fda\",\"creator\":\"ymggtest@gmail.com\",\"fixedDuration\":true,\"startDate\":\"2013/11/04\",\"endDate\":\"2013/12/01\",\"id\":12071005,\"questionsChange\":false,\"modifyDate\":\"2013/10/11\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"hello\",\"mandatory\":true,\"responseType\":\"likert\",\"likertSteps\":5,\"leftSideLabel\":\"fda\",\"rightSideLabel\":\"fd\",\"name\":\"Hello\",\"conditional\":false,\"listChoices\":[],\"invisibleInput\":false}],\"feedback\":[{\"id\":12001,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":4,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"minimumBuffer\":1440,\"id\":1,\"scheduleType\":4,\"esmFrequency\":3,\"esmPeriodInDays\":1,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"minimumBuffer\":1440,\"id\":1,\"scheduleType\":4,\"esmFrequency\":3,\"esmPeriodInDays\":1,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[36000000],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}}";
 
-@interface PacoScheduleGeneratorWeeklyESMTests : SenTestCase
+@interface PacoScheduleGeneratorWeeklyESMTests : XCTestCase
 @property(nonatomic, strong) NSDateComponents* comp;
 @property(nonatomic, strong) NSCalendar* calendar;
 @property(nonatomic, strong) PacoExperiment* testExperiment;
@@ -64,7 +64,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
   // Put setup code here; it will be run once, before the first test case.
   self.comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
-  STAssertNotNil(timeZone, @"timezone should be valid");
+  XCTAssertNotNil(timeZone, @"timezone should be valid");
   [self.comp setTimeZone:timeZone];
   
   self.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
@@ -74,10 +74,10 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                       options:NSJSONReadingAllowFragments
                                                         error:&error];
-  STAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
                @"esmExperimentTemplate should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
-  STAssertTrue(definition != nil, @"definition should not be nil!");
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
   
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
@@ -112,7 +112,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
                                                                numOfDates:60
                                                                  fromDate:fromDate];
   int numOfWeeks = 4;
-  STAssertEquals((int)[dates count], 3 * numOfWeeks,
+  XCTAssertEqual((int)[dates count], 3 * numOfWeeks,
                  @"should generate correct number of dates in total");
   
   NSDate* experimentStartDate = [self.testExperiment startDate];
@@ -144,16 +144,16 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
     NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
     
-    STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
                  [first pacoEarlierThanDate:experimentEndDate] &&
                  [second pacoLaterThanDate:experimentStartDate] &&
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
-    STAssertTrue([first pacoEarlierThanDate:second] &&
+    XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
 
-    STAssertTrue(![first pacoIsWeekend] &&
+    XCTAssertTrue(![first pacoIsWeekend] &&
                  ![second pacoIsWeekend] &&
                  ![third pacoIsWeekend], @"shouldn't be weekend");
     
@@ -163,11 +163,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* upperBoundOfSecondBucket = [self.calendar dateByAddingComponents:compOfSecondBucket
                                                                       toDate:cycleStartDate
                                                                      options:0];
-    STAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
                  [first pacoNoLaterThanDate:upperBoundOfFirstBucket], @"should be in bucket");
-    STAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
+    XCTAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
                  [second pacoNoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
-    STAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
+    XCTAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
     
     NSDate* midnight = [first pacoCurrentDayAtMidnight];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfStartTime
@@ -176,7 +176,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                                   toDate:midnight
                                                                  options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
                  [first pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     midnight = [second pacoCurrentDayAtMidnight];
@@ -186,7 +186,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
                  [second pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
 
     midnight = [third pacoCurrentDayAtMidnight];
@@ -196,7 +196,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
                  [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
 
     cycleStartDate = [cycleStartDate pacoDateByAddingDayInterval:7];
@@ -225,7 +225,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
                                                                numOfDates:60
                                                                  fromDate:fromDate];
   int numOfWeeks = 4;
-  STAssertEquals((int)[dates count], 3 * numOfWeeks,
+  XCTAssertEqual((int)[dates count], 3 * numOfWeeks,
                  @"should generate correct number of dates in total");
   
   NSDate* experimentStartDate = [self.testExperiment startDate];
@@ -257,10 +257,10 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
     NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
     
-    STAssertTrue([first pacoEarlierThanDate:second] &&
+    XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
 
-    STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
                  [first pacoEarlierThanDate:experimentEndDate] &&
                  [second pacoLaterThanDate:experimentStartDate] &&
                  [second pacoEarlierThanDate:experimentEndDate] &&
@@ -273,11 +273,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* upperBoundOfSecondBucket = [self.calendar dateByAddingComponents:compOfSecondBucket
                                                                       toDate:cycleStartDate
                                                                      options:0];
-    STAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
                  [first pacoNoLaterThanDate:upperBoundOfFirstBucket], @"should be in bucket");
-    STAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
+    XCTAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
                  [second pacoNoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
-    STAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
+    XCTAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
     
     NSDate* midnight = [first pacoCurrentDayAtMidnight];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfStartTime
@@ -286,7 +286,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                                   toDate:midnight
                                                                  options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
                  [first pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     midnight = [second pacoCurrentDayAtMidnight];
@@ -296,7 +296,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
                  [second pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     midnight = [third pacoCurrentDayAtMidnight];
@@ -306,7 +306,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
                  [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     cycleStartDate = [cycleStartDate pacoDateByAddingDayInterval:7];
@@ -332,7 +332,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
                                                                numOfDates:60
                                                                  fromDate:fromDate];
   int numOfWeeks = 3;
-  STAssertEquals((int)[dates count], 3 * numOfWeeks,
+  XCTAssertEqual((int)[dates count], 3 * numOfWeeks,
                  @"should generate correct number of dates in total");
   
   NSDate* experimentStartDate = [self.testExperiment startDate];
@@ -363,16 +363,16 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* first = [dates objectAtIndex:(weekIndex*3 + 0)];
     NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
     NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
-    STAssertTrue([first pacoEarlierThanDate:second] &&
+    XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     
-    STAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
                  [first pacoEarlierThanDate:experimentEndDate] &&
                  [second pacoLaterThanDate:experimentStartDate] &&
                  [second pacoEarlierThanDate:experimentEndDate] &&
                  [third pacoLaterThanDate:experimentStartDate] &&
                  [third pacoEarlierThanDate:experimentEndDate], @"should be valid");
-    STAssertTrue(![first pacoIsWeekend] &&
+    XCTAssertTrue(![first pacoIsWeekend] &&
                  ![second pacoIsWeekend] &&
                  ![third pacoIsWeekend], @"shouldn't be weekend");
     
@@ -383,11 +383,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* upperBoundOfSecondBucket = [self.calendar dateByAddingComponents:compOfSecondBucket
                                                                       toDate:cycleStartDate
                                                                      options:0];
-    STAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
+    XCTAssertTrue([first pacoLaterThanDate:cycleStartDate] &&
                  [first pacoNoLaterThanDate:upperBoundOfFirstBucket], @"should be in bucket");
-    STAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
+    XCTAssertTrue([second pacoLaterThanDate:upperBoundOfFirstBucket] &&
                  [second pacoNoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
-    STAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
+    XCTAssertTrue([third pacoLaterThanDate:upperBoundOfSecondBucket], @"should be in bucket");
     
     NSDate* midnight = [first pacoCurrentDayAtMidnight];
     NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfStartTime
@@ -396,7 +396,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                                   toDate:midnight
                                                                  options:0];
-    STAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([first pacoLaterThanDate:startTimeForCurrentDay] &&
                  [first pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     midnight = [second pacoCurrentDayAtMidnight];
@@ -406,7 +406,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([second pacoLaterThanDate:startTimeForCurrentDay] &&
                  [second pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
     
     midnight = [third pacoCurrentDayAtMidnight];
@@ -416,42 +416,42 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
     endTimeForCurrentDay = [self.calendar dateByAddingComponents:compOfEndTime
                                                           toDate:midnight
                                                          options:0];
-    STAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
+    XCTAssertTrue([third pacoLaterThanDate:startTimeForCurrentDay] &&
                  [third pacoEarlierThanDate:endTimeForCurrentDay], @"should be valid");
   }
 }
 
 
 - (void)testDatesToScheduleForESMExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testEsmCycleStartDateForSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testNextCycleStartDateForSchedule {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testGenerateESMDatesForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testCreateESMScheduleDates {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testCurrentCycleStartDateFrom {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testEsmCycleStartDateFromScheduledDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testLaterCycleThan {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 @end

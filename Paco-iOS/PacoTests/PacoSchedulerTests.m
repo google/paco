@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PacoSchedulerTests : SenTestCase
+@interface PacoSchedulerTests : XCTestCase
 
 @end
 
@@ -32,7 +32,7 @@
 }
 
 - (void)testStartSchedulingForExperiment {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 

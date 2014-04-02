@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "PacoUtility.h"
 
-@interface PacoUtilityTests : SenTestCase
+@interface PacoUtilityTests : XCTestCase
 
 @end
 
@@ -33,7 +33,7 @@
 }
 
 - (void)testRandomUnsignedInteger {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testRandomIntegersInRange {
@@ -46,12 +46,12 @@
                                          numOfIntegers:totalNum
                                              minBuffer:minBufferMinutes];
     int prev = -1;
-    STAssertEquals((int)[list count], totalNum, @"should generate correct number of integers");
+    XCTAssertEqual((int)[list count], totalNum, @"should generate correct number of integers");
     for (NSNumber* number in list) {
       int num = [number intValue];
-      STAssertTrue(num >= 0, @"should be larger than 0");
-      STAssertTrue(num <= totalMinutes, @"should be smaller than or equal to the upperbound");
-      STAssertTrue(num > prev, @"should be sorted!");
+      XCTAssertTrue(num >= 0, @"should be larger than 0");
+      XCTAssertTrue(num <= totalMinutes, @"should be smaller than or equal to the upperbound");
+      XCTAssertTrue(num > prev, @"should be sorted!");
       prev = num;
     }
   }

@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 
-@interface PacoNSErrorCategoryTests : SenTestCase
+@interface PacoNSErrorCategoryTests : XCTestCase
 
 @end
 
@@ -36,7 +36,7 @@
 - (void)testNilError {
   NSError* error = nil;
   BOOL isFileNotExist = [error pacoIsFileNotExistError];
-  STAssertFalse(isFileNotExist, @"nil error should not be file not exist error");
+  XCTAssertFalse(isFileNotExist, @"nil error should not be file not exist error");
 }
 
 - (void)testFileNotExist {
@@ -45,8 +45,8 @@
   NSData* data = [NSData dataWithContentsOfFile:filePath
                                         options:NSDataReadingMappedIfSafe
                                           error:&error];
-  STAssertNil(data, @"should be nil");
-  STAssertTrue([error pacoIsFileNotExistError], @"should be file not exist error");
+  XCTAssertNil(data, @"should be nil");
+  XCTAssertTrue([error pacoIsFileNotExistError], @"should be file not exist error");
 }
 
 @end
