@@ -36,10 +36,10 @@ NSString* const kTriggerSignal = @"trigger";
 - (id)initWithDictionary:(NSDictionary*)dictionary {
   self = [super init];
   if (self) {
-    _identifier = [NSString stringWithFormat:@"%lld", [[dictionary objectForKey:kID] longLongValue]];
-    _signalType = [dictionary objectForKey:kSignalType];
-    _eventCode = [[dictionary objectForKey:kEventCode] intValue];
-    _delay = [[dictionary objectForKey:kDelay] longLongValue];
+    _identifier = [NSString stringWithFormat:@"%lld", [dictionary[kID] longLongValue]];
+    _signalType = dictionary[kSignalType];
+    _eventCode = [dictionary[kEventCode] intValue];
+    _delay = [dictionary[kDelay] longLongValue];
   }
   return self;
 }
@@ -53,10 +53,10 @@ NSString* const kTriggerSignal = @"trigger";
 
 - (id)serializeToJSON {
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-  [dict setObject:[NSNumber numberWithLongLong:[self.identifier longLongValue]] forKey:kID];
-  [dict setObject:self.signalType forKey:kSignalType];
-  [dict setObject:[NSNumber numberWithInt:self.eventCode] forKey:kEventCode];
-  [dict setObject:[NSNumber numberWithLongLong:self.delay] forKey:kDelay];
+  dict[kID] = @([self.identifier longLongValue]);
+  dict[kSignalType] = self.signalType;
+  dict[kEventCode] = @(self.eventCode);
+  dict[kDelay] = @(self.delay);
   return dict;
 }
 

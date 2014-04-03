@@ -105,7 +105,7 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
              shouldPrintLog:(BOOL)shouldPrintLog{
   XCTAssertTrue([dates count] == esmFrequency, @"dates's count should be equal to esmFrequency");
   
-  NSDate* previous = [dates objectAtIndex:0];
+  NSDate* previous = dates[0];
   
   NSTimeInterval intervalFromStart = [previous timeIntervalSinceDate:esmStartDate];
   double bucketLowerBound = 0;
@@ -120,7 +120,7 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   }
   //esm schedules should be sorted and not duplicate
   for (int index=1; index < [dates count]; index++) {
-    current = [dates objectAtIndex:index];
+    current = dates[index];
     if (shouldPrintLog) {
       NSLog(@"%@", [PacoDateUtility pacoStringForDate:current]);
     }

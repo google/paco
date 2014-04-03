@@ -148,7 +148,7 @@
   [self.window makeKeyAndVisible];
   
   
-  UILocalNotification *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+  UILocalNotification *notification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];
   if (notification) {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
     DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@",

@@ -134,7 +134,7 @@
 
   CGRect layoutRect = CGRectInset(view.bounds, 15, 0);
   layoutRect.size.height -= 60;
-  NSArray *buttons = [NSArray arrayWithObjects:buttonFind, buttonRunningExperiment, publicExperimentButton, buttonCreateExperiment, buttonUserGuide, buttonFeedback, nil];
+  NSArray *buttons = @[buttonFind, buttonRunningExperiment, publicExperimentButton, buttonCreateExperiment, buttonUserGuide, buttonFeedback];
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
@@ -200,7 +200,7 @@
 }
 
 - (void)onInfoSelect:(UIButton *)sender {
-  NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString*)kCFBundleVersionKey];
+  NSString* version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
   UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"Version", nil),version]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)

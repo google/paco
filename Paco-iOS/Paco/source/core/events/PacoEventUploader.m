@@ -101,7 +101,7 @@ static int const kMaxNumOfEventsToUpload = 50;
           
           NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
           for (NSNumber* indexNum in successEventIndexes) {
-            [successEvents addObject:[events objectAtIndex:[indexNum intValue]]];
+            [successEvents addObject:events[[indexNum intValue]]];
           }
           if ([successEvents count] > 0) {
             [self.delegate markEventsComplete:successEvents];

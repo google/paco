@@ -47,7 +47,7 @@
 //remove notification plist from the document directory
 - (void)cleanDocumentDirectory {
   NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  NSString* documentsDirectory = [paths objectAtIndex:0];
+  NSString* documentsDirectory = paths[0];
   NSFileManager* fileMgr = [NSFileManager defaultManager];
   NSArray* filePathArray = [fileMgr contentsOfDirectoryAtPath:documentsDirectory error:nil];
   for (NSString* filename in filePathArray)  {
@@ -125,7 +125,7 @@
                                                fireDate:date5
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval1 sinceDate:date5]];
   NSMutableArray* allNotificationsForExperiment1 = [NSMutableArray arrayWithObjects:noti1, noti2, noti3, noti4, noti5, nil];
-  [notificationDict setObject:allNotificationsForExperiment1 forKey:experimentId1];
+  notificationDict[experimentId1] = allNotificationsForExperiment1;
   
   //set up the second experiment
   NSString* experimentId2 = @"2";
@@ -156,7 +156,7 @@
                                                fireDate:date4
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval2 sinceDate:date4]];
   NSMutableArray* allNotifications2 = [NSMutableArray arrayWithObjects:noti21, noti22, noti23, noti24,nil];
-  [notificationDict setObject:allNotifications2 forKey:experimentId2];
+  notificationDict[experimentId2] = allNotifications2;
   
   self.testManager.notificationDict = notificationDict;
   BOOL success = [self.testManager saveNotificationsToCache];
@@ -168,10 +168,10 @@
   XCTAssertTrue(success, @"should be loaded successfully");
   XCTAssertEqual([[self.testManager notificationDict] count], (NSUInteger)2, @"should have 2 key-value pairs");
   XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
-  NSMutableArray* notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
+  NSMutableArray* notificationsForExperiment1 = [self.testManager notificationDict][experimentId1];
   XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(notificationsForExperiment1,allNotificationsForExperiment1, @"should be loaded correctly");
-  NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
+  NSMutableArray* notificationsForExperiment2 = [self.testManager notificationDict][experimentId2];
   XCTAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(notificationsForExperiment2, allNotifications2,@"should be loaded correctly");
   
@@ -184,7 +184,7 @@
 
   [notificationsForExperiment1 removeObject:notiToRemove];
   NSMutableArray* newNotificationsForExperiment1 = [NSMutableArray arrayWithObjects:noti1, noti2, noti4, noti5, nil];
-  XCTAssertEqualObjects([[self.testManager notificationDict] objectForKey:experimentId1],
+  XCTAssertEqualObjects([self.testManager notificationDict][experimentId1],
                        newNotificationsForExperiment1,
                        @"should be able to remove noti3 successfully");
   
@@ -197,10 +197,10 @@
   XCTAssertTrue(success, @"should be loaded successfully");
   XCTAssertEqual([[self.testManager notificationDict] count], (NSUInteger)1, @"should have 1 key-value pairs");
   XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]], @"should be a mutable dictionary");
-  notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
+  notificationsForExperiment1 = [self.testManager notificationDict][experimentId1];
   XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(notificationsForExperiment1,newNotificationsForExperiment1, @"should be loaded correctly");
-  notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
+  notificationsForExperiment2 = [self.testManager notificationDict][experimentId2];
   XCTAssertNil(notificationsForExperiment2, @"should be nil");
   
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
@@ -259,7 +259,7 @@
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
   NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, activeNoti, scheduledNoti11, scheduledNoti12];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   //set up the second experiment
   experimentId = @"2";
@@ -299,7 +299,7 @@
   NSMutableArray* notificationsToSchedule = [NSMutableArray arrayWithArray:allNotifications];
   allNotifications = @[timeoutNoti1, timeoutNoti2,scheduledNoti21, scheduledNoti22];
   [notificationsToSchedule addObjectsFromArray:allNotifications];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
@@ -369,7 +369,7 @@
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
   NSArray* allNotifications = @[activeNoti, scheduledNoti11, scheduledNoti12];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   //set up the second experiment
   experimentId = @"2";
@@ -394,7 +394,7 @@
   NSMutableArray* notificationsToSchedule = [NSMutableArray arrayWithArray:allNotifications];
   allNotifications = @[scheduledNoti21, scheduledNoti22];
   [notificationsToSchedule addObjectsFromArray:allNotifications];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   XCTAssertEqual((int)[notificationsToSchedule count], 5, @"should have 5 notifications in total");
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
@@ -456,7 +456,7 @@
                                                fireDate:date3
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date3]];
   NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, activeNoti11];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   //set up the second experiment
   experimentId = @"2";
@@ -488,7 +488,7 @@
   NSMutableArray* notificationsToSchedule = [NSMutableArray arrayWithArray:allNotifications];
   allNotifications = @[timeoutNoti1, timeoutNoti2, activeNoti21];
   [notificationsToSchedule addObjectsFromArray:allNotifications];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
@@ -561,7 +561,7 @@
                                             timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:date5]];
   self.scheduled12 = scheduledNoti12;
   NSArray* allNotifications = @[timeoutNoti, obsoleteNoti, scheduledNoti11, scheduledNoti12];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   //set up the second experiment
   experimentId = @"2";
@@ -601,7 +601,7 @@
   NSMutableArray* notificationsToSchedule = [NSMutableArray arrayWithArray:allNotifications];
   allNotifications = @[timeoutNoti1, timeoutNoti2,scheduledNoti21, scheduledNoti22];
   [notificationsToSchedule addObjectsFromArray:allNotifications];
-  [notificationDict setObject:allNotifications forKey:experimentId];
+  notificationDict[experimentId] = allNotifications;
   
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
@@ -705,8 +705,8 @@
                                                                                 fireDate:secondFireDate
                                                                              timeOutDate:secondTimeout];
   NSMutableDictionary* originalDict = [NSMutableDictionary dictionary];
-  [originalDict setObject:[NSMutableArray arrayWithObject:firstNoti] forKey:experimentId1];
-  [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
+  originalDict[experimentId1] = [NSMutableArray arrayWithObject:firstNoti];
+  originalDict[experimentId3] = [NSMutableArray arrayWithObject:secondNoti];
   //There are 2 active notifications inside notificationDict
   self.testManager.notificationDict = originalDict;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
@@ -724,9 +724,9 @@
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification4, notification2, nil];
   NSMutableArray* notifications3 = [NSMutableArray arrayWithObjects:secondNoti, nil];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
-  [expect setObject:notifications3 forKey:experimentId3];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
+  expect[experimentId3] = notifications3;
   
   NSMutableDictionary* result = (NSMutableDictionary*)[self.testManager valueForKey:@"notificationDict"];
   XCTAssertEqualObjects(result, expect,
@@ -803,7 +803,7 @@
                                                                               experimentTitle:title1
                                                                                      fireDate:[notification3 pacoFireDate]
                                                                                   timeOutDate:[notification3 pacoTimeoutDate]];
-  [originalDict setObject:[NSMutableArray arrayWithObjects:firstNoti, duplicateNoti1, nil] forKey:experimentId1];
+  originalDict[experimentId1] = [NSMutableArray arrayWithObjects:firstNoti, duplicateNoti1, nil];
   NSDate* secondFireDate = [NSDate dateWithTimeIntervalSinceNow:-20];
   NSDate* secondTimeout = [NSDate dateWithTimeInterval:timeoutInterval sinceDate:secondFireDate];
   NSString* experimentId3 = @"3";
@@ -813,7 +813,7 @@
                                                                           experimentTitle:title3
                                                                                  fireDate:secondFireDate
                                                                               timeOutDate:secondTimeout];
-  [originalDict setObject:[NSMutableArray arrayWithObject:secondNoti] forKey:experimentId3];
+  originalDict[experimentId3] = [NSMutableArray arrayWithObject:secondNoti];
   self.testManager.notificationDict = originalDict;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
@@ -829,9 +829,9 @@
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:firstNoti, notification3, notification1, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification4, notification2, nil];
   NSMutableArray* notifications3 = [NSMutableArray arrayWithObjects:secondNoti, nil];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
-  [expect setObject:notifications3 forKey:experimentId3];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
+  expect[experimentId3] = notifications3;
   
   NSMutableDictionary* result = (NSMutableDictionary*)[self.testManager valueForKey:@"notificationDict"];
   XCTAssertEqualObjects(result, expect,
@@ -891,8 +891,8 @@
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
   self.testManager.notificationDict = expect;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 2 active notifications");
   [self.testManager handleRespondedNotification:nil];
@@ -956,8 +956,8 @@
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
   self.testManager.notificationDict = expect;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 
@@ -1035,8 +1035,8 @@
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
   self.testManager.notificationDict = expect;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
   
@@ -1057,7 +1057,7 @@
   XCTAssertTrue(index != 2, @"should have notification22 cancelled");
   XCTAssertFalse([scheduled containsObject:notification22], @"should not contain notification22");
 
-  NSMutableArray* newNotifications2 = [self.testManager.notificationDict objectForKey:experimentId2];
+  NSMutableArray* newNotifications2 = (self.testManager.notificationDict)[experimentId2];
   NSMutableArray* expectNotifications2 = [NSMutableArray arrayWithObjects:notification21,notification23, nil];
   XCTAssertTrue([newNotifications2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(newNotifications2, expectNotifications2, @"should successfully delete notification22");
@@ -1070,10 +1070,10 @@
                  @"should have 2 key-value pairs");
   XCTAssertTrue([[self.testManager notificationDict] isKindOfClass:[NSMutableDictionary class]],
                @"should be a mutable dictionary");
-  NSMutableArray* notificationsForExperiment1 = [[self.testManager notificationDict] objectForKey:experimentId1];
+  NSMutableArray* notificationsForExperiment1 = [self.testManager notificationDict][experimentId1];
   XCTAssertTrue([notificationsForExperiment1 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(notificationsForExperiment1,notifications1, @"should be loaded correctly");
-  NSMutableArray* notificationsForExperiment2 = [[self.testManager notificationDict] objectForKey:experimentId2];
+  NSMutableArray* notificationsForExperiment2 = [self.testManager notificationDict][experimentId2];
   XCTAssertTrue([notificationsForExperiment2 isKindOfClass:[NSMutableArray class]], @"should be a mutable array");
   XCTAssertEqualObjects(notificationsForExperiment2, expectNotifications2,@"should be loaded correctly");
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");

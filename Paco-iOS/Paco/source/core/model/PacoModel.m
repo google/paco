@@ -54,7 +54,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 {
   self = [super init];
   if (self) {
-    _experimentDefinitions = [NSArray array];
+    _experimentDefinitions = @[];
     _experimentInstances = [NSMutableArray array];
   }
   return self;

@@ -107,7 +107,7 @@
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
-    tableView.data = [NSArray array];
+    tableView.data = @[];
     [PacoAlertView showGeneralErrorAlert];
   });
 }
@@ -211,10 +211,10 @@
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
-    NSString *key = [keyAndValue objectAtIndex:0];
+    NSString *key = keyAndValue[0];
     assert([key isEqualToString:@"LOADING"]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
-    NSString *loadingText = [keyAndValue objectAtIndex:1];
+    NSString *loadingText = keyAndValue[1];
     loading.loadingText = loadingText;
   }
 }

@@ -35,7 +35,7 @@
   char *dst = malloc([data length] + 1);
   memset(dst, 0, [data length] + 1);
   memcpy(dst, bytes, [data length]);
-  NSString *converted = [NSString stringWithUTF8String:dst];
+  NSString *converted = @(dst);
   free(dst);
   return converted;
 }
@@ -56,8 +56,7 @@
 
 - (void)executePacoServiceCall:(NSMutableURLRequest *)request
              completionHandler:(void (^)(id, NSError *))completionHandler {
-  NSString *version = [[[NSBundle mainBundle] infoDictionary]
-                       objectForKey:(NSString*)kCFBundleVersionKey];
+  NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
   NSAssert([version length] > 0, @"version number is not valid!");
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
   [request setValue:version forHTTPHeaderField:@"paco.version"];
@@ -108,8 +107,8 @@
     if (!error) {
       NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
       if (block) {
-        NSString* cursor = [jsonData objectForKey:@"cursor"];
-        NSArray* results = [jsonData objectForKey:@"results"];
+        NSString* cursor = jsonData[@"cursor"];
+        NSArray* results = jsonData[@"results"];
         block(results, cursor, nil);
       }
     } else {
@@ -171,7 +170,7 @@
     if (error == nil) {
       NSMutableArray* result = [NSMutableArray arrayWithCapacity:[definitionList count]];
       for (NSDictionary* dict in definitionList) {
-        NSNumber* idNum = [dict objectForKey:@"id"];
+        NSNumber* idNum = dict[@"id"];
         NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
         NSString* definitionId = [NSString stringWithFormat:@"%lld", [idNum longLongValue]];
         [result addObject:definitionId];
@@ -254,8 +253,8 @@
                  NSAssert([jsonData isKindOfClass:[NSArray class]], @"jsonData should be an array");
                  for (id output in jsonData) {
                    NSAssert([output isKindOfClass:[NSDictionary class]], @"output should be a NSDictionary!");
-                   if ([output objectForKey:@"errorMessage"] == nil) {
-                     NSNumber* eventIndex = [output objectForKey:@"eventId"];
+                   if (output[@"errorMessage"] == nil) {
+                     NSNumber* eventIndex = output[@"eventId"];
                      NSAssert([eventIndex isKindOfClass:[NSNumber class]], @"eventIndex should be a NSNumber!");
                      [successEventIndexes addObject:eventIndex];
                    }

@@ -152,7 +152,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   layoutRect.size.height = 200;
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
-  NSArray *elements = [NSArray arrayWithObjects:textField, textField2, login, nil];
+  NSArray *elements = @[textField, textField2, login];
   [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];
 }
 

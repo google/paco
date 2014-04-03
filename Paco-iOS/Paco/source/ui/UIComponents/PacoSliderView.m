@@ -99,7 +99,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 - (void)valueChanged:(UISlider *)sliderUI event:(UIEvent *)event {
   float fvalue = sliderUI.value;
   int ivalue = (int)fvalue;
-  self.value = [NSNumber numberWithInt:ivalue];
+  self.value = @(ivalue);
   self.valueLabel.text = [NSString stringWithFormat:_format, (int)sliderUI.value];
   [self.valueLabel sizeToFit];
   [self setNeedsLayout];

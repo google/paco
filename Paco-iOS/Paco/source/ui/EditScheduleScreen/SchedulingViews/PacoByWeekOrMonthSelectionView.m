@@ -23,8 +23,8 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"By Week", nil),
-                         NSLocalizedString(@"By Month", nil), nil];
+    self.optionLabels = @[NSLocalizedString(@"By Week", nil),
+                         NSLocalizedString(@"By Month", nil)];
     self.radioStyle = YES;
   }
   return self;

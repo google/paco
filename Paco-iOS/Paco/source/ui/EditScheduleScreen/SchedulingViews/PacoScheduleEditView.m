@@ -103,30 +103,18 @@ NSString *kCellIdText = @"text";
 + (NSArray *)dataFromExperimentSchedule:(PacoExperimentSchedule *)schedule {
   switch (schedule.scheduleType) {
     case kPacoScheduleTypeDaily:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-              nil];
+      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeWeekly:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-              nil];
+      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeWeekday:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-              nil];
+      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeMonthly:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdSignalTimes, schedule.times, nil],
-              nil];
+      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeESM:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdESMStartTime, [NSNumber numberWithLongLong:schedule.esmStartHour], nil],
-              [NSArray arrayWithObjects:kCellIdESMEndTime, [NSNumber numberWithLongLong:schedule.esmEndHour], nil],
-              nil];
+      return @[@[kCellIdESMStartTime, @(schedule.esmStartHour)],
+              @[kCellIdESMEndTime, @(schedule.esmEndHour)]];
     case kPacoScheduleTypeSelfReport:
-      return [NSArray arrayWithObjects:
-              [NSArray arrayWithObjects:kCellIdText, kCellIdText, nil],
-              nil];
+      return @[@[kCellIdText, kCellIdText]];
     case kPacoScheduleTypeTesting: // TPE special type only used for iOS Notification testing
       return nil;
   }
@@ -137,7 +125,7 @@ NSString *kCellIdText = @"text";
 #pragma mark - PacoTableViewDelegate
 
 - (BOOL)isCellType:(NSString *)cellId reuseId:(NSString *)reuseId {
-  NSString *testCellId = [[reuseId componentsSeparatedByString:@":"] objectAtIndex:0];
+  NSString *testCellId = [reuseId componentsSeparatedByString:@":"][0];
   return [testCellId isEqualToString:cellId];
 }
 

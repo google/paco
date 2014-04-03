@@ -93,7 +93,7 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
     if (error) {
-      tableView.data = [NSArray array];
+      tableView.data = @[];
       [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
                                   message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
                                  delegate:nil
@@ -158,10 +158,10 @@
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
-    NSString *key = [keyAndValue objectAtIndex:0];
+    NSString *key = keyAndValue[0];
     assert([key isEqualToString:@"LOADING"]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
-    NSString *loadingText = [keyAndValue objectAtIndex:1];
+    NSString *loadingText = keyAndValue[1];
     loading.loadingText = loadingText;
   }
 }

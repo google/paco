@@ -19,7 +19,7 @@
 
 - (BOOL)isOfflineError {
   if ([self.domain isEqualToString:NSURLErrorDomain]) {
-    NSError* underlyingError = [self.userInfo objectForKey:NSUnderlyingErrorKey];
+    NSError* underlyingError = (self.userInfo)[NSUnderlyingErrorKey];
     if ([underlyingError.domain isEqualToString:(NSString*)kCFErrorDomainCFNetwork] &&
         underlyingError.code == NSURLErrorNotConnectedToInternet) {
       return YES;
@@ -31,7 +31,7 @@
 
 //error of "No such file or directory"
 - (BOOL)pacoIsFileNotExistError {
-  NSError* underlyingError = [self.userInfo objectForKey:NSUnderlyingErrorKey];
+  NSError* underlyingError = (self.userInfo)[NSUnderlyingErrorKey];
   if ([underlyingError.domain isEqualToString:NSPOSIXErrorDomain]
       && underlyingError.code == ENOENT) {
     return YES;

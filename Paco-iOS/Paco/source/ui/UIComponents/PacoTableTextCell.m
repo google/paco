@@ -24,7 +24,7 @@
 }
 
 + (NSNumber *)heightForData:(id)data {
-  return [NSNumber numberWithInt:50];
+  return @50;
 }
 
 @end

@@ -58,27 +58,25 @@
   id jsonDefinition = [self.definition serializeToJSON];
   id jsonJoinTime = [PacoDateUtility pacoStringForDate:self.joinTime];
   
-  return [NSDictionary dictionaryWithObjectsAndKeys:
-          self.definition.experimentId, @"experimentId",
-          jsonJoinTime, @"joinTime",
-          self.instanceId, @"instanceId",
-          jsonSchedule, @"schedule",
-          jsonDefinition, @"definition",
-          nil];
+  return @{@"experimentId": self.definition.experimentId,
+          @"joinTime": jsonJoinTime,
+          @"instanceId": self.instanceId,
+          @"schedule": jsonSchedule,
+          @"definition": jsonDefinition};
 }
 
 - (void)deserializeFromJSON:(id)json {
   NSAssert([json isKindOfClass:[NSDictionary class]], @"json should be a dictionary");
   self.jsonObject = json;
 
-  self.instanceId = [self.jsonObject objectForKey:@"instanceId"];
-  self.joinTime = [PacoDateUtility pacoDateForString:[self.jsonObject objectForKey:@"joinTime"]];
+  self.instanceId = (self.jsonObject)[@"instanceId"];
+  self.joinTime = [PacoDateUtility pacoDateForString:(self.jsonObject)[@"joinTime"]];
   
-  NSDictionary* jsonSchedule = [self.jsonObject objectForKey:@"schedule"];
+  NSDictionary* jsonSchedule = (self.jsonObject)[@"schedule"];
   self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   NSAssert(self.schedule, @"schedule doesn't exist!");
   
-  NSDictionary* jsonDefinition = [self.jsonObject objectForKey:@"definition"];
+  NSDictionary* jsonDefinition = (self.jsonObject)[@"definition"];
   self.definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonDefinition];
   NSAssert(self.definition, @"definition doesn't exist!");
 }
@@ -127,7 +125,7 @@ static int INVALID_INDEX = -1;
   int index = INVALID_INDEX;
   NSArray* dates = self.schedule.esmScheduleList;
   for (NSUInteger currentIndex = 0; currentIndex < [dates count]; currentIndex++) {
-    NSDate* date = [dates objectAtIndex:currentIndex];
+    NSDate* date = dates[currentIndex];
     if ([date pacoLaterThanDate:fromDate]) {
       index = currentIndex;
       break;

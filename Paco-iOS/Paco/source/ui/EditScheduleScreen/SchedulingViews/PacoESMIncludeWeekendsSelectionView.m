@@ -24,8 +24,8 @@
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.radioStyle = NO;
-    self.bitFlags = [NSNumber numberWithInt:0];
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"Include Weekends", nil), nil];
+    self.bitFlags = @0;
+    self.optionLabels = @[NSLocalizedString(@"Include Weekends", nil)];
   }
   return self;
 }

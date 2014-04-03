@@ -68,7 +68,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
   XCTAssertEqual((int)[scheduled count], 1, @"there should be one notification");
   
-  [UIApplication sharedApplication].scheduledLocalNotifications = [NSArray array];
+  [UIApplication sharedApplication].scheduledLocalNotifications = @[];
   
   scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
   XCTAssertEqual((int)[scheduled count], 0, @"there should be 0 notification");

@@ -80,10 +80,10 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
 
   CGRect layoutRect = CGRectMake(15, 30, view.frame.size.width - 30, buttonBrowseUserGroup.frame.size.height);
   NSArray* array = [PacoLayout splitRectHorizontally:layoutRect numSections:2];
-  NSArray* buttons = [NSArray arrayWithObjects:buttonEmailUserGroup, buttonBrowseUserGroup, nil];
+  NSArray* buttons = @[buttonEmailUserGroup, buttonBrowseUserGroup];
   for (int i = 0; i < [buttons count]; i++) {
-    PacoMenuButton* button = [buttons objectAtIndex:i];
-    NSValue* valueRect = [array objectAtIndex:i];
+    PacoMenuButton* button = buttons[i];
+    NSValue* valueRect = array[i];
     CGRect rect = [valueRect CGRectValue];
     button.frame = rect;
   }
@@ -103,7 +103,7 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
     MFMailComposeViewController* mailer = [[MFMailComposeViewController alloc] init];
     mailer.mailComposeDelegate = self;
     [mailer setSubject:NSLocalizedString(@"Paco Feedback",nil)];
-    NSArray* toRecipients = [NSArray arrayWithObject:@"paco-users@googlegroups.com"];
+    NSArray* toRecipients = @[@"paco-users@googlegroups.com"];
     [mailer setToRecipients:toRecipients];
     [self presentViewController:mailer animated:YES completion:nil];
   }

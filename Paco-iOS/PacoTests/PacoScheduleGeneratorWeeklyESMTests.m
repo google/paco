@@ -140,9 +140,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
   [compOfEndTime setHour:17];
   
   for (int weekIndex=0; weekIndex<numOfWeeks; weekIndex++) {
-    NSDate* first = [dates objectAtIndex:(weekIndex*3 + 0)];
-    NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
-    NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
+    NSDate* first = dates[(weekIndex*3 + 0)];
+    NSDate* second = dates[(weekIndex*3 + 1)];
+    NSDate* third = dates[(weekIndex*3 + 2)];
     
     XCTAssertTrue([first pacoLaterThanDate:experimentStartDate] &&
                  [first pacoEarlierThanDate:experimentEndDate] &&
@@ -253,9 +253,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
   [compOfEndTime setHour:17];
   
   for (int weekIndex=0; weekIndex<numOfWeeks; weekIndex++) {
-    NSDate* first = [dates objectAtIndex:(weekIndex*3 + 0)];
-    NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
-    NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
+    NSDate* first = dates[(weekIndex*3 + 0)];
+    NSDate* second = dates[(weekIndex*3 + 1)];
+    NSDate* third = dates[(weekIndex*3 + 2)];
     
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
@@ -360,9 +360,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification ESM Weekly\",\
   [compOfEndTime setHour:17];
   
   for (int weekIndex=0; weekIndex<numOfWeeks; weekIndex++) {
-    NSDate* first = [dates objectAtIndex:(weekIndex*3 + 0)];
-    NSDate* second = [dates objectAtIndex:(weekIndex*3 + 1)];
-    NSDate* third = [dates objectAtIndex:(weekIndex*3 + 2)];
+    NSDate* first = dates[(weekIndex*3 + 0)];
+    NSDate* second = dates[(weekIndex*3 + 1)];
+    NSDate* third = dates[(weekIndex*3 + 2)];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     

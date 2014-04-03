@@ -23,7 +23,7 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    documentDirectory = [paths objectAtIndex:0];
+    documentDirectory = paths[0];
   });
   return documentDirectory;
 }

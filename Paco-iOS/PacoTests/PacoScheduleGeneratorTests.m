@@ -142,8 +142,8 @@ static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-Fi
   seconds = 44;
   long secondMilliseconds = ((hours*60+minutes)*60+seconds)*1000;
   //09:35:50, 17:23:44
-  self.times = @[[NSNumber numberWithLong:firstMilliseconds],
-                 [NSNumber numberWithLong:secondMilliseconds]];
+  self.times = @[@(firstMilliseconds),
+                 @(secondMilliseconds)];
 }
 
 - (void)tearDown
@@ -189,8 +189,8 @@ static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-Fi
 - (void)testNextScheduledDateForExperiment2 {
   int miliSecondsForMidnight = 0; //12:00:00 am
   int miliSecondsForEndOfDay = (23*60*60 + 59*60)*1000; //23:59:00
-  self.experiment.schedule.times = @[[NSNumber numberWithInt:miliSecondsForMidnight],
-                                     [NSNumber numberWithInt:miliSecondsForEndOfDay]];
+  self.experiment.schedule.times = @[@(miliSecondsForMidnight),
+                                     @(miliSecondsForEndOfDay)];
   
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/20 00:00:00-0700"];
   NSDate* date = [PacoScheduleGenerator nextScheduledDateForExperiment:self.experiment fromThisDate:fromDate];

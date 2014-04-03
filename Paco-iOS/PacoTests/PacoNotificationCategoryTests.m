@@ -321,9 +321,9 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                            self.testExperiment.definition.title];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:self.testExperiment.instanceId forKey:kUserInfoKeyExperimentId];
-    [userInfo setObject:date forKey:kUserInfoKeyNotificationFireDate];
-    [userInfo setObject:timeOutDate forKey:kUserInfoKeyNotificationTimeoutDate];
+    userInfo[kUserInfoKeyExperimentId] = self.testExperiment.instanceId;
+    userInfo[kUserInfoKeyNotificationFireDate] = date;
+    userInfo[kUserInfoKeyNotificationTimeoutDate] = timeOutDate;
 
     UILocalNotification *notification = [[UILocalNotification alloc] init];
     notification.timeZone = [NSTimeZone systemTimeZone];
@@ -352,7 +352,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 - (void)testPacoProcessNotificationsWithNilBlock {
   UILocalNotification* testNoti = [[UILocalNotification alloc] init];
-  [UILocalNotification pacoProcessNotifications:[NSArray arrayWithObject:testNoti] withBlock:nil];
+  [UILocalNotification pacoProcessNotifications:@[testNoti] withBlock:nil];
 }
 
 - (void)testPacoProcessNotificationsWithEmptyNotifications {
@@ -738,8 +738,8 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSArray* notifications1 = @[notification3, notification1];
   NSArray* notifications2 = @[notification4, notification2];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
   
   XCTAssertEqualObjects(result, expect,
                        @"notifications should be put into different buckets according to their "

@@ -131,9 +131,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
 
   for (int dayIndex=0; dayIndex<numOfDays; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:(dayIndex*3 + 0)];
-    NSDate* second = [dates objectAtIndex:(dayIndex*3 + 1)];
-    NSDate* third = [dates objectAtIndex:(dayIndex*3 + 2)];
+    NSDate* first = dates[(dayIndex*3 + 0)];
+    NSDate* second = dates[(dayIndex*3 + 1)];
+    NSDate* third = dates[(dayIndex*3 + 2)];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -214,9 +214,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<numOfDays; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = dates[dayIndex*3 + 2];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -287,9 +287,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = dates[dayIndex*3 + 2];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -366,9 +366,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = dates[dayIndex*3 + 2];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -446,9 +446,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = dates[dayIndex*3 + 2];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -524,9 +524,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSDate* endTime = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
-    NSDate* third = [dates objectAtIndex:dayIndex*3 + 2];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = dates[dayIndex*3 + 2];
     XCTAssertTrue([first pacoEarlierThanDate:second] &&
                  [second pacoEarlierThanDate:third], @"should be sorted");
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
@@ -625,11 +625,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   
   int minBufferSeconds = 120 * 60;
   for (int dayIndex=0; dayIndex<3; dayIndex++) {
-    NSDate* first = [dates objectAtIndex:dayIndex*3 + 0];
-    NSDate* second = [dates objectAtIndex:dayIndex*3 + 1];
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
     NSDate* third = nil;
     if (dayIndex < 2) {
-      third = [dates objectAtIndex:dayIndex*3 + 2];
+      third = dates[dayIndex*3 + 2];
     }
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     XCTAssertTrue([first pacoEarlierThanDate:second], @"should be sorted");

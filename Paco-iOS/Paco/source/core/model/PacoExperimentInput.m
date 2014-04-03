@@ -36,21 +36,21 @@ static NSString* const INPUT_TEXT = @"text";
 + (id)pacoExperimentInputFromJSON:(id)jsonObject {
   PacoExperimentInput *input = [[PacoExperimentInput alloc] init];
   NSDictionary *inputMembers = jsonObject;
-  input.conditional = [[inputMembers objectForKey:INPUT_CONDITIONAL] boolValue];
-  input.conditionalExpression = [inputMembers objectForKey:INPUT_CONDITION_EXPRESSION];
-  input.inputIdentifier = [NSString stringWithFormat:@"%ld", [[inputMembers objectForKey:INPUT_ID] longValue]];
-  input.invisibleInput = [[inputMembers objectForKey:INPUT_INVISIBLE_INPUT] boolValue];
-  input.leftSideLabel = [inputMembers objectForKey:INPUT_LEFT_SIDE_LABEL];
-  input.likertSteps = [[inputMembers objectForKey:INPUT_LIKERT_STEPS] intValue];
-  input.listChoices = [inputMembers objectForKey:INPUT_LIST_CHOICES];
-  input.mandatory = [[inputMembers objectForKey:INPUT_MANDATORY] boolValue];
-  input.multiSelect = [[inputMembers objectForKey:INPUT_MULTI_SELECT] boolValue];
-  input.name = [inputMembers objectForKey:INPUT_NAME];
-  input.questionType = [inputMembers objectForKey:INPUT_QUESTION_TYPE];
-  input.responseType = [inputMembers objectForKey:INPUT_RESPONSE_TYPE];
+  input.conditional = [inputMembers[INPUT_CONDITIONAL] boolValue];
+  input.conditionalExpression = inputMembers[INPUT_CONDITION_EXPRESSION];
+  input.inputIdentifier = [NSString stringWithFormat:@"%ld", [inputMembers[INPUT_ID] longValue]];
+  input.invisibleInput = [inputMembers[INPUT_INVISIBLE_INPUT] boolValue];
+  input.leftSideLabel = inputMembers[INPUT_LEFT_SIDE_LABEL];
+  input.likertSteps = [inputMembers[INPUT_LIKERT_STEPS] intValue];
+  input.listChoices = inputMembers[INPUT_LIST_CHOICES];
+  input.mandatory = [inputMembers[INPUT_MANDATORY] boolValue];
+  input.multiSelect = [inputMembers[INPUT_MULTI_SELECT] boolValue];
+  input.name = inputMembers[INPUT_NAME];
+  input.questionType = inputMembers[INPUT_QUESTION_TYPE];
+  input.responseType = inputMembers[INPUT_RESPONSE_TYPE];
   input.responseEnumType = [PacoExperimentInput responseEnumTypeFromString:input.responseType];
-  input.rightSideLabel = [inputMembers objectForKey:INPUT_RIGHT_SIDE_LABEL];
-  input.text = [inputMembers objectForKey:INPUT_TEXT];
+  input.rightSideLabel = inputMembers[INPUT_RIGHT_SIDE_LABEL];
+  input.text = inputMembers[INPUT_TEXT];
   input.jsonObject = jsonObject;
   return input;
 }
@@ -58,35 +58,35 @@ static NSString* const INPUT_TEXT = @"text";
 
 - (id)serializeToJSON {
   NSMutableDictionary* json = [NSMutableDictionary dictionary];
-  [json setObject:[NSNumber numberWithBool:self.conditional] forKey:INPUT_CONDITIONAL];
+  json[INPUT_CONDITIONAL] = @(self.conditional);
   if (self.conditionalExpression) {
-    [json setObject:self.conditionalExpression forKey:INPUT_CONDITION_EXPRESSION];
+    json[INPUT_CONDITION_EXPRESSION] = self.conditionalExpression;
   }
-  [json setObject:[NSNumber numberWithLongLong:[self.inputIdentifier longLongValue]] forKey:INPUT_ID];
-  [json setObject:[NSNumber numberWithBool:self.invisibleInput] forKey:INPUT_INVISIBLE_INPUT];
+  json[INPUT_ID] = @([self.inputIdentifier longLongValue]);
+  json[INPUT_INVISIBLE_INPUT] = @(self.invisibleInput);
   if (self.leftSideLabel) {
-    [json setObject:self.leftSideLabel forKey:INPUT_LEFT_SIDE_LABEL];
+    json[INPUT_LEFT_SIDE_LABEL] = self.leftSideLabel;
   }
   if (self.likertSteps) {
-    [json setObject:[NSNumber numberWithInteger:self.likertSteps] forKey:INPUT_LIKERT_STEPS];
+    json[INPUT_LIKERT_STEPS] = @(self.likertSteps);
   }
   if (self.listChoices) {
-    [json setObject:self.listChoices forKey:INPUT_LIST_CHOICES];
+    json[INPUT_LIST_CHOICES] = self.listChoices;
   }
-  [json setObject:[NSNumber numberWithBool:self.mandatory] forKey:INPUT_MANDATORY];
-  [json setObject:[NSNumber numberWithBool:self.multiSelect] forKey:INPUT_MULTI_SELECT];
-  [json setObject:self.name forKey:INPUT_NAME];
+  json[INPUT_MANDATORY] = @(self.mandatory);
+  json[INPUT_MULTI_SELECT] = @(self.multiSelect);
+  json[INPUT_NAME] = self.name;
   if (self.questionType) {
-    [json setObject:self.questionType forKey:INPUT_QUESTION_TYPE];
+    json[INPUT_QUESTION_TYPE] = self.questionType;
   }
   if (self.responseType) {
-    [json setObject:self.responseType forKey:INPUT_RESPONSE_TYPE];
+    json[INPUT_RESPONSE_TYPE] = self.responseType;
   }
   if (self.rightSideLabel) {
-    [json setObject:self.rightSideLabel forKey:INPUT_RIGHT_SIDE_LABEL];
+    json[INPUT_RIGHT_SIDE_LABEL] = self.rightSideLabel;
   }
   if (self.text) {
-    [json setObject:self.text forKey:INPUT_TEXT];
+    json[INPUT_TEXT] = self.text;
   }
   return json;
 }
@@ -138,7 +138,7 @@ static NSString* const INPUT_TEXT = @"text";
     unsigned int bitValue = value >> itemIndex;
     NSAssert(bitValue == 1 || bitValue == 0, @"bitValue is not correct!");
     if (bitValue == 1) {
-      [choices addObject:[NSNumber numberWithInt:(itemIndex + 1)]]; //start from 1, not 0
+      [choices addObject:@(itemIndex + 1)]; //start from 1, not 0
     }
   }
   return choices;
@@ -235,13 +235,13 @@ static NSString* const INPUT_TEXT = @"text";
     case ResponseEnumTypeLikertSmileys:
       NSAssert([answerObj isKindOfClass:[NSNumber class]],
                @"The answer to likert_smileys should be a number!");
-      value = [NSNumber numberWithInt:([answerObj intValue] + 1)];
+      value = @([answerObj intValue] + 1);
       break;
       
     case ResponseEnumTypeLikert:
       NSAssert([answerObj isKindOfClass:[NSNumber class]],
                @"The answer to likert should be a number!");
-      value = [NSNumber numberWithInt:([answerObj intValue] + 1)];
+      value = @([answerObj intValue] + 1);
       break;
       
     case ResponseEnumTypeOpenText:  //YMZ:TODO: need to confirm this
@@ -299,7 +299,7 @@ static NSString* const INPUT_TEXT = @"text";
   switch (self.responseEnumType) {
     case ResponseEnumTypeLikertSmileys:
     case ResponseEnumTypeLikert://result starts from 1, not 0
-      payload = [NSNumber numberWithInt:([self.responseObject intValue] + 1)];
+      payload = @([self.responseObject intValue] + 1);
       break;
 
     case ResponseEnumTypeOpenText:

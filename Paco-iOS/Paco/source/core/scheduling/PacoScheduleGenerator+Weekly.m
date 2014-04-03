@@ -108,7 +108,7 @@
   NSArray* weeklyConfigureTable = [experiment.schedule weeklyConfigureTable];
   NSMutableArray* results = [NSMutableArray arrayWithCapacity:7 * [experiment.schedule.times count]];
   for (int dayIndex = 0; dayIndex < kPacoNumOfDaysInWeek; dayIndex++) {
-    BOOL daySelected = [[weeklyConfigureTable objectAtIndex:dayIndex] boolValue];
+    BOOL daySelected = [weeklyConfigureTable[dayIndex] boolValue];
     if (daySelected) {
       NSDate* midnight = [sundayMidnight pacoDateByAddingDayInterval:dayIndex];
       NSArray* dates = [midnight pacoDatesToScheduleWithTimes:experiment.schedule.times

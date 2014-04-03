@@ -66,7 +66,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
       days |= flag;
     }
   }
-  self.bitFlags = [NSNumber numberWithUnsignedInt:days];
+  self.bitFlags = @(days);
   [self.tableDelegate dataUpdated:self rowData:self.bitFlags reuseId:self.reuseId];
   [self reloadDays];
   if ([self.delegate respondsToSelector:@selector(onCheckboxChanged:)]) {
@@ -129,7 +129,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
 }
 
 + (NSNumber *)heightForData:(id)data {
-  return [NSNumber numberWithInt:78];
+  return @78;
 }
 
 - (void)layoutSubviews {
@@ -143,14 +143,14 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
     NSArray *rightSections = [PacoLayout splitRectVertically:right numSections:self.optionLabels.count];
     
     for (int i = 0; i < self.optionLabels.count; ++i) {
-      CGRect leftRect = [[leftSections objectAtIndex:i] CGRectValue];
-      CGRect rightRect = [[rightSections objectAtIndex:i] CGRectValue];
-      UIButton *button = [self.buttons objectAtIndex:i];
+      CGRect leftRect = [leftSections[i] CGRectValue];
+      CGRect rightRect = [rightSections[i] CGRectValue];
+      UIButton *button = (self.buttons)[i];
       button.frame = [PacoLayout leftAlignRect:button.frame.size inRect:leftRect];
   
       //For vertical labels, they should be big enough to show maximum 3 lines of messages
       //and their font should be smaller too
-      UILabel *label = [self.labels objectAtIndex:i];
+      UILabel *label = (self.labels)[i];
       label.frame = CGRectMake(0, 0, 240, 60);
       label.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
       label.numberOfLines = 3;
@@ -165,10 +165,10 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
     NSArray *bottomSections = [PacoLayout splitRectHorizontally:bottom numSections:self.optionLabels.count];
     
     for (int i = 0; i < self.optionLabels.count; ++i) {
-      CGRect topRect = [[topSections objectAtIndex:i] CGRectValue];
-      CGRect bottomRect = [[bottomSections objectAtIndex:i] CGRectValue];
-      UILabel *label = [self.labels objectAtIndex:i];
-      UIButton *button = [self.buttons objectAtIndex:i];
+      CGRect topRect = [topSections[i] CGRectValue];
+      CGRect bottomRect = [bottomSections[i] CGRectValue];
+      UILabel *label = (self.labels)[i];
+      UIButton *button = (self.buttons)[i];
 
       label.frame = [PacoLayout centerRect:label.frame.size inRect:topRect];
       button.frame = [PacoLayout centerRect:button.frame.size inRect:bottomRect];

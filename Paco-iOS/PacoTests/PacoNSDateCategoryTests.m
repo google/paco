@@ -228,7 +228,7 @@
   int seconds = 56;
   long milliseconds = ((hours*60+minutes)*60+seconds)*1000;
   NSDate* futureDate =
-      [testDate pacoTimeFromMidnightWithMilliSeconds:[NSNumber numberWithLong:milliseconds]];
+      [testDate pacoTimeFromMidnightWithMilliSeconds:@(milliseconds)];
   
   NSString* futureStr = @"2013/10/12 13:35:56-0700";
   NSDate* expect = [PacoDateUtility pacoDateForString:futureStr];
@@ -245,7 +245,7 @@
   int seconds = 0;
   long milliseconds = ((hours*60+minutes)*60+seconds)*1000;
   NSDate* futureDate =
-      [testDate pacoTimeFromMidnightWithMilliSeconds:[NSNumber numberWithLong:milliseconds]];
+      [testDate pacoTimeFromMidnightWithMilliSeconds:@(milliseconds)];
   
   NSString* futureStr = @"2013/10/12 00:00:00-0700";
   NSDate* expect = [PacoDateUtility pacoDateForString:futureStr];
@@ -264,8 +264,8 @@
   long secondMilliseconds = ((hours*60+minutes)*60+seconds)*1000;
   
   //09:35:50, 17:23:44
-  NSArray* times = @[[NSNumber numberWithLong:firstMilliseconds],
-                     [NSNumber numberWithLong:secondMilliseconds]];
+  NSArray* times = @[@(firstMilliseconds),
+                     @(secondMilliseconds)];
   NSDate* firstTime = [PacoDateUtility pacoDateForString:@"2013/10/12 09:35:50-0700"];
   NSDate* secondTime = [PacoDateUtility pacoDateForString:@"2013/10/12 17:23:44-0700"];
 
@@ -308,9 +308,9 @@
   long thirdMilliseconds = ((hours*60+minutes)*60+seconds)*1000;
   
   //09:35:50, 12:13:22, 17:23:44
-  NSArray* times = @[[NSNumber numberWithLong:firstMilliseconds],
-                     [NSNumber numberWithLong:secondMilliseconds],
-                     [NSNumber numberWithLong:thirdMilliseconds]];
+  NSArray* times = @[@(firstMilliseconds),
+                     @(secondMilliseconds),
+                     @(thirdMilliseconds)];
   NSDate* firstTime = [PacoDateUtility pacoDateForString:@"2013/10/12 09:35:50-0700"];
   NSDate* secondTime = [PacoDateUtility pacoDateForString:@"2013/10/12 12:13:22-0700"];
   NSDate* thirdTime = [PacoDateUtility pacoDateForString:@"2013/10/12 17:23:44-0700"];

@@ -40,7 +40,7 @@
 
 - (void)onAddTime {
   NSMutableArray *array = [NSMutableArray arrayWithArray:self.times];
-  [array addObject:[NSNumber numberWithLongLong:0]];
+  [array addObject:@0LL];
   self.times = array;
   [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
 }
@@ -60,7 +60,7 @@
   int timeIndex = [self.timeEditButtons indexOfObject:button];
   self.editIndex = timeIndex;
   assert(timeIndex != NSNotFound);
-  NSNumber *time = [self.times objectAtIndex:timeIndex];
+  NSNumber *time = (self.times)[timeIndex];
   [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [self.picker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
 
@@ -76,7 +76,7 @@
 - (void)onDateChange {
   if (_editIndex != NSNotFound) {
     NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
-    [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
+    timesArray[self.editIndex] = [NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)];
     self.times = timesArray;
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
   }
@@ -85,7 +85,7 @@
 - (void)finishTimeSelection {
   NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
   if (_editIndex != NSNotFound) {
-    [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
+    timesArray[self.editIndex] = [NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)];
     self.times = timesArray;
     PacoTableView *pacoTable = [self pacoTableView];
     pacoTable.footer = nil;
@@ -137,7 +137,7 @@
   [self.timePickers removeAllObjects];
 
   if ([self.times count] == 0) {
-    self.times = [NSArray arrayWithObject:[NSDate dateWithTimeIntervalSince1970:0]];
+    self.times = @[[NSDate dateWithTimeIntervalSince1970:0]];
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
     [button setTitle:NSLocalizedString(@"Enter a time", nil) forState:UIControlStateNormal];
     [self addSubview:button];
@@ -195,7 +195,7 @@
 }
 
 + (NSNumber *)heightForData:(id)data {
-  return [NSNumber numberWithInt:340];
+  return @340;
 }
 
 - (void)layoutSubviews {

@@ -25,7 +25,7 @@
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.optionLabels = [NSArray arrayWithObjects:@"1st", @"2nd", @"3rd", @"4th", @"5th", nil];
+    self.optionLabels = @[@"1st", @"2nd", @"3rd", @"4th", @"5th"];
   }
   return self;
 }
@@ -39,7 +39,7 @@
   unsigned int flags = [self.bitFlags unsignedIntValue];
   for (int i = 0; i < self.optionLabels.count; ++i) {
     if (flags & (1<<i)) {
-      return [NSNumber numberWithInt:(i + 1)];
+      return @(i + 1);
     }
   }
   return nil;

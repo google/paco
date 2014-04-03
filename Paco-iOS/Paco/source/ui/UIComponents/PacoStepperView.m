@@ -47,14 +47,14 @@
 
     UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(200, 0, 320, 50)];
     numberToolbar.barStyle = UIBarStyleDefault;
-    numberToolbar.items = [NSArray arrayWithObjects:[[UIBarButtonItem alloc]
+    numberToolbar.items = @[[[UIBarButtonItem alloc]
                         initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                                              target:nil
                                              action:nil],
               [[UIBarButtonItem alloc]initWithTitle:@"Done"
                                               style:UIBarButtonItemStyleBordered
                                              target:self
-                                             action:@selector(cancelNumberPad)],nil];
+                                             action:@selector(cancelNumberPad)]];
     [numberToolbar sizeToFit];
     self.valueLabel.inputAccessoryView = numberToolbar;
 
@@ -108,7 +108,7 @@
 
 - (void)valueChanged:(UIStepper *)stepper {
   long long valueIs = stepper.value;
-  self.value = [NSNumber numberWithLongLong:valueIs];
+  self.value = @(valueIs);
   self.valueLabel.text = [NSString stringWithFormat:_format,valueIs];
   [self.tableDelegate dataUpdated:self
                           rowData:[NSNumber numberWithLongLong:self.stepper.value]
@@ -126,7 +126,7 @@
 #pragma mark--- UITextFieldDelegate
 
 - (void)textFieldDidChange:(UITextField *)textField {
-  self.value = [NSNumber numberWithLongLong:textField.text.longLongValue];
+  self.value = @(textField.text.longLongValue);
   self.valueLabel.text = textField.text;
   self.stepper.value = textField.text.longLongValue;
   [self.tableDelegate dataUpdated:self
@@ -149,7 +149,7 @@ replacementString:(NSString *)string{
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-  self.value =[NSNumber numberWithLongLong:textField.text.longLongValue];
+  self.value =@(textField.text.longLongValue);
   if ([self.delegate respondsToSelector:@selector(onTextFieldEditBegan:)]) {
     [self.delegate onTextFieldEditBegan:textField];
   }

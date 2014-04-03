@@ -60,7 +60,7 @@
   CGSize textSize = [PacoLayout textSizeToFitSize:CGSizeMake(320,480)
                                              text:NSLocalizedString(@"Loading", nil) font:nil];
   CGSize spinnerSize = CGSizeMake(40,40);
-  return [NSNumber numberWithDouble:(10 + textSize.height + 10 + spinnerSize.height + 10)];
+  return @(10 + textSize.height + 10 + spinnerSize.height + 10);
 }
 
 - (void)layoutSubviews {
@@ -69,7 +69,7 @@
   _loadingTextLabel.font = [PacoFont pacoTableCellFont];
 
   NSArray *rowData = self.rowData;
-  self.loadingText = [rowData objectAtIndex:1];
+  self.loadingText = rowData[1];
   _loadingTextLabel.text = self.loadingText;
 
   CGSize textSize = [PacoLayout textSizeToFitSize:self.frame.size text:_loadingText font:[PacoFont pacoTableCellFont]];

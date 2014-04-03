@@ -37,7 +37,7 @@
     if (maxNumOfIntegers <= numOfIntegers) {
       for (int index=0; index<maxNumOfIntegers; index++) {
         int num = index * minBuffer;
-        [randomNumberList addObject:[NSNumber numberWithInt:num]];
+        [randomNumberList addObject:@(num)];
       }
       return randomNumberList;
     }
@@ -62,7 +62,7 @@
     }
     NSAssert(lowerBound <= upperBound, @"lowerBound and upperBound should be valid");
     int randomNum = [PacoUtility randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
-    [randomNumberList addObject:[NSNumber numberWithInt:randomNum]];
+    [randomNumberList addObject:@(randomNum)];
     
     //prepare lowerBound and upperBound for generating next random number
     lowerBound = upperBound;

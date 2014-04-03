@@ -36,7 +36,7 @@
   char *dst = malloc([data length] + 1);
   memset(dst, 0, [data length] + 1);
   memcpy(dst, bytes, [data length]);
-  NSString *converted = [NSString stringWithUTF8String:dst];
+  NSString *converted = @(dst);
   free(dst);
   return converted;
 }

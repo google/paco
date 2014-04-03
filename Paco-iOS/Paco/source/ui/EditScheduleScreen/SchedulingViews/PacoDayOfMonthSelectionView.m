@@ -26,7 +26,7 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.minValue = 1;
     self.maxValue = 30;
-    self.value = [NSNumber numberWithInt:1];
+    self.value = @1;
     self.format = NSLocalizedString(@"Day of Month", nil);
   }
   return self;

@@ -301,7 +301,7 @@
   XCTAssertNil([testArr firstObject], @"should be nil");
   XCTAssertNil([testArr lastObject], @"should be nil");
   
-  testArr = [NSArray array];
+  testArr = @[];
   XCTAssertNil([testArr firstObject], @"should be nil");
   XCTAssertNil([testArr lastObject], @"should be nil");
 }

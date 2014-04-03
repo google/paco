@@ -22,18 +22,18 @@
 + (id)pacoFeedbackFromJSON:(id)jsonObject {
   NSDictionary *feedbackMembers = jsonObject;
   PacoExperimentFeedback *feedback = [[PacoExperimentFeedback alloc] init];
-  feedback.feedbackId = [NSString stringWithFormat:@"%ld", [[feedbackMembers objectForKey:@"id"] longValue]];
-  feedback.type = [feedbackMembers objectForKey:@"feedbackType"];
-  feedback.text = [feedbackMembers objectForKey:@"text"];
+  feedback.feedbackId = [NSString stringWithFormat:@"%ld", [feedbackMembers[@"id"] longValue]];
+  feedback.type = feedbackMembers[@"feedbackType"];
+  feedback.text = feedbackMembers[@"text"];
   feedback.jsonObject = jsonObject;
   return feedback;
 }
 
 - (id)serializeToJSON {
   NSMutableDictionary* json = [NSMutableDictionary dictionary];
-  [json setObject:[NSNumber numberWithLongLong:[self.feedbackId longLongValue]] forKey:@"id"];
-  [json setObject:self.type forKey:@"feedbackType"];
-  [json setObject:self.text forKey:@"text"];
+  json[@"id"] = @([self.feedbackId longLongValue]);
+  json[@"feedbackType"] = self.type;
+  json[@"text"] = self.text;
   return json;
 }
 

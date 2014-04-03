@@ -131,8 +131,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       
       NSMutableDictionary* allEventsDict = [NSMutableDictionary dictionary];
       for (NSString* definitionId in dict) {
-        id events = [dict objectForKey:definitionId];
-        [allEventsDict setObject:[self deserializedEvents:events] forKey:definitionId];
+        id events = dict[definitionId];
+        allEventsDict[definitionId] = [self deserializedEvents:events];
       }
       DDLogInfo(@"Fetched all events.");
       self.eventsDict = allEventsDict;
@@ -176,9 +176,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     
     NSMutableDictionary* jsonDict = [NSMutableDictionary dictionary];
     for (NSString* definitionId in self.eventsDict) {
-      NSMutableArray* eventsArr = [self jsonArrayFromEvents:[self.eventsDict objectForKey:definitionId]];
+      NSMutableArray* eventsArr = [self jsonArrayFromEvents:(self.eventsDict)[definitionId]];
       NSAssert(eventsArr != nil, @"eventsArr should not be nil!");
-      [jsonDict setObject:eventsArr forKey:definitionId];
+      jsonDict[definitionId] = eventsArr;
     }
     [self saveJsonObject:jsonDict toFile:kAllEventsFileName];
   }
@@ -240,7 +240,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark Public API
 - (void)saveEvent:(PacoEvent*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
-  [self saveEvents:[NSArray arrayWithObject:event]];
+  [self saveEvents:@[event]];
 }
 
 - (void)saveEvents:(NSArray*)events {
@@ -257,12 +257,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       NSString* experimentId = event.experimentId;
       NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
       
-      NSMutableArray* currentEvents = [self.eventsDict objectForKey:experimentId];
+      NSMutableArray* currentEvents = (self.eventsDict)[experimentId];
       if (currentEvents == nil) {
         currentEvents = [NSMutableArray array];
       }
       [currentEvents addObject:event];
-      [self.eventsDict setObject:currentEvents forKey:experimentId];
+      (self.eventsDict)[experimentId] = currentEvents;
       
       //add this event to pendingEvent list too
       [self.pendingEvents addObject:event];
