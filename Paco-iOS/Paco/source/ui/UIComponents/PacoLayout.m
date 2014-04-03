@@ -83,7 +83,7 @@
 }
 
 
-+ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(int)numSections {
++ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(NSUInteger)numSections {
   CGFloat width = rect.size.width / (CGFloat)numSections;
   NSMutableArray *array = [NSMutableArray array];
   for (int i = 0; i < numSections; ++i) {
@@ -95,7 +95,7 @@
   return array;
 }
 
-+ (NSArray *)splitRectVertically:(CGRect)rect numSections:(int)numSections {
++ (NSArray *)splitRectVertically:(CGRect)rect numSections:(NSUInteger)numSections {
   CGFloat height = rect.size.height / (CGFloat)numSections;
   NSMutableArray *array = [NSMutableArray array];
   for (int i = 0; i < numSections; ++i) {

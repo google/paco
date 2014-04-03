@@ -56,7 +56,7 @@
   
   void(^responseBlock)(NSArray*, NSString*, NSError*) = ^(NSArray* items, NSString* cursor, NSError* error){
     if (!error) {
-      [self.enumerator updateCursor:cursor numOfResults:[items count]];
+      [self.enumerator updateCursor:cursor numOfResults:(int)[items count]];
       block(items, nil);
     } else {
       block(nil, error);

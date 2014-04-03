@@ -68,7 +68,7 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 
 - (void)submitAllPendingEvents:(NSArray*)allPendingEvents {
-  int totalNumOfEvents = [allPendingEvents count];
+  int totalNumOfEvents = (int)[allPendingEvents count];
   int start = 0;
   int size = MIN(totalNumOfEvents, kMaxNumOfEventsToUpload);
   
@@ -90,13 +90,13 @@ static int const kMaxNumOfEventsToUpload = 50;
         
         if (error) {
           //offline error, authentication error, server 500 error, client 400 error, etc.
-          DDLogError(@"Failed to upload %d events! Error: %@", [events count], [error description]);
+          DDLogError(@"Failed to upload %lu events! Error: %@", [events count], [error description]);
         } else {
           if ([successEventIndexes count] < [events count]) {
-            DDLogError(@"[Error]%d events successfully uploaded, %d events failed!",
-                       [successEventIndexes count], [events count] - [successEventIndexes count]);
+            DDLogError(@"[Error]%lu events successfully uploaded, %lu events failed!",
+                       (unsigned long)[successEventIndexes count], [events count] - [successEventIndexes count]);
           } else {
-            DDLogInfo(@"%d events successfully uploaded!", [successEventIndexes count]);
+            DDLogInfo(@"%lu events successfully uploaded!", (unsigned long)[successEventIndexes count]);
           }
           
           NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];

@@ -151,7 +151,7 @@ static NSString* const INPUT_TEXT = @"text";
     return nil;
   }
   
-  int sizeOfList = [self.listChoices count];
+  int sizeOfList = (int)[self.listChoices count];
   NSArray* choices = [PacoExperimentInput choicesFromBitFlags:(NSNumber*)self.responseObject
                                                    sizeOfList:sizeOfList];
   if (self.multiSelect) {
@@ -191,7 +191,7 @@ static NSString* const INPUT_TEXT = @"text";
           @"inputIdentifier=%@ "
           @"invisibleInput=%d "
           @"leftSideLabel=%@ "
-          @"likertSteps=%d "
+          @"likertSteps=%ld "
           @"listChoices=%@ "
           @"mandatory=%d "
           @"multiSelect=%@ "
@@ -206,7 +206,7 @@ static NSString* const INPUT_TEXT = @"text";
           self.inputIdentifier,
           self.invisibleInput,
           self.leftSideLabel,
-          self.likertSteps,
+          (long)self.likertSteps,
           self.listChoices,
           self.mandatory,
           self.multiSelect ? @"YES" : @"NO",

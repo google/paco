@@ -120,13 +120,13 @@
 }
 
 
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block {
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
   NSString* endPoint = @"/experiments?public";
   if ([cursor length] > 0) {
     endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
   }
   if (limit > 0) {
-    endPoint = [endPoint stringByAppendingFormat:@"&limit=%d", limit];
+    endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
   }
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }

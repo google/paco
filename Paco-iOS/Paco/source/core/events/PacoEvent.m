@@ -86,13 +86,13 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
 
 - (NSString*)description {
   NSString* responseStr = @"[";
-  int numOfResponse = [self.responses count];
+  NSUInteger numOfResponse = [self.responses count];
   int index = 0;
   for (NSDictionary* responseDict in self.responses) {
     responseStr = [responseStr stringByAppendingString:@"{"];
     NSAssert([responseDict isKindOfClass:[NSDictionary class]], @"responseDict should be a dictionary!");
     
-    int numOfKeyValue = [[responseDict allKeys] count];
+    NSUInteger numOfKeyValue = [[responseDict allKeys] count];
     int temp = 0;
     for (NSString* key in responseDict) {
       responseStr = [responseStr stringByAppendingString:key];
