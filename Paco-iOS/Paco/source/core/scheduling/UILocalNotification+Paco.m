@@ -307,7 +307,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   if (!block) {
     return;
   }
-  int totalNumOfNotifications = [notifications count];
+  NSUInteger totalNumOfNotifications = [notifications count];
   if (0 == totalNumOfNotifications) {
     block(nil, nil, nil);
   }

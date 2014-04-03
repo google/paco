@@ -231,8 +231,8 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoSundayInCurrentWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
-  NSUInteger weekdayIndex = [components weekday];
-  int dayOffsetToSunday = weekdayIndex - kSundayIndex;
+  NSInteger weekdayIndex = [components weekday];
+  NSInteger dayOffsetToSunday = weekdayIndex - kSundayIndex;
   NSDate* currentMidnight = [self pacoCurrentDayAtMidnight];
   return [currentMidnight pacoDateByAddingDayInterval:-dayOffsetToSunday];
 }

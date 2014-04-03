@@ -25,7 +25,7 @@
 - (void)purgeCachedNotifications;
 - (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block;
 - (void)addNotifications:(NSArray*)allNotifications;
-- (NSUInteger)totalNumberOfActiveNotifications;
+- (int)totalNumberOfActiveNotifications;
 
 @end
 

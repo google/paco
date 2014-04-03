@@ -181,8 +181,8 @@
     NSAssert([experimentId isKindOfClass:[NSString class]], @"key should be experimentId");
     NSArray* notifications = self[experimentId];
     total += [notifications count];
-    meta = [meta stringByAppendingString:[NSString stringWithFormat:@"[%@: %d],",
-                                          experimentId, [notifications count]]];
+    meta = [meta stringByAppendingString:[NSString stringWithFormat:@"[%@: %lu],",
+                                          experimentId, (unsigned long)[notifications count]]];
     descript = [descript stringByAppendingString:experimentId];
     descript = [descript stringByAppendingString:@":"];
     descript = [descript stringByAppendingString:[notifications pacoDescriptionForNotifications]];

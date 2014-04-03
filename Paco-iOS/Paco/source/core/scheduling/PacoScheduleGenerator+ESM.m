@@ -312,9 +312,9 @@
   }
   NSInteger esmMinutesPerDay = [experimentSchedule minutesPerDayOfESM];
   NSInteger durationMinutes = esmMinutesPerDay * numOfExperimentDaysInCycle;
-  NSArray* randomMinutes = [PacoUtility randomIntegersInRange:durationMinutes
-                                                numOfIntegers:experimentSchedule.esmFrequency
-                                                    minBuffer:minBuffer];
+  NSArray* randomMinutes = [PacoUtility randomIntegersInRange:(unsigned int)durationMinutes
+                                                numOfIntegers:(int)experimentSchedule.esmFrequency
+                                                    minBuffer:(int)minBuffer];
   
   NSDate* esmStartTime = [experimentSchedule esmStartTimeOnDate:cycleStartDate];
   NSMutableArray* randomDateList = [NSMutableArray arrayWithCapacity:experimentSchedule.esmFrequency];
@@ -452,7 +452,8 @@
       //      NSLog(@"%d: upperBound is adjusted to %d", bucketIndex, upperBound);
     }
     //    NSLog(@"low=%d, upper=%d", lowerBound, upperBound);
-    NSUInteger offsetMinutes = [PacoUtility randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
+    NSUInteger offsetMinutes = [PacoUtility randomUnsignedIntegerBetweenMin:(unsigned int)lowerBound
+                                                                     andMax:(unsigned int)upperBound];
     //    NSLog(@"RandomMinutes=%d", offsetMinutes);
     int offsetHours = offsetMinutes / 60.0;
     int offsetDays = offsetHours / hoursPerDay;
