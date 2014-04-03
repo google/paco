@@ -28,7 +28,7 @@
 
 
 + (NSArray*)nextDatesForDailyExperiment:(PacoExperiment*)experiment
-                             numOfDates:(NSInteger)numOfDates
+                             numOfDates:(int)numOfDates
                                fromDate:(NSDate*)fromDate {
   NSAssert(numOfDates > 0, @"numOfDates should be valid!");
   
@@ -47,14 +47,14 @@
     NSAssert(startDate != nil, @"startDate should be valid!");
     NSArray* datesOnStartDate = [startDate pacoDatesToScheduleWithTimes:schedule.times
                                                              andEndDate:experiment.definition.endDate];
-    int currentNumOfDates = [datesOnStartDate count];
+    NSUInteger currentNumOfDates = [datesOnStartDate count];
     //if there are no valid dates to schedule, since we reach the experiment's endDate,
     //then we should just stop here.
     if (0 == currentNumOfDates) {
       break;
     }
     
-    int numOfDatesToAdd = currentNumOfDates;
+    NSUInteger numOfDatesToAdd = currentNumOfDates;
     if (currentNumOfDates > numOfDatesNeeded) {
       numOfDatesToAdd = numOfDatesNeeded;
     }
@@ -95,17 +95,17 @@
   }
   
   //the user joins an experiment after the experiment starts
-  int numOfDaysFromStartDate =
+  NSInteger numOfDaysFromStartDate =
   [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:startDateForAllSchedules toDate:fromDate];
   
   NSAssert(repeatRate >= 1, @"repeatRate should be valid");
-  int repeatTimes = numOfDaysFromStartDate / repeatRate;
-  int extraDays = numOfDaysFromStartDate % repeatRate;
+  NSInteger repeatTimes = numOfDaysFromStartDate / repeatRate;
+  NSInteger extraDays = numOfDaysFromStartDate % repeatRate;
   if (extraDays != 0) {
     repeatTimes++;
   }
   
-  int daysToNewStartDate = repeatTimes * repeatRate;
+  NSInteger daysToNewStartDate = repeatTimes * repeatRate;
   NSAssert(numOfDaysFromStartDate <= daysToNewStartDate,
            @"new start date should either on the same day with fromDate or later than fromDate");
   

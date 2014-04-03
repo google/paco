@@ -19,7 +19,7 @@
 
 
 + (NSArray*)nextDatesByDayOfMonthForExperiment:(PacoExperiment*)experiment
-                                    numOfDates:(NSInteger)numOfDates
+                                    numOfDates:(int)numOfDates
                                       fromDate:(NSDate*)fromDate;
 
 

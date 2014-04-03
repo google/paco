@@ -26,7 +26,7 @@
 @implementation PacoScheduleGenerator (ESM)
 
 + (NSArray*)nextDatesForESMExperiment:(PacoExperiment*)experiment
-                           numOfDates:(NSUInteger)numOfDates
+                           numOfDates:(int)numOfDates
                              fromDate:(NSDate*)fromDate {
   NSAssert(numOfDates > 0, @"numOfDates should be valid!");
   NSAssert(([experiment startDate] && [experiment endDate]) ||
@@ -45,7 +45,7 @@
                                  numOfDates:(NSInteger)numOfDates
                                    fromDate:(NSDate*)fromDate {
   NSArray* datesToSchedule = [experiment ESMSchedulesFromDate:fromDate];
-  int extraNumOfDates = numOfDates - [datesToSchedule count];
+  NSUInteger extraNumOfDates = numOfDates - [datesToSchedule count];
   if (extraNumOfDates > 0) {
     NSArray* extraDates = [self generateESMDatesForExperiment:experiment
                                             minimumNumOfDates:extraNumOfDates
@@ -99,11 +99,11 @@
     if (experimentStartDate == nil ) { //ongoing
       result = [date pacoSundayInCurrentWeek];
     } else { //fixed-length
-      int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
+      NSInteger numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:experimentStartDate
                                                                     toDate:date];
       NSAssert(numOfDays >= 0, @"scheduleDate should be later than experimentStartDate");
       if (numOfDays >= kPacoNumOfDaysInWeek) { //more than a week
-        int weekOffset = numOfDays / kPacoNumOfDaysInWeek;
+        NSInteger weekOffset = numOfDays / kPacoNumOfDaysInWeek;
         result = [experimentStartDate pacoDateByAddingWeekInterval:weekOffset];
       } else {
         result = experimentStartDate;
@@ -290,7 +290,7 @@
   }
   
   int numOfExperimentDaysInCycle = 0;
-  int minBuffer = experimentSchedule.minimumBuffer;
+  NSInteger minBuffer = experimentSchedule.minimumBuffer;
   switch (experimentSchedule.esmPeriod) {
     case kPacoScheduleRepeatPeriodDay:
       numOfExperimentDaysInCycle = 1;
@@ -310,8 +310,8 @@
       NSAssert(NO, @"should never happen");
       return nil;
   }
-  int esmMinutesPerDay = [experimentSchedule minutesPerDayOfESM];
-  int durationMinutes = esmMinutesPerDay * numOfExperimentDaysInCycle;
+  NSInteger esmMinutesPerDay = [experimentSchedule minutesPerDayOfESM];
+  NSInteger durationMinutes = esmMinutesPerDay * numOfExperimentDaysInCycle;
   NSArray* randomMinutes = [PacoUtility randomIntegersInRange:durationMinutes
                                                 numOfIntegers:experimentSchedule.esmFrequency
                                                     minBuffer:minBuffer];
@@ -320,7 +320,7 @@
   NSMutableArray* randomDateList = [NSMutableArray arrayWithCapacity:experimentSchedule.esmFrequency];
   for (NSNumber* minutesNumObj in randomMinutes) {
     NSUInteger offsetMinutes = [minutesNumObj unsignedIntegerValue];
-    int dayOffset = 0;
+    NSInteger dayOffset = 0;
     if (offsetMinutes > esmMinutesPerDay) {
       NSUInteger days = offsetMinutes / esmMinutesPerDay;
       if (offsetMinutes % esmMinutesPerDay != 0) {
@@ -330,7 +330,7 @@
     }
     NSAssert(dayOffset >= 0, @"dayOffset should always be larger than or equal to 0!");
     if (dayOffset != 0 && experimentSchedule.esmPeriod == kPacoScheduleRepeatPeriodDay) {
-      NSAssert1(NO, @"Daily ESM has a day offset of %d!", dayOffset);
+      NSAssert1(NO, @"Daily ESM has a day offset of %ld!", dayOffset);
     }
     
     NSDate* realStartTime = [esmStartTime pacoDateByAddingDayInterval:dayOffset];
@@ -437,12 +437,12 @@
       break;
   }
   
-  int NUM_OF_BUCKETS = experimentSchedule.esmFrequency;
+  NSInteger NUM_OF_BUCKETS = experimentSchedule.esmFrequency;
   NSAssert(NUM_OF_BUCKETS >= 1, @"The number of buckets should be larger than or equal to 1");
   double MINUTES_PER_BUCKET = durationMinutes/((double)NUM_OF_BUCKETS);
   
   NSMutableArray *randomDates = [NSMutableArray array];
-  int lowerBound = 0;
+  NSInteger lowerBound = 0;
   for (int bucketIndex = 1; bucketIndex <= NUM_OF_BUCKETS; ++bucketIndex) {
     int upperBound = MINUTES_PER_BUCKET * bucketIndex;
     int upperBoundByMinBuffer =
@@ -452,7 +452,7 @@
       //      NSLog(@"%d: upperBound is adjusted to %d", bucketIndex, upperBound);
     }
     //    NSLog(@"low=%d, upper=%d", lowerBound, upperBound);
-    int offsetMinutes = [PacoUtility randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
+    NSUInteger offsetMinutes = [PacoUtility randomUnsignedIntegerBetweenMin:lowerBound andMax:upperBound];
     //    NSLog(@"RandomMinutes=%d", offsetMinutes);
     int offsetHours = offsetMinutes / 60.0;
     int offsetDays = offsetHours / hoursPerDay;
@@ -473,7 +473,7 @@
     [randomDates addObject:date];
     
     lowerBound = upperBound;
-    int lowestBoundForNextSchedule = offsetMinutes + experimentSchedule.minimumBuffer;
+    NSInteger lowestBoundForNextSchedule = offsetMinutes + experimentSchedule.minimumBuffer;
     if (lowerBound < lowestBoundForNextSchedule) {
       lowerBound = lowestBoundForNextSchedule;
       //      NSLog(@"%d: lowerBound is adjusted to %d", bucketIndex, lowestBoundForNextSchedule);

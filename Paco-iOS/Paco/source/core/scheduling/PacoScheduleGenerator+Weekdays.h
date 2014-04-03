@@ -19,7 +19,7 @@
 
 
 + (NSArray*)nextDatesForWeekdaysExperiment:(PacoExperiment*)experiment
-                                numOfDates:(NSInteger)numOfDates
+                                numOfDates:(int)numOfDates
                                   fromDate:(NSDate*)fromDate;
 
 @end

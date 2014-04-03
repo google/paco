@@ -57,7 +57,7 @@
 }
 
 - (void)onEdit:(UIButton *)button {
-  int timeIndex = [self.timeEditButtons indexOfObject:button];
+  NSUInteger timeIndex = [self.timeEditButtons indexOfObject:button];
   self.editIndex = timeIndex;
   assert(timeIndex != NSNotFound);
   NSNumber *time = (self.times)[timeIndex];

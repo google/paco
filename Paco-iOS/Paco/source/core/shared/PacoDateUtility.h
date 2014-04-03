@@ -32,7 +32,7 @@
 + (NSString*)timeStringAMPMFromMilliseconds:(long long)milliSeconds;
 
 + (NSUInteger)dayIndexOfDate:(NSDate *)date;
-+ (NSInteger)weekdayIndexOfDate:(NSDate *)date;
++ (int)weekdayIndexOfDate:(NSDate *)date;
 + (NSInteger)weekOfYearIndexOfDate:(NSDate *)date;
 + (NSInteger)monthOfYearIndexOfDate:(NSDate *)date;
 + (NSDate *)midnightThisDate:(NSDate *)date;

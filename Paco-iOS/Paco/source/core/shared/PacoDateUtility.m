@@ -140,10 +140,10 @@
   return day - 1;
 }
 
-+ (NSInteger)weekdayIndexOfDate:(NSDate *)date {
++ (int)weekdayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:date];
-  NSInteger weekday = [components weekday];
+  int weekday = (int)[components weekday];
   return weekday - 1;
 }
 

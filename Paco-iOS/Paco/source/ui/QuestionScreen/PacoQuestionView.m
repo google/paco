@@ -488,8 +488,7 @@ UIImagePickerControllerDelegate>
   } else if (question.responseEnumType == ResponseEnumTypeOpenText) {
   } else if (question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
-    int numChoices = question.listChoices.count;
-    return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
+    return [NSNumber numberWithInt:(question.listChoices.count * 60) + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeNumber) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeLocation) {
