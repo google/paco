@@ -127,8 +127,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
       return YES;
     }
   }
-  DDLogInfo(@"There are %d running experiments, none of them should schedule notifications.",
-            [self.experimentInstances count]);
+  DDLogInfo(@"There are %lu running experiments, none of them should schedule notifications.",
+            (unsigned long)[self.experimentInstances count]);
   return NO;
 }
 
@@ -362,7 +362,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
   [self applyInstanceJSON:jsonObj];
   NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
-  DDLogInfo(@"Loaded %d instances from file \n", [self.jsonObjectInstances count]);
+  DDLogInfo(@"Loaded %lu instances from file \n", (unsigned long)[self.jsonObjectInstances count]);
   return nil;
 }
 

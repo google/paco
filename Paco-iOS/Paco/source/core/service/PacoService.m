@@ -240,7 +240,7 @@
                                                        error:&jsonError];
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-  [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]
+  [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[jsonData length]]
  forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
   
