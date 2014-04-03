@@ -190,7 +190,7 @@
 		36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBD417568E29004CF035 /* uicheckbox_unchecked.png */; };
 		36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC1717568E33004CF035 /* GTMNSString+URLArguments.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC2E17568E33004CF035 /* GTMHTTPFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC1C17568E33004CF035 /* GTMHTTPFetcher.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC1F17568E33004CF035 /* GTMOAuth2Authentication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC1F17568E33004CF035 /* GTMOAuth2Authentication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc -w"; }; };
 		36B8EC3017568E33004CF035 /* GTMOAuth2SignIn.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2117568E33004CF035 /* GTMOAuth2SignIn.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3117568E33004CF035 /* GTMOAuth2ViewControllerTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2417568E33004CF035 /* GTMOAuth2ViewControllerTouch.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3217568E33004CF035 /* GTMOAuth2ViewTouch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC2517568E33004CF035 /* GTMOAuth2ViewTouch.xib */; };
