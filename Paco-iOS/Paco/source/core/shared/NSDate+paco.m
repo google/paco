@@ -274,16 +274,7 @@ static NSUInteger kSaturdayIndex = 7;
 }
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight {
-  NSCalendar *calendar = [NSCalendar currentCalendar];
-  NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
-  NSUInteger weekdayIndex = [components weekday];
-  NSUInteger intervalForFutureDay = 1; //next day
-  if (weekdayIndex == kFridayIndex) { //next monday
-    intervalForFutureDay = 3;
-  } else if (weekdayIndex == kSaturdayIndex){ //next monday
-    intervalForFutureDay = 2;
-  }
-  return [self pacoDateAtMidnightByAddingDayInterval:intervalForFutureDay];
+  return [[self pacoNearestNonWeekendDate] pacoCurrentDayAtMidnight];
 }
 
 - (NSDate*)pacoNearestNonWeekendDate {
@@ -302,12 +293,8 @@ static NSUInteger kSaturdayIndex = 7;
 //intervalDays should be larger than or equal to 0
 - (NSDate*)pacoDateAtMidnightByAddingDayInterval:(NSInteger)intervalDays {
   NSAssert(intervalDays >= 0, @"intervalDays should be larger than or equal to 0");
-  
-  NSDate* midnightDate = [self pacoCurrentDayAtMidnight];
-  NSCalendar* calendar = [NSCalendar currentCalendar];
-  NSDateComponents* dayComponents = [[NSDateComponents alloc] init];
-  dayComponents.day = intervalDays;
-  return [calendar dateByAddingComponents:dayComponents toDate:midnightDate options:0];
+  NSDate* futureDay = [self pacoDateByAddingDayInterval:intervalDays];
+  return [futureDay pacoCurrentDayAtMidnight];
 }
 
 - (NSDate*)pacoDateByAddingDayInterval:(NSInteger)intervalDays {
