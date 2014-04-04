@@ -330,7 +330,7 @@
     }
     NSAssert(dayOffset >= 0, @"dayOffset should always be larger than or equal to 0!");
     if (dayOffset != 0 && experimentSchedule.esmPeriod == kPacoScheduleRepeatPeriodDay) {
-      NSAssert1(NO, @"Daily ESM has a day offset of %ld!", dayOffset);
+      NSAssert1(NO, @"Daily ESM has a day offset of %ld!", (long)dayOffset);
     }
     
     NSDate* realStartTime = [esmStartTime pacoDateByAddingDayInterval:dayOffset];

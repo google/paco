@@ -151,7 +151,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       if (events != nil) {
         pendingEvents = [self deserializedEvents:events];
       }
-      DDLogInfo(@"Fetched %lu pending events.", [pendingEvents count]);
+      DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
       self.pendingEvents = pendingEvents;
     }
   }

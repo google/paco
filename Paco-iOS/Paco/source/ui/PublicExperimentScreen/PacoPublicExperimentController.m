@@ -183,7 +183,7 @@
   }
   NSDictionary* dict = (self.definitions)[indexPath.row];
   NSAssert([dict isKindOfClass:[NSDictionary class]], @"definition should be a dictionary");
-  cell.textLabel.text = [NSString stringWithFormat:@"%ld. %@", indexPath.row + 1, dict[@"title"]];
+  cell.textLabel.text = [NSString stringWithFormat:@"%ld. %@", (long)(indexPath.row + 1), dict[@"title"]];
   cell.detailTextLabel.text = dict[@"creator"];
   return cell;
 }
