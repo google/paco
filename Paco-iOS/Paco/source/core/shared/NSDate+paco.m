@@ -286,7 +286,7 @@ static NSUInteger kSaturdayIndex = 7;
   return [self pacoDateAtMidnightByAddingDayInterval:intervalForFutureDay];
 }
 
-- (NSDate*)pacoDateInFutureBySkippingWeekends {
+- (NSDate*)pacoNearestNonWeekendDate {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
   NSUInteger weekdayIndex = [components weekday];

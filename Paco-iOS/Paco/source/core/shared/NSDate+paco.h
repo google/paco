@@ -62,7 +62,7 @@
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight;
 
-- (NSDate*)pacoDateInFutureBySkippingWeekends;
+- (NSDate*)pacoNearestNonWeekendDate;
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
 
