@@ -93,7 +93,7 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
 }
 
 + (NSNumber *)heightForData:(id)data {
-  return [NSNumber numberWithInt:kSliderViewHeight];
+  return @(kSliderViewHeight);
 }
 
 - (void)valueChanged:(UISlider *)sliderUI event:(UIEvent *)event {

@@ -29,7 +29,7 @@ typedef void(^PacoPaginatedResponseBlock)(NSArray* items, NSString* cursor, NSEr
 @property (nonatomic, retain) PacoAuthenticator *authenticator;
 
 
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block;
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block;
 
 - (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock;
 

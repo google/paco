@@ -244,7 +244,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   }
   NSArray* eventList = [self eventsFromExpiredNotifications:expiredNotifications];
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
-  DDLogInfo(@"Save %d notification expired events", [eventList count]);
+  DDLogInfo(@"Save %lu notification expired events", (unsigned long)[eventList count]);
   [self.eventManager saveEvents:eventList];
 }
 
@@ -276,7 +276,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSArray*)nextNotificationsToSchedule {
-  int numOfRunningExperiments = [self.model.experimentInstances count];
+  NSUInteger numOfRunningExperiments = [self.model.experimentInstances count];
   NSMutableArray* allNotifications =
       [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
   
@@ -296,13 +296,13 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //we need to store generated esm schedules inside experiment plist
   [self.model saveExperimentInstancesToFile];
   
-  int numOfNotifications = [allNotifications count];
+  NSUInteger numOfNotifications = [allNotifications count];
   if (0 == numOfNotifications) {
     return nil;
   }
   //sort all dates and return the first 60
   [allNotifications pacoSortLocalNotificationsByFireDate];
-  int endIndex = kTotalNumOfNotifications;
+  NSUInteger endIndex = kTotalNumOfNotifications;
   if (numOfNotifications < kTotalNumOfNotifications) {
     endIndex = numOfNotifications;
   }
@@ -559,7 +559,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
-  DDLogInfo(@"Fetched %d definitions from server", [definitions count]);
+  DDLogInfo(@"Fetched %lu definitions from server", (unsigned long)[definitions count]);
   [self.model applyDefinitionJSON:definitions];
   [self.model saveExperimentDefinitionsToFile];
 }

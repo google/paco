@@ -27,22 +27,22 @@
       [NSMutableDictionary dictionaryWithObjectsAndKeys:
           @(self.byDayOfMonth), @"byDayOfMonth",
           @(self.byDayOfWeek), @"byDayOfWeek",
-          [NSNumber numberWithInt:self.dayOfMonth], @"dayOfMonth",
+          @(self.dayOfMonth), @"dayOfMonth",
           @(self.esmEndHour), @"esmEndHour",
-          [NSNumber numberWithInt:self.esmFrequency], @"esmFrequency",
+          @(self.esmFrequency), @"esmFrequency",
           @(self.esmPeriodInDays), @"esmPeriodInDays",
           @(self.esmStartHour), @"esmStartHour",
           @(self.esmWeekends), @"esmWeekends",
           @([self.scheduleId longLongValue]), @"id",
-          [NSNumber numberWithInt:self.nthOfMonth], @"nthOfMonth",
+          @(self.nthOfMonth), @"nthOfMonth",
           @(self.repeatRate), @"repeatRate",
           
-          [NSNumber numberWithInt:self.timeout], @"timeout",
-          [NSNumber numberWithInt:self.minimumBuffer], @"minimumBuffer",
-          [NSNumber numberWithInt:self.scheduleType], @"scheduleType",
+          @(self.timeout), @"timeout",
+          @(self.minimumBuffer), @"minimumBuffer",
+          @(self.scheduleType), @"scheduleType",
           self.times, @"times",
           @(self.userEditable), @"userEditable",
-          [NSNumber numberWithInt:self.weekDaysScheduled], @"weekDaysScheduled",
+          @(self.weekDaysScheduled), @"weekDaysScheduled",
           nil];
   
   if ([self.esmScheduleList count] > 0) {
@@ -130,40 +130,40 @@
   return [NSString stringWithFormat:@"<PacoExperimentSchedule:%p - "
           @"byDayOfMonth=%d "
           @"byDayOfWeek=%d "
-          @"dayOfMonth=%d "
+          @"dayOfMonth=%ld "
           @"esmStartHour=%@ "
           @"esmEndHour=%@ "
-          @"esmMinBuffer=%d "
-          @"esmFrequency=%d "
+          @"esmMinBuffer=%ld "
+          @"esmFrequency=%ld "
           @"esmPeriodInDays=%lld "
           @"esmPeriod=%@ "
           @"esmWeekends=%d "
           @"scheduleId=%@ "
-          @"nthOfMonth=%d "
-          @"repeatRate=%d "
+          @"nthOfMonth=%ld "
+          @"repeatRate=%ld "
           @"scheduleType=%d "
           @"times=%@ "
-          @"timeout=%d "
-          @"minimumBuffer=%d "
+          @"timeout=%ld "
+          @"minimumBuffer=%ld "
           @"weekDaysScheduled=%@ >",
           self,
           self.byDayOfMonth,
           self.byDayOfWeek,
-          self.dayOfMonth,
+          (long)self.dayOfMonth,
           [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour],
           [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour],
-          self.minimumBuffer,
-          self.esmFrequency,
+          (long)self.minimumBuffer,
+          (long)self.esmFrequency,
           self.esmPeriodInDays,
           [self periodString],
           self.esmWeekends,
           self.scheduleId,
-          self.nthOfMonth,
-          self.repeatRate,
+          (long)self.nthOfMonth,
+          (long)self.repeatRate,
           self.scheduleType,
           [self.times pacoDescriptionForTimeNumbers],
-          self.timeout,
-          self.minimumBuffer,
+          (long)self.timeout,
+          (long)self.minimumBuffer,
           [self weekDaysScheduledString],
           nil];
 }
@@ -268,18 +268,18 @@
   [json appendFormat:@"type = %@,", [self typeString]];
   
   if (self.scheduleType == kPacoScheduleTypeESM) {
-    [json appendFormat:@"frequency = %d,", self.esmFrequency];
+    [json appendFormat:@"frequency = %ld,", (long)self.esmFrequency];
     [json appendFormat:@"esmPeriod = %@,", [self periodString]];
     [json appendFormat:@"startHour = %@,", [PacoDateUtility timeStringFromMilliseconds:self.esmStartHour]];
     [json appendFormat:@"endHour = %@,", [PacoDateUtility timeStringFromMilliseconds:self.esmEndHour]];
     [json appendFormat:@"weekends = %@,", self.esmWeekends ? @"true" : @"false"];
   }
   [json appendFormat:@"times = %@,", [self.times pacoDescriptionForTimeNumbers]];
-  [json appendFormat:@"repeatRate = %d,", self.repeatRate];
+  [json appendFormat:@"repeatRate = %ld,", (long)self.repeatRate];
   [json appendFormat:@"daysOfWeek = %@,", [self weekDaysScheduledString]];
-  [json appendFormat:@"nthOfMonth = %d,", self.nthOfMonth];
+  [json appendFormat:@"nthOfMonth = %ld,", (long)self.nthOfMonth];
   [json appendFormat:@"byDayOfMonth = %@,", self.byDayOfMonth ? @"true" : @"false"];
-  [json appendFormat:@"dayOfMonth = %d", self.dayOfMonth];
+  [json appendFormat:@"dayOfMonth = %ld", (long)self.dayOfMonth];
   [json appendString:@"}"];
   return json;
 }

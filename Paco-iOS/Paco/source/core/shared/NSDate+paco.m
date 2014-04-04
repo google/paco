@@ -231,8 +231,8 @@ static NSUInteger kSaturdayIndex = 7;
 - (NSDate*)pacoSundayInCurrentWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
-  NSUInteger weekdayIndex = [components weekday];
-  int dayOffsetToSunday = weekdayIndex - kSundayIndex;
+  NSInteger weekdayIndex = [components weekday];
+  NSInteger dayOffsetToSunday = weekdayIndex - kSundayIndex;
   NSDate* currentMidnight = [self pacoCurrentDayAtMidnight];
   return [currentMidnight pacoDateByAddingDayInterval:-dayOffsetToSunday];
 }
@@ -264,10 +264,10 @@ static NSUInteger kSaturdayIndex = 7;
   return weekdayIndex == kSundayIndex || weekdayIndex == kSaturdayIndex;
 }
 
-- (NSUInteger)pacoIndexInWeek {
+- (int)pacoIndexInWeek {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:self];
-  NSUInteger weekdayIndex = [components weekday];
+  int weekdayIndex = (int)[components weekday];
   NSAssert(weekdayIndex >= kSundayIndex && weekdayIndex <= kSaturdayIndex,
            @"weekday index should be between 1 and 7");
   return weekdayIndex;
@@ -363,21 +363,21 @@ static NSUInteger kSaturdayIndex = 7;
   return sameDayNextMonth;
 }
 
-- (NSUInteger)pacoNumOfDaysInCurrentMonth {
+- (int)pacoNumOfDaysInCurrentMonth {
   NSDate* sameDayNextMonth = [self pacoDateByAddingMonthInterval:1];
-  int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:self toDate:sameDayNextMonth];
+  int numOfDays = (int)[[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:self toDate:sameDayNextMonth];
   NSAssert(numOfDays >= 28 && numOfDays <= 31, @"numOfDays should be valid");
   return numOfDays;
 }
 
-- (NSUInteger)pacoNumOfWeekdaysInCurrentMonth {
+- (int)pacoNumOfWeekdaysInCurrentMonth {
   NSDate* startDate = [self pacoCurrentDayAtMidnight];
   NSDate* sameDayNextMonth = [startDate pacoDateByAddingMonthInterval:1];
-  int numOfDays = [[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:startDate
+  int numOfDays = (int)[[NSCalendar pacoGregorianCalendar] pacoDaysFromDate:startDate
                                                                 toDate:sameDayNextMonth];
   NSAssert(numOfDays >= 28 && numOfDays <= 31, @"numOfDays should be valid");
   NSDate* date = nil;
-  NSUInteger count = 0;
+  int count = 0;
   for(int dayIndex = 0; dayIndex < numOfDays; dayIndex++) {
     date = [startDate pacoDateByAddingDayInterval:dayIndex];
     if (![date pacoIsWeekend]) {

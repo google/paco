@@ -24,7 +24,7 @@
 @implementation PacoScheduleGenerator (MonthlyByDayOfWeek)
 
 + (NSArray*)nextDatesByDayOfWeekForExperiment:(PacoExperiment*)experiment
-                                   numOfDates:(NSInteger)numOfDates
+                                   numOfDates:(int)numOfDates
                                      fromDate:(NSDate*)fromDate {
   NSDate* adjustedGenerateTime = [self adjustedGenerateTime:fromDate forExperiment:experiment];
   NSDate* monthToSchedule = [self firstMonthAbleToScheduleByDayOfWeekExperiment:experiment
@@ -36,7 +36,7 @@
     NSArray* dates = [self datesForMonth:monthToSchedule
                    byDayOfWeekExperiment:experiment
                             generateTime:adjustedGenerateTime];
-    int numOfCurrentDates = [dates count];
+    int numOfCurrentDates = (int)[dates count];
     if (0 == numOfCurrentDates) {
       break;
     }
@@ -54,11 +54,11 @@
 + (NSDate*)firstMonthAbleToScheduleByDayOfWeekExperiment:(PacoExperiment*)experiment
                                             generateTime:(NSDate*)generateTime {
   NSDate* exeprimentStartDateMidnight = [experiment isFixedLength] ? [experiment startDate] : [experiment joinDate];
-  int numOfMonthsUntilGenerateTime = [[NSCalendar pacoGregorianCalendar] pacoMonthsFromDate:exeprimentStartDateMidnight
+  NSInteger numOfMonthsUntilGenerateTime = [[NSCalendar pacoGregorianCalendar] pacoMonthsFromDate:exeprimentStartDateMidnight
                                                                                      toDate:generateTime];
-  int repeatRate = experiment.schedule.repeatRate;
-  int repeatTimes = numOfMonthsUntilGenerateTime / repeatRate;
-  int extraMonths = numOfMonthsUntilGenerateTime % repeatRate;
+  NSInteger repeatRate = experiment.schedule.repeatRate;
+  NSInteger repeatTimes = numOfMonthsUntilGenerateTime / repeatRate;
+  NSInteger extraMonths = numOfMonthsUntilGenerateTime % repeatRate;
   BOOL isCurrentMonthActive = (0 == extraMonths);
   if (isCurrentMonthActive &&
       [self isMonthlyByDayOfWeekExperiment:experiment ableToGenerateSince:generateTime]) {
@@ -66,7 +66,7 @@
   }
   
   repeatTimes++;
-  int months = repeatTimes * repeatRate;
+  NSInteger months = repeatTimes * repeatRate;
   NSDate* monthToSchedule = [[exeprimentStartDateMidnight pacoFirstDayInCurrentMonth] pacoDateByAddingMonthInterval:months];
   if ([experiment isFixedLength] && [monthToSchedule pacoNoEarlierThanDate:[experiment endDate]]) {
     monthToSchedule = nil;
@@ -88,8 +88,8 @@
   if (!monthToSchedule) {
     return nil;
   }
-  int weekIndex = experiment.schedule.nthOfMonth; //0 based
-  int dayIndex = weekIndex * kPacoNumOfDaysInWeek;
+  NSInteger weekIndex = experiment.schedule.nthOfMonth; //0 based
+  NSInteger dayIndex = weekIndex * kPacoNumOfDaysInWeek;
   NSDate* firstDayInWeek = [monthToSchedule pacoDateByAddingDayInterval:dayIndex];
   for (int interval = 0; interval < kPacoNumOfDaysInWeek; interval++) {
     NSDate* day = [firstDayInWeek pacoDateByAddingDayInterval:interval];

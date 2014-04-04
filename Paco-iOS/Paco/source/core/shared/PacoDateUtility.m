@@ -92,18 +92,18 @@
 + (NSString*)timeStringFromMilliseconds:(long long)milliSeconds {
   long seconds = milliSeconds / 1000;
   long minutes = seconds / 60;
-  int hours = minutes / 60;
-  int minutesLeft = minutes - hours * 60;
-  NSString* minutesString = [NSString stringWithFormat:@"%d", minutesLeft];
+  long hours = minutes / 60;
+  long minutesLeft = minutes - hours * 60;
+  NSString* minutesString = [NSString stringWithFormat:@"%ld", minutesLeft];
   if (minutesLeft < 10) {
-    minutesString = [NSString stringWithFormat:@"0%d", minutesLeft];
+    minutesString = [NSString stringWithFormat:@"0%ld", minutesLeft];
   }
   int noon = 12;
   NSString* suffix = hours < noon ?  @"am" : @"pm";
   if (hours > noon) {
     hours -= noon;
   }
-  NSString* timeString = [NSString stringWithFormat:@"%d:%@%@", hours, minutesString, suffix];
+  NSString* timeString = [NSString stringWithFormat:@"%ld:%@%@", hours, minutesString, suffix];
   return timeString;
 }
 
@@ -133,7 +133,7 @@
   return [NSString stringWithFormat:@"%2d:%02d %@", hrs, mins, isAM ? @"AM" : @"PM"];
 }
 
-+ (int)dayIndexOfDate:(NSDate *)date {
++ (NSUInteger)dayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSUInteger day = [calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSYearCalendarUnit forDate:date];
   assert(day > 0);
@@ -143,18 +143,18 @@
 + (int)weekdayIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekdayCalendarUnit fromDate:date];
-  NSInteger weekday = [components weekday];
+  int weekday = (int)[components weekday];
   return weekday - 1;
 }
 
-+ (int)weekOfYearIndexOfDate:(NSDate *)date {
++ (NSInteger)weekOfYearIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSWeekOfYearCalendarUnit fromDate:date];
   NSInteger week = [components week];
   return week - 1;
 }
 
-+ (int)monthOfYearIndexOfDate:(NSDate *)date {
++ (NSInteger)monthOfYearIndexOfDate:(NSDate *)date {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSDateComponents *components = [calendar components:NSMonthCalendarUnit fromDate:date];
   NSInteger month = [components month];
@@ -197,8 +197,8 @@
 }
 
 + (NSDate *)timeOfDayThisDate:(NSDate *)date
-                        hrs24:(int)hrs24
-                      minutes:(int)minutes {
+                        hrs24:(long)hrs24
+                      minutes:(long)minutes {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   NSCalendarUnit units = NSYearCalendarUnit |
                          NSMonthCalendarUnit |
@@ -278,7 +278,7 @@
                        min:(int)min {
   NSCalendar *calendar = [NSCalendar currentCalendar];
   
-  int weekdayIndex = [self weekdayIndexOfDate:sameWeekAs];
+  int weekdayIndex = (int)[self weekdayIndexOfDate:sameWeekAs];
   int diff = dayIndex - weekdayIndex;
   NSDate *day = [self date:sameWeekAs thisManyDaysFrom:diff];
   day = [self midnightThisDate:day];
@@ -316,7 +316,7 @@
 }
 
 + (NSDate *)nextScheduledDay:(NSUInteger)dayFlags fromDate:(NSDate *)date {
-  int weekday = [self weekdayIndexOfDate:date];
+  int weekday = (int)[self weekdayIndexOfDate:date];
   int startIndex = ((weekday + 1) % 7);
   int count = 1;
   for (int i = startIndex; i < 7; ++i) {

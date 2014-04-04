@@ -25,8 +25,8 @@
 + (CGRect)leftAlignRect:(CGSize)rectSize inRect:(CGRect)parent;
 + (CGRect)rightAlignRect:(CGSize)rectSize inRect:(CGRect)parent;
 
-+ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(int)numSections;
-+ (NSArray *)splitRectVertically:(CGRect)rect numSections:(int)numSections;
++ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(NSUInteger)numSections;
++ (NSArray *)splitRectVertically:(CGRect)rect numSections:(NSUInteger)numSections;
 
 + (void)layoutViews:(NSArray *)views inGridWithWidth:(int)numColumns gridHeight:(int)numRows inRect:(CGRect)rect;
 + (CGSize)textSizeToFitSize:(CGSize)bounds

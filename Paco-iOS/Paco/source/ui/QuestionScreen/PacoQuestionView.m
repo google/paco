@@ -58,10 +58,10 @@ UIImagePickerControllerDelegate>
 - (void)setupUIForQuestion;
 
 // Likert Smileys
-- (void)selectSmiley:(int)index;
+- (void)selectSmiley:(NSUInteger)index;
 
 // Likert
-- (void)selectNumberButton:(int)index;
+- (void)selectNumberButton:(NSUInteger)index;
 
 @end
 
@@ -142,7 +142,7 @@ UIImagePickerControllerDelegate>
   self.rightLeftLabels = nil;
 }
 
-- (void)selectSmiley:(int)index {
+- (void)selectSmiley:(NSUInteger)index {
   for (int i = 0; i < 5; ++i) {
     UIImage *smileyOn = [UIImage imageNamed:[NSString stringWithFormat:@"smile_icon%d_re.png", i+1]];
     UIImage *smileyOff = [UIImage imageNamed:[NSString stringWithFormat:@"smile_icon%d.png", i+1]];
@@ -161,7 +161,7 @@ UIImagePickerControllerDelegate>
   //[self updateConditionals];
 }
 
-- (void)selectNumberButton:(int)index {
+- (void)selectNumberButton:(NSUInteger)index {
   UIColor *highlightedColor = [UIColor blackColor];
   UIColor *normalColor = [UIColor blackColor];
   for (int i = 0; i < self.question.likertSteps; ++i) {
@@ -184,7 +184,7 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)onSmiley:(UIButton *)button {
-  int buttonIndex = [self.smileysButtons indexOfObject:button];
+  NSUInteger buttonIndex = [self.smileysButtons indexOfObject:button];
   assert(buttonIndex != NSNotFound);
   [self selectSmiley:buttonIndex];
   self.question.responseObject = @(buttonIndex);
@@ -192,7 +192,7 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)onNumber:(UIButton *)button {
-  int buttonIndex = [self.numberButtons indexOfObject:button];
+  NSUInteger buttonIndex = [self.numberButtons indexOfObject:button];
   assert(buttonIndex != NSNotFound);
   [self selectNumberButton:buttonIndex];
   self.question.responseObject = @(buttonIndex);
@@ -488,8 +488,7 @@ UIImagePickerControllerDelegate>
   } else if (question.responseEnumType == ResponseEnumTypeOpenText) {
   } else if (question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
-    int numChoices = question.listChoices.count;
-    return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
+    return [NSNumber numberWithInt:(question.listChoices.count * 60) + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeNumber) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeLocation) {
@@ -520,7 +519,7 @@ UIImagePickerControllerDelegate>
   }
 
   if (self.question.responseEnumType == ResponseEnumTypeLikertSmileys) {
-    int numSmileys = self.smileysButtons.count;
+    NSUInteger numSmileys = self.smileysButtons.count;
     CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
     NSArray *smileys = [PacoLayout splitRectHorizontally:bounds numSections:numSmileys];
     //for (NSValue *valueRect in smileys) {
@@ -532,7 +531,7 @@ UIImagePickerControllerDelegate>
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
     if (self.question.likertSteps <= 4) {
-      int numOfButtons = [self.numberButtons count];
+      NSUInteger numOfButtons = [self.numberButtons count];
       CGFloat spaceBetweenButtons = 20;
       CGFloat totalWidth = self.frame.size.width;
       CGFloat btnSize = 25.;
@@ -564,7 +563,7 @@ UIImagePickerControllerDelegate>
       rLabel.frame = CGRectMake(self.frame.size.width - rLabel.frame.size.width - 10, self.questionText.frame.size.height + 10, rLabel.frame.size.width, rLabel.frame.size.height);
       int height = (self.frame.size.height - lLabel.frame.origin.y - 10 - lLabel.frame.size.height);
       height = lLabel.frame.origin.y + 10 + lLabel.frame.size.height+ height / 2 - 25;
-      int numValues = self.numberButtons.count;
+      NSUInteger numValues = self.numberButtons.count;
       CGRect bounds = CGRectMake(25, height + 10, self.frame.size.width - 20, height);
       NSArray* numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
       for (int i = 0; i < numValues; ++i) {

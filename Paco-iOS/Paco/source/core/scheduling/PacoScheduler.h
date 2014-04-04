@@ -19,7 +19,7 @@
 
 
 extern NSString* const kExperimentHasFiredKey;
-extern NSInteger const kTotalNumOfNotifications;
+extern int const kTotalNumOfNotifications;
 
 @class PacoExperiment;
 

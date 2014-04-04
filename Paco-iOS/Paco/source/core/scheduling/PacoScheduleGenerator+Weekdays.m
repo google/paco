@@ -24,7 +24,7 @@
 
 
 + (NSArray*)nextDatesForWeekdaysExperiment:(PacoExperiment*)experiment
-                                numOfDates:(NSInteger)numOfDates
+                                numOfDates:(int)numOfDates
                                   fromDate:(NSDate*)fromDate {
   NSAssert(numOfDates > 0, @"numOfDates should be valid!");
   
@@ -43,7 +43,7 @@
     NSAssert(startTime != nil, @"startDate should be valid!");
     NSArray* datesOnStartDate = [startTime pacoDatesToScheduleWithTimes:schedule.times
                                                              andEndDate:[experiment endDate]];
-    int currentNumOfDates = [datesOnStartDate count];
+    int currentNumOfDates = (int)[datesOnStartDate count];
     //if there are no valid dates to schedule, since we reach the experiment's endDate,
     //then we should just stop here.
     if (0 == currentNumOfDates) {

@@ -120,13 +120,13 @@
 }
 
 
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(int)limit block:(PacoPaginatedResponseBlock)block {
+- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
   NSString* endPoint = @"/experiments?public";
   if ([cursor length] > 0) {
     endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
   }
   if (limit > 0) {
-    endPoint = [endPoint stringByAppendingFormat:@"&limit=%d", limit];
+    endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
   }
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }
@@ -240,7 +240,7 @@
                                                        error:&jsonError];
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-  [request setValue:[NSString stringWithFormat:@"%d", [jsonData length]]
+  [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[jsonData length]]
  forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
   

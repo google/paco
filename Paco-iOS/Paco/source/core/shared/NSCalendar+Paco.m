@@ -50,8 +50,8 @@
   NSCalendarUnit units =  NSYearCalendarUnit | NSMonthCalendarUnit;
   NSDateComponents* compStart = [self components:units fromDate:startDate];
   NSDateComponents* compEnd = [self components:units fromDate:endDate];
-  int month = [compEnd month] - [compStart month];
-  int year = [compEnd year] - [compStart year];
+  NSInteger month = [compEnd month] - [compStart month];
+  NSInteger year = [compEnd year] - [compStart year];
   if (0 == year) { //in same year
     return month;
   } else {

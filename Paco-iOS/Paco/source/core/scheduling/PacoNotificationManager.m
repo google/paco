@@ -182,8 +182,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
-    DDLogInfo(@"There are %d expired notifications.", [expiredNotifications count]);
-    DDLogInfo(@"There are %d not fired notifications.", [notFiredNotifications count]);
+    DDLogInfo(@"There are %lu expired notifications.", (unsigned long)[expiredNotifications count]);
+    DDLogInfo(@"There are %lu not fired notifications.", (unsigned long)[notFiredNotifications count]);
     
     int numOfActiveNotifications = 0;
     for (NSString* experimentId in newNotificationDict) {
@@ -292,7 +292,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       };
       [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
     }
-    DDLogInfo(@"Clean %d expired notifications...", [allExpiredNotifications count]);
+    DDLogInfo(@"Clean %lu expired notifications...", (unsigned long)[allExpiredNotifications count]);
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
       [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
@@ -306,7 +306,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
-- (NSUInteger)totalNumberOfActiveNotifications {
+- (int)totalNumberOfActiveNotifications {
   @synchronized(self) {
     if (0 == [self.notificationDict count]) {
       return 0;

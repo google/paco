@@ -29,7 +29,7 @@
 
 
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
-                        numOfDates:(NSInteger)numOfDates
+                        numOfDates:(int)numOfDates
                           fromDate:(NSDate*)fromDate {
   //experiment is a self-report or trigger experiment
   //experiment is fixed-length and already finished
@@ -60,7 +60,7 @@
 
 
 + (NSArray*)nextDatesForMonthlyExperiment:(PacoExperiment*)experiment
-                               numOfDates:(NSInteger)numOfDates
+                               numOfDates:(int)numOfDates
                                  fromDate:(NSDate*)fromDate {
   if (experiment.schedule.byDayOfMonth) {
     return [self nextDatesByDayOfMonthForExperiment:experiment numOfDates:numOfDates fromDate:fromDate];

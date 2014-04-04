@@ -151,7 +151,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       if (events != nil) {
         pendingEvents = [self deserializedEvents:events];
       }
-      DDLogInfo(@"Fetched %d pending events.", [pendingEvents count]);
+      DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
       self.pendingEvents = pendingEvents;
     }
   }
@@ -190,7 +190,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   if (self.pendingEvents == nil) {
     return;
   }
-  DDLogInfo(@"Saving %d pending events", [self.pendingEvents count]);
+  DDLogInfo(@"Saving %lu pending events", (unsigned long)[self.pendingEvents count]);
   NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
   [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
 }
@@ -222,7 +222,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
   @synchronized(self) {
     NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
     for (PacoEvent* event in events) {
-      int index = [self.pendingEvents indexOfObject:event];
+      NSUInteger index = [self.pendingEvents indexOfObject:event];
       if (index == NSNotFound) {
         DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
       }
@@ -230,8 +230,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     }
     
     [self savePendingEventsToFile];
-    DDLogInfo(@"[Mark Complete] %d events! ", [events count]);
-    DDLogInfo(@"[Pending Events] %d.", [self.pendingEvents count]);
+    DDLogInfo(@"[Mark Complete] %lu events! ", (unsigned long)[events count]);
+    DDLogInfo(@"[Pending Events] %lu.", (unsigned long)[self.pendingEvents count]);
   }
 }
 
@@ -326,10 +326,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     }
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
     if (state == UIApplicationStateActive) {
-      DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
+      DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
       [self.uploader startUploadingWithBlock:nil];
     } else {
-      DDLogInfo(@"Won't upload %d pending events since app is inactive.", [pendingEvents count]);
+      DDLogInfo(@"Won't upload %lu pending events since app is inactive.", (unsigned long)[pendingEvents count]);
     }
   }
 }
@@ -347,7 +347,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       return;
     }
     
-    DDLogInfo(@"There are %d pending events to upload.", [pendingEvents count]);
+    DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
     UIApplicationState state = [[UIApplication sharedApplication] applicationState];
     if (state == UIApplicationStateActive) {
       DDLogInfo(@"App State:UIApplicationStateActive");
