@@ -14,7 +14,7 @@
  */
 
 #import "PacoInfoView.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoInfoView
 
@@ -33,7 +33,7 @@
   closeButton.frame = CGRectMake(10, self.frame.size.height - 60, self.frame.size.width - 20, 50);
   [closeButton setTitle:NSLocalizedString(@"Close", nil) forState:UIControlStateNormal];
   closeButton.titleLabel.font = [UIFont fontWithName:@"Helvetica-Bold" size:18];
-  [closeButton setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [closeButton setTitleColor:[UIColor pacoBlue] forState:UIControlStateNormal];
   [closeButton setBackgroundColor:[UIColor whiteColor]];
   closeButton.layer.cornerRadius = 5;
   [closeButton addTarget:self action:@selector(closeInfoView:) forControlEvents:UIControlEventTouchUpInside];
@@ -43,7 +43,7 @@
   _aboutPacoBtn.frame = CGRectMake(10, closeButton.frame.origin.y - 55, self.frame.size.width - 20, 50);
   [_aboutPacoBtn setTitle:NSLocalizedString(@"About Paco", nil) forState:UIControlStateNormal];
   _aboutPacoBtn.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:19];
-  [_aboutPacoBtn setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [_aboutPacoBtn setTitleColor:[UIColor pacoBlue] forState:UIControlStateNormal];
   [_aboutPacoBtn setBackgroundColor:[UIColor whiteColor]];
   _aboutPacoBtn.layer.cornerRadius = 5;
   [_aboutPacoBtn addTarget:self action:@selector(openAboutPaco:) forControlEvents:UIControlEventTouchUpInside];

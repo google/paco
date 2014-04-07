@@ -15,7 +15,7 @@
 
 #import "PacoMenuButton.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLayout.h"
 
@@ -30,7 +30,7 @@
     [self addSubview:_button];
     [self addSubview:_text];
     _text.font = [PacoFont pacoMenuButtonFont];
-    _text.textColor = [PacoColor pacoBlue];
+    _text.textColor = [UIColor pacoBlue];
     _text.backgroundColor = [UIColor clearColor];
     _text.clipsToBounds = NO;
     self.clipsToBounds = NO;

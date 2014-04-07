@@ -15,7 +15,7 @@
 
 #import "PacoConsentViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoEditScheduleViewController.h"
 #import "PacoModel.h"
@@ -46,7 +46,7 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
   boldTitle.text = NSLocalizedString(@"Data Handling & Privacy Agreement between You and the Experiment Creator", nil);
@@ -69,7 +69,7 @@
   UITextView* expViewText = [[UITextView alloc] initWithFrame:CGRectMake(10, consentText.frame.origin.y + consentText.frame.size.height + 15, self.view.frame.size.width - 20, 180)];
   expViewText.backgroundColor = [UIColor whiteColor];
   expViewText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-  expViewText.textColor = [PacoColor pacoDarkBlue];
+  expViewText.textColor = [UIColor pacoDarkBlue];
   expViewText.text = self.definition.informedConsentForm;
   expViewText.editable = NO;
   [self.view addSubview:expViewText];

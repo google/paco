@@ -21,6 +21,8 @@
 		36000C3817C6B34000A8A9E7 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C3717C6B34000A8A9E7 /* libicucore.dylib */; };
 		36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */ = {isa = PBXBuildFile; fileRef = 36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */; };
 		3612A269185FE7AA00DEADD1 /* PacoTimeEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */; };
+		361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */; };
+		361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */; };
 		361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 361AB05517DA77000053C313 /* PacoNotificationManager.m */; };
 		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
@@ -122,7 +124,6 @@
 		36B8EB8317568DAF004CF035 /* PacoQuestionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4D17568DAF004CF035 /* PacoQuestionView.m */; };
 		36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5017568DAF004CF035 /* PacoRunningExperimentsViewController.m */; };
 		36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */; };
-		36B8EB8617568DAF004CF035 /* PacoColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5517568DAF004CF035 /* PacoColor.m */; };
 		36B8EB8717568DAF004CF035 /* PacoFont.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5717568DAF004CF035 /* PacoFont.m */; };
 		36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5917568DAF004CF035 /* PacoLayout.m */; };
 		36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5B17568DAF004CF035 /* PacoLoadingTableCell.m */; };
@@ -322,6 +323,8 @@
 		36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Test_999999999.plist; sourceTree = "<group>"; };
 		3612A267185FE7AA00DEADD1 /* PacoTimeEditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTimeEditView.h; sourceTree = "<group>"; };
 		3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTimeEditView.m; sourceTree = "<group>"; };
+		361A118918F30CC9000E9CA2 /* UIColor+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Paco.h"; sourceTree = "<group>"; };
+		361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Paco.m"; sourceTree = "<group>"; };
 		361AB05417DA77000053C313 /* PacoNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoNotificationManager.h; sourceTree = "<group>"; };
 		361AB05517DA77000053C313 /* PacoNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManager.m; sourceTree = "<group>"; };
 		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
@@ -475,8 +478,6 @@
 		36B8EB5017568DAF004CF035 /* PacoRunningExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoRunningExperimentsViewController.m; sourceTree = "<group>"; };
 		36B8EB5217568DAF004CF035 /* PacoCheckboxView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoCheckboxView.h; sourceTree = "<group>"; };
 		36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoCheckboxView.m; sourceTree = "<group>"; };
-		36B8EB5417568DAF004CF035 /* PacoColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoColor.h; sourceTree = "<group>"; };
-		36B8EB5517568DAF004CF035 /* PacoColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoColor.m; sourceTree = "<group>"; };
 		36B8EB5617568DAF004CF035 /* PacoFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFont.h; sourceTree = "<group>"; };
 		36B8EB5717568DAF004CF035 /* PacoFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFont.m; sourceTree = "<group>"; };
 		36B8EB5817568DAF004CF035 /* PacoLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLayout.h; sourceTree = "<group>"; };
@@ -1068,10 +1069,10 @@
 		36B8EB5117568DAF004CF035 /* UIComponents */ = {
 			isa = PBXGroup;
 			children = (
+				361A118918F30CC9000E9CA2 /* UIColor+Paco.h */,
+				361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */,
 				36B8EB5217568DAF004CF035 /* PacoCheckboxView.h */,
 				36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */,
-				36B8EB5417568DAF004CF035 /* PacoColor.h */,
-				36B8EB5517568DAF004CF035 /* PacoColor.m */,
 				36B8EB5617568DAF004CF035 /* PacoFont.h */,
 				36B8EB5717568DAF004CF035 /* PacoFont.m */,
 				36B8EB5817568DAF004CF035 /* PacoLayout.h */,
@@ -1671,7 +1672,6 @@
 				E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */,
 				36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */,
 				36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */,
-				36B8EB8617568DAF004CF035 /* PacoColor.m in Sources */,
 				36B8EB8717568DAF004CF035 /* PacoFont.m in Sources */,
 				36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */,
 				363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
@@ -1700,6 +1700,7 @@
 				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
 				366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */,
 				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
+				361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
@@ -1766,6 +1767,7 @@
 				36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
+				361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
 				36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
 				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,

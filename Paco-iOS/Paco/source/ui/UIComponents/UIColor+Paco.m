@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
-@implementation PacoColor
+@implementation UIColor (Paco)
 
 + (UIColor *)pacoBlue {
   return [UIColor colorWithRed:(4.0/255.0) green:(114.0/255.0) blue:(219.0/255.0) alpha:1.0];

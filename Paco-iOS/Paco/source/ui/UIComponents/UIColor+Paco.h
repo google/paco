@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PacoColor : NSObject
+@interface UIColor (Paco)
 
 + (UIColor *)pacoBlue;
 + (UIColor *)pacoBackgroundWhite;

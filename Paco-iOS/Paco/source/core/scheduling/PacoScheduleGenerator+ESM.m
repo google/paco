@@ -335,7 +335,7 @@
     
     NSDate* realStartTime = [esmStartTime pacoDateByAddingDayInterval:dayOffset];
     if (!experimentSchedule.esmWeekends && [realStartTime pacoIsWeekend]) {
-      realStartTime = [realStartTime pacoDateInFutureBySkippingWeekends];
+      realStartTime = [realStartTime pacoNearestNonWeekendDate];
     }
     
     NSUInteger realOffsetMinutes = offsetMinutes - dayOffset * esmMinutesPerDay;

@@ -16,7 +16,7 @@
 #import "PacoRunningExperimentsViewController.h"
 
 #import "PacoClient.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLoadingTableCell.h"
 #import "PacoModel.h"
@@ -67,7 +67,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperiment class]];
-  table.backgroundColor = [PacoColor pacoBackgroundWhite];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(experimentsUpdate:)
@@ -195,10 +195,10 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperiment class]]) {
     PacoExperiment *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
+    cell.backgroundColor = [UIColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.textLabel.textColor = [PacoColor pacoBlue];
+    cell.textLabel.textColor = [UIColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
     if ([experiment isScheduledExperiment] &&
         [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {

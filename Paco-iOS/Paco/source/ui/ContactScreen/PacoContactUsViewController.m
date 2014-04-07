@@ -15,7 +15,7 @@
 
 #import "PacoContactUsViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoMenuButton.h"
 #import "PacoLayout.h"
 #import <MessageUI/MessageUI.h>
@@ -53,7 +53,7 @@ static NSString *const browsePacoWebsite = @"https://quantifiedself.appspot.com/
 
   UIView* view = self.view;
   assert(view);
-  view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   PacoMenuButton* buttonEmailUserGroup = [[PacoMenuButton alloc] init];
   buttonEmailUserGroup.text.text = NSLocalizedString(@"Email user group", nil);

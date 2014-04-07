@@ -15,7 +15,7 @@
 
 #import "PacoFindExperimentsViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoFont.h"
@@ -59,7 +59,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
-  table.backgroundColor = [PacoColor pacoBackgroundWhite];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
   if (!finishLoading) {
@@ -145,7 +145,7 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperimentDefinition class]]) {
     PacoExperimentDefinition *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
+    cell.backgroundColor = [UIColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     if (![experiment isCompatibleWithIOS]) {
       cell.imageView.image = [UIImage imageNamed:@"incompatible"];
@@ -153,7 +153,7 @@
     cell.textLabel.font = [PacoFont pacoTableCellFont];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
-    cell.textLabel.textColor = [PacoColor pacoBlue];
+    cell.textLabel.textColor = [UIColor pacoBlue];
     cell.detailTextLabel.text = experiment.creator;
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
