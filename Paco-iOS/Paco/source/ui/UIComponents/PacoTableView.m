@@ -17,7 +17,7 @@
 
 #import <objc/runtime.h>
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLoadingTableCell.h"
 #import "PacoTableCell.h"
@@ -57,7 +57,7 @@
     _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     _tableView.dataSource = self;
     _tableView.delegate = self;
-    _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
+    _tableView.backgroundColor = [UIColor pacoBackgroundWhite];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     UITapGestureRecognizer* tapRecognizer =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapOnTableView:)];
@@ -215,7 +215,7 @@
 }
 
 - (void)layoutSubviews {
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
   CGRect headerFrame = self.header ? self.header.frame : CGRectZero;
   CGRect footerFrame = self.footer ? self.footer.frame : CGRectZero;
   CGFloat yStart = 0;
@@ -349,7 +349,7 @@
     pacoCell.tableDelegate = self.delegate;
     pacoCell.rowData = rowData;
     pacoCell.reuseId = reuseId;
-    pacoCell.backgroundColor = [PacoColor pacoBackgroundWhite];
+    pacoCell.backgroundColor = [UIColor pacoBackgroundWhite];
     pacoCell.textLabel.font = [PacoFont pacoTableCellFont];
     pacoCell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
   }

@@ -15,7 +15,7 @@
 
 #import "PacoExperimentDetailsViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
@@ -67,13 +67,13 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
   titleLabel.text = labelText;
   titleLabel.font = [PacoFont pacoTableCellFont];
-  titleLabel.textColor = [PacoColor pacoDarkBlue];
+  titleLabel.textColor = [UIColor pacoDarkBlue];
   titleLabel.backgroundColor = [UIColor clearColor];
   titleLabel.numberOfLines = 0;
   [self.view addSubview:titleLabel];
@@ -89,7 +89,7 @@
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
-  desLabel.textColor = [PacoColor pacoDarkBlue];
+  desLabel.textColor = [UIColor pacoDarkBlue];
   desLabel.backgroundColor = [UIColor clearColor];
   desLabel.numberOfLines = 0;
   [self.view addSubview:desLabel];
@@ -97,7 +97,7 @@
   UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 140)];
   descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-  descriptionLabel.textColor = [PacoColor pacoDarkBlue];
+  descriptionLabel.textColor = [UIColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.experimentDescription;
   descriptionLabel.editable = NO;
   [self.view addSubview:descriptionLabel];
@@ -109,7 +109,7 @@
     dateLabel.text = [NSString stringWithFormat:@"%@                  %@",
                       NSLocalizedString(@"Start Date:", nil), NSLocalizedString(@"End Date:", nil)];
     dateLabel.font = [PacoFont pacoNormalButtonFont];
-    dateLabel.textColor = [PacoColor pacoDarkBlue];
+    dateLabel.textColor = [UIColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
@@ -121,7 +121,7 @@
                      startDate,
                      self.experiment.inclusiveEndDateString];
     dateText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-    dateText.textColor = [PacoColor pacoDarkBlue];
+    dateText.textColor = [UIColor pacoDarkBlue];
     dateText.backgroundColor = [UIColor clearColor];
     dateText.numberOfLines = 0 ;
     [self.view addSubview:dateText];
@@ -132,7 +132,7 @@
   NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
-  creatorLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorLabel.textColor = [UIColor pacoDarkBlue];
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
@@ -142,7 +142,7 @@
   NSString* creatorText = self.experiment.creator;
   creatorValueLabel.text = creatorText;
   creatorValueLabel.font = [PacoFont pacoTableCellDetailFont];
-  creatorValueLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorValueLabel.textColor = [UIColor pacoDarkBlue];
   creatorValueLabel.backgroundColor = [UIColor clearColor];
   creatorValueLabel.numberOfLines = 0;
   [self.view addSubview:creatorValueLabel];

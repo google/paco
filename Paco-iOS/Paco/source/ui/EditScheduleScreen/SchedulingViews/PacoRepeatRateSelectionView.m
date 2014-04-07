@@ -15,7 +15,7 @@
 
 #import "PacoRepeatRateSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoRepeatRateSelectionView ()
@@ -62,7 +62,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

@@ -20,7 +20,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "PacoCheckboxView.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
@@ -77,7 +77,7 @@ UIImagePickerControllerDelegate>
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    self.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.backgroundColor = [UIColor pacoBackgroundWhite];
   }
   return self;
 }
@@ -206,11 +206,11 @@ UIImagePickerControllerDelegate>
     title = NSLocalizedString(@"Tap to Choose Photo", nil);
   }
   [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonBlue] forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonHighlightenBlue]
+  [self.choosePhotoButton setTitleColor:[UIColor pacoSystemButtonBlue] forState:UIControlStateNormal];
+  [self.choosePhotoButton setTitleColor:[UIColor pacoSystemButtonHighlightenBlue]
                                forState:UIControlStateHighlighted];
   if (!self.image) {
-    [self.choosePhotoButton setBackgroundColor:[PacoColor pacoLightGray]];
+    [self.choosePhotoButton setBackgroundColor:[UIColor pacoLightGray]];
   }
 }
 
@@ -272,7 +272,7 @@ UIImagePickerControllerDelegate>
   self.questionText = [[UILabel alloc] initWithFrame:CGRectZero];
   self.questionText.text = self.question.text;
   self.questionText.backgroundColor = [UIColor clearColor];
-  self.questionText.textColor = [PacoColor pacoDarkBlue];
+  self.questionText.textColor = [UIColor pacoDarkBlue];
   self.questionText.font = [PacoFont pacoTableCellFont];
   self.questionText.numberOfLines = 0;  // Number of lines limited to view size
   [self addSubview:self.questionText];
@@ -302,7 +302,7 @@ UIImagePickerControllerDelegate>
       NSMutableArray* labels = [NSMutableArray array];
       UILabel* leftLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
       leftLabel.text = self.question.leftSideLabel;
-      leftLabel.textColor = [PacoColor pacoDarkBlue];
+      leftLabel.textColor = [UIColor pacoDarkBlue];
       leftLabel.backgroundColor = [UIColor clearColor];
       leftLabel.font = [PacoFont pacoMenuButtonFont];
       [self addSubview:leftLabel];
@@ -311,7 +311,7 @@ UIImagePickerControllerDelegate>
 
       UILabel* rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
       rightLabel.text = self.question.rightSideLabel;
-      rightLabel.textColor = [PacoColor pacoDarkBlue];
+      rightLabel.textColor = [UIColor pacoDarkBlue];
       rightLabel.backgroundColor = [UIColor clearColor];
       rightLabel.font = [PacoFont pacoMenuButtonFont];
       [self addSubview:rightLabel];

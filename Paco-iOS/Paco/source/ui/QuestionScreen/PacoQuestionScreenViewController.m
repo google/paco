@@ -15,7 +15,7 @@
 
 #import "PacoQuestionScreenViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoFont.h"
 #import "PacoModel.h"
@@ -89,7 +89,7 @@ NSString *kCellIdQuestion = @"question";
   table.delegate = self;
   table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
   [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
-  table.backgroundColor = [PacoColor pacoBackgroundWhite];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
   [self reloadTable];
 }

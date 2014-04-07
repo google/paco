@@ -15,7 +15,7 @@
 
 #import "PacoTitleView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLayout.h"
 
@@ -41,7 +41,7 @@
     _title = [[UILabel alloc] initWithFrame:CGRectZero];
     _title.text = text;
     _title.font = [PacoFont pacoNavbarTitleFont];
-    _title.textColor = [PacoColor pacoDarkBlue];
+    _title.textColor = [UIColor pacoDarkBlue];
     _title.backgroundColor = [UIColor clearColor];
     _title.adjustsFontSizeToFitWidth = YES;
     _title.minimumScaleFactor = 0.8;

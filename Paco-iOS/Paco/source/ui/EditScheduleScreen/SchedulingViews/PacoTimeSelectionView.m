@@ -15,7 +15,7 @@
 
 #import "PacoTimeSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoLayout.h"
 #import "PacoDateUtility.h"
 #import "PacoTableView.h"
@@ -113,7 +113,7 @@
     [addButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [addButton setTitle:@"+" forState:UIControlStateHighlighted];
     [addButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    addButton.backgroundColor = [PacoColor pacoBlue];
+    addButton.backgroundColor = [UIColor pacoBlue];
     self.addButton = addButton;
     //disable the ability to add more times for now, we may need it in the future.
     //and a minus button is needed if we enable the add button
@@ -148,7 +148,7 @@
   NSMutableArray *timeViews = [NSMutableArray array];
   for (NSNumber *time in self.times) {
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
-    button.backgroundColor = [PacoColor pacoBlue];
+    button.backgroundColor = [UIColor pacoBlue];
     [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
             forState:UIControlStateNormal];
     [button setTitle:[PacoDateUtility timeString24hrFromMilliseconds:[time longLongValue]]
@@ -164,7 +164,7 @@
     [timeViews addObject:button];
 
     button = [[UIButton alloc] initWithFrame:CGRectZero];
-    button.backgroundColor = [PacoColor pacoBlue];
+    button.backgroundColor = [UIColor pacoBlue];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [button setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
     [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
@@ -201,7 +201,7 @@
 - (void)layoutSubviews {
   [super layoutSubviews];
 
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 
   CGRect labelFrame = [PacoLayout centerRect:self.label.frame.size inRect:CGRectMake(0, 10, self.frame.size.width, self.label.frame.size.height)];
   self.label.frame = labelFrame;

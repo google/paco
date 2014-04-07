@@ -18,7 +18,7 @@
 #import "GoogleAppEngineAuth.h"
 #import "GTMOAuth2ViewControllerTouch.h"
 #import "PacoClient.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoMainViewController.h"
 #import "PacoQuestionScreenViewController.h"
 #import "PacoScheduler.h"
@@ -134,7 +134,7 @@
   [DDLog addLogger:logger];
   
   // Override the navigation bar and item tint color globally across the app.
-  [[UINavigationBar appearance] setTintColor:[PacoColor pacoBlue]];
+  [[UINavigationBar appearance] setTintColor:[UIColor pacoBlue]];
 
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   // Override point for customization after application launch.

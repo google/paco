@@ -16,7 +16,7 @@
 #import "PacoPublicExperimentController.h"
 #import "PacoPublicDefinitionLoader.h"
 #import "PacoEnumerator.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoClient.h"
 #import "PacoService.h"
@@ -132,7 +132,7 @@
   } else {
     if ([self.enumerator hasMoreItems]) {
       loadMoreCell.userInteractionEnabled = YES;
-      loadMoreCell.textLabel.textColor = [PacoColor pacoSystemButtonBlue];
+      loadMoreCell.textLabel.textColor = [UIColor pacoSystemButtonBlue];
       loadMoreCell.textLabel.text = @"Load next 20 experiments";
     } else {
       loadMoreCell.userInteractionEnabled = NO;
@@ -177,7 +177,7 @@
                                   reuseIdentifier:@"experimentCell"];
 
     cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.textLabel.textColor = [PacoColor pacoSystemButtonBlue];
+    cell.textLabel.textColor = [UIColor pacoSystemButtonBlue];
     cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }

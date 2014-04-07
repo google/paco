@@ -15,7 +15,7 @@
 
 #import "PacoESMFrequencySelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoESMFrequencySelectionView
 
@@ -33,7 +33,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

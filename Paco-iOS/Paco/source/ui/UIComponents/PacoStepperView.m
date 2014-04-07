@@ -15,7 +15,7 @@
 
 #import "PacoStepperView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoLayout.h"
 
@@ -31,7 +31,7 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.backgroundColor = [UIColor pacoBackgroundWhite];
     self.valueLabel = [[UITextField alloc] initWithFrame:CGRectZero];
     self.valueLabel.borderStyle = UITextBorderStyleRoundedRect;
     self.valueLabel.text = @"0";
@@ -63,7 +63,7 @@
     self.stepper.wraps = NO;
     self.stepper.autorepeat = YES;
     self.stepper.continuous = YES;
-    self.stepper.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.stepper.backgroundColor = [UIColor pacoBackgroundWhite];
     [self.stepper addTarget:self
                      action:@selector(valueChanged:)
            forControlEvents:UIControlEventValueChanged];

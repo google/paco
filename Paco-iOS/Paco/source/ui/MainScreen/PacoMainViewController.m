@@ -15,7 +15,7 @@
 
 #import "PacoMainViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFindExperimentsViewController.h"
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
@@ -58,7 +58,7 @@
 
   UIView *view = self.view;
   assert(view);
-  view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   //if user has running experiments, load RunningExperimentsViewController
   if ([[PacoClient sharedInstance] hasRunningExperiments]) {

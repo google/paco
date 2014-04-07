@@ -17,7 +17,7 @@
 
 #import "PacoModel.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoFont.h"
 #import "PacoTimeSelectionView.h"
 #import "PacoDayOfMonthSelectionView.h"
@@ -55,11 +55,11 @@ NSString *kCellIdText = @"text";
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    [self setBackgroundColor:[PacoColor pacoBackgroundWhite]];
+    [self setBackgroundColor:[UIColor pacoBackgroundWhite]];
 
     _tableView = [[PacoTableView alloc] initWithFrame:CGRectZero];
     _tableView.delegate = self;
-    _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
+    _tableView.backgroundColor = [UIColor pacoBackgroundWhite];
     [self addSubview:_tableView];
 
     _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
@@ -96,8 +96,8 @@ NSString *kCellIdText = @"text";
 
   CGRect frame = self.frame;
   _tableView.frame = frame;
-  _tableView.backgroundColor = [PacoColor pacoBackgroundWhite];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  _tableView.backgroundColor = [UIColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 + (NSArray *)dataFromExperimentSchedule:(PacoExperimentSchedule *)schedule {
