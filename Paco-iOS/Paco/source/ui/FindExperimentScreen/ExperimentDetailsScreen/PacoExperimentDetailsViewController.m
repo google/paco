@@ -89,8 +89,10 @@
   titleLabel.frame = frame;
   [titleLabel sizeToFit];
 
-  CGRect desLabelFrame = CGRectMake(10, titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
-                                    self.view.frame.size.width - 20, 20);
+  CGRect desLabelFrame = CGRectMake(10,
+                                    titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
+                                    self.view.frame.size.width - 20,
+                                    20);
   UILabel* desLabel = [[UILabel alloc] initWithFrame:desLabelFrame];
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
@@ -110,7 +112,10 @@
   descriptionLabel.numberOfLines = 0;
   [descriptionLabel sizeToFit];
   frame = descriptionLabel.frame;
-  descriptionLabel.frame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, frame.size.height);
+  descriptionLabel.frame = CGRectMake(10,
+                                      yPosition,
+                                      self.view.frame.size.width - 20,
+                                      frame.size.height);
   [scrollView addSubview:descriptionLabel];
 
   yPosition += descriptionLabel.frame.size.height + 20;
