@@ -89,9 +89,9 @@
   titleLabel.frame = frame;
   [titleLabel sizeToFit];
 
-  UILabel* desLabel = [[UILabel alloc] initWithFrame:
-                       CGRectMake(10, titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
-                                  self.view.frame.size.width - 20, 20)];
+  CGRect desLabelFrame = CGRectMake(10, titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
+                                    self.view.frame.size.width - 20, 20);
+  UILabel* desLabel = [[UILabel alloc] initWithFrame:desLabelFrame];
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
@@ -101,8 +101,8 @@
   [scrollView addSubview:desLabel];
   int yPosition = desLabel.frame.origin.y + desLabel.frame.size.height + 5;
 
-  UILabel *descriptionLabel = [[UILabel alloc] initWithFrame:
-                               CGRectMake(10, yPosition, self.view.frame.size.width - 20, 0)];
+  CGRect descriptionTextFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 0);
+  UILabel *descriptionLabel = [[UILabel alloc] initWithFrame:descriptionTextFrame];
   descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [PacoColor pacoDarkBlue];
@@ -139,8 +139,8 @@
     yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
   }
 
-  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:
-                           CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20)];
+  CGRect creatorLabelFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20);
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:creatorLabelFrame];
   NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
@@ -169,8 +169,8 @@
 
   if (![self.experiment isCompatibleWithIOS]) {
     UIImage* lockImage = [UIImage imageNamed:@"incompatible"];
-    UIImageView* lockView = [[UIImageView alloc] initWithFrame:
-                             CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
+    CGRect lockViewFrame = CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height);
+    UIImageView* lockView = [[UIImageView alloc] initWithFrame:lockViewFrame];
     [lockView setImage:lockImage];
     [scrollView addSubview:lockView];
 
@@ -202,8 +202,11 @@
   joinframe.origin.y = yPosition;
   join.frame = joinframe;
   yPosition += join.frame.size.height + 10;
-
-  [scrollView setContentSize:CGSizeMake(scrollView.frame.size.width, yPosition + 80)];
+  CGFloat topBarsHeight = [[UIApplication sharedApplication] statusBarFrame].size.height
+  + self.navigationController.navigationBar.frame.size.height;
+  [scrollView setContentSize:CGSizeMake(scrollView.frame.size.width, yPosition)];
+  scrollView.contentInset = UIEdgeInsetsMake(0, 0, topBarsHeight, 0);
+  scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, topBarsHeight, 0);
 }
 
 - (void)onJoin {
