@@ -67,11 +67,10 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
 
-  UIScrollView* scrollView = [[UIScrollView alloc]initWithFrame:self.view.frame];
-  scrollView.backgroundColor = [UIColor clearColor];
-  [self.view addSubview:scrollView];
+  self.view = [[UIScrollView alloc]initWithFrame:self.view.frame];
+  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.automaticallyAdjustsScrollViewInsets = NO;
 
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
@@ -80,7 +79,7 @@
   titleLabel.textColor = [PacoColor pacoDarkBlue];
   titleLabel.backgroundColor = [UIColor clearColor];
   titleLabel.numberOfLines = 0;
-  [scrollView addSubview:titleLabel];
+  [self.view addSubview:titleLabel];
   CGRect frame = titleLabel.frame;
   frame.origin.x = 10;
   frame.origin.y = 10;
@@ -100,7 +99,7 @@
   desLabel.textColor = [PacoColor pacoDarkBlue];
   desLabel.backgroundColor = [UIColor clearColor];
   desLabel.numberOfLines = 0;
-  [scrollView addSubview:desLabel];
+  [self.view addSubview:desLabel];
   int yPosition = desLabel.frame.origin.y + desLabel.frame.size.height + 5;
 
   CGRect descriptionTextFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 0);
@@ -116,7 +115,7 @@
                                       yPosition,
                                       self.view.frame.size.width - 20,
                                       frame.size.height);
-  [scrollView addSubview:descriptionLabel];
+  [self.view addSubview:descriptionLabel];
 
   yPosition += descriptionLabel.frame.size.height + 20;
 
@@ -128,7 +127,7 @@
     dateLabel.textColor = [PacoColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
-    [scrollView addSubview:dateLabel];
+    [self.view addSubview:dateLabel];
     yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 5;
 
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
@@ -140,7 +139,7 @@
     dateText.textColor = [PacoColor pacoDarkBlue];
     dateText.backgroundColor = [UIColor clearColor];
     dateText.numberOfLines = 0 ;
-    [scrollView addSubview:dateText];
+    [self.view addSubview:dateText];
     yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
   }
 
@@ -152,7 +151,7 @@
   creatorLabel.textColor = [PacoColor pacoDarkBlue];
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
-  [scrollView addSubview:creatorLabel];
+  [self.view addSubview:creatorLabel];
   yPosition += 25;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -162,7 +161,7 @@
   creatorValueLabel.textColor = [PacoColor pacoDarkBlue];
   creatorValueLabel.backgroundColor = [UIColor clearColor];
   creatorValueLabel.numberOfLines = 0;
-  [scrollView addSubview:creatorValueLabel];
+  [self.view addSubview:creatorValueLabel];
   CGRect creatorframe = creatorValueLabel.frame;
   creatorframe.origin.x = 10;
   creatorframe.origin.y = creatorLabel.frame.origin.y + 30;
@@ -177,7 +176,7 @@
     CGRect lockViewFrame = CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height);
     UIImageView* lockView = [[UIImageView alloc] initWithFrame:lockViewFrame];
     [lockView setImage:lockImage];
-    [scrollView addSubview:lockView];
+    [self.view addSubview:lockView];
 
     UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
     [incompatibilityMsg setText:NSLocalizedString(@"Incompatible with iOS", nil)];
@@ -185,7 +184,7 @@
     incompatibilityMsg.textColor = [UIColor redColor];
     incompatibilityMsg.backgroundColor = [UIColor clearColor];
     [incompatibilityMsg sizeToFit];
-    [scrollView addSubview:incompatibilityMsg];
+    [self.view addSubview:incompatibilityMsg];
     CGRect textFrame = incompatibilityMsg.frame;
     textFrame.origin.x = lockImage.size.width + 15;
     textFrame.origin.y = yPosition + lockImage.size.height - incompatibilityMsg.frame.size.height;
@@ -200,18 +199,14 @@
     join.titleLabel.font = [PacoFont pacoNormalButtonFont];
   }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
-  [scrollView addSubview:join];
+  [self.view addSubview:join];
   [join sizeToFit];
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
   joinframe.origin.y = yPosition;
   join.frame = joinframe;
   yPosition += join.frame.size.height + 10;
-  CGFloat topBarsHeight = [[UIApplication sharedApplication] statusBarFrame].size.height
-  + self.navigationController.navigationBar.frame.size.height;
-  [scrollView setContentSize:CGSizeMake(scrollView.frame.size.width, yPosition)];
-  scrollView.contentInset = UIEdgeInsetsMake(0, 0, topBarsHeight, 0);
-  scrollView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, topBarsHeight, 0);
+  [(UIScrollView*)self.view setContentSize:CGSizeMake(self.view.frame.size.width, yPosition)];
 }
 
 - (void)onJoin {
