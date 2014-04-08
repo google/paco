@@ -24,7 +24,6 @@
 #import "PacoClient.h"
 #import "PacoLoginScreenViewController.h"
 #import "PacoContactUsViewController.h"
-#import "PacoInfoView.h"
 #import "PacoWebViewController.h"
 #import "GoogleClientLogin.h"
 #import "JCNotificationCenter.h"
