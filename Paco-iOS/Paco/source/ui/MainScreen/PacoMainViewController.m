@@ -210,9 +210,9 @@
                                 initWithTitle:[NSString stringWithFormat:@"%@ %@",
                                                NSLocalizedString(@"Version", nil),
                                                version]
-                                delegate:self cancelButtonTitle:NSLocalizedString(@"Close", nil)
-                                destructiveButtonTitle:nil
-                                otherButtonTitles:NSLocalizedString(@"About Paco", nil),
+                                     delegate:self cancelButtonTitle:NSLocalizedString(@"Close", nil)
+                       destructiveButtonTitle:nil
+                            otherButtonTitles:NSLocalizedString(@"About Paco", nil),
                                 NSLocalizedString(@"Send Logs to Paco Team", nil),
                                 nil];
   [actionSheet showInView:self.view];

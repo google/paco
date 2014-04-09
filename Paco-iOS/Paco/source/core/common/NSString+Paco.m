@@ -34,7 +34,6 @@
   dispatch_once(&onceToken, ^{
     NSArray* pathsArray = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     cachePath = [[pathsArray firstObject]stringByAppendingPathComponent:@"/Logs"];
-
   });
   return cachePath;
 }
