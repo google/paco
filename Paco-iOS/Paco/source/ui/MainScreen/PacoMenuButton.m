@@ -14,9 +14,9 @@
  */
 
 #import "PacoMenuButton.h"
+#import "UIFont+Paco.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
 #import "PacoLayout.h"
 
 @implementation PacoMenuButton
@@ -29,7 +29,7 @@
     _text = [[UILabel alloc] initWithFrame:CGRectZero];
     [self addSubview:_button];
     [self addSubview:_text];
-    _text.font = [PacoFont pacoMenuButtonFont];
+    _text.font = [UIFont pacoMenuButtonFont];
     _text.textColor = [UIColor pacoBlue];
     _text.backgroundColor = [UIColor clearColor];
     _text.clipsToBounds = NO;

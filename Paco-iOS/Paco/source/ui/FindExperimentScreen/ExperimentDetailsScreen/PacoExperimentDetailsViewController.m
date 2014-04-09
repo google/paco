@@ -16,7 +16,7 @@
 #import "PacoExperimentDetailsViewController.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
@@ -75,7 +75,7 @@
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
   titleLabel.text = labelText;
-  titleLabel.font = [PacoFont pacoTableCellFont];
+  titleLabel.font = [UIFont pacoTableCellFont];
   titleLabel.textColor = [UIColor pacoDarkBlue];
   titleLabel.backgroundColor = [UIColor clearColor];
   titleLabel.numberOfLines = 0;
@@ -95,7 +95,7 @@
   UILabel* desLabel = [[UILabel alloc] initWithFrame:desLabelFrame];
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
-  desLabel.font = [PacoFont pacoNormalButtonFont];
+  desLabel.font = [UIFont pacoNormalButtonFont];
   desLabel.textColor = [UIColor pacoDarkBlue];
   desLabel.backgroundColor = [UIColor clearColor];
   desLabel.numberOfLines = 0;
@@ -123,7 +123,7 @@
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
     dateLabel.text = [NSString stringWithFormat:@"%@                  %@",
                       NSLocalizedString(@"Start Date:", nil), NSLocalizedString(@"End Date:", nil)];
-    dateLabel.font = [PacoFont pacoNormalButtonFont];
+    dateLabel.font = [UIFont pacoNormalButtonFont];
     dateLabel.textColor = [UIColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
@@ -147,7 +147,7 @@
   UILabel* creatorLabel = [[UILabel alloc] initWithFrame:creatorLabelFrame];
   NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
-  creatorLabel.font = [PacoFont pacoNormalButtonFont];
+  creatorLabel.font = [UIFont pacoNormalButtonFont];
   creatorLabel.textColor = [UIColor pacoDarkBlue];
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
@@ -157,7 +157,7 @@
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
   creatorValueLabel.text = creatorText;
-  creatorValueLabel.font = [PacoFont pacoTableCellDetailFont];
+  creatorValueLabel.font = [UIFont pacoTableCellDetailFont];
   creatorValueLabel.textColor = [UIColor pacoDarkBlue];
   creatorValueLabel.backgroundColor = [UIColor clearColor];
   creatorValueLabel.numberOfLines = 0;
@@ -180,7 +180,7 @@
 
     UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
     [incompatibilityMsg setText:NSLocalizedString(@"Incompatible with iOS", nil)];
-    incompatibilityMsg.font = [PacoFont pacoBoldFont];
+    incompatibilityMsg.font = [UIFont pacoBoldFont];
     incompatibilityMsg.textColor = [UIColor redColor];
     incompatibilityMsg.backgroundColor = [UIColor clearColor];
     [incompatibilityMsg sizeToFit];
@@ -196,7 +196,7 @@
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [join setTitle:NSLocalizedString(@"Join this Experiment", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
-    join.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    join.titleLabel.font = [UIFont pacoNormalButtonFont];
   }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:join];

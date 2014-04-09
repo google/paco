@@ -17,7 +17,7 @@
 
 #import "UIColor+Paco.h"
 #import "PacoClient.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoModel.h"
 #import "PacoQuestionView.h"
 #import "PacoService.h"

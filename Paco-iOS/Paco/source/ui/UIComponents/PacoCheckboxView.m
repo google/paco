@@ -16,7 +16,7 @@
 #import "PacoCheckboxView.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
@@ -87,7 +87,7 @@ NSString * const kStrPacoCheckboxChanged = @"kPacoNotificationCheckboxChanged";
     [label setTextColor:[UIColor blackColor]];
     [label setText:labelString];
     label.backgroundColor = [UIColor clearColor];
-    label.font = [PacoFont pacoTableCellFont];
+    label.font = [UIFont pacoTableCellFont];
     label.textAlignment = NSTextAlignmentLeft;
     [label sizeToFit];
     [self addSubview:label];

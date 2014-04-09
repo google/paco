@@ -16,7 +16,7 @@
 #import "PacoStepperView.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoStepperView()<UITextFieldDelegate>
@@ -36,14 +36,14 @@
     self.valueLabel.borderStyle = UITextBorderStyleRoundedRect;
     self.valueLabel.text = @"0";
     self.valueLabel.delegate = self;
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
     self.valueLabel.backgroundColor = [UIColor clearColor];
     self.valueLabel.textAlignment = NSTextAlignmentCenter;
     [self.valueLabel addTarget:self
                         action:@selector(textFieldDidChange:)
               forControlEvents:UIControlEventEditingChanged];
     self.valueLabel.keyboardType = UIKeyboardTypeNumberPad;
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
 
     UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(200, 0, 320, 50)];
     numberToolbar.barStyle = UIBarStyleDefault;

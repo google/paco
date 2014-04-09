@@ -18,7 +18,7 @@
 #import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoExperimentDetailsViewController.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoAlertView.h"
@@ -150,8 +150,8 @@
     if (![experiment isCompatibleWithIOS]) {
       cell.imageView.image = [UIImage imageNamed:@"incompatible"];
     }
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+    cell.textLabel.font = [UIFont pacoTableCellFont];
+    cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
     cell.textLabel.textColor = [UIColor pacoBlue];
     cell.detailTextLabel.text = experiment.creator;

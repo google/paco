@@ -21,7 +21,7 @@
 
 #import "PacoCheckboxView.h"
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
 #import "PacoStepperView.h"
@@ -167,14 +167,14 @@ UIImagePickerControllerDelegate>
   for (int i = 0; i < self.question.likertSteps; ++i) {
     UIButton *button = (self.numberButtons)[i];
     if (i == index) {
-      UIFont *font = [PacoFont pacoTableCellFont];
+      UIFont *font = [UIFont pacoTableCellFont];
       UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
       button.titleLabel.font = boldFont;
       [button setTitleColor:highlightedColor forState:UIControlStateNormal];
       [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
       [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_checked"] forState:UIControlStateNormal];
     } else {
-      button.titleLabel.font = [PacoFont pacoTableCellFont];
+      button.titleLabel.font = [UIFont pacoTableCellFont];
       [button setTitleColor:normalColor forState:UIControlStateNormal];
       [button setTitleColor:normalColor forState:UIControlStateHighlighted];
       [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_unchecked"] forState:UIControlStateNormal];
@@ -273,7 +273,7 @@ UIImagePickerControllerDelegate>
   self.questionText.text = self.question.text;
   self.questionText.backgroundColor = [UIColor clearColor];
   self.questionText.textColor = [UIColor pacoDarkBlue];
-  self.questionText.font = [PacoFont pacoTableCellFont];
+  self.questionText.font = [UIFont pacoTableCellFont];
   self.questionText.numberOfLines = 0;  // Number of lines limited to view size
   [self addSubview:self.questionText];
   [self.questionText sizeToFit];
@@ -304,7 +304,7 @@ UIImagePickerControllerDelegate>
       leftLabel.text = self.question.leftSideLabel;
       leftLabel.textColor = [UIColor pacoDarkBlue];
       leftLabel.backgroundColor = [UIColor clearColor];
-      leftLabel.font = [PacoFont pacoMenuButtonFont];
+      leftLabel.font = [UIFont pacoMenuButtonFont];
       [self addSubview:leftLabel];
       [leftLabel sizeToFit];
       [labels addObject:leftLabel];
@@ -313,7 +313,7 @@ UIImagePickerControllerDelegate>
       rightLabel.text = self.question.rightSideLabel;
       rightLabel.textColor = [UIColor pacoDarkBlue];
       rightLabel.backgroundColor = [UIColor clearColor];
-      rightLabel.font = [PacoFont pacoMenuButtonFont];
+      rightLabel.font = [UIFont pacoMenuButtonFont];
       [self addSubview:rightLabel];
       [rightLabel sizeToFit];
       [labels addObject:rightLabel];

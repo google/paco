@@ -16,7 +16,7 @@
 #import "PacoSliderView.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 NSInteger kSliderViewHeight = 60;
@@ -37,10 +37,10 @@ NSString * const kStrPacoSliderChanged = @"kPacoNotificationSliderChanged";
     self.backgroundColor = [UIColor pacoBackgroundWhite];
     self.valueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
     self.valueLabel.text = NSLocalizedString(@"Value", nil);
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
     self.valueLabel.backgroundColor = [UIColor clearColor];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
     self.slider = [[UISlider alloc] initWithFrame:CGRectZero];
     self.slider.minimumValue = 1.0;
     self.slider.maximumValue = 30.0;

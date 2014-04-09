@@ -16,7 +16,7 @@
 #import "PacoLoadingTableCell.h"
 
 #import "UIColor+Paco.h"
-#import "pacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoLoadingTableCell ()
@@ -66,13 +66,13 @@
 - (void)layoutSubviews {
   self.backgroundColor = [UIColor pacoBackgroundWhite];
   _loadingTextLabel.textColor = [UIColor pacoDarkBlue];
-  _loadingTextLabel.font = [PacoFont pacoTableCellFont];
+  _loadingTextLabel.font = [UIFont pacoTableCellFont];
 
   NSArray *rowData = self.rowData;
   self.loadingText = rowData[1];
   _loadingTextLabel.text = self.loadingText;
 
-  CGSize textSize = [PacoLayout textSizeToFitSize:self.frame.size text:_loadingText font:[PacoFont pacoTableCellFont]];
+  CGSize textSize = [PacoLayout textSizeToFitSize:self.frame.size text:_loadingText font:[UIFont pacoTableCellFont]];
   CGRect textCenterRect = CGRectMake(0, 0, self.bounds.size.width, textSize.height + 20);
   _loadingTextLabel.frame = [PacoLayout centerRect:textSize inRect:textCenterRect];
 

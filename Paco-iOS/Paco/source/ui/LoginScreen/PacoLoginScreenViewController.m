@@ -23,7 +23,7 @@
 #import "PacoMainViewController.h"
 #import "PacoTitleView.h"
 #import "PacoLoadingView.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 
 static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/settings/security";
 
@@ -88,7 +88,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   CGRect frame = textField.frame;
   frame.size.width = 200;
   frame.size.height = 36;
-  textField.font = [PacoFont pacoTableCellFont];
+  textField.font = [UIFont pacoTableCellFont];
   textField.frame = frame;
   textField.clipsToBounds = YES;
   textField.layer.cornerRadius = 5.;
@@ -113,7 +113,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   frame.size.width = 200;
   frame.size.height = 36;
   textField2.frame = frame;
-  textField2.font = [PacoFont pacoTableCellFont];
+  textField2.font = [UIFont pacoTableCellFont];
   textField2.clipsToBounds = YES;
   textField2.layer.cornerRadius = 5.;
   self.pwdField = textField2;

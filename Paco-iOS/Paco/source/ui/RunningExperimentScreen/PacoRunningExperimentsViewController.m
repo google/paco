@@ -17,7 +17,7 @@
 
 #import "PacoClient.h"
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLoadingTableCell.h"
 #import "PacoModel.h"
 #import "PacoService.h"
@@ -197,14 +197,14 @@
     PacoExperiment *experiment = rowData;
     cell.backgroundColor = [UIColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
+    cell.textLabel.font = [UIFont pacoTableCellFont];
     cell.textLabel.textColor = [UIColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
     if ([experiment isScheduledExperiment] &&
         [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {
       cell.detailTextLabel.text = NSLocalizedString(@"Time to participate!", nil);
       cell.detailTextLabel.textColor = [UIColor colorWithRed:65./256. green:186./256. blue:34./256. alpha:.85];
-      cell.detailTextLabel.font = [PacoFont pacoBoldFont];
+      cell.detailTextLabel.font = [UIFont pacoBoldFont];
     } else {
       cell.detailTextLabel.text = nil;
     }

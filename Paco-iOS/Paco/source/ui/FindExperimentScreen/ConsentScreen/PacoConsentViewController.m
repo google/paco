@@ -21,7 +21,7 @@
 #import "PacoModel.h"
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoAlertView.h"
 
@@ -50,7 +50,7 @@
 
   UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
   boldTitle.text = NSLocalizedString(@"Data Handling & Privacy Agreement between You and the Experiment Creator", nil);
-  boldTitle.font = [PacoFont pacoBoldFont];
+  boldTitle.font = [UIFont pacoBoldFont];
   boldTitle.textColor = [UIColor blackColor];
   boldTitle.backgroundColor = [UIColor clearColor];
   boldTitle.numberOfLines = 0;
@@ -59,7 +59,7 @@
 
   UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, self.view.frame.size.width - 20, 0)];
   consentText.text = NSLocalizedString(@"Consent Text", nil);
-  consentText.font = [PacoFont pacoTableCellDetailFont];
+  consentText.font = [UIFont pacoTableCellDetailFont];
   consentText.textColor = [UIColor blackColor];
   consentText.backgroundColor = [UIColor clearColor];
   consentText.numberOfLines = 0;
@@ -77,7 +77,7 @@
   UIButton* iConsent = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [iConsent setTitle:NSLocalizedString(@"I Consent", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
-    iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    iConsent.titleLabel.font = [UIFont pacoNormalButtonFont];
   }
   [iConsent addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:iConsent];

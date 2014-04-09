@@ -20,7 +20,7 @@
 #import "PacoExperimentDetailsViewController.h"
 #import "PacoClient.h"
 #import "PacoService.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 
 @interface PacoPublicExperimentController () <UITableViewDelegate, UITableViewDataSource>
 @property(nonatomic, strong) UITableView* tableView;
@@ -165,7 +165,7 @@
     if (!cell) {
       cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"LoadMoreCell"];
       cell.textLabel.textAlignment = NSTextAlignmentCenter;
-      cell.textLabel.font = [PacoFont pacoNormalButtonFont];
+      cell.textLabel.font = [UIFont pacoNormalButtonFont];
     }
     [self updateLoadMoreCell:cell];
     return cell;
@@ -176,9 +176,9 @@
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                   reuseIdentifier:@"experimentCell"];
 
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
+    cell.textLabel.font = [UIFont pacoTableCellFont];
     cell.textLabel.textColor = [UIColor pacoSystemButtonBlue];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+    cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }
   NSDictionary* dict = (self.definitions)[indexPath.row];

@@ -18,7 +18,7 @@
 #import <objc/runtime.h>
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoLoadingTableCell.h"
 #import "PacoTableCell.h"
 #import "PacoTableViewDelegate.h"
@@ -350,8 +350,8 @@
     pacoCell.rowData = rowData;
     pacoCell.reuseId = reuseId;
     pacoCell.backgroundColor = [UIColor pacoBackgroundWhite];
-    pacoCell.textLabel.font = [PacoFont pacoTableCellFont];
-    pacoCell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+    pacoCell.textLabel.font = [UIFont pacoTableCellFont];
+    pacoCell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
   }
   [_delegate initializeCell:cell withData:rowData forReuseId:reuseId];
   return cell;

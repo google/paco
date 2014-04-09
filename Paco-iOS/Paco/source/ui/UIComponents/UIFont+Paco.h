@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PacoFont : NSObject
+@interface UIFont (Paco)
 
 + (UIFont *)pacoTableCellFont;
 + (UIFont *)pacoTableCellDetailFont;

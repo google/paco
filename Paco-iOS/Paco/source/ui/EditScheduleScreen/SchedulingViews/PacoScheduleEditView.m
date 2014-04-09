@@ -18,7 +18,6 @@
 #import "PacoModel.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFont.h"
 #import "PacoTimeSelectionView.h"
 #import "PacoDayOfMonthSelectionView.h"
 #import "PacoDayOfWeekSelectionView.h"
@@ -31,7 +30,7 @@
 #import "PacoTableTextCell.h"
 #import "PacoTableView.h"
 #import "PacoExperimentSchedule.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoClient.h"
 #import "PacoTimeEditView.h"
 
@@ -65,7 +64,7 @@ NSString *kCellIdText = @"text";
     _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [_joinButton setTitle:NSLocalizedString(@"Join", nil) forState:UIControlStateNormal];
     if (IS_IOS_7) {
-      _joinButton.titleLabel.font = [PacoFont pacoNormalButtonFont];
+      _joinButton.titleLabel.font = [UIFont pacoNormalButtonFont];
     }
 
     _tableView.footer = _joinButton;
