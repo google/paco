@@ -67,7 +67,10 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
+
+  self.view = [[UIScrollView alloc]initWithFrame:self.view.frame];
   self.view.backgroundColor = [UIColor pacoBackgroundWhite];
+  self.automaticallyAdjustsScrollViewInsets = NO;
 
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
@@ -85,7 +88,11 @@
   titleLabel.frame = frame;
   [titleLabel sizeToFit];
 
-  UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, self.view.frame.size.width - 20, 20)];
+  CGRect desLabelFrame = CGRectMake(10,
+                                    titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
+                                    self.view.frame.size.width - 20,
+                                    20);
+  UILabel* desLabel = [[UILabel alloc] initWithFrame:desLabelFrame];
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
   desLabel.font = [PacoFont pacoNormalButtonFont];
@@ -93,16 +100,24 @@
   desLabel.backgroundColor = [UIColor clearColor];
   desLabel.numberOfLines = 0;
   [self.view addSubview:desLabel];
+  int yPosition = desLabel.frame.origin.y + desLabel.frame.size.height + 5;
 
-  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 140)];
+  CGRect descriptionTextFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 0);
+  UILabel *descriptionLabel = [[UILabel alloc] initWithFrame:descriptionTextFrame];
   descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
   descriptionLabel.textColor = [UIColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.experimentDescription;
-  descriptionLabel.editable = NO;
+  descriptionLabel.numberOfLines = 0;
+  [descriptionLabel sizeToFit];
+  frame = descriptionLabel.frame;
+  descriptionLabel.frame = CGRectMake(10,
+                                      yPosition,
+                                      self.view.frame.size.width - 20,
+                                      frame.size.height);
   [self.view addSubview:descriptionLabel];
 
-  int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
+  yPosition += descriptionLabel.frame.size.height + 20;
 
   if (self.experiment.startDate) {
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
@@ -113,7 +128,7 @@
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
-    yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
+    yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 5;
 
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
@@ -128,7 +143,8 @@
     yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
   }
 
-  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20)];
+  CGRect creatorLabelFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20);
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:creatorLabelFrame];
   NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
   creatorLabel.font = [PacoFont pacoNormalButtonFont];
@@ -136,7 +152,7 @@
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
-  yPosition += 30;
+  yPosition += 25;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
@@ -153,12 +169,12 @@
   creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
-  yPosition += creatorValueLabel.frame.size.height + 10;
+  yPosition += creatorValueLabel.frame.size.height + 20;
 
   if (![self.experiment isCompatibleWithIOS]) {
     UIImage* lockImage = [UIImage imageNamed:@"incompatible"];
-    UIImageView* lockView = [[UIImageView alloc] initWithFrame:
-                             CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
+    CGRect lockViewFrame = CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height);
+    UIImageView* lockView = [[UIImageView alloc] initWithFrame:lockViewFrame];
     [lockView setImage:lockImage];
     [self.view addSubview:lockView];
 
@@ -174,6 +190,7 @@
     textFrame.origin.y = yPosition + lockImage.size.height - incompatibilityMsg.frame.size.height;
     textFrame.size = incompatibilityMsg.frame.size;
     incompatibilityMsg.frame = textFrame;
+    yPosition += incompatibilityMsg.frame.size.height + 20;
   }
 
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
@@ -186,8 +203,10 @@
   [join sizeToFit];
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
-  joinframe.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
+  joinframe.origin.y = yPosition;
   join.frame = joinframe;
+  yPosition += join.frame.size.height + 10;
+  [(UIScrollView*)self.view setContentSize:CGSizeMake(self.view.frame.size.width, yPosition)];
 }
 
 - (void)onJoin {
