@@ -41,7 +41,7 @@ extern NSString* const PacoAppBecomeActive;
 - (BOOL)areRunningExperimentsLoaded;
 - (BOOL)shouldTriggerNotificationSystem;
 
-- (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
 - (BOOL)saveExperimentInstancesToFile;
 
 

@@ -69,7 +69,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (void)applyDefinitionJSON:(id)jsonObject {
   //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
-  self.jsonObjectDefinitions = jsonObject;
   NSMutableArray *definitions = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
@@ -153,14 +152,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return array;
 }
 
-- (void)makeJSONObjectFromExperiments {
-  NSMutableArray *experiments = [[NSMutableArray alloc] init];
-  for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
-    assert(definition.jsonObject);
-    [experiments addObject:definition.jsonObject];
-  }
-  self.jsonObjectDefinitions = experiments;
-}
 
 - (void)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
@@ -227,12 +218,9 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 #pragma mark file writing operations
-- (BOOL)saveExperimentDefinitionsToFile {
-  if (!self.jsonObjectDefinitions) {
-    [self makeJSONObjectFromExperiments];
-  }
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson {
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectDefinitions
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:definitionsJson
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
@@ -247,6 +235,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   }
   return success;
 }
+
 
 - (BOOL)saveExperimentInstancesToFile {
   [self makeJSONObjectFromInstances];
