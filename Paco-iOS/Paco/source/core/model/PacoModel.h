@@ -45,19 +45,15 @@ extern NSString* const PacoAppBecomeActive;
 - (BOOL)saveExperimentInstancesToFile;
 
 - (BOOL)loadFromFile;
-- (BOOL)deleteFile;
-
-- (void)cleanAllExperiments;
 
 
-+ (PacoModel *)pacoModelFromFile;
+
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
 
 /* Operations on the model */
 
 /* adding/removing Experiment Definitions */
 - (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
-- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition

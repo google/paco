@@ -60,14 +60,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return self;
 }
 
-+ (PacoModel *)pacoModelFromFile {
-  PacoModel *model = [[PacoModel alloc] init];
-  BOOL loaded = [model loadFromFile];
-  if (!loaded) {
-    return nil;
-  }
-  return model;
-}
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
@@ -182,13 +174,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (void)cleanAllExperiments {
-  self.experimentInstances = [NSMutableArray array];
-  self.jsonObjectInstances = nil;
-  [self saveExperimentInstancesToFile];
-}
-
-
 - (BOOL)refreshExperiments {
   @synchronized(self) {
     if (0 == [self.experimentInstances count]) {
@@ -283,16 +268,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     DDLogError(@"Failed to save %@", fileName);
   }
   return success;
-}
-
-
-- (BOOL)deleteFile {
-  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
-  NSError *error = nil;
-  if ([[NSFileManager defaultManager] removeItemAtPath:fileName error:&error] != YES) {
-    return NO;
-  }
-  return YES;
 }
 
 
@@ -398,15 +373,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   self.experimentDefinitions = [NSArray arrayWithArray:definitions];
 }
 
-- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
-  NSUInteger index = [self.experimentDefinitions indexOfObject:experimentDefinition];
-  NSAssert(index != NSNotFound, @"An experiment definition must be in model to be deleted!");
-  
-  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
-  [definitions removeObject:experimentDefinition];
-  
-  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
-}
 
 - (void)updateExperimentDefinitions:(NSArray*)definitions {
   self.experimentDefinitions = definitions;
