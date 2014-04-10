@@ -19,7 +19,7 @@
 extern NSString* const kSignalType;
 extern NSString* const kTriggerSignal;
 
-@interface PacoTriggerSignal : NSObject
+@interface PacoTriggerSignal : NSObject <NSCopying>
 
 @property (nonatomic, copy, readonly) NSString* identifier;
 @property (nonatomic, copy, readonly) NSString* signalType;
