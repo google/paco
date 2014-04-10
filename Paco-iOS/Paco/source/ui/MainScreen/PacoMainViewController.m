@@ -14,6 +14,7 @@
  */
 
 #import "PacoMainViewController.h"
+#import <MessageUI/MessageUI.h>
 
 #import "UIColor+Paco.h"
 #import "PacoFindExperimentsViewController.h"
@@ -29,7 +30,12 @@
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "PacoPublicExperimentController.h"
+#import "PacoAlertView.h"
+#import "NSString+Paco.h"
 
+@interface PacoMainViewController ()<MFMailComposeViewControllerDelegate>
+
+@end
 
 @implementation PacoMainViewController
 
@@ -200,23 +206,96 @@
 
 - (void)onInfoSelect:(UIButton *)sender {
   NSString* version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
-  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:[NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"Version", nil),version]
+  NSString* title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:title
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)
                                              destructiveButtonTitle:nil
-                                                  otherButtonTitles:NSLocalizedString(@"About Paco", nil), nil];
+                                                  otherButtonTitles:NSLocalizedString(@"About Paco", nil),
+                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil), nil];
   [actionSheet showInView:self.view];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-  if (buttonIndex == 0) {
-    [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
+  switch (buttonIndex) {
+    case 0:
+    {
+      [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
+      break;
+    }
+    case 1:
+    {
+      [self openMailViewController];
+      break;
+    }
+    default:
+      break;
   }
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
   PacoWebViewController* webViewController =  [PacoWebViewController controllerWithTitle:title andHtml:htmlName];
   [self.navigationController pushViewController:webViewController animated:YES];
+}
+
+- (void)openMailViewController {
+  if ([MFMailComposeViewController canSendMail]) {
+    MFMailComposeViewController* mailer = [[MFMailComposeViewController alloc] init];
+    mailer.mailComposeDelegate = self;
+    [mailer setSubject:NSLocalizedString(@"Paco Logs", nil)];
+    NSArray* toRecipients = @[@"paco-support@googlegroups.com"];
+    [mailer setToRecipients:toRecipients];
+    NSError* error;
+    NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString pacoLogDirectory] error:&error];
+    if (error) {
+      DDLogError(@"Failed to fetch filenames from Logs directory: %@", [error description]);
+      return;
+    }
+    for (NSString* fileName in contents) {
+      NSString* path = [[NSString pacoLogDirectory] stringByAppendingFormat:@"/%@", fileName];
+      NSData* data = [NSData dataWithContentsOfFile:path];
+      [mailer addAttachmentData:data mimeType:@"text/plain" fileName:fileName];
+    }
+    [self presentViewController:mailer animated:YES completion:nil];
+  }
+  else {
+    NSString* title = NSLocalizedString(@"Email not configured", nil);
+    NSString* message = NSLocalizedString(@"Configure email message", nil);
+    [PacoAlertView showAlertWithTitle:title message:message cancelButtonTitle:@"OK"];
+  }
+}
+
+#pragma mark --
+#pragma mark Dismiss Mail ViewController
+- (void)mailComposeController:(MFMailComposeViewController *)controller
+          didFinishWithResult:(MFMailComposeResult)result
+                        error:(NSError *)error {
+  NSString* resultString;
+  switch (result) {
+    case MFMailComposeResultCancelled: {
+      resultString = NSLocalizedString(@"Email Cancelled", nil);
+      break;
+    }
+    case MFMailComposeResultSaved: {
+      resultString = NSLocalizedString(@"Email Saved", nil);
+      break;
+    }
+    case MFMailComposeResultSent: {
+      resultString = NSLocalizedString(@"Email Sent", nil);
+      break;
+    }
+    case MFMailComposeResultFailed: {
+      resultString = NSLocalizedString(@"Email Failed", nil);
+      break;
+    }
+
+    default:
+      break;
+  }
+  [self dismissViewControllerAnimated:YES completion:nil];
+  [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Mail Status", nil)
+                            message:resultString
+                  cancelButtonTitle:@"OK"];
 }
 
 @end

@@ -28,6 +28,16 @@
   return documentDirectory;
 }
 
++ (NSString*)pacoLogDirectory {
+  static NSString* logPath = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSArray* pathsArray = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    logPath = [[pathsArray firstObject] stringByAppendingPathComponent:@"Logs"];
+  });
+  return logPath;
+}
+
 + (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName {
   NSString* fileFullPath = [[NSString pacoDocumentDirectory] stringByAppendingPathComponent:fileName];
   return fileFullPath;

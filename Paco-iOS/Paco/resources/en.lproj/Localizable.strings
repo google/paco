@@ -30,6 +30,8 @@
 "Version" = "Version";
 "Close" = "Close";
 "About Paco" = "About Paco";
+"Send Logs to Paco Team" = "Send Logs to Paco Team";
+"Paco Logs" = "Paco Logs";
 
 //Ways to talk to Paco
 "Ways to talk to Paco" = "Ways to talk to Paco";
