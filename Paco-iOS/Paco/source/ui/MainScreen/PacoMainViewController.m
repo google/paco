@@ -206,15 +206,13 @@
 
 - (void)onInfoSelect:(UIButton *)sender {
   NSString* version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
-  UIActionSheet* actionSheet = [[UIActionSheet alloc]
-                                initWithTitle:[NSString stringWithFormat:@"%@ %@",
-                                               NSLocalizedString(@"Version", nil),
-                                               version]
-                                     delegate:self cancelButtonTitle:NSLocalizedString(@"Close", nil)
-                       destructiveButtonTitle:nil
-                            otherButtonTitles:NSLocalizedString(@"About Paco", nil),
-                                NSLocalizedString(@"Send Logs to Paco Team", nil),
-                                nil];
+  NSString* title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:title
+                                                           delegate:self
+                                                  cancelButtonTitle:NSLocalizedString(@"Close", nil)
+                                             destructiveButtonTitle:nil
+                                                  otherButtonTitles:NSLocalizedString(@"About Paco", nil),
+                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil), nil];
   [actionSheet showInView:self.view];
 }
 
@@ -244,14 +242,17 @@
   if ([MFMailComposeViewController canSendMail]) {
     MFMailComposeViewController* mailer = [[MFMailComposeViewController alloc] init];
     mailer.mailComposeDelegate = self;
-    [mailer setSubject:NSLocalizedString(@"Paco Logs",nil)];
+    [mailer setSubject:NSLocalizedString(@"Paco Logs", nil)];
     NSArray* toRecipients = @[@"paco-support@googlegroups.com"];
     [mailer setToRecipients:toRecipients];
-
-    NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString pacoHomeDirectory] error:NULL];
-    for (int i = 0; i < [contents count]; i++) {
-      NSString* fileName = [contents objectAtIndex:i];
-      NSString* path = [[NSString pacoHomeDirectory]stringByAppendingFormat:@"/%@", fileName];
+    NSError* error;
+    NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString pacoLogDirectory] error:&error];
+    if (error) {
+      DDLogError(@"Failed to fetch filenames from Logs directory: %@", [error description]);
+      return;
+    }
+    for (NSString* fileName in contents) {
+      NSString* path = [[NSString pacoLogDirectory] stringByAppendingFormat:@"/%@", fileName];
       NSData* data = [NSData dataWithContentsOfFile:path];
       [mailer addAttachmentData:data mimeType:@"text/plain" fileName:fileName];
     }
