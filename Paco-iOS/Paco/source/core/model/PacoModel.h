@@ -34,9 +34,10 @@ extern NSString* const PacoAppBecomeActive;
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
-- (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
 - (BOOL)areRunningExperimentsLoaded;
+
+//NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;
 
 - (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;

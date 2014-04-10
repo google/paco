@@ -34,14 +34,11 @@ NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
 
-@interface PacoExperimentSchedule ()
-- (id)serializeToJSON;
-@end
 
 
 @interface PacoModel ()
-@property (retain, readwrite) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain, readwrite) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
 @end
 
 
@@ -50,8 +47,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 #pragma mark Object Lifecycle
 //designated initializer
-- (id)init
-{
+- (id)init {
   self = [super init];
   if (self) {
     _experimentDefinitions = @[];
@@ -61,7 +57,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (NSString *)description {
+- (NSString*)description {
   return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
 }
 
@@ -74,7 +70,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   for (id jsonExperiment in jsonExperiments) {
     PacoExperimentDefinition *experimentDefinition =
         [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonExperiment];
-    assert(experimentDefinition);
+    NSAssert(experimentDefinition, @"definition should be created successfully");
     [definitions addObject:experimentDefinition];
   }
   self.experimentDefinitions = definitions;
@@ -104,11 +100,11 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 - (BOOL)shouldTriggerNotificationSystem {
-  if (!self.experimentInstances) {
+  if (![self areRunningExperimentsLoaded]) {
     DDLogError(@"Running experiments are not loaded yet!");
   }
   
-  if (0 == [self.experimentInstances count]) {
+  if (![self hasRunningExperiments]) {
     DDLogInfo(@"No running experiments.");
     return NO;
   }
@@ -141,16 +137,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return nil;  
 }
 
-- (NSArray *)instancesForExperimentId:(NSString *)experimentId {
-  NSMutableArray *array = [NSMutableArray array];
-  for (PacoExperiment *instance in self.experimentInstances) {
-    if ([instance.definition.experimentId isEqualToString:experimentId]) {
-      [array addObject:instance];
-    }
-  }
-  return array;
-}
-
 
 - (id)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
@@ -165,7 +151,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 - (BOOL)refreshExperiments {
   @synchronized(self) {
-    if (0 == [self.experimentInstances count]) {
+    if (![self hasRunningExperiments]) {
       return NO;
     }
 
