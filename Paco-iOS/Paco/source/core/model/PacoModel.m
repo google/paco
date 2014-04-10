@@ -89,7 +89,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   
 //  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
-  self.jsonObjectInstances = jsonObject;
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
@@ -153,7 +152,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (void)makeJSONObjectFromInstances {
+- (id)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
     id json = [experiment serializeToJSON];
@@ -161,7 +160,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experiment.jsonObject, @"experiment json should not be nil");
     [experiments addObject:experiment.jsonObject];
   }
-  self.jsonObjectInstances = experiments;
+  return experiments;
 }
 
 
@@ -238,12 +237,12 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (BOOL)saveExperimentInstancesToFile {
-  [self makeJSONObjectFromInstances];
-  NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]],
-           @"jsonObjectInstances should be an array!");
+  id instanceListJson = [self makeJSONObjectFromInstances];
+  NSAssert([instanceListJson isKindOfClass:[NSArray class]],
+           @"instanceListJson should be an array!");
 
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectInstances
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:instanceListJson
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
@@ -324,8 +323,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSAssert([jsonObj isKindOfClass:[NSArray class]], @"jsonObj should be an array!");
 
   [self applyInstanceJSON:jsonObj];
-  NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
-  DDLogInfo(@"Loaded %lu instances from file \n", (unsigned long)[self.jsonObjectInstances count]);
+  DDLogInfo(@"Loaded %lu instances from file \n", (unsigned long)[jsonObj count]);
   return nil;
 }
 
