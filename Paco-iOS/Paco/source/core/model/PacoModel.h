@@ -31,7 +31,6 @@ extern NSString* const PacoAppBecomeActive;
 //for the following properties
 @property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
 @property (retain, readonly) NSMutableArray *experimentInstances;  // <PacoExperiment>
-@property (retain) id jsonObjectDefinitions;
 @property (retain) id jsonObjectInstances;
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;

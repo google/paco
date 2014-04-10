@@ -282,7 +282,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     DDLogError(@"Failed to parse definition json");
     return NO;
   }
-  // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
   NSAssert([jsonObj isKindOfClass:[NSArray class]], @"should be an array");
   NSArray* definitions = jsonObj;
   [self applyDefinitionJSON:definitions];
