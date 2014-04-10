@@ -156,9 +156,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
     id json = [experiment serializeToJSON];
-    experiment.jsonObject = json;
-    NSAssert(experiment.jsonObject, @"experiment json should not be nil");
-    [experiments addObject:experiment.jsonObject];
+    NSAssert(json, @"experiment json should not be nil");
+    [experiments addObject:json];
   }
   return experiments;
 }

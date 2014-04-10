@@ -67,16 +67,15 @@
 
 - (void)deserializeFromJSON:(id)json {
   NSAssert([json isKindOfClass:[NSDictionary class]], @"json should be a dictionary");
-  self.jsonObject = json;
 
-  self.instanceId = (self.jsonObject)[@"instanceId"];
-  self.joinTime = [PacoDateUtility pacoDateForString:(self.jsonObject)[@"joinTime"]];
+  self.instanceId = (json)[@"instanceId"];
+  self.joinTime = [PacoDateUtility pacoDateForString:(json)[@"joinTime"]];
   
-  NSDictionary* jsonSchedule = (self.jsonObject)[@"schedule"];
+  NSDictionary* jsonSchedule = (json)[@"schedule"];
   self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   NSAssert(self.schedule, @"schedule doesn't exist!");
   
-  NSDictionary* jsonDefinition = (self.jsonObject)[@"definition"];
+  NSDictionary* jsonDefinition = (json)[@"definition"];
   self.definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonDefinition];
   NSAssert(self.definition, @"definition doesn't exist!");
 }
