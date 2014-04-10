@@ -25,8 +25,15 @@
   feedback.feedbackId = [NSString stringWithFormat:@"%ld", [feedbackMembers[@"id"] longValue]];
   feedback.type = feedbackMembers[@"feedbackType"];
   feedback.text = feedbackMembers[@"text"];
-  feedback.jsonObject = jsonObject;
   return feedback;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+  PacoExperimentFeedback* copy = [[[self class] allocWithZone:zone] init];
+  copy.feedbackId = [self.feedbackId copyWithZone:zone];
+  copy.text = [self.text copyWithZone:zone];
+  copy.type = [self.type copyWithZone:zone];
+  return copy;
 }
 
 - (id)serializeToJSON {
