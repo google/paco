@@ -44,9 +44,6 @@ extern NSString* const PacoAppBecomeActive;
 - (BOOL)saveExperimentDefinitionsToFile;
 - (BOOL)saveExperimentInstancesToFile;
 
-- (BOOL)loadFromFile;
-
-
 
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
 

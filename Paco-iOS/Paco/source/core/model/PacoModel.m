@@ -78,7 +78,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     assert(experimentDefinition);
     [definitions addObject:experimentDefinition];
   }
-  [self updateExperimentDefinitions:definitions];
+  self.experimentDefinitions = definitions;
 }
 
 - (void)applyInstanceJSON:(id)jsonObject {
@@ -98,7 +98,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
   }
-  [self updateExperimentInstances:instances];
+  self.experimentInstances = instances;
 }
 
 - (BOOL)areRunningExperimentsLoaded {
@@ -341,14 +341,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return nil;
 }
 
-- (BOOL)loadFromFile {
-  BOOL success = YES;
-  BOOL check1 = [self loadExperimentDefinitionsFromFile];
-  success = success && check1;
-  NSError* error = [self loadExperimentInstancesFromFile];
-  success = success && (error == nil);
-  return success;
-}
 
 //YMZ: TODO: this method may need to be re-designed to be more efficient
 - (BOOL)isExperimentJoined:(NSString*)definitionId {
@@ -374,10 +366,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (void)updateExperimentDefinitions:(NSArray*)definitions {
-  self.experimentDefinitions = definitions;
-}
-
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
                                       schedule:(PacoExperimentSchedule *)schedule {
@@ -400,9 +388,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   [self saveExperimentInstancesToFile];
 }
 
-- (void)updateExperimentInstances:(NSMutableArray*)experiments {
-  self.experimentInstances = experiments;
-}
 
 - (BOOL)hasRunningExperiments {
   return [self.experimentInstances count] > 0;
