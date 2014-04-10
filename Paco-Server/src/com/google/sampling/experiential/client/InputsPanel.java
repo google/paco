@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,8 +17,6 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 
 package com.google.sampling.experiential.client;
-
-import java.util.concurrent.Callable;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -41,11 +39,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.InputDAO;
 
 /**
- * 
+ *
  * Panel for viewing/editing one Input object.
- * 
+ *
  * @author Bob Evans
- * 
+ *
  */
 public class InputsPanel extends Composite {
 
@@ -65,6 +63,7 @@ public class InputsPanel extends Composite {
     this.input = input;
     this.parent = parent;
     mainPanel = new VerticalPanel();
+    mainPanel.setStyleName("inputsBordered");
     mainPanel.setSpacing(2);
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     initWidget(mainPanel);
@@ -120,9 +119,9 @@ public class InputsPanel extends Composite {
       return true;
     }
   }
-  
+
   public boolean checkVarNameFilledWithoutSpacesAndHighlight() {
-    boolean filledAndHasNoSpaces = !(input.getName() == null) 
+    boolean filledAndHasNoSpaces = !(input.getName() == null)
         && !input.getName().isEmpty() && !input.getName().contains(" ");
     setFieldHighlight(varNamePanel.getWidget(1), filledAndHasNoSpaces);
     return filledAndHasNoSpaces;
@@ -169,18 +168,18 @@ public class InputsPanel extends Composite {
     upperLinePanel.setStyleName("left");
     mainPanel.add(upperLinePanel);
 
-    lowerLinePanel = new HorizontalPanel();
-    mainPanel.add(lowerLinePanel);
-
     createResponseTypeColumn();
     createVarNameColumn();
     createInputTextColumn();
-
-    createResponseViewPanel();
-
     createRequiredCheckBoxColumn();
     createConditionCheckboxColumn();
     createConditionExpressionPanel();
+
+    lowerLinePanel = new HorizontalPanel();
+    mainPanel.add(lowerLinePanel);
+    createResponseViewPanel();
+
+
 
     // createScheduledDateColumn(upperLinePanel);
   }

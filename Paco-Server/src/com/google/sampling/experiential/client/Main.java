@@ -540,6 +540,8 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.EDIT_CODE:
         contentPanel.clear();
+        statusLabel.setVisible(true);
+        toggleExperimentList(false);
         showExperimentDetailPanel(experiment, !joined, findView);
         break;
       case ExperimentListener.SAVED:
@@ -548,6 +550,7 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.CANCELED:
         contentPanel.clear();
+        toggleExperimentList(true);
         break;
       case ExperimentListener.SOFT_DELETE_CODE:
         softDeleteExperiment(experiment);
@@ -563,6 +566,7 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
         copyExperiment(experiment);
+        toggleExperimentList(false);
         showExperimentDetailPanel(experiment, true, false);
         break;
       case ExperimentListener.ANON_MAPPING_CODE:

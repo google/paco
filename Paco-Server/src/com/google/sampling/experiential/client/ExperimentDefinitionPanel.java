@@ -130,6 +130,7 @@ public class ExperimentDefinitionPanel extends Composite {
       listeners.add(listener);
     }
     formPanel = new VerticalPanel();
+    formPanel.setStyleName("experiment-definition-panel");
     initWidget(formPanel);
 
     String titleText = myConstants.experimentDefinition();
@@ -196,6 +197,10 @@ public class ExperimentDefinitionPanel extends Composite {
     titlePanel = (TextBox) titlePanelPair.valueHolder;
     formPanel.add(titlePanelPair.container);
 
+    PanelPair creatorPanelPair = createCreatorPanel(experiment);
+    creatorPanel = (Label) creatorPanelPair.valueHolder;
+    formPanel.add(creatorPanelPair.container);
+
     formPanel.add(createIdPanel(experiment).container);
     formPanel.add(createVersionPanel(experiment).container);
 
@@ -203,9 +208,14 @@ public class ExperimentDefinitionPanel extends Composite {
     descriptionPanel = (TextArea) descriptionPanelPair.valueHolder;
     formPanel.add(descriptionPanelPair.container);
 
-    PanelPair creatorPanelPair = createCreatorPanel(experiment);
-    creatorPanel = (Label) creatorPanelPair.valueHolder;
-    formPanel.add(creatorPanelPair.container);
+    VerticalPanel inputsContainerPanel = new VerticalPanel();
+    inputsContainerPanel.setStyleName("bordered");
+    inputsContainerPanel.add(createInputsHeader());
+    inputsContainerPanel.add(createInputsListPanel(experiment));
+    formPanel.add(inputsContainerPanel);
+
+    formPanel.add(createDurationPanel(experiment));
+    formPanel.add(createSignalMechanismPanel(experiment));
 
     formPanel.add(createAdminDisclosurePanel(experiment));
 
@@ -213,16 +223,13 @@ public class ExperimentDefinitionPanel extends Composite {
     informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
     formPanel.add(informedConsentPanelPair.container);
 
-    formPanel.add(createDurationPanel(experiment));
-    formPanel.add(createSignalMechanismPanel(experiment));
+    formPanel.add(createPublishingPanel(experiment));
 
-    formPanel.add(createInputsHeader());
-    formPanel.add(createInputsListPanel(experiment));
+    formPanel.add(createCustomRenderingEntryPanel(experiment));
 
-    createCustomRenderingEntryPanel(experiment);
+    formPanel.add(createFeedbackEntryPanel(experiment));
 
-    createFeedbackEntryPanel(experiment);
-    createPublishingPanel(experiment);
+
     createButtonPanel(experiment);
   }
 
@@ -232,19 +239,35 @@ public class ExperimentDefinitionPanel extends Composite {
 
 
   private Widget createCustomRenderingEntryPanel(ExperimentDAO experiment2) {
+    VerticalPanel containerPanel = new VerticalPanel();
+    containerPanel.setStyleName("bordered");
+
     HorizontalPanel renderingPanel = new HorizontalPanel();
     customRenderingCheckBox = new CheckBox();
-    customRenderingCheckBox.setChecked(experiment.isCustomRendering());
+    customRenderingCheckBox.setValue(experiment.isCustomRendering() != null ? experiment.isCustomRendering() : false);
     renderingPanel.add(customRenderingCheckBox);
+
     Label renderingLabel = new Label(myConstants.customRendering());
     renderingPanel.add(renderingLabel);
+
     HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
     renderingPanel.add(html);
-    formPanel.add(renderingPanel);
+
+    containerPanel.add(renderingPanel);
 
     createCustomRenderingDisclosurePanel(experiment);
-    formPanel.add(customRenderingPanel);
-    return renderingPanel;
+    customRenderingPanel.getHeader().setVisible(customRenderingCheckBox.getValue());
+    containerPanel.add(customRenderingPanel);
+
+    customRenderingCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        customRenderingPanel.getHeader().setVisible(customRenderingCheckBox.getValue());
+        customRenderingPanel.setOpen(customRenderingCheckBox.getValue());
+      }
+    });
+    return containerPanel;
   }
 
   /**
@@ -267,11 +290,15 @@ public class ExperimentDefinitionPanel extends Composite {
     customRenderingPanel.setHeader(closedHeaderWidget);
     customRenderingPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
+        boolean currentlyVisible = customRenderingPanel.getHeader().isVisible();
         customRenderingPanel.setHeader(closedHeaderWidget);
+        closedHeaderWidget.setVisible(currentlyVisible);
       }
 
       public void onOpen(DisclosureEvent event) {
+        boolean currentlyVisible = customRenderingPanel.getHeader().isVisible();
         customRenderingPanel.setHeader(openHeaderWidget);
+        openHeaderWidget.setVisible(currentlyVisible);
       }
     });
 
@@ -280,8 +307,8 @@ public class ExperimentDefinitionPanel extends Composite {
     userContentPanel.add(instructionLabel);
 
     customRenderingEditor = new AceEditor();
-    customRenderingEditor.setWidth("600px");
-    customRenderingEditor.setHeight("400px");
+    customRenderingEditor.setWidth("800px");
+    customRenderingEditor.setHeight("600px");
     customRenderingEditor.startEditor();
     customRenderingEditor.setMode(AceEditorMode.JAVASCRIPT);
     customRenderingEditor.setTheme(AceEditorTheme.ECLIPSE);
@@ -301,14 +328,27 @@ public class ExperimentDefinitionPanel extends Composite {
    * @return
    */
   private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
+    VerticalPanel containerPanel = new VerticalPanel();
+    containerPanel.setStyleName("bordered");
+
     VerticalPanel feedbackPanel = new VerticalPanel();
     feedbackPanel.add(createShowFeedbackCheckboxPanel());
     feedbackPanel.add(createCustomFeedbackCheckboxPanel());
-    formPanel.add(feedbackPanel);
+    containerPanel.add(feedbackPanel);
 
     customFeedbackPanel = createCustomFeedbackDisclosurePanel(experiment);
-    formPanel.add(customFeedbackPanel);
-    return feedbackPanel;
+    customFeedbackPanel.getHeader().setVisible(customFeedbackCheckBox.getValue());
+    containerPanel.add(customFeedbackPanel);
+
+    customFeedbackCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        customFeedbackPanel.getHeader().setVisible(customFeedbackCheckBox.getValue());
+        customFeedbackPanel.setOpen(customFeedbackCheckBox.getValue());
+      }
+    });
+    return containerPanel;
   }
 
   private HorizontalPanel createShowFeedbackCheckboxPanel() {
@@ -365,11 +405,15 @@ public class ExperimentDefinitionPanel extends Composite {
     customFeedbackPanel.setHeader(closedHeaderWidget);
     customFeedbackPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
+        boolean currentlyVisible = customFeedbackPanel.getHeader().isVisible();
         customFeedbackPanel.setHeader(closedHeaderWidget);
+        closedHeaderWidget.setVisible(currentlyVisible);
       }
 
       public void onOpen(DisclosureEvent event) {
+        boolean currentlyVisible = customFeedbackPanel.getHeader().isVisible();
         customFeedbackPanel.setHeader(openHeaderWidget);
+        openHeaderWidget.setVisible(currentlyVisible);
       }
     });
 
@@ -378,8 +422,8 @@ public class ExperimentDefinitionPanel extends Composite {
     userContentPanel.add(instructionLabel);
 
     customFeedbackEditor = new AceEditor();
-    customFeedbackEditor.setWidth("600px");
-    customFeedbackEditor.setHeight("400px");
+    customFeedbackEditor.setWidth("800px");
+    customFeedbackEditor.setHeight("600px");
     customFeedbackEditor.startEditor();
     customFeedbackEditor.setMode(AceEditorMode.JAVASCRIPT);
     customFeedbackEditor.setTheme(AceEditorTheme.ECLIPSE);
@@ -405,7 +449,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private PanelPair createTitlePanel(ExperimentDAO experiment) {
-    return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "paco-HTML-Large");
+    return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "keyLabel");
   }
 
   private PanelPair createIdPanel(ExperimentDAO experiment) {
@@ -432,7 +476,7 @@ public class ExperimentDefinitionPanel extends Composite {
   }
 
   private HTML createInputsHeader() {
-    HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + "</h2>");
+    HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + ":</h2>");
     questionsPrompt.setStyleName("keyLabel");
     return questionsPrompt;
   }
@@ -446,7 +490,6 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private InputsListPanel createInputsListPanel(ExperimentDAO experiment) {
     inputsListPanel = new InputsListPanel(experiment);
-    inputsListPanel.setStyleName("left");
     return inputsListPanel;
   }
 
@@ -457,31 +500,40 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(buttonPanel);
   }
 
-  private void createPublishingPanel(ExperimentDAO experiment) {
+  private VerticalPanel createPublishingPanel(ExperimentDAO experiment) {
+    VerticalPanel containerPanel = new VerticalPanel();
+    containerPanel.setStyleName("bordered");
+
     HorizontalPanel publishingPanel = new HorizontalPanel();
     publishCheckBox = new CheckBox();
     publishCheckBox.setValue(experiment.getPublished());
     publishingPanel.add(publishCheckBox);
-    Label publishLabel = new Label(myConstants.published());
+    HTML publishLabel = new HTML("<h3> " + myConstants.published() + "</h3>");
     publishingPanel.add(publishLabel);
-    formPanel.add(publishingPanel);
+    containerPanel.add(publishingPanel);
 
     createPublishedUsersDisclosurePanel(experiment);
-    formPanel.add(publishedUsersPanel);
+    containerPanel.add(publishedUsersPanel);
+    return containerPanel;
   }
 
   private DisclosurePanel createAdminDisclosurePanel(ExperimentDAO experiment) {
     final DisclosurePanel adminPanel = new DisclosurePanel();
+    adminPanel.setStyleName("bordered");
     final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
                                                                                false,
-                                                                               "<b>"
-                                                                                   + myConstants.clickToEditAdministrators()
-                                                                                   + "</b>");
+//                                                                               "<b>" +
+                                                                                myConstants.clickToEditAdministrators()
+//                                                                                   + "</b>"
+                                                                                   );
+    closedHeaderWidget.setStyleName("keyLabel");
     final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
                                                                              true,
-                                                                             "<b>"
-                                                                                 + myConstants.clickToCloseAdministratorEditor()
-                                                                                 + "</b>");
+//                                                                             "<b>" +
+                                                                             myConstants.clickToCloseAdministratorEditor()
+//                                                                                 + "</b>"
+                                                                                 );
+    openHeaderWidget.setStyleName("keyLabel");
     adminPanel.setHeader(closedHeaderWidget);
     adminPanel.addEventHandler(new DisclosureHandler() {
       public void onClose(DisclosureEvent event) {
@@ -493,7 +545,7 @@ public class ExperimentDefinitionPanel extends Composite {
       }
     });
     VerticalPanel adminContentPanel = new VerticalPanel();
-    Label instructionlabel = createLabel(myConstants.administratorEditorPrompt());
+    Label instructionlabel = new Label(myConstants.administratorEditorPrompt());
     adminContentPanel.add(instructionlabel);
 
     adminList = new TextArea();
@@ -569,7 +621,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private PanelPair createFormLine(String key, String value, String styleName) {
     VerticalPanel line = new VerticalPanel();
-    line.setStyleName("left");
+    line.setStyleName("bordered");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName(styleName == null ? "keyLabel" : styleName);
     TextBox valueBox = new TextBox();
@@ -577,6 +629,7 @@ public class ExperimentDefinitionPanel extends Composite {
       valueBox.setText(value);
     }
     valueBox.setEnabled(true);
+    valueBox.setWidth("100%");
     line.add(keyLabel);
     line.add(valueBox);
     return new PanelPair(line, valueBox);
@@ -584,11 +637,12 @@ public class ExperimentDefinitionPanel extends Composite {
 
   private PanelPair createFormArea(String key, String value, int width, String height) {
     VerticalPanel line = new VerticalPanel();
-    line.setStyleName("left");
+    line.setStyleName("bordered");
+    //line.setStyleName("left");
     Label keyLabel = new Label(key + ": ");
     keyLabel.setStyleName("keyLabel");
     final TextArea valueBox = new TextArea();
-    valueBox.setCharacterWidth(width);
+    valueBox.setWidth("100%");
     valueBox.setHeight(height);
     if (value != null) {
       valueBox.setText(value);
@@ -599,7 +653,7 @@ public class ExperimentDefinitionPanel extends Composite {
       public void onValueChange(ValueChangeEvent<String> event) {
         if (valueBox.getText().length() >= 500) {
           // TODO surface a message that their text is being truncated.
-          valueBox.setText(valueBox.getText().substring(0, 499));
+          valueBox.setText(valueBox.getText().substring(0, 500));
         }
 
       }
