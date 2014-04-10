@@ -27,7 +27,7 @@ typedef enum {
 } ResponseEnumType;
 
 // ExperimentInput is basically something like a question, or measure of some input like a location or photo.
-@interface PacoExperimentInput : NSObject
+@interface PacoExperimentInput : NSObject <NSCopying>
 
 @property (nonatomic, assign) BOOL conditional;
 @property (nonatomic, retain) NSString *conditionalExpression;
@@ -44,7 +44,6 @@ typedef enum {
 @property (nonatomic, assign) ResponseEnumType responseEnumType;  
 @property (nonatomic, copy) NSString *rightSideLabel;
 @property (nonatomic, copy) NSString *text;
-@property (nonatomic, retain) id jsonObject;
 @property (nonatomic, retain) id responseObject;  // The user's answer to this question
 @property (nonatomic, assign) BOOL isADependencyForOthers;
 
