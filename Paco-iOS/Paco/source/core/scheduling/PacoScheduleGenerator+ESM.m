@@ -353,56 +353,6 @@
 
 
 
-//YMZ:TODO: why 500? when will a nil result be returned?
-+ (NSDate *)nextESMScheduledDateForExperiment:(PacoExperiment *)experiment
-                                 fromThisDate:(NSDate *)fromThisDate {
-  NSDate *scheduled = nil;
-  BOOL done = NO;
-  NSDate *from = fromThisDate;
-  int max = 500;
-  while (!done) {
-    max -= 1;
-    if (max == 0)
-      break;
-    NSArray *scheduleDates = experiment.schedule.esmScheduleList;
-    if (!scheduleDates.count) {
-      scheduleDates = [self createESMScheduleDates:experiment.schedule fromThisDate:from];
-      experiment.schedule.esmScheduleList = scheduleDates;
-      NSLog(@"NEW SCHEDULE: ");
-      NSLog(@"(");
-      for (NSDate* date in scheduleDates) {
-        NSLog(@"%@", [PacoDateUtility pacoStringForDate:date]);
-      }
-      NSLog(@")");
-    }
-    scheduled = [PacoDateUtility nextTimeFromScheduledDates:scheduleDates onDayOfDate:fromThisDate];
-    if (!scheduled) {
-      // need to either schedule entire days here or know whether to use last time or
-      // whether to use today+1 for generating the new schedule
-      
-      
-      // Must be for the next day/week/month.
-      switch (experiment.schedule.esmPeriod) {
-        case kPacoScheduleRepeatPeriodDay:
-          from = [PacoDateUtility date:from thisManyDaysFrom:1];
-          break;
-        case kPacoScheduleRepeatPeriodWeek:
-          from = [PacoDateUtility date:from thisManyWeeksFrom:1];
-          break;
-        case kPacoScheduleRepeatPeriodMonth:
-          from = [PacoDateUtility date:from thisManyMonthsFrom:1];
-          break;
-        default:
-          NSAssert(NO, @"Invalid esm period");
-      }
-      experiment.schedule.esmScheduleList = nil;
-    }
-    if (scheduled) {
-      done = YES;
-    }
-  }
-  return scheduled;
-}
 
 //YMZ:TODO: check this algorithm for kPacoSchedulePeriodWeek and kPacoSchedulePeriodMonth
 + (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
