@@ -29,7 +29,6 @@
 @property (nonatomic, assign) long long lastEventQueryTime;
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
 //@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
-@property (nonatomic, retain) id jsonObject;
 
 + (PacoExperiment*)experimentWithDefinition:(PacoExperimentDefinition*)definition
                                    schedule:(PacoExperimentSchedule*)schedule

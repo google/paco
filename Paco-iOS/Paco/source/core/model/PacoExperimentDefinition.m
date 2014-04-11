@@ -46,7 +46,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 @interface PacoExperimentDefinition ()
 @property(nonatomic, strong) NSDate* startDate;
 @property(nonatomic, strong) NSDate* endDate;
-@property(nonatomic, strong) NSString* inclusiveEndDateString;
+@property(nonatomic, copy) NSString* inclusiveEndDateString;
 @property (nonatomic, strong) NSArray* signalMechanismList;
 @end
 
@@ -119,13 +119,40 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   definition.webReccommended = [definitionMembers[DEFINITION_WEBRECOMMENDED] boolValue];
   definition.experimentVersion = [definitionMembers[DEFINITION_VERSION] intValue];
   
-  definition.jsonObject = jsonObject;
-  
   return definition;
 }
 
+
 - (id)copyWithZone:(NSZone*)zone {
-  PacoExperimentDefinition* another = [[self class] pacoExperimentDefinitionFromJSON:self.jsonObject];
+  PacoExperimentDefinition* another = [[[self class] allocWithZone:zone] init];
+  another.admins = [self.admins copyWithZone:zone];
+  another.creator = [self.creator copyWithZone:zone];
+  another.deleted = self.deleted;
+  another.experimentDescription = [self.experimentDescription copyWithZone:zone];
+  another.feedbackList = [self.feedbackList copyWithZone:zone];
+  another.isCustomRendering = self.isCustomRendering;
+  another.fixedDuration = self.fixedDuration;
+  another.experimentId = [self.experimentId copyWithZone:zone];
+  another.informedConsentForm = [self.informedConsentForm copyWithZone:zone];
+  another.inputs = [self.inputs copyWithZone:zone];
+  
+  another.modifyDate = [self.modifyDate copyWithZone:zone];
+  another.published = self.published;
+  another.publishedUsers = [self.publishedUsers copyWithZone:zone];
+  
+  another.inclusiveEndDateString = [self.inclusiveEndDateString copyWithZone:zone];
+  another.startDate = [self.startDate copyWithZone:zone];
+  another.endDate = [self.endDate copyWithZone:zone];
+  
+  another.questionsChange = self.questionsChange;
+  another.schedule = [self.schedule copyWithZone:zone];
+  
+  another.signalMechanismList = [self.signalMechanismList copyWithZone:zone];
+  
+  another.title = [self.title copyWithZone:zone];
+  another.webReccommended = self.webReccommended;
+  another.experimentVersion = self.experimentVersion;
+  
   return another;
 }
 

@@ -561,7 +561,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (void)applyDefinitionsFromServer:(NSArray*)definitions {
   DDLogInfo(@"Fetched %lu definitions from server", (unsigned long)[definitions count]);
   [self.model applyDefinitionJSON:definitions];
-  [self.model saveExperimentDefinitionsToFile];
+  [self.model saveExperimentDefinitionListJson:definitions];
 }
 
 

@@ -33,13 +33,17 @@ NSString* const kTriggerSignal = @"trigger";
 
 @implementation PacoTriggerSignal
 
-- (id)initWithDictionary:(NSDictionary*)dictionary {
+//designated initializer
+- (id)initWithIdentifier:(NSString*)identifier
+              signalType:(NSString*)signalType
+               eventCode:(int)eventCode
+                   delay:(long long)delay {
   self = [super init];
   if (self) {
-    _identifier = [NSString stringWithFormat:@"%lld", [dictionary[kID] longLongValue]];
-    _signalType = dictionary[kSignalType];
-    _eventCode = [dictionary[kEventCode] intValue];
-    _delay = [dictionary[kDelay] longLongValue];
+    _identifier = identifier;
+    _signalType = signalType;
+    _eventCode = eventCode;
+    _delay = delay;
   }
   return self;
 }
@@ -47,7 +51,21 @@ NSString* const kTriggerSignal = @"trigger";
 + (id)signalFromJson:(id)jsonObject {
   NSAssert([jsonObject isKindOfClass:[NSDictionary class]],
            @"it has to be a dictionary for trigger signal");
-  return [[PacoTriggerSignal alloc] initWithDictionary:jsonObject];
+  
+  NSString* identifier = [NSString stringWithFormat:@"%lld", [jsonObject[kID] longLongValue]];
+  return [[PacoTriggerSignal alloc] initWithIdentifier:identifier
+                                            signalType:jsonObject[kSignalType]
+                                             eventCode:[jsonObject[kEventCode] intValue]
+                                                 delay:[jsonObject[kDelay] longLongValue]];
+}
+
+
+- (id)copyWithZone:(NSZone *)zone {
+  PacoTriggerSignal* copy = [[[self class] allocWithZone:zone] initWithIdentifier:self.identifier
+                                                                       signalType:self.signalType
+                                                                        eventCode:self.eventCode
+                                                                            delay:self.delay];
+  return copy;
 }
 
 

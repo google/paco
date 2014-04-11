@@ -34,14 +34,11 @@ NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
 
-@interface PacoExperimentSchedule ()
-- (id)serializeToJSON;
-@end
 
 
 @interface PacoModel ()
-@property (retain, readwrite) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain, readwrite) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
 @end
 
 
@@ -50,8 +47,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 #pragma mark Object Lifecycle
 //designated initializer
-- (id)init
-{
+- (id)init {
   self = [super init];
   if (self) {
     _experimentDefinitions = @[];
@@ -60,16 +56,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return self;
 }
 
-+ (PacoModel *)pacoModelFromFile {
-  PacoModel *model = [[PacoModel alloc] init];
-  BOOL loaded = [model loadFromFile];
-  if (!loaded) {
-    return nil;
-  }
-  return model;
-}
 
-- (NSString *)description {
+- (NSString*)description {
   return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
 }
 
@@ -77,16 +65,15 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (void)applyDefinitionJSON:(id)jsonObject {
   //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
-  self.jsonObjectDefinitions = jsonObject;
   NSMutableArray *definitions = [NSMutableArray array];
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperimentDefinition *experimentDefinition =
         [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonExperiment];
-    assert(experimentDefinition);
+    NSAssert(experimentDefinition, @"definition should be created successfully");
     [definitions addObject:experimentDefinition];
   }
-  [self updateExperimentDefinitions:definitions];
+  self.experimentDefinitions = definitions;
 }
 
 - (void)applyInstanceJSON:(id)jsonObject {
@@ -98,7 +85,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   
 //  NSLog(@"MODEL INSTANCE JSON = \n%@", jsonObject);
   NSArray *jsonExperiments = jsonObject;
-  self.jsonObjectInstances = jsonObject;
 
   for (id jsonExperiment in jsonExperiments) {
     PacoExperiment *experiment = [[PacoExperiment alloc] init];
@@ -106,7 +92,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
   }
-  [self updateExperimentInstances:instances];
+  self.experimentInstances = instances;
 }
 
 - (BOOL)areRunningExperimentsLoaded {
@@ -114,11 +100,11 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 - (BOOL)shouldTriggerNotificationSystem {
-  if (!self.experimentInstances) {
+  if (![self areRunningExperimentsLoaded]) {
     DDLogError(@"Running experiments are not loaded yet!");
   }
   
-  if (0 == [self.experimentInstances count]) {
+  if (![self hasRunningExperiments]) {
     DDLogInfo(@"No running experiments.");
     return NO;
   }
@@ -151,47 +137,21 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return nil;  
 }
 
-- (NSArray *)instancesForExperimentId:(NSString *)experimentId {
-  NSMutableArray *array = [NSMutableArray array];
-  for (PacoExperiment *instance in self.experimentInstances) {
-    if ([instance.definition.experimentId isEqualToString:experimentId]) {
-      [array addObject:instance];
-    }
-  }
-  return array;
-}
 
-- (void)makeJSONObjectFromExperiments {
-  NSMutableArray *experiments = [[NSMutableArray alloc] init];
-  for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
-    assert(definition.jsonObject);
-    [experiments addObject:definition.jsonObject];
-  }
-  self.jsonObjectDefinitions = experiments;
-}
-
-- (void)makeJSONObjectFromInstances {
+- (id)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
   for (PacoExperiment *experiment in self.experimentInstances) {
     id json = [experiment serializeToJSON];
-    experiment.jsonObject = json;
-    NSAssert(experiment.jsonObject, @"experiment json should not be nil");
-    [experiments addObject:experiment.jsonObject];
+    NSAssert(json, @"experiment json should not be nil");
+    [experiments addObject:json];
   }
-  self.jsonObjectInstances = experiments;
-}
-
-
-- (void)cleanAllExperiments {
-  self.experimentInstances = [NSMutableArray array];
-  self.jsonObjectInstances = nil;
-  [self saveExperimentInstancesToFile];
+  return experiments;
 }
 
 
 - (BOOL)refreshExperiments {
   @synchronized(self) {
-    if (0 == [self.experimentInstances count]) {
+    if (![self hasRunningExperiments]) {
       return NO;
     }
 
@@ -242,12 +202,9 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 #pragma mark file writing operations
-- (BOOL)saveExperimentDefinitionsToFile {
-  if (!self.jsonObjectDefinitions) {
-    [self makeJSONObjectFromExperiments];
-  }
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson {
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectDefinitions
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:definitionsJson
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
@@ -263,13 +220,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return success;
 }
 
+
 - (BOOL)saveExperimentInstancesToFile {
-  [self makeJSONObjectFromInstances];
-  NSAssert([self.jsonObjectInstances isKindOfClass:[NSArray class]],
-           @"jsonObjectInstances should be an array!");
+  id instanceListJson = [self makeJSONObjectFromInstances];
+  NSAssert([instanceListJson isKindOfClass:[NSArray class]],
+           @"instanceListJson should be an array!");
 
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.jsonObjectInstances
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:instanceListJson
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
   if (jsonError) {
@@ -283,16 +241,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     DDLogError(@"Failed to save %@", fileName);
   }
   return success;
-}
-
-
-- (BOOL)deleteFile {
-  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
-  NSError *error = nil;
-  if ([[NSFileManager defaultManager] removeItemAtPath:fileName error:&error] != YES) {
-    return NO;
-  }
-  return YES;
 }
 
 
@@ -318,7 +266,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     DDLogError(@"Failed to parse definition json");
     return NO;
   }
-  // NSLog(@"LOADED DEFINITION JSON FROM FILE \n%@", self.jsonObjectDefinitions);
   NSAssert([jsonObj isKindOfClass:[NSArray class]], @"should be an array");
   NSArray* definitions = jsonObj;
   [self applyDefinitionJSON:definitions];
@@ -361,19 +308,10 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSAssert([jsonObj isKindOfClass:[NSArray class]], @"jsonObj should be an array!");
 
   [self applyInstanceJSON:jsonObj];
-  NSAssert(self.jsonObjectInstances != nil, @"jsonObjectInstances shouldn't be nil!");
-  DDLogInfo(@"Loaded %lu instances from file \n", (unsigned long)[self.jsonObjectInstances count]);
+  DDLogInfo(@"Loaded %lu instances from file \n", (unsigned long)[jsonObj count]);
   return nil;
 }
 
-- (BOOL)loadFromFile {
-  BOOL success = YES;
-  BOOL check1 = [self loadExperimentDefinitionsFromFile];
-  success = success && check1;
-  NSError* error = [self loadExperimentInstancesFromFile];
-  success = success && (error == nil);
-  return success;
-}
 
 //YMZ: TODO: this method may need to be re-designed to be more efficient
 - (BOOL)isExperimentJoined:(NSString*)definitionId {
@@ -398,19 +336,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   self.experimentDefinitions = [NSArray arrayWithArray:definitions];
 }
 
-- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
-  NSUInteger index = [self.experimentDefinitions indexOfObject:experimentDefinition];
-  NSAssert(index != NSNotFound, @"An experiment definition must be in model to be deleted!");
-  
-  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
-  [definitions removeObject:experimentDefinition];
-  
-  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
-}
-
-- (void)updateExperimentDefinitions:(NSArray*)definitions {
-  self.experimentDefinitions = definitions;
-}
 
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
@@ -434,9 +359,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   [self saveExperimentInstancesToFile];
 }
 
-- (void)updateExperimentInstances:(NSMutableArray*)experiments {
-  self.experimentInstances = experiments;
-}
 
 - (BOOL)hasRunningExperiments {
   return [self.experimentInstances count] > 0;

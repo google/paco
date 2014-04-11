@@ -115,14 +115,32 @@
     schedule.esmScheduleList = dateArr;
   }
   
-  schedule.jsonObject = jsonObject;
   return schedule;
 }
 
 
 - (id)copyWithZone:(NSZone *)zone {
-  PacoExperimentSchedule* another = [[self class] pacoExperimentScheduleFromJSON:self.jsonObject];
-  return another;
+  PacoExperimentSchedule* copy = [[[self class] allocWithZone:zone] init];
+  copy.byDayOfMonth = self.byDayOfMonth;
+  copy.byDayOfWeek = self.byDayOfWeek;
+  copy.dayOfMonth = self.dayOfMonth;
+  copy.esmEndHour = self.esmEndHour;
+  copy.esmFrequency = self.esmFrequency;
+  copy.esmPeriodInDays = self.esmPeriodInDays;
+  copy.esmPeriod = self.esmPeriod;
+  copy.esmStartHour = self.esmStartHour;
+  copy.esmWeekends = self.esmWeekends;
+  copy.scheduleId = [self.scheduleId copyWithZone:zone];
+  copy.nthOfMonth = self.nthOfMonth;
+  copy.repeatRate = self.repeatRate;
+  copy.scheduleType = self.scheduleType;
+  copy.times = [self.times copyWithZone:zone];
+  copy.userEditable = self.userEditable;
+  copy.weekDaysScheduled = self.weekDaysScheduled;
+  copy.timeout = self.timeout;
+  copy.minimumBuffer = self.minimumBuffer;
+  copy.esmScheduleList = [self.esmScheduleList copyWithZone:zone];
+  return copy;
 }
 
 

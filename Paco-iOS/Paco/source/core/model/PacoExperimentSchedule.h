@@ -72,7 +72,6 @@ static const int kPacoNumOfDaysInWeek = 7;
 @property (nonatomic, assign) NSInteger weekDaysScheduled;  // Binary OR of PacoScheduleDay
 @property (nonatomic, assign) NSInteger timeout;
 @property (nonatomic, assign) NSInteger minimumBuffer;
-@property (nonatomic, retain) id jsonObject;
 @property (nonatomic, retain) NSArray *esmScheduleList;  // NSArray<NSDate>
 + (id)pacoExperimentScheduleFromJSON:(id)jsonObject;
 - (id)serializeToJSON;

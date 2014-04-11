@@ -39,10 +39,8 @@ extern NSString* const kPacoResponseKeyInputId;
 @property (nonatomic, copy) NSString *experimentName;
 @property (nonatomic, assign) int experimentVersion;
 @property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
-@property (nonatomic, retain) id jsonObject;
 + (id)pacoEventForIOS;
 + (id)pacoEventFromJSON:(id)jsonObject;
-- (id)jsonObject;
 - (id)generateJsonObject;
 - (id)payloadJsonWithImageString;
 

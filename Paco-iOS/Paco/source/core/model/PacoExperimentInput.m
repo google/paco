@@ -51,8 +51,29 @@ static NSString* const INPUT_TEXT = @"text";
   input.responseEnumType = [PacoExperimentInput responseEnumTypeFromString:input.responseType];
   input.rightSideLabel = inputMembers[INPUT_RIGHT_SIDE_LABEL];
   input.text = inputMembers[INPUT_TEXT];
-  input.jsonObject = jsonObject;
   return input;
+}
+
+//NOTE: responseObject is not copied
+- (id)copyWithZone:(NSZone *)zone {
+  PacoExperimentInput* copy = [[[self class] allocWithZone:zone] init];
+  copy.conditional = self.conditional;
+  copy.conditionalExpression = [self.conditionalExpression copyWithZone:zone];
+  copy.inputIdentifier = [self.inputIdentifier copyWithZone:zone];
+  copy.invisibleInput = self.invisibleInput;
+  copy.leftSideLabel = [self.leftSideLabel copyWithZone:zone];
+  copy.likertSteps = self.likertSteps;
+  copy.listChoices = [self.listChoices copyWithZone:zone];
+  copy.mandatory = self.mandatory;
+  copy.multiSelect = self.multiSelect;
+  copy.name = [self.name copyWithZone:zone];
+  copy.questionType = [self.questionType copyWithZone:zone];
+  copy.responseType = [self.responseType copyWithZone:zone];
+  copy.responseEnumType = self.responseEnumType;
+  copy.rightSideLabel = [self.rightSideLabel copyWithZone:zone];
+  copy.text = [self.text copyWithZone:zone];
+  copy.isADependencyForOthers = self.isADependencyForOthers;
+  return copy;
 }
 
 
