@@ -351,9 +351,6 @@
                        @"should not be able to schedule any time since it passed the endDate");
 }
 
-- (void)testPacoOnSameDayWithDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 - (void)testPacoIsWeekend {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
@@ -385,27 +382,6 @@
   date = [gregorian dateFromComponents:comp];
   isWeekend = [date pacoIsWeekend];
   XCTAssertTrue(isWeekend, @"should be weekend");
-}
-
-- (void)testPacoNearestNonWeekendDateAtMidnight {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-
-- (void)testPacoDateByAddingMinutesInterval {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testDailyESMNextCycleStartDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testWeeklyESMNextCycleStartDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testMonthlyESMNextCycleStartDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
 }
 
 - (void)testPacoDateByAddingMonthIntervalSameYear {
@@ -510,9 +486,6 @@
   XCTAssertEqualObjects(eightWeeksLater, expect, @"should be eight weeks later");
 }
 
-- (void)testPacoDateByAddingDayInterval {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);  
-}
 
 - (void)testNumOfDaysInJan2013 {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
@@ -565,9 +538,6 @@
   XCTAssertEqual(numOfWeekDays, 20, @"should have 20 week days in Feb 2013");
 }
 
-- (void)testPacoDateInFutureBySkippingWeekends {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 - (void)testPacoFirstDayInCurrentMonth {
   NSDateComponents* comp = [[NSDateComponents alloc] init];

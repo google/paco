@@ -747,11 +747,4 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 }
 
 
-- (void)testPacoIsEqualTo {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testPacoFetchExpiredNotificationsFrom {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 @end

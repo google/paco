@@ -31,12 +31,5 @@
   [super tearDown];
 }
 
-- (void)testMinutesPerDayOfESM {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testESMStartTimeOnDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 @end

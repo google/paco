@@ -81,9 +81,6 @@
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notification");
 }
 
-- (void)testCancelAllPacoNotifications {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 - (void)testSaveAndLoadNotifications {
   NSMutableDictionary* notificationDict = [NSMutableDictionary dictionaryWithCapacity:2];
@@ -900,9 +897,6 @@
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
-- (void)testCancelAllNotificationsForExperiment {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 - (void)testHandleRespondedNotificationNotExist {
   NSDate* now = [NSDate date];
@@ -1079,17 +1073,5 @@
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
 }
 
-
-- (void)testActiveNotificationForExperiment {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testIsNotificationActiveForExperiment {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testCleanExpiredNotifications {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
 @end
