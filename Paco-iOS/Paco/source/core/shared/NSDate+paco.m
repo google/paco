@@ -123,27 +123,7 @@ static NSUInteger kSaturdayIndex = 7;
 
 //The array of times should be already sorted!
 - (NSArray*)pacoDatesToScheduleWithTimes:(NSArray*)times andEndDate:(NSDate*)endDate{
-  NSAssert([times count] > 0, @"times should be valid!");
-  
-  NSDate* dateToSchedule = nil;
-  NSMutableArray* dates = [NSMutableArray arrayWithCapacity:[times count]];
-  for (NSNumber* millisecondsNumber in times) {
-    NSAssert([millisecondsNumber isKindOfClass:[NSNumber class]], @"time should be NSNumber!");
-    
-    dateToSchedule = [self pacoTimeFromMidnightWithMilliSeconds:millisecondsNumber];
-    NSAssert(dateToSchedule, @"dateToSchedule should be valid");
-    
-    //if the dateToSchedule is later than or equal to endDate,
-    //we should stop adding dates.
-    if (endDate != nil && [dateToSchedule pacoNoEarlierThanDate:endDate]) {
-      break;
-    }
-    
-    if ([dateToSchedule pacoNoEarlierThanDate:self]) {
-      [dates addObject:dateToSchedule];
-    }
-  }
-  return dates;
+  return [self pacoDatesToScheduleWithTimes:times generateTime:self andEndDate:endDate];
 }
 
 
