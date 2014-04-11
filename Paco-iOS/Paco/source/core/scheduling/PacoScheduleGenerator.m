@@ -31,6 +31,10 @@
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
                         numOfDates:(int)numOfDates
                           fromDate:(NSDate*)fromDate {
+  if (numOfDates <= 0 || !fromDate) {
+    return nil;
+  }
+  
   //experiment is a self-report or trigger experiment
   //experiment is fixed-length and already finished
   if (![experiment shouldScheduleNotificationsFromDate:fromDate]) {

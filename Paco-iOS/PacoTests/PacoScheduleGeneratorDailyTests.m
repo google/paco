@@ -395,8 +395,7 @@ static NSString* experimentFixedEveryTwoDays = @"{\"title\":\"NotificationTest-F
   NSArray* result = [PacoScheduleGenerator nextDatesForExperiment:self.experiment
                                                        numOfDates:4
                                                          fromDate:fromDate];
-  NSArray* expect = @[];
-  XCTAssertEqualObjects(result, expect, @"result should be valid");
+  XCTAssertNil(result, @"result should be nil");
 }
 
 
@@ -414,8 +413,7 @@ static NSString* experimentFixedEveryTwoDays = @"{\"title\":\"NotificationTest-F
   NSArray* result = [PacoScheduleGenerator nextDatesForExperiment:self.experiment
                                                        numOfDates:4
                                                          fromDate:fromDate];
-  NSArray* expect = @[];
-  XCTAssertEqualObjects(result, expect, @"result should be valid");
+  XCTAssertNil(result, @"result should be nil");
 }
 
 
@@ -480,7 +478,7 @@ static NSString* experimentFixedEveryTwoDays = @"{\"title\":\"NotificationTest-F
   NSArray* result = [PacoScheduleGenerator nextDatesForExperiment:self.experiment
                                                        numOfDates:60
                                                          fromDate:fromDate];
-  XCTAssertEqualObjects(result, @[], @"result should be valid");
+  XCTAssertNil(result, @"result should be nil");
 }
 
 
