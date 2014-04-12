@@ -21,8 +21,9 @@
 #import "PacoTableView.h"
 #import "PacoDateUtility.h"
 #import "PacoScheduleEditView.h"
+#import "PacoDatePickerView.h"
 
-@interface PacoTimeSelectionView () {
+@interface PacoTimeSelectionView ()<PacoDatePickerDelegate> {
   NSArray* initialTimes;
 }
 
@@ -66,19 +67,23 @@
   self.editIndex = timeIndex;
   assert(timeIndex != NSNotFound);
   NSNumber *time = [self.times objectAtIndex:timeIndex];
+  if (!self.pickerParentView) {
+    PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
+    datePickerView.delegate = self;
+    self.pickerParentView = datePickerView;
+    self.picker = datePickerView.picker;
+  }
+
   [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [self.picker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
 
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-
-  UITableView *table = [self tableView];
-  PacoTableView *pacoTable = [self pacoTableView];
-  pacoTable.footer = self.pickerParentView;
-  NSIndexPath *indexPath = [table indexPathForCell:self];
-  [table scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionBottom animated:YES];
+  [[self pacoTableView] presentDatePickerParentView:self.pickerParentView forCell:self];
 }
 
-- (void)onDateChange {
+#pragma mark - PacoDatePickerViewDelegate
+
+- (void)onDateChanged:(PacoDatePickerView *)datePickerView {
   if (_editIndex != NSNotFound) {
     NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
     [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
@@ -88,22 +93,18 @@
 }
 
 - (void)cancelDateEdit {
+  self.times = initialTimes;
   PacoTableView* pacoTable = [self pacoTableView];
   pacoTable.footer = nil;
   [pacoTable setNeedsLayout];
-
-  PacoScheduleEditView* editView = (PacoScheduleEditView *)pacoTable.superview;
-  self.times = initialTimes;
   [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-  [editView handleUserTap];
+  [self.tableDelegate handleUserTap];
 }
 
 - (void)saveDateEdit {
   initialTimes = self.times;
   [self finishTimeSelection];
-  PacoTableView* pacoTable = [self pacoTableView];
-  PacoScheduleEditView* editView = (PacoScheduleEditView *)pacoTable.superview;
-  [editView handleUserTap];
+  [self.tableDelegate handleUserTap];
 }
 
 - (void)finishTimeSelection {
@@ -144,49 +145,6 @@
     //[self addSubview:addButton];
     [self.addButton sizeToFit];
     [addButton addTarget:self action:@selector(onAddTime) forControlEvents:UIControlEventTouchUpInside];
-
-    UIView* pickerParentView = [[UIView alloc] initWithFrame:CGRectZero];
-    pickerParentView.backgroundColor = [UIColor clearColor];
-    [self.superview.superview addSubview:pickerParentView];
-
-    UIDatePicker *picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 50, 0, 0)];
-    [picker addTarget:self action:@selector(onDateChange) forControlEvents:UIControlEventValueChanged];
-    picker.datePickerMode = UIDatePickerModeTime;
-    [picker sizeToFit];
-    [pickerParentView addSubview:picker];
-
-    UIToolbar* pickerToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 50)];
-    pickerToolbar.barStyle = UIBarStyleDefault;
-    [pickerToolbar setUserInteractionEnabled:YES];
-    UILabel* setTimeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    setTimeLabel.text = NSLocalizedString(@"Set Start Time", nil);
-    [setTimeLabel sizeToFit];
-
-    pickerToolbar.items = [NSArray arrayWithObjects:
-                           [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Cancel", nil)
-                                                           style:UIBarButtonItemStyleBordered
-                                                          target:self
-                                                          action:@selector(cancelDateEdit)],
-                           [[UIBarButtonItem alloc]
-                            initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                            target:nil
-                            action:nil],
-                           [[UIBarButtonItem alloc] initWithCustomView:setTimeLabel],
-                           [[UIBarButtonItem alloc]
-                            initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                            target:nil
-                            action:nil],
-                           [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Done", nil)
-                                                           style:UIBarButtonItemStyleBordered
-                                                          target:self
-                                                          action:@selector(saveDateEdit)],nil];
-    [pickerToolbar sizeToFit];
-    [pickerParentView addSubview:pickerToolbar];
-    pickerParentView.frame = CGRectMake(0, 0, self.frame.size.width,
-                                        picker.frame.size.height + pickerToolbar.frame.size.height);
-
-    self.pickerParentView = pickerParentView;
-    self.picker = picker;
   }
   return self;
 }

@@ -28,5 +28,6 @@
 - (void)didReceiveTapButNoCellSelected;
 
 - (void)reloadTable;
+- (void)handleUserTap;
 
 @end

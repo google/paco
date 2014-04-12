@@ -37,4 +37,6 @@
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
 - (void)dismissDatePicker;
 
+- (void)presentDatePickerParentView:(UIView*)pickerView forCell:(PacoTableCell*)cell;
+- (void)dismissDatePickerParentView;
 @end

@@ -229,7 +229,20 @@
   self.tableView.frame = CGRectMake(10, yStart, self.frame.size.width - 20, self.frame.size.height - headerFrame.size.height - footerFrame.size.height - 10);
   yStart += self.tableView.frame.size.height;
   if (self.footer) {
-    self.footer.frame = CGRectMake(0, yStart, self.frame.size.width, self.frame.size.height - yStart);
+    CGRect frame = self.footer.frame;
+    frame.origin.x = self.frame.size.width / 2  - frame.size.width / 2;
+    frame.origin.y = self.frame.size.height - frame.size.height - 10;
+    self.footer.frame = frame;
+  }
+}
+
+- (void)presentDatePickerParentView:(UIView*)pickerView forCell:(PacoTableCell*)cell {
+  self.footer = pickerView;
+}
+
+- (void)dismissDatePickerParentView {
+  if (self.footer && [self.footer isKindOfClass:[UIView class]]) {
+    self.footer = nil;
   }
 }
 

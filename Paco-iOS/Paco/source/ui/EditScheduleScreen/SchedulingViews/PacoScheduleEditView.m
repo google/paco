@@ -235,7 +235,7 @@ NSString *kCellIdText = @"text";
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
-  [self.tableView dismissDatePicker];
+  [self.tableView dismissDatePickerParentView];
 
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;
@@ -249,7 +249,8 @@ NSString *kCellIdText = @"text";
   // When the time picker is active a cell selection triggers dismissal of the time picker.
   if ([reuseId hasPrefix:kCellIdSignalTimes]) {
     PacoTimeSelectionView *timeSelect = (PacoTimeSelectionView *)cell;
-    [timeSelect finishTimeSelection];
+    [timeSelect cancelDateEdit];
+    return;
   }
   [self handleUserTap];
 }

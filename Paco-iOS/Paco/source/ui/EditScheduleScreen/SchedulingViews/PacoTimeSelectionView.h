@@ -19,5 +19,5 @@
 
 @interface PacoTimeSelectionView : PacoTableCell
 @property (nonatomic, retain) NSArray *times;
-- (void)finishTimeSelection;
+- (void)cancelDateEdit;
 @end
