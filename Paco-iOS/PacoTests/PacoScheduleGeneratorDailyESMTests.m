@@ -666,4 +666,105 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
 }
 
 
+/*
+ ESM: ongoing
+ 3 times per day, include weekend, 9:30am - 5:30pm
+ timeout: 479 minutes, minimumBuffer: 120 minutes
+ **/
+- (void)testJoinOngoingIncludeWeekends {
+  self.testExperiment.schedule.esmWeekends = YES;
+  [self.testExperiment.definition setValue:nil forKey:@"startDate"];
+  [self.testExperiment.definition setValue:nil forKey:@"endDate"];
+  [self.comp setYear:2013];
+  [self.comp setMonth:10];
+  [self.comp setDay:31];
+  [self.comp setHour:9];
+  [self.comp setMinute:20];
+  [self.comp setSecond:50];
+  //joinTime: thurs, 10/31, 9:20:50, 2013
+  NSDate* joinTime = [self.calendar dateFromComponents:self.comp];
+  [self.testExperiment setValue:joinTime forKey:@"joinTime"];
+  
+  NSDate* fromDate = [joinTime dateByAddingTimeInterval:5];
+  int numOfDates = 8;
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:8
+                                                        fromDate:fromDate];
+  XCTAssertEqual((int)[dates count], numOfDates, @"should generate 8 dates in total");
+  
+  [self.comp setYear:2013];
+  [self.comp setMonth:10];
+  [self.comp setDay:31];
+  [self.comp setHour:9];
+  [self.comp setMinute:30];
+  [self.comp setSecond:0];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
+  [self.comp setHour:17];
+  [self.comp setMinute:30];
+  [self.comp setSecond:0];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
+  
+  int minBufferSeconds = 120 * 60;
+  for (int dayIndex=0; dayIndex<3; dayIndex++) {
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = nil;
+    if (dayIndex < 2) {
+      third = dates[dayIndex*3 + 2]; //there are only two dates generated the last day
+    }
+    XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
+    XCTAssertTrue([first pacoEarlierThanDate:second], @"should be sorted");
+    XCTAssertTrue([first pacoNoEarlierThanDate:fromDate], @"should be later than fromDate");
+    XCTAssertTrue([second pacoLaterThanDate:fromDate], @"should be later than fromDate");
+    
+    if (third) {
+      XCTAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
+      XCTAssertTrue([second pacoEarlierThanDate:third], @"should be sorted");
+      XCTAssertTrue([third pacoLaterThanDate:fromDate], @"should be later than fromDate");
+    }
+    
+    NSDateComponents* comp = [[NSDateComponents alloc] init];
+    //dayOffset: 0, 1, 4
+    int dayOffset = dayIndex;
+    [comp setDay:dayOffset];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
+    XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                  [second pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+    
+    
+    if (third) {
+      XCTAssertTrue([third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                    [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+    }
+    
+    if (2 == dayIndex) { //the last day is Saturday
+      XCTAssertTrue([first pacoIsWeekend] &&
+                    [second pacoIsWeekend], @"should be weekend");
+      if (third) {
+        XCTAssertTrue([third pacoIsWeekend], @"should be weekend");
+      }
+    } else {
+      XCTAssertTrue(![first pacoIsWeekend] &&
+                    ![second pacoIsWeekend], @"shouldn't be weekend");
+      if (third) {
+        XCTAssertTrue(![third pacoIsWeekend], @"shouldn't be weekend");
+      }
+    }
+    
+    NSTimeInterval interval = [second timeIntervalSinceDate:first];
+    XCTAssertTrue(interval > 0, @"should be sorted");
+    XCTAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
+    if (third) {
+      interval = [third timeIntervalSinceDate:second];
+      XCTAssertTrue(interval > 0, @"should be sorted");
+      XCTAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
+    }
+  }
+}
+
+
+
 @end
