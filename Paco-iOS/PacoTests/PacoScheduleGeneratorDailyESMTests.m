@@ -13,33 +13,14 @@
  * limitations under the License.
  */
 #import <XCTest/XCTest.h>
-#import "PacoScheduleGenerator+ESM.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
+#import "PacoScheduleGenerator.h"
 
 @interface PacoScheduleGenerator ()
-+ (NSArray*)datesToScheduleForESMExperiment:(PacoExperiment*)experiment
-                                 numOfDates:(NSInteger)numOfDates
-                                   fromDate:(NSDate*)fromDate;
-+ (NSDate*)esmCycleStartDateForSchedule:(PacoExperimentSchedule*)schedule
-                    experimentStartDate:(NSDate*)experimentStartDate
-                      experimentEndDate:(NSDate*)experimentEndDate
-                               fromDate:(NSDate*)fromDate;
-+ (NSDate*)nextCycleStartDateForSchedule:(PacoExperimentSchedule*)schedule
-                     experimentStartDate:(NSDate*)experimentStartDate
-                       experimentEndDate:(NSDate*)experimentEndDate
-                          cycleStartDate:(NSDate*)currentStartDate;
-+ (NSArray*)generateESMDatesForExperiment:(PacoExperiment*)experiment
-                        minimumNumOfDates:(NSUInteger)minimumNumOfDates
-                                 fromDate:(NSDate*)fromDate;
-+ (NSArray *)createESMScheduleDates:(PacoExperimentSchedule*)experimentSchedule
-                     cycleStartDate:(NSDate*)cycleStartDate
-                           fromDate:(NSDate*)fromDate
-                  experimentEndDate:(NSDate*)experimentEndDate;
-
 @end
 
 
@@ -78,38 +59,39 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
   XCTAssertTrue(definition != nil, @"definition should not be nil!");
   
-  PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
-  experimentInstance.schedule = definition.schedule;
-  experimentInstance.definition = definition;
-  experimentInstance.instanceId = definition.experimentId;
-  self.testExperiment = experimentInstance;
-
+  self.testExperiment = [PacoExperiment experimentWithDefinition:definition
+                                                        schedule:definition.schedule
+                                                        joinTime:nil];;
 }
 
 - (void)tearDown {
   // Put teardown code here; it will be run once, after the last test case.
   self.comp = nil;
+  self.calendar = nil;
   self.testExperiment = nil;
   [super tearDown];
 }
 
 
+
+#pragma mark Fixed-length
 /*
  ESM: startDate:11/5/13 endDate:11/12/13
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthNoWeekends {
+- (void)testJoinBeforeExperimentStartsWithoutWeekends {
   [self.comp setYear:2013];
   [self.comp setMonth:11];
   [self.comp setDay:1];
   [self.comp setHour:9];
   [self.comp setMinute:35];
   [self.comp setSecond:50];
+  //fromDate; 2013 11/01 09:35:50
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 12 - 5 + 1; //11/12 is inclusive
   numOfDays -= 2; //doens't include weekends
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 18 dates in total");
@@ -124,11 +106,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
 
   for (int dayIndex=0; dayIndex<numOfDays; dayIndex++) {
     NSDate* first = dates[(dayIndex*3 + 0)];
@@ -154,8 +136,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
       dayOffset += 2; //skip weekends
     }
     [comp setDay:dayOffset];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -179,7 +161,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthWeekends {
+- (void)testJoinBeforeExperimentStartsIncludeWeekends {
   //change schedule to include weekends
   self.testExperiment.schedule.esmWeekends = YES;
   
@@ -191,9 +173,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setMinute:35];
   [self.comp setSecond:50];
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 12 - 5 + 1; //11/12 is inclusive
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 24 dates in total");
   
@@ -207,11 +189,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<numOfDays; dayIndex++) {
     NSDate* first = dates[dayIndex*3 + 0];
@@ -230,8 +212,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     [comp setDay:dayIndex];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -255,18 +237,18 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthNoWeekendsStartInMiddle {
-  //fromDate: 11/8, 17:35:50, 2013, later than experiment start date of 11/5/13
+- (void)testJoinInMiddleWithoutWeekends {
   [self.comp setYear:2013];
   [self.comp setMonth:11];
   [self.comp setDay:8];
   [self.comp setHour:17];
   [self.comp setMinute:35];
   [self.comp setSecond:50];
+  //fromDate: 11/8, 17:35:50, 2013, later than experiment start date of 11/5/13
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 2; //11/11, 11/12
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 6 dates in total");
   
@@ -280,11 +262,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
     NSDate* first = dates[dayIndex*3 + 0];
@@ -308,8 +290,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -334,8 +316,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthNoWeekendsStartOnSaturday {
-  //fromDate: 11/9, 10:35:50, 2013, later than experiment start date of 11/5/13
+- (void)testJoinInMiddleOnSaturdayWithoutWeekends {
+  //fromDate: 11/9, Sat, 10:35:50, 2013, later than experiment start date of 11/5/13
   [self.comp setYear:2013];
   [self.comp setMonth:11];
   [self.comp setDay:9];
@@ -343,9 +325,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setMinute:35];
   [self.comp setSecond:50];
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 2; //11/11, 11/12
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 6 dates in total");
   
@@ -359,11 +341,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
     NSDate* first = dates[dayIndex*3 + 0];
@@ -388,8 +370,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -414,8 +396,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthNoWeekendsStartOnSunday {
-  //fromDate: 11/10, 10:35:50, 2013, later than experiment start date of 11/5/13
+- (void)testJoinInMiddleOnSundayWithoutWeekends {
+  //fromDate: 11/10, Sun, 10:35:50, 2013, later than experiment start date of 11/5/13
   [self.comp setYear:2013];
   [self.comp setMonth:11];
   [self.comp setDay:10];
@@ -423,9 +405,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setMinute:35];
   [self.comp setSecond:50];
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 2; //11/11, 11/12
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 6 dates in total");
   
@@ -439,11 +421,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
   
   for (int dayIndex=0; dayIndex<= 1; dayIndex++) {
     NSDate* first = dates[dayIndex*3 + 0];
@@ -467,8 +449,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     NSDateComponents* comp = [[NSDateComponents alloc] init];
     int dayOffset = dayIndex + 6;
     [comp setDay:dayOffset];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -492,8 +474,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthNoWeekendsStartOnEarlyMonday {
-  //fromDate: 11/11, 8:35:50, 2013, later than experiment start date of 11/5/13
+- (void)testJoinInMiddleEarlyMondayWithoutWeekends {
+  //fromDate: 11/11, Mon, 8:35:50, 2013, later than experiment start date of 11/5/13
   [self.comp setYear:2013];
   [self.comp setMonth:11];
   [self.comp setDay:11];
@@ -501,9 +483,9 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setMinute:35];
   [self.comp setSecond:50];
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   int numOfDays = 2; //11/11, 11/12
   XCTAssertEqual((int)[dates count], 3*numOfDays, @"should generate 6 dates in total");
   
@@ -570,7 +552,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
  3 times per day, include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleFixedLengthStartLate {
+- (void)testJoinLate {
   //fromDate: 11/12, 17:35:50, 2013
   [self.comp setYear:2013];
   [self.comp setMonth:11];
@@ -579,36 +561,43 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setMinute:35];
   [self.comp setSecond:50];
   NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:60
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:60
+                                                        fromDate:fromDate];
   XCTAssertNil(dates, @"shouldn't generate any dates");
 }
 
 
+
+
+
+#pragma mark Ongoing
 /*
  ESM: ongoing
  3 times per day, doesn't include weekend, 9:30am - 5:30pm
  timeout: 479 minutes, minimumBuffer: 120 minutes
  **/
-- (void)testDailyDatesToScheduleOngingNoWeekends {
-  [self.testExperiment.definition setValue:nil forKey:@"startDate"];
-  [self.testExperiment.definition setValue:nil forKey:@"endDate"];
-  XCTAssertNil([self.testExperiment startDate], @"should be nil");
-  XCTAssertNil([self.testExperiment endDate], @"should be nil");
-  
-  //fromDate: thurs, 10/31, 9:20:50, 2013
+- (void)testJoinOngoingWithoutWeekends {
   [self.comp setYear:2013];
   [self.comp setMonth:10];
   [self.comp setDay:31];
   [self.comp setHour:9];
   [self.comp setMinute:20];
   [self.comp setSecond:50];
-  NSDate* fromDate = [self.calendar dateFromComponents:self.comp];
+  //joinTime: thurs, 10/31, 9:20:50, 2013
+  NSDate* joinTime = [self.calendar dateFromComponents:self.comp];
+  [self.testExperiment setValue:joinTime forKey:@"joinTime"];
+  [self.testExperiment.definition setValue:nil forKey:@"startDate"];
+  [self.testExperiment.definition setValue:nil forKey:@"endDate"];
+  XCTAssertNil([self.testExperiment startDate], @"should be nil");
+  XCTAssertNil([self.testExperiment endDate], @"should be nil");
+  
+  
+  NSDate* fromDate = [joinTime dateByAddingTimeInterval:5];
   int numOfDates = 8;
-  NSArray* dates = [PacoScheduleGenerator datesToScheduleForESMExperiment:self.testExperiment
-                                                               numOfDates:numOfDates
-                                                                 fromDate:fromDate];
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:8
+                                                        fromDate:fromDate];
   XCTAssertEqual((int)[dates count], numOfDates, @"should generate 8 dates in total");
   
   [self.comp setYear:2013];
@@ -617,11 +606,11 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   [self.comp setHour:9];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* startTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
   [self.comp setHour:17];
   [self.comp setMinute:30];
   [self.comp setSecond:0];
-  NSDate* endTime = [self.calendar dateFromComponents:self.comp];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
   
   int minBufferSeconds = 120 * 60;
   for (int dayIndex=0; dayIndex<3; dayIndex++) {
@@ -633,10 +622,13 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
     }
     XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
     XCTAssertTrue([first pacoEarlierThanDate:second], @"should be sorted");
-
+    XCTAssertTrue([first pacoNoEarlierThanDate:fromDate], @"should be later than fromDate");
+    XCTAssertTrue([second pacoLaterThanDate:fromDate], @"should be later than fromDate");
+    
     if (third) {
       XCTAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
       XCTAssertTrue([second pacoEarlierThanDate:third], @"should be sorted");
+      XCTAssertTrue([third pacoLaterThanDate:fromDate], @"should be later than fromDate");
     }
     
     NSDateComponents* comp = [[NSDateComponents alloc] init];
@@ -646,8 +638,8 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
       dayOffset = 4; //skip weekends
     }
     [comp setDay:dayOffset];
-    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTime options:0];
-    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTime options:0];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
     XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
@@ -674,27 +666,105 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
 }
 
 
-- (void)testEsmCycleStartDateForSchedule {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+/*
+ ESM: ongoing
+ 3 times per day, include weekend, 9:30am - 5:30pm
+ timeout: 479 minutes, minimumBuffer: 120 minutes
+ **/
+- (void)testJoinOngoingIncludeWeekends {
+  self.testExperiment.schedule.esmWeekends = YES;
+  [self.testExperiment.definition setValue:nil forKey:@"startDate"];
+  [self.testExperiment.definition setValue:nil forKey:@"endDate"];
+  [self.comp setYear:2013];
+  [self.comp setMonth:10];
+  [self.comp setDay:31];
+  [self.comp setHour:9];
+  [self.comp setMinute:20];
+  [self.comp setSecond:50];
+  //joinTime: thurs, 10/31, 9:20:50, 2013
+  NSDate* joinTime = [self.calendar dateFromComponents:self.comp];
+  [self.testExperiment setValue:joinTime forKey:@"joinTime"];
+  
+  NSDate* fromDate = [joinTime dateByAddingTimeInterval:5];
+  int numOfDates = 8;
+  NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:self.testExperiment
+                                                      numOfDates:8
+                                                        fromDate:fromDate];
+  XCTAssertEqual((int)[dates count], numOfDates, @"should generate 8 dates in total");
+  
+  [self.comp setYear:2013];
+  [self.comp setMonth:10];
+  [self.comp setDay:31];
+  [self.comp setHour:9];
+  [self.comp setMinute:30];
+  [self.comp setSecond:0];
+  NSDate* startTimePerDay = [self.calendar dateFromComponents:self.comp];
+  [self.comp setHour:17];
+  [self.comp setMinute:30];
+  [self.comp setSecond:0];
+  NSDate* endTimePerDay = [self.calendar dateFromComponents:self.comp];
+  
+  int minBufferSeconds = 120 * 60;
+  for (int dayIndex=0; dayIndex<3; dayIndex++) {
+    NSDate* first = dates[dayIndex*3 + 0];
+    NSDate* second = dates[dayIndex*3 + 1];
+    NSDate* third = nil;
+    if (dayIndex < 2) {
+      third = dates[dayIndex*3 + 2]; //there are only two dates generated the last day
+    }
+    XCTAssertTrue([first pacoOnSameDayWithDate:second], @"should be on same day");
+    XCTAssertTrue([first pacoEarlierThanDate:second], @"should be sorted");
+    XCTAssertTrue([first pacoNoEarlierThanDate:fromDate], @"should be later than fromDate");
+    XCTAssertTrue([second pacoLaterThanDate:fromDate], @"should be later than fromDate");
+    
+    if (third) {
+      XCTAssertTrue([third pacoOnSameDayWithDate:second], @"should be on same day");
+      XCTAssertTrue([second pacoEarlierThanDate:third], @"should be sorted");
+      XCTAssertTrue([third pacoLaterThanDate:fromDate], @"should be later than fromDate");
+    }
+    
+    NSDateComponents* comp = [[NSDateComponents alloc] init];
+    //dayOffset: 0, 1, 4
+    int dayOffset = dayIndex;
+    [comp setDay:dayOffset];
+    NSDate* startTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:startTimePerDay options:0];
+    NSDate* endTimeForCurrentDay = [self.calendar dateByAddingComponents:comp toDate:endTimePerDay options:0];
+    XCTAssertTrue([first pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                  [first pacoNoLaterThanDate:endTimeForCurrentDay] &&
+                  [second pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                  [second pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+    
+    
+    if (third) {
+      XCTAssertTrue([third pacoNoEarlierThanDate:startTimeForCurrentDay] &&
+                    [third pacoNoLaterThanDate:endTimeForCurrentDay], @"should be valid");
+    }
+    
+    if (2 == dayIndex) { //the last day is Saturday
+      XCTAssertTrue([first pacoIsWeekend] &&
+                    [second pacoIsWeekend], @"should be weekend");
+      if (third) {
+        XCTAssertTrue([third pacoIsWeekend], @"should be weekend");
+      }
+    } else {
+      XCTAssertTrue(![first pacoIsWeekend] &&
+                    ![second pacoIsWeekend], @"shouldn't be weekend");
+      if (third) {
+        XCTAssertTrue(![third pacoIsWeekend], @"shouldn't be weekend");
+      }
+    }
+    
+    NSTimeInterval interval = [second timeIntervalSinceDate:first];
+    XCTAssertTrue(interval > 0, @"should be sorted");
+    XCTAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
+    if (third) {
+      interval = [third timeIntervalSinceDate:second];
+      XCTAssertTrue(interval > 0, @"should be sorted");
+      XCTAssertTrue(interval >= minBufferSeconds, @"should have min buffer");
+    }
+  }
 }
 
-- (void)testNextCycleStartDateForSchedule {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
-- (void)testGenerateESMDatesForExperiment {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 
-- (void)testCreateESMScheduleDates {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testEsmCycleStartDateFromScheduledDate {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testLaterCycleThan {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 @end

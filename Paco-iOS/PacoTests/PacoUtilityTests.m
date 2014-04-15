@@ -32,10 +32,6 @@
   [super tearDown];
 }
 
-- (void)testRandomUnsignedInteger {
-  XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
 - (void)testRandomIntegersInRange {
   for (int numOfTests=0; numOfTests < 100; numOfTests++) {
     int hours = 8;

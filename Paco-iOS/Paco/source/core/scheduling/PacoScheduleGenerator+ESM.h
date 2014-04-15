@@ -21,7 +21,5 @@
                            numOfDates:(int)numOfDates
                              fromDate:(NSDate*)fromDate;
 
-+ (NSDate *)nextESMScheduledDateForExperiment:(PacoExperiment *)experiment
-                                 fromThisDate:(NSDate *)fromThisDate;
 
 @end

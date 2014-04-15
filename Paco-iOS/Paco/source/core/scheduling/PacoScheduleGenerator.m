@@ -31,6 +31,10 @@
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
                         numOfDates:(int)numOfDates
                           fromDate:(NSDate*)fromDate {
+  if (numOfDates <= 0 || !fromDate) {
+    return nil;
+  }
+  
   //experiment is a self-report or trigger experiment
   //experiment is fixed-length and already finished
   if (![experiment shouldScheduleNotificationsFromDate:fromDate]) {
@@ -76,10 +80,9 @@
 //adjust the generate time if the experiment is fixed-length and the original generate time is
 //earlier than the experiment start date
 + (NSDate*)adjustedGenerateTime:(NSDate*)originalGenerateTime forExperiment:(PacoExperiment*)experiment {
-  if ([experiment isOngoing]) {
-    NSAssert([originalGenerateTime pacoNoEarlierThanDate:experiment.joinTime],
+    NSAssert([experiment isFixedLength] ||
+             ([experiment isOngoing] && [originalGenerateTime pacoNoEarlierThanDate:experiment.joinTime]),
              @"for an ongoing experiment, should always generate schedules after the user joined it");
-  }
   
   //fixed-length experiment, and user joined before or when experiment starts
   if ([experiment isFixedLength] && [originalGenerateTime pacoNoLaterThanDate:[experiment startDate]]) {
