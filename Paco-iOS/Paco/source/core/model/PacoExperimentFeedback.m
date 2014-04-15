@@ -22,7 +22,7 @@
 + (id)pacoFeedbackFromJSON:(id)jsonObject {
   NSDictionary *feedbackMembers = jsonObject;
   PacoExperimentFeedback *feedback = [[PacoExperimentFeedback alloc] init];
-  feedback.feedbackId = [NSString stringWithFormat:@"%ld", [feedbackMembers[@"id"] longValue]];
+  feedback.feedbackId = [NSString stringWithFormat:@"%lld", [feedbackMembers[@"id"] longLongValue]];
   feedback.type = feedbackMembers[@"feedbackType"];
   feedback.text = feedbackMembers[@"text"];
   return feedback;
