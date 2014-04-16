@@ -144,10 +144,7 @@ public class Experiment {
   private Text customRenderingCode;
 
   @Persistent
-  private Boolean showFeedback;
-
-  @Persistent
-  private Boolean hasCustomFeedback;
+  private Integer feedbackType;
 
 
   /**
@@ -517,17 +514,13 @@ public class Experiment {
 
   }
 
-  public Boolean shouldShowFeedback() {
- // default to showing feedback because that is the historical way.
-    return (showFeedback != null) ? showFeedback : Boolean.TRUE;
+  public Integer getFeedbackType() {
+    return feedbackType;
   }
 
-  public void setShowFeedback(Boolean show) {
-    this.showFeedback = show;
-  }
+  public void setFeedbackType(Integer feedbackType2) {
+    this.feedbackType = feedbackType2;
 
-  public Boolean hasCustomFeedback() {
-   return hasCustomFeedback;
   }
 
 

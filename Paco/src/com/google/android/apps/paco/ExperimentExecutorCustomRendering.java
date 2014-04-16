@@ -80,6 +80,7 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.pacoapp.paco.R;
 
 public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener  {
@@ -887,7 +888,7 @@ private String findAccount(String userEmail) {
 
       notifySyncService();
 
-      if (experiment.shouldShowFeedback()) {
+      if (experiment.getFeedbackType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {
         showFeedback();
       }
       finish();

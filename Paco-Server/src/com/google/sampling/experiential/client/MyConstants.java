@@ -447,4 +447,27 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("iOS incompatible")
   String iOSIncompatible();
 
+  @DefaultStringValue("Feedback mechanism")
+  String feedbackChoiceLabel();
+
+  @DefaultStringValue("Static Message Feedback")
+  String staticMessageFeedbackChoice();
+
+  @DefaultStringValue("Retrospective Feedback (QS default)")
+  String retrospectiveMessageFeedbackChoice();
+
+  @DefaultStringValue("Responsive Feedback (adaptive")
+  String responsiveMessageFeedbackChoice();
+
+  @DefaultStringValue("Custom Code Feedback")
+  String customFeedbackChoice();
+
+  @DefaultStringValue("Disable Feedback Message")
+  String hideFeedbackChoice();
+
+  @DefaultStringValue("iOS incompatible if modified from default")
+  String iOSIncompatibleStatic();
+
+
+
 }

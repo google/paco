@@ -46,6 +46,7 @@ import com.google.common.collect.Sets;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentQueryResult;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.What;
@@ -364,7 +365,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
         }
         for (Long id : idList) {
           experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, true, true));
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM));
         }
       } finally {
         if (pm != null) {

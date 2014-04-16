@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.paco.shared.model.FeedbackDAO;
+
 /**
  * This class helps open, create, and upgrade the database file.
  */
@@ -193,6 +195,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
               + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER"
               + ";");
+    }
+    if (oldVersion <= 15) {
+      ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
+      List<Experiment> joined = eu.getJoinedExperiments();
+
+      for (Experiment experiment : joined) {
+      //verify that feedbackType is correct
+        if (experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) { // the default
+          // if it is our default value make sure that it is not actually custom code.
+          if (!FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getText())) {
+            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
+          }
+        }
+        eu.updateJoinedExperiment(experiment);
+      }
+      eu.deleteExperimentCachesOnDisk();
     }
   }
 

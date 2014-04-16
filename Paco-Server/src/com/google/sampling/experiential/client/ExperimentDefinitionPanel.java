@@ -49,7 +49,6 @@ import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
@@ -95,9 +94,6 @@ public class ExperimentDefinitionPanel extends Composite {
   private DisclosurePanel publishedUsersPanel;
   private TextArea userList;
   private LoginInfo loginInfo;
-  private CheckBox customFeedbackCheckBox;
-  private DisclosurePanel customFeedbackPanel;
-  private TextArea customFeedbackText;
   protected MyConstants myConstants;
   protected MyMessages myMessages;
   private DurationView durationPanel;
@@ -116,8 +112,6 @@ public class ExperimentDefinitionPanel extends Composite {
   private TextArea customRenderingText;
 
   private AceEditor customRenderingEditor;
-  private AceEditor customFeedbackEditor;
-  private CheckBox showFeedbackCheckBox;
 
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -332,121 +326,15 @@ public class ExperimentDefinitionPanel extends Composite {
     containerPanel.setStyleName("bordered");
 
     VerticalPanel feedbackPanel = new VerticalPanel();
-    feedbackPanel.add(createShowFeedbackCheckboxPanel());
-    feedbackPanel.add(createCustomFeedbackCheckboxPanel());
+    feedbackPanel.add(createFeedbackTypeSelectorPanel());
     containerPanel.add(feedbackPanel);
-
-    customFeedbackPanel = createCustomFeedbackDisclosurePanel(experiment);
-    customFeedbackPanel.getHeader().setVisible(customFeedbackCheckBox.getValue());
-    containerPanel.add(customFeedbackPanel);
-
-    customFeedbackCheckBox.addClickHandler(new ClickHandler() {
-
-      @Override
-      public void onClick(ClickEvent event) {
-        customFeedbackPanel.getHeader().setVisible(customFeedbackCheckBox.getValue());
-        customFeedbackPanel.setOpen(customFeedbackCheckBox.getValue());
-      }
-    });
     return containerPanel;
   }
 
-  private HorizontalPanel createShowFeedbackCheckboxPanel() {
-    HorizontalPanel showFeedbackPanel = new HorizontalPanel();
-    showFeedbackCheckBox = new CheckBox();
-    showFeedbackCheckBox.setValue(experiment.shouldShowFeedback());
-    showFeedbackPanel.add(showFeedbackCheckBox);
-    Label showFeedbackLabel = new Label(myConstants.showFeedback());
-    showFeedbackPanel.add(showFeedbackLabel);
-    return showFeedbackPanel;
+  private FeedbackChooserPanel createFeedbackTypeSelectorPanel() {
+    return new FeedbackChooserPanel(experiment);
   }
 
-  private HorizontalPanel createCustomFeedbackCheckboxPanel() {
-    HorizontalPanel customFeedbackCheckboxPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setValue(hasNonDefaultFeedback());
-    customFeedbackCheckboxPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    customFeedbackCheckboxPanel.add(feedbackLabel);
-
-    HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
-    customFeedbackCheckboxPanel.add(html);
-    return customFeedbackCheckboxPanel;
-  }
-
-  private boolean hasNonDefaultFeedback() {
-    return (experiment.hasCustomFeedback() != null && experiment.hasCustomFeedback()) || oldMethodBasedOnNonDefaultFeedbackText();
-  }
-
-  private boolean oldMethodBasedOnNonDefaultFeedbackText() {
-    return experiment.getFeedback() != null &&
-        experiment.getFeedback().length > 0 &&
-        !defaultFeedback(experiment.getFeedback()[0]);
-  }
-
-  /**
-   * @param experiment2
-   * @return
-   */
-  private DisclosurePanel createCustomFeedbackDisclosurePanel(ExperimentDAO experiment2) {
-    final DisclosurePanel customFeedbackPanel = new DisclosurePanel();
-
-    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
-                                                                               false,
-                                                                               "<b>"
-                                                                                   + myConstants.clickToEditCustomFeedback()
-                                                                                   + "</b>");
-    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
-                                                                             true,
-                                                                             "<b>"
-                                                                                 + myConstants.clickToCloseCustomFeedbackEditor()
-                                                                                 + "</b>");
-
-    customFeedbackPanel.setHeader(closedHeaderWidget);
-    customFeedbackPanel.addEventHandler(new DisclosureHandler() {
-      public void onClose(DisclosureEvent event) {
-        boolean currentlyVisible = customFeedbackPanel.getHeader().isVisible();
-        customFeedbackPanel.setHeader(closedHeaderWidget);
-        closedHeaderWidget.setVisible(currentlyVisible);
-      }
-
-      public void onOpen(DisclosureEvent event) {
-        boolean currentlyVisible = customFeedbackPanel.getHeader().isVisible();
-        customFeedbackPanel.setHeader(openHeaderWidget);
-        openHeaderWidget.setVisible(currentlyVisible);
-      }
-    });
-
-    VerticalPanel userContentPanel = new VerticalPanel();
-    Label instructionLabel = new Label(myConstants.customFeedbackInstructions());
-    userContentPanel.add(instructionLabel);
-
-    customFeedbackEditor = new AceEditor();
-    customFeedbackEditor.setWidth("800px");
-    customFeedbackEditor.setHeight("600px");
-    customFeedbackEditor.startEditor();
-    customFeedbackEditor.setMode(AceEditorMode.JAVASCRIPT);
-    customFeedbackEditor.setTheme(AceEditorTheme.ECLIPSE);
-
-
-    FeedbackDAO[] feedbacks = experiment.getFeedback();
-
-    if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
-      customFeedbackEditor.setText(feedbacks[0].getText());
-    }
-
-    userContentPanel.add(customFeedbackEditor);
-    customFeedbackPanel.setContent(userContentPanel);
-    return customFeedbackPanel;
-  }
-
-  /**
-   * @param feedbackDAO
-   * @return
-   */
-  private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
-  }
 
   private PanelPair createTitlePanel(ExperimentDAO experiment) {
     return createFormLine(myConstants.experimentTitle(), experiment.getTitle(), "keyLabel");
@@ -865,7 +753,6 @@ public class ExperimentDefinitionPanel extends Composite {
       setInformedConsentOn(experiment);
       // setQuestionsChangeOn(experiment);
       setDurationOn(experiment);
-      setFeedbackOn(experiment);
       setCustomRenderingOn(experiment);
       setPublishingOn(experiment);
       setModifyDateOn(experiment);
@@ -932,16 +819,6 @@ public class ExperimentDefinitionPanel extends Composite {
   private void setPublishingOn(ExperimentDAO experiment) {
     experiment.setPublished(publishCheckBox.getValue());
     setPublishedUsersOn(experiment);
-  }
-
-  private void setFeedbackOn(ExperimentDAO experiment) {
-    experiment.setHasCustomFeedback(customFeedbackCheckBox.getValue());
-    experiment.setShowFeedback(showFeedbackCheckBox.getValue());
-    if (!customFeedbackCheckBox.getValue()) {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, FeedbackDAO.DEFAULT_FEEDBACK_MSG) });
-    } else {
-      experiment.setFeedback(new FeedbackDAO[] { new FeedbackDAO(null, customFeedbackEditor.getText()) });
-    }
   }
 
   private void setDurationOn(ExperimentDAO experiment) {

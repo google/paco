@@ -56,8 +56,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected SignalScheduleDAO schedule;
   protected Boolean customRendering = false;
   protected String customRenderingCode;
-  protected Boolean showFeedback = true;
-  protected Boolean hasCustomFeedback;
+  protected Integer feedbackType;
 
 
   /**
@@ -74,6 +73,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param customRenderingCode
    * @param showFeedback
    * @param hasCustomFeedback
+   * @param feedbackType2
    * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -81,7 +81,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
       Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
-      Boolean showFeedback, Boolean hasCustomFeedback) {
+      Integer feedbackType2) {
 
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
@@ -109,8 +109,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       this.customRendering = customRendering;
     }
     this.customRenderingCode = customRenderingCode;
-    this.showFeedback = showFeedback;
-    this.hasCustomFeedback = hasCustomFeedback;
+    this.feedbackType = feedbackType2;
   }
 
   /**
@@ -264,20 +263,13 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.customRenderingCode = customRenderingCode;
   }
 
-  public Boolean shouldShowFeedback() {
-    return showFeedback;
+  public Integer getFeedbackType() {
+    return feedbackType;
   }
 
-  public void setShowFeedback(Boolean showFeedback) {
-    this.showFeedback = showFeedback;
-  }
+  public void setFeedbackType(Integer i) {
+    this.feedbackType = i;
 
-  public void setHasCustomFeedback(Boolean value) {
-    this.hasCustomFeedback = value;
-  }
-
-  public Boolean hasCustomFeedback() {
-    return hasCustomFeedback;
   }
 
 }

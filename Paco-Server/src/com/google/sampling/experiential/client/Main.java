@@ -447,6 +447,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
+    toggleExperimentList(true);
     getExperiments(true, false, false);
   }
 
@@ -456,6 +457,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
+    toggleExperimentList(true);
     getExperiments(false, experimentsDirty, false);
   }
 
@@ -545,7 +547,6 @@ public class Main implements EntryPoint, ExperimentListener {
         showExperimentDetailPanel(experiment, !joined, findView);
         break;
       case ExperimentListener.SAVED:
-        contentPanel.clear();
         saveToServer(experiment);
         break;
       case ExperimentListener.CANCELED:
@@ -755,6 +756,7 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(Void result) {
         Window.alert(myConstants.success());
+        contentPanel.clear();
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);
