@@ -769,6 +769,9 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 
 
 - (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
+   if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusDenied) {
+     self.question.responseObject = @{@"LocationPermission":@"denied"};
+  }
   DDLogInfo(@"Fail to locate user (%f,%f), error: %@",
             self.map.userLocation.location.coordinate.latitude,
             self.map.userLocation.location.coordinate.longitude,
