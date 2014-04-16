@@ -87,15 +87,10 @@
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
 {
-  for (UIViewController *controller in [self.navigationController viewControllers]){
-    if ([controller isKindOfClass:[PacoFindExperimentsViewController class]]) {
-      PacoFindExperimentsViewController* vController = (PacoFindExperimentsViewController*)controller;
-      [self.navigationController popToViewController:vController animated:YES];
-      return;
-    }
-    if ([controller isKindOfClass:[PacoPublicExperimentController class]]) {
-      PacoPublicExperimentController* vController = (PacoPublicExperimentController*)controller;
-      [self.navigationController popToViewController:vController animated:YES];
+  for (UIViewController *controller in [self.navigationController viewControllers]) {
+    if ([controller isKindOfClass:[PacoFindExperimentsViewController class]] ||
+        [controller isKindOfClass:[PacoPublicExperimentController class]]) {
+      [self.navigationController popToViewController:controller animated:YES];
       return;
     }
   }
