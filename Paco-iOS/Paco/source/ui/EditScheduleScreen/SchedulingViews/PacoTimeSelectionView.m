@@ -28,7 +28,6 @@
 }
 
 @property (nonatomic, retain) NSMutableArray *timePickers;
-//@property (nonatomic, retain) UIDatePicker *picker;
 @property (nonatomic, retain) PacoDatePickerView *datePicker;
 @property (nonatomic, retain) NSMutableArray *timeEditButtons;
 @property (nonatomic, retain) UILabel *label;
