@@ -26,6 +26,8 @@
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoFindExperimentsViewController.h"
+#import "PacoPublicExperimentController.h"
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
@@ -85,7 +87,13 @@
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
 {
-  [self.navigationController popToRootViewControllerAnimated:YES];
+  for (UIViewController *controller in [self.navigationController viewControllers]) {
+    if ([controller isKindOfClass:[PacoFindExperimentsViewController class]] ||
+        [controller isKindOfClass:[PacoPublicExperimentController class]]) {
+      [self.navigationController popToViewController:controller animated:YES];
+      return;
+    }
+  }
 }
 
 
