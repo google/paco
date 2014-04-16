@@ -18,6 +18,7 @@
 @protocol PacoTableViewDelegate;
 
 @class PacoTableCell;
+@class PacoDatePickerView;
 
 @interface PacoTableView : UIView
 
@@ -37,6 +38,6 @@
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
 - (void)dismissDatePicker;
 
-- (void)presentDatePickerParentView:(UIView*)pickerView forCell:(PacoTableCell*)cell;
-- (void)dismissDatePickerParentView;
+- (void)presentPacoDatePicker:(PacoDatePickerView*)pickerView forCell:(PacoTableCell*)cell;
+- (void)dismissPacoDatePicker;
 @end

@@ -235,7 +235,8 @@ NSString *kCellIdText = @"text";
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
-  [self.tableView dismissDatePickerParentView];
+  [self.tableView dismissDatePicker];
+  [self.tableView dismissPacoDatePicker];
 
   if (self.tableView.footer == nil) {
     self.tableView.footer = self.joinButton;

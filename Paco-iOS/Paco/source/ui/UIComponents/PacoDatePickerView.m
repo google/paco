@@ -17,6 +17,13 @@
 #import "PacoTableView.h"
 #import "PacoTableViewDelegate.h"
 
+@interface PacoDatePickerView ()
+
+@property (nonatomic, retain) UIDatePicker* picker;
+@property (nonatomic, retain) UILabel* setTimeLabel;
+
+@end
+
 @implementation PacoDatePickerView
 
 - (id)initWithFrame:(CGRect)frame
@@ -26,11 +33,7 @@
       UIToolbar* pickerToolbar = [[UIToolbar alloc]initWithFrame:CGRectZero];
       pickerToolbar.barStyle = UIBarStyleDefault;
       [pickerToolbar setUserInteractionEnabled:YES];
-      UILabel* setTimeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-      setTimeLabel.text = NSLocalizedString(@"Set Start Time", nil);
-      [setTimeLabel sizeToFit];
-
-
+      self.setTimeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
       pickerToolbar.items = [NSArray arrayWithObjects:
                              [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Cancel", nil)
                                                              style:UIBarButtonItemStyleBordered
@@ -40,7 +43,7 @@
                               initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                               target:nil
                               action:nil],
-                             [[UIBarButtonItem alloc] initWithCustomView:setTimeLabel],
+                             [[UIBarButtonItem alloc] initWithCustomView:self.setTimeLabel],
                              [[UIBarButtonItem alloc]
                               initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                               target:nil
@@ -55,6 +58,7 @@
       self.picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, pickerToolbar.frame.size.height, 0, 0)];
       [self.picker addTarget:self action:@selector(onDateChanged:) forControlEvents:UIControlEventValueChanged];
       self.picker.datePickerMode = UIDatePickerModeTime;
+      [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
       [self.picker sizeToFit];
       [self addSubview:self.picker];
       self.frame = CGRectMake(0,
@@ -63,6 +67,17 @@
                               self.picker.frame.size.height + pickerToolbar.frame.size.height);
     }
     return self;
+}
+
+- (void)setDate:(NSDate *)date {
+  _date = date;
+  self.picker.date = date;
+}
+
+- (void)setTitle:(NSString *)title {
+  _title = title;
+  self.setTimeLabel.text = title;
+  [self.setTimeLabel sizeToFit];
 }
 
 - (void)cancelDateEdit {
@@ -79,6 +94,7 @@
 
 - (void)onDateChanged:(UIDatePicker *)datePicker {
   if ([self.delegate respondsToSelector:@selector(onDateChanged:)]) {
+    self.date = datePicker.date;
     [self.delegate onDateChanged:self];
   }
 }

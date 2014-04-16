@@ -28,8 +28,8 @@
 }
 
 @property (nonatomic, retain) NSMutableArray *timePickers;
-@property (nonatomic, retain) UIDatePicker *picker;
-@property (nonatomic, retain) UIView *pickerParentView;
+//@property (nonatomic, retain) UIDatePicker *picker;
+@property (nonatomic, retain) PacoDatePickerView *datePicker;
 @property (nonatomic, retain) NSMutableArray *timeEditButtons;
 @property (nonatomic, retain) UILabel *label;
 @property (nonatomic, retain) UIButton *addButton;
@@ -52,7 +52,7 @@
 }
 
 - (void)updateTime:(UIButton *)button {
-  NSNumber *time = [NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)];
+  NSNumber *time = [NSNumber numberWithLongLong:(self.datePicker.date.timeIntervalSince1970 * 1000)];
   [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
           forState:UIControlStateNormal];
   [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
@@ -67,18 +67,15 @@
   self.editIndex = timeIndex;
   assert(timeIndex != NSNotFound);
   NSNumber *time = [self.times objectAtIndex:timeIndex];
-  if (!self.pickerParentView) {
+  if (!self.datePicker) {
     PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
     datePickerView.delegate = self;
-    self.pickerParentView = datePickerView;
-    self.picker = datePickerView.picker;
+    datePickerView.title = NSLocalizedString(@"Set Start Time", nil);
+    self.datePicker = datePickerView;
   }
-
-  [self.picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-  [self.picker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
-
+  [self.datePicker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-  [[self pacoTableView] presentDatePickerParentView:self.pickerParentView forCell:self];
+  [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
 
 #pragma mark - PacoDatePickerViewDelegate
@@ -86,7 +83,8 @@
 - (void)onDateChanged:(PacoDatePickerView *)datePickerView {
   if (_editIndex != NSNotFound) {
     NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
-    [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
+    [timesArray replaceObjectAtIndex:self.editIndex
+                          withObject:[NSNumber numberWithLongLong:(datePickerView.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
   }
@@ -110,7 +108,8 @@
 - (void)finishTimeSelection {
   NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
   if (_editIndex != NSNotFound) {
-    [timesArray replaceObjectAtIndex:self.editIndex withObject:[NSNumber numberWithLongLong:(self.picker.date.timeIntervalSince1970 * 1000)]];
+    [timesArray replaceObjectAtIndex:self.editIndex
+                          withObject:[NSNumber numberWithLongLong:(self.datePicker.date.timeIntervalSince1970 * 1000)]];
     self.times = timesArray;
     PacoTableView *pacoTable = [self pacoTableView];
     pacoTable.footer = nil;
