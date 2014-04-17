@@ -67,7 +67,7 @@
   if (!self.datePicker) {
     PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
     datePickerView.delegate = self;
-    datePickerView.title = NSLocalizedString(@"Set Start Time", nil);
+    datePickerView.title = NSLocalizedString(@"Set Time", nil);
     self.datePicker = datePickerView;
   }
   [self.datePicker setDateNumber:(self.times)[timeIndex]];
