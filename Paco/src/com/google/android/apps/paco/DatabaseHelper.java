@@ -202,13 +202,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
       for (Experiment experiment : joined) {
       //verify that feedbackType is correct
-        if (experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) { // the default
+        if (experiment.getFeedbackType() == null || experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) { // the default
+          eu.loadFeedbackForExperiment(experiment);
           // if it is our default value make sure that it is not actually custom code.
           if (!FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getText())) {
             experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
+            eu.updateJoinedExperiment(experiment);
           }
+
         }
-        eu.updateJoinedExperiment(experiment);
       }
       eu.deleteExperimentCachesOnDisk();
     }

@@ -492,7 +492,7 @@ public class ExperimentProviderUtil {
         experiment.setCustomRendering(customRendering != null ? customRendering : false);
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
         Integer feedbackType = experimentFromJson.getFeedbackType();
-        if (feedbackType == null) {
+        if (feedbackType == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
           if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experimentFromJson.getFeedback().get(0).getText())) {
             feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE;
           } else {
