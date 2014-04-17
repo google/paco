@@ -22,6 +22,7 @@
 #import "PacoLoadingTableCell.h"
 #import "PacoTableCell.h"
 #import "PacoTableViewDelegate.h"
+#import "PacoDatePickerView.h"
 
 @interface PacoTableMapping : NSObject
 @property (nonatomic, retain) NSString *stringKey;
@@ -227,7 +228,20 @@
   self.tableView.frame = CGRectMake(10, yStart, self.frame.size.width - 20, self.frame.size.height - headerFrame.size.height - footerFrame.size.height - 10);
   yStart += self.tableView.frame.size.height;
   if (self.footer) {
-    self.footer.frame = CGRectMake(0, yStart, self.frame.size.width, self.frame.size.height - yStart);
+    CGRect frame = self.footer.frame;
+    frame.origin.x = self.frame.size.width / 2  - frame.size.width / 2;
+    frame.origin.y = self.frame.size.height - frame.size.height - 10;
+    self.footer.frame = frame;
+  }
+}
+
+- (void)presentPacoDatePicker:(PacoDatePickerView*)pickerView forCell:(PacoTableCell*)cell {
+  self.footer = pickerView;
+}
+
+- (void)dismissPacoDatePicker {
+  if (self.footer && [self.footer isKindOfClass:[PacoDatePickerView class]]) {
+    self.footer = nil;
   }
 }
 
