@@ -16,9 +16,11 @@
 #import "PacoDatePickerView.h"
 #import "PacoTableView.h"
 #import "PacoTableViewDelegate.h"
+#import "PacoDateUtility.h"
 
 @interface PacoDatePickerView ()
 
+@property (nonatomic, copy) NSDate *date;
 @property (nonatomic, retain) UIDatePicker* picker;
 @property (nonatomic, retain) UILabel* setTimeLabel;
 
@@ -65,12 +67,28 @@
     return self;
 }
 
+
+- (void)setDateNumber:(NSNumber*)dateNumber {
+  self.date = [NSDate dateWithTimeIntervalSince1970:([dateNumber longLongValue] / 1000)];
+}
+
+- (NSNumber*)dateNumber {
+  return [NSNumber numberWithLongLong:[self.date timeIntervalSince1970] * 1000];
+}
+
+
 - (void)setDate:(NSDate *)date {
   if (![_date isEqualToDate:date]) {
     _date = [date copy];
     self.picker.date = date;
   }
 }
+
+
+- (NSString*)dateString {
+  return [PacoDateUtility timeStringAMPMFromMilliseconds:[[self dateNumber] longLongValue]];
+}
+
 
 - (void)setTitle:(NSString *)title {
   if (![_title isEqualToString:title]) {

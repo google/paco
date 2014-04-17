@@ -51,10 +51,9 @@
 }
 
 - (void)updateTime:(UIButton *)button {
-  NSNumber *time = [NSNumber numberWithLongLong:(self.datePicker.date.timeIntervalSince1970 * 1000)];
-  [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
+  [button setTitle:[self.datePicker dateString]
           forState:UIControlStateNormal];
-  [button setTitle:[PacoDateUtility timeStringAMPMFromMilliseconds:[time longLongValue]]
+  [button setTitle:[self.datePicker dateString]
           forState:UIControlStateHighlighted];
   if (self.editIndex != NSNotFound) {
     [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
@@ -65,14 +64,13 @@
   NSUInteger timeIndex = [self.timeEditButtons indexOfObject:button];
   self.editIndex = timeIndex;
   assert(timeIndex != NSNotFound);
-  NSNumber *time = (self.times)[timeIndex];
   if (!self.datePicker) {
     PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
     datePickerView.delegate = self;
     datePickerView.title = NSLocalizedString(@"Set Start Time", nil);
     self.datePicker = datePickerView;
   }
-  [self.datePicker setDate:[NSDate dateWithTimeIntervalSince1970:(time.longLongValue / 1000)]];
+  [self.datePicker setDateNumber:(self.times)[timeIndex]];
   [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
   [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
@@ -82,7 +80,7 @@
 - (void)onDateChanged:(PacoDatePickerView *)datePickerView {
   if (_editIndex != NSNotFound) {
     NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
-    timesArray[self.editIndex] = [NSNumber numberWithLongLong:(datePickerView.date.timeIntervalSince1970 * 1000)];
+    timesArray[self.editIndex] = [self.datePicker dateNumber];
     self.times = timesArray;
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
   }
@@ -106,7 +104,7 @@
 - (void)finishTimeSelection {
   NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
   if (_editIndex != NSNotFound) {
-    timesArray[self.editIndex] = [NSNumber numberWithLongLong:(self.datePicker.date.timeIntervalSince1970 * 1000)];
+    timesArray[self.editIndex] = [self.datePicker dateNumber];
     self.times = timesArray;
     PacoTableView *pacoTable = [self pacoTableView];
     pacoTable.footer = nil;

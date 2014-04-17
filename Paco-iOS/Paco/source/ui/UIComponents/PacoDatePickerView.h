@@ -26,6 +26,9 @@
 
 @interface PacoDatePickerView : UIView
 @property (nonatomic, weak) id<PacoDatePickerDelegate> delegate;
-@property (nonatomic, copy) NSDate *date;
-@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString* title;
+
+- (void)setDateNumber:(NSNumber*)dateNumber;
+- (NSNumber*)dateNumber;
+- (NSString*)dateString;
 @end
