@@ -26,32 +26,28 @@
 
 @implementation PacoDatePickerView
 
-- (id)initWithFrame:(CGRect)frame
-{
+- (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-      UIToolbar* pickerToolbar = [[UIToolbar alloc]initWithFrame:CGRectZero];
+      UIToolbar* pickerToolbar = [[UIToolbar alloc] initWithFrame:CGRectZero];
       pickerToolbar.barStyle = UIBarStyleDefault;
       [pickerToolbar setUserInteractionEnabled:YES];
       self.setTimeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-      pickerToolbar.items = [NSArray arrayWithObjects:
-                             [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Cancel", nil)
-                                                             style:UIBarButtonItemStyleBordered
-                                                            target:self
-                                                            action:@selector(cancelDateEdit)],
-                             [[UIBarButtonItem alloc]
-                              initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                              target:nil
-                              action:nil],
-                             [[UIBarButtonItem alloc] initWithCustomView:self.setTimeLabel],
-                             [[UIBarButtonItem alloc]
-                              initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                              target:nil
-                              action:nil],
-                             [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Done", nil)
-                                                             style:UIBarButtonItemStyleBordered
-                                                            target:self
-                                                            action:@selector(saveDateEdit)],nil];
+      UIBarButtonItem* cancelButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Cancel", nil)
+                                                                      style:UIBarButtonItemStyleBordered
+                                                                     target:self
+                                                                     action:@selector(cancelDateEdit)];
+      UIBarButtonItem* spaceItem =
+          [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                        target:nil
+                                                        action:nil];
+      UIBarButtonItem* titleItem =  [[UIBarButtonItem alloc] initWithCustomView:self.setTimeLabel];
+      UIBarButtonItem* doneButton = [[UIBarButtonItem alloc]initWithTitle:NSLocalizedString(@"Done", nil)
+                                                                    style:UIBarButtonItemStyleBordered
+                                                                   target:self
+                                                                   action:@selector(saveDateEdit)];
+      
+      pickerToolbar.items = @[cancelButton, spaceItem, titleItem, spaceItem, doneButton];
       [pickerToolbar sizeToFit];
       [self addSubview:pickerToolbar];
 
@@ -70,14 +66,18 @@
 }
 
 - (void)setDate:(NSDate *)date {
-  _date = date;
-  self.picker.date = date;
+  if (![_date isEqualToDate:date]) {
+    _date = [date copy];
+    self.picker.date = date;
+  }
 }
 
 - (void)setTitle:(NSString *)title {
-  _title = title;
-  self.setTimeLabel.text = title;
-  [self.setTimeLabel sizeToFit];
+  if (![_title isEqualToString:title]) {
+    _title = [title copy];
+    self.setTimeLabel.text = title;
+    [self.setTimeLabel sizeToFit];
+  }
 }
 
 - (void)cancelDateEdit {
