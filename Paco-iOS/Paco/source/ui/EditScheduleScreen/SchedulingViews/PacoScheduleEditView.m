@@ -135,55 +135,54 @@ NSString *kCellIdText = @"text";
 - (void)initializeCell:(UITableViewCell *)cell
               withData:(id)rowData
             forReuseId:(NSString *)reuseId {
-  //disable user to modify any schedule for now
-  cell.userInteractionEnabled = NO;
+  cell.userInteractionEnabled = YES;
+
   switch (self.schedule.scheduleType) {
     case kPacoScheduleTypeDaily:
     case kPacoScheduleTypeWeekly:
     case kPacoScheduleTypeWeekday:
     case kPacoScheduleTypeMonthly: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
-        cellView.completionBlock = ^{
-          [self onDoneEditing];
-        };
-        cellView.times = [self realRowData:rowData];
-        cell.userInteractionEnabled = YES;
-      } else {
-        assert(0);
-      }
-    }
+      NSAssert([self isCellType:kCellIdSignalTimes reuseId:reuseId], @"cellType should be signalTimes");
+      PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+      cellView.completionBlock = ^{
+        [self onDoneEditing];
+      };
+      cellView.times = [self realRowData:rowData];
       break;
+    }
+      
     case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"Start Time", nil);
-        cell.userInteractionEnabled = YES;
       } else if([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"End Time", nil);
-        cell.userInteractionEnabled = YES;
       } else {
-        assert(0);
+        NSAssert(NO, @"cellType should either be esmStartTime or esmEndTime");
       }
-    }
       break;
+    }
+      
     case kPacoScheduleTypeSelfReport:
-      // do nothing
+      cell.userInteractionEnabled = NO;
       if ([self isCellType:kCellIdText reuseId:reuseId]) {
         PacoTableTextCell *cellView = (PacoTableTextCell *)cell;
         cellView.textLabel.text = NSLocalizedString(@"Self scheduled.", nil);
         cellView.detailTextLabel.text = NSLocalizedString(@"Submit responses whenever you wish.", nil);
       }
       break;
-    case kPacoScheduleTypeTesting: {
-      // special type for testing Notification
-    }
+      
+    case kPacoScheduleTypeTesting:
+      cell.userInteractionEnabled = NO;
+      break;
+      
+    default:
+      NSAssert(NO, @"scheduleType is not correct!");
       break;
   }
-
 }
 
 - (void)onDoneEditing {
@@ -216,38 +215,33 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
-  NSLog(@"TODO: implement schedule editing hookups");
   switch (self.schedule.scheduleType) {
     case kPacoScheduleTypeDaily:
     case kPacoScheduleTypeWeekly:
     case kPacoScheduleTypeWeekday:
     case kPacoScheduleTypeMonthly: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        self.schedule.times = rowData;
-      } else {
-        assert(0);
-      }
-    }
+      NSAssert([self isCellType:kCellIdSignalTimes reuseId:reuseId], @"cellType should be signalTimes");
+      self.schedule.times = rowData;
       break;
+    }
     case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         self.schedule.esmStartHour = [rowData longLongValue];
       } else if ([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         self.schedule.esmEndHour = [rowData longLongValue];
       }else {
-        assert(0);
+        NSAssert(NO, @"cellType should either be esmStartTime or esmEndTime");
       }
-    }
       break;
+    }
     case kPacoScheduleTypeSelfReport:
-      // do nothing
       break;
-    case kPacoScheduleTypeTesting: {
-      // special type for testing Notification
-    }
+    case kPacoScheduleTypeTesting:
+      break;
+    default:
+      NSAssert(NO, @"scheduleType is not correct!");
       break;
   }
-  
 }
 
 @end
