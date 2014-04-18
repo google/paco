@@ -102,11 +102,8 @@ NSString *kCellIdText = @"text";
 + (NSArray *)dataFromExperimentSchedule:(PacoExperimentSchedule *)schedule {
   switch (schedule.scheduleType) {
     case kPacoScheduleTypeDaily:
-      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeWeekly:
-      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeWeekday:
-      return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeMonthly:
       return @[@[kCellIdSignalTimes, schedule.times]];
     case kPacoScheduleTypeESM:
@@ -141,45 +138,9 @@ NSString *kCellIdText = @"text";
   //disable user to modify any schedule for now
   cell.userInteractionEnabled = NO;
   switch (self.schedule.scheduleType) {
-    case kPacoScheduleTypeDaily: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
-        cellView.completionBlock = ^{
-          [self onDoneEditing];
-        };
-        cellView.times = [self realRowData:rowData];
-        cell.userInteractionEnabled = YES;
-      } else {
-        assert(0);
-      }
-    }
-      break;
-    case kPacoScheduleTypeWeekly: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
-        cellView.completionBlock = ^{
-          [self onDoneEditing];
-        };
-        cellView.times = [self realRowData:rowData];
-        cell.userInteractionEnabled = YES;
-      } else {
-        assert(0);
-      }
-    }
-      break;
-    case kPacoScheduleTypeWeekday: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
-        cellView.completionBlock = ^{
-          [self onDoneEditing];
-        };
-        cellView.times = [self realRowData:rowData];
-        cell.userInteractionEnabled = YES;
-      } else {
-        assert(0);
-      }
-    }
-      break;
+    case kPacoScheduleTypeDaily:
+    case kPacoScheduleTypeWeekly:
+    case kPacoScheduleTypeWeekday:
     case kPacoScheduleTypeMonthly: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
@@ -257,30 +218,9 @@ NSString *kCellIdText = @"text";
 - (void)dataUpdated:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   NSLog(@"TODO: implement schedule editing hookups");
   switch (self.schedule.scheduleType) {
-    case kPacoScheduleTypeDaily: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        self.schedule.times = rowData;
-      } else {
-        assert(0);
-      }
-    }
-      break;
-    case kPacoScheduleTypeWeekly: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        self.schedule.times = rowData;
-      } else {
-        assert(0);
-      }
-    }
-      break;
-    case kPacoScheduleTypeWeekday: {
-      if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
-        self.schedule.times = rowData;
-      } else {
-        assert(0);
-      }
-    }
-      break;
+    case kPacoScheduleTypeDaily:
+    case kPacoScheduleTypeWeekly:
+    case kPacoScheduleTypeWeekday:
     case kPacoScheduleTypeMonthly: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         self.schedule.times = rowData;
