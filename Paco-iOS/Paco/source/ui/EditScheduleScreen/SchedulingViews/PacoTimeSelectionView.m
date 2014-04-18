@@ -24,7 +24,7 @@
 #import "PacoDatePickerView.h"
 
 @interface PacoTimeSelectionView ()<PacoDatePickerDelegate> {
-  NSArray* initialTimes;
+  NSArray* _initialTimes;
 }
 
 @property (nonatomic, retain) NSMutableArray *timePickers;
@@ -35,10 +35,10 @@
 
 @end
 
+
+
 @implementation PacoTimeSelectionView
 @synthesize times = _times;
-
-
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
@@ -56,60 +56,20 @@
   return self;
 }
 
+- (NSArray *)times {
+  return _times;
+}
 
-- (void)updateTime:(UIButton *)button {
-  [button setTitle:[self.datePicker dateString]
-          forState:UIControlStateNormal];
-  [button setTitle:[self.datePicker dateString]
-          forState:UIControlStateHighlighted];
-  if (self.editIndex != NSNotFound) {
-    [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
+- (void)setTimes:(NSArray *)times {
+  @synchronized(self) {
+    _times = times;
+    [self rebuildTimes];
   }
 }
-
-- (void)onEdit:(UIButton *)button {
-  NSUInteger timeIndex = [self.timeEditButtons indexOfObject:button];
-  self.editIndex = timeIndex;
-  assert(timeIndex != NSNotFound);
-  if (!self.datePicker) {
-    PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
-    datePickerView.delegate = self;
-    datePickerView.title = NSLocalizedString(@"Set Time", nil);
-    self.datePicker = datePickerView;
-  }
-  [self.datePicker setDateNumber:(self.times)[timeIndex]];
-  [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-  [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
-}
-
-
-#pragma mark - PacoDatePickerViewDelegate
-- (void)onDateChanged:(PacoDatePickerView *)datePickerView {
-  if (self.editIndex != NSNotFound) {
-    NSMutableArray* timesArray = [NSMutableArray arrayWithArray:self.times];
-    timesArray[self.editIndex] = [self.datePicker dateNumber];
-    self.times = timesArray;
-    [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-  }
-}
-
-- (void)cancelDateEdit {
-  self.times = initialTimes;
-  [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-  //ask PacoScheduleEditView to dismiss picker view and update footer
-  [self.tableDelegate handleUserTap];
-}
-
-- (void)saveDateEdit {
-  initialTimes = self.times;
-  [self.tableDelegate handleUserTap];
-}
-
-
 
 - (void)rebuildTimes {
-  if (initialTimes == nil) {
-    initialTimes = self.times;
+  if (!_initialTimes) {
+    _initialTimes = self.times;
   }
   [self.timeEditButtons removeAllObjects];
   [self.timePickers removeAllObjects];
@@ -148,17 +108,57 @@
   [self setNeedsLayout];
 }
 
-- (NSArray *)times {
-  return _times;
+
+- (void)onEdit:(UIButton *)button {
+  NSUInteger timeIndex = [self.timeEditButtons indexOfObject:button];
+  self.editIndex = timeIndex;
+  assert(timeIndex != NSNotFound);
+  if (!self.datePicker) {
+    PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
+    datePickerView.delegate = self;
+    datePickerView.title = NSLocalizedString(@"Set Time", nil);
+    self.datePicker = datePickerView;
+  }
+  [self.datePicker setDateNumber:(self.times)[timeIndex]];
+  [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
+  [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
 
-- (void)setTimes:(NSArray *)times {
-  @synchronized(self) {
-    _times = times;
-    [self rebuildTimes];
+
+- (void)updateTime:(UIButton *)button {
+  [button setTitle:[self.datePicker dateString]
+          forState:UIControlStateNormal];
+  [button setTitle:[self.datePicker dateString]
+          forState:UIControlStateHighlighted];
+  if (self.editIndex != NSNotFound) {
+    [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
   }
 }
 
+#pragma mark - PacoDatePickerViewDelegate
+- (void)onDateChanged:(PacoDatePickerView *)datePickerView {
+  if (self.editIndex != NSNotFound) {
+    NSMutableArray* timesArray = [NSMutableArray arrayWithArray:self.times];
+    timesArray[self.editIndex] = [self.datePicker dateNumber];
+    self.times = timesArray;
+    [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
+  }
+}
+
+- (void)cancelDateEdit {
+  self.times = _initialTimes;
+  [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
+  //ask PacoScheduleEditView to dismiss picker view and update footer
+  [self.tableDelegate handleUserTap];
+}
+
+- (void)saveDateEdit {
+  _initialTimes = self.times;
+  [self.tableDelegate handleUserTap];
+}
+
+
+#pragma mark - ui layout
 - (CGSize)sizeThatFits:(CGSize)size {
   return CGSizeMake(300, 340);
 }
