@@ -75,11 +75,11 @@
   [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
 
-#pragma mark - PacoDatePickerViewDelegate
 
+#pragma mark - PacoDatePickerViewDelegate
 - (void)onDateChanged:(PacoDatePickerView *)datePickerView {
   if (_editIndex != NSNotFound) {
-    NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
+    NSMutableArray* timesArray = [NSMutableArray arrayWithArray:self.times];
     timesArray[self.editIndex] = [self.datePicker dateNumber];
     self.times = timesArray;
     [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
@@ -88,30 +88,16 @@
 
 - (void)cancelDateEdit {
   self.times = initialTimes;
-  PacoTableView* pacoTable = [self pacoTableView];
-  pacoTable.footer = nil;
-  [pacoTable setNeedsLayout];
   [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
+  //ask PacoScheduleEditView to dismiss picker view and update footer
   [self.tableDelegate handleUserTap];
 }
 
 - (void)saveDateEdit {
   initialTimes = self.times;
-  [self finishTimeSelection];
   [self.tableDelegate handleUserTap];
 }
 
-- (void)finishTimeSelection {
-  NSMutableArray *timesArray = [NSMutableArray arrayWithArray:self.times];
-  if (_editIndex != NSNotFound) {
-    timesArray[self.editIndex] = [self.datePicker dateNumber];
-    self.times = timesArray;
-    PacoTableView *pacoTable = [self pacoTableView];
-    pacoTable.footer = nil;
-    [pacoTable setNeedsLayout];
-    [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-  }
-}
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];

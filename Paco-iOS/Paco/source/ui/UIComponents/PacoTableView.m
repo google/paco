@@ -242,6 +242,7 @@
 - (void)dismissPacoDatePicker {
   if (self.footer && [self.footer isKindOfClass:[PacoDatePickerView class]]) {
     self.footer = nil;
+    [self setNeedsLayout];
   }
 }
 
@@ -256,6 +257,7 @@
 - (void)dismissDatePicker {
   if (self.footer && [self.footer isKindOfClass:[UIDatePicker class]]) {
     self.footer = nil;
+    [self setNeedsLayout];
   }
 }
 
