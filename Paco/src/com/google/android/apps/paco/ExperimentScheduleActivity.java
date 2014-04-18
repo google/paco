@@ -123,6 +123,7 @@ public class ExperimentScheduleActivity extends Activity {
       if (experiment.getSchedule() == null
           || experiment.getSchedule().getScheduleType().equals(SignalSchedule.SELF_REPORT)) {
         setContentView(R.layout.self_report_schedule);
+        save();
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)
           || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
         showDailyScheduleConfiguration();
