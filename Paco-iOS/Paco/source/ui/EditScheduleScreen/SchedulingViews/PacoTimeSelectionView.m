@@ -42,16 +42,16 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.editIndex = NSNotFound;
-    self.timePickers = [NSMutableArray array];
-    self.timeEditButtons = [NSMutableArray array];
+    _editIndex = NSNotFound;
+    _timePickers = [NSMutableArray array];
+    _timeEditButtons = [NSMutableArray array];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
     label.text = NSLocalizedString(@"Signal Time(s)", nil);
     label.backgroundColor = [UIColor clearColor];
-    self.label = label;
-    [self addSubview:label];
-    [self.label sizeToFit];
+    _label = label;
+    [self addSubview:_label];
+    [_label sizeToFit];
   }
   return self;
 }
@@ -85,7 +85,7 @@
 
 #pragma mark - PacoDatePickerViewDelegate
 - (void)onDateChanged:(PacoDatePickerView *)datePickerView {
-  if (_editIndex != NSNotFound) {
+  if (self.editIndex != NSNotFound) {
     NSMutableArray* timesArray = [NSMutableArray arrayWithArray:self.times];
     timesArray[self.editIndex] = [self.datePicker dateNumber];
     self.times = timesArray;
