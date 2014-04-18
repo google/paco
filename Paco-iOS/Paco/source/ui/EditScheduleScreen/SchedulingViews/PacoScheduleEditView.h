@@ -22,4 +22,5 @@
 @property (nonatomic, retain) UIButton *joinButton;
 @property (nonatomic, copy) PacoExperimentSchedule* schedule;
 @property (nonatomic, retain) PacoTableView *tableView;
+
 @end

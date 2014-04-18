@@ -15,13 +15,20 @@
 
 #import <UIKit/UIKit.h>
 
-#import "PacoTableCell.h"
+@class PacoDatePickerView;
+@protocol PacoDatePickerDelegate <NSObject>
 
-
-typedef void(^TimeSelectionCompletionBlock)(void);
-
-@interface PacoTimeSelectionView : PacoTableCell
-@property (nonatomic, retain) NSArray *times;
-@property (nonatomic, copy) TimeSelectionCompletionBlock completionBlock;
+@optional
+- (void)onDateChanged:(PacoDatePickerView *)datePickerView;
+- (void)saveDateEdit;
 - (void)cancelDateEdit;
+@end
+
+@interface PacoDatePickerView : UIView
+@property (nonatomic, weak) id<PacoDatePickerDelegate> delegate;
+@property (nonatomic, copy) NSString* title;
+
+- (void)setDateNumber:(NSNumber*)dateNumber;
+- (NSNumber*)dateNumber;
+- (NSString*)dateString;
 @end

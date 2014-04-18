@@ -18,6 +18,7 @@
 @protocol PacoTableViewDelegate;
 
 @class PacoTableCell;
+@class PacoDatePickerView;
 
 @interface PacoTableView : UIView
 
@@ -35,6 +36,7 @@
 - (NSArray *)boxInputs:(NSArray *)inputs withKey:(NSString *)key;
 
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
-- (void)dismissDatePicker;
+- (void)presentPacoDatePicker:(PacoDatePickerView*)pickerView forCell:(PacoTableCell*)cell;
 
+- (void)replaceDatePickerWithFooterIfNeeded:(UIView*)footer;
 @end
