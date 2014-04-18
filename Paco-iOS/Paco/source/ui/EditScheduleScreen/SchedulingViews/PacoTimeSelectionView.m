@@ -120,20 +120,9 @@
     self.datePicker = datePickerView;
   }
   [self.datePicker setDateNumber:(self.times)[timeIndex]];
-  [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
   [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
 
-
-- (void)updateTime:(UIButton *)button {
-  [button setTitle:[self.datePicker dateString]
-          forState:UIControlStateNormal];
-  [button setTitle:[self.datePicker dateString]
-          forState:UIControlStateHighlighted];
-  if (self.editIndex != NSNotFound) {
-    [self performSelector:@selector(updateTime:) withObject:button afterDelay:0.5];
-  }
-}
 
 #pragma mark - PacoDatePickerViewDelegate
 - (void)onDateChanged:(PacoDatePickerView *)datePickerView {
