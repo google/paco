@@ -1024,6 +1024,8 @@ public class ExperimentProviderUtil {
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
     int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
     int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
+    int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
+    int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
 
     SignalSchedule schedule = new SignalSchedule();
     if (!cursor.isNull(idIndex)) {
@@ -1090,6 +1092,14 @@ public class ExperimentProviderUtil {
       schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
     }
 
+    if (!cursor.isNull(snoozeCountIndex)) {
+      schedule.setSnoozeCount(cursor.getInt(snoozeCountIndex));
+    }
+
+    if (!cursor.isNull(snoozeTimeIndex)) {
+      schedule.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
+    }
+
     return schedule;
   }
 
@@ -1135,6 +1145,14 @@ public class ExperimentProviderUtil {
 
     if (schedule.getMinimumBuffer() != null) {
       values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer());
+    }
+
+    if (schedule.getSnoozeCount() != null) {
+      values.put(SignalScheduleColumns.SNOOZE_COUNT, schedule.getSnoozeCount());
+    }
+
+    if (schedule.getSnoozeTime() != null) {
+      values.put(SignalScheduleColumns.SNOOZE_TIME, schedule.getSnoozeTime());
     }
 
     StringBuilder buf = new StringBuilder();

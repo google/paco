@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -25,13 +25,13 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.pacoapp.paco.R;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.pacoapp.paco.R;
+
 /**
- * 
+ *
  */
 public class SignalSchedule extends SignalingMechanism implements Parcelable {
 
@@ -42,7 +42,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public static final int TUESDAY = 4;
   public static final int MONDAY = 2;
   public static final int SUNDAY = 1;
-  
+
   public static final int DAILY = 0;
   public static final int WEEKDAY = 1;
   public static final int WEEKLY = 2;
@@ -73,7 +73,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
   public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY,
       ESM_PERIOD_WEEK, ESM_PERIOD_MONTH };
-  
+
 
   public static class Creator implements Parcelable.Creator<SignalSchedule> {
 
@@ -97,7 +97,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
       if (numberOfTimes != -1) {
         times.add(source.readLong());
       }
-      
+
       schedule.repeatRate = source.readInt();
       schedule.weekDaysScheduled  = source.readInt();
       schedule.nthOfMonth = source.readInt();
@@ -108,6 +108,8 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
       schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
       schedule.timeout = source.readInt();
       schedule.minimumBuffer = source.readInt();
+      schedule.snoozeCount = source.readInt();
+      schedule.snoozeTime = source.readInt();
       return schedule;
     }
 
@@ -115,15 +117,15 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
       return new SignalSchedule[size];
     }
   }
-  
+
   public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
   private Long id;
-  
+
   @JsonProperty("id")
   private Long serverId;
-  
+
   @JsonIgnore
   private Long experimentId;
 
@@ -147,7 +149,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   private Boolean userEditable = Boolean.TRUE;
 
   /**
-   * 
+   *
    * @param id
    * @param scheduleType
    * @param byDayOfMonth
@@ -189,7 +191,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   }
 
   /**
-       * 
+       *
        */
   public SignalSchedule() {
     this.times = new ArrayList<Long>();
@@ -226,14 +228,14 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
       return 1;
     case ESM_PERIOD_WEEK:
       return 7;
-    case ESM_PERIOD_MONTH:      
+    case ESM_PERIOD_MONTH:
       return 30;
     default:
       return 1;
     }
-    
+
   }
-  
+
   public Long getEsmStartHour() {
     return esmStartHour;
   }
@@ -273,20 +275,20 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public Integer getWeekDaysScheduled() {
     return weekDaysScheduled;
   }
-  
+
   public void addWeekDayToSchedule(Integer day) {
     weekDaysScheduled |= day;
   }
-  
+
   public void removeWeekDayFromSchedule(Integer day) {
     weekDaysScheduled &= (~day);
   }
-  
+
   // Visible for testing
   public void removeAllWeekDaysScheduled() {
     this.weekDaysScheduled = 0;
   }
-  
+
   public boolean isWeekDayScheduled(Integer day) {
     return (weekDaysScheduled & day) != 0;
   }
@@ -373,7 +375,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     for (Long time : times) {
       dest.writeLong(time);
     }
-    
+
     dest.writeInt(repeatRate);
     dest.writeInt(weekDaysScheduled);
     dest.writeInt(nthOfMonth);
@@ -383,19 +385,21 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
     dest.writeInt(timeout);
     dest.writeInt(minimumBuffer);
+    dest.writeInt(snoozeCount);
+    dest.writeInt(snoozeTime);
   }
 
   public DateTime getNextAlarmTime(DateTime dateTime) {
     if (!getScheduleType().equals(SignalSchedule.ESM)) {
       return new NonESMSignalGenerator(this).getNextAlarmTime(dateTime);
     }
-    return null;  // TODO (bobevans) move the esm handling in Experiment to here.  
+    return null;  // TODO (bobevans) move the esm handling in Experiment to here.
   }
 
   public Long getBeginDate() {
     return beginDate;
   }
-  
+
   public void setBeginDate(Long beginDate) {
     this.beginDate = beginDate;
   }
@@ -403,7 +407,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public Boolean getEsmWeekends() {
     return esmWeekends;
   }
-  
+
   public void setEsmWeekends(Boolean weekends) {
     this.esmWeekends = weekends;
   }
@@ -432,8 +436,8 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
         firstTime = false;
       } else {
         buf.append(",");
-      }    
-      buf.append(getHourOffsetAsTimeString(time));      
+      }
+      buf.append(getHourOffsetAsTimeString(time));
     }
     buf.append("]");
     comma(buf);
@@ -446,7 +450,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     appendKeyValue(buf,"byDayOfMonth", byDayOfMonth != null ? byDayOfMonth.toString() : "");
     comma(buf);
     appendKeyValue(buf,"dayOfMonth", dayOfMonth != null ? dayOfMonth.toString() : "");
-    
+
     return buf.toString();
   }
 
@@ -493,11 +497,11 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
   public Boolean getUserEditable() {
     return userEditable;
   }
-  
+
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
-  
+
   public Integer getTimeout() {
     if (timeout == null) {
       return getOldDefaultTimeout();
@@ -505,7 +509,7 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     return timeout;
   }
 
-  
+
   private Integer getOldDefaultTimeout() {
     if (getScheduleType().equals(ESM)) {
       setTimeout(59);

@@ -12,14 +12,14 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Trigger {
-  
+
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key id;
-  
+
   @Persistent
   private Integer eventCode;
-  
+
   @Persistent
   private String sourceIdentifier;
 
@@ -32,6 +32,14 @@ public class Trigger {
   @Persistent
   private Integer minimumBuffer;
 
+  @Persistent
+  private Integer snoozeCount;
+
+  @Persistent
+  private Integer snoozeTime;
+
+
+
   public Integer getTimeout() {
     return timeout;
   }
@@ -40,7 +48,7 @@ public class Trigger {
     this.timeout = timeout;
   }
 
-  public Trigger(Key ownerKey, Long id, Integer event, String sourceIdentifier, Long millisecondDelay, Integer timeout, Integer minimumBuffer) {
+  public Trigger(Key ownerKey, Long id, Integer event, String sourceIdentifier, Long millisecondDelay, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, Trigger.class.getSimpleName(), id);
@@ -50,6 +58,8 @@ public class Trigger {
     this.delay = millisecondDelay;
     this.timeout = timeout;
     this.minimumBuffer = minimumBuffer;
+    this.snoozeCount = snoozeCount;
+    this.snoozeTime = snoozeTime;
   }
 
   public Key getId() {
@@ -91,8 +101,20 @@ public class Trigger {
   public void setMinimumBuffer(Integer minimumBuffer) {
     this.minimumBuffer = minimumBuffer;
   }
-  
-  
 
+  public Integer getSnoozeCount() {
+    return snoozeCount;
+  }
 
+  public void setSnoozeCount(Integer snoozeCount) {
+    this.snoozeCount = snoozeCount;
+  }
+
+  public Integer getSnoozeTime() {
+    return snoozeTime;
+  }
+
+  public void setSnoozeTime(Integer snoozeTime) {
+    this.snoozeTime = snoozeTime;
+  }
 }

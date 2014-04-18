@@ -201,6 +201,11 @@ public class EsmPanel extends Composite {
     MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
     verticalPanel.add(minimumBufferPanel);
     minimumBufferPanel.setWidth("286px");
+
+    SnoozePanel snoozePanel = new SnoozePanel(schedule);
+    verticalPanel.add(snoozePanel);
+    snoozePanel.setWidth("286px");
+
   }
 
 }
