@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -22,14 +22,14 @@ import java.io.Serializable;
 
 
 /**
- * 
+ *
  * Dumb data object for sending scheduling info back and forth from GWT client.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class SignalScheduleDAO  extends SignalingMechanismDAO implements Serializable {
-    
+
     public static final int DAILY = 0;
     public static final int WEEKDAY = 1;
     public static final int WEEKLY = 2;
@@ -37,26 +37,26 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     public static final int ESM = 4;
     public static final int SELF_REPORT = 5;
     public static final int ADVANCED = 6;
-    public static final int[] SCHEDULE_TYPES = new int[]{DAILY, WEEKDAY, WEEKLY, MONTHLY, ESM, 
+    public static final int[] SCHEDULE_TYPES = new int[]{DAILY, WEEKDAY, WEEKLY, MONTHLY, ESM,
       SELF_REPORT, ADVANCED};
-    
+
     public static final String[] SCHEDULE_TYPES_NAMES = new String[] {
-        "Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self report only", 
+        "Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self report only",
         "Advanced" };
-    
+
     public static final int ESM_PERIOD_DAY = 0;
     public static final int ESM_PERIOD_WEEK = 1;
     public static final int ESM_PERIOD_MONTH = 2;
-    
+
     public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
     public static final String[] ESM_PERIODS_NAMES = new String[] { "Day", "Week", "Month"};
     public static final Integer DEFAULT_REPEAT_RATE = 1;
     public static final int[] DAYS_OF_WEEK = new int[] {1,2,4,8,16,32,64};
-    public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY, ESM_PERIOD_WEEK, 
+    public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY, ESM_PERIOD_WEEK,
       ESM_PERIOD_MONTH };
-    
+
     private Long id;
-    private Integer scheduleType = DAILY;    
+    private Integer scheduleType = DAILY;
     private Integer esmFrequency = 3;
     private Integer esmPeriodInDays = ESM_PERIOD_DAY;
     private Long esmStartHour = 9 * 60 * 60 * 1000L;
@@ -72,7 +72,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Boolean userEditable;
 
     /**
-     * 
+     *
      * @param id
      * @param scheduleType
      * @param byDayOfMonth
@@ -86,12 +86,14 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      * @param times
      * @param weekDaysScheduled
      * @param esmWeekends TODO
-     * @param minimumBuffer 
+     * @param minimumBuffer
+     * @param snoozeTime
+     * @param snoozeCount
      */
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
         Long esmStartHour, Integer nthOfMonth, Integer repeatRate, Long[] times,
-        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer) {
+        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
       this.id = id;
       this.scheduleType = scheduleType;
       this.byDayOfMonth = byDayOfMonth;
@@ -109,10 +111,12 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.timeout = timeout;
       this.minimumBuffer = minimumBuffer;
       this.type = "signalSchedule";
+      this.snoozeCount = (snoozeCount != null) ? snoozeCount : SNOOZE_COUNT_DEFAULT;
+      this.snoozeTime = (snoozeTime != null) ? snoozeTime : SNOOZE_TIME_DEFAULT;
     }
 
     /**
-     * 
+     *
      */
     public SignalScheduleDAO() {
       this.times = new Long[0];
@@ -202,7 +206,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     public Boolean getByDayOfWeek() {
         return !byDayOfMonth;
     }
-    
+
     public void setByDayOfWeek(Boolean byDayOfWeek) {
         byDayOfMonth = !byDayOfWeek;
     }
@@ -235,7 +239,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     public Boolean getUserEditable() {
       return userEditable;
     }
-    
+
     public void setUserEditable(Boolean userEditable) {
       this.userEditable = userEditable;
     }
@@ -243,9 +247,9 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     public Integer getTimeout() {
       return timeout;
     }
-    
+
     public void setTimeout(Integer timeout) {
       this.timeout = timeout;
     }
-    
+
 }

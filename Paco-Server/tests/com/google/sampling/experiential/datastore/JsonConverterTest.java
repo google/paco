@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 
 public class JsonConverterTest extends TestCase {
@@ -26,7 +27,7 @@ public class JsonConverterTest extends TestCase {
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
                                          signalingMechanisms, true, false, null , null, null,
                                          null, null, false, publishedAdmins, publishedAdmins,
-                                         false, false, 1, false, (String)null, true, true));
+                                         false, false, 1, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE));
   }
 
   public void testShortJsonifyShortening() throws Exception {

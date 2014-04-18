@@ -447,6 +447,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
+    toggleExperimentList(true);
     getExperiments(true, false, false);
   }
 
@@ -456,6 +457,7 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
+    toggleExperimentList(true);
     getExperiments(false, experimentsDirty, false);
   }
 
@@ -540,14 +542,16 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.EDIT_CODE:
         contentPanel.clear();
+        statusLabel.setVisible(true);
+        toggleExperimentList(false);
         showExperimentDetailPanel(experiment, !joined, findView);
         break;
       case ExperimentListener.SAVED:
-        contentPanel.clear();
         saveToServer(experiment);
         break;
       case ExperimentListener.CANCELED:
         contentPanel.clear();
+        toggleExperimentList(true);
         break;
       case ExperimentListener.SOFT_DELETE_CODE:
         softDeleteExperiment(experiment);
@@ -563,6 +567,7 @@ public class Main implements EntryPoint, ExperimentListener {
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
         copyExperiment(experiment);
+        toggleExperimentList(false);
         showExperimentDetailPanel(experiment, true, false);
         break;
       case ExperimentListener.ANON_MAPPING_CODE:
@@ -751,6 +756,7 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(Void result) {
         Window.alert(myConstants.success());
+        contentPanel.clear();
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);

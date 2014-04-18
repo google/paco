@@ -45,6 +45,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
+import com.google.paco.shared.model.FeedbackDAO;
 import com.pacoapp.paco.R;
 
 public class FeedbackActivity extends Activity {
@@ -109,11 +110,11 @@ public class FeedbackActivity extends Activity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if ((experiment.hasCustomFeedback() != null && experiment.hasCustomFeedback()) ||
-              (experiment.getFeedback().size() > 0 && !isDefaultFeedback(experiment.getFeedback().get(0)))) {
-        loadCustomFeedbackIntoWebView();
+      if (experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
+        // TODO get rid of this and just use the customFeedback view
+        loadOldDefaultFeedbackIntoWebView();
       } else {
-        loadDefaultFeedbackIntoWebView();
+        loadCustomFeedbackIntoWebView();
       }
       if (savedInstanceState != null){
         webView.loadUrl((String) savedInstanceState.get("url"));
@@ -151,7 +152,7 @@ public class FeedbackActivity extends Activity {
 
   }
 
-  private void loadDefaultFeedbackIntoWebView() {
+  private void loadOldDefaultFeedbackIntoWebView() {
     webView.loadUrl("file:///android_asset/default_feedback.html");
   }
 
@@ -412,8 +413,8 @@ public class FeedbackActivity extends Activity {
     outState.putString("showDialog", showDialog+"");
  }
 
-  private boolean isDefaultFeedback(Feedback feedback) {
-    return feedback.getText().equals(getString(R.string.thanks_for_participating_message));
+  private boolean isOldDefaultFeedback(Feedback feedback) {
+    return FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(feedback.getText());
   }
 
 }

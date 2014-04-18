@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,13 +16,12 @@
 */
 package com.google.sampling.experiential.client;
 
-import com.google.common.collect.Lists;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
@@ -32,7 +31,7 @@ import com.google.paco.shared.model.TriggerDAO;
 
 /**
  * Container for all scheduling configuration panels.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -44,33 +43,34 @@ public class SignalMechanismChooserPanel extends Composite {
   private VerticalPanel rootPanel;
   private HorizontalPanel choicePanel;
   private VerticalPanel mainPanel;
-  
+
   public SignalMechanismChooserPanel(ExperimentDAO experiment) {
     this.experiment = experiment;
     myConstants = GWT.create(MyConstants.class);
 
     rootPanel = new VerticalPanel();
+    rootPanel.setStyleName("bordered");
     initWidget(rootPanel);
-    
+
     choicePanel = new HorizontalPanel();
     rootPanel.add(choicePanel);
-    
+
     mainPanel = new VerticalPanel();
     rootPanel.add(mainPanel);
-    
-    Label signalingMechanismLabel = new Label(myConstants.signalMechanism() + ": ");
+
+    HTML signalingMechanismLabel = new HTML("<h2>" + myConstants.signalMechanism() + ": </h2>");
     choicePanel.add(signalingMechanismLabel);
     final ListBox signalingMechanismChoices = new ListBox();
     signalingMechanismChoices.addItem("Scheduled Signaling");
     signalingMechanismChoices.addItem("Triggered Signaling");
     //signalingMechanismChoices.addItem("Self Report");
-       
+
     choicePanel.add(signalingMechanismChoices);
-    
+
     if (experiment.getSignalingMechanisms() == null || experiment.getSignalingMechanisms().length == 0) {
       SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
       signalingMechanisms[0] = new SignalScheduleDAO();
-      experiment.setSignalingMechanisms(signalingMechanisms);      
+      experiment.setSignalingMechanisms(signalingMechanisms);
     } else {
       SignalingMechanismDAO signalingMechanism = experiment.getSignalingMechanisms()[0];
       if (signalingMechanism instanceof SignalScheduleDAO) {
@@ -79,9 +79,9 @@ public class SignalMechanismChooserPanel extends Composite {
         signalingMechanismChoices.setItemSelected(1, true);
       }
     }
-    
-    updatePanel();    
-    
+
+    updatePanel();
+
     signalingMechanismChoices.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
@@ -95,11 +95,11 @@ public class SignalMechanismChooserPanel extends Composite {
   private void respondToListSelection(int index) {
     SignalingMechanismDAO signalingMechanism = null;
     if (index == 0) {
-      signalingMechanism = new SignalScheduleDAO();      
+      signalingMechanism = new SignalScheduleDAO();
     } else {
       signalingMechanism = new TriggerDAO();
-    }    
-    
+    }
+
     SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[] {signalingMechanism};
     experiment.setSignalingMechanisms(signalingMechanisms);
     updatePanel();
@@ -112,13 +112,13 @@ public class SignalMechanismChooserPanel extends Composite {
       mainPanel.add(createSchedulePanel());
     } else {
       mainPanel.add(createTriggerPanel());
-    }    
+    }
   }
 
   private SchedulePanel createSchedulePanel() {
     return new SchedulePanel((SignalScheduleDAO) experiment.getSignalingMechanisms()[0]);
   }
-  
+
   private TriggerPanel createTriggerPanel() {
     return new TriggerPanel((TriggerDAO) experiment.getSignalingMechanisms()[0]);
   }

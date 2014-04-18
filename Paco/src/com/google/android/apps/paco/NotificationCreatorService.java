@@ -57,11 +57,15 @@ public class NotificationCreatorService extends Service {
           NotificationCreator notificationCreator = NotificationCreator.create(NotificationCreatorService.this);
           long notificationId = -1;
           long alarmTime = -1;
+          boolean isSnoozeWakeup = false;
           if (extras != null) {
             notificationId = extras.getLong(NotificationCreator.NOTIFICATION_ID, -1);
             alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);
+            isSnoozeWakeup = extras.getBoolean(NotificationCreator.SNOOZE_REPEATER_EXTRA_KEY, false);
           }
-          if (notificationId != -1) {
+          if (isSnoozeWakeup && notificationId != -1) {
+            notificationCreator.createSnoozeWakeupNotification(notificationId);
+          } else if (notificationId != -1) {
             notificationCreator.timeoutNotification(notificationId);
           } else if (alarmTime != -1) {
             notificationCreator.createNotificationsForAlarmTime(notificationId, alarmTime);

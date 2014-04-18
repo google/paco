@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -42,8 +42,8 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   static final String DATABASE_NAME = "experiments.db";
-  static final int DATABASE_VERSION = 15;
-  
+  static final int DATABASE_VERSION = 17;
+
   static final String EXPERIMENTS_TABLE_NAME = "experiments";
   static final String SCHEDULES_TABLE_NAME = "schedules";
 
@@ -52,34 +52,34 @@ public class ExperimentProvider extends ContentProvider {
   static final String OUTPUTS_TABLE_NAME = "outputs";
   static final String FEEDBACK_TABLE_NAME = "feedback";
   static final String NOTIFICATION_TABLE_NAME = "notifications";
-  
+
   private static HashMap<String, String> liveFolderProjectionMap;
 
   private static final int EXPERIMENTS_DATATYPE = 1;
   private static final int EXPERIMENT_ITEM_DATATYPE = 2;
   private static final int LIVE_FOLDER_NOTES = 3;
-  
+
   private static final int JOINED_EXPERIMENTS_DATATYPE = 4;
   private static final int JOINED_EXPERIMENT_ITEM_DATATYPE = 5;
-  
+
   private static final int INPUTS_DATATYPE = 6;
   private static final int INPUT_ITEM_DATATYPE = 7;
-  
+
   private static final int OUTPUTS_DATATYPE = 8;
   private static final int OUTPUT_ITEM_DATATYPE = 9;
-  
+
   private static final int EVENTS_DATATYPE = 10;
   private static final int EVENT_ITEM_DATATYPE = 11;
-  
+
   private static final int FEEDBACK_DATATYPE = 12;
   private static final int FEEDBACK_ITEM_DATATYPE = 13;
-  
+
   private static final int NOTIFICATION_DATATYPE = 14;
   private static final int NOTIFICATION_ITEM_DATATYPE = 15;
-  
+
   private static final int SCHEDULE_DATATYPE = 16;
   private static final int SCHEDULE_ITEM_DATATYPE = 17;
-  
+
   private SQLiteDatabase db;
   private final UriMatcher uriMatcher;
 
@@ -102,16 +102,16 @@ public class ExperimentProvider extends ContentProvider {
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "notifications/#", NOTIFICATION_ITEM_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "schedules", SCHEDULE_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "schedules/#", SCHEDULE_ITEM_DATATYPE);
-    
+
   }
-  
+
   @Override
   public boolean onCreate() {
 	DatabaseHelper dbHelper = new DatabaseHelper(getContext()/*,
     	getContext().getAssets().open("insert.sql")*/);
     db = dbHelper.getWritableDatabase();
 	return db != null;
-  } 
+  }
 
   @Override
   public Cursor query(Uri uri, String[] projection, String selection,
@@ -237,11 +237,11 @@ public class ExperimentProvider extends ContentProvider {
     case NOTIFICATION_DATATYPE:
       return NotificationHolderColumns.CONTENT_TYPE;
     case NOTIFICATION_ITEM_DATATYPE:
-      return NotificationHolderColumns.CONTENT_ITEM_TYPE;  
+      return NotificationHolderColumns.CONTENT_ITEM_TYPE;
     case SCHEDULE_DATATYPE:
       return SignalScheduleColumns.CONTENT_TYPE;
     case SCHEDULE_ITEM_DATATYPE:
-      return SignalScheduleColumns.CONTENT_ITEM_TYPE;  
+      return SignalScheduleColumns.CONTENT_ITEM_TYPE;
 	default:
 	  throw new IllegalArgumentException("Unknown URI " + uri);
 	}
@@ -263,7 +263,7 @@ public class ExperimentProvider extends ContentProvider {
 	  return insertExperiment(uri, values);
 	case JOINED_EXPERIMENTS_DATATYPE:
 	  ensureJoinDate(values);
-	  return insertExperiment(uri, values);  
+	  return insertExperiment(uri, values);
 	case INPUTS_DATATYPE:
 	  return insertInput(uri, values);
 	case OUTPUTS_DATATYPE:
@@ -346,9 +346,9 @@ public class ExperimentProvider extends ContentProvider {
   private Uri insertExperiment(Uri uri, ContentValues values) {
 	long rowId = db.insert(EXPERIMENTS_TABLE_NAME, ExperimentColumns.TITLE, values);
 	if (rowId > 0) {
-	  Uri experimentUri = ContentUris.withAppendedId(TextUtils.isEmpty(values.getAsString(ExperimentColumns.JOIN_DATE)) 
-		  ? ExperimentColumns.CONTENT_URI 
-		  : ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
+	  Uri experimentUri = ContentUris.withAppendedId(TextUtils.isEmpty(values.getAsString(ExperimentColumns.JOIN_DATE))
+		  ? ExperimentColumns.CONTENT_URI
+		  : ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
 		  rowId);
 	  getContext().getContentResolver().notifyChange(uri, null, true);
 	  return experimentUri;
@@ -361,83 +361,83 @@ public class ExperimentProvider extends ContentProvider {
 	int count;
 	switch (uriMatcher.match(uri)) {
 	case EXPERIMENTS_DATATYPE:
-	  count = db.delete(EXPERIMENTS_TABLE_NAME, 
+	  count = db.delete(EXPERIMENTS_TABLE_NAME,
 		  where, //addJoinedExperimentExclusionClauseTo(where),
 		  whereArgs);
 	  break;
 	case EXPERIMENT_ITEM_DATATYPE:
-	  count = db.delete(EXPERIMENTS_TABLE_NAME, 
+	  count = db.delete(EXPERIMENTS_TABLE_NAME,
 		  addIdEqualsClauseTo(where, getIdFromPath(uri)),
 		  whereArgs);
 	  break;
 	case JOINED_EXPERIMENTS_DATATYPE:
-	  count = db.delete(EXPERIMENTS_TABLE_NAME, 
-		  addJoinedExperimentInclusionClauseTo(where), 
+	  count = db.delete(EXPERIMENTS_TABLE_NAME,
+		  addJoinedExperimentInclusionClauseTo(where),
 		  whereArgs);
 	  break;
 	case JOINED_EXPERIMENT_ITEM_DATATYPE:
-	  count = db.delete(EXPERIMENTS_TABLE_NAME, 
+	  count = db.delete(EXPERIMENTS_TABLE_NAME,
 		  addIdEqualsClauseTo(where, getIdFromPath(uri)),
 		  whereArgs);
 	  break;
 	case INPUTS_DATATYPE:
-      count = db.delete(INPUTS_TABLE_NAME, 
-          where, 
+      count = db.delete(INPUTS_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case INPUT_ITEM_DATATYPE:
-    count = db.delete(INPUTS_TABLE_NAME, 
+    count = db.delete(INPUTS_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
       break;
     case OUTPUTS_DATATYPE:
-      count = db.delete(OUTPUTS_TABLE_NAME, 
-          where, 
+      count = db.delete(OUTPUTS_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case OUTPUT_ITEM_DATATYPE:
-      count = db.delete(OUTPUTS_TABLE_NAME, 
+      count = db.delete(OUTPUTS_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
-      break;  
+      break;
     case EVENTS_DATATYPE:
-      count = db.delete(EVENTS_TABLE_NAME, 
-          where, 
+      count = db.delete(EVENTS_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case EVENT_ITEM_DATATYPE:
-    count = db.delete(EVENTS_TABLE_NAME, 
+    count = db.delete(EVENTS_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
-      break;  
+      break;
 
     case FEEDBACK_DATATYPE:
-      count = db.delete(FEEDBACK_TABLE_NAME, 
-          where, 
+      count = db.delete(FEEDBACK_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case FEEDBACK_ITEM_DATATYPE:
-    count = db.delete(FEEDBACK_TABLE_NAME, 
+    count = db.delete(FEEDBACK_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
-      break;  
+      break;
     case NOTIFICATION_DATATYPE:
-      count = db.delete(NOTIFICATION_TABLE_NAME, 
-          where, 
+      count = db.delete(NOTIFICATION_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case NOTIFICATION_ITEM_DATATYPE:
-    count = db.delete(NOTIFICATION_TABLE_NAME, 
+    count = db.delete(NOTIFICATION_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
-      break;  
+      break;
     case SCHEDULE_DATATYPE:
-      count = db.delete(SCHEDULES_TABLE_NAME, 
-          where, 
+      count = db.delete(SCHEDULES_TABLE_NAME,
+          where,
           whereArgs);
       break;
     case SCHEDULE_ITEM_DATATYPE:
-    count = db.delete(SCHEDULES_TABLE_NAME, 
+    count = db.delete(SCHEDULES_TABLE_NAME,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
       break;
@@ -456,8 +456,8 @@ public class ExperimentProvider extends ContentProvider {
 	int count;
 	switch (uriMatcher.match(uri)) {
 	case EXPERIMENTS_DATATYPE:
-	  count = db.update(EXPERIMENTS_TABLE_NAME, values, 
-		  addJoinedExperimentExclusionClauseTo(where), 
+	  count = db.update(EXPERIMENTS_TABLE_NAME, values,
+		  addJoinedExperimentExclusionClauseTo(where),
 		  whereArgs);
 	  break;
 
@@ -468,7 +468,7 @@ public class ExperimentProvider extends ContentProvider {
 	  break;
 
 	case JOINED_EXPERIMENTS_DATATYPE:
-	  count = db.update(EXPERIMENTS_TABLE_NAME, values, 
+	  count = db.update(EXPERIMENTS_TABLE_NAME, values,
 		  addJoinedExperimentInclusionClauseTo(where),
 		  whereArgs);
 	  break;
@@ -480,7 +480,7 @@ public class ExperimentProvider extends ContentProvider {
 	  break;
 
     case INPUTS_DATATYPE:
-      count = db.update(INPUTS_TABLE_NAME, values, 
+      count = db.update(INPUTS_TABLE_NAME, values,
           where,
           whereArgs);
       break;
@@ -490,9 +490,9 @@ public class ExperimentProvider extends ContentProvider {
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
       break;
-      
+
     case OUTPUTS_DATATYPE:
-      count = db.update(OUTPUTS_TABLE_NAME, values, 
+      count = db.update(OUTPUTS_TABLE_NAME, values,
           where,
           whereArgs);
       break;
@@ -504,7 +504,7 @@ public class ExperimentProvider extends ContentProvider {
       break;
 
     case EVENTS_DATATYPE:
-      count = db.update(EVENTS_TABLE_NAME, values, 
+      count = db.update(EVENTS_TABLE_NAME, values,
           where,
           whereArgs);
       break;
@@ -517,26 +517,26 @@ public class ExperimentProvider extends ContentProvider {
 
     case FEEDBACK_DATATYPE:
       count = db.update(FEEDBACK_TABLE_NAME, values,
-          where, 
+          where,
           whereArgs);
       break;
     case FEEDBACK_ITEM_DATATYPE:
-    count = db.update(FEEDBACK_TABLE_NAME, values, 
+    count = db.update(FEEDBACK_TABLE_NAME, values,
           addIdEqualsClauseTo(where, getIdFromPath(uri)),
           whereArgs);
-      break;  
+      break;
     case NOTIFICATION_DATATYPE:
       count = db.update(NOTIFICATION_TABLE_NAME, values,
-          where, 
+          where,
           whereArgs);
       break;
     case NOTIFICATION_ITEM_DATATYPE:
-    count = db.update(NOTIFICATION_TABLE_NAME, values, 
+    count = db.update(NOTIFICATION_TABLE_NAME, values,
         addIdEqualsClauseTo(where, getIdFromPath(uri)),
         whereArgs);
-      break;  
+      break;
     case SCHEDULE_DATATYPE:
-      count = db.update(SCHEDULES_TABLE_NAME, values, 
+      count = db.update(SCHEDULES_TABLE_NAME, values,
           where,
           whereArgs);
       break;
@@ -593,5 +593,5 @@ public class ExperimentProvider extends ContentProvider {
 	liveFolderProjectionMap.put(LiveFolders.NAME, ExperimentColumns.TITLE + " AS " + LiveFolders.NAME);
 	// Add more columns here for more robust Live Folders.
   }
-  
+
 }

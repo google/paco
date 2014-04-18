@@ -95,13 +95,11 @@ public class DAOConverter {
     Integer version = experiment.getVersion();
 
     String customRenderingCode = experiment.getCustomRenderingCode();
-    Boolean showFeedback = experiment.shouldShowFeedback();
-
-    Boolean hasCustomFeedback = experiment.hasCustomFeedback();
+    Integer feedbackType = experiment.getFeedbackType();
 
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, showFeedback, hasCustomFeedback);
+            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, feedbackType);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -120,7 +118,7 @@ public class DAOConverter {
 
   private static TriggerDAO createTriggerDAO(Trigger trigger) {
     return new TriggerDAO(trigger.getId().getId(), trigger.getEventCode(), trigger.getSourceIdentifier(),
-                          trigger.getDelay(), trigger.getTimeout(), trigger.getMinimumBuffer());
+                          trigger.getDelay(), trigger.getTimeout(), trigger.getMinimumBuffer(), trigger.getSnoozeCount(), trigger.getSnoozeTime());
   }
 
   /**
@@ -132,7 +130,8 @@ public class DAOConverter {
             schedule.getDayOfMonth(), schedule.getEsmEndHour(), schedule.getEsmFrequency(),
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
             schedule.getRepeatRate(), toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(),
-            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer());
+            schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer(),
+            schedule.getSnoozeCount(), schedule.getSnoozeTime());
   }
 
   public static FeedbackDAO createDAO(Feedback feedback) {
@@ -211,7 +210,7 @@ public class DAOConverter {
     experiment.setInputs(fromInputDAOs(key, experimentDAO.getInputs(),
         experiment.getQuestionsChange()));
     experiment.setFeedback(fromFeedbackDAOs(key, experimentDAO.getFeedback()));
-    experiment.setShowFeedback(experimentDAO.shouldShowFeedback());
+    experiment.setFeedbackType(experimentDAO.getFeedbackType());
 
     experiment.setPublished(experimentDAO.getPublished());
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
@@ -233,7 +232,8 @@ public class DAOConverter {
     Trigger trigger = new Trigger(key, signalingMechanismDAO.getId(),
                                                  signalingMechanismDAO.getEventCode(),
                                                  signalingMechanismDAO.getSourceIdentifier(),
-                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout(), signalingMechanismDAO.getMinimumBuffer());
+                                                 signalingMechanismDAO.getDelay(), signalingMechanismDAO.getTimeout(), signalingMechanismDAO.getMinimumBuffer(),
+                                                 signalingMechanismDAO.getSnoozeCount(), signalingMechanismDAO.getSnoozeTime());
                                                  return trigger;
   }
 
@@ -261,7 +261,7 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime());
     return schedule;
   }
 

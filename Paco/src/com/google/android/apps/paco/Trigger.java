@@ -59,6 +59,8 @@ public class Trigger extends SignalingMechanism implements Parcelable{
     dest.writeLong(delay);
     dest.writeInt(timeout);
     dest.writeInt(minimumBuffer);
+    dest.writeInt(snoozeCount);
+    dest.writeInt(snoozeTime);
   }
 
   public static class Creator implements Parcelable.Creator<Trigger> {
@@ -70,6 +72,8 @@ public class Trigger extends SignalingMechanism implements Parcelable{
       trigger.delay = source.readLong();
       trigger.timeout = source.readInt();
       trigger.minimumBuffer = source.readInt();
+      trigger.snoozeCount = source.readInt();
+      trigger.snoozeTime = source.readInt();
       return trigger;
     }
 

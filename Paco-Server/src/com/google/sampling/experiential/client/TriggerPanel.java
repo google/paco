@@ -59,6 +59,11 @@ public class TriggerPanel extends Composite {
     MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(trigger);
     verticalPanel.add(minimumBufferPanel);
     minimumBufferPanel.setWidth("286px");
+
+    SnoozePanel snoozePanel = new SnoozePanel(trigger);
+    verticalPanel.add(snoozePanel);
+    snoozePanel.setWidth("286px");
+
   }
 
   private Widget createIosIncompatibleLabel() {

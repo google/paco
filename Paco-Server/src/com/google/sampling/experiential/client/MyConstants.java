@@ -259,13 +259,13 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Version")
   String experimentVersion();
 
-  @DefaultStringValue("Custom Feedback")
+  @DefaultStringValue("Override feedback display")
   String customFeedback();
 
-  @DefaultStringValue("Click to edit custom feedback")
+  @DefaultStringValue("Edit custom feedback code")
   String clickToEditCustomFeedback();
 
-  @DefaultStringValue("Click to close editing of custom feedback")
+  @DefaultStringValue("Close custom feedback editor")
   String clickToCloseCustomFeedbackEditor();
 
   @DefaultStringValue("Enter custom feedback page using html and javascript")
@@ -274,8 +274,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Title")
   String experimentTitle();
 
-  @DefaultStringValue("Description (<500 chars)")
+  @DefaultStringValue("Description")
   String experimentDescription();
+
+  @DefaultStringValue("(500 chars)")
+  String fiveHundredCharacterLimit();
 
   @DefaultStringValue("Description")
   String experimentDescriptionNoPrompt();
@@ -283,31 +286,31 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Creator")
   String experimentCreator();
 
-  @DefaultStringValue("Enter at least one question")
+  @DefaultStringValue("Questions")
   String enterAtLeastOneQuestion();
 
   @DefaultStringValue("Informed Consent Text")
   String informedConsent();
 
-  @DefaultStringValue("Published")
+  @DefaultStringValue("Publish Experiment")
   String published();
 
-  @DefaultStringValue("Click to edit administrators")
+  @DefaultStringValue("Administrators")
   String clickToEditAdministrators();
 
-  @DefaultStringValue("Click to close editing of administrators")
+  @DefaultStringValue("Close administrator editor")
   String clickToCloseAdministratorEditor();
 
-  @DefaultStringValue("Enter emails separated by commas of who can edit this experiment and see results.")
+  @DefaultStringValue("Enter adminisrator email addresses, separated by commas. Administrators can edit this experiment and see its results.")
   String administratorEditorPrompt();
 
-  @DefaultStringValue("Click to edit published audience")
+  @DefaultStringValue("Edit published audience")
   String clickToEditPublished();
 
-  @DefaultStringValue("Click to close editing of published audience")
+  @DefaultStringValue("Close published audience editor")
   String clickToClosePublishedEditor();
 
-  @DefaultStringValue("Enter emails separated by commas. An empty list is public.")
+  @DefaultStringValue("Enter emails separated by commas. An empty list is publishing publicly.")
   String publishedEditorPrompt();
 
   @DefaultStringValue("Create Experiment")
@@ -316,7 +319,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Update Experiment")
   String updateExperiment();
 
-  @DefaultStringValue("Duration")
+  @DefaultStringValue("Experiment Duration")
   String duration();
 
   @DefaultStringValue("Ongoing")
@@ -385,7 +388,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("ID")
   String experimentId();
 
-  @DefaultStringValue("Choose Signaling Mechanism")
+  @DefaultStringValue("Signaling Mechanism")
   String signalMechanism();
 
   @DefaultStringValue("Choose Trigger")
@@ -423,13 +426,13 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Minimum time between signals")
   String minimumBuffer();
 
-  @DefaultStringValue("Custom Rendering")
+  @DefaultStringValue("Override form display")
   String customRendering();
 
-  @DefaultStringValue("Click to edit custom rendering")
+  @DefaultStringValue("Edit custom display code")
   String clickToEditCustomRendering();
 
-  @DefaultStringValue("Click to close custom rendering")
+  @DefaultStringValue("Close custom display editor")
   String clickToCloseCustomRenderingEditor();
 
   @DefaultStringValue("Enter html and javascript for custom rendering of experiment")
@@ -438,10 +441,41 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("There are no experiments.")
   String noExperimentsReturned();
 
-  @DefaultStringValue("Show Feedback (leave checked unless your custom rendering code handles feedback presentation)")
+  @DefaultStringValue("Show Feedback (leave checked unless your custom form code also handles feedback display)")
   String showFeedback();
 
-  @DefaultStringValue("This feature is not currently not compatible with iOS")
+  @DefaultStringValue("iOS incompatible")
   String iOSIncompatible();
+
+  @DefaultStringValue("Feedback mechanism")
+  String feedbackChoiceLabel();
+
+  @DefaultStringValue("Static Message Feedback")
+  String staticMessageFeedbackChoice();
+
+  @DefaultStringValue("Retrospective Feedback (QS default)")
+  String retrospectiveMessageFeedbackChoice();
+
+  @DefaultStringValue("Responsive Feedback (adaptive")
+  String responsiveMessageFeedbackChoice();
+
+  @DefaultStringValue("Custom Code Feedback")
+  String customFeedbackChoice();
+
+  @DefaultStringValue("Disable Feedback Message")
+  String hideFeedbackChoice();
+
+  @DefaultStringValue("iOS incompatible if modified from default")
+  String iOSIncompatibleStatic();
+
+  @DefaultStringValue("Snooze repeats")
+  String snoozeCount();
+
+  @DefaultStringValue("Snooze time")
+  String snoozeTime();
+
+  @DefaultStringValue("Only 0 or 1 repeat allowed")
+  String only1SnoozeRepeat();
+
 
 }

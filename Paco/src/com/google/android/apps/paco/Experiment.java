@@ -29,7 +29,11 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.paco.shared.model.FeedbackDAO;
+
 public class Experiment implements Parcelable {
+
+
 
   public static class Creator implements Parcelable.Creator<Experiment> {
 
@@ -84,8 +88,7 @@ public class Experiment implements Parcelable {
       experiment.customRendering = source.readInt() == 1;
       experiment.customRenderingCode = source.readString();
 
-      experiment.shouldShowFeedback = source.readInt() == 1;
-      experiment.hasCustomFeedback = source.readInt() == 1;
+      experiment.feedbackType = source.readInt();
       return experiment;
     }
 
@@ -123,7 +126,6 @@ public class Experiment implements Parcelable {
 
 
   private List<Input> inputs = new ArrayList<Input>();
-  private List<Feedback> feedback = new ArrayList<Feedback>();
   private List<Event> events = new ArrayList<Event>();
 
   private String joinDate;
@@ -132,8 +134,9 @@ public class Experiment implements Parcelable {
 
   @JsonIgnore
   private String json;
-  private Boolean shouldShowFeedback = true;
-  private Boolean hasCustomFeedback;
+
+  private List<Feedback> feedback = new ArrayList<Feedback>();
+  public Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -356,8 +359,7 @@ public class Experiment implements Parcelable {
     dest.writeParcelable(trigger, 0);
     dest.writeInt(customRendering ? 1 : 0);
     dest.writeString(customRenderingCode);
-    dest.writeInt(shouldShowFeedback ? 1 : 0);
-    dest.writeInt(hasCustomFeedback ? 1 : 0);
+    dest.writeInt(feedbackType);
   }
 
   @JsonIgnore
@@ -708,22 +710,13 @@ public class Experiment implements Parcelable {
     this.customRenderingCode = customRenderingCode;
   }
 
-  public Boolean shouldShowFeedback() {
-    return this.shouldShowFeedback ;
+  public Integer getFeedbackType() {
+    return feedbackType;
   }
 
-  public void setShowFeedback(Boolean show) {
-    this.shouldShowFeedback = show;
+  public void setFeedbackType(Integer feedbackType) {
+    this.feedbackType = feedbackType;
   }
-
-  public Boolean hasCustomFeedback() {
-    return this.hasCustomFeedback  ;
-  }
-
-  public void setHasCustomFeedback(Boolean hasCustomFeedback) {
-    this.hasCustomFeedback = hasCustomFeedback;
-  }
-
 
   public boolean isRunning(DateTime now) {
     return  (isFixedDuration() == null || !isFixedDuration()) || (isFixedDuration() && isStarted(now) && !isOver(now));

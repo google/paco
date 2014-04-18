@@ -25,7 +25,7 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
     this.type = "trigger";
   }
 
-  public TriggerDAO(Long id, Integer eventCode, String sourceIdentifier, Long delay, Integer timeout, Integer minimumBuffer) {
+  public TriggerDAO(Long id, Integer eventCode, String sourceIdentifier, Long delay, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
     super();
     this.id = id;
     this.eventCode = eventCode;
@@ -34,6 +34,8 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
     this.type = "trigger";
     this.timeout = timeout;
     this.minimumBuffer = minimumBuffer;
+    this.snoozeCount = snoozeCount;
+    this.snoozeTime = snoozeTime;
   }
 
 

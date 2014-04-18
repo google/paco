@@ -75,7 +75,7 @@
    <filter-name>whitelistFilter</filter-name>
    <servlet-name>jobStatusServlet</servlet-name>
   </filter-mapping> 
-
+<!-- 
   <filter>
         <filter-name>appstats</filter-name>
         <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
@@ -89,7 +89,7 @@
         <filter-name>appstats</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
+     -->
 <!--   <filter-mapping>
    <filter-name>whitelistFilter</filter-name>
    <servlet-name>backendReportJobExecutorServlet</servlet-name>
@@ -233,16 +233,19 @@
 	   </user-data-constraint>
 	        
 	    </security-constraint>
+      
+ <!--
 	     <servlet>
         <servlet-name>appstats</servlet-name>
         <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
     </servlet>
 
+       
     <servlet-mapping>
         <servlet-name>appstats</servlet-name>
         <url-pattern>/appstats/*</url-pattern>
     </servlet-mapping>
-
+ 
     <security-constraint>
         <web-resource-collection>
             <url-pattern>/appstats/*</url-pattern>
@@ -251,5 +254,6 @@
             <role-name>admin</role-name>
         </auth-constraint>
     </security-constraint>
-	 
+	-->
+   
 	</web-app>

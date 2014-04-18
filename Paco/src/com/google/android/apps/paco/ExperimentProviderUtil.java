@@ -45,6 +45,7 @@ import android.util.Log;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.FeedbackDAO;
 
 public class ExperimentProviderUtil {
 
@@ -490,10 +491,15 @@ public class ExperimentProviderUtil {
         Boolean customRendering = experimentFromJson.isCustomRendering();
         experiment.setCustomRendering(customRendering != null ? customRendering : false);
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
-        Boolean shouldShowFeedback = experimentFromJson.shouldShowFeedback();
-        experiment.setShowFeedback(shouldShowFeedback != null ? shouldShowFeedback : true);
-        Boolean hasCustomFeedback = experimentFromJson.hasCustomFeedback();
-        experiment.setHasCustomFeedback(hasCustomFeedback); // let it be null for now since feedback objects are loaded separately - Or are they?
+        Integer feedbackType = experimentFromJson.getFeedbackType();
+        if (feedbackType == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
+          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experimentFromJson.getFeedback().get(0).getText())) {
+            feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE;
+          } else {
+            feedbackType = FeedbackDAO.FEEDBACK_TYPE_CUSTOM;
+          }
+        }
+        experiment.setFeedbackType(feedbackType);
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {
@@ -1018,6 +1024,8 @@ public class ExperimentProviderUtil {
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
     int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
     int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
+    int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
+    int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
 
     SignalSchedule schedule = new SignalSchedule();
     if (!cursor.isNull(idIndex)) {
@@ -1084,6 +1092,14 @@ public class ExperimentProviderUtil {
       schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
     }
 
+    if (!cursor.isNull(snoozeCountIndex)) {
+      schedule.setSnoozeCount(cursor.getInt(snoozeCountIndex));
+    }
+
+    if (!cursor.isNull(snoozeTimeIndex)) {
+      schedule.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
+    }
+
     return schedule;
   }
 
@@ -1129,6 +1145,14 @@ public class ExperimentProviderUtil {
 
     if (schedule.getMinimumBuffer() != null) {
       values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer());
+    }
+
+    if (schedule.getSnoozeCount() != null) {
+      values.put(SignalScheduleColumns.SNOOZE_COUNT, schedule.getSnoozeCount());
+    }
+
+    if (schedule.getSnoozeTime() != null) {
+      values.put(SignalScheduleColumns.SNOOZE_TIME, schedule.getSnoozeTime());
     }
 
     StringBuilder buf = new StringBuilder();
@@ -1670,6 +1694,11 @@ public class ExperimentProviderUtil {
       Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
     }
     return ensureExperiments(experiments);
+  }
+
+  public void deleteExperimentCachesOnDisk() {
+    context.deleteFile(MY_EXPERIMENTS_FILENAME);
+    context.deleteFile(PUBLIC_EXPERIMENTS_FILENAME);
   }
 
   public void addExperimentToExperimentsOnDisk(String contentAsString) {

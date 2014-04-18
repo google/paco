@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,7 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel that allows configuration of a weekly experiment schedule.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -53,10 +53,15 @@ public class WeeklyPanel extends Composite {
     TimeListPanel timeListPanel = new TimeListPanel(schedule);
     verticalPanel.add(timeListPanel);
     timeListPanel.setWidth("286px");
-    
+
     TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
     verticalPanel.add(timeoutPanel);
     timeoutPanel.setWidth("286px");
+
+    SnoozePanel snoozePanel = new SnoozePanel(schedule);
+    verticalPanel.add(snoozePanel);
+    snoozePanel.setWidth("286px");
+
   }
 
   private void createRepeatWeeklyPanel(VerticalPanel verticalPanel) {

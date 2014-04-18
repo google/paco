@@ -9,6 +9,8 @@ table, tbody, tr, td {
   margin: 2;
 }
 
+.bordered {border:2px solid lightgray; width:100% }
+.inputsBordered {border:1px solid lightgray; width:100% }
 
 .word-cloud {font-family: arial; font-size: 10px; border:5px solid darkgray }
 .word-cloud-1 {font-size: 10px; color: #acc1f3; }
@@ -29,6 +31,9 @@ table, tbody, tr, td {
   text-align: center;
 }
 
+.experiment-definition-panel {
+  padding: .75em;	
+}
 
 .keyLabel {
   font-weight: bold;

@@ -111,7 +111,14 @@ public class EventPanel extends Composite {
           if (blobData.isEmpty()) {
             value = new Label("");
           } else {
-            value = new Label("<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">");
+            // the inline image would get destroyed by wrapping a label and 
+            // there is no gwt html element for an image that allows setting the data attribute
+            // so, if we have an image, we directly add it to the html and return here.
+            // TODO get rid of this kludge
+            String imgValue = "<img height=\"375\" src=\"data:image/jpg;base64," + blobData + "\">";
+            addColumnToGrid(grid, rowIndex, displayText, imgValue);
+            rowIndex = rowIndex + 2;
+            return;
           }
       } else if (input.getResponseType().equals(InputDAO.LIST)) {
         String[] listChoices = input.getListChoices();
@@ -169,5 +176,15 @@ public class EventPanel extends Composite {
     grid.setWidget(i, 0, label);
     grid.setWidget(i + 1, 0, widget);
   }
+  
+  private void addColumnToGrid(Grid grid, int i, String text, String value) {
+    SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(text).toSafeHtml();
+    //Label label = new Label(questionText.asString());
+    Label label = new Label(text);
+    label.setStyleName("keyLabel");
+    grid.setWidget(i, 0, label);
+    grid.setHTML(i + 1, 0, value);
+  }
+
 
 }

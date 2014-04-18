@@ -35,6 +35,7 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.model.Experiment;
 
@@ -65,7 +66,31 @@ public class ExperimentServlet extends HttpServlet {
 
 
   private void doMigrateWork() {
-    populatePublicExperimentsList();
+    //populatePublicExperimentsList();
+    setFeedbackTypeOnExperiments();
+  }
+
+
+
+  private void setFeedbackTypeOnExperiments() {
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
+      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
+      for (Experiment experiment : experiments) {
+        if (experiment.getFeedbackType() == null) {
+          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getLongText())) {
+            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE);
+          } else {
+            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
+          }
+        }
+      }
+      pm.makePersistentAll(experiments);
+    } finally  {
+      pm.close();
+    }
 
   }
 

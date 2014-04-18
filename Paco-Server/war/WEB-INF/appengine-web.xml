@@ -18,7 +18,7 @@
  -->
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 	<application>quantifiedself</application>
-	<version>91</version>
+	<version>94</version>
 	<static-files>
     <exclude path='**/*.gwt.rpc'/>
   </static-files>
@@ -34,9 +34,10 @@
     <sessions-enabled>true</sessions-enabled>
 <precompilation-enabled>true</precompilation-enabled>
 <threadsafe>false</threadsafe>
-
+<!--
 <admin-console>
         <page name="Appstats" url="/appstats" />
     </admin-console>
+    -->
 </appengine-web-app>
 

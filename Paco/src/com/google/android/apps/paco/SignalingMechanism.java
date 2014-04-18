@@ -5,20 +5,24 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-@JsonTypeInfo(  
-              use = JsonTypeInfo.Id.NAME,  
-              include = JsonTypeInfo.As.PROPERTY,  
-              property = "type")  
-          @JsonSubTypes({  
-              @Type(value = SignalSchedule.class, name = "signalSchedule"),  
-              @Type(value = Trigger.class, name = "trigger") })  
+import com.google.paco.shared.model.SignalingMechanismDAO;
+
+@JsonTypeInfo(
+              use = JsonTypeInfo.Id.NAME,
+              include = JsonTypeInfo.As.PROPERTY,
+              property = "type")
+          @JsonSubTypes({
+              @Type(value = SignalSchedule.class, name = "signalSchedule"),
+              @Type(value = Trigger.class, name = "trigger") })
 public class SignalingMechanism {
 
   private static final int DEFAULT_TIMEOUT_MINUTES = 59;
   private static final Integer DEFAULT_MINIMUM_BUFFER = 59;
-  
+
   protected Integer timeout;
   protected Integer minimumBuffer;
+  protected Integer snoozeCount = SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT;
+  protected Integer snoozeTime = SignalingMechanismDAO.SNOOZE_TIME_DEFAULT;
 
   public Integer getTimeout() {
     if (timeout == null) {
@@ -26,16 +30,16 @@ public class SignalingMechanism {
     }
     return timeout;
   }
-  
+
   public void setTimeout(Integer timeout) {
     this.timeout = timeout;
   }
-  
+
   @JsonIgnore
   public void setType(String type) {
-    
+
   }
-  
+
   @JsonIgnore
   public String getType() {
     return "";
@@ -50,6 +54,22 @@ public class SignalingMechanism {
 
   public void setMinimumBuffer(Integer minimumBuffer) {
     this.minimumBuffer = minimumBuffer;
+  }
+
+  public Integer getSnoozeCount() {
+    return snoozeCount;
+  }
+
+  public void setSnoozeCount(Integer snoozeCount) {
+    this.snoozeCount = snoozeCount;
+  }
+
+  public Integer getSnoozeTime() {
+    return snoozeTime;
+  }
+
+  public void setSnoozeTime(Integer snoozeTime) {
+    this.snoozeTime = snoozeTime;
   }
 
 

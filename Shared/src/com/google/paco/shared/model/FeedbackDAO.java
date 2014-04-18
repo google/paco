@@ -31,6 +31,12 @@ import java.io.Serializable;
  */
 public class FeedbackDAO implements Serializable {
 
+  public static final int FEEDBACK_TYPE_STATIC_MESSAGE = 0;
+  public static final int FEEDBACK_TYPE_RETROSPECTIVE = 1;
+  public static final int FEEDBACK_TYPE_RESPONSIVE = 2;
+  public static final int FEEDBACK_TYPE_CUSTOM = 3;
+  public static final int FEEDBACK_TYPE_HIDE_FEEDBACK = 4;
+
   public static final String DEFAULT_FEEDBACK_MSG = "Thanks for Participating!";
 
   private Long id;
@@ -60,6 +66,15 @@ public class FeedbackDAO implements Serializable {
 
   public void setText(String text) {
     this.text = text;
+  }
+
+  public String getFeedbackType() {
+    return "display";
+  }
+
+  public void setFeedbackType(String feedbackType) {
+    // this is the old feedbacktype it is hardwired to "display" until we remove it.
+
   }
 
 }

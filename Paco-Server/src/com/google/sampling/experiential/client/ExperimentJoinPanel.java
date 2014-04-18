@@ -114,31 +114,11 @@ public class ExperimentJoinPanel extends Composite {
   }
 
   /**
-   * @param experiment2
-   * @return
-   */
-  private Widget createFeedbackEntryPanel(ExperimentDAO experiment2) {
-    HorizontalPanel feedbackPanel = new HorizontalPanel();
-    customFeedbackCheckBox = new CheckBox();
-    customFeedbackCheckBox.setChecked((experiment.hasCustomFeedback() != null && experiment.hasCustomFeedback()) ||
-                                      (experiment.getFeedback() != null && experiment.getFeedback().length > 0 &&
-                                        !defaultFeedback(experiment.getFeedback()[0])));
-    customFeedbackCheckBox.setEnabled(false);
-    feedbackPanel.add(customFeedbackCheckBox);
-    Label feedbackLabel = new Label(myConstants.customFeedback());
-    feedbackPanel.add(feedbackLabel);
-    mainPanel.add(feedbackPanel);
-
-    return feedbackPanel;
-  }
-
-
-  /**
    * @param feedbackDAO
    * @return
    */
   private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return feedbackDAO.getText().equals(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+    return FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(feedbackDAO.getText());
   }
 
 
