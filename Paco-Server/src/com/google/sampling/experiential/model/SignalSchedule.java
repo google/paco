@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -36,7 +36,7 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * The Schedule for signalling an experiment response.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -46,37 +46,37 @@ public class SignalSchedule {
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key id;
-  
+
   @Persistent
   private Integer scheduleType;
-  
+
   @Persistent
   private Integer esmFrequency = 3;
-  
+
   @Persistent
   private Integer esmPeriodInDays;
-  
+
   @Persistent
   private Long esmStartHour;
-  
+
   @Persistent
   private Long esmEndHour;
-  
+
   @Persistent
   private List<Long> times;
-  
+
   @Persistent
   private Integer repeatRate = 0;
-  
+
   @Persistent
   private Integer weekDaysScheduled = 0;
-  
+
   @Persistent
   private Integer nthOfMonth = 0;
-  
+
   @Persistent
   private Boolean byDayOfMonth = Boolean.TRUE;
-  
+
   @Persistent
   private Integer dayOfMonth = 0;
 
@@ -92,6 +92,12 @@ public class SignalSchedule {
   @Persistent
   private Integer minimumBuffer;
 
+  @Persistent
+  private Integer snoozeCount;
+
+  @Persistent
+  private Integer snoozeTime;
+
   /**
    * @param id
    * @param scheduleType
@@ -106,12 +112,14 @@ public class SignalSchedule {
    * @param byDayOfMonth
    * @param dayOfMonth
    * @param esmWeekends TODO
-   * @param minimumBuffer 
+   * @param minimumBuffer
+   * @param snoozeTime
+   * @param snoozeCount
    */
-  public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency, 
-      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times, 
-      Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth, 
-      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer) {
+  public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency,
+      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times,
+      Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth,
+      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, SignalSchedule.class.getSimpleName(), id);
@@ -131,6 +139,8 @@ public class SignalSchedule {
     this.userEditable = userEditable;
     this.timeout = timeout;
     this.minimumBuffer = minimumBuffer;
+    this.snoozeCount = snoozeCount;
+    this.snoozeTime = snoozeTime;
   }
 
   public Key getId() {
@@ -236,11 +246,11 @@ public class SignalSchedule {
   public void setEsmWeekends(Boolean esmWeekends) {
     this.esmWeekends = esmWeekends;
   }
-  
+
   public Boolean getUserEditable() {
     return userEditable;
   }
-  
+
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
@@ -278,8 +288,8 @@ public class SignalSchedule {
         firstTime = false;
       } else {
         buf.append(",");
-      }    
-      buf.append(getHourOffsetAsTimeString(time));      
+      }
+      buf.append(getHourOffsetAsTimeString(time));
     }
     buf.append("]");
     comma(buf);
@@ -292,10 +302,10 @@ public class SignalSchedule {
     appendKeyValue(buf,"byDayOfMonth", byDayOfMonth != null ? byDayOfMonth.toString() : "");
     comma(buf);
     appendKeyValue(buf,"dayOfMonth", dayOfMonth != null ? dayOfMonth.toString() : "");
-    
+
     return buf.toString();
   }
-  
+
   private String stringNamesOf(Integer weekDaysScheduled2) {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
@@ -312,7 +322,7 @@ public class SignalSchedule {
     return buf.toString();
   }
 
-  
+
   public String getHourOffsetAsTimeString(Long esmEndHour2) {
     DateTime endHour = new DateMidnight().toDateTime().plus(esmEndHour2);
     String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
@@ -328,7 +338,7 @@ public class SignalSchedule {
   }
 
 
- 
+
   private void appendKeyValue(StringBuilder buf, String key, String value) {
     buf.append(key);
     buf.append(" = ");
@@ -345,6 +355,22 @@ public class SignalSchedule {
 
   public void setMinimumBuffer(Integer minimumBuffer) {
     this.minimumBuffer = minimumBuffer;
+  }
+
+  public Integer getSnoozeCount() {
+    return snoozeCount;
+  }
+
+  public void setSnoozeCount(Integer snoozeCount) {
+    this.snoozeCount = snoozeCount;
+  }
+
+  public Integer getSnoozeTime() {
+    return snoozeTime;
+  }
+
+  public void setSnoozeTime(Integer snoozeTime) {
+    this.snoozeTime = snoozeTime;
   }
 
 

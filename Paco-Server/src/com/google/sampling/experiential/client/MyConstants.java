@@ -468,6 +468,14 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("iOS incompatible if modified from default")
   String iOSIncompatibleStatic();
 
+  @DefaultStringValue("Snooze repeats")
+  String snoozeCount();
+
+  @DefaultStringValue("Snooze time")
+  String snoozeTime();
+
+  @DefaultStringValue("Only 0 or 1 repeat allowed")
+  String only1SnoozeRepeat();
 
 
 }

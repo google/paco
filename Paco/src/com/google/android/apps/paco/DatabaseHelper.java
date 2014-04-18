@@ -74,7 +74,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
         + SignalScheduleColumns.USER_EDITABLE + " INTEGER, "
         + SignalScheduleColumns.TIME_OUT + " INTEGER, "
-        + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER "
+        + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER, "
+        + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER, "
+        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
         + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -213,6 +215,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
       }
       eu.deleteExperimentCachesOnDisk();
+    }
+    if (oldVersion <= 16) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER"
+              + ";");
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.SNOOZE_TIME + " INTEGER"
+              + ";");
     }
   }
 
