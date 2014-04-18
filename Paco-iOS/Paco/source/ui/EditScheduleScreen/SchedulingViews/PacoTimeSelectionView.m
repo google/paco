@@ -137,13 +137,16 @@
 - (void)cancelDateEdit {
   self.times = _initialTimes;
   [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-  //ask PacoScheduleEditView to dismiss picker view and update footer
-  [self.tableDelegate handleUserTap];
+  if (self.completionBlock) {
+    self.completionBlock();
+  }
 }
 
 - (void)saveDateEdit {
   _initialTimes = self.times;
-  [self.tableDelegate handleUserTap];
+  if (self.completionBlock) {
+    self.completionBlock();
+  }
 }
 
 

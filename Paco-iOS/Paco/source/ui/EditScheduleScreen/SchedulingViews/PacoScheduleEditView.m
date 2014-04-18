@@ -144,6 +144,9 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeDaily: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.times = [self realRowData:rowData];
         cell.userInteractionEnabled = YES;
       } else {
@@ -154,6 +157,9 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeWeekly: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.times = [self realRowData:rowData];
         cell.userInteractionEnabled = YES;
       } else {
@@ -164,6 +170,9 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeWeekday: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.times = [self realRowData:rowData];
         cell.userInteractionEnabled = YES;
       } else {
@@ -174,6 +183,9 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeMonthly: {
       if ([self isCellType:kCellIdSignalTimes reuseId:reuseId]) {
         PacoTimeSelectionView *cellView = (PacoTimeSelectionView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.times = [self realRowData:rowData];
         cell.userInteractionEnabled = YES;
       } else {
@@ -213,7 +225,7 @@ NSString *kCellIdText = @"text";
 
 }
 
-- (void)handleUserTap {
+- (void)onDoneEditing {
   NSString* errorMsg = [self.schedule evaluateSchedule];
   if (errorMsg) {
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
@@ -233,12 +245,12 @@ NSString *kCellIdText = @"text";
     [timeSelect cancelDateEdit];
     return;
   }
-  [self handleUserTap];
+  [self onDoneEditing];
 }
 
 - (void)didReceiveTapButNoCellSelected {
   if ([self.schedule isESMSchedule]) {
-    [self handleUserTap];
+    [self onDoneEditing];
   }
 }
 
