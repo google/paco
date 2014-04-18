@@ -63,14 +63,14 @@
 - (void)setTimes:(NSArray *)times {
   @synchronized(self) {
     _times = times;
+    if (!_initialTimes) {
+      _initialTimes = _times;
+    }
     [self rebuildTimes];
   }
 }
 
 - (void)rebuildTimes {
-  if (!_initialTimes) {
-    _initialTimes = self.times;
-  }
   [self.timeEditButtons removeAllObjects];
   [self.timePickers removeAllObjects];
 
@@ -100,7 +100,7 @@
     [button setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateHighlighted];
     [button addTarget:self action:@selector(onEdit:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:button];
-    [_timeEditButtons addObject:button];
+    [self.timeEditButtons addObject:button];
     [button sizeToFit];
     [timeViews addObject:button];
   }
