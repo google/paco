@@ -31,7 +31,6 @@
 @property (nonatomic, retain) PacoDatePickerView *datePicker;
 @property (nonatomic, retain) NSMutableArray *timeEditButtons;
 @property (nonatomic, retain) UILabel *label;
-@property (nonatomic, retain) UIButton *addButton;
 @property (nonatomic, assign) NSInteger editIndex;
 
 @end
@@ -39,16 +38,24 @@
 @implementation PacoTimeSelectionView
 @synthesize times = _times;
 
-- (void)dealloc {
-  [self.addButton removeTarget:self action:@selector(onAddTime) forControlEvents:UIControlEventTouchUpInside];
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+  self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+  if (self) {
+    self.editIndex = NSNotFound;
+    self.timePickers = [NSMutableArray array];
+    self.timeEditButtons = [NSMutableArray array];
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
+    label.text = NSLocalizedString(@"Signal Time(s)", nil);
+    label.backgroundColor = [UIColor clearColor];
+    self.label = label;
+    [self addSubview:label];
+    [self.label sizeToFit];
+  }
+  return self;
 }
 
-- (void)onAddTime {
-  NSMutableArray *array = [NSMutableArray arrayWithArray:self.times];
-  [array addObject:@0LL];
-  self.times = array;
-  [self.tableDelegate dataUpdated:self rowData:self.times reuseId:self.reuseId];
-}
 
 - (void)updateTime:(UIButton *)button {
   [button setTitle:[self.datePicker dateString]
@@ -99,35 +106,6 @@
 }
 
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
-  self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-  if (self) {
-    self.editIndex = NSNotFound;
-    self.timePickers = [NSMutableArray array];
-    self.timeEditButtons = [NSMutableArray array];
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
-    label.text = NSLocalizedString(@"Signal Time(s)", nil);
-    label.backgroundColor = [UIColor clearColor];
-    self.label = label;
-    [self addSubview:label];
-    [self.label sizeToFit];
-
-    UIButton *addButton = [[UIButton alloc] initWithFrame:CGRectZero];
-    [addButton setTitle:@"+" forState:UIControlStateNormal];
-    [addButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [addButton setTitle:@"+" forState:UIControlStateHighlighted];
-    [addButton setTitleColor:[UIColor blackColor] forState:UIControlStateHighlighted];
-    addButton.backgroundColor = [UIColor pacoBlue];
-    self.addButton = addButton;
-    //disable the ability to add more times for now, we may need it in the future.
-    //and a minus button is needed if we enable the add button
-    //[self addSubview:addButton];
-    [self.addButton sizeToFit];
-    [addButton addTarget:self action:@selector(onAddTime) forControlEvents:UIControlEventTouchUpInside];
-  }
-  return self;
-}
 
 - (void)rebuildTimes {
   if (initialTimes == nil) {
@@ -136,15 +114,6 @@
   [self.timeEditButtons removeAllObjects];
   [self.timePickers removeAllObjects];
 
-  if ([self.times count] == 0) {
-    self.times = @[[NSDate dateWithTimeIntervalSince1970:0]];
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
-    [button setTitle:NSLocalizedString(@"Enter a time", nil) forState:UIControlStateNormal];
-    [self addSubview:button];
-    self.timePickers = [NSMutableArray arrayWithObject:button];
-    [self setNeedsLayout];
-    return;
-  }
   NSMutableArray *timeViews = [NSMutableArray array];
   for (NSNumber *time in self.times) {
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectZero];
@@ -205,10 +174,6 @@
 
   CGRect labelFrame = [PacoLayout centerRect:self.label.frame.size inRect:CGRectMake(0, 10, self.frame.size.width, self.label.frame.size.height)];
   self.label.frame = labelFrame;
-  CGRect addButtonFrame = labelFrame;
-  addButtonFrame.origin.x = addButtonFrame.size.width + addButtonFrame.origin.x + 10;
-  addButtonFrame.size.width = 60;
-  self.addButton.frame = addButtonFrame;
 
   if ([self.timePickers count]) {
     int yStart = self.label.frame.size.height + 10 + 10;
