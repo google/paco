@@ -165,11 +165,13 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
    * @param weekDaysScheduled
    * @param beginDate TODO
    * @param userEditable TODO
+   * @param snoozeCount TODO
+   * @param snoozeTime TODO
    */
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout) {
+      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout, Integer snoozeCount, Integer snoozeTime) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -188,6 +190,8 @@ public class SignalSchedule extends SignalingMechanism implements Parcelable {
     }
     this.userEditable = userEditable;
     this.timeout = timeout;
+    this.snoozeCount = snoozeCount;
+    this.snoozeTime = snoozeTime;
   }
 
   /**
