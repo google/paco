@@ -239,12 +239,6 @@
   self.footer = pickerView;
 }
 
-- (void)dismissPacoDatePicker {
-  if (self.footer && [self.footer isKindOfClass:[PacoDatePickerView class]]) {
-    self.footer = nil;
-    [self setNeedsLayout];
-  }
-}
 
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell {
   self.footer = picker;
@@ -254,9 +248,13 @@
                                 animated:YES];
 }
 
-- (void)dismissDatePicker {
-  if (self.footer && [self.footer isKindOfClass:[UIDatePicker class]]) {
-    self.footer = nil;
+
+- (void)replaceDatePickerWithFooterIfNeeded:(UIView*)footer {
+  BOOL isDatePicker = [self.footer isKindOfClass:[PacoDatePickerView class]] ||
+                      [self.footer isKindOfClass:[UIDatePicker class]];
+  
+  if (self.footer && isDatePicker) {
+    self.footer = footer;
     [self setNeedsLayout];
   }
 }

@@ -222,14 +222,7 @@ NSString *kCellIdText = @"text";
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
-  [self.tableView dismissDatePicker];
-  [self.tableView dismissPacoDatePicker];
-
-  if (self.tableView.footer == nil) {
-    self.tableView.footer = self.joinButton;
-    [self.joinButton sizeToFit];
-    [self setNeedsLayout];
-  }
+  [self.tableView replaceDatePickerWithFooterIfNeeded:self.joinButton];
 }
 
 

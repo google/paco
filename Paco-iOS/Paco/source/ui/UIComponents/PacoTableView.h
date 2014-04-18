@@ -36,8 +36,7 @@
 - (NSArray *)boxInputs:(NSArray *)inputs withKey:(NSString *)key;
 
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
-- (void)dismissDatePicker;
-
 - (void)presentPacoDatePicker:(PacoDatePickerView*)pickerView forCell:(PacoTableCell*)cell;
-- (void)dismissPacoDatePicker;
+
+- (void)replaceDatePickerWithFooterIfNeeded:(UIView*)footer;
 @end
