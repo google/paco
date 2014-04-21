@@ -999,7 +999,7 @@ public class ExperimentProviderUtil {
     return uri;
   }
 
-  private SignalSchedule createSchedule(Cursor cursor) {
+  public SignalSchedule createSchedule(Cursor cursor) {
     int idIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns._ID);
     int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
     int experimentIndex = cursor.getColumnIndex(SignalScheduleColumns.EXPERIMENT_ID);
