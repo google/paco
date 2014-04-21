@@ -239,24 +239,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   private void migrateExistingLongTimeValuesToSignalTimeValues() {
     ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
-    List<SignalSchedule> schedules = eu.getAllSchedules();
-    for (SignalSchedule schedule : schedules) {
-      if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
-              schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
+    List<Experiment> experiments = eu.getJoinedExperiments();
+    for (Experiment experiment : experiments) {
+      SignalSchedule schedule = experiment.getSchedule();
+      if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT
+          && schedule.getScheduleType() != SignalScheduleDAO.ESM) {
         List<SignalTime> signalTimes = Lists.newArrayList();
         List<Long> times = schedule.getTimes();
         for (Long time : times) {
-          signalTimes.add(new SignalTime(SignalTimeDAO.FIXED_TIME,
-                                         SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
-                                         (int)time.longValue(),
-                                         SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
-                                         0, ""));
+          signalTimes.add(new SignalTime(SignalTimeDAO.FIXED_TIME, SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
+                                         (int) time.longValue(), SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME, 0,
+                                         ""));
         }
         schedule.setSignalTimes(signalTimes);
-        eu.updateSchedule(schedule);
       }
     }
-
+    eu.updateExistingExperiments(experiments);
   }
 
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db,
