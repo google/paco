@@ -15,6 +15,7 @@ import com.google.android.apps.paco.Experiment;
 import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.ExperimentScheduleActivity;
 import com.google.android.apps.paco.SignalSchedule;
+import com.google.android.apps.paco.SignalTime;
 import com.google.android.apps.paco.TimeUtil;
 
 /*
@@ -30,7 +31,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   private static final Long START_TIME = Long.valueOf(500000);
   private static final Long END_TIME = Long.valueOf(1000000);
   private static final Integer REPEAT_RATE = 4;
-  private static final Long ADAPTER_TIME = Long.valueOf(75000);
+  private static final SignalTime ADAPTER_TIME = new SignalTime(75000);
   private static final Integer DAY_OF_MONTH = 4;
   private static final Integer DAY_OF_WEEK = 2;
 
@@ -53,7 +54,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
     startActivity(intent, null, null);
     activity = getActivity();
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
     super.tearDown();
@@ -187,7 +188,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   private void configureActivityForTesting(Experiment experiment) {
     activity.setActivityProperties(experiment, experimentProviderUtil);
   }
-  
+
   private void saveExperimentSchedule() {
     activity.scheduleExperiment();
   }
@@ -265,7 +266,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private int setExperimentTimes() {
-    List<Long> times = activity.getExperiment().getSchedule().getTimes();
+    List<SignalTime> times = activity.getExperiment().getSchedule().getSignalTimes();
     int timesLength = times.size();
     for (int i = 0; i < timesLength; ++i) {
       times.set(i, ADAPTER_TIME);
@@ -274,7 +275,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private void checkExperimentTimesList(int timesLength, Experiment savedExperiment) {
-    List<Long> newTimes = savedExperiment.getSchedule().getTimes();
+    List<SignalTime> newTimes = savedExperiment.getSchedule().getSignalTimes();
     assertEquals(newTimes.size(), timesLength);
     for (int j = 0; j < timesLength; ++j) {
       assertEquals(newTimes.get(j), ADAPTER_TIME);

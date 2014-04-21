@@ -19,6 +19,8 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -62,7 +64,8 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Long esmStartHour = 9 * 60 * 60 * 1000L;
     private Long esmEndHour = 17 * 60 * 60 * 1000L;
 
-    private Long[] times;
+    private List<Long> times;
+    private List<SignalTimeDAO> signalTimes;
     private Integer repeatRate = 1;
     private Integer weekDaysScheduled = 0;
     private Integer nthOfMonth = 1;
@@ -92,7 +95,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      */
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
-        Long esmStartHour, Integer nthOfMonth, Integer repeatRate, Long[] times,
+        Long esmStartHour, Integer nthOfMonth, Integer repeatRate, List<SignalTimeDAO> times,
         Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
       this.id = id;
       this.scheduleType = scheduleType;
@@ -105,7 +108,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.esmWeekends = esmWeekends;
       this.nthOfMonth = nthOfMonth;
       this.repeatRate = repeatRate;
-      this.times = times;
+      this.signalTimes = times;
       this.weekDaysScheduled = weekDaysScheduled;
       this.userEditable = userEditable;
       this.timeout = timeout;
@@ -119,7 +122,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      *
      */
     public SignalScheduleDAO() {
-      this.times = new Long[0];
+      this.signalTimes = new ArrayList<SignalTimeDAO>();
       this.type = "signalSchedule";
     }
 
@@ -163,12 +166,12 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
         this.esmEndHour = esmEndHour;
     }
 
-    public Long[] getTimes() {
-        return times;
+    public List<SignalTimeDAO> getSignalTimes() {
+        return signalTimes;
     }
 
-    public void setTimes(Long[] times) {
-        this.times = times;
+    public void setSignalTimes(List<SignalTimeDAO> times) {
+        this.signalTimes = times;
     }
 
     public Integer getRepeatRate() {

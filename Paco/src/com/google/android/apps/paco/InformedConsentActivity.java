@@ -146,12 +146,15 @@ public class InformedConsentActivity extends Activity {
     try {
       experimentList = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
     } catch (JsonParseException e) {
+      e.printStackTrace();
       showDialog(DownloadHelper.SERVER_ERROR, null);
       return null;
     } catch (JsonMappingException e) {
+      e.printStackTrace();
       showDialog(DownloadHelper.SERVER_ERROR, null);
       return null;
     } catch (IOException e) {
+      e.printStackTrace();
       showDialog(DownloadHelper.SERVER_ERROR, null);
       return null;
     }

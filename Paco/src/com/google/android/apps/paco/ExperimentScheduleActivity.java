@@ -49,6 +49,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.R;
 
 public class ExperimentScheduleActivity extends Activity {
@@ -387,7 +388,7 @@ public class ExperimentScheduleActivity extends Activity {
     title.setText(experiment.getTitle());
 
     timeList = (ListView) findViewById(R.id.timesList);
-    final List<Long> times = experiment.getSchedule().getTimes();
+    final List<SignalTime> times = experiment.getSchedule().getSignalTimes();
     setArrayAdapter(times);
 
     // timeList.setOnItemClickListener(new OnItemClickListener() {
@@ -422,9 +423,9 @@ public class ExperimentScheduleActivity extends Activity {
     // });
   }
 
-  private void setArrayAdapter(final List<Long> times) {
+  private void setArrayAdapter(final List<SignalTime> times) {
     List<String> timeStrs = new ArrayList<String>();
-    for (Long time : times) {
+    for (SignalTime time : times) {
       timeStrs.add(getStringForTime(time));
     }
 
@@ -432,8 +433,12 @@ public class ExperimentScheduleActivity extends Activity {
     timeList.setAdapter(timeAdapter);
   }
 
-  private String getStringForTime(Long time) {
-    return new DateTime().withMillisOfDay(time.intValue()).toString("hh:mm a");
+  private String getStringForTime(SignalTime time) {
+    if (time.getType() == SignalTimeDAO.FIXED_TIME) {
+      return new DateTime().withMillisOfDay(time.getFixedTimeMillisFromMidnight()).toString("hh:mm a");
+    } else {
+      return "+" + time.getOffsetTimeMillis() / 1000 / 60 + " mins";
+    }
   }
 
   class ButtonArrayAdapter extends ArrayAdapter<String> {
@@ -448,10 +453,22 @@ public class ExperimentScheduleActivity extends Activity {
         convertView = inflater.inflate(R.layout.timelist_item, null);
       }
 
+      TextView label = (TextView) convertView.findViewById(R.id.textView1);
+      String labelText = experiment.getSchedule().getSignalTimes().get(position).getLabel();
+      if (labelText == null) {
+        labelText = "Time " + Integer.toString(position);
+      }
+      label.setText(labelText +": ");
       Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);
       btn.setText(text);
+      if (text.startsWith("+")) {
+        btn.setEnabled(false);
+      } else {
+        btn.setEnabled(true);
+      }
       // set listener for the whole row
-      convertView.setOnClickListener(new OnItemClickListener(position));
+      //convertView.setOnClickListener(new OnItemClickListener(position));
+      btn.setOnClickListener(new OnItemClickListener(position));
       return convertView;
     }
   }
@@ -464,13 +481,13 @@ public class ExperimentScheduleActivity extends Activity {
     }
 
     public void onClick(View arg0) {
-      final List<Long> times = experiment.getSchedule().getTimes();
+      final List<SignalTime> times = experiment.getSchedule().getSignalTimes();
       final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
       unsetTimesViewParent();
       dialogBuilder.setView(timesScheduleLayout);
       final AlertDialog dialog = dialogBuilder.setTitle(R.string.modify_time_title).create();
 
-      DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).intValue());
+      DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).getFixedTimeMillisFromMidnight());
       timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
       timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());
 
@@ -481,8 +498,8 @@ public class ExperimentScheduleActivity extends Activity {
           // there,
           // so that the current hour will work when the user is editing it
           // directly.
-          long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
-          times.set(position, offsetMillis);
+          int offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
+          times.get(position).setFixedTimeMillisFromMidnight(offsetMillis);
           // timeAdapter.notifyDataSetChanged();
           setArrayAdapter(times);
         }

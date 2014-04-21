@@ -20,6 +20,7 @@ package com.google.sampling.experiential.model;
 
 import java.util.List;
 
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -63,7 +64,12 @@ public class SignalSchedule {
   private Long esmEndHour;
 
   @Persistent
+  @Element(dependent = "true")
+  private List<SignalTime> signalTimes;
+
+  @Persistent
   private List<Long> times;
+
 
   @Persistent
   private Integer repeatRate = 0;
@@ -117,7 +123,7 @@ public class SignalSchedule {
    * @param snoozeCount
    */
   public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency,
-      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<Long> times,
+      Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<SignalTime> times,
       Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth,
       Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
     super();
@@ -130,7 +136,7 @@ public class SignalSchedule {
     this.esmStartHour = esmStartHour;
     this.esmEndHour = esmEndHour;
     this.esmWeekends = esmWeekends;
-    this.times = times;
+    this.signalTimes = times;
     this.repeatRate = repeatRate;
     this.weekDaysScheduled = weekDaysScheduled;
     this.nthOfMonth = nthOfMonth;
@@ -191,12 +197,12 @@ public class SignalSchedule {
     this.esmEndHour = esmEndHour;
   }
 
-  public List<Long> getTimes() {
-    return times;
+  public List<SignalTime> getSignalTimes() {
+    return signalTimes;
   }
 
-  public void setTimes(List<Long> times) {
-    this.times = times;
+  public void setSignalTimes(List<SignalTime> times) {
+    this.signalTimes = times;
   }
 
   public Integer getRepeatRate() {
@@ -283,7 +289,7 @@ public class SignalSchedule {
     }
     buf.append("times = [");
     boolean firstTime = true;
-    for (Long time : times) {
+    for (SignalTime time : signalTimes) {
       if (firstTime) {
         firstTime = false;
       } else {
@@ -323,11 +329,18 @@ public class SignalSchedule {
   }
 
 
-  public String getHourOffsetAsTimeString(Long esmEndHour2) {
-    DateTime endHour = new DateMidnight().toDateTime().plus(esmEndHour2);
+  public String getHourOffsetAsTimeString(Long time) {
+    DateTime endHour = new DateMidnight().toDateTime().plus(time);
     String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
     return endHourString;
   }
+
+  public String getHourOffsetAsTimeString(SignalTime time) {
+    DateTime endHour = new DateMidnight().toDateTime().plus(time.getFixedTimeMillisFromMidnight());
+    String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
+    return endHourString;
+  }
+
 
   private String pad(int minuteOfHour) {
     if (minuteOfHour < 10) {
@@ -371,6 +384,10 @@ public class SignalSchedule {
 
   public void setSnoozeTime(Integer snoozeTime) {
     this.snoozeTime = snoozeTime;
+  }
+
+  public List<Long> getTimes() {
+    return times;
   }
 
 

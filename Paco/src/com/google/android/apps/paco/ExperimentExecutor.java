@@ -386,11 +386,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       if (extras != null) {
         extras.clear();
       }
-
+      updateAlarms();
       notifySyncService();
       showFeedback();
-      // TODO(bobevans): trying to make it so that reopening from the home longpress doesn't
-      // cause the same scheduleTime for a previously signalled experiment.
       finish();
     } catch (IllegalStateException ise) {
       new AlertDialog.Builder(this)
@@ -398,6 +396,10 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       .setTitle(R.string.required_answers_missing)
       .setMessage(ise.getMessage()).show();
     }
+  }
+
+  private void updateAlarms() {
+    startService(new Intent(this, BeeperService.class));
   }
 
   private void deleteNotification() {
@@ -544,7 +546,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   public void stopExperiment() {
     experimentProviderUtil.deleteFullExperiment(getIntent().getData());
-    startService(new Intent(this, BeeperService.class));
+    updateAlarms();
     finish();
   }
 

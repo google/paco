@@ -11,7 +11,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 
 /**
  * This class helps open, create, and upgrade the database file.
@@ -76,7 +79,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.TIME_OUT + " INTEGER, "
         + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER, "
         + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER, "
-        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER "
+        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER, "
+        + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
         + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -224,6 +228,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + SignalScheduleColumns.SNOOZE_TIME + " INTEGER"
               + ";");
     }
+    if (oldVersion <= 17) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER"
+              + ";");
+      migrateExistingLongTimeValuesToSignalTimeValues();
+    }
+
+  }
+
+  private void migrateExistingLongTimeValuesToSignalTimeValues() {
+    ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
+    List<SignalSchedule> schedules = eu.getAllSchedules();
+    for (SignalSchedule schedule : schedules) {
+      if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
+              schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
+        List<SignalTime> signalTimes = Lists.newArrayList();
+        List<Long> times = schedule.getTimes();
+        for (Long time : times) {
+          signalTimes.add(new SignalTime(SignalTimeDAO.FIXED_TIME,
+                                         SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
+                                         (int)time.longValue(),
+                                         SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
+                                         0, ""));
+        }
+        schedule.setSignalTimes(signalTimes);
+        eu.updateSchedule(schedule);
+      }
+    }
+
   }
 
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db,
