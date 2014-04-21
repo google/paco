@@ -90,7 +90,7 @@ public class ExperimentServlet extends HttpServlet {
       List<Experiment> experiments = (List<Experiment>)newQuery.execute();
       for (Experiment experiment : experiments) {
         SignalSchedule schedule = experiment.getSchedule();
-        if (schedule != null && schedule.getSignalTimes() == null) {
+        if (schedule != null && schedule.getSignalTimes().isEmpty()) {
           if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
                   schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
             log.info("Converting for experiment: " + experiment.getTitle());
