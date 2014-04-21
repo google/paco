@@ -133,7 +133,7 @@ public class DAOConverter {
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
             schedule.getRepeatRate(), createDAOsForSignalTimes(schedule.getSignalTimes()), schedule.getWeekDaysScheduled(),
             schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer(),
-            schedule.getSnoozeCount(), schedule.getSnoozeTime());
+            schedule.getSnoozeCount(), schedule.getSnoozeTime(), schedule.getOnlyEditableOnJoin());
   }
 
   private static List<SignalTimeDAO> createDAOsForSignalTimes(List<SignalTime> times) {
@@ -289,7 +289,7 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), fromSignalTimeDAOs(scheduleKey, scheduleDAO.getSignalTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(), scheduleDAO.getOnlyEditableOnJoin());
     return schedule;
   }
 

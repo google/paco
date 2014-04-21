@@ -82,7 +82,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER, "
         + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER, "
         + SignalScheduleColumns.SNOOZE_TIME + " INTEGER, "
-        + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER "
+        + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER, "
+        + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
         + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -235,6 +236,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER"
               + ";");
       migrateExistingLongTimeValuesToSignalTimeValues(db);
+    }
+    if (oldVersion <= 18) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER"
+              + ";");
     }
   }
 

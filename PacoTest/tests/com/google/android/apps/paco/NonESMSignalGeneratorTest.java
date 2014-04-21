@@ -70,7 +70,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
       Integer dayOfMonth, Integer nthOfMonth) {
     SignalSchedule schedule = new SignalSchedule(1L, scheduleType, byDayOfMonth, dayOfMonth,
         null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis(), true, 479 /* default timeout for non-esm*/,
-        SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT);
+        SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT, false);
     return schedule;
   }
 

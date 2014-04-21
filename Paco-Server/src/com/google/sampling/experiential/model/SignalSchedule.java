@@ -104,6 +104,9 @@ public class SignalSchedule {
   @Persistent
   private Integer snoozeTime;
 
+  @Persistent
+  private Boolean onlyEditableOnJoin;
+
   /**
    * @param id
    * @param scheduleType
@@ -119,13 +122,14 @@ public class SignalSchedule {
    * @param dayOfMonth
    * @param esmWeekends TODO
    * @param minimumBuffer
-   * @param snoozeTime
    * @param snoozeCount
+   * @param snoozeTime
+   * @param onlyEditableOnJoin TODO
    */
   public SignalSchedule(Key ownerKey, Long id, Integer scheduleType, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Long esmEndHour, List<SignalTime> times,
       Integer repeatRate, Integer weekDaysScheduled, Integer nthOfMonth, Boolean byDayOfMonth,
-      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
+      Integer dayOfMonth, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin) {
     super();
     if (id != null) {
       this.id = KeyFactory.createKey(ownerKey, SignalSchedule.class.getSimpleName(), id);
@@ -147,6 +151,7 @@ public class SignalSchedule {
     this.minimumBuffer = minimumBuffer;
     this.snoozeCount = snoozeCount;
     this.snoozeTime = snoozeTime;
+    this.onlyEditableOnJoin = onlyEditableOnJoin;
   }
 
   public Key getId() {
@@ -390,5 +395,12 @@ public class SignalSchedule {
     return times;
   }
 
+  public Boolean getOnlyEditableOnJoin() {
+    return onlyEditableOnJoin;
+  }
+
+  public void setOnlyEditableOnJoin(Boolean value) {
+    this.onlyEditableOnJoin = value;
+  }
 
 }

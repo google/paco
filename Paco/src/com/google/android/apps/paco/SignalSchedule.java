@@ -148,6 +148,7 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
   private long beginDate = new Date().getTime();
   private Boolean esmWeekends;
   private Boolean userEditable = Boolean.TRUE;
+  private Boolean onlyEditableOnJoin;
 
   /**
    *
@@ -168,11 +169,12 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
    * @param userEditable TODO
    * @param snoozeCount TODO
    * @param snoozeTime TODO
+   * @param onlyEditableOnJoin TODO
    */
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<SignalTime> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout, Integer snoozeCount, Integer snoozeTime) {
+      Integer nthOfMonth, Integer repeatRate, List<SignalTime> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -193,6 +195,7 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
     this.timeout = timeout;
     this.snoozeCount = snoozeCount;
     this.snoozeTime = snoozeTime;
+    this.onlyEditableOnJoin = onlyEditableOnJoin;
   }
 
   /**
@@ -535,5 +538,12 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
     this.times = times;
   }
 
+  public Boolean getOnlyEditableOnJoin() {
+    return onlyEditableOnJoin;
+  }
+
+  public void setOnlyEditableOnJoin(Boolean value) {
+    this.onlyEditableOnJoin = value;
+  }
 
 }

@@ -73,6 +73,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Integer dayOfMonth = 1;
     private Boolean esmWeekends = false;
     private Boolean userEditable;
+    private Boolean onlyEditableOnJoin;
 
     /**
      *
@@ -90,13 +91,14 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      * @param weekDaysScheduled
      * @param esmWeekends TODO
      * @param minimumBuffer
-     * @param snoozeTime
      * @param snoozeCount
+     * @param snoozeTime
+     * @param onlyEditableOnJoin TODO
      */
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
         Long esmStartHour, Integer nthOfMonth, Integer repeatRate, List<SignalTimeDAO> times,
-        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
+        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin) {
       this.id = id;
       this.scheduleType = scheduleType;
       this.byDayOfMonth = byDayOfMonth;
@@ -116,6 +118,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.type = "signalSchedule";
       this.snoozeCount = (snoozeCount != null) ? snoozeCount : SNOOZE_COUNT_DEFAULT;
       this.snoozeTime = (snoozeTime != null) ? snoozeTime : SNOOZE_TIME_DEFAULT;
+      this.onlyEditableOnJoin = onlyEditableOnJoin;
     }
 
     /**
@@ -253,6 +256,15 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
 
     public void setTimeout(Integer timeout) {
       this.timeout = timeout;
+    }
+
+    public Boolean getOnlyEditableOnJoin() {
+      return onlyEditableOnJoin;
+    }
+
+    public void setOnlyEditableOnJoin(Boolean value) {
+      this.onlyEditableOnJoin = value;
+
     }
 
 }

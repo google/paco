@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -34,7 +34,7 @@ import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Container for all scheduling configuration panels.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -60,8 +60,8 @@ public class SchedulePanel extends Composite {
     lblSignalSchedule.setStyleName("keyLabel");
     horizontalPanel.add(lblSignalSchedule);
     horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
-    lblSignalSchedule.setWidth("114px");    
-    
+    lblSignalSchedule.setWidth("114px");
+
     final ListBox listBox = createScheduleTypeListBox();
     horizontalPanel.add(listBox);
     horizontalPanel.setCellVerticalAlignment(listBox, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -72,6 +72,7 @@ public class SchedulePanel extends Composite {
     setPanelForScheduleType();
     addListSelectionListener(listBox);
     verticalPanel.add(createUserEditable(schedule));
+    verticalPanel.add(createUserEditableOnce(schedule));
 
   }
 
@@ -97,6 +98,31 @@ public class SchedulePanel extends Composite {
     });
     return userEditablePanel;
   }
+
+  private Widget createUserEditableOnce(SignalScheduleDAO schedule2) {
+    HorizontalPanel userEditablePanel = new HorizontalPanel();
+    userEditablePanel.setSpacing(2);
+    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    userEditablePanel.setWidth("");
+    Label lblUserEditable = new Label("Only Editable on Join: ");
+    lblUserEditable.setStyleName("gwt-Label-Header");
+    userEditablePanel.add(lblUserEditable);
+
+    final CheckBox userEditableCheckBox = new CheckBox("");
+    userEditablePanel.add(userEditableCheckBox);
+    userEditableCheckBox.setValue(schedule.getOnlyEditableOnJoin() != null ? schedule.getOnlyEditableOnJoin() : Boolean.FALSE);
+    userEditableCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        schedule.setOnlyEditableOnJoin(userEditableCheckBox.getValue());
+      }
+
+    });
+    return userEditablePanel;
+  }
+
+
 
   private void addListSelectionListener(final ListBox listBox) {
     listBox.addChangeHandler(new ChangeHandler() {
@@ -143,7 +169,7 @@ public class SchedulePanel extends Composite {
     }
   }
 
-  private ListBox createScheduleTypeListBox() {    
+  private ListBox createScheduleTypeListBox() {
     return createListbox(SignalScheduleDAO.SCHEDULE_TYPES_NAMES, schedule.getScheduleType());
   }
 
@@ -152,7 +178,7 @@ public class SchedulePanel extends Composite {
     for (int i = 0; i < choices.length; i++) {
       listBox.addItem(choices[i]);
     }
-    
+
     listBox.setSelectedIndex(chosenItem != null ? chosenItem : 0);
     return listBox;
   }

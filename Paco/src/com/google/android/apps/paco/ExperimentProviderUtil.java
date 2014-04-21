@@ -1019,6 +1019,7 @@ public class ExperimentProviderUtil {
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
+    int onlyEditableOnJoinIndex = cursor.getColumnIndex(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN);
     int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
     int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
     int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
@@ -1088,6 +1089,9 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(userEditableIndex)) {
       schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
     }
+    if (!cursor.isNull(onlyEditableOnJoinIndex)) {
+      schedule.setOnlyEditableOnJoin(cursor.getInt(onlyEditableOnJoinIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
     if (!cursor.isNull(timeoutIndex)) {
       schedule.setTimeout(cursor.getInt(timeoutIndex));
     }
@@ -1141,6 +1145,9 @@ public class ExperimentProviderUtil {
     }
     if (schedule.getUserEditable() != null) {
       values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0);
+    }
+    if (schedule.getOnlyEditableOnJoin() != null) {
+      values.put(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN, schedule.getOnlyEditableOnJoin() == Boolean.TRUE ? 1 : 0);
     }
     if (schedule.getTimeout() != null) {
       values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout());

@@ -43,6 +43,8 @@ import com.pacoapp.paco.R;
 
 public class InformedConsentActivity extends Activity {
 
+  public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
+
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 
   private Uri uri;
@@ -173,6 +175,7 @@ public class InformedConsentActivity extends Activity {
                                ExperimentScheduleActivity.class);
     intent.setAction(Intent.ACTION_EDIT);
     intent.setData(uri);
+    intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
     startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 

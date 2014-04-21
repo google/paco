@@ -490,7 +490,7 @@ public class ESMSignalGeneratorTest extends TestCase {
         false, null, // Not important to ESM testing
         endHourMillis, esmFrequency, esmPeriod, startHourMillis, esmWeekends,
         null, null, null, null, // Not important to ESM testing
-        startDate.getMillis(), true, 59, SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT);
+        startDate.getMillis(), true, 59, SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT, false);
     return schedule;
   }
 
