@@ -33,13 +33,17 @@ NSString* const kTriggerSignal = @"trigger";
 
 @implementation PacoTriggerSignal
 
-- (id)initWithDictionary:(NSDictionary*)dictionary {
+//designated initializer
+- (id)initWithIdentifier:(NSString*)identifier
+              signalType:(NSString*)signalType
+               eventCode:(int)eventCode
+                   delay:(long long)delay {
   self = [super init];
   if (self) {
-    _identifier = [NSString stringWithFormat:@"%lld", [[dictionary objectForKey:kID] longLongValue]];
-    _signalType = [dictionary objectForKey:kSignalType];
-    _eventCode = [[dictionary objectForKey:kEventCode] intValue];
-    _delay = [[dictionary objectForKey:kDelay] longLongValue];
+    _identifier = identifier;
+    _signalType = signalType;
+    _eventCode = eventCode;
+    _delay = delay;
   }
   return self;
 }
@@ -47,16 +51,30 @@ NSString* const kTriggerSignal = @"trigger";
 + (id)signalFromJson:(id)jsonObject {
   NSAssert([jsonObject isKindOfClass:[NSDictionary class]],
            @"it has to be a dictionary for trigger signal");
-  return [[PacoTriggerSignal alloc] initWithDictionary:jsonObject];
+  
+  NSString* identifier = [NSString stringWithFormat:@"%lld", [jsonObject[kID] longLongValue]];
+  return [[PacoTriggerSignal alloc] initWithIdentifier:identifier
+                                            signalType:jsonObject[kSignalType]
+                                             eventCode:[jsonObject[kEventCode] intValue]
+                                                 delay:[jsonObject[kDelay] longLongValue]];
+}
+
+
+- (id)copyWithZone:(NSZone *)zone {
+  PacoTriggerSignal* copy = [[[self class] allocWithZone:zone] initWithIdentifier:self.identifier
+                                                                       signalType:self.signalType
+                                                                        eventCode:self.eventCode
+                                                                            delay:self.delay];
+  return copy;
 }
 
 
 - (id)serializeToJSON {
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-  [dict setObject:[NSNumber numberWithLongLong:[self.identifier longLongValue]] forKey:kID];
-  [dict setObject:self.signalType forKey:kSignalType];
-  [dict setObject:[NSNumber numberWithInt:self.eventCode] forKey:kEventCode];
-  [dict setObject:[NSNumber numberWithLongLong:self.delay] forKey:kDelay];
+  dict[kID] = @([self.identifier longLongValue]);
+  dict[kSignalType] = self.signalType;
+  dict[kEventCode] = @(self.eventCode);
+  dict[kDelay] = @(self.delay);
   return dict;
 }
 

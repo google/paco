@@ -27,7 +27,7 @@
  generateTime: the time that Paco needs to schedule more notifications for this experiment
  **/
 + (NSArray*)nextDatesForWeeklyExperiment:(PacoExperiment*)experiment
-                              numOfDates:(NSInteger)numOfDates
+                              numOfDates:(int)numOfDates
                                 fromDate:(NSDate*)fromDate {
   //handle the corner case that user didn't select any day
   if (![experiment.schedule weeklyConfigureTable]) {
@@ -47,7 +47,7 @@
     NSArray* dates = [self datesFromSunday:sundayMidnight
                              forExperiment:experiment
                               generateTime:adjustedGenerateTime];
-    int numOfDates = [dates count];
+    int numOfDates = (int)[dates count];
     if (0 == numOfDates) {
       break;
     }
@@ -68,11 +68,11 @@
 + (NSDate*)sundayMidnightToScheduleForExperiment:(PacoExperiment*)experiment
                                     generateTime:(NSDate*)generateTime {
   NSDate* exeprimentStartDateMidnight = [experiment isFixedLength] ? [experiment startDate] : [experiment joinDate];
-  int numOfWeeksUntilGenerateTime = [[NSCalendar pacoGregorianCalendar] pacoWeeksFromDate:exeprimentStartDateMidnight
+  NSInteger numOfWeeksUntilGenerateTime = [[NSCalendar pacoGregorianCalendar] pacoWeeksFromDate:exeprimentStartDateMidnight
                                                                                   toDate:generateTime];
-  int repeatRate = experiment.schedule.repeatRate;
-  int repeatTimes = numOfWeeksUntilGenerateTime / repeatRate;
-  int extraWeeks = numOfWeeksUntilGenerateTime % repeatRate;
+  NSInteger repeatRate = experiment.schedule.repeatRate;
+  NSInteger repeatTimes = numOfWeeksUntilGenerateTime / repeatRate;
+  NSInteger extraWeeks = numOfWeeksUntilGenerateTime % repeatRate;
   
   BOOL isCurrentWeekActive = (0 == extraWeeks);
   if (isCurrentWeekActive &&
@@ -81,7 +81,7 @@
   }
   
   repeatTimes++;
-  int weeks = repeatTimes * repeatRate;
+  NSInteger weeks = repeatTimes * repeatRate;
   NSDate* sunday = [[exeprimentStartDateMidnight pacoSundayInCurrentWeek] pacoDateByAddingWeekInterval:weeks];
   if ([experiment isFixedLength] && [sunday pacoNoEarlierThanDate:[experiment endDate]]) {
     sunday = nil;
@@ -108,7 +108,7 @@
   NSArray* weeklyConfigureTable = [experiment.schedule weeklyConfigureTable];
   NSMutableArray* results = [NSMutableArray arrayWithCapacity:7 * [experiment.schedule.times count]];
   for (int dayIndex = 0; dayIndex < kPacoNumOfDaysInWeek; dayIndex++) {
-    BOOL daySelected = [[weeklyConfigureTable objectAtIndex:dayIndex] boolValue];
+    BOOL daySelected = [weeklyConfigureTable[dayIndex] boolValue];
     if (daySelected) {
       NSDate* midnight = [sundayMidnight pacoDateByAddingDayInterval:dayIndex];
       NSArray* dates = [midnight pacoDatesToScheduleWithTimes:experiment.schedule.times

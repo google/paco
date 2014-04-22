@@ -17,7 +17,11 @@
 
 #import "PacoTableCell.h"
 
+
+typedef void(^TimeSelectionCompletionBlock)(void);
+
 @interface PacoTimeSelectionView : PacoTableCell
 @property (nonatomic, retain) NSArray *times;
-- (void)finishTimeSelection;
+@property (nonatomic, copy) TimeSelectionCompletionBlock completionBlock;
+- (void)cancelDateEdit;
 @end

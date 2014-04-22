@@ -15,7 +15,7 @@
 
 #import "PacoESMIncludeWeekendsSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoESMIncludeWeekendsSelectionView
 
@@ -24,15 +24,15 @@
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.radioStyle = NO;
-    self.bitFlags = [NSNumber numberWithInt:0];
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"Include Weekends", nil), nil];
+    self.bitFlags = @0;
+    self.optionLabels = @[NSLocalizedString(@"Include Weekends", nil)];
   }
   return self;
 }
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

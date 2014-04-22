@@ -18,12 +18,12 @@
 
 #import "PacoAppDelegate.h"
 #import "PacoClient.h"
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoLayout.h"
 #import "PacoMainViewController.h"
 #import "PacoTitleView.h"
 #import "PacoLoadingView.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 
 static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/settings/security";
 
@@ -67,20 +67,20 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
 
   UIButton *login = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [login setTitle:@"Login" forState:UIControlStateNormal];
-  [login setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [login setTitleColor:[UIColor pacoBlue] forState:UIControlStateNormal];
   [login.titleLabel setFont:[UIFont fontWithName:@"Helvetica Bold" size:18]];
   [login addTarget:self action:@selector(onLogin) forControlEvents:UIControlEventTouchUpInside];
   login.frame = CGRectMake(0, 0, 100, 40);
   [self.view addSubview:login];
 
   UITextField *textField = [[UITextField alloc] initWithFrame:CGRectZero];
-  textField.textColor = [PacoColor pacoBlue];
+  textField.textColor = [UIColor pacoBlue];
   textField.text = @"";
   textField.placeholder = @"<email>";
   textField.keyboardType = UIKeyboardTypeEmailAddress;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-  textField.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField.backgroundColor = [UIColor pacoBackgroundBlue];
   textField.returnKeyType = UIReturnKeyDone;
   textField.delegate = self;
   [self.view addSubview:textField];
@@ -88,7 +88,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   CGRect frame = textField.frame;
   frame.size.width = 200;
   frame.size.height = 36;
-  textField.font = [PacoFont pacoTableCellFont];
+  textField.font = [UIFont pacoTableCellFont];
   textField.frame = frame;
   textField.clipsToBounds = YES;
   textField.layer.cornerRadius = 5.;
@@ -97,14 +97,14 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
 
 
   UITextField *textField2 = [[UITextField alloc] initWithFrame:CGRectZero];
-  textField2.textColor = [PacoColor pacoBlue];
+  textField2.textColor = [UIColor pacoBlue];
   textField2.text = @"";
   textField2.placeholder = NSLocalizedString(@"<password>", nil);
   textField2.keyboardType = UIKeyboardTypeDefault;
   textField.autocorrectionType = UITextAutocorrectionTypeNo;
   textField.autocapitalizationType = UITextAutocapitalizationTypeNone;
   textField2.secureTextEntry = YES;
-  textField2.backgroundColor = [PacoColor pacoBackgroundBlue];
+  textField2.backgroundColor = [UIColor pacoBackgroundBlue];
   textField2.returnKeyType = UIReturnKeyDone;
   textField2.delegate = self;
   [self.view addSubview:textField2];
@@ -113,7 +113,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   frame.size.width = 200;
   frame.size.height = 36;
   textField2.frame = frame;
-  textField2.font = [PacoFont pacoTableCellFont];
+  textField2.font = [UIFont pacoTableCellFont];
   textField2.clipsToBounds = YES;
   textField2.layer.cornerRadius = 5.;
   self.pwdField = textField2;
@@ -129,7 +129,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
 
   UIButton *displayInstructionBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [displayInstructionBtn setTitle:NSLocalizedString(@"Check how to generate your app password", nil) forState:UIControlStateNormal];
-  [displayInstructionBtn setTitleColor:[PacoColor pacoBlue] forState:UIControlStateNormal];
+  [displayInstructionBtn setTitleColor:[UIColor pacoBlue] forState:UIControlStateNormal];
   [displayInstructionBtn.titleLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:12]];
   [displayInstructionBtn addTarget:self action:@selector(displayInstructions:) forControlEvents:UIControlEventTouchUpInside];
   [displayInstructionBtn sizeToFit];
@@ -152,7 +152,7 @@ static NSString *const kGoogleSecuritySettingsURL = @"https://www.google.com/set
   layoutRect.size.height = 200;
 
   layoutRect = CGRectInset(layoutRect, 20, 5);
-  NSArray *elements = [NSArray arrayWithObjects:textField, textField2, login, nil];
+  NSArray *elements = @[textField, textField2, login];
   [PacoLayout layoutViews:elements inGridWithWidth:1 gridHeight:4 inRect:layoutRect];
 }
 

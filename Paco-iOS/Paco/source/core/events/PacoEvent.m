@@ -53,8 +53,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   if (self) {
     _appId = @"iOS";
     
-    NSString *version = [[[NSBundle mainBundle] infoDictionary]
-                         objectForKey:(NSString*)kCFBundleVersionKey];
+    NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
     NSAssert([version length] > 0, @"version number is not valid!");
     _pacoVersion = version;
   }
@@ -69,36 +68,36 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
 + (id)pacoEventFromJSON:(id)jsonObject {
   PacoEvent *event = [[PacoEvent alloc] init];
   NSDictionary *eventMembers = jsonObject;
-  event.who = [eventMembers objectForKey:kPacoEventKeyWho];
-  event.when = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyWhen]];
-  event.latitude = [[eventMembers objectForKey:kPacoEventKeyLatitude] longLongValue];
-  event.longitude = [[eventMembers objectForKey:kPacoEventKeyLongitude] longLongValue];
-  event.responseTime = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyResponseTime]];
-  event.scheduledTime = [PacoDateUtility pacoDateForString:[eventMembers objectForKey:kPacoEventKeyScheduledTime]];
-  event.appId = [eventMembers objectForKey:kPacoEventKeyAppId];
-  event.pacoVersion = [eventMembers objectForKey:kPacoEventKeyPacoVersion];
-  event.experimentId = [eventMembers objectForKey:kPacoEventKeyExperimentId];
-  event.experimentName = [eventMembers objectForKey:kPacoEventKeyExperimentName];
-  event.experimentVersion = [[eventMembers objectForKey:kPacoEventKeyExperimentVersion] intValue];
-  event.responses = [eventMembers objectForKey:kPacoEventKeyResponses];
+  event.who = eventMembers[kPacoEventKeyWho];
+  event.when = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyWhen]];
+  event.latitude = [eventMembers[kPacoEventKeyLatitude] longLongValue];
+  event.longitude = [eventMembers[kPacoEventKeyLongitude] longLongValue];
+  event.responseTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyResponseTime]];
+  event.scheduledTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyScheduledTime]];
+  event.appId = eventMembers[kPacoEventKeyAppId];
+  event.pacoVersion = eventMembers[kPacoEventKeyPacoVersion];
+  event.experimentId = eventMembers[kPacoEventKeyExperimentId];
+  event.experimentName = eventMembers[kPacoEventKeyExperimentName];
+  event.experimentVersion = [eventMembers[kPacoEventKeyExperimentVersion] intValue];
+  event.responses = eventMembers[kPacoEventKeyResponses];
   return event;
 }
 
 
 - (NSString*)description {
   NSString* responseStr = @"[";
-  int numOfResponse = [self.responses count];
+  NSUInteger numOfResponse = [self.responses count];
   int index = 0;
   for (NSDictionary* responseDict in self.responses) {
     responseStr = [responseStr stringByAppendingString:@"{"];
     NSAssert([responseDict isKindOfClass:[NSDictionary class]], @"responseDict should be a dictionary!");
     
-    int numOfKeyValue = [[responseDict allKeys] count];
+    NSUInteger numOfKeyValue = [[responseDict allKeys] count];
     int temp = 0;
     for (NSString* key in responseDict) {
       responseStr = [responseStr stringByAppendingString:key];
       responseStr = [responseStr stringByAppendingString:@":"];
-      responseStr = [responseStr stringByAppendingString:[[responseDict objectForKey:key] description]];
+      responseStr = [responseStr stringByAppendingString:[responseDict[key] description]];
       temp++;
       if (temp < numOfKeyValue) {
         responseStr = [responseStr stringByAppendingString:@","];
@@ -132,29 +131,29 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
 
 - (id)generateJsonObject {
   NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-  [dictionary setObject:self.experimentId forKey:kPacoEventKeyExperimentId];
-  [dictionary setObject:self.experimentName forKey:kPacoEventKeyExperimentName];
-  [dictionary setObject:[NSString stringWithFormat:@"%d", self.experimentVersion] forKey:kPacoEventKeyExperimentVersion];
-  [dictionary setObject:self.who forKey:kPacoEventKeyWho];
-  [dictionary setObject:self.appId forKey:kPacoEventKeyAppId];
-  [dictionary setObject:self.pacoVersion forKey:kPacoEventKeyPacoVersion];
+  dictionary[kPacoEventKeyExperimentId] = self.experimentId;
+  dictionary[kPacoEventKeyExperimentName] = self.experimentName;
+  dictionary[kPacoEventKeyExperimentVersion] = [NSString stringWithFormat:@"%d", self.experimentVersion];
+  dictionary[kPacoEventKeyWho] = self.who;
+  dictionary[kPacoEventKeyAppId] = self.appId;
+  dictionary[kPacoEventKeyPacoVersion] = self.pacoVersion;
   if (self.when) {
-    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.when] forKey:kPacoEventKeyWhen];
+    dictionary[kPacoEventKeyWhen] = [PacoDateUtility pacoStringForDate:self.when];
   }
   if (self.latitude) {
-    [dictionary setObject:[NSString stringWithFormat:@"%lld", self.latitude] forKey:kPacoEventKeyLatitude];
+    dictionary[kPacoEventKeyLatitude] = [NSString stringWithFormat:@"%lld", self.latitude];
   }
   if (self.longitude) {
-    [dictionary setObject:[NSString stringWithFormat:@"%lld", self.longitude] forKey:kPacoEventKeyLongitude];
+    dictionary[kPacoEventKeyLongitude] = [NSString stringWithFormat:@"%lld", self.longitude];
   }
   if (self.responseTime) {
-    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.responseTime] forKey:kPacoEventKeyResponseTime];
+    dictionary[kPacoEventKeyResponseTime] = [PacoDateUtility pacoStringForDate:self.responseTime];
   }
   if (self.scheduledTime) {
-    [dictionary setObject:[PacoDateUtility pacoStringForDate:self.scheduledTime] forKey:kPacoEventKeyScheduledTime];
+    dictionary[kPacoEventKeyScheduledTime] = [PacoDateUtility pacoStringForDate:self.scheduledTime];
   }
   if (self.responses) {
-    [dictionary setObject:self.responses forKey:kPacoEventKeyResponses];
+    dictionary[kPacoEventKeyResponses] = self.responses;
   }
   return [NSDictionary dictionaryWithDictionary:dictionary];
 }
@@ -167,11 +166,11 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   
   NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:self.responses];
   for (int index=0; index<[self.responses count]; index++) {
-    id responseDict = [self.responses objectAtIndex:index];
+    id responseDict = (self.responses)[index];
     if (![responseDict isKindOfClass:[NSDictionary class]]) {
       continue;
     }
-    id answer = [(NSDictionary*)responseDict objectForKey:kPacoResponseKeyAnswer];
+    id answer = ((NSDictionary*)responseDict)[kPacoResponseKeyAnswer];
     if (![answer isKindOfClass:[NSString class]]) {
       continue;
     }
@@ -182,13 +181,13 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
     NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
     if ([imageString length] > 0) {
       NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
-      [newResponseDict setObject:imageString forKey:kPacoResponseKeyAnswer];
-      [newReponseList replaceObjectAtIndex:index withObject:newResponseDict];
+      newResponseDict[kPacoResponseKeyAnswer] = imageString;
+      newReponseList[index] = newResponseDict;
     }
   }
   NSMutableDictionary* jsonPayload =
       [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
-  [jsonPayload setObject:newReponseList forKey:kPacoEventKeyResponses];
+  jsonPayload[kPacoEventKeyResponses] = newReponseList;
   return jsonPayload;
 }
 
@@ -260,20 +259,20 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
       continue;
     }
     NSLog(@"INPUT RESPONSE NAME = %@", input.name);
-    [response setObject:input.name forKey:@"name"];
-    [response setObject:input.inputIdentifier forKey:@"inputId"];
+    response[@"name"] = input.name;
+    response[@"inputId"] = input.inputIdentifier;
     
     if (![payloadObject isKindOfClass:[UIImage class]]) {
-      [response setObject:payloadObject forKey:@"answer"];
+      response[@"answer"] = payloadObject;
     } else {
       NSString* imageName = [UIImage pacoSaveImageToDocumentDir:payloadObject
                                                   forDefinition:definition.experimentId
                                                         inputId:input.inputIdentifier];
       if ([imageName length] > 0) {
         NSString* fullName = [UIImage pacoBoxedNameFromImageName:imageName];
-        [response setObject:fullName forKey:@"answer"];
+        response[@"answer"] = fullName;
       } else {
-        [response setObject:@"Failed to save image" forKey:@"answer"];
+        response[@"answer"] = @"Failed to save image";
       }
     }
     

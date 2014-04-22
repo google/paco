@@ -42,10 +42,10 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
     return nil;
   }
   
-  NSString* experimentId = [infoDict objectForKey:kUserInfoKeyExperimentId];
-  NSString* experimentTitle = [infoDict objectForKey:kUserInfoKeyExperimentTitle];
-  NSDate* fireDate = [infoDict objectForKey:kUserInfoKeyNotificationFireDate];
-  NSDate* timeOutDate = [infoDict objectForKey:kUserInfoKeyNotificationTimeoutDate];
+  NSString* experimentId = infoDict[kUserInfoKeyExperimentId];
+  NSString* experimentTitle = infoDict[kUserInfoKeyExperimentTitle];
+  NSDate* fireDate = infoDict[kUserInfoKeyNotificationFireDate];
+  NSDate* timeOutDate = infoDict[kUserInfoKeyNotificationTimeoutDate];
   if (0 == [experimentId length] || 0 == [experimentTitle length] ||
       fireDate == nil || timeOutDate == nil || [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
     return nil;
@@ -67,10 +67,10 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
     return nil;
   }
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-  [userInfo setObject:experimentId forKey:kUserInfoKeyExperimentId];
-  [userInfo setObject:experimentTitle forKey:kUserInfoKeyExperimentTitle];
-  [userInfo setObject:fireDate forKey:kUserInfoKeyNotificationFireDate];
-  [userInfo setObject:timeOutDate forKey:kUserInfoKeyNotificationTimeoutDate];
+  userInfo[kUserInfoKeyExperimentId] = experimentId;
+  userInfo[kUserInfoKeyExperimentTitle] = experimentTitle;
+  userInfo[kUserInfoKeyNotificationFireDate] = fireDate;
+  userInfo[kUserInfoKeyNotificationTimeoutDate] = timeOutDate;
   return userInfo;
 }
 
@@ -307,7 +307,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   if (!block) {
     return;
   }
-  int totalNumOfNotifications = [notifications count];
+  NSUInteger totalNumOfNotifications = [notifications count];
   if (0 == totalNumOfNotifications) {
     block(nil, nil, nil);
   }
@@ -316,7 +316,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   NSInteger indexOfActiveNotification = INVALID_INDEX;
   NSInteger indexOfFirstNotFiredNotification = INVALID_INDEX;
   for (NSInteger index = 0; index < totalNumOfNotifications; index++) {
-    UILocalNotification* notification = [notifications objectAtIndex:index];
+    UILocalNotification* notification = notifications[index];
     PacoNotificationStatus status = [notification pacoStatus];
     NSAssert(status != PacoNotificationStatusUnknown, @"status should be valid!");
     if (status == PacoNotificationStatusFiredNotTimeout) {
@@ -335,7 +335,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   NSArray* notFiredNotifications = nil;
   
   if (indexOfActiveNotification != INVALID_INDEX) {
-    activeNotication = [notifications objectAtIndex:indexOfActiveNotification];
+    activeNotication = notifications[indexOfActiveNotification];
   }
   
   if (indexOfFirstNotFiredNotification != INVALID_INDEX) {
@@ -395,17 +395,17 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   for (UILocalNotification* notification in allNotifications) {
     NSString* experimentId = [notification pacoExperimentId];
     NSAssert(experimentId, @"experimentId should be valid!");
-    NSMutableArray* notificationList = [dict objectForKey:experimentId];
+    NSMutableArray* notificationList = dict[experimentId];
     if (notificationList == nil) {
       notificationList = [NSMutableArray arrayWithCapacity:[allNotifications count]];
     }
     [notificationList addObject:notification];
-    [dict setObject:notificationList forKey:experimentId];
+    dict[experimentId] = notificationList;
   }
   
   //sort each array inside this dictionary
   for (NSString* experimentId in dict) {
-    NSMutableArray* notificationList = [dict objectForKey:experimentId];
+    NSMutableArray* notificationList = dict[experimentId];
     NSAssert([notificationList isKindOfClass:[NSMutableArray class]],
              @"notificationList should be an array");
     [notificationList pacoSortLocalNotificationsByFireDate];

@@ -15,7 +15,7 @@
 
 #import "PacoByWeekOrMonthSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoByWeekOrMonthSelectionView
 
@@ -23,8 +23,8 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"By Week", nil),
-                         NSLocalizedString(@"By Month", nil), nil];
+    self.optionLabels = @[NSLocalizedString(@"By Week", nil),
+                         NSLocalizedString(@"By Month", nil)];
     self.radioStyle = YES;
   }
   return self;
@@ -40,7 +40,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

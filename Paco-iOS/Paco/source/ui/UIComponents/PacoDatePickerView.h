@@ -13,14 +13,22 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface PacoFont : NSObject
+@class PacoDatePickerView;
+@protocol PacoDatePickerDelegate <NSObject>
 
-+ (UIFont *)pacoTableCellFont;
-+ (UIFont *)pacoTableCellDetailFont;
-+ (UIFont *)pacoMenuButtonFont;
-+ (UIFont *)pacoNavbarTitleFont;
-+ (UIFont *)pacoNormalButtonFont;
-+ (UIFont *)pacoBoldFont;
+@optional
+- (void)onDateChanged:(PacoDatePickerView *)datePickerView;
+- (void)saveDateEdit;
+- (void)cancelDateEdit;
+@end
+
+@interface PacoDatePickerView : UIView
+@property (nonatomic, weak) id<PacoDatePickerDelegate> delegate;
+@property (nonatomic, copy) NSString* title;
+
+- (void)setDateNumber:(NSNumber*)dateNumber;
+- (NSNumber*)dateNumber;
+- (NSString*)dateString;
 @end

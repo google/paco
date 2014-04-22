@@ -15,13 +15,13 @@
 
 #import "PacoConsentViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoEditScheduleViewController.h"
 #import "PacoModel.h"
 #import "PacoService.h"
 #import "PacoExperimentDefinition.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoAlertView.h"
 
@@ -46,46 +46,68 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.view = [[UIScrollView alloc] initWithFrame:self.view.frame];
+  self.view.backgroundColor = [UIColor pacoBackgroundWhite];
+  self.automaticallyAdjustsScrollViewInsets = NO;
 
-  UILabel* boldTitle = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, self.view.frame.size.width - 20, 30)];
+  CGFloat xPosition = 10;
+  CGFloat yPosition = 10;
+  CGFloat width = self.view.frame.size.width - 20;
+  
+  CGRect titleFrame = CGRectMake(xPosition, yPosition, width, 0);
+  UILabel* boldTitle = [[UILabel alloc] initWithFrame:titleFrame];
   boldTitle.text = NSLocalizedString(@"Data Handling & Privacy Agreement between You and the Experiment Creator", nil);
-  boldTitle.font = [PacoFont pacoBoldFont];
+  boldTitle.font = [UIFont pacoBoldFont];
   boldTitle.textColor = [UIColor blackColor];
   boldTitle.backgroundColor = [UIColor clearColor];
   boldTitle.numberOfLines = 0;
   [self.view addSubview:boldTitle];
   [boldTitle sizeToFit];
+  CGRect frame = boldTitle.frame;
+  boldTitle.frame = CGRectMake(xPosition, yPosition, frame.size.width, frame.size.height);
+  yPosition += boldTitle.frame.size.height + 10;
 
-  UILabel* consentText = [[UILabel alloc] initWithFrame:CGRectMake(10, boldTitle.frame.origin.y + boldTitle.frame.size.height + 10, self.view.frame.size.width - 20, 0)];
+  CGRect consentTextFrame = CGRectMake(xPosition, yPosition, width, 0);
+  UILabel* consentText = [[UILabel alloc] initWithFrame:consentTextFrame];
   consentText.text = NSLocalizedString(@"Consent Text", nil);
-  consentText.font = [PacoFont pacoTableCellDetailFont];
+  consentText.font = [UIFont pacoTableCellDetailFont];
   consentText.textColor = [UIColor blackColor];
   consentText.backgroundColor = [UIColor clearColor];
   consentText.numberOfLines = 0;
   [self.view addSubview:consentText];
   [consentText sizeToFit];
+  frame = consentText.frame;
+  consentText.frame = CGRectMake(xPosition, yPosition, frame.size.width, frame.size.height);
+  yPosition += consentText.frame.size.height + 15;
 
-  UITextView* expViewText = [[UITextView alloc] initWithFrame:CGRectMake(10, consentText.frame.origin.y + consentText.frame.size.height + 15, self.view.frame.size.width - 20, 180)];
+  CGRect expViewFrame = CGRectMake(xPosition, yPosition, width, 0);
+  UILabel* expViewText = [[UILabel alloc] initWithFrame:expViewFrame];
   expViewText.backgroundColor = [UIColor whiteColor];
   expViewText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-  expViewText.textColor = [PacoColor pacoDarkBlue];
+  expViewText.textColor = [UIColor pacoDarkBlue];
   expViewText.text = self.definition.informedConsentForm;
-  expViewText.editable = NO;
+  expViewText.numberOfLines = 0;
   [self.view addSubview:expViewText];
+  [expViewText sizeToFit];
+  frame = expViewText.frame;
+  expViewText.frame = CGRectMake(xPosition, yPosition, frame.size.width, frame.size.height);
+  yPosition += expViewText.frame.size.height + 15;
 
   UIButton* iConsent = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [iConsent setTitle:NSLocalizedString(@"I Consent", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
-    iConsent.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    iConsent.titleLabel.font = [UIFont pacoNormalButtonFont];
   }
   [iConsent addTarget:self action:@selector(onAccept) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:iConsent];
   [iConsent sizeToFit];
-  CGRect frame = iConsent.frame;
+  frame = iConsent.frame;
   frame.origin.x = (self.view.frame.size.width - frame.size.width) / 2;
-  frame.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
+  frame.origin.y = yPosition;
   iConsent.frame = frame;
+  yPosition += iConsent.frame.size.height + 10;
+
+  [(UIScrollView*)self.view setContentSize:CGSizeMake(self.view.frame.size.width, yPosition)];
 }
 
 - (void)onAccept {

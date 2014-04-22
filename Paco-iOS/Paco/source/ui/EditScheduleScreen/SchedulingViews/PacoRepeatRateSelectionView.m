@@ -15,7 +15,7 @@
 
 #import "PacoRepeatRateSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoRepeatRateSelectionView ()
@@ -30,7 +30,7 @@
   if (self) {
     self.minValue = 1;
     self.maxValue = 30;
-    self.value = [NSNumber numberWithInt:1];
+    self.value = @1;
     self.format = NSLocalizedString(@"Repeat every %d day(s)", nil);
   }
   return self;
@@ -43,26 +43,26 @@
       self.format = NSLocalizedString(@"Repeat every %d day(s)", nil);
       self.minValue = 1;
       self.maxValue = 30;
-      self.value = [NSNumber numberWithInt:1];
+      self.value = @1;
       break;
     case kPacoScheduleRepeatWeeks:
       self.format = NSLocalizedString(@"Repeat every %d weeks.", nil);
       self.minValue = 1;
       self.maxValue = 52;
-      self.value = [NSNumber numberWithInt:1];
+      self.value = @1;
       break;
     case kPacoScheduleRepeatMonths:
       self.format = NSLocalizedString(@"Repeat every %d month(s).", nil);
       self.minValue = 1;
       self.maxValue = 12;
-      self.value = [NSNumber numberWithInt:1];
+      self.value = @1;
       break;
   }
 }
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

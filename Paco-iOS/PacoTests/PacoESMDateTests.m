@@ -63,10 +63,10 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   id scheduleDict = [NSJSONSerialization JSONObjectWithData:data
                                                     options:NSJSONReadingAllowFragments
                                                       error:&error];
-  STAssertTrue(error == nil && [scheduleDict isKindOfClass:[NSDictionary class]],
+  XCTAssertTrue(error == nil && [scheduleDict isKindOfClass:[NSDictionary class]],
                @"esmScheduleTemplate should be successfully serialized!");
   PacoExperimentSchedule* schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:scheduleDict];
-  STAssertTrue(schedule != nil, @"schedule should not be nil!");
+  XCTAssertTrue(schedule != nil, @"schedule should not be nil!");
   self.esmSchedule = schedule;
   
   
@@ -74,10 +74,10 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                     options:NSJSONReadingAllowFragments
                                                       error:&error];
-  STAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
                @"esmExperimentTemplate should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
-  STAssertTrue(definition != nil, @"definition should not be nil!");
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
   
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
@@ -103,14 +103,14 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
                    fromDate:(NSDate*)fromDate
                esmStartDate:(NSDate*)esmStartDate
              shouldPrintLog:(BOOL)shouldPrintLog{
-  STAssertTrue([dates count] == esmFrequency, @"dates's count should be equal to esmFrequency");
+  XCTAssertTrue([dates count] == esmFrequency, @"dates's count should be equal to esmFrequency");
   
-  NSDate* previous = [dates objectAtIndex:0];
+  NSDate* previous = dates[0];
   
   NSTimeInterval intervalFromStart = [previous timeIntervalSinceDate:esmStartDate];
   double bucketLowerBound = 0;
   double bucketUpperBound = minutesPerBucket * 60;
-  STAssertTrue(intervalFromStart >=bucketLowerBound && intervalFromStart <= bucketUpperBound,
+  XCTAssertTrue(intervalFromStart >=bucketLowerBound && intervalFromStart <= bucketUpperBound,
                @"schedule should be in its bucket!");
   
   NSDate* current = nil;
@@ -120,20 +120,20 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   }
   //esm schedules should be sorted and not duplicate
   for (int index=1; index < [dates count]; index++) {
-    current = [dates objectAtIndex:index];
+    current = dates[index];
     if (shouldPrintLog) {
       NSLog(@"%@", [PacoDateUtility pacoStringForDate:current]);
     }
     NSTimeInterval interval = [current timeIntervalSinceDate:previous];
-    STAssertTrue(interval > 0,
+    XCTAssertTrue(interval > 0,
                  @"%@ should be later than %@", [PacoDateUtility pacoStringForDate:current], [PacoDateUtility pacoStringForDate:previous]);
-    STAssertTrue(interval >= minimumBuffer*60,
+    XCTAssertTrue(interval >= minimumBuffer*60,
                  @"schedule interval %d should have %d seconds buffer at least.", interval, minimumBuffer*60);
     
     intervalFromStart = [current timeIntervalSinceDate:esmStartDate];
     bucketLowerBound = index * minutesPerBucket * 60;
     bucketUpperBound = (index + 1) * minutesPerBucket * 60;
-    STAssertTrue(intervalFromStart >= bucketLowerBound && intervalFromStart <= bucketUpperBound,
+    XCTAssertTrue(intervalFromStart >= bucketLowerBound && intervalFromStart <= bucketUpperBound,
                  @"schedule should be in its bucket!");
     
     previous = current;
@@ -161,12 +161,12 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
 - (void)testRandomNumberGenerator {
   for (int numOfTests = 0; numOfTests < 50; numOfTests++) {
     int rand = [PacoUtility randomUnsignedIntegerBetweenMin:0 andMax:0];
-    STAssertEquals(rand, 0, @"rand should be equal to 0");
+    XCTAssertEqual(rand, 0, @"rand should be equal to 0");
   }
   
   for (int numOfTests = 0; numOfTests < 50; numOfTests++) {
     int rand = [PacoUtility randomUnsignedIntegerBetweenMin:50 andMax:1000];
-    STAssertTrue(rand >= 50 && rand <= 1000, @"rand should be between 50 and 1000");
+    XCTAssertTrue(rand >= 50 && rand <= 1000, @"rand should be between 50 and 1000");
   }
 }
 
@@ -191,15 +191,15 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
 
 
 - (void)testNextScheduledDateForNextDay {
-  STAssertTrue(self.esmExperiment.schedule.esmScheduleList == nil, @"esmScheduleList should be nil!");
+  XCTAssertTrue(self.esmExperiment.schedule.esmScheduleList == nil, @"esmScheduleList should be nil!");
   
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/10 17:33:22-0700"]; //Tues
   NSDate* esmStartDate = [PacoDateUtility pacoDateForString:@"2013/09/11 16:00:00-0700"];
 
   NSDate* nextScheduleDate = [PacoScheduleGenerator nextScheduledDateForExperiment:self.esmExperiment fromThisDate:fromDate];
-  STAssertTrue(nextScheduleDate != nil, @"%@ should not be nil!", [PacoDateUtility pacoStringForDate:nextScheduleDate]);
+  XCTAssertTrue(nextScheduleDate != nil, @"%@ should not be nil!", [PacoDateUtility pacoStringForDate:nextScheduleDate]);
   
-  STAssertTrue([self.esmExperiment.schedule.esmScheduleList count] == self.esmExperiment.schedule.esmFrequency, @"esmScheduleList should be generated successfully!");
+  XCTAssertTrue([self.esmExperiment.schedule.esmScheduleList count] == self.esmExperiment.schedule.esmFrequency, @"esmScheduleList should be generated successfully!");
 
   PacoExperimentSchedule* schedule = self.esmExperiment.schedule;
   int totalMinutes = (schedule.esmEndHour - schedule.esmStartHour)/1000.0/60.0;

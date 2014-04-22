@@ -17,7 +17,7 @@
 #import "PacoTableView.h"
 #import "PacoScheduleEditView.h"
 #import "PacoLayout.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoDateUtility.h"
 
 @interface PacoTimeEditView ()
@@ -48,7 +48,7 @@
 
     UIButton* editButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [editButton setTitle:NSLocalizedString(@"Edit", nil) forState:UIControlStateNormal];
-    [editButton.titleLabel setFont:[PacoFont pacoTableCellFont]];
+    [editButton.titleLabel setFont:[UIFont pacoTableCellFont]];
     [editButton addTarget:self action:@selector(onEditTime:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:editButton];
     self.editButton = editButton;
@@ -109,11 +109,11 @@ static CGFloat CELL_HEIGHT = 51;
 
   NSArray* frames = [PacoLayout splitRectHorizontally:self.bounds numSections:3];
   self.titleLabel.frame = [PacoLayout rightAlignRect:self.titleLabel.frame.size
-                                              inRect:[[frames objectAtIndex:0] CGRectValue]];
+                                              inRect:[frames[0] CGRectValue]];
   self.timeLabel.frame = [PacoLayout centerRect:self.timeLabel.frame.size
-                                         inRect:[[frames objectAtIndex:1] CGRectValue]];
+                                         inRect:[frames[1] CGRectValue]];
   self.editButton.frame = [PacoLayout leftAlignRect:self.editButton.frame.size
-                                             inRect:[[frames objectAtIndex:2] CGRectValue]];
+                                             inRect:[frames[2] CGRectValue]];
 }
 
 

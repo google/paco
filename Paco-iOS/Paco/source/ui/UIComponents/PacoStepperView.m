@@ -15,8 +15,8 @@
 
 #import "PacoStepperView.h"
 
-#import "PacoColor.h"
-#import "PacoFont.h"
+#import "UIColor+Paco.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoStepperView()<UITextFieldDelegate>
@@ -31,30 +31,30 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.backgroundColor = [UIColor pacoBackgroundWhite];
     self.valueLabel = [[UITextField alloc] initWithFrame:CGRectZero];
     self.valueLabel.borderStyle = UITextBorderStyleRoundedRect;
     self.valueLabel.text = @"0";
     self.valueLabel.delegate = self;
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
     self.valueLabel.backgroundColor = [UIColor clearColor];
     self.valueLabel.textAlignment = NSTextAlignmentCenter;
     [self.valueLabel addTarget:self
                         action:@selector(textFieldDidChange:)
               forControlEvents:UIControlEventEditingChanged];
     self.valueLabel.keyboardType = UIKeyboardTypeNumberPad;
-    self.valueLabel.font = [PacoFont pacoTableCellFont];
+    self.valueLabel.font = [UIFont pacoTableCellFont];
 
     UIToolbar* numberToolbar = [[UIToolbar alloc]initWithFrame:CGRectMake(200, 0, 320, 50)];
     numberToolbar.barStyle = UIBarStyleDefault;
-    numberToolbar.items = [NSArray arrayWithObjects:[[UIBarButtonItem alloc]
+    numberToolbar.items = @[[[UIBarButtonItem alloc]
                         initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
                                              target:nil
                                              action:nil],
               [[UIBarButtonItem alloc]initWithTitle:@"Done"
                                               style:UIBarButtonItemStyleBordered
                                              target:self
-                                             action:@selector(cancelNumberPad)],nil];
+                                             action:@selector(cancelNumberPad)]];
     [numberToolbar sizeToFit];
     self.valueLabel.inputAccessoryView = numberToolbar;
 
@@ -63,7 +63,7 @@
     self.stepper.wraps = NO;
     self.stepper.autorepeat = YES;
     self.stepper.continuous = YES;
-    self.stepper.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.stepper.backgroundColor = [UIColor pacoBackgroundWhite];
     [self.stepper addTarget:self
                      action:@selector(valueChanged:)
            forControlEvents:UIControlEventValueChanged];
@@ -108,7 +108,7 @@
 
 - (void)valueChanged:(UIStepper *)stepper {
   long long valueIs = stepper.value;
-  self.value = [NSNumber numberWithLongLong:valueIs];
+  self.value = @(valueIs);
   self.valueLabel.text = [NSString stringWithFormat:_format,valueIs];
   [self.tableDelegate dataUpdated:self
                           rowData:[NSNumber numberWithLongLong:self.stepper.value]
@@ -126,7 +126,7 @@
 #pragma mark--- UITextFieldDelegate
 
 - (void)textFieldDidChange:(UITextField *)textField {
-  self.value = [NSNumber numberWithLongLong:textField.text.longLongValue];
+  self.value = @(textField.text.longLongValue);
   self.valueLabel.text = textField.text;
   self.stepper.value = textField.text.longLongValue;
   [self.tableDelegate dataUpdated:self
@@ -149,7 +149,7 @@ replacementString:(NSString *)string{
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-  self.value =[NSNumber numberWithLongLong:textField.text.longLongValue];
+  self.value =@(textField.text.longLongValue);
   if ([self.delegate respondsToSelector:@selector(onTextFieldEditBegan:)]) {
     [self.delegate onTextFieldEditBegan:textField];
   }

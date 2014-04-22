@@ -55,8 +55,8 @@
   
   NSMutableArray* processedTokens = [NSMutableArray arrayWithArray:tokenList];
   for (int index=0; index < [tokenList count]; index++) {
-    NSString* token = [tokenList objectAtIndex:index];
-    NSNumber* value = [variableDict objectForKey:token];
+    NSString* token = tokenList[index];
+    NSNumber* value = variableDict[token];
     if (value == nil) { //not a variable
       continue;
     }
@@ -69,16 +69,15 @@
     NSString* newToken = [NSString stringWithFormat:@"$%@", token];
     int nextIndex = index + 1;
     if ([value boolValue] &&  nextIndex < [tokenList count]) {//variable is a multi-selected list
-      NSString* nextToken = [tokenList objectAtIndex:nextIndex];
+      NSString* nextToken = tokenList[nextIndex];
       if ([nextToken isEqualToString:@"=="] || [nextToken isEqualToString:@"!="]) {
-        [processedTokens replaceObjectAtIndex:nextIndex withObject:@"contains"];
+        processedTokens[nextIndex] = @"contains";
         if ([nextToken isEqualToString:@"!="]) {
           newToken = [NSString stringWithFormat:@"not %@", newToken];
         }
       }
     }
-    [processedTokens replaceObjectAtIndex:index
-                               withObject:newToken];
+    processedTokens[index] = newToken;
   }
   NSString* newExpression = [processedTokens componentsJoinedByString:@" "];
   block(newExpression, dependencyVariables);

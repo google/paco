@@ -15,10 +15,10 @@
 
 #import "PacoFindExperimentsViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
 #import "PacoExperimentDetailsViewController.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoAlertView.h"
@@ -59,7 +59,7 @@
   PacoTableView* table = [[PacoTableView alloc] init];
   table.delegate = self;
   [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
-  table.backgroundColor = [PacoColor pacoBackgroundWhite];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
   if (!finishLoading) {
@@ -93,7 +93,7 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
     if (error) {
-      tableView.data = [NSArray array];
+      tableView.data = @[];
       [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
                                   message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
                                  delegate:nil
@@ -145,23 +145,23 @@
             forReuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperimentDefinition class]]) {
     PacoExperimentDefinition *experiment = rowData;
-    cell.backgroundColor = [PacoColor pacoBackgroundWhite];
+    cell.backgroundColor = [UIColor pacoBackgroundWhite];
     cell.imageView.image = [UIImage imageNamed:@"calculator.png"];
     if (![experiment isCompatibleWithIOS]) {
       cell.imageView.image = [UIImage imageNamed:@"incompatible"];
     }
-    cell.textLabel.font = [PacoFont pacoTableCellFont];
-    cell.detailTextLabel.font = [PacoFont pacoTableCellDetailFont];
+    cell.textLabel.font = [UIFont pacoTableCellFont];
+    cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
-    cell.textLabel.textColor = [PacoColor pacoBlue];
+    cell.textLabel.textColor = [UIColor pacoBlue];
     cell.detailTextLabel.text = experiment.creator;
   } else {
     assert([rowData isKindOfClass:[NSArray class]]);
     NSArray *keyAndValue = rowData;
-    NSString *key = [keyAndValue objectAtIndex:0];
+    NSString *key = keyAndValue[0];
     assert([key isEqualToString:@"LOADING"]);
     PacoLoadingTableCell *loading = (PacoLoadingTableCell *)cell;
-    NSString *loadingText = [keyAndValue objectAtIndex:1];
+    NSString *loadingText = keyAndValue[1];
     loading.loadingText = loadingText;
   }
 }

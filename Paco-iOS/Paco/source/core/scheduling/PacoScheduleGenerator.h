@@ -19,7 +19,7 @@
 @interface PacoScheduleGenerator : NSObject
 
 + (NSArray*)nextDatesForExperiment:(PacoExperiment*)experiment
-                        numOfDates:(NSInteger)numOfDates
+                        numOfDates:(int)numOfDates
                           fromDate:(NSDate*)fromDate;
 
 

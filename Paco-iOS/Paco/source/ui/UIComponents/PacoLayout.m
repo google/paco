@@ -83,7 +83,7 @@
 }
 
 
-+ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(int)numSections {
++ (NSArray *)splitRectHorizontally:(CGRect)rect numSections:(NSUInteger)numSections {
   CGFloat width = rect.size.width / (CGFloat)numSections;
   NSMutableArray *array = [NSMutableArray array];
   for (int i = 0; i < numSections; ++i) {
@@ -95,7 +95,7 @@
   return array;
 }
 
-+ (NSArray *)splitRectVertically:(CGRect)rect numSections:(int)numSections {
++ (NSArray *)splitRectVertically:(CGRect)rect numSections:(NSUInteger)numSections {
   CGFloat height = rect.size.height / (CGFloat)numSections;
   NSMutableArray *array = [NSMutableArray array];
   for (int i = 0; i < numSections; ++i) {
@@ -115,16 +115,16 @@
     if (viewIndex >= [views count]) {
       break;
     }
-    NSValue *rowValue = [rowRects objectAtIndex:row];
+    NSValue *rowValue = rowRects[row];
     CGRect rowRect = [rowValue CGRectValue];
     NSArray *cellRects = [PacoLayout splitRectHorizontally:rowRect numSections:numColumns];
     for (int col = 0; col < numColumns; ++col) {
-      NSValue *colValue = [cellRects objectAtIndex:col];
+      NSValue *colValue = cellRects[col];
       CGRect cellRect = [colValue CGRectValue];
       if (viewIndex >= [views count]) {
         break;
       }
-      UIView *view = [views objectAtIndex:viewIndex];
+      UIView *view = views[viewIndex];
       view.frame = [PacoLayout centerRect:view.frame.size inRect:cellRect];
       viewIndex++;
     }

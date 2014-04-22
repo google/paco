@@ -15,7 +15,7 @@
 
 #import "PacoDayOfWeekSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoDayOfWeekSelectionView ()
@@ -27,9 +27,9 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
-    self.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.backgroundColor = [UIColor pacoBackgroundWhite];
     self.selectionStyle = UITableViewCellSelectionStyleNone;
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"S", nil), NSLocalizedString(@"M", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"W", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"F", nil), NSLocalizedString(@"S", nil), nil];
+    self.optionLabels = @[NSLocalizedString(@"S", nil), NSLocalizedString(@"M", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"W", nil), NSLocalizedString(@"T", nil), NSLocalizedString(@"F", nil), NSLocalizedString(@"S", nil)];
   }
   return self;
 }
@@ -52,7 +52,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

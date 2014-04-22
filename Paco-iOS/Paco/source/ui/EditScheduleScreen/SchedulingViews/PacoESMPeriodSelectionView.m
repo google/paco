@@ -15,7 +15,7 @@
 
 #import "PacoESMPeriodSelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoESMPeriodSelectionView
 
@@ -34,14 +34,14 @@
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.radioStyle = YES;
-    self.optionLabels = [NSArray arrayWithObjects:NSLocalizedString(@"Day", nil), NSLocalizedString(@"Week", nil), NSLocalizedString(@"Month", nil), nil];
+    self.optionLabels = @[NSLocalizedString(@"Day", nil), NSLocalizedString(@"Week", nil), NSLocalizedString(@"Month", nil)];
   }
   return self;
 }
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

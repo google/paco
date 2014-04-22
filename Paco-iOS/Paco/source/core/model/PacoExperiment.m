@@ -58,27 +58,24 @@
   id jsonDefinition = [self.definition serializeToJSON];
   id jsonJoinTime = [PacoDateUtility pacoStringForDate:self.joinTime];
   
-  return [NSDictionary dictionaryWithObjectsAndKeys:
-          self.definition.experimentId, @"experimentId",
-          jsonJoinTime, @"joinTime",
-          self.instanceId, @"instanceId",
-          jsonSchedule, @"schedule",
-          jsonDefinition, @"definition",
-          nil];
+  return @{@"experimentId": self.definition.experimentId,
+          @"joinTime": jsonJoinTime,
+          @"instanceId": self.instanceId,
+          @"schedule": jsonSchedule,
+          @"definition": jsonDefinition};
 }
 
 - (void)deserializeFromJSON:(id)json {
   NSAssert([json isKindOfClass:[NSDictionary class]], @"json should be a dictionary");
-  self.jsonObject = json;
 
-  self.instanceId = [self.jsonObject objectForKey:@"instanceId"];
-  self.joinTime = [PacoDateUtility pacoDateForString:[self.jsonObject objectForKey:@"joinTime"]];
+  self.instanceId = (json)[@"instanceId"];
+  self.joinTime = [PacoDateUtility pacoDateForString:(json)[@"joinTime"]];
   
-  NSDictionary* jsonSchedule = [self.jsonObject objectForKey:@"schedule"];
+  NSDictionary* jsonSchedule = (json)[@"schedule"];
   self.schedule = [PacoExperimentSchedule pacoExperimentScheduleFromJSON:jsonSchedule];
   NSAssert(self.schedule, @"schedule doesn't exist!");
   
-  NSDictionary* jsonDefinition = [self.jsonObject objectForKey:@"definition"];
+  NSDictionary* jsonDefinition = (json)[@"definition"];
   self.definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonDefinition];
   NSAssert(self.definition, @"definition doesn't exist!");
 }
@@ -126,8 +123,8 @@ static int INVALID_INDEX = -1;
   }
   int index = INVALID_INDEX;
   NSArray* dates = self.schedule.esmScheduleList;
-  for (NSUInteger currentIndex = 0; currentIndex < [dates count]; currentIndex++) {
-    NSDate* date = [dates objectAtIndex:currentIndex];
+  for (int currentIndex = 0; currentIndex < [dates count]; currentIndex++) {
+    NSDate* date = dates[currentIndex];
     if ([date pacoLaterThanDate:fromDate]) {
       index = currentIndex;
       break;
@@ -136,7 +133,7 @@ static int INVALID_INDEX = -1;
   NSArray* result = nil;
   if (index != INVALID_INDEX) {
     //since esmScheduleList is sorted already, just return the sub-array
-    int count = [dates count] - index;
+    NSUInteger count = [dates count] - index;
     result = [dates subarrayWithRange:NSMakeRange(index, count)];
   }
   return result;

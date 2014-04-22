@@ -23,9 +23,19 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    documentDirectory = [paths objectAtIndex:0];
+    documentDirectory = paths[0];
   });
   return documentDirectory;
+}
+
++ (NSString*)pacoLogDirectory {
+  static NSString* logPath = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSArray* pathsArray = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    logPath = [[pathsArray firstObject] stringByAppendingPathComponent:@"Logs"];
+  });
+  return logPath;
 }
 
 + (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName {

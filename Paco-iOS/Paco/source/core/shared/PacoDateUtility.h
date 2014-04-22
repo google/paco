@@ -31,15 +31,15 @@
 + (NSString*)timeString24hrFromMilliseconds:(long long)milliSeconds;
 + (NSString*)timeStringAMPMFromMilliseconds:(long long)milliSeconds;
 
-+ (int)dayIndexOfDate:(NSDate *)date;
++ (NSUInteger)dayIndexOfDate:(NSDate *)date;
 + (int)weekdayIndexOfDate:(NSDate *)date;
-+ (int)weekOfYearIndexOfDate:(NSDate *)date;
-+ (int)monthOfYearIndexOfDate:(NSDate *)date;
++ (NSInteger)weekOfYearIndexOfDate:(NSDate *)date;
++ (NSInteger)monthOfYearIndexOfDate:(NSDate *)date;
 + (NSDate *)midnightThisDate:(NSDate *)date;
 + (NSDate *)firstDayOfMonth:(NSDate *)date;
 + (NSDate *)timeOfDayThisDate:(NSDate *)date
-                        hrs24:(int)hrs24
-                      minutes:(int)minutes;
+                        hrs24:(long)hrs24
+                      minutes:(long)minutes;
 + (NSDate *)nextTimeFromScheduledDates:(NSArray *)scheduledDates
                            onDayOfDate:(NSDate *)dayOfDate;
 + (NSDate *)nextTimeFromScheduledTimes:(NSArray *)scheduledTimes

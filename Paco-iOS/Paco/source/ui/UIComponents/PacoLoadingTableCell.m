@@ -15,8 +15,8 @@
 
 #import "PacoLoadingTableCell.h"
 
-#import "PacoColor.h"
-#import "pacoFont.h"
+#import "UIColor+Paco.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 
 @interface PacoLoadingTableCell ()
@@ -33,7 +33,7 @@
     _loadingText = @"Loading ...";
     _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     _spinner.hidesWhenStopped = NO;
-    _spinner.color = [PacoColor pacoDarkBlue];
+    _spinner.color = [UIColor pacoDarkBlue];
     _spinner.frame = CGRectMake(0, 0, 80, 80);
     [self addSubview:_spinner];
     [_spinner startAnimating];
@@ -60,19 +60,19 @@
   CGSize textSize = [PacoLayout textSizeToFitSize:CGSizeMake(320,480)
                                              text:NSLocalizedString(@"Loading", nil) font:nil];
   CGSize spinnerSize = CGSizeMake(40,40);
-  return [NSNumber numberWithDouble:(10 + textSize.height + 10 + spinnerSize.height + 10)];
+  return @(10 + textSize.height + 10 + spinnerSize.height + 10);
 }
 
 - (void)layoutSubviews {
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
-  _loadingTextLabel.textColor = [PacoColor pacoDarkBlue];
-  _loadingTextLabel.font = [PacoFont pacoTableCellFont];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
+  _loadingTextLabel.textColor = [UIColor pacoDarkBlue];
+  _loadingTextLabel.font = [UIFont pacoTableCellFont];
 
   NSArray *rowData = self.rowData;
-  self.loadingText = [rowData objectAtIndex:1];
+  self.loadingText = rowData[1];
   _loadingTextLabel.text = self.loadingText;
 
-  CGSize textSize = [PacoLayout textSizeToFitSize:self.frame.size text:_loadingText font:[PacoFont pacoTableCellFont]];
+  CGSize textSize = [PacoLayout textSizeToFitSize:self.frame.size text:_loadingText font:[UIFont pacoTableCellFont]];
   CGRect textCenterRect = CGRectMake(0, 0, self.bounds.size.width, textSize.height + 20);
   _loadingTextLabel.frame = [PacoLayout centerRect:textSize inRect:textCenterRect];
 

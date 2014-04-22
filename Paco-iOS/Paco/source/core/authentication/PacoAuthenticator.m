@@ -63,8 +63,8 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
     return nil;
   }
   NSAssert([accounts count] == 1, @"should only have one account!");
-  NSDictionary* accountDict = [accounts objectAtIndex:0];
-  NSString* email = [accountDict objectForKey:kSSKeychainAccountKey];
+  NSDictionary* accountDict = accounts[0];
+  NSString* email = accountDict[kSSKeychainAccountKey];
   NSLog(@"Fetched an email from Keychain");
   return email;
 }
@@ -98,7 +98,7 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 - (void)deleteAllAccountsFromKeyChain {
   NSArray* accounts = [NSArray arrayWithArray:[SSKeychain accountsForService:kPacoService]];
   for (NSDictionary* accountDict in accounts) {
-    NSString* email = [accountDict objectForKey:kSSKeychainAccountKey];
+    NSString* email = accountDict[kSSKeychainAccountKey];
     BOOL success = [SSKeychain deletePasswordForService:kPacoService account:email];
     if (!success) {
       NSLog(@"[ERROR] Failed to delete password and account in keychain!");
@@ -125,7 +125,7 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   if (0 == [cookies count]) {
     return NO;
   }
-  NSHTTPCookie* cookie = [cookies objectAtIndex:0];
+  NSHTTPCookie* cookie = cookies[0];
   NSDate* expireDate = cookie.expiresDate;
   if (expireDate == nil) {
     return NO;
@@ -243,7 +243,7 @@ Deep Linking:	Enabled
           clientID:clientId
           clientSecret:clientSecret];
   
-  if (keychainAuth && [keychainAuth.parameters objectForKey:@"refresh_token"]) {
+  if (keychainAuth && (keychainAuth.parameters)[@"refresh_token"]) {
     self.auth = keychainAuth;
     if (completionHandler) {
       completionHandler(nil);

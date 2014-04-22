@@ -20,8 +20,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "PacoCheckboxView.h"
-#import "PacoColor.h"
-#import "PacoFont.h"
+#import "UIColor+Paco.h"
+#import "UIFont+Paco.h"
 #import "PacoLayout.h"
 #import "PacoModel.h"
 #import "PacoStepperView.h"
@@ -58,10 +58,10 @@ UIImagePickerControllerDelegate>
 - (void)setupUIForQuestion;
 
 // Likert Smileys
-- (void)selectSmiley:(int)index;
+- (void)selectSmiley:(NSUInteger)index;
 
 // Likert
-- (void)selectNumberButton:(int)index;
+- (void)selectNumberButton:(NSUInteger)index;
 
 @end
 
@@ -77,7 +77,7 @@ UIImagePickerControllerDelegate>
 - (id)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    self.backgroundColor = [PacoColor pacoBackgroundWhite];
+    self.backgroundColor = [UIColor pacoBackgroundWhite];
   }
   return self;
 }
@@ -142,14 +142,14 @@ UIImagePickerControllerDelegate>
   self.rightLeftLabels = nil;
 }
 
-- (void)selectSmiley:(int)index {
+- (void)selectSmiley:(NSUInteger)index {
   for (int i = 0; i < 5; ++i) {
     UIImage *smileyOn = [UIImage imageNamed:[NSString stringWithFormat:@"smile_icon%d_re.png", i+1]];
     UIImage *smileyOff = [UIImage imageNamed:[NSString stringWithFormat:@"smile_icon%d.png", i+1]];
     assert(smileyOn);
     assert(smileyOff);
 
-    UIButton *button = [self.smileysButtons objectAtIndex:i];
+    UIButton *button = (self.smileysButtons)[i];
     if (i == index) {
       [button setImage:smileyOn forState:UIControlStateNormal];
       [button setImage:smileyOn forState:UIControlStateHighlighted];
@@ -161,20 +161,20 @@ UIImagePickerControllerDelegate>
   //[self updateConditionals];
 }
 
-- (void)selectNumberButton:(int)index {
+- (void)selectNumberButton:(NSUInteger)index {
   UIColor *highlightedColor = [UIColor blackColor];
   UIColor *normalColor = [UIColor blackColor];
   for (int i = 0; i < self.question.likertSteps; ++i) {
-    UIButton *button = [self.numberButtons objectAtIndex:i];
+    UIButton *button = (self.numberButtons)[i];
     if (i == index) {
-      UIFont *font = [PacoFont pacoTableCellFont];
+      UIFont *font = [UIFont pacoTableCellFont];
       UIFont *boldFont = [UIFont boldSystemFontOfSize:(font.pointSize + 1)];
       button.titleLabel.font = boldFont;
       [button setTitleColor:highlightedColor forState:UIControlStateNormal];
       [button setTitleColor:highlightedColor forState:UIControlStateHighlighted];
       [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_checked"] forState:UIControlStateNormal];
     } else {
-      button.titleLabel.font = [PacoFont pacoTableCellFont];
+      button.titleLabel.font = [UIFont pacoTableCellFont];
       [button setTitleColor:normalColor forState:UIControlStateNormal];
       [button setTitleColor:normalColor forState:UIControlStateHighlighted];
       [button setBackgroundImage:[UIImage imageNamed:@"uicheckbox_unchecked"] forState:UIControlStateNormal];
@@ -184,18 +184,18 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)onSmiley:(UIButton *)button {
-  int buttonIndex = [self.smileysButtons indexOfObject:button];
+  NSUInteger buttonIndex = [self.smileysButtons indexOfObject:button];
   assert(buttonIndex != NSNotFound);
   [self selectSmiley:buttonIndex];
-  self.question.responseObject = [NSNumber numberWithInt:buttonIndex];
+  self.question.responseObject = @(buttonIndex);
   [self updateConditionals];
 }
 
 - (void)onNumber:(UIButton *)button {
-  int buttonIndex = [self.numberButtons indexOfObject:button];
+  NSUInteger buttonIndex = [self.numberButtons indexOfObject:button];
   assert(buttonIndex != NSNotFound);
   [self selectNumberButton:buttonIndex];
-  self.question.responseObject = [NSNumber numberWithInt:buttonIndex];
+  self.question.responseObject = @(buttonIndex);
   [self updateConditionals];
 }
 
@@ -206,11 +206,11 @@ UIImagePickerControllerDelegate>
     title = NSLocalizedString(@"Tap to Choose Photo", nil);
   }
   [self.choosePhotoButton setTitle:title forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonBlue] forState:UIControlStateNormal];
-  [self.choosePhotoButton setTitleColor:[PacoColor pacoSystemButtonHighlightenBlue]
+  [self.choosePhotoButton setTitleColor:[UIColor pacoSystemButtonBlue] forState:UIControlStateNormal];
+  [self.choosePhotoButton setTitleColor:[UIColor pacoSystemButtonHighlightenBlue]
                                forState:UIControlStateHighlighted];
   if (!self.image) {
-    [self.choosePhotoButton setBackgroundColor:[PacoColor pacoLightGray]];
+    [self.choosePhotoButton setBackgroundColor:[UIColor pacoLightGray]];
   }
 }
 
@@ -272,8 +272,8 @@ UIImagePickerControllerDelegate>
   self.questionText = [[UILabel alloc] initWithFrame:CGRectZero];
   self.questionText.text = self.question.text;
   self.questionText.backgroundColor = [UIColor clearColor];
-  self.questionText.textColor = [PacoColor pacoDarkBlue];
-  self.questionText.font = [PacoFont pacoTableCellFont];
+  self.questionText.textColor = [UIColor pacoDarkBlue];
+  self.questionText.font = [UIFont pacoTableCellFont];
   self.questionText.numberOfLines = 0;  // Number of lines limited to view size
   [self addSubview:self.questionText];
   [self.questionText sizeToFit];
@@ -302,18 +302,18 @@ UIImagePickerControllerDelegate>
       NSMutableArray* labels = [NSMutableArray array];
       UILabel* leftLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
       leftLabel.text = self.question.leftSideLabel;
-      leftLabel.textColor = [PacoColor pacoDarkBlue];
+      leftLabel.textColor = [UIColor pacoDarkBlue];
       leftLabel.backgroundColor = [UIColor clearColor];
-      leftLabel.font = [PacoFont pacoMenuButtonFont];
+      leftLabel.font = [UIFont pacoMenuButtonFont];
       [self addSubview:leftLabel];
       [leftLabel sizeToFit];
       [labels addObject:leftLabel];
 
       UILabel* rightLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
       rightLabel.text = self.question.rightSideLabel;
-      rightLabel.textColor = [PacoColor pacoDarkBlue];
+      rightLabel.textColor = [UIColor pacoDarkBlue];
       rightLabel.backgroundColor = [UIColor clearColor];
-      rightLabel.font = [PacoFont pacoMenuButtonFont];
+      rightLabel.font = [UIFont pacoMenuButtonFont];
       [self addSubview:rightLabel];
       [rightLabel sizeToFit];
       [labels addObject:rightLabel];
@@ -367,7 +367,7 @@ UIImagePickerControllerDelegate>
     PacoCheckboxView *checkboxes = [[PacoCheckboxView alloc] initWithStyle:UITableViewStylePlain
                                                            reuseIdentifier:listIdentifier];
     checkboxes.optionLabels = self.question.listChoices;
-    checkboxes.bitFlags = [NSNumber numberWithUnsignedLongLong:0];
+    checkboxes.bitFlags = @0ULL;
     checkboxes.radioStyle = !self.question.multiSelect;
     checkboxes.vertical = YES;
     checkboxes.delegate = self;
@@ -387,7 +387,7 @@ UIImagePickerControllerDelegate>
     if (self.question.responseObject) {
       stepper.value = self.question.responseObject;
     } else {
-      stepper.value = [NSNumber numberWithLongLong:0];
+      stepper.value = @0LL;
     }
     stepper.delegate = self;
     self.numberStepper = stepper;
@@ -444,7 +444,7 @@ UIImagePickerControllerDelegate>
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-  NSNumber *height = [self.class heightForData:[NSArray arrayWithObjects:@"", self.question, nil]];
+  NSNumber *height = [self.class heightForData:@[@"", self.question]];
   return CGSizeMake(320, height.integerValue);
 }
 
@@ -469,7 +469,7 @@ UIImagePickerControllerDelegate>
 
 + (NSNumber *)heightForData:(id)data {
   NSArray *array = (NSArray *)data;
-  PacoExperimentInput *question = (PacoExperimentInput *)[array objectAtIndex:1];
+  PacoExperimentInput *question = (PacoExperimentInput *)array[1];
   CGSize textSize = [self textSizeToFitSize:CGSizeMake(320, 10000) text:question.text font:nil];
 
   if (question == nil) {
@@ -488,8 +488,7 @@ UIImagePickerControllerDelegate>
   } else if (question.responseEnumType == ResponseEnumTypeOpenText) {
   } else if (question.responseEnumType == ResponseEnumTypeList) {
     // radio list or multi checkboxes
-    int numChoices = question.listChoices.count;
-    return [NSNumber numberWithInt:(numChoices*60) + (textSize.height)];
+    return [NSNumber numberWithInt:(question.listChoices.count * 60) + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeNumber) {
     return [NSNumber numberWithInt:100 + (textSize.height)];
   } else if (question.responseEnumType == ResponseEnumTypeLocation) {
@@ -520,26 +519,26 @@ UIImagePickerControllerDelegate>
   }
 
   if (self.question.responseEnumType == ResponseEnumTypeLikertSmileys) {
-    int numSmileys = self.smileysButtons.count;
+    NSUInteger numSmileys = self.smileysButtons.count;
     CGRect bounds = CGRectMake(0, textsize.height + 10, self.frame.size.width, self.frame.size.height - textsize.height - 20);
     NSArray *smileys = [PacoLayout splitRectHorizontally:bounds numSections:numSmileys];
     //for (NSValue *valueRect in smileys) {
     for (int i = 0; i < numSmileys; ++i) {
-      UIButton *button = [self.smileysButtons objectAtIndex:i];
-      NSValue *valueRect = [smileys objectAtIndex:i];
+      UIButton *button = (self.smileysButtons)[i];
+      NSValue *valueRect = smileys[i];
       CGRect rect = [valueRect CGRectValue];
       button.frame = rect;
     }
   } else if (self.question.responseEnumType == ResponseEnumTypeLikert) {
     if (self.question.likertSteps <= 4) {
-      int numOfButtons = [self.numberButtons count];
+      NSUInteger numOfButtons = [self.numberButtons count];
       CGFloat spaceBetweenButtons = 20;
       CGFloat totalWidth = self.frame.size.width;
       CGFloat btnSize = 25.;
       CGFloat y = self.frame.size.height/2. - btnSize/2.;
       CGFloat btnOffsetToEdge = (totalWidth - spaceBetweenButtons * (numOfButtons - 1) - btnSize * numOfButtons) / 2.0;
       for (int index = 0; index < numOfButtons; ++index) {
-        UIButton* button = [self.numberButtons objectAtIndex:index];
+        UIButton* button = (self.numberButtons)[index];
         CGFloat btnX = btnOffsetToEdge + (btnSize + spaceBetweenButtons) * index;
         CGRect btnFrame = CGRectMake(btnX, y, btnSize, btnSize);
         button.frame = btnFrame;
@@ -558,18 +557,18 @@ UIImagePickerControllerDelegate>
                                 rLabel.frame.size.width,
                                 btnSize);
     } else if (self.question.likertSteps > 4){
-      UILabel* lLabel = [self.rightLeftLabels objectAtIndex:0];
+      UILabel* lLabel = (self.rightLeftLabels)[0];
       lLabel.frame = CGRectMake(10, self.questionText.frame.size.height + 10, lLabel.frame.size.width, lLabel.frame.size.height);
-      UILabel *rLabel = [self.rightLeftLabels objectAtIndex:1];
+      UILabel *rLabel = (self.rightLeftLabels)[1];
       rLabel.frame = CGRectMake(self.frame.size.width - rLabel.frame.size.width - 10, self.questionText.frame.size.height + 10, rLabel.frame.size.width, rLabel.frame.size.height);
       int height = (self.frame.size.height - lLabel.frame.origin.y - 10 - lLabel.frame.size.height);
       height = lLabel.frame.origin.y + 10 + lLabel.frame.size.height+ height / 2 - 25;
-      int numValues = self.numberButtons.count;
+      NSUInteger numValues = self.numberButtons.count;
       CGRect bounds = CGRectMake(25, height + 10, self.frame.size.width - 20, height);
       NSArray* numbers = [PacoLayout splitRectHorizontally:bounds numSections:numValues];
       for (int i = 0; i < numValues; ++i) {
-        UIButton* button = [self.numberButtons objectAtIndex:i];
-        NSValue* valueRect = [numbers objectAtIndex:i];
+        UIButton* button = (self.numberButtons)[i];
+        NSValue* valueRect = numbers[i];
         CGRect rect = [valueRect CGRectValue];
         rect.size = CGSizeMake(25, 25);
         button.frame = rect;
@@ -649,17 +648,17 @@ UIImagePickerControllerDelegate>
 - (void)imagePickerController:(UIImagePickerController *)picker
 didFinishPickingMediaWithInfo:(NSDictionary *)info {
 
-  NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+  NSString *mediaType = info[UIImagePickerControllerMediaType];
   if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeImage]) {
-    UIImage *orig = [info objectForKey:UIImagePickerControllerOriginalImage];
-    UIImage *edited = [info objectForKey:UIImagePickerControllerEditedImage];
+    UIImage *orig = info[UIImagePickerControllerOriginalImage];
+    UIImage *edited = info[UIImagePickerControllerEditedImage];
     self.image = edited ? edited : orig;
     self.question.responseObject = self.image;
     [self updateConditionals];
     [self updateChoosePhotoButtonImage];
     [self.choosePhotoButton setNeedsLayout];
   } else if ([mediaType isEqualToString:(__bridge NSString*)kUTTypeMovie]) {
-    NSURL *movieURL = [info objectForKey:UIImagePickerControllerMediaURL];
+    NSURL *movieURL = info[UIImagePickerControllerMediaURL];
     self.question.responseObject = movieURL;
   }
 
@@ -739,7 +738,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 
 - (void)onStepperValueChanged:(PacoStepperView *)stepper {
   long long value = [stepper.value longLongValue];
-  self.question.responseObject = [NSNumber numberWithLongLong:value];
+  self.question.responseObject = @(value);
   [self updateConditionals];
 }
 

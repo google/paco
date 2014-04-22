@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "NSMutableArray+Paco.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoDateUtility.h"
 
-@interface PacoNSMutableArrayCategoryTests : SenTestCase
+@interface PacoNSMutableArrayCategoryTests : XCTestCase
 
 @end
 
@@ -38,11 +38,11 @@
   NSArray* arrayToAdd = nil;
   NSMutableArray* testArr = [NSMutableArray arrayWithCapacity:0];
   [testArr addObjectsFromArray:arrayToAdd];
-  STAssertEquals([testArr count], (NSUInteger)0, @"should have 0 elements");
+  XCTAssertEqual([testArr count], (NSUInteger)0, @"should have 0 elements");
   
   arrayToAdd = @[@1, @2];
   [testArr addObjectsFromArray:arrayToAdd];
-  STAssertEquals([testArr count], (NSUInteger)2, @"should have 2 elements");
+  XCTAssertEqual([testArr count], (NSUInteger)2, @"should have 2 elements");
 }
 
 - (void)testSortDatesToSchedule {
@@ -53,7 +53,7 @@
   NSMutableArray* dates = [NSMutableArray arrayWithObjects:date3, date2, date1,nil];
   [dates pacoSortDatesToSchedule];
   NSArray* expect = @[date1, date2, date3];
-  STAssertEqualObjects(dates,expect, @"dates should be sorted correctly");
+  XCTAssertEqualObjects(dates,expect, @"dates should be sorted correctly");
 }
 
 - (void)testSortLocalNotificationsByFireDate {
@@ -89,13 +89,13 @@
                                                                            experimentTitle:alertBody3
                                                                             fireDate:date3
                                                                          timeOutDate:timeout3];
-  STAssertNotNil(noti1, @"notification should be valid");
-  STAssertNotNil(noti2, @"notification should be valid");
-  STAssertNotNil(noti3, @"notification should be valid");
+  XCTAssertNotNil(noti1, @"notification should be valid");
+  XCTAssertNotNil(noti2, @"notification should be valid");
+  XCTAssertNotNil(noti3, @"notification should be valid");
   NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti3, noti2, noti1, nil];
   [notifications pacoSortLocalNotificationsByFireDate];
   NSArray* expect = @[noti1, noti2, noti3];
-  STAssertEqualObjects(notifications, expect, @"notifications should be sorted by fire date");
+  XCTAssertEqualObjects(notifications, expect, @"notifications should be sorted by fire date");
 }
 
 
@@ -112,19 +112,19 @@
                                                                      experimentTitle:alertBody1
                                                                             fireDate:date1
                                                                          timeOutDate:timeout1];
-  STAssertNotNil(noti1, @"notification should be valid");
+  XCTAssertNotNil(noti1, @"notification should be valid");
   NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti1, nil];
   NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
-  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
-  STAssertTrue(notifications != result, @"should be different objects");
-  STAssertEqualObjects(notifications, result, @"should have the same objects");
+  XCTAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  XCTAssertTrue(notifications != result, @"should be different objects");
+  XCTAssertEqualObjects(notifications, result, @"should have the same objects");
 }
 
 - (void)testSortAndRemoveDuplicatesForEmptyArray {
   NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:10];
   NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
-  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
-  STAssertEquals((int)[result count], 0, @"should be empty");
+  XCTAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  XCTAssertEqual((int)[result count], 0, @"should be empty");
 }
 
 
@@ -152,13 +152,13 @@
                                                                      experimentTitle:alertBody2
                                                                             fireDate:date2
                                                                          timeOutDate:timeout2];
-  STAssertNotNil(noti1, @"notification should be valid");
-  STAssertNotNil(noti2, @"notification should be valid");
+  XCTAssertNotNil(noti1, @"notification should be valid");
+  XCTAssertNotNil(noti2, @"notification should be valid");
   NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti2, noti1, nil];
   NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
-  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  XCTAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
   NSArray* expect = @[noti1, noti2];
-  STAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
+  XCTAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
 }
 
 - (void)testSortAndRemoveDuplicatesWithTwoDuplicateNotifications {
@@ -180,16 +180,16 @@
                                                                      experimentTitle:alertBody1
                                                                             fireDate:date1
                                                                          timeOutDate:timeout1];
-  STAssertNotNil(noti1, @"notification should be valid");
-  STAssertNotNil(noti2, @"notification should be valid");
-  STAssertTrue(noti1 != noti2, @"should be two different objects");
-  STAssertEqualObjects([noti1 pacoFireDate], [noti2 pacoFireDate], @"fireDate should be duplicate");
+  XCTAssertNotNil(noti1, @"notification should be valid");
+  XCTAssertNotNil(noti2, @"notification should be valid");
+  XCTAssertTrue(noti1 != noti2, @"should be two different objects");
+  XCTAssertEqualObjects([noti1 pacoFireDate], [noti2 pacoFireDate], @"fireDate should be duplicate");
   NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti2, noti1, nil];
   NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
-  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
-  STAssertEquals((int)[result count], 1, @"should contain only 1 object");
+  XCTAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  XCTAssertEqual((int)[result count], 1, @"should contain only 1 object");
   UILocalNotification* noti = [result firstObject];
-  STAssertTrue(noti == noti2, @"should only contain noti2");
+  XCTAssertTrue(noti == noti2, @"should only contain noti2");
 }
 
 //noti2 and noti3 have the same fire date
@@ -235,42 +235,42 @@
                                                                      experimentTitle:alertBody4
                                                                             fireDate:date4
                                                                          timeOutDate:timeout4];
-  STAssertNotNil(noti1, @"notification should be valid");
-  STAssertNotNil(noti2, @"notification should be valid");
-  STAssertNotNil(noti3, @"notification should be valid");
-  STAssertNotNil(noti4, @"notification should be valid");
-  STAssertEqualObjects([noti2 pacoFireDate], [noti3 pacoFireDate], @"fireDate should be duplicate");
+  XCTAssertNotNil(noti1, @"notification should be valid");
+  XCTAssertNotNil(noti2, @"notification should be valid");
+  XCTAssertNotNil(noti3, @"notification should be valid");
+  XCTAssertNotNil(noti4, @"notification should be valid");
+  XCTAssertEqualObjects([noti2 pacoFireDate], [noti3 pacoFireDate], @"fireDate should be duplicate");
 
   NSMutableArray* notifications = [NSMutableArray arrayWithObjects:noti4, noti3, noti2, noti1, nil];
   NSMutableArray* result = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
-  STAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
+  XCTAssertTrue([result isKindOfClass:[NSMutableArray class]], @"should be mutable array");
   NSArray* expect = @[noti1, noti2, noti4];
-  STAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
+  XCTAssertEqualObjects(result, expect, @"notifications should be sorted by fire date");
 }
 
 
 - (void)testPacoIsNotEmpty {
   NSArray* arr = @[];
-  STAssertFalse([arr pacoIsNotEmpty], @"should be empty");
+  XCTAssertFalse([arr pacoIsNotEmpty], @"should be empty");
   arr = @[@"hello"];
-  STAssertTrue([arr pacoIsNotEmpty], @"should not be empty");
+  XCTAssertTrue([arr pacoIsNotEmpty], @"should not be empty");
   arr = nil;
-  STAssertFalse([arr pacoIsNotEmpty], @"nil should be empty");
+  XCTAssertFalse([arr pacoIsNotEmpty], @"nil should be empty");
   
   NSMutableArray* mutableArr = [NSMutableArray array];
-  STAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
+  XCTAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
   [mutableArr addObject:@"hello"];
-  STAssertTrue([mutableArr pacoIsNotEmpty], @"should not be empty");
+  XCTAssertTrue([mutableArr pacoIsNotEmpty], @"should not be empty");
   [mutableArr removeAllObjects];
-  STAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
+  XCTAssertFalse([mutableArr pacoIsNotEmpty], @"should be empty");
   mutableArr = nil;
-  STAssertFalse([mutableArr pacoIsNotEmpty], @"nil should be empty");
+  XCTAssertFalse([mutableArr pacoIsNotEmpty], @"nil should be empty");
 }
 
 - (void)testPacoDescriptionForDates {
   NSDateComponents* comp = [[NSDateComponents alloc] init];
   NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"US/Pacific"];
-  STAssertNotNil(timeZone, @"timezone should be valid");
+  XCTAssertNotNil(timeZone, @"timezone should be valid");
   [comp setTimeZone:timeZone];
   [comp setYear:2013];
   [comp setMonth:10];
@@ -293,17 +293,17 @@
                      @"2013/10/16 08:54:34-0700\n"
                      @"2013/10/25 22:10:00-0700\n"
                      @")";
-  STAssertEqualObjects(descript, expect, @"should be correct");
+  XCTAssertEqualObjects(descript, expect, @"should be correct");
 }
 
 - (void)testGetFirstOrLastObjectFromEmptyArray {
   NSArray* testArr = nil;
-  STAssertNil([testArr firstObject], @"should be nil");
-  STAssertNil([testArr lastObject], @"should be nil");
+  XCTAssertNil([testArr firstObject], @"should be nil");
+  XCTAssertNil([testArr lastObject], @"should be nil");
   
-  testArr = [NSArray array];
-  STAssertNil([testArr firstObject], @"should be nil");
-  STAssertNil([testArr lastObject], @"should be nil");
+  testArr = @[];
+  XCTAssertNil([testArr firstObject], @"should be nil");
+  XCTAssertNil([testArr lastObject], @"should be nil");
 }
 
 

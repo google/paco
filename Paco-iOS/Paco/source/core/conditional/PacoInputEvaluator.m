@@ -74,14 +74,14 @@
       [NSMutableDictionary dictionaryWithCapacity:[self.experiment.definition.inputs count]];
   for (PacoExperimentInput* input in self.experiment.definition.inputs) {
     NSAssert([input.name length] > 0, @"input name should not be empty!");
-    [dict setObject:input forKey:input.name];
+    dict[input.name] = input;
   }
   self.indexDict = dict;
 }
 
 - (void)tagInputsAsDependency:(NSArray*)inputNameList {
   for (NSString* name in inputNameList) {
-    PacoExperimentInput* input = [self.indexDict objectForKey:name];
+    PacoExperimentInput* input = (self.indexDict)[name];
     NSAssert(input != nil, @"input should not be nil!");
     input.isADependencyForOthers = YES;
   }
@@ -99,7 +99,7 @@
   for (PacoExperimentInput* input in self.experiment.definition.inputs) {
     NSAssert([input.name length] > 0, @"input name should non empty!");
     BOOL isMultiSelectedList = (input.responseEnumType == ResponseEnumTypeList && input.multiSelect);
-    [variableDict setObject:[NSNumber numberWithBool:isMultiSelectedList] forKey:input.name];
+    variableDict[input.name] = @(isMultiSelectedList);
   }
   
   //run time: N
@@ -121,7 +121,7 @@
             DDLogError(@"[ERROR]failed to create a predicate for inputName: %@, expression: %@",
                   input.name, rawExpression);
           }else {
-            [dict setObject:predicate forKey:input.name];
+            dict[input.name] = predicate;
           }
           [self tagInputsAsDependency:dependencyVariables];
         };
@@ -140,8 +140,7 @@
   
   //run time: N
   for (PacoExperimentInput *question in self.experiment.definition.inputs) {
-    [self.inputValueDict setObject:[question valueForValidation]
-                            forKey:question.name];
+    (self.inputValueDict)[question.name] = [question valueForValidation];
   }
 
   //run time: N
@@ -153,7 +152,7 @@
     } else {
       //for the invisible inputs, their values are not valid to use for evaluating anymore, even if
       //their responseObject is not nil, so we should mark their values to be null 
-      [self.inputValueDict setObject:[NSNull null] forKey:question.name];
+      (self.inputValueDict)[question.name] = [NSNull null];
     }
   }
   self.visibleInputs = questions;
@@ -165,7 +164,7 @@
   if (!input.conditional) {
     return YES;
   }
-  NSPredicate* predicate = [self.expressionDict objectForKey:input.name];
+  NSPredicate* predicate = (self.expressionDict)[input.name];
   if (predicate == nil) {
     DDLogError(@"[ERROR]No predicate to evaluate inputName: %@", input.name);
     return YES;

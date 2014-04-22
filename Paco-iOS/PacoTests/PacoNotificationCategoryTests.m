@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 #import "UILocalNotification+Paco.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
@@ -35,7 +35,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 @end
 
 
-@interface PacoNotificationCategoryTests : SenTestCase
+@interface PacoNotificationCategoryTests : XCTestCase
 @property(nonatomic, strong) NSString* testID;
 @property(nonatomic, strong) NSString* testTitle;
 @property(nonatomic, strong) NSDate* testFireDate;
@@ -60,15 +60,15 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                       options:NSJSONReadingAllowFragments
                                                         error:&error];
-  STAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
                @"DEFINITION_JSON should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
-  STAssertTrue(definition != nil, @"definition should not be nil!");
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
   experimentInstance.definition = definition;
   experimentInstance.instanceId = definition.experimentId;
-  STAssertNotNil(experimentInstance, @"experimentInstance should be valid!");
+  XCTAssertNotNil(experimentInstance, @"experimentInstance should be valid!");
   self.testExperiment = experimentInstance;
   
   NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:10];
@@ -91,21 +91,21 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                          @"notificationTimeoutDate":self.testTimeoutDate};
   
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:dict];
-  STAssertTrue(info != nil, @"should have a valid info");
-  STAssertEqualObjects(info.experimentId, @"12345", @"should have a valid experiment id");
-  STAssertEqualObjects(info.fireDate, self.testFireDate, @"should have a valid fire date");
-  STAssertEqualObjects(info.timeOutDate, self.testTimeoutDate, @"should have a valid timeout date");
+  XCTAssertTrue(info != nil, @"should have a valid info");
+  XCTAssertEqualObjects(info.experimentId, @"12345", @"should have a valid experiment id");
+  XCTAssertEqualObjects(info.fireDate, self.testFireDate, @"should have a valid fire date");
+  XCTAssertEqualObjects(info.timeOutDate, self.testTimeoutDate, @"should have a valid timeout date");
 }
 
 - (void)testCreatePacoInfo1 {
   NSDictionary* dict = @{@"experimentInstanceId":self.testID};
-  STAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
+  XCTAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
                        @"missing information will get a nil result");
 }
 
 - (void)testCreatePacoInfo2 {
   NSDictionary* dict = @{@"notificationFireDate":self.testFireDate};
-  STAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
+  XCTAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
                        @"missing information will get a nil result");
 }
 
@@ -113,7 +113,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDictionary* dict = @{@"id":self.testID,
                          @"notificationFireDate":self.testFireDate,
                          @"notificationTimeoutDate":self.testTimeoutDate};
-  STAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
+  XCTAssertEqualObjects([PacoNotificationInfo pacoInfoWithDictionary:dict], nil,
                        @"wrong dict key will get a nil result");
 }
 
@@ -124,28 +124,28 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDictionary* expected = @{@"experimentInstanceId":self.testID,
                              @"notificationFireDate":self.testFireDate,
                              @"notificationTimeoutDate":self.testTimeoutDate};
-  STAssertEqualObjects(dict, expected, @"should have a valid result");
+  XCTAssertEqualObjects(dict, expected, @"should have a valid result");
 }
 
 - (void)testCreateUserInfoDictionary1 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:@""
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(dict, nil, @"should have a nil result for an empty experiment id");
+  XCTAssertEqualObjects(dict, nil, @"should have a nil result for an empty experiment id");
 }
 
 - (void)testCreateUserInfoDictionary2 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
                                                                        fireDate:nil
                                                                     timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(dict, nil, @"should have a nil result for a nil fireDate");
+  XCTAssertEqualObjects(dict, nil, @"should have a nil result for a nil fireDate");
 }
 
 - (void)testCreateUserInfoDictionary3 {
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:nil];
-  STAssertEqualObjects(dict, nil, @"should have a nil result for a nil timeOutDate");
+  XCTAssertEqualObjects(dict, nil, @"should have a nil result for a nil timeOutDate");
 }
 
 - (void)testCreateUserInfoDictionary4 {
@@ -153,7 +153,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSDictionary* dict = [PacoNotificationInfo userInfoDictionaryWithExperimentId:self.testID
                                                                        fireDate:self.testFireDate
                                                                     timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(dict, nil, @"should have a nil result for an invalid timeOutDate");
+  XCTAssertEqualObjects(dict, nil, @"should have a nil result for an invalid timeOutDate");
 }
 
 - (void)testStatusNotFired {
@@ -163,7 +163,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   [info setValue:self.testID forKey:@"experimentId"];
   [info setValue:self.testFireDate forKey:@"fireDate"];
   [info setValue:self.testTimeoutDate forKey:@"timeOutDate"];
-  STAssertEquals([info status], PacoNotificationStatusNotFired, @"should be not fired");
+  XCTAssertEqual([info status], PacoNotificationStatusNotFired, @"should be not fired");
 }
 
 - (void)testStatusFiredNotTimeout {
@@ -171,7 +171,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   [info setValue:self.testID forKey:@"experimentId"];
   [info setValue:[NSDate dateWithTimeIntervalSinceNow:0] forKey:@"fireDate"];
   [info setValue:self.testTimeoutDate forKey:@"timeOutDate"];
-  STAssertEquals([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not timeout");
+  XCTAssertEqual([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not timeout");
 }
 
 - (void)testStatusFiredNotTimeout2 {
@@ -181,7 +181,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   [info setValue:self.testID forKey:@"experimentId"];
   [info setValue:self.testFireDate forKey:@"fireDate"];
   [info setValue:self.testTimeoutDate forKey:@"timeOutDate"];
-  STAssertEquals([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not timeout");
+  XCTAssertEqual([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not timeout");
 }
 
 - (void)testStatusFiredNotTimeout3 {
@@ -191,7 +191,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   [info setValue:self.testID forKey:@"experimentId"];
   [info setValue:self.testFireDate forKey:@"fireDate"];
   [info setValue:self.testTimeoutDate forKey:@"timeOutDate"];
-  STAssertEquals([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not time out");
+  XCTAssertEqual([info status], PacoNotificationStatusFiredNotTimeout, @"should be fired but not time out");
 }
 
 
@@ -202,7 +202,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   [info setValue:self.testID forKey:@"experimentId"];
   [info setValue:self.testFireDate forKey:@"fireDate"];
   [info setValue:self.testTimeoutDate forKey:@"timeOutDate"];
-  STAssertEquals([info status], PacoNotificationStatusTimeout, @"should be time out");
+  XCTAssertEqual([info status], PacoNotificationStatusTimeout, @"should be time out");
 }
 
 
@@ -211,17 +211,17 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:self.testTitle
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti.timeZone, [NSTimeZone systemTimeZone], @"should be system timezone");
-  STAssertEqualObjects(noti.fireDate, self.testFireDate, @"firedate should be valid");
+  XCTAssertEqualObjects(noti.timeZone, [NSTimeZone systemTimeZone], @"should be system timezone");
+  XCTAssertEqualObjects(noti.fireDate, self.testFireDate, @"firedate should be valid");
   NSString* expectAlertBody = [NSString stringWithFormat:@"[%@]%@",
                                [PacoDateUtility stringForAlertBodyFromDate:self.testFireDate],
                                self.testTitle];
-  STAssertEqualObjects(noti.alertBody, expectAlertBody, @"alert body should be valid");
-  STAssertEqualObjects(noti.soundName, @"deepbark_trial.mp3", @"sound name should be valid");
+  XCTAssertEqualObjects(noti.alertBody, expectAlertBody, @"alert body should be valid");
+  XCTAssertEqualObjects(noti.soundName, @"deepbark_trial.mp3", @"sound name should be valid");
   NSDictionary* userInfo = @{@"experimentInstanceId":self.testID,
                              @"notificationFireDate":self.testFireDate,
                              @"notificationTimeoutDate":self.testTimeoutDate};
-  STAssertEqualObjects(noti.userInfo, userInfo, @"userInfo should be valid");
+  XCTAssertEqualObjects(noti.userInfo, userInfo, @"userInfo should be valid");
 }
 
 - (void)testCreateNotification2 {
@@ -229,7 +229,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:self.testTitle
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with an empty experiment id");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with an empty experiment id");
 }
 
 - (void)testCreateNotification3 {
@@ -237,7 +237,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:@""
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with an empty alert body");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with an empty alert body");
 }
 
 - (void)testCreateNotification4 {
@@ -245,7 +245,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:self.testTitle
                                                                            fireDate:nil
                                                                         timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
 }
 
 - (void)testCreateNotification5 {
@@ -253,7 +253,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:self.testTitle
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:nil];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with a nil fireDate");
 }
 
 - (void)testCreateNotification6 {
@@ -262,7 +262,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                             experimentTitle:self.testTitle
                                                    fireDate:self.testFireDate
                                                 timeOutDate:self.testFireDate];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
 }
 
 - (void)testCreateNotification7 {
@@ -272,7 +272,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                             experimentTitle:self.testTitle
                                                    fireDate:self.testFireDate
                                                 timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
+  XCTAssertEqualObjects(noti, nil, @"noti should be invalid with an invalid timeout date");
 }
 
 - (void)testNotificationDescription {
@@ -294,7 +294,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                       fireDateStr,
                       timeoutDateStr
                       ];
-  STAssertEqualObjects(description, expect, @"description should be correct");
+  XCTAssertEqualObjects(description, expect, @"description should be correct");
 }
 
 - (void)testPacoStatus {
@@ -302,15 +302,15 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                                                     experimentTitle:self.testTitle
                                                                            fireDate:self.testFireDate
                                                                         timeOutDate:self.testTimeoutDate];
-  STAssertEqualObjects(noti, nil, @"noti should be nil if experiment id is not valid");
-  STAssertEquals([noti pacoStatus], PacoNotificationStatusUnknown, @"a nil notification should be unknown status");
+  XCTAssertEqualObjects(noti, nil, @"noti should be nil if experiment id is not valid");
+  XCTAssertEqual([noti pacoStatus], PacoNotificationStatusUnknown, @"a nil notification should be unknown status");
 }
 
 
 - (void)testPacoNotificationsForExperiment {
   NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:self.testExperiment
                                                                datesToSchedule:self.testDatesToSchedule];
-  STAssertEquals(self.testExperiment.schedule.timeout, 479, @"timeout should be 479 minutes");
+  XCTAssertEqual(self.testExperiment.schedule.timeout, 479, @"timeout should be 479 minutes");
   NSTimeInterval timeoutInterval = 479 * 60;
   
   NSMutableArray* expect = [NSMutableArray array];
@@ -321,9 +321,9 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                            self.testExperiment.definition.title];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    [userInfo setObject:self.testExperiment.instanceId forKey:kUserInfoKeyExperimentId];
-    [userInfo setObject:date forKey:kUserInfoKeyNotificationFireDate];
-    [userInfo setObject:timeOutDate forKey:kUserInfoKeyNotificationTimeoutDate];
+    userInfo[kUserInfoKeyExperimentId] = self.testExperiment.instanceId;
+    userInfo[kUserInfoKeyNotificationFireDate] = date;
+    userInfo[kUserInfoKeyNotificationTimeoutDate] = timeOutDate;
 
     UILocalNotification *notification = [[UILocalNotification alloc] init];
     notification.timeZone = [NSTimeZone systemTimeZone];
@@ -333,35 +333,35 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
     notification.userInfo = userInfo;
     [expect addObject:notification];
   }
-  STAssertEqualObjects(notifications, expect, @"");
+  XCTAssertEqualObjects(notifications, expect, @"");
 }
 
 
 - (void)testPacoNotificationsForNilExperiment {
   NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:nil
                                                                datesToSchedule:self.testDatesToSchedule];
-  STAssertNil(notifications, @"should return nil if experiment is nil");
+  XCTAssertNil(notifications, @"should return nil if experiment is nil");
 }
 
 - (void)testPacoNotificationsForEmptyDates {
   NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:self.testExperiment
                                                                datesToSchedule:@[]];
-  STAssertNil(notifications, @"should return nil if dates is empty");
+  XCTAssertNil(notifications, @"should return nil if dates is empty");
 }
 
 
 - (void)testPacoProcessNotificationsWithNilBlock {
   UILocalNotification* testNoti = [[UILocalNotification alloc] init];
-  [UILocalNotification pacoProcessNotifications:[NSArray arrayWithObject:testNoti] withBlock:nil];
+  [UILocalNotification pacoProcessNotifications:@[testNoti] withBlock:nil];
 }
 
 - (void)testPacoProcessNotificationsWithEmptyNotifications {
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertNil(activeNotification, @"should be nil");
-    STAssertNil(expiredNotifications, @"should be nil");
-    STAssertNil(notFiredNotifications, @"should be nil");
+    XCTAssertNil(activeNotification, @"should be nil");
+    XCTAssertNil(expiredNotifications, @"should be nil");
+    XCTAssertNil(notFiredNotifications, @"should be nil");
   };
   [UILocalNotification pacoProcessNotifications:nil withBlock:block];
 }
@@ -391,9 +391,9 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertEqualObjects(activeNotification, activeNoti, @"should have an active notification");
-    STAssertEqualObjects(expiredNotifications, @[timeoutNoti], @"should have one expired notification");
-    STAssertNil(notFiredNotifications, @"should be nil");
+    XCTAssertEqualObjects(activeNotification, activeNoti, @"should have an active notification");
+    XCTAssertEqualObjects(expiredNotifications, @[timeoutNoti], @"should have one expired notification");
+    XCTAssertNil(notFiredNotifications, @"should be nil");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
@@ -431,10 +431,10 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    XCTAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
     NSArray* expiredNotis = @[timeoutNoti, obsoleteNoti];
-    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
-    STAssertNil(notFiredNotifications, @"should be nil");
+    XCTAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    XCTAssertNil(notFiredNotifications, @"should be nil");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
@@ -486,11 +486,11 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    XCTAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
     NSArray* expiredNotis = @[timeoutNoti, obsoleteNoti];
-    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    XCTAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
     NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
-    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+    XCTAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
@@ -537,11 +537,11 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
     
-    STAssertNil(activeNotification, @"should be nil");
+    XCTAssertNil(activeNotification, @"should be nil");
     NSArray* expiredNotis = @[timeoutNoti1, timeoutNoti2];
-    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    XCTAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
     NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
-    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+    XCTAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 
@@ -574,10 +574,10 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertNil(activeNotification, @"should be nil");
+    XCTAssertNil(activeNotification, @"should be nil");
     NSArray* expiredNotis = @[timeoutNoti1, timeoutNoti2];
-    STAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
-    STAssertNil(notFiredNotifications, @"should be nil");
+    XCTAssertEqualObjects(expiredNotifications, expiredNotis, @"should have two expired notifications");
+    XCTAssertNil(notFiredNotifications, @"should be nil");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 
@@ -618,10 +618,10 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
-    STAssertNil(expiredNotifications, @"should be nil");
+    XCTAssertEqualObjects(activeNotification, activeNoti, @"should have one active notification");
+    XCTAssertNil(expiredNotifications, @"should be nil");
     NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
-    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+    XCTAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
@@ -653,10 +653,10 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NotificationProcessBlock block = ^(UILocalNotification* activeNotification,
                                      NSArray* expiredNotifications,
                                      NSArray* notFiredNotifications) {
-    STAssertNil(activeNotification, @"should be nil");
-    STAssertNil(expiredNotifications, @"should be nil");
+    XCTAssertNil(activeNotification, @"should be nil");
+    XCTAssertNil(expiredNotifications, @"should be nil");
     NSArray* scheduledNotis = @[scheduledNoti1, scheduledNoti2];
-    STAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
+    XCTAssertEqualObjects(notFiredNotifications, scheduledNotis, @"should have two scheduled notifications");
   };
   [UILocalNotification pacoProcessNotifications:allNotifications withBlock:block];
 }
@@ -738,20 +738,13 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSArray* notifications1 = @[notification3, notification1];
   NSArray* notifications2 = @[notification4, notification2];
-  [expect setObject:notifications1 forKey:experimentId1];
-  [expect setObject:notifications2 forKey:experimentId2];
+  expect[experimentId1] = notifications1;
+  expect[experimentId2] = notifications2;
   
-  STAssertEqualObjects(result, expect,
+  XCTAssertEqualObjects(result, expect,
                        @"notifications should be put into different buckets according to their "
                        @"experimentId, and each bucket's notifications should be sorted by fire date");
 }
 
 
-- (void)testPacoIsEqualTo {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
-- (void)testPacoFetchExpiredNotificationsFrom {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
 @end

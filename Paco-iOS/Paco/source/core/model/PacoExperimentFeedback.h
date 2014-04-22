@@ -16,12 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-@interface PacoExperimentFeedback : NSObject
+@interface PacoExperimentFeedback : NSObject <NSCopying>
 
 @property (nonatomic, copy) NSString *feedbackId;
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, copy) NSString *type;  // currently only 1 type , 'display'
-@property (nonatomic, retain) id jsonObject;
 + (id)pacoFeedbackFromJSON:(id)jsonObject;
 - (id)serializeToJSON;
 - (BOOL)isCustomFeedback;

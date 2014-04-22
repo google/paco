@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface PacoExperimentTests : SenTestCase
+@interface PacoExperimentTests : XCTestCase
 
 @end
 
@@ -31,8 +31,6 @@
   [super tearDown];
 }
 
-- (void)testESMSchedulesFromDate {
-  STFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
+
 
 @end

@@ -31,33 +31,25 @@ extern NSString* const PacoAppBecomeActive;
 //for the following properties
 @property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
 @property (retain, readonly) NSMutableArray *experimentInstances;  // <PacoExperiment>
-@property (retain) id jsonObjectDefinitions;
-@property (retain) id jsonObjectInstances;
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
-- (NSArray *)instancesForExperimentId:(NSString *)experimentId;
 
 - (BOOL)areRunningExperimentsLoaded;
+
+//NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;
 
-- (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
 - (BOOL)saveExperimentInstancesToFile;
 
-- (BOOL)loadFromFile;
-- (BOOL)deleteFile;
 
-- (void)cleanAllExperiments;
-
-
-+ (PacoModel *)pacoModelFromFile;
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
 
 /* Operations on the model */
 
 /* adding/removing Experiment Definitions */
 - (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
-- (void)deleteExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition

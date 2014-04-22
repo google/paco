@@ -15,7 +15,7 @@
 
 #import "PacoESMFrequencySelectionView.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 
 @implementation PacoESMFrequencySelectionView
 
@@ -24,7 +24,7 @@
   if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.format = NSLocalizedString(@"Frequency", nil);
-    self.value = [NSNumber numberWithInt:1];
+    self.value = @1;
     self.minValue = 1;
     self.maxValue = 100;
   }
@@ -33,7 +33,7 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  self.backgroundColor = [PacoColor pacoBackgroundWhite];
+  self.backgroundColor = [UIColor pacoBackgroundWhite];
 }
 
 @end

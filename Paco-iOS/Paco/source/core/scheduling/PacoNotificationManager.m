@@ -105,12 +105,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     //remove this notification from local cache
     NSString* experimentId = [notification pacoExperimentId];
     NSAssert(experimentId, @"experimentId should be valid");
-    NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+    NSMutableArray* notifications = (self.notificationDict)[experimentId];
     if (0 == [notifications count]) {
       return;
     }
     [notifications removeObject:notification];
-    [self.notificationDict setObject:notifications forKey:experimentId];
+    (self.notificationDict)[experimentId] = notifications;
     DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     [self saveNotificationsToCache];
     
@@ -131,7 +131,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSMutableArray* allNotFiredNotifications = [NSMutableArray array];
     
     for (NSString* experimentId in self.notificationDict) {
-      NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+      NSArray* notifications = (self.notificationDict)[experimentId];
       if (0 == [notifications count]) {
         continue;
       }
@@ -139,7 +139,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                          NSArray* expiredNotifications,
                                          NSArray* notFiredNotifications) {
         if (activeNotification != nil) {
-          [newDict setObject:[NSMutableArray arrayWithObject:activeNotification] forKey:experimentId];
+          newDict[experimentId] = [NSMutableArray arrayWithObject:activeNotification];
         }
         
         if ([expiredNotifications count] > 0) {
@@ -182,12 +182,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                               NSArray* expiredNotifications,
                                               NSArray* notFiredNotifications) {
     NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
-    DDLogInfo(@"There are %d expired notifications.", [expiredNotifications count]);
-    DDLogInfo(@"There are %d not fired notifications.", [notFiredNotifications count]);
+    DDLogInfo(@"There are %lu expired notifications.", (unsigned long)[expiredNotifications count]);
+    DDLogInfo(@"There are %lu not fired notifications.", (unsigned long)[notFiredNotifications count]);
     
     int numOfActiveNotifications = 0;
     for (NSString* experimentId in newNotificationDict) {
-      numOfActiveNotifications += [[newNotificationDict objectForKey:experimentId] count];
+      numOfActiveNotifications += [newNotificationDict[experimentId] count];
     }
     DDLogInfo(@"There are %d active notifications.", numOfActiveNotifications);
     
@@ -210,8 +210,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   @synchronized(self) {
     NSDictionary* sortedNotificationDict = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
     for (NSString* experimentId in sortedNotificationDict) {
-      NSArray* sortedNotifications = [sortedNotificationDict objectForKey:experimentId];
-      NSMutableArray* currentNotifications = [self.notificationDict objectForKey:experimentId];
+      NSArray* sortedNotifications = sortedNotificationDict[experimentId];
+      NSMutableArray* currentNotifications = (self.notificationDict)[experimentId];
       if (currentNotifications == nil) {
         currentNotifications = [NSMutableArray arrayWithCapacity:[sortedNotifications count]];
       }
@@ -220,7 +220,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       //clean duplicate notification with the same fireDate just to be safe
       [currentNotifications addObjectsFromArray:sortedNotifications];
       NSMutableArray* nonDuplicate = [currentNotifications pacoSortLocalNotificationsAndRemoveDuplicates];
-      [self.notificationDict setObject:nonDuplicate forKey:experimentId];
+      (self.notificationDict)[experimentId] = nonDuplicate;
     }
   }
 }
@@ -277,7 +277,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSMutableDictionary* newNotificationDict = [NSMutableDictionary dictionary];
     NSMutableArray* allExpiredNotifications = [NSMutableArray array];
     for (NSString* experimentId in self.notificationDict) {
-      NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+      NSArray* notifications = (self.notificationDict)[experimentId];
       if (0 == [notifications count]) {
         continue;
       }
@@ -287,13 +287,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
           [allExpiredNotifications addObjectsFromArray:expiredNotifications];
         }
         if ([nonExpiredNotifications count] > 0) {
-          [newNotificationDict setObject:[NSMutableArray arrayWithArray:nonExpiredNotifications]
-                                  forKey:experimentId];
+          newNotificationDict[experimentId] = [NSMutableArray arrayWithArray:nonExpiredNotifications];
         }
       };
       [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
     }
-    DDLogInfo(@"Clean %d expired notifications...", [allExpiredNotifications count]);
+    DDLogInfo(@"Clean %lu expired notifications...", (unsigned long)[allExpiredNotifications count]);
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
       [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
@@ -307,14 +306,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
-- (NSUInteger)totalNumberOfActiveNotifications {
+- (int)totalNumberOfActiveNotifications {
   @synchronized(self) {
     if (0 == [self.notificationDict count]) {
       return 0;
     }
     __block int totalNumber = 0;
     for (NSString* experimentId in self.notificationDict) {
-      NSArray* notifications = [self.notificationDict objectForKey:experimentId];
+      NSArray* notifications = (self.notificationDict)[experimentId];
       if (0 == [notifications count]) {
         continue;
       }
@@ -335,7 +334,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 - (void)cancelNotificationsForExperiment:(NSString*)experimentId {
   NSAssert([experimentId length] > 0, @"experimentId should be valid");
   @synchronized(self) {
-    NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+    NSMutableArray* notifications = (self.notificationDict)[experimentId];
     if (notifications != nil) {
       NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
       [UILocalNotification pacoCancelNotifications:notifications];
@@ -357,7 +356,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     for (NSString* experimentId in experimentIds) {
       NSAssert([experimentId isKindOfClass:[NSString class]], @"should be a valid ID");
       
-      NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+      NSMutableArray* notifications = (self.notificationDict)[experimentId];
       if (notifications != nil) {
         NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
         [UILocalNotification pacoCancelNotifications:notifications];
@@ -378,7 +377,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 - (UILocalNotification*)activeNotificationForExperiment:(NSString*)experimentId {
   NSAssert([experimentId length] > 0, @"experimentId should be valid");
   @synchronized(self) {
-    NSMutableArray* notifications = [self.notificationDict objectForKey:experimentId];
+    NSMutableArray* notifications = (self.notificationDict)[experimentId];
     if (0 == [notifications count]) {
       return nil;
     }
@@ -414,7 +413,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
   NSAssert([instanceIdToCheck length] > 0, @"instanceIdToCheck should be valid");
-  NSArray* notifications = [self.notificationDict objectForKey:instanceIdToCheck];
+  NSArray* notifications = (self.notificationDict)[instanceIdToCheck];
   NSAssert([notifications count] == 0, @"shouldn't have any notifications!");
 }
 

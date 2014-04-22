@@ -18,5 +18,5 @@
 
 + (NSString*)pacoDocumentDirectoryFilePathWithName:(NSString*)fileName;
 + (NSString*)pacoImageFolderInDocumentsDirectory:(NSString*)fileName;
-
++ (NSString*)pacoLogDirectory;
 @end

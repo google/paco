@@ -15,9 +15,9 @@
 
 #import "PacoQuestionScreenViewController.h"
 
-#import "PacoColor.h"
+#import "UIColor+Paco.h"
 #import "PacoClient.h"
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 #import "PacoModel.h"
 #import "PacoQuestionView.h"
 #import "PacoService.h"
@@ -89,7 +89,7 @@ NSString *kCellIdQuestion = @"question";
   table.delegate = self;
   table.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
   [table registerClass:[PacoQuestionView class] forStringKey:kCellIdQuestion dataClass:[PacoExperimentInput class]];
-  table.backgroundColor = [PacoColor pacoBackgroundWhite];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
   [self reloadTable];
 }
@@ -209,8 +209,8 @@ NSString *kCellIdQuestion = @"question";
   PacoQuestionView *questionCell = (PacoQuestionView *)cell;
   NSArray *rowDataArray = (NSArray *)rowData;
   //NSString *stringKey = [rowDataArray objectAtIndex:0];
-  assert([[rowDataArray objectAtIndex:1] isKindOfClass:[PacoExperimentInput class]]);
-  PacoExperimentInput *question = (PacoExperimentInput *)[rowDataArray objectAtIndex:1];
+  assert([rowDataArray[1] isKindOfClass:[PacoExperimentInput class]]);
+  PacoExperimentInput *question = (PacoExperimentInput *)rowDataArray[1];
 
   // Just assign here, all the magic is in PacoQuestionView.
   questionCell.question = question;
@@ -227,7 +227,7 @@ NSString *kCellIdQuestion = @"question";
 - (NSArray *)boxInputs:(NSArray *)inputs {
   NSMutableArray *boxed = [NSMutableArray array];
   for (id input in inputs) {
-    NSArray *boxedInput = [NSArray arrayWithObjects:kCellIdQuestion, input, nil];
+    NSArray *boxedInput = @[kCellIdQuestion, input];
     [boxed addObject:boxedInput];
   }
   return boxed;

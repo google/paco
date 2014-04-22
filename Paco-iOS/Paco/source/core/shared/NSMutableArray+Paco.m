@@ -59,10 +59,10 @@
   int prevIndex = 0;
   int currentIndex = 1;
   //add the first element
-  [nonDuplicateArray addObject:[self objectAtIndex:prevIndex]];
+  [nonDuplicateArray addObject:self[prevIndex]];
   while (currentIndex < [self count]) {
-    UILocalNotification* prev = [self objectAtIndex:prevIndex];
-    UILocalNotification* current = [self objectAtIndex:currentIndex];
+    UILocalNotification* prev = self[prevIndex];
+    UILocalNotification* current = self[currentIndex];
     NSAssert([prev isKindOfClass:[UILocalNotification class]] &&
              [current isKindOfClass:[UILocalNotification class]],
              @"all elements should be UILocalNotification object");
@@ -179,10 +179,10 @@
   NSString* descript = @"{\n";
   for (NSString* experimentId in self) {
     NSAssert([experimentId isKindOfClass:[NSString class]], @"key should be experimentId");
-    NSArray* notifications = [self objectForKey:experimentId];
+    NSArray* notifications = self[experimentId];
     total += [notifications count];
-    meta = [meta stringByAppendingString:[NSString stringWithFormat:@"[%@: %d],",
-                                          experimentId, [notifications count]]];
+    meta = [meta stringByAppendingString:[NSString stringWithFormat:@"[%@: %lu],",
+                                          experimentId, (unsigned long)[notifications count]]];
     descript = [descript stringByAppendingString:experimentId];
     descript = [descript stringByAppendingString:@":"];
     descript = [descript stringByAppendingString:[notifications pacoDescriptionForNotifications]];

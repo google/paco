@@ -18,10 +18,8 @@
 @interface PacoScheduleGenerator (ESM)
 
 + (NSArray*)nextDatesForESMExperiment:(PacoExperiment*)experiment
-                           numOfDates:(NSUInteger)numOfDates
+                           numOfDates:(int)numOfDates
                              fromDate:(NSDate*)fromDate;
 
-+ (NSDate *)nextESMScheduledDateForExperiment:(PacoExperiment *)experiment
-                                 fromThisDate:(NSDate *)fromThisDate;
 
 @end

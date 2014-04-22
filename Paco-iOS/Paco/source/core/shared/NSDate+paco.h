@@ -58,11 +58,11 @@
 - (NSDate*)pacoCycleStartDateOfMonthWithOriginalStartDate:(NSDate*)originalStartDate;
 
 - (BOOL)pacoIsWeekend;
-- (NSUInteger)pacoIndexInWeek;
+- (int)pacoIndexInWeek;
 
 - (NSDate*)pacoNearestNonWeekendDateAtMidnight;
 
-- (NSDate*)pacoDateInFutureBySkippingWeekends;
+- (NSDate*)pacoNearestNonWeekendDate;
 
 - (NSDate*)pacoDateByAddingMinutesInterval:(NSUInteger)offsetMinutes;
 
@@ -70,8 +70,8 @@
 - (NSDate*)pacoDateByAddingWeekInterval:(NSUInteger)weekInterval;
 - (NSDate*)pacoDateByAddingMonthInterval:(NSUInteger)monthInterval;
 
-- (NSUInteger)pacoNumOfDaysInCurrentMonth;
-- (NSUInteger)pacoNumOfWeekdaysInCurrentMonth;
+- (int)pacoNumOfDaysInCurrentMonth;
+- (int)pacoNumOfWeekdaysInCurrentMonth;
 
 - (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends;
 - (NSDate*)pacoWeeklyESMNextCycleStartDate;

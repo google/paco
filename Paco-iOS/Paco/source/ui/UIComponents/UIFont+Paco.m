@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-#import "PacoFont.h"
+#import "UIFont+Paco.h"
 
-@implementation PacoFont
+@implementation UIFont (Paco)
 
 + (UIFont *)pacoTableCellFont {
   static UIFont* font = nil;

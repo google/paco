@@ -25,7 +25,7 @@
 #import "UILocalNotification+Paco.h"
 
 NSString* const kExperimentHasFiredKey = @"experimentHasFired";
-NSInteger const kTotalNumOfNotifications = 60;
+int const kTotalNumOfNotifications = 60;
 
 
 @interface PacoNotificationManager ()
@@ -164,11 +164,11 @@ NSInteger const kTotalNumOfNotifications = 60;
     if (!experimentModelChanged &&
         needToScheduleNewNotifications &&
         [self.notificationManager numOfScheduledNotifications] == [notificationsToSchedule count]) {
-      DDLogInfo(@"There are already %d notifications scheduled, skip scheduling new notifications.", [notificationsToSchedule count]);
+      DDLogInfo(@"There are already %lu notifications scheduled, skip scheduling new notifications.", (unsigned long)[notificationsToSchedule count]);
       needToScheduleNewNotifications = NO;
     }
     if (needToScheduleNewNotifications) {
-      DDLogInfo(@"Schedule %d new notifications ...",[notificationsToSchedule count]);
+      DDLogInfo(@"Schedule %lu new notifications ...",(unsigned long)[notificationsToSchedule count]);
       [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
     } else {
       [self.notificationManager cleanExpiredNotifications];

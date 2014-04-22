@@ -15,8 +15,8 @@
 
 #import "PacoExperimentDetailsViewController.h"
 
-#import "PacoColor.h"
-#import "PacoFont.h"
+#import "UIColor+Paco.h"
+#import "UIFont+Paco.h"
 #import "PacoConsentViewController.h"
 #import "PacoModel.h"
 #import "PacoExperimentDefinition.h"
@@ -36,7 +36,7 @@
   char *dst = malloc([data length] + 1);
   memset(dst, 0, [data length] + 1);
   memcpy(dst, bytes, [data length]);
-  NSString *converted = [NSString stringWithUTF8String:dst];
+  NSString *converted = @(dst);
   free(dst);
   return converted;
 }
@@ -67,13 +67,16 @@
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
-  self.view.backgroundColor = [PacoColor pacoBackgroundWhite];
+
+  self.view = [[UIScrollView alloc]initWithFrame:self.view.frame];
+  self.view.backgroundColor = [UIColor pacoBackgroundWhite];
+  self.automaticallyAdjustsScrollViewInsets = NO;
 
   UILabel* titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* labelText = self.experiment.title;
   titleLabel.text = labelText;
-  titleLabel.font = [PacoFont pacoTableCellFont];
-  titleLabel.textColor = [PacoColor pacoDarkBlue];
+  titleLabel.font = [UIFont pacoTableCellFont];
+  titleLabel.textColor = [UIColor pacoDarkBlue];
   titleLabel.backgroundColor = [UIColor clearColor];
   titleLabel.numberOfLines = 0;
   [self.view addSubview:titleLabel];
@@ -85,35 +88,47 @@
   titleLabel.frame = frame;
   [titleLabel sizeToFit];
 
-  UILabel* desLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, titleLabel.frame.origin.y+titleLabel.frame.size.height + 10, self.view.frame.size.width - 20, 20)];
+  CGRect desLabelFrame = CGRectMake(10,
+                                    titleLabel.frame.origin.y + titleLabel.frame.size.height + 20,
+                                    self.view.frame.size.width - 20,
+                                    20);
+  UILabel* desLabel = [[UILabel alloc] initWithFrame:desLabelFrame];
   NSString* desText = NSLocalizedString(@"Description:", nil);
   desLabel.text = desText;
-  desLabel.font = [PacoFont pacoNormalButtonFont];
-  desLabel.textColor = [PacoColor pacoDarkBlue];
+  desLabel.font = [UIFont pacoNormalButtonFont];
+  desLabel.textColor = [UIColor pacoDarkBlue];
   desLabel.backgroundColor = [UIColor clearColor];
   desLabel.numberOfLines = 0;
   [self.view addSubview:desLabel];
+  int yPosition = desLabel.frame.origin.y + desLabel.frame.size.height + 5;
 
-  UITextView *descriptionLabel = [[UITextView alloc] initWithFrame:CGRectMake(10, desLabel.frame.origin.y + 30, self.view.frame.size.width - 20, 140)];
+  CGRect descriptionTextFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 0);
+  UILabel *descriptionLabel = [[UILabel alloc] initWithFrame:descriptionTextFrame];
   descriptionLabel.backgroundColor=[UIColor clearColor];
   descriptionLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-  descriptionLabel.textColor = [PacoColor pacoDarkBlue];
+  descriptionLabel.textColor = [UIColor pacoDarkBlue];
   descriptionLabel.text = self.experiment.experimentDescription;
-  descriptionLabel.editable = NO;
+  descriptionLabel.numberOfLines = 0;
+  [descriptionLabel sizeToFit];
+  frame = descriptionLabel.frame;
+  descriptionLabel.frame = CGRectMake(10,
+                                      yPosition,
+                                      self.view.frame.size.width - 20,
+                                      frame.size.height);
   [self.view addSubview:descriptionLabel];
 
-  int yPosition = descriptionLabel.frame.origin.y + descriptionLabel.frame.size.height + 20;
+  yPosition += descriptionLabel.frame.size.height + 20;
 
   if (self.experiment.startDate) {
     UILabel* dateLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
     dateLabel.text = [NSString stringWithFormat:@"%@                  %@",
                       NSLocalizedString(@"Start Date:", nil), NSLocalizedString(@"End Date:", nil)];
-    dateLabel.font = [PacoFont pacoNormalButtonFont];
-    dateLabel.textColor = [PacoColor pacoDarkBlue];
+    dateLabel.font = [UIFont pacoNormalButtonFont];
+    dateLabel.textColor = [UIColor pacoDarkBlue];
     dateLabel.backgroundColor = [UIColor clearColor];
     dateLabel.numberOfLines = 0 ;
     [self.view addSubview:dateLabel];
-    yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 10;
+    yPosition = dateLabel.frame.origin.y + dateLabel.frame.size.height + 5;
 
     NSString* startDate = [PacoDateUtility stringWithYearAndDayFromDate:self.experiment.startDate];
     UILabel* dateText = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, 300, 20)];
@@ -121,28 +136,29 @@
                      startDate,
                      self.experiment.inclusiveEndDateString];
     dateText.font = [UIFont fontWithName:@"HelveticaNeue" size:16];
-    dateText.textColor = [PacoColor pacoDarkBlue];
+    dateText.textColor = [UIColor pacoDarkBlue];
     dateText.backgroundColor = [UIColor clearColor];
     dateText.numberOfLines = 0 ;
     [self.view addSubview:dateText];
     yPosition = dateText.frame.origin.y + dateText.frame.size.height + 20;
   }
 
-  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20)];
+  CGRect creatorLabelFrame = CGRectMake(10, yPosition, self.view.frame.size.width - 20, 20);
+  UILabel* creatorLabel = [[UILabel alloc] initWithFrame:creatorLabelFrame];
   NSString* creText = NSLocalizedString(@"Creator:", nil);
   creatorLabel.text = creText;
-  creatorLabel.font = [PacoFont pacoNormalButtonFont];
-  creatorLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorLabel.font = [UIFont pacoNormalButtonFont];
+  creatorLabel.textColor = [UIColor pacoDarkBlue];
   creatorLabel.backgroundColor = [UIColor clearColor];
   creatorLabel.numberOfLines = 0;
   [self.view addSubview:creatorLabel];
-  yPosition += 30;
+  yPosition += 25;
 
   UILabel* creatorValueLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   NSString* creatorText = self.experiment.creator;
   creatorValueLabel.text = creatorText;
-  creatorValueLabel.font = [PacoFont pacoTableCellDetailFont];
-  creatorValueLabel.textColor = [PacoColor pacoDarkBlue];
+  creatorValueLabel.font = [UIFont pacoTableCellDetailFont];
+  creatorValueLabel.textColor = [UIColor pacoDarkBlue];
   creatorValueLabel.backgroundColor = [UIColor clearColor];
   creatorValueLabel.numberOfLines = 0;
   [self.view addSubview:creatorValueLabel];
@@ -153,18 +169,18 @@
   creatorframe.size.height = self.view.frame.size.height;
   creatorValueLabel.frame = creatorframe;
   [creatorValueLabel sizeToFit];
-  yPosition += creatorValueLabel.frame.size.height + 10;
+  yPosition += creatorValueLabel.frame.size.height + 20;
 
   if (![self.experiment isCompatibleWithIOS]) {
     UIImage* lockImage = [UIImage imageNamed:@"incompatible"];
-    UIImageView* lockView = [[UIImageView alloc] initWithFrame:
-                             CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height)];
+    CGRect lockViewFrame = CGRectMake(10, yPosition, lockImage.size.width, lockImage.size.height);
+    UIImageView* lockView = [[UIImageView alloc] initWithFrame:lockViewFrame];
     [lockView setImage:lockImage];
     [self.view addSubview:lockView];
 
     UILabel* incompatibilityMsg = [[UILabel alloc] initWithFrame:CGRectZero];
     [incompatibilityMsg setText:NSLocalizedString(@"Incompatible with iOS", nil)];
-    incompatibilityMsg.font = [PacoFont pacoBoldFont];
+    incompatibilityMsg.font = [UIFont pacoBoldFont];
     incompatibilityMsg.textColor = [UIColor redColor];
     incompatibilityMsg.backgroundColor = [UIColor clearColor];
     [incompatibilityMsg sizeToFit];
@@ -174,20 +190,23 @@
     textFrame.origin.y = yPosition + lockImage.size.height - incompatibilityMsg.frame.size.height;
     textFrame.size = incompatibilityMsg.frame.size;
     incompatibilityMsg.frame = textFrame;
+    yPosition += incompatibilityMsg.frame.size.height + 20;
   }
 
   UIButton* join = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [join setTitle:NSLocalizedString(@"Join this Experiment", nil) forState:UIControlStateNormal];
   if (IS_IOS_7) {
-    join.titleLabel.font = [PacoFont pacoNormalButtonFont];
+    join.titleLabel.font = [UIFont pacoNormalButtonFont];
   }
   [join addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
   [self.view addSubview:join];
   [join sizeToFit];
   CGRect  joinframe = join.frame;
   joinframe.origin.x = (self.view.frame.size.width - join.frame.size.width) / 2;
-  joinframe.origin.y = self.view.frame.size.height - 65 - self.navigationController.navigationBar.frame.size.height;
+  joinframe.origin.y = yPosition;
   join.frame = joinframe;
+  yPosition += join.frame.size.height + 10;
+  [(UIScrollView*)self.view setContentSize:CGSizeMake(self.view.frame.size.width, yPosition)];
 }
 
 - (void)onJoin {

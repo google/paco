@@ -13,9 +13,14 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-@interface PacoInfoView : UIView
-@property (nonatomic,retain) UIButton* aboutPacoBtn;
+@interface UIFont (Paco)
 
++ (UIFont *)pacoTableCellFont;
++ (UIFont *)pacoTableCellDetailFont;
++ (UIFont *)pacoMenuButtonFont;
++ (UIFont *)pacoNavbarTitleFont;
++ (UIFont *)pacoNormalButtonFont;
++ (UIFont *)pacoBoldFont;
 @end

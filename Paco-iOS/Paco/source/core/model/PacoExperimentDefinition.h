@@ -32,7 +32,7 @@
 //exclusive, used for computing schedules
 @property(nonatomic, strong, readonly) NSDate* endDate;
 //inclusive, used only for UI display
-@property(nonatomic, strong, readonly) NSString* inclusiveEndDateString;
+@property(nonatomic, copy, readonly) NSString* inclusiveEndDateString;
 
 
 @property (nonatomic, assign) BOOL deleted;
@@ -47,7 +47,6 @@
 @property (nonatomic, strong, readonly) NSArray* signalMechanismList; // <PacoExperimentSchedule/PacoTriggerSignal>
 
 @property (nonatomic, assign) BOOL webReccommended;
-@property (nonatomic, retain) id jsonObject;
 @property (nonatomic, assign) int experimentVersion;
 
 + (id)pacoExperimentDefinitionFromJSON:(id)jsonObject;
