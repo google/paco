@@ -269,6 +269,7 @@ public class ExperimentProviderUtil {
     existingExperiment.setWebRecommended(experiment.isWebRecommended());
     existingExperiment.setCustomRendering(experiment.isCustomRendering());
     existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
+    existingExperiment.setFeedbackType(experiment.getFeedbackType());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -491,7 +492,8 @@ public class ExperimentProviderUtil {
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
         Integer feedbackType = experimentFromJson.getFeedbackType();
         if (feedbackType == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
-          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experimentFromJson.getFeedback().get(0).getText())) {
+          String text = experimentFromJson.getFeedback().get(0).getText();
+          if (text.length() == 0 || FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(text)) {
             feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE;
           } else {
             feedbackType = FeedbackDAO.FEEDBACK_TYPE_CUSTOM;

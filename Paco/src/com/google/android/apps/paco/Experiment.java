@@ -100,7 +100,7 @@ public class Experiment implements Parcelable {
   private String json;
 
   private List<Feedback> feedback = new ArrayList<Feedback>();
-  public Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
+  private Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
