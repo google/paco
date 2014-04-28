@@ -28,6 +28,11 @@
 		361A11A618F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */; };
 		361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 361AB05517DA77000053C313 /* PacoNotificationManager.m */; };
 		3620EB9B190EEBD60088DBFB /* PacoCustomFeedbackController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */; };
+		3620EBA6190F01080088DBFB /* EasyJSDataFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EB9F190F01080088DBFB /* EasyJSDataFunction.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		3620EBA7190F01080088DBFB /* EasyJSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EBA1190F01080088DBFB /* EasyJSWebView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		3620EBA8190F01080088DBFB /* EasyJSWebViewProxyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		3620EBA9190F01080088DBFB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBA4190F01080088DBFB /* README.md */; };
+		3620EBAA190F02E20088DBFB /* easyjs-inject.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EB9D190F01080088DBFB /* easyjs-inject.js */; };
 		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */; };
@@ -309,6 +314,14 @@
 		361AB05517DA77000053C313 /* PacoNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManager.m; sourceTree = "<group>"; };
 		3620EB99190EEBD60088DBFB /* PacoCustomFeedbackController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoCustomFeedbackController.h; sourceTree = "<group>"; };
 		3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoCustomFeedbackController.m; sourceTree = "<group>"; };
+		3620EB9D190F01080088DBFB /* easyjs-inject.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "easyjs-inject.js"; sourceTree = "<group>"; };
+		3620EB9E190F01080088DBFB /* EasyJSDataFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSDataFunction.h; sourceTree = "<group>"; };
+		3620EB9F190F01080088DBFB /* EasyJSDataFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSDataFunction.m; sourceTree = "<group>"; };
+		3620EBA0190F01080088DBFB /* EasyJSWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebView.h; sourceTree = "<group>"; };
+		3620EBA1190F01080088DBFB /* EasyJSWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSWebView.m; sourceTree = "<group>"; };
+		3620EBA2190F01080088DBFB /* EasyJSWebViewProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebViewProxyDelegate.h; sourceTree = "<group>"; };
+		3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSWebViewProxyDelegate.m; sourceTree = "<group>"; };
+		3620EBA4190F01080088DBFB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
 		363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Paco.m"; sourceTree = "<group>"; };
 		363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSMutableArrayCategoryTests.m; sourceTree = "<group>"; };
@@ -688,6 +701,21 @@
 				3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */,
 			);
 			path = CustomFeedback;
+			sourceTree = "<group>";
+		};
+		3620EB9C190F01080088DBFB /* easyJSWebView */ = {
+			isa = PBXGroup;
+			children = (
+				3620EB9D190F01080088DBFB /* easyjs-inject.js */,
+				3620EB9E190F01080088DBFB /* EasyJSDataFunction.h */,
+				3620EB9F190F01080088DBFB /* EasyJSDataFunction.m */,
+				3620EBA0190F01080088DBFB /* EasyJSWebView.h */,
+				3620EBA1190F01080088DBFB /* EasyJSWebView.m */,
+				3620EBA2190F01080088DBFB /* EasyJSWebViewProxyDelegate.h */,
+				3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */,
+				3620EBA4190F01080088DBFB /* README.md */,
+			);
+			path = easyJSWebView;
 			sourceTree = "<group>";
 		};
 		363E210517AACFF1007DE3CE /* events */ = {
@@ -1122,6 +1150,7 @@
 		36B8EC1217568E33004CF035 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				3620EB9C190F01080088DBFB /* easyJSWebView */,
 				36C4A33618A4DEEE00D8FE59 /* lumberjack */,
 				C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */,
 				36AD6CD817C420F800B93855 /* sskeychain */,
@@ -1475,6 +1504,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3620EBAA190F02E20088DBFB /* easyjs-inject.js in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
@@ -1514,6 +1544,7 @@
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				36B8EC3217568E33004CF035 /* GTMOAuth2ViewTouch.xib in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
+				3620EBA9190F01080088DBFB /* README.md in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1589,6 +1620,7 @@
 				36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */,
 				36A8201C18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
 				367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */,
+				3620EBA8190F01080088DBFB /* EasyJSWebViewProxyDelegate.m in Sources */,
 				365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */,
 				36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */,
@@ -1615,6 +1647,7 @@
 				361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
 				361A11A318F5A89A000E9CA2 /* UIFont+Paco.m in Sources */,
+				3620EBA6190F01080088DBFB /* EasyJSDataFunction.m in Sources */,
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
 				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
@@ -1645,6 +1678,7 @@
 				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
 				363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */,
+				3620EBA7190F01080088DBFB /* EasyJSWebView.m in Sources */,
 				36AD6CDD17C420F800B93855 /* SSKeychain.m in Sources */,
 				36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */,
 				367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
