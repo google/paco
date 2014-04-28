@@ -31,6 +31,7 @@
 #import "PacoInputEvaluator.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoCustomFeedbackController.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -187,16 +188,26 @@ NSString *kCellIdQuestion = @"question";
 
   //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];
+  
+  if ([self.evaluator.experiment.definition hasCustomFeedback]) {
+    [self showCustomFeedback];
+  } else {
+    NSString* title = NSLocalizedString(@"Nice", nil);
+    NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
+    [PacoAlertView showAlertWithTitle:title
+                              message:message
+                         dismissBlock:^(NSInteger buttonIndex) {
+                           [self dismiss];
+                         }
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil];
+  }
+}
 
-  NSString* title = NSLocalizedString(@"Nice", nil);
-  NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
-  [PacoAlertView showAlertWithTitle:title
-                            message:message
-                       dismissBlock:^(NSInteger buttonIndex) {
-                         [self dismiss];
-                       }
-                  cancelButtonTitle:@"OK"
-                  otherButtonTitles:nil];
+- (void)showCustomFeedback {
+  PacoExperimentFeedback* feedback = [self.evaluator.experiment.definition.feedbackList firstObject];
+  PacoCustomFeedbackController* controller = [PacoCustomFeedbackController controllerWithFeedback:feedback];
+  [self.navigationController pushViewController:controller animated:YES];
 }
 
 
