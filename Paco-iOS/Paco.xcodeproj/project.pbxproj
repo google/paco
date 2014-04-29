@@ -33,6 +33,13 @@
 		3620EBA8190F01080088DBFB /* EasyJSWebViewProxyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3620EBA9190F01080088DBFB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBA4190F01080088DBFB /* README.md */; };
 		3620EBAA190F02E20088DBFB /* easyjs-inject.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EB9D190F01080088DBFB /* easyjs-inject.js */; };
+		3620EBB9190F22E30088DBFB /* skeleton.html in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB2190F22E30088DBFB /* skeleton.html */; };
+		3620EBBA190F23590088DBFB /* conditional_parser.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAC190F22E30088DBFB /* conditional_parser.js */; };
+		3620EBBB190F23590088DBFB /* custom_base.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAD190F22E30088DBFB /* custom_base.js */; };
+		3620EBBC190F23590088DBFB /* jquery.flot.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAE190F22E30088DBFB /* jquery.flot.js */; };
+		3620EBBD190F23590088DBFB /* jquery.flot.stack.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */; };
+		3620EBBE190F23590088DBFB /* jquery.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB0190F22E30088DBFB /* jquery.js */; };
+		3620EBBF190F23590088DBFB /* peg-0.7.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */; };
 		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */; };
@@ -322,6 +329,13 @@
 		3620EBA2190F01080088DBFB /* EasyJSWebViewProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebViewProxyDelegate.h; sourceTree = "<group>"; };
 		3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSWebViewProxyDelegate.m; sourceTree = "<group>"; };
 		3620EBA4190F01080088DBFB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		3620EBAC190F22E30088DBFB /* conditional_parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = conditional_parser.js; sourceTree = "<group>"; };
+		3620EBAD190F22E30088DBFB /* custom_base.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = custom_base.js; sourceTree = "<group>"; };
+		3620EBAE190F22E30088DBFB /* jquery.flot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.js; sourceTree = "<group>"; };
+		3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.stack.js; sourceTree = "<group>"; };
+		3620EBB0190F22E30088DBFB /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
+		3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "peg-0.7.0.min.js"; sourceTree = "<group>"; };
+		3620EBB2190F22E30088DBFB /* skeleton.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = skeleton.html; sourceTree = "<group>"; };
 		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
 		363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Paco.m"; sourceTree = "<group>"; };
 		363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSMutableArrayCategoryTests.m; sourceTree = "<group>"; };
@@ -718,6 +732,20 @@
 			path = easyJSWebView;
 			sourceTree = "<group>";
 		};
+		3620EBAB190F22E30088DBFB /* customFeedback */ = {
+			isa = PBXGroup;
+			children = (
+				3620EBAC190F22E30088DBFB /* conditional_parser.js */,
+				3620EBAD190F22E30088DBFB /* custom_base.js */,
+				3620EBAE190F22E30088DBFB /* jquery.flot.js */,
+				3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */,
+				3620EBB0190F22E30088DBFB /* jquery.js */,
+				3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */,
+				3620EBB2190F22E30088DBFB /* skeleton.html */,
+			);
+			path = customFeedback;
+			sourceTree = "<group>";
+		};
 		363E210517AACFF1007DE3CE /* events */ = {
 			isa = PBXGroup;
 			children = (
@@ -1106,6 +1134,7 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				3620EBAB190F22E30088DBFB /* customFeedback */,
 				E480BE131896F3C700662432 /* en.lproj */,
 				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
@@ -1504,11 +1533,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3620EBBA190F23590088DBFB /* conditional_parser.js in Resources */,
+				3620EBBB190F23590088DBFB /* custom_base.js in Resources */,
+				3620EBBC190F23590088DBFB /* jquery.flot.js in Resources */,
+				3620EBBD190F23590088DBFB /* jquery.flot.stack.js in Resources */,
+				3620EBBE190F23590088DBFB /* jquery.js in Resources */,
+				3620EBBF190F23590088DBFB /* peg-0.7.0.min.js in Resources */,
 				3620EBAA190F02E20088DBFB /* easyjs-inject.js in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
+				3620EBB9190F22E30088DBFB /* skeleton.html in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
