@@ -34,6 +34,8 @@
 
 static NSString* const RunningExperimentsKey = @"has_running_experiments";
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
+static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
+static NSString* const PacoDefaultServerAddress = @"quantifiedself.appspot.com";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -209,6 +211,24 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (BOOL)isNotificationSystemOn {
   BOOL turnedOn = [[NSUserDefaults standardUserDefaults] boolForKey:kPacoNotificationSystemTurnedOn];
   return turnedOn;
+}
+
+- (void)configurePacoServerAddress:(NSString *)serverAddress {
+  if ([PacoDefaultServerAddress isEqualToString:serverAddress]) {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kPacoServerConfigAddress];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return;
+  }
+  [[NSUserDefaults standardUserDefaults] setObject:serverAddress forKey:kPacoServerConfigAddress];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (NSString *)pacoServerConfigAddress {
+  NSString* serverAddress = [[NSUserDefaults standardUserDefaults] objectForKey:kPacoServerConfigAddress];
+  if (serverAddress) {
+    return serverAddress;
+  }
+  return PacoDefaultServerAddress;
 }
 
 - (void)triggerNotificationSystemIfNeeded {

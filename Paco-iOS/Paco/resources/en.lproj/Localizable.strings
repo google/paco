@@ -25,7 +25,12 @@
 "How to Message" = "Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments.\n\nPlease point your browser to\nhttp://pacoapp.com/ to create an experiment.";
 "You are logged in successfully!" = "You are logged in successfully!";
 "Something went wrong, please try again." = "Something went wrong, please try again.";
-
+"Configure Server Address" = "Configure Server Address";
+"WARNING: Only change this if you know what you are doing" = "WARNING: Only change this if you know what you are doing";
+"Enter Server Address" = "Enter Server Address";
+"Failed to change server address" = "Failed to change server address";
+"You have input an invalid address!" = "You have input an invalid address!";
+"Server address is configured to %@" = "Server address is configured to %@";
 //Get Info screen
 "Version" = "Version";
 "Close" = "Close";
