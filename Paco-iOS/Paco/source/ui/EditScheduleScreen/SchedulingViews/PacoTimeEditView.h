@@ -16,7 +16,6 @@
 #import <UIKit/UIKit.h>
 #import "PacoTableCell.h"
 
-typedef void(^TimeSelectionCompletionBlock)(void);
 
 @interface PacoTimeEditView : PacoTableCell
 
