@@ -65,9 +65,8 @@
     return;
   }
   _title = [title copy];
-  self.titleLabel.text = _title;
+  self.titleLabel.text = [NSString stringWithFormat:@"%@: ", _title];
   [self.titleLabel sizeToFit];
-
 }
 
 - (NSNumber *)time {
@@ -90,8 +89,7 @@
   if (!self.datePicker) {
     PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
     NSString* localizedStr = NSLocalizedString(@"Set %@", nil);
-    NSString* titleStr = [self.titleLabel.text stringByReplacingOccurrencesOfString:@":" withString:@""];
-    [datePickerView setTitle:[NSString stringWithFormat:localizedStr, titleStr]];
+    [datePickerView setTitle:[NSString stringWithFormat:localizedStr, self.title]];
     datePickerView.delegate = self;
     self.datePicker = datePickerView;
   }

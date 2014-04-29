@@ -125,8 +125,8 @@
 "Repeat every %d weeks." = "Repeat every %d weeks.";
 "Repeat every %d month(s)." = "Repeat every %d month(s).";
 "Join" = "Join";
-"Start Time" = "Start Time: ";
-"End Time" = "End Time: ";
+"Start Time" = "Start Time";
+"End Time" = "End Time";
 "Self scheduled." = "Self scheduled.";
 "Submit responses whenever you wish." = "Submit responses whenever you wish.";
 "Signal Time(s)" = "Signal Time(s)";
