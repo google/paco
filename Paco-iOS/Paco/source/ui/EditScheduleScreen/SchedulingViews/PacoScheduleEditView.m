@@ -154,10 +154,16 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"Start Time", nil);
       } else if([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"End Time", nil);
       } else {
