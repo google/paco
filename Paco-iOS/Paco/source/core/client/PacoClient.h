@@ -105,5 +105,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                       notification:(UILocalNotification*)notification;
 
 - (void)refreshDefinitions;
+- (void)configurePacoServerAddress:(NSString *)serverAddress;
+- (NSString *)pacoServerConfigAddress;
 
 @end
