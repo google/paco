@@ -215,10 +215,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)configurePacoServerAddress:(NSString *)serverAddress {
   if ([kPacoDefaultServerAddress isEqualToString:serverAddress]) {
+    self.serverDomain = [NSString stringWithFormat:@"https://%@", serverAddress];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kPacoServerConfigAddress];
     [[NSUserDefaults standardUserDefaults] synchronize];
     return;
   }
+  self.serverDomain = [NSString stringWithFormat:@"http://%@", serverAddress];
   [[NSUserDefaults standardUserDefaults] setObject:serverAddress forKey:kPacoServerConfigAddress];
   [[NSUserDefaults standardUserDefaults] synchronize];
 }
