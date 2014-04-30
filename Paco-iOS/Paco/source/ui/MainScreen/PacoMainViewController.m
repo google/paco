@@ -211,7 +211,9 @@
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)
                                              destructiveButtonTitle:nil
-                                                  otherButtonTitles:NSLocalizedString(@"About Paco", nil),  NSLocalizedString(@"Send Logs to Paco Team", nil), NSLocalizedString(@"Configure Server Address", nil), nil];
+                                                  otherButtonTitles:NSLocalizedString(@"About Paco", nil),
+                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil),
+                                                                    NSLocalizedString(@"Configure Server Address", nil), nil];
   [actionSheet showInView:self.view];
 }
 
@@ -229,6 +231,7 @@
     }
     case 2: {
       [self manualServerAddressConfiguration];
+      break;
     }
     default:
       break;
@@ -269,7 +272,7 @@
                                         otherButtonTitles:@"Done", nil];
 
   [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
-  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] pacoServerConfigAddress]];
+  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverConfigAddress]];
   [alert show];
 }
 
