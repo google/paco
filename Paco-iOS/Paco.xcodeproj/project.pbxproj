@@ -36,10 +36,6 @@
 		3620EBB9190F22E30088DBFB /* skeleton.html in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB2190F22E30088DBFB /* skeleton.html */; };
 		3620EBBA190F23590088DBFB /* conditional_parser.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAC190F22E30088DBFB /* conditional_parser.js */; };
 		3620EBBB190F23590088DBFB /* custom_base.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAD190F22E30088DBFB /* custom_base.js */; };
-		3620EBBC190F23590088DBFB /* jquery.flot.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAE190F22E30088DBFB /* jquery.flot.js */; };
-		3620EBBD190F23590088DBFB /* jquery.flot.stack.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */; };
-		3620EBBE190F23590088DBFB /* jquery.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB0190F22E30088DBFB /* jquery.js */; };
-		3620EBBF190F23590088DBFB /* peg-0.7.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */; };
 		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */; };
@@ -97,6 +93,10 @@
 		36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */; };
 		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
 		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
+		369536F41912217000B8115A /* jquery.flot.js in Resources */ = {isa = PBXBuildFile; fileRef = 369536EC1912211A00B8115A /* jquery.flot.js */; };
+		369536F51912217000B8115A /* jquery.flot.stack.js in Resources */ = {isa = PBXBuildFile; fileRef = 369536ED1912211A00B8115A /* jquery.flot.stack.js */; };
+		369536F61912217000B8115A /* jquery.js in Resources */ = {isa = PBXBuildFile; fileRef = 369536EE1912211A00B8115A /* jquery.js */; };
+		369536F71912217000B8115A /* peg-0.7.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 369536EF1912211A00B8115A /* peg-0.7.0.min.js */; };
 		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
 		36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
 		36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
@@ -331,10 +331,6 @@
 		3620EBA4190F01080088DBFB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		3620EBAC190F22E30088DBFB /* conditional_parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = conditional_parser.js; sourceTree = "<group>"; };
 		3620EBAD190F22E30088DBFB /* custom_base.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = custom_base.js; sourceTree = "<group>"; };
-		3620EBAE190F22E30088DBFB /* jquery.flot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.js; sourceTree = "<group>"; };
-		3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.stack.js; sourceTree = "<group>"; };
-		3620EBB0190F22E30088DBFB /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
-		3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "peg-0.7.0.min.js"; sourceTree = "<group>"; };
 		3620EBB2190F22E30088DBFB /* skeleton.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = skeleton.html; sourceTree = "<group>"; };
 		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
 		363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Paco.m"; sourceTree = "<group>"; };
@@ -406,6 +402,10 @@
 		36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentDefinition.m; sourceTree = "<group>"; };
 		36946B12177A5781005E0C04 /* PacoExperiment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperiment.h; sourceTree = "<group>"; };
 		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
+		369536EC1912211A00B8115A /* jquery.flot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.js; sourceTree = "<group>"; };
+		369536ED1912211A00B8115A /* jquery.flot.stack.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.stack.js; sourceTree = "<group>"; };
+		369536EE1912211A00B8115A /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
+		369536EF1912211A00B8115A /* peg-0.7.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "peg-0.7.0.min.js"; sourceTree = "<group>"; };
 		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
 		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
 		36A8201618B556CC00FE83A5 /* PacoScheduleGenerator+Daily.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Daily.h"; sourceTree = "<group>"; };
@@ -737,11 +737,8 @@
 			children = (
 				3620EBAC190F22E30088DBFB /* conditional_parser.js */,
 				3620EBAD190F22E30088DBFB /* custom_base.js */,
-				3620EBAE190F22E30088DBFB /* jquery.flot.js */,
-				3620EBAF190F22E30088DBFB /* jquery.flot.stack.js */,
-				3620EBB0190F22E30088DBFB /* jquery.js */,
-				3620EBB1190F22E30088DBFB /* peg-0.7.0.min.js */,
 				3620EBB2190F22E30088DBFB /* skeleton.html */,
+				369536EB1912211A00B8115A /* lib */,
 			);
 			path = customFeedback;
 			sourceTree = "<group>";
@@ -786,6 +783,17 @@
 				366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */,
 			);
 			path = PublicExperimentScreen;
+			sourceTree = "<group>";
+		};
+		369536EB1912211A00B8115A /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				369536EC1912211A00B8115A /* jquery.flot.js */,
+				369536ED1912211A00B8115A /* jquery.flot.stack.js */,
+				369536EE1912211A00B8115A /* jquery.js */,
+				369536EF1912211A00B8115A /* peg-0.7.0.min.js */,
+			);
+			path = lib;
 			sourceTree = "<group>";
 		};
 		36AD6CD817C420F800B93855 /* sskeychain */ = {
@@ -1533,12 +1541,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				369536F41912217000B8115A /* jquery.flot.js in Resources */,
+				369536F51912217000B8115A /* jquery.flot.stack.js in Resources */,
+				369536F61912217000B8115A /* jquery.js in Resources */,
+				369536F71912217000B8115A /* peg-0.7.0.min.js in Resources */,
 				3620EBBA190F23590088DBFB /* conditional_parser.js in Resources */,
 				3620EBBB190F23590088DBFB /* custom_base.js in Resources */,
-				3620EBBC190F23590088DBFB /* jquery.flot.js in Resources */,
-				3620EBBD190F23590088DBFB /* jquery.flot.stack.js in Resources */,
-				3620EBBE190F23590088DBFB /* jquery.js in Resources */,
-				3620EBBF190F23590088DBFB /* peg-0.7.0.min.js in Resources */,
 				3620EBAA190F02E20088DBFB /* easyjs-inject.js in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
