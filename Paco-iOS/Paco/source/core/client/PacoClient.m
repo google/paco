@@ -129,12 +129,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     _eventManager = [PacoEventManager defaultManager];
     
     self.prefetchState = [[PacoPrefetchState alloc] init];
-    
-    if (SERVER_DOMAIN_FLAG == 0) {//production
-      self.serverDomain = @"https://quantifiedself.appspot.com";
-    }else{//localserver
-      self.serverDomain = @"http://127.0.0.1";
-    }
+
+    self.serverDomain = [NSString stringWithFormat:@"https://%@", [self serverConfigAddress]];
+
     DDLogInfo(@"PacoClient initializing...");
   }
   return self;
@@ -214,13 +211,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)configurePacoServerAddress:(NSString *)serverAddress {
+  self.serverDomain = [NSString stringWithFormat:@"https://%@", serverAddress];
   if ([kPacoDefaultServerAddress isEqualToString:serverAddress]) {
-    self.serverDomain = [NSString stringWithFormat:@"https://%@", serverAddress];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kPacoServerConfigAddress];
     [[NSUserDefaults standardUserDefaults] synchronize];
     return;
   }
-  self.serverDomain = [NSString stringWithFormat:@"http://%@", serverAddress];
   [[NSUserDefaults standardUserDefaults] setObject:serverAddress forKey:kPacoServerConfigAddress];
   [[NSUserDefaults standardUserDefaults] synchronize];
 }
