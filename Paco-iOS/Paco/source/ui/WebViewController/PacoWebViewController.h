@@ -17,6 +17,6 @@
 
 @interface PacoWebViewController : UIViewController
 
-+ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName;
+- (void)loadWebView:(NSURL *)url;
 
 @end
