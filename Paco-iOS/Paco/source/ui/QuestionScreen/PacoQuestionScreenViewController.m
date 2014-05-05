@@ -205,8 +205,8 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)showCustomFeedback {
-  PacoExperimentFeedback* feedback = [self.evaluator.experiment.definition.feedbackList firstObject];
-  PacoCustomFeedbackController* controller = [PacoCustomFeedbackController controllerWithFeedback:feedback];
+  PacoCustomFeedbackController* controller =
+      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment];
   [self.navigationController pushViewController:controller animated:YES];
 }
 

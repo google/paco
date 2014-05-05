@@ -15,13 +15,13 @@
 
 #import <UIKit/UIKit.h>
 
-@class PacoExperimentFeedback;
+@class PacoExperiment;
 
 @interface PacoCustomFeedbackController : UIViewController
 
 @property(nonatomic, strong, readonly) UIWebView* webView;
-@property(nonatomic, strong, readonly) PacoExperimentFeedback* feedback;
+@property(nonatomic, strong, readonly) PacoExperiment* experiment;
 
-+ (id)controllerWithFeedback:(PacoExperimentFeedback*)feedback;
++ (id)controllerWithExperiment:(PacoExperiment*)experiment;
 
 @end

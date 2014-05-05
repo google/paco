@@ -29,16 +29,16 @@
 
 @interface PacoCustomFeedbackController ()
 @property(nonatomic, strong) UIWebView* webView;
-@property(nonatomic, strong) PacoExperimentFeedback* feedback;
+@property(nonatomic, strong) PacoExperiment* experiment;
 @end
 
 
 @implementation PacoCustomFeedbackController
 
-+ (id)controllerWithFeedback:(PacoExperimentFeedback*)feedback {
++ (id)controllerWithExperiment:(PacoExperiment*)experiment {
   PacoCustomFeedbackController* controller =
       [[PacoCustomFeedbackController alloc] initWithNibName:nil bundle:nil];
-  controller.feedback = feedback;
+  controller.experiment = experiment;
   return controller;
 }
 
