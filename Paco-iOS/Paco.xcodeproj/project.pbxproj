@@ -61,6 +61,8 @@
 		36488BBF18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
 		36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
 		36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
+		364977DC19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */; };
+		364977DD19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */; };
 		365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */; };
@@ -363,6 +365,8 @@
 		36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicDefinitionLoader.m; sourceTree = "<group>"; };
 		36488BC718CA5E67004517E2 /* PacoEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEnumerator.h; sourceTree = "<group>"; };
 		36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEnumerator.m; sourceTree = "<group>"; };
+		364977DA19170CBF0018CE7E /* JavascriptEventLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavascriptEventLoader.h; sourceTree = "<group>"; };
+		364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavascriptEventLoader.m; sourceTree = "<group>"; };
 		365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Paco.h"; sourceTree = "<group>"; };
 		365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Paco.m"; sourceTree = "<group>"; };
 		365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSErrorCategoryTests.m; sourceTree = "<group>"; };
@@ -713,6 +717,8 @@
 			children = (
 				3620EB99190EEBD60088DBFB /* PacoCustomFeedbackController.h */,
 				3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */,
+				364977DA19170CBF0018CE7E /* JavascriptEventLoader.h */,
+				364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */,
 			);
 			path = CustomFeedback;
 			sourceTree = "<group>";
@@ -1715,6 +1721,7 @@
 				C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */,
 				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
+				364977DC19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */,
 				36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
 				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
 				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
@@ -1766,6 +1773,7 @@
 				361A11A418F5A89A000E9CA2 /* UIFont+Paco.m in Sources */,
 				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
 				365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
+				364977DD19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */,
 				365D20E8181B198D0097F379 /* NSString+Paco.m in Sources */,
 				36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */,
 				3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */,

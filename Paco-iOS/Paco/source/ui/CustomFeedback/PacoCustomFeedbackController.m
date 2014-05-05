@@ -14,11 +14,24 @@
  */
 
 #import "PacoCustomFeedbackController.h"
+#import "PacoExperiment.h"
+
+@interface JavascriptExperimentLoader : NSObject
+@property(nonatomic, strong) PacoExperiment* experiment;
+@end
+
+@implementation JavascriptExperimentLoader
+
+- (NSString*)getExperiment {
+}
+@end
+
 
 @interface PacoCustomFeedbackController ()
 @property(nonatomic, strong) UIWebView* webView;
 @property(nonatomic, strong) PacoExperimentFeedback* feedback;
 @end
+
 
 @implementation PacoCustomFeedbackController
 
