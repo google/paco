@@ -63,6 +63,8 @@
 		36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
 		364977DC19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */; };
 		364977DD19170CBF0018CE7E /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */; };
+		364977E7191728500018CE7E /* Environment.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977E6191728500018CE7E /* Environment.m */; };
+		364977E8191728500018CE7E /* Environment.m in Sources */ = {isa = PBXBuildFile; fileRef = 364977E6191728500018CE7E /* Environment.m */; };
 		365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
 		365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */; };
@@ -367,6 +369,8 @@
 		36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEnumerator.m; sourceTree = "<group>"; };
 		364977DA19170CBF0018CE7E /* JavascriptEventLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavascriptEventLoader.h; sourceTree = "<group>"; };
 		364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavascriptEventLoader.m; sourceTree = "<group>"; };
+		364977E5191728500018CE7E /* Environment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Environment.h; sourceTree = "<group>"; };
+		364977E6191728500018CE7E /* Environment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Environment.m; sourceTree = "<group>"; };
 		365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Paco.h"; sourceTree = "<group>"; };
 		365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Paco.m"; sourceTree = "<group>"; };
 		365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSErrorCategoryTests.m; sourceTree = "<group>"; };
@@ -719,6 +723,8 @@
 				3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */,
 				364977DA19170CBF0018CE7E /* JavascriptEventLoader.h */,
 				364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */,
+				364977E5191728500018CE7E /* Environment.h */,
+				364977E6191728500018CE7E /* Environment.m */,
 			);
 			path = CustomFeedback;
 			sourceTree = "<group>";
@@ -1687,6 +1693,7 @@
 				36B8EC2F17568E33004CF035 /* GTMOAuth2Authentication.m in Sources */,
 				36B8EC3017568E33004CF035 /* GTMOAuth2SignIn.m in Sources */,
 				36B8EC3117568E33004CF035 /* GTMOAuth2ViewControllerTouch.m in Sources */,
+				364977E7191728500018CE7E /* Environment.m in Sources */,
 				E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */,
 				36B8EC3317568E33004CF035 /* GoogleAppEngineAuth.m in Sources */,
 				36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */,
@@ -1759,6 +1766,7 @@
 				36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */,
 				366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */,
 				366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
+				364977E8191728500018CE7E /* Environment.m in Sources */,
 				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
 				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
 				366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
