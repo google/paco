@@ -14,8 +14,13 @@
  */
 
 #import <Foundation/Foundation.h>
+@class PacoExperiment;
 
 @interface JavascriptEventLoader : NSObject
+
+@property(nonatomic, strong, readonly) PacoExperiment* experiment;
+
++ (instancetype)loaderForExperiment:(PacoExperiment*)experiment;
 
 - (NSString*)getAllEvents;
 

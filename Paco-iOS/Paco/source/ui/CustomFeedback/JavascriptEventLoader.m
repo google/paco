@@ -14,11 +14,85 @@
  */
 
 #import "JavascriptEventLoader.h"
+#import "PacoExperiment.h"
+#import "PacoClient.h"
+#import "PacoEventManager.h"
+#import "PacoEvent.h"
+#import "NSDate+Paco.h"
+#import "PacoExperimentInput.h"
 
 @implementation JavascriptEventLoader
 
+- (id)initWithExperiment:(PacoExperiment*)experiment {
+  self = [super init];
+  if (self) {
+    _experiment = experiment;
+  }
+  return self;
+}
+
++ (instancetype)loaderForExperiment:(PacoExperiment*)experiment {
+  return [[[self class] alloc] initWithExperiment:experiment];
+}
+
 - (NSString*)getAllEvents {
+  NSArray* events =
+      [[PacoClient sharedInstance].eventManager eventsForExperiment:self.experiment.instanceId];
+  return [self convertEventsToJsonString:events];
+}
+
+- (NSString*)convertEventsToJsonString:(NSArray*)events {
+  NSMutableArray* eventJsonList = [NSMutableArray arrayWithCapacity:[events count]];
+  for (PacoEvent* event in events) {
+    NSMutableArray* newResponses = [NSMutableArray array];
+    for (NSDictionary* responseDict in event.responses) {
+      PacoExperimentInput* input = [self.experiment inputWithId:responseDict[@"inputId"]];
+      if (!input) { //join, stop event
+        continue;
+      }
+      NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+      newDict[@"inputId"] = responseDict[@"inputId"];
+      // deprecate inputName in favor of name. Some experiments still use it though
+      newDict[@"inputName"] = responseDict[@"name"];
+      newDict[@"name"] = responseDict[@"name"];
+      newDict[@"responseType"] = input.responseType;
+      newDict[@"isMultiselect"] = @(input.multiSelect);
+      newDict[@"prompt"] = responseDict[@""]; //?????? TODO
+      newDict[@"answer"] = responseDict[@""]; //?????? TODO
+      // deprecate answerOrder for answerRaw
+      //todo: handle image answer
+      newDict[@"answerOrder"] = responseDict[@"answer"]; //?????? TODO
+      newDict[@"answerRaw"] = responseDict[@"answer"];   //?????? TODO
+      [newResponses addObject:newDict];
+    }
+    if (0 == [newResponses count]) {
+      continue;
+    }
+    
+    NSMutableDictionary* eventJson = [NSMutableDictionary dictionary];
+    eventJson[@"responses"] = newResponses;
+    eventJson[@"isMissedSignal"] = @(event.responseTime == nil);
+    if (event.responseTime) {
+      eventJson[@"responseTime"] = @([event.responseTime pacoGetMilliSeconds]);
+    }
+    eventJson[@"isSelfReport"] = @(event.scheduledTime == nil);
+    if (event.scheduledTime) {
+      eventJson[@"scheduleTime"] = @([event.scheduledTime pacoGetMilliSeconds]);
+    }
+    [eventJsonList addObject:eventJson];
+  }
   
+  NSError* error = nil;
+  NSData* jsonData = [NSJSONSerialization dataWithJSONObject:eventJsonList
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&error];
+  NSString* jsonString = nil;
+  if (!error) {
+    jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+  } else {
+    DDLogError(@"Failed to converting eventJsonList to NSData: %@", [error description]);
+  }
+  return jsonString;
 }
 
 @end

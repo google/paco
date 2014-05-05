@@ -18,6 +18,7 @@
 #import "PacoModel.h"
 #import "NSDate+Paco.h"
 #import "PacoDateUtility.h"
+#import "PacoExperimentInput.h"
 
 @interface PacoExperiment()
 
@@ -192,6 +193,19 @@ static int INVALID_INDEX = -1;
     self.schedule.times = timesConfigured;
   }
   return YES;
+}
+
+- (PacoExperimentInput*)inputWithId:(NSString*)inputId {
+  //invalid inputId, -1 is used as the input id for join and stop event
+  if ([inputId integerValue] < 0 || !inputId) {
+    return nil;
+  }
+  for (PacoExperimentInput* input in self.definition.inputs) {
+    if ([inputId isEqualToString:input.inputIdentifier]) {
+      return input;
+    }
+  }
+  return nil;
 }
 
 @end

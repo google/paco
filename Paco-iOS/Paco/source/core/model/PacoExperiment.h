@@ -18,6 +18,7 @@
 @class PacoExperimentDefinition;
 @class PacoExperimentSchedule;
 @class PacoModel;
+@class PacoExperimentInput;
 
 @interface PacoExperiment : NSObject
 
@@ -67,6 +68,8 @@
 //but keep the esmStartHour, esmEndHour, or times configured specifically by user
 //return YES if the schedule is changed, NO if the schedule doesn't need to be updated
 - (BOOL)refreshWithSchedule:(PacoExperimentSchedule*)newSchedule;
+
+- (PacoExperimentInput*)inputWithId:(NSString*)inputId;
 
 @end
 

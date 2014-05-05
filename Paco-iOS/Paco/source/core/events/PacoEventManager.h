@@ -30,6 +30,8 @@
 
 + (PacoEventManager*)defaultManager;
 
+- (NSArray*)eventsForExperiment:(NSString*)experimentId;
+
 - (void)saveEvent:(PacoEvent*)event;
 - (void)saveEvents:(NSArray*)events;
 
