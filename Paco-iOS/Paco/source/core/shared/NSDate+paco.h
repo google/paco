@@ -21,6 +21,8 @@
 
 @interface NSDate (Paco)
 
+- (long long)pacoGetMilliSeconds;
+
 - (BOOL)pacoEarlierThanDate:(NSDate*)another;
 - (BOOL)pacoLaterThanDate:(NSDate*)another;
 - (BOOL)pacoEqualToDate:(NSDate*)another;

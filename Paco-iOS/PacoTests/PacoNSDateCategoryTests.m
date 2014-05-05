@@ -74,6 +74,13 @@
   [super tearDown];
 }
 
+- (void)testGetMilliSeconds {
+  //2013/07/25 12:33:22-0700
+  long long milliSeconds = [self.dateEarlier pacoGetMilliSeconds];
+  long long expect = (22 + (33 + 12 * 60) * 60) * 1000;
+  XCTAssertEqual(milliSeconds, expect, @"should get the correct milli seconds");
+}
+
 - (void)testEarlierThan {
   XCTAssertTrue([self.dateEarlier pacoEarlierThanDate:self.dateLater],  @"should be earlier");
   XCTAssertFalse([self.dateLater pacoEarlierThanDate:self.dateEarlier],  @"should be later");
