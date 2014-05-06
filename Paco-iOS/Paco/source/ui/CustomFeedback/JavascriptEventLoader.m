@@ -44,25 +44,30 @@
 - (NSString*)convertEventsToJsonString:(NSArray*)events {
   NSMutableArray* eventJsonList = [NSMutableArray arrayWithCapacity:[events count]];
   for (PacoEvent* event in events) {
+    NSArray* responseListWithImageString = [event responseListWithImageString];
     NSMutableArray* newResponses = [NSMutableArray array];
-    for (NSDictionary* responseDict in event.responses) {
+    for (NSDictionary* responseDict in responseListWithImageString) {
       PacoExperimentInput* input = [self.experiment inputWithId:responseDict[@"inputId"]];
       if (!input) { //join, stop event
         continue;
       }
       NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-      newDict[@"inputId"] = responseDict[@"inputId"];
+      newDict[@"inputId"] = input.inputIdentifier;
       // deprecate inputName in favor of name. Some experiments still use it though
-      newDict[@"inputName"] = responseDict[@"name"];
-      newDict[@"name"] = responseDict[@"name"];
+      newDict[@"inputName"] = input.name;
+      newDict[@"name"] = input.name;
       newDict[@"responseType"] = input.responseType;
       newDict[@"isMultiselect"] = @(input.multiSelect);
-      newDict[@"prompt"] = responseDict[@""]; //?????? TODO
-      newDict[@"answer"] = responseDict[@""]; //?????? TODO
+      if (input.text) {
+        newDict[@"prompt"] = input.text;
+      }
+      id answer = responseDict[@"answer"];
+      NSAssert([answer isKindOfClass:[NSString class]] || [answer isKindOfClass:[NSNumber class]],
+               @"answer must be either a number or a string");
+      newDict[@"answer"] = answer; //TODO: may need to change this for list type answer
       // deprecate answerOrder for answerRaw
-      //todo: handle image answer
-      newDict[@"answerOrder"] = responseDict[@"answer"]; //?????? TODO
-      newDict[@"answerRaw"] = responseDict[@"answer"];   //?????? TODO
+      newDict[@"answerOrder"] = answer;
+      newDict[@"answerRaw"] = answer;
       [newResponses addObject:newDict];
     }
     if (0 == [newResponses count]) {

@@ -320,29 +320,29 @@ static NSString* const INPUT_TEXT = @"text";
   switch (self.responseEnumType) {
     case ResponseEnumTypeLikertSmileys:
     case ResponseEnumTypeLikert://result starts from 1, not 0
-      payload = @([self.responseObject intValue] + 1);
+      payload = @([self.responseObject intValue] + 1); //NSNumber
       break;
 
     case ResponseEnumTypeOpenText:
       NSAssert([self.responseObject isKindOfClass:[NSString class]],
                @"responseObject should be a string!");
-      payload = self.responseObject;
+      payload = self.responseObject; //NSString
       break;
       
     case ResponseEnumTypeList:
-      payload = [self stringForListChoices];
+      payload = [self stringForListChoices]; //NSString
       break;
       
     case ResponseEnumTypeNumber:
-      payload = self.responseObject;
+      payload = self.responseObject; //NSNumber
       break;
       
     case ResponseEnumTypePhoto:
-      payload = self.responseObject;//UIImage object
+      payload = self.responseObject;//UIImage
       break;
 
     case ResponseEnumTypeLocation:
-      payload = [PacoExperimentInput locationInfoFromResponse:self.responseObject];
+      payload = [PacoExperimentInput locationInfoFromResponse:self.responseObject]; //NSString
       break;
       
     default:
