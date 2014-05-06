@@ -37,6 +37,7 @@
 @interface PacoMainViewController ()<MFMailComposeViewControllerDelegate>
 
 @property (nonatomic, retain) PacoWebViewController* webViewController;
+
 @end
 
 @implementation PacoMainViewController
@@ -241,7 +242,6 @@
 - (void)opensourceCreditsPage {
   PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
   [self.navigationController pushViewController:creditsViewController animated:YES];
-
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
