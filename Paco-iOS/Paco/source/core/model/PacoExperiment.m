@@ -54,6 +54,10 @@
           self.definition];
 }
 
+- (NSString*)jsonStringForJavascript {
+  
+}
+
 - (id)serializeToJSON {
   id  jsonSchedule = [self.schedule serializeToJSON];
   id jsonDefinition = [self.definition serializeToJSON];

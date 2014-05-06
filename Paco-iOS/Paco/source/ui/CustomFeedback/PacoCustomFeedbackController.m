@@ -22,7 +22,20 @@
 
 @implementation JavascriptExperimentLoader
 
+- (id)initWithExperiment:(PacoExperiment*)experiment {
+  self = [super init];
+  if (self) {
+    _experiment = experiment;
+  }
+  return self;
+}
+
++ (instancetype)loaderWithExperiment:(PacoExperiment*)experiment {
+  return [[[self class] alloc] initWithExperiment:experiment];
+}
+
 - (NSString*)getExperiment {
+  
 }
 @end
 

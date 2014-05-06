@@ -54,7 +54,5 @@ typedef enum {
 - (id)valueForValidation;
 - (id)payloadObject;
 
-- (NSString*)answerString;
-
 
 @end
