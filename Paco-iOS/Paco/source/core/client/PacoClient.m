@@ -35,7 +35,7 @@
 static NSString* const RunningExperimentsKey = @"has_running_experiments";
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
-static NSString* const PacoDefaultServerAddress = @"quantifiedself.appspot.com";
+static NSString* const kPacoDefaultServerAddress = @"quantifiedself.appspot.com";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
@@ -129,12 +129,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     _eventManager = [PacoEventManager defaultManager];
     
     self.prefetchState = [[PacoPrefetchState alloc] init];
-    
-    if (SERVER_DOMAIN_FLAG == 0) {//production
-      self.serverDomain = @"https://quantifiedself.appspot.com";
-    }else{//localserver
-      self.serverDomain = @"http://127.0.0.1";
-    }
+
+    self.serverDomain = [NSString stringWithFormat:@"https://%@", [self serverConfigAddress]];
+
     DDLogInfo(@"PacoClient initializing...");
   }
   return self;
@@ -214,7 +211,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)configurePacoServerAddress:(NSString *)serverAddress {
-  if ([PacoDefaultServerAddress isEqualToString:serverAddress]) {
+  self.serverDomain = [NSString stringWithFormat:@"https://%@", serverAddress];
+  if ([kPacoDefaultServerAddress isEqualToString:serverAddress]) {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kPacoServerConfigAddress];
     [[NSUserDefaults standardUserDefaults] synchronize];
     return;
@@ -223,12 +221,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (NSString *)pacoServerConfigAddress {
+- (NSString *)serverConfigAddress {
   NSString* serverAddress = [[NSUserDefaults standardUserDefaults] objectForKey:kPacoServerConfigAddress];
   if (serverAddress) {
     return serverAddress;
   }
-  return PacoDefaultServerAddress;
+  return kPacoDefaultServerAddress;
 }
 
 - (void)triggerNotificationSystemIfNeeded {

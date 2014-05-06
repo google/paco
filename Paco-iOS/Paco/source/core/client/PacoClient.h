@@ -106,6 +106,6 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 - (void)refreshDefinitions;
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
-- (NSString *)pacoServerConfigAddress;
+- (NSString *)serverConfigAddress;
 
 @end
