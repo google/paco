@@ -35,14 +35,16 @@
 static NSString* const RunningExperimentsKey = @"has_running_experiments";
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
-static NSString* const kPacoDefaultServerAddress = @"quantifiedself.appspot.com";
+static NSString* const kPacoProductionServerAddress = @"quantifiedself.appspot.com";
+static NSString* const kPacoLocalServerAddress = @"127.0.0.1";
 
 @interface PacoPrefetchState : NSObject
-@property(atomic, readwrite, assign) BOOL finishLoadingDefinitions;
-@property(atomic, readwrite, strong) NSError* errorLoadingDefinitions;
+@property(atomic, assign) BOOL finishLoadingDefinitions;
+@property(atomic, strong) NSError* errorLoadingDefinitions;
 
-@property(atomic, readwrite, assign) BOOL finishLoadingExperiments;
-@property(atomic, readwrite, strong) NSError* errorLoadingExperiments;
+@property(atomic, assign) BOOL finishLoadingExperiments;
+@property(atomic, strong) NSError* errorLoadingExperiments;
+
 @end
 
 @implementation PacoPrefetchState
@@ -129,9 +131,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     _eventManager = [PacoEventManager defaultManager];
     
     self.prefetchState = [[PacoPrefetchState alloc] init];
-
-    self.serverDomain = [NSString stringWithFormat:@"https://%@", [self serverConfigAddress]];
-
+    
+    [self setupServerDomain];
+    
     DDLogInfo(@"PacoClient initializing...");
   }
   return self;
@@ -210,23 +212,34 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   return turnedOn;
 }
 
-- (void)configurePacoServerAddress:(NSString *)serverAddress {
-  self.serverDomain = [NSString stringWithFormat:@"https://%@", serverAddress];
-  if ([kPacoDefaultServerAddress isEqualToString:serverAddress]) {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kPacoServerConfigAddress];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    return;
+- (void)setupServerDomain {
+  NSString* serverAddress = [[NSUserDefaults standardUserDefaults] objectForKey:kPacoServerConfigAddress];
+  if (!serverAddress) {
+    if (0 == SERVER_DOMAIN_FLAG) { //production server
+      serverAddress = kPacoProductionServerAddress;
+    } else { //local server
+      serverAddress = kPacoLocalServerAddress;
+    }
   }
+  [self updateServerDomainWithAddress:serverAddress];
+}
+
+- (void)updateServerDomainWithAddress:(NSString*)serverAddress {
+  NSString* prefix = [serverAddress isEqualToString:kPacoLocalServerAddress] ? @"http://" : @"https://";
+  self.serverDomain = [NSString stringWithFormat:@"%@%@", prefix, serverAddress];
+}
+
+- (void)configurePacoServerAddress:(NSString *)serverAddress {
+  [self updateServerDomainWithAddress:serverAddress];
   [[NSUserDefaults standardUserDefaults] setObject:serverAddress forKey:kPacoServerConfigAddress];
   [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-- (NSString *)serverConfigAddress {
-  NSString* serverAddress = [[NSUserDefaults standardUserDefaults] objectForKey:kPacoServerConfigAddress];
-  if (serverAddress) {
-    return serverAddress;
-  }
-  return kPacoDefaultServerAddress;
+- (NSString*)serverAddress {
+  NSString* endOfPrefix = @"//";
+  NSRange range = [self.serverDomain rangeOfString:endOfPrefix];
+  int index = range.location + [endOfPrefix length];
+  return [self.serverDomain substringFromIndex:index];
 }
 
 - (void)triggerNotificationSystemIfNeeded {

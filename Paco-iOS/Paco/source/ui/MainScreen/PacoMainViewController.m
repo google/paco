@@ -272,7 +272,7 @@
                                         otherButtonTitles:@"Done", nil];
 
   [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
-  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverConfigAddress]];
+  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverAddress]];
   [alert show];
 }
 
