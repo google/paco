@@ -69,6 +69,9 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 + (PacoClient *)sharedInstance;
 
+//server domain without the prefix of https:// or http://
+- (NSString*)serverAddress;
+
 - (NSString*)userEmail;
 - (NSString*)userName;
 
@@ -105,5 +108,6 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                       notification:(UILocalNotification*)notification;
 
 - (void)refreshDefinitions;
+- (void)configurePacoServerAddress:(NSString *)serverAddress;
 
 @end

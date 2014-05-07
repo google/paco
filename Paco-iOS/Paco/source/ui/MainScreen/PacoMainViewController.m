@@ -212,7 +212,8 @@
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)
                                              destructiveButtonTitle:nil
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
-                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil), nil];
+                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil),
+                                                                    NSLocalizedString(@"Configure Server Address", nil), nil];
   [actionSheet showInView:self.view];
 }
 
@@ -228,9 +229,51 @@
       [self openMailViewController];
       break;
     }
+    case 2: {
+      [self manualServerAddressConfiguration];
+      break;
+    }
     default:
       break;
   }
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if ((int)buttonIndex == 1) {
+    NSString* serverAddress = [[alertView textFieldAtIndex:0] text];
+    if([self checkStringValidity:serverAddress]) {
+      [[PacoClient sharedInstance] configurePacoServerAddress:serverAddress];
+    }
+  }
+}
+
+- (BOOL)checkStringValidity:(NSString *)address {
+  NSString* trimmedAddress = [address stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  if ([trimmedAddress length] > 0) {
+    NSString* localizedStr = NSLocalizedString(@"Server address is configured to %@", nil);
+    NSString *messageStr = [NSString stringWithFormat:localizedStr, address];
+    [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Success", nil)
+                              message:messageStr
+                    cancelButtonTitle:@"OK"];
+    return YES;
+  }
+  [PacoAlertView showAlertWithTitle:@"Failed to change server address"
+                            message:@"You have input an invalid address!"
+                  cancelButtonTitle:@"OK"];
+  return NO;
+}
+
+- (void)manualServerAddressConfiguration {
+  NSString* title = NSLocalizedString(@"WARNING: Only change this if you know what you are doing", nil);
+  UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title
+                                                  message:NSLocalizedString(@"Enter Server Address", nil)
+                                                 delegate:self
+                                        cancelButtonTitle:@"Cancel"
+                                        otherButtonTitles:@"Done", nil];
+
+  [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
+  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverAddress]];
+  [alert show];
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
