@@ -17,12 +17,14 @@ import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.InputDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
+import com.google.sampling.experiential.model.SignalTime;
 import com.google.sampling.experiential.model.Trigger;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -129,9 +131,30 @@ public class DAOConverter {
     return new SignalScheduleDAO(schedule.getId().getId(), schedule.getScheduleType(), schedule.getByDayOfMonth(),
             schedule.getDayOfMonth(), schedule.getEsmEndHour(), schedule.getEsmFrequency(),
             schedule.getEsmPeriodInDays(), schedule.getEsmStartHour(), schedule.getNthOfMonth(),
-            schedule.getRepeatRate(), toArray(schedule.getTimes()), schedule.getWeekDaysScheduled(),
+            schedule.getRepeatRate(), createDAOsForSignalTimes(schedule.getSignalTimes()), schedule.getWeekDaysScheduled(),
             schedule.getEsmWeekends(), schedule.getUserEditable(), schedule.getTimeout(), schedule.getMinimumBuffer(),
-            schedule.getSnoozeCount(), schedule.getSnoozeTime());
+            schedule.getSnoozeCount(), schedule.getSnoozeTime(), schedule.getOnlyEditableOnJoin());
+  }
+
+  private static List<SignalTimeDAO> createDAOsForSignalTimes(List<SignalTime> times) {
+    List<SignalTimeDAO> signalTimeDAOs = Lists.newArrayList();
+    if (times == null) {
+      return signalTimeDAOs;
+    }
+    for (SignalTime signalTime : times) {
+      signalTimeDAOs.add(createDAO(signalTime));
+    }
+    return signalTimeDAOs;
+  }
+
+  private static SignalTimeDAO createDAO(SignalTime signalTime) {
+    Key signalTimeKey = signalTime.getKey();
+    Long id = null;
+    if (signalTimeKey != null) {
+      id = signalTimeKey.getId();
+    }
+    return new SignalTimeDAO(id, signalTime.getType(), signalTime.getBasis(), signalTime.getFixedTimeMillisFromMidnight(),
+                             signalTime.getMissedBasisBehavior(), signalTime.getOffsetTimeMillis(), signalTime.getLabel());
   }
 
   public static FeedbackDAO createDAO(Feedback feedback) {
@@ -255,14 +278,34 @@ public class DAOConverter {
    * @return
    */
   private static SignalSchedule fromScheduleDAO(Key key, SignalScheduleDAO scheduleDAO) {
-    SignalSchedule schedule = new SignalSchedule(key, scheduleDAO.getId(),
+    Long id = scheduleDAO.getId();
+    Key scheduleKey = null;
+    if (id != null) {
+      scheduleKey = KeyFactory.createKey(key, SignalSchedule.class.getSimpleName(), id);
+    }
+    SignalSchedule schedule = new SignalSchedule(key, id,
         scheduleDAO.getScheduleType(), scheduleDAO.getEsmFrequency(),
         scheduleDAO.getEsmPeriodInDays(), scheduleDAO.getEsmStartHour(),
-        scheduleDAO.getEsmEndHour(), Arrays.asList(scheduleDAO.getTimes()),
+        scheduleDAO.getEsmEndHour(), fromSignalTimeDAOs(scheduleKey, scheduleDAO.getSignalTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(), scheduleDAO.getOnlyEditableOnJoin());
     return schedule;
+  }
+
+  private static List<SignalTime> fromSignalTimeDAOs(Key scheduleKey, List<SignalTimeDAO> list) {
+
+    List<SignalTime> signalTimes = Lists.newArrayList();
+    for (SignalTimeDAO signalTimeDAO : list) {
+      Key signalTimeKey = null;
+      if (scheduleKey != null && signalTimeDAO.getId() != null) {
+        signalTimeKey = KeyFactory.createKey(scheduleKey, SignalTime.class.getSimpleName(), signalTimeDAO.getId());
+      }
+      signalTimes.add(new SignalTime(signalTimeKey, signalTimeDAO.getType(), signalTimeDAO.getBasis(), signalTimeDAO.getFixedTimeMillisFromMidnight(),
+                                     signalTimeDAO.getMissedBasisBehavior(), signalTimeDAO.getOffsetTimeMillis(), signalTimeDAO.getLabel()));
+
+    }
+    return signalTimes;
   }
 
   /**

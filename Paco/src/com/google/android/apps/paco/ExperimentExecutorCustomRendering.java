@@ -383,7 +383,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   final Map<String,String> map = new HashMap<String, String>();
   map.put("lastResponse", convertLastEventToJsonString(experiment));
   map.put("title", experiment.getTitle());
-  map.put("experiment", experiment.getJson());
+  map.put("experiment", ExperimentProviderUtil.getJson(experiment));
   map.put("test", "false");
   map.put("scheduledTime", Long.toString(scheduledTime));
 
@@ -673,7 +673,7 @@ private String findAccount(String userEmail) {
       if (extras != null) {
         extras.clear();
       }
-
+      updateAlarms();
       notifySyncService();
       showFeedback();
       finish();
@@ -683,6 +683,10 @@ private String findAccount(String userEmail) {
       .setTitle(R.string.required_answers_missing)
       .setMessage(ise.getMessage()).show();
     }
+  }
+
+  private void updateAlarms() {
+    startService(new Intent(this, BeeperService.class));
   }
 
   private void deleteNotification() {
@@ -869,7 +873,7 @@ private String findAccount(String userEmail) {
         this.experiment = experiment;
     }
     public String getExperiment() {
-      return experiment.getJson();
+      return ExperimentProviderUtil.getJson(experiment);
     }
   }
 

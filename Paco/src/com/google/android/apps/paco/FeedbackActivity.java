@@ -70,7 +70,7 @@ public class FeedbackActivity extends Activity {
         this.experiment = experiment;
     }
     public String getExperiment() {
-      return experiment.getJson();
+      return ExperimentProviderUtil.getJson(experiment);
     }
   }
 
@@ -133,7 +133,7 @@ public class FeedbackActivity extends Activity {
     final Map<String,String> map = new HashMap<String, String>();
     map.put("lastResponse", convertLastEventToJsonString(feedback, experiment));
     map.put("title", experiment.getTitle());
-    map.put("experiment", experiment.getJson());
+    map.put("experiment", ExperimentProviderUtil.getJson(experiment));
     map.put("test", "false");
 
     String text = experiment.getFeedback().get(0).getText();

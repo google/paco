@@ -42,6 +42,7 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 
@@ -442,7 +443,14 @@ public class Experiment {
   @JsonIgnore
   private DateTime getEndDateTime() {
     if (getSchedule() != null && getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      List<Long> times = schedule.getTimes();
+      List<SignalTime> signalTimes = schedule.getSignalTimes();
+      List<Integer> times = Lists.newArrayList();
+      for (SignalTime signalTime : signalTimes) {
+        // TODO adjust for offset times and include them
+        if (signalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+          times.add(signalTime.getFixedTimeMillisFromMidnight());
+        }
+      }
       // get the latest time
       Collections.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));

@@ -30,6 +30,8 @@ import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
+import com.google.paco.shared.model.SignalingMechanismDAO;
+
 public class ESMSignalGeneratorTest extends TestCase {
 
   public void test1xPerDay() throws Exception {
@@ -488,7 +490,7 @@ public class ESMSignalGeneratorTest extends TestCase {
         false, null, // Not important to ESM testing
         endHourMillis, esmFrequency, esmPeriod, startHourMillis, esmWeekends,
         null, null, null, null, // Not important to ESM testing
-        startDate.getMillis(), true, 59);
+        startDate.getMillis(), true, 59, SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT, false);
     return schedule;
   }
 

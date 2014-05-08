@@ -31,13 +31,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.model.SignalSchedule;
+import com.google.sampling.experiential.model.SignalTime;
 
 /**
  * Servlet that answers requests for experiments.
@@ -68,6 +74,48 @@ public class ExperimentServlet extends HttpServlet {
   private void doMigrateWork() {
     //populatePublicExperimentsList();
     setFeedbackTypeOnExperiments();
+    convertScheduleTimeLongsToSignalTimeObjects();
+  }
+
+
+
+  private void convertScheduleTimeLongsToSignalTimeObjects() {
+    long t1 = System.currentTimeMillis();
+    log.info("Starting convertScheduleTimes from Long to SignalTime objects");
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
+      List<Experiment> updatedExperiments = Lists.newArrayList();
+      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
+      for (Experiment experiment : experiments) {
+        SignalSchedule schedule = experiment.getSchedule();
+        if (schedule != null && schedule.getSignalTimes().isEmpty()) {
+          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
+                  schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
+            log.info("Converting for experiment: " + experiment.getTitle());
+            List<SignalTime> signalTimes = Lists.newArrayList();
+            List<Long> times = schedule.getTimes();
+            for (Long long1 : times) {
+              signalTimes.add(new SignalTime(null, SignalTimeDAO.FIXED_TIME,
+                                             SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
+                                             (int)long1.longValue(),
+                                             SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
+                                             0, ""));
+            }
+            schedule.setSignalTimes(signalTimes);
+            experiment.setSchedule(schedule);
+            updatedExperiments.add(experiment);
+          }
+        }
+      }
+      pm.makePersistentAll(updatedExperiments);
+    } finally  {
+      pm.close();
+    }
+    long t2 = System.currentTimeMillis();
+    long seconds = new Duration(t1, t2).getStandardSeconds();
+    log.info("Done converting signal times. " + seconds + "seconds to complete");
   }
 
 
@@ -138,6 +186,10 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsAdministeredByUserParam = req.getParameter("admin");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
+      if (pacoProtocol == null) {
+        pacoProtocol = req.getParameter("pacoProtocol");
+      }
+
 
       //String offset = req.getParameter("offset");
       String limitStr = req.getParameter("limit");

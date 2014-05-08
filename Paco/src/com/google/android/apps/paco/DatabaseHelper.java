@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
@@ -11,7 +13,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 
 /**
  * This class helps open, create, and upgrade the database file.
@@ -76,7 +81,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + SignalScheduleColumns.TIME_OUT + " INTEGER, "
         + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER, "
         + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER, "
-        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER "
+        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER, "
+        + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER, "
+        + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER "
         + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
         + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -224,7 +231,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + SignalScheduleColumns.SNOOZE_TIME + " INTEGER"
               + ";");
     }
+    if (oldVersion <= 17) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER"
+              + ";");
+      migrateExistingLongTimeValuesToSignalTimeValues(db);
+    }
+    if (oldVersion <= 18) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
+              + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER"
+              + ";");
+    }
   }
+
+  private void migrateExistingLongTimeValuesToSignalTimeValues(SQLiteDatabase db) {
+    HashMap<Integer, String> data = convertLongTimesCSVToJsonString(db,
+                                                                        ExperimentProvider.SCHEDULES_TABLE_NAME,
+                                                                        SignalScheduleColumns.TIMES_CSV, SignalScheduleColumns._ID);
+    for (Map.Entry<Integer, String> entry : data.entrySet()) {
+      db.execSQL("UPDATE " + ExperimentProvider.SCHEDULES_TABLE_NAME +
+                 " SET " + SignalScheduleColumns.SIGNAL_TIMES + " = " + "\'" + entry.getValue() + "\'" +
+                 " WHERE " + SignalScheduleColumns._ID + " = " + entry.getKey() + ";");
+    }
+  }
+
 
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db,
                                                                     String tableName,
@@ -335,4 +365,51 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }
   }
+
+  private static HashMap<Integer, String> convertLongTimesCSVToJsonString(SQLiteDatabase db,
+                                                                    String tableName,
+                                                                    String timesCSVCol, String refCol) {
+    String[] columns = {timesCSVCol, refCol};
+    HashMap<Integer, String> data = new HashMap<Integer, String>();
+    Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
+
+    try {
+      if (cursor != null) {
+        while (cursor.moveToNext()) {
+          String csvTimes = cursor.getString(cursor.getColumnIndex(timesCSVCol));
+          Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
+          if (csvTimes != null) {
+            List<SignalTime> signalTimes = Lists.newArrayList();
+            Iterable<String> dates = Splitter.on(",").split(csvTimes);
+            for (String time : dates) {
+
+              SignalTime signalTime = new SignalTime(SignalTimeDAO.FIXED_TIME, SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
+                             Integer.parseInt(time), SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME, 0, "");
+              signalTimes.add(signalTime);
+
+            }
+            data.put(id, toJson(signalTimes));
+          }
+        }
+      }
+    } finally {
+      cursor.close();
+    }
+    return data;
+  }
+
+  //TODO combine with the version in ExperimentProviderUtil.createContentValues
+  private static String toJson(List<SignalTime> signalTimes) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.writeValueAsString(signalTimes);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
+
+
+
 }

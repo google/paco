@@ -16,12 +16,15 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
@@ -30,6 +33,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 
 public class Experiment implements Parcelable {
 
@@ -39,57 +43,17 @@ public class Experiment implements Parcelable {
 
     public Experiment createFromParcel(Parcel source) {
       ClassLoader classLoader = getClass().getClassLoader();
-      Experiment experiment = new Experiment();
-      experiment.id = source.readLong();
-      experiment.serverId = source.readLong();
-      experiment.title = source.readString();
-      experiment.version = source.readInt();
-      experiment.description = source.readString();
-
-      // TODO (bobevans):set icon from parcelable bytes
-      byte[] iconBytes = new byte[source.readInt()];
-      source.readByteArray(iconBytes);
-      experiment.icon = iconBytes;
-
-      experiment.creator = source.readString();
-      experiment.hash = source.readString();
-      experiment.informedConsentForm = source.readString();
-      experiment.questionsChange = source.readInt() == 1;
-
-      experiment.joinDate = source.readString();
-
-      experiment.schedule = source.readParcelable(classLoader);
-      experiment.fixedDuration = source.readInt() == 1;
-
-      if (experiment.fixedDuration) {
-        experiment.startDate = source.readString();
-        experiment.endDate = source.readString();
+      String json = source.readString();
+      try {
+        return ExperimentProviderUtil.getSingleExperimentFromJson(json);
+      } catch (JsonParseException e) {
+        e.printStackTrace();
+      } catch (JsonMappingException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-
-      int numberOfInputs = source.readInt();
-      for (int i=0;i<numberOfInputs;i++) {
-        Input input = source.readParcelable(classLoader);
-        experiment.inputs.add(input);
-      }
-
-      int numberOfFeedbacks = source.readInt();
-      for (int i=0;i<numberOfFeedbacks;i++) {
-        Feedback feedback = source.readParcelable(classLoader);
-        experiment.feedback.add(feedback);
-      }
-
-      experiment.webRecommended = source.readInt() == 1;
-
-      experiment.json = source.readString();
-
-      Trigger trigger = source.readParcelable(classLoader);
-      experiment.trigger = trigger;
-
-      experiment.customRendering = source.readInt() == 1;
-      experiment.customRenderingCode = source.readString();
-
-      experiment.feedbackType = source.readInt();
-      return experiment;
+      return new Experiment();
     }
 
     public Experiment[] newArray(int size) {
@@ -136,7 +100,7 @@ public class Experiment implements Parcelable {
   private String json;
 
   private List<Feedback> feedback = new ArrayList<Feedback>();
-  public Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
+  private Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -315,51 +279,9 @@ public class Experiment implements Parcelable {
     return 0;
   }
 
+
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(id);
-    dest.writeLong(serverId);
-    dest.writeString(title);
-    dest.writeInt(version);
-    dest.writeString(description);
-    dest.writeInt(icon.length);
-    dest.writeByteArray(icon);
-    dest.writeString(creator);
-    dest.writeString(hash);
-    dest.writeString(informedConsentForm);
-    dest.writeInt(questionsChange ? 1 : 0);
-
-    // TODO (bobevans):set icon from parcelable bytes
-    // byte[] iconBytes = icon.getBytes();
-    // dest.writeInt(iconBytes.length);
-    // dest.writeByteArray(iconBytes);
-
-    dest.writeString(joinDate);
-
-    dest.writeParcelable(schedule, 0);
-    dest.writeInt(fixedDuration ? 1: 0);
-
-    if (fixedDuration) {
-      dest.writeString(startDate);
-      dest.writeString(endDate);
-    }
-
-    dest.writeInt(inputs.size());
-    for (Input input : inputs) {
-      dest.writeParcelable(input, 0);
-    }
-
-    dest.writeInt(feedback.size());
-    for (Feedback feedbackItem : feedback) {
-      dest.writeParcelable(feedbackItem, 0);
-    }
-
-    dest.writeInt(webRecommended ? 1 : 0);
-    dest.writeString(json);
-
-    dest.writeParcelable(trigger, 0);
-    dest.writeInt(customRendering ? 1 : 0);
-    dest.writeString(customRenderingCode);
-    dest.writeInt(feedbackType);
+    dest.writeString(ExperimentProviderUtil.getJson(this));
   }
 
   @JsonIgnore
@@ -433,7 +355,7 @@ public class Experiment implements Parcelable {
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
     } else {
-      return schedule.getNextAlarmTime(now);
+      return schedule.getNextAlarmTime(now, context, this.getServerId());
     }
   }
 
@@ -473,11 +395,16 @@ public class Experiment implements Parcelable {
       DateTime lastTimeForSignalGroup = null;
       if (signalingMechanism instanceof SignalSchedule) {
         if (((SignalSchedule) signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)) {
-          List<Long> times = schedule.getTimes();
-          Collections.sort(times);
-          DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-          lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).toDateTime()
+          List<SignalTime> times = schedule.getSignalTimes();
+          SignalTime lastSignalTime = times.get(times.size() - 1);
+          if (lastSignalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+            // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
+            DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
+            lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).toDateTime()
                                                                       .withMillisOfDay(lastTimeForDay.getMillisOfDay());
+          } else {
+            lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).plusDays(1).toDateTime();
+          }
         } else {
           lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).plusDays(1).toDateTime();
         }
@@ -498,9 +425,8 @@ public class Experiment implements Parcelable {
       DateTime firstTimeForSignalGroup = null;
       if (signalingMechanism instanceof SignalSchedule) {
         if (((SignalSchedule) signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)) {
-          List<Long> times = schedule.getTimes();
-          Collections.sort(times);
-          DateTime firstTimeForDay = new DateTime().plus(times.get(0));
+          List<SignalTime> times = schedule.getSignalTimes();
+          DateTime firstTimeForDay = new DateTime().plus(times.get(0).getFixedTimeMillisFromMidnight());
           firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime()
                                                                       .withMillisOfDay(firstTimeForDay.getMillisOfDay());
         } else {
@@ -669,16 +595,6 @@ public class Experiment implements Parcelable {
     return trigger != null && trigger.getEventCode() == Trigger.APP_USAGE;
   }
 
-
-  @JsonIgnore
-  public void setJson(String json) {
-    this.json = json;
-  }
-
-  @JsonIgnore
-  public String getJson() {
-    return this.json;
-  }
 
   public List<SignalingMechanism> getSignalingMechanisms() {
     return signalingMechanisms;

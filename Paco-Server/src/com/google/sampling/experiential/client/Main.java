@@ -724,7 +724,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
-
+    experiment.setTitle(myConstants.copyOfExperimentTitlePrefix() + experiment.getTitle());
     experiment.getSignalingMechanisms()[0].setId(null);
     experiment.setPublished(false);
     experiment.setPublishedUsers(new String[]{});

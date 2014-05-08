@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -32,9 +32,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 
 /**
- * 
+ *
  * A composite view for one experiment, usually used in a list of experiments.
- *  
+ *
  * @author Bob Evans
  *
  */
@@ -100,8 +100,10 @@ public class ExperimentRow extends Composite {
         showExperimentDetails();
       }
     };
-    experimentTitleLabel.addClickHandler(titleHandler);
-    experimentIcon.addClickHandler(titleHandler);
+    if (!isExperimentPurged()) {
+      experimentTitleLabel.addClickHandler(titleHandler);
+      experimentIcon.addClickHandler(titleHandler);
+    }
 
     HorizontalPanel horizontalPanel_1 = new HorizontalPanel();
     horizontalPanel_1.setSpacing(1);
@@ -150,7 +152,7 @@ public class ExperimentRow extends Composite {
     createQRCodeButton(horizontalPanel, horizontalPanel_1);
     createCopyButton(horizontalPanel, horizontalPanel_1);
   }
-  
+
   private void createDetailsButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
     Button copyButton = new Button(myConstants.copy());
     copyButton.setStyleName("paco-ExperimentRow-Button");
@@ -162,7 +164,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel_1.add(copyButton);
     horizontalPanel.setCellVerticalAlignment(copyButton, HasVerticalAlignment.ALIGN_MIDDLE);
   }
-  
+
   private void createEodRefButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
     Button refButton = new Button(myConstants.eodRef());
     refButton.setStyleName("paco-ExperimentRow-Button");
@@ -223,6 +225,11 @@ public class ExperimentRow extends Composite {
     });
     horizontalPanel_1.add(copyButton);
     horizontalPanel.setCellVerticalAlignment(copyButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    copyButton.setEnabled(!isExperimentPurged());
+  }
+
+  private boolean isExperimentPurged() {
+    return experiment == null || experiment.getSignalingMechanisms() == null;
   }
 
   private void createAnonCSVButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {
@@ -235,7 +242,7 @@ public class ExperimentRow extends Composite {
     });
     horizontalPanel_1.add(csvAnonButton);
     horizontalPanel.setCellVerticalAlignment(csvAnonButton, HasVerticalAlignment.ALIGN_MIDDLE);
- 
+
     Button anonMappingButton = new Button(myConstants.anonMap());
     anonMappingButton.setStyleName("paco-ExperimentRow-Button");
     anonMappingButton.addClickHandler(new ClickHandler() {
@@ -305,20 +312,21 @@ public class ExperimentRow extends Composite {
     });
     horizontalPanel_1.add(enterButton);
     horizontalPanel.setCellVerticalAlignment(enterButton, HasVerticalAlignment.ALIGN_MIDDLE);
+    enterButton.setEnabled(!isExperimentPurged());
   }
 
   protected void showRefDialog() {
-    fireExperimentCode(ExperimentListener.SHOW_REF_CODE);    
+    fireExperimentCode(ExperimentListener.SHOW_REF_CODE);
   }
 
   protected void showQRCode() {
     fireExperimentCode(ExperimentListener.SHOW_QR_CODE);
-    
+
   }
 
   protected void showExecutorPanel() {
     fireExperimentCode(ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE);
-    
+
   }
 
   protected void showAnonMapping() {
@@ -344,7 +352,7 @@ public class ExperimentRow extends Composite {
   protected void showCSV() {
     fireExperimentCode(ExperimentListener.CSV_CODE);
   }
-  
+
   protected void showCSVAnon() {
     fireExperimentCode(ExperimentListener.CSV_ANON_CODE);
   }

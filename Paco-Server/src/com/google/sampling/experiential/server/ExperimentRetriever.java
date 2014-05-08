@@ -1,7 +1,6 @@
 package com.google.sampling.experiential.server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +28,7 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.datastore.ExperimentVersionEntity;
@@ -619,10 +619,13 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
     SignalingMechanismDAO signalingMechanismDAO = experiment.getSignalingMechanisms()[0];
     if (signalingMechanismDAO instanceof SignalScheduleDAO
             && ((SignalScheduleDAO) signalingMechanismDAO).getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      Long[] times = ((SignalScheduleDAO)signalingMechanismDAO).getTimes();
-      Arrays.sort(times);
-      DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
+      List<SignalTimeDAO> signalTimes = ((SignalScheduleDAO)signalingMechanismDAO).getSignalTimes();
+      SignalTimeDAO lastSignalTime = signalTimes.get(signalTimes.size() - 1);
+      if (lastSignalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+        return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).toDateTime().withMillisOfDay(lastSignalTime.getFixedTimeMillisFromMidnight());
+      } else {
+        return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).plusDays(1).toDateTime();
+      }
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
       return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).plusDays(1).toDateTime();
     }
