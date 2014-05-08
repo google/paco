@@ -123,7 +123,7 @@ public class DownloadHelper {
     Response response = request.setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
         .addHeader("http.useragent", "Android")
         .addHeader("paco.version", AndroidUtils.getAppVersion(context))
-        .addHeader("pacoProtocol", "3.0").execute();
+        .addHeader("pacoProtocol", "3.1").execute();
     return response.getContentAsString();
   }
 

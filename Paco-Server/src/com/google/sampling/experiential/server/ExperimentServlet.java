@@ -186,6 +186,10 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsAdministeredByUserParam = req.getParameter("admin");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
+      if (pacoProtocol == null) {
+        pacoProtocol = req.getParameter("pacoProtocol");
+      }
+
 
       //String offset = req.getParameter("offset");
       String limitStr = req.getParameter("limit");

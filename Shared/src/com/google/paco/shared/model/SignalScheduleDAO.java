@@ -267,4 +267,12 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
 
     }
 
+    public List<Long> getTimes() {
+      return times;
+    }
+
+    public void setTimes(List<Long> times) {
+      this.times = times;
+    }
+
 }
