@@ -293,7 +293,7 @@
     <string name="find_my_experiments">Find My Experiments</string>
     <string name="find_all_public_experiments">Find All Public Experiments</string>
     <string name="could_not_load_full_experiment_">Could not load full experiment.</string>
-    <string name="no_more_experiments_on_server">No more experiments on server</string>
+    <string name="no_more_experiments_on_server">All experiments downloaded from server</string>
     <string name="this_experiment_schedule_is_not_editable">This experiment schedule is not editable</string>
 
 </resources>
