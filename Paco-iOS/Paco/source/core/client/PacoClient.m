@@ -37,6 +37,7 @@ static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_sys
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
 static NSString* const kPacoProductionServerAddress = @"quantifiedself.appspot.com";
 static NSString* const kPacoLocalServerAddress = @"127.0.0.1";
+static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.appspot.com";
 
 @interface PacoPrefetchState : NSObject
 @property(atomic, assign) BOOL finishLoadingDefinitions;
@@ -215,10 +216,22 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (void)setupServerDomain {
   NSString* serverAddress = [[NSUserDefaults standardUserDefaults] objectForKey:kPacoServerConfigAddress];
   if (!serverAddress) {
-    if (0 == SERVER_DOMAIN_FLAG) { //production server
-      serverAddress = kPacoProductionServerAddress;
-    } else { //local server
-      serverAddress = kPacoLocalServerAddress;
+    switch (SERVER_DOMAIN_FLAG) {
+      case 0: //production server
+        serverAddress = kPacoProductionServerAddress;
+        break;
+        
+      case 1: //local server
+        serverAddress = kPacoLocalServerAddress;
+        break;
+        
+      case 2: //staging server
+        serverAddress = kPacoStagingServerAddress;
+        break;
+        
+      default:
+        NSAssert(NO, @"wrong server address");
+        break;
     }
   }
   [self updateServerDomainWithAddress:serverAddress];

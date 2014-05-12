@@ -48,6 +48,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 //production server: 0
 //local server: 1
+//staging server: 2
 #define SERVER_DOMAIN_FLAG 0
 
 
