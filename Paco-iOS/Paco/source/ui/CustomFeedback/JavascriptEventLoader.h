@@ -22,6 +22,10 @@
 
 + (instancetype)loaderForExperiment:(PacoExperiment*)experiment;
 
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PacoExperiment*)experiment;
+
 - (NSString*)getAllEvents;
+
+- (NSString*)jsonStringForLastEvent;
 
 @end

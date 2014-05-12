@@ -28,7 +28,7 @@
   return self;
 }
 
-+ (Environment*)environmentWithDictionary:(NSDictionary*)dictionary {
++ (instancetype)environmentWithDictionary:(NSDictionary*)dictionary {
   return [[[self class] alloc] initWithDictionary:dictionary];
 }
 

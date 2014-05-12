@@ -16,10 +16,11 @@
 #import <UIKit/UIKit.h>
 
 @class PacoExperiment;
+@class EasyJSWebView;
 
 @interface PacoCustomFeedbackController : UIViewController
 
-@property(nonatomic, strong, readonly) UIWebView* webView;
+@property(nonatomic, strong, readonly) EasyJSWebView* webView;
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
 
 + (id)controllerWithExperiment:(PacoExperiment*)experiment;

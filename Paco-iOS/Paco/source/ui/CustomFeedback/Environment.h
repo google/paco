@@ -17,7 +17,7 @@
 
 @interface Environment : NSObject
 
-+ (Environment*)environmentWithDictionary:(NSDictionary*)dictionary;
++ (instancetype)environmentWithDictionary:(NSDictionary*)dictionary;
 
 - (NSString*)setKey:(NSString*)key withValue:(NSString*)value;
 - (NSString*)getValue:(NSString*)key;

@@ -15,6 +15,10 @@
 
 #import "PacoCustomFeedbackController.h"
 #import "PacoExperiment.h"
+#import "PacoExperimentFeedback.h"
+#import "EasyJSWebView.h"
+#import "JavascriptEventLoader.h"
+#import "PacoExperimentDefinition.h"
 
 @interface JavascriptExperimentLoader : NSObject
 @property(nonatomic, strong) PacoExperiment* experiment;
@@ -41,7 +45,7 @@
 
 
 @interface PacoCustomFeedbackController ()
-@property(nonatomic, strong) UIWebView* webView;
+@property(nonatomic, strong) EasyJSWebView* webView;
 @property(nonatomic, strong) PacoExperiment* experiment;
 @end
 
@@ -57,14 +61,29 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  self.webView = [[UIWebView alloc] initWithFrame:self.view.frame];
+  self.webView = [[EasyJSWebView alloc] initWithFrame:self.view.frame];
   self.webView.scalesPageToFit = YES;
+  [self injectObjectsToJavascriptEnvironment];
   [self.view addSubview:self.webView];
 }
 
 - (void)didReceiveMemoryWarning {
   [super didReceiveMemoryWarning];
   // Dispose of any resources that can be recreated.
+}
+
+- (void)injectObjectsToJavascriptEnvironment {
+  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
+  [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
+  [self.webView addJavascriptInterfaces:eventLoader WithName:@"db"];
+  
+  NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+  dict[@"title"] = self.experiment.definition.title;
+//  dict[@"experiment"] = [self.experiment jsonStringForJavascript]; //TODO
+  dict[@"lastResponse"] = [eventLoader jsonStringForLastEvent];
+  dict[@"test"] = @"false";
+  
+
 }
 
 

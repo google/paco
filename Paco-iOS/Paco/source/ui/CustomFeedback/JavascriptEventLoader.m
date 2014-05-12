@@ -21,6 +21,11 @@
 #import "NSDate+Paco.h"
 #import "PacoExperimentInput.h"
 
+@interface JavascriptEventLoader()
+
+@property(nonatomic, strong) NSArray* events;
+@end
+
 @implementation JavascriptEventLoader
 
 - (id)initWithExperiment:(PacoExperiment*)experiment {
@@ -35,19 +40,13 @@
   return [[[self class] alloc] initWithExperiment:experiment];
 }
 
-- (NSString*)getAllEvents {
-  NSArray* events =
-      [[PacoClient sharedInstance].eventManager eventsForExperiment:self.experiment.instanceId];
-  return [self convertEventsToJsonString:events];
-}
-
-- (NSString*)convertEventsToJsonString:(NSArray*)events {
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PacoExperiment*)experiment{
   NSMutableArray* eventJsonList = [NSMutableArray arrayWithCapacity:[events count]];
   for (PacoEvent* event in events) {
     NSArray* responseListWithImageString = [event responseListWithImageString];
     NSMutableArray* newResponses = [NSMutableArray array];
     for (NSDictionary* responseDict in responseListWithImageString) {
-      PacoExperimentInput* input = [self.experiment inputWithId:responseDict[@"inputId"]];
+      PacoExperimentInput* input = [experiment inputWithId:responseDict[@"inputId"]];
       if (!input) { //join, stop event
         continue;
       }
@@ -98,6 +97,27 @@
     DDLogError(@"Failed to converting eventJsonList to NSData: %@", [error description]);
   }
   return jsonString;
+}
+
+//TODO: efficiency
+- (NSString*)getAllEvents {
+  @synchronized(self) {
+    if (!self.events) {
+      NSArray* events =
+          [[PacoClient sharedInstance].eventManager eventsForExperiment:self.experiment.instanceId];
+      self.events = (events != nil) ? events : [NSArray array];
+    }
+  }
+  return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment];
+}
+
+- (NSString*)jsonStringForLastEvent {
+  if (0 == [self.events count]) {
+    return @"[]";
+  }
+  NSArray* arrayWithLastEvent = [NSArray arrayWithObject:[self.events lastObject]];
+  return [JavascriptEventLoader convertEventsToJsonString:arrayWithLastEvent
+                                               experiment:self.experiment];
 }
 
 @end

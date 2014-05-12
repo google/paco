@@ -35,6 +35,7 @@
                                    schedule:(PacoExperimentSchedule*)schedule
                                    joinTime:(NSDate*)joinTime;
 
+- (NSString*)jsonStringForJavascript;
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json;
 
