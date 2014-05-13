@@ -212,4 +212,8 @@ static int INVALID_INDEX = -1;
   return nil;
 }
 
+- (PacoExperimentFeedback*)feedback {
+  return [self.definition.feedbackList firstObject];
+}
+
 @end

@@ -19,6 +19,7 @@
 @class PacoExperimentSchedule;
 @class PacoModel;
 @class PacoExperimentInput;
+@class PacoExperimentFeedback;
 
 @interface PacoExperiment : NSObject
 
@@ -72,5 +73,6 @@
 
 - (PacoExperimentInput*)inputWithId:(NSString*)inputId;
 
+- (PacoExperimentFeedback*)feedback;
 @end
 
