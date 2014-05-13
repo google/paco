@@ -18,6 +18,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.Date;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -27,6 +28,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -54,8 +56,11 @@ public class TimePanel extends Composite {
   private boolean firstTimePanel;
   private ListBox skipBehavior;
   private HorizontalPanel missedBehaviorPanel;
+  private MyConstants myConstants;
 
   public TimePanel(TimeListPanel timeList, final SignalTimeDAO signalTime, boolean firstTime) {
+    myConstants = GWT.create(MyConstants.class);
+
     this.timeList = timeList;
     this.signalTime = signalTime;
     this.firstTimePanel = firstTime;
@@ -174,7 +179,11 @@ public class TimePanel extends Composite {
   }
 
   private Widget createOffsetTimePanel() {
+    VerticalPanel container = new VerticalPanel();
+    container.add(new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>"));
+
     HorizontalPanel offsetPanel = new HorizontalPanel();
+    container.add(offsetPanel);
     offsetPanel.add(new Label("From: "));
     final ListBox basisChooser = new ListBox();
     basisChooser.addItem("Previous Scheduled Time");
@@ -208,7 +217,7 @@ public class TimePanel extends Composite {
       }
     });
 
-    return offsetPanel;
+    return container;
   }
 
   private Widget createFixedTimePanel(SignalTimeDAO signalTime2) {
