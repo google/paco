@@ -94,24 +94,27 @@
          return customFeedback;
         }
       }
-
-      var additionsDivID = document.getElementById("additionsdiv");         
+                      
+      var feedbackStr  = eventLoader.feedbackString();
+                     
       var newScript = document.createElement('script');
       newScript.type = 'text/javascript';
-      newScript.innerHTML = scriptBody(window.additions.substring(0));
-      additionsDivID.appendChild(newScript);
-        
+      newScript.innerHTML = scriptBody(feedbackStr);
+                      
       var newSpan = document.createElement('span');
-      newSpan.innerHTML = htmlBody(window.additions);
+      newSpan.innerHTML = htmlBody(feedbackStr);
+                      
+      var additionsDivID = document.getElementById("additionsdiv");
+      additionsDivID.appendChild(newScript);
       additionsDivID.appendChild(newSpan);
+    });
+  	
 
-      
-   	});   	
  </script>
  </head>
   <body style='text-align:center;color:#4272db;' >
-  
-  <div id="additionsdiv"></div>
+  <div id="additionsdiv"> </div>
+
  
   </body>
 </html>

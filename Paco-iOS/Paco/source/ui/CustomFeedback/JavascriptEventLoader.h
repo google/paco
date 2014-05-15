@@ -28,4 +28,6 @@
 
 - (NSString*)jsonStringForLastEvent;
 
+//TODO: this needs to be moved to another place
+- (NSString*)feedbackString;
 @end

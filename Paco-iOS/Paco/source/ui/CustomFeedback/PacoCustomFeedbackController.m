@@ -82,7 +82,7 @@
 - (void)injectObjectsToJavascriptEnvironment {
   //TODO: email, experimentLoader
   
-  //additions
+  //additions, TODO
   [self.webView addJavascriptInterfaces:[self.experiment feedback].text WithName:@"additions"];
   
   //db/eventLoader(deprecated)

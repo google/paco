@@ -20,6 +20,7 @@
 #import "PacoEvent.h"
 #import "NSDate+Paco.h"
 #import "PacoExperimentInput.h"
+#import "PacoExperimentFeedback.h"
 
 @interface JavascriptEventLoader()
 
@@ -99,8 +100,8 @@
   return jsonString;
 }
 
-//TODO: efficiency
-- (NSString*)getAllEvents {
+
+- (void)loadEventsIfNeeded {
   @synchronized(self) {
     if (!self.events) {
       NSArray* events =
@@ -108,16 +109,32 @@
       self.events = (events != nil) ? events : [NSArray array];
     }
   }
-  return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment];
+}
+
+
+- (NSString*)getAllEvents {
+  @synchronized(self) {
+    [self loadEventsIfNeeded];
+    return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment];
+  }
 }
 
 - (NSString*)jsonStringForLastEvent {
-  if (0 == [self.events count]) {
-    return @"[]";
+  @synchronized(self) {
+    [self loadEventsIfNeeded];
+    if (0 == [self.events count]) {
+      return @"[]";
+    }
+    NSArray* arrayWithLastEvent = [NSArray arrayWithObject:[self.events lastObject]];
+    return [JavascriptEventLoader convertEventsToJsonString:arrayWithLastEvent
+                                                 experiment:self.experiment];
   }
-  NSArray* arrayWithLastEvent = [NSArray arrayWithObject:[self.events lastObject]];
-  return [JavascriptEventLoader convertEventsToJsonString:arrayWithLastEvent
-                                               experiment:self.experiment];
 }
+
+
+- (NSString*)feedbackString {
+  return [self.experiment feedback].text;
+}
+
 
 @end
