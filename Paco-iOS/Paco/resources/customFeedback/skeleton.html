@@ -76,6 +76,10 @@
  	  };
  	  
  	  $(document).ready(function() {
+      //inject objects into window to keep compatible with current design
+      window.eventLoader = eventLoader;
+      window.db = db;
+      window.env = env;
         
       function scriptBody(customFeedback) {
         var scriptStartIndex = customFeedback.indexOf("<script>");
@@ -95,7 +99,7 @@
         }
       }
                       
-      var feedbackStr  = eventLoader.feedbackString();
+      var feedbackStr  = window.eventLoader.feedbackString();
                      
       var newScript = document.createElement('script');
       newScript.type = 'text/javascript';
