@@ -26,6 +26,8 @@
 
 - (NSString*)getAllEvents;
 
+- (NSString*)loadAllEvents;
+
 - (NSString*)jsonStringForLastEvent;
 
 //TODO: this needs to be moved to another place

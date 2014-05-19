@@ -111,8 +111,11 @@
   }
 }
 
-
 - (NSString*)getAllEvents {
+  return [self loadAllEvents];
+}
+
+- (NSString*)loadAllEvents {
   @synchronized(self) {
     [self loadEventsIfNeeded];
     return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment];
