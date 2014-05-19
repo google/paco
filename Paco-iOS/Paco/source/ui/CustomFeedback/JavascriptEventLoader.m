@@ -135,9 +135,5 @@
 }
 
 
-- (NSString*)feedbackString {
-  return [self.experiment feedback].text;
-}
-
 
 @end

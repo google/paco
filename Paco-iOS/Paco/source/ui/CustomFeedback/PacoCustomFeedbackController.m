@@ -82,9 +82,6 @@
 - (void)injectObjectsToJavascriptEnvironment {
   //TODO: email, experimentLoader
   
-  //additions, TODO
-  [self.webView addJavascriptInterfaces:[self.experiment feedback].text WithName:@"additions"];
-  
   //db/eventLoader(deprecated)
   JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
@@ -96,6 +93,9 @@
 //  dict[@"experiment"] = [self.experiment jsonStringForJavascript]; //TODO
   dict[@"lastResponse"] = [eventLoader jsonStringForLastEvent];
   dict[@"test"] = @"false";
+  //insert feedback string into env, since addJavascriptInterfaces will add it as an object,
+  //instead of string
+  dict[@"additions"] = [self.experiment feedback].text;
   self.env = [Environment environmentWithDictionary:dict];
   [self.webView addJavascriptInterfaces:self.env WithName:@"env"];
 }
