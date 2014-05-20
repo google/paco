@@ -76,10 +76,20 @@
  	  };
  	  
  	  $(document).ready(function() {
-      //inject objects into window to keep compatible with current design
-      window.eventLoader = eventLoader;
-      window.db = db;
-      window.env = env;
+      /*
+       TODO: this code should be re-usable
+       Inject all objects into window layer;
+       To be compatible with Android, check to see if window has the injections first
+       */
+      if (!window.eventLoader) {
+        window.eventLoader = eventLoader;
+      }
+      if (!window.db) {
+        window.db = db;
+      }
+      if (!window.env) {
+        window.env = env;
+      }
         
       function scriptBody(customFeedback) {
         var scriptStartIndex = customFeedback.indexOf("<script>");
@@ -98,7 +108,8 @@
          return customFeedback;
         }
       }
-                      
+                
+      //TODO: for now, we add additions to window.env, instead of injecting it into window directly
       var feedbackStr  = window.env.getValue("additions");
                      
       var newScript = document.createElement('script');

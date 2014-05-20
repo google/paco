@@ -191,6 +191,10 @@
 		36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2C17568E33004CF035 /* GoogleClientLogin.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC3717568E40004CF035 /* PacoTests.m */; };
 		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
+		36B91DEF192BD11900009009 /* default.js in Resources */ = {isa = PBXBuildFile; fileRef = 36B91CF9192AB5EA00009009 /* default.js */; };
+		36B91DF0192BD11900009009 /* default_feedback.html in Resources */ = {isa = PBXBuildFile; fileRef = 36B91CF8192AB5EA00009009 /* default_feedback.html */; };
+		36B91DF3192BD3B600009009 /* map.html in Resources */ = {isa = PBXBuildFile; fileRef = 36B91DF1192BD3B600009009 /* map.html */; };
+		36B91DF4192BD3B600009009 /* time.html in Resources */ = {isa = PBXBuildFile; fileRef = 36B91DF2192BD3B600009009 /* time.html */; };
 		36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */; };
 		36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */; };
 		36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */; };
@@ -562,6 +566,10 @@
 		36B8EC3717568E40004CF035 /* PacoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTests.m; sourceTree = "<group>"; };
 		36B8EC3A17568E40004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PacoTests-Info.plist"; sourceTree = "<group>"; };
+		36B91CF8192AB5EA00009009 /* default_feedback.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = default_feedback.html; sourceTree = "<group>"; };
+		36B91CF9192AB5EA00009009 /* default.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = default.js; sourceTree = "<group>"; };
+		36B91DF1192BD3B600009009 /* map.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = map.html; sourceTree = "<group>"; };
+		36B91DF2192BD3B600009009 /* time.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = time.html; sourceTree = "<group>"; };
 		36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoIOSLocalNotificationTests.m; sourceTree = "<group>"; };
 		36C4A33718A4DEEE00D8FE59 /* DDASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDASLLogger.h; sourceTree = "<group>"; };
 		36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDASLLogger.m; sourceTree = "<group>"; };
@@ -747,8 +755,12 @@
 		3620EBAB190F22E30088DBFB /* customFeedback */ = {
 			isa = PBXGroup;
 			children = (
+				36B91DF1192BD3B600009009 /* map.html */,
+				36B91DF2192BD3B600009009 /* time.html */,
 				3620EBAC190F22E30088DBFB /* conditional_parser.js */,
 				3620EBAD190F22E30088DBFB /* custom_base.js */,
+				36B91CF9192AB5EA00009009 /* default.js */,
+				36B91CF8192AB5EA00009009 /* default_feedback.html */,
 				3620EBB2190F22E30088DBFB /* skeleton.html */,
 				369536EB1912211A00B8115A /* lib */,
 			);
@@ -1553,6 +1565,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36B91DEF192BD11900009009 /* default.js in Resources */,
+				36B91DF0192BD11900009009 /* default_feedback.html in Resources */,
 				369536F41912217000B8115A /* jquery.flot.js in Resources */,
 				369536F51912217000B8115A /* jquery.flot.stack.js in Resources */,
 				369536F61912217000B8115A /* jquery.js in Resources */,
@@ -1564,6 +1578,7 @@
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
+				36B91DF3192BD3B600009009 /* map.html in Resources */,
 				3620EBB9190F22E30088DBFB /* skeleton.html in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
@@ -1577,6 +1592,7 @@
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
 				368DB0C818EB55D20033DFFF /* Images.xcassets in Resources */,
 				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
+				36B91DF4192BD3B600009009 /* time.html in Resources */,
 				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
 				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,

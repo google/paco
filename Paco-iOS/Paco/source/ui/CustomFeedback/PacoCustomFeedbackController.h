@@ -23,6 +23,6 @@
 @property(nonatomic, strong, readonly) EasyJSWebView* webView;
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment;
++ (id)controllerWithExperiment:(PacoExperiment*)experiment htmlName:(NSString*)htmlName;
 
 @end

@@ -49,15 +49,17 @@
 @property(nonatomic, strong) EasyJSWebView* webView;
 @property(nonatomic, strong) PacoExperiment* experiment;
 @property(nonatomic, strong) Environment* env;
+@property(nonatomic, copy) NSString* htmlName;
 @end
 
 
 @implementation PacoCustomFeedbackController
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment {
++ (id)controllerWithExperiment:(PacoExperiment*)experiment htmlName:(NSString*)htmlName{
   PacoCustomFeedbackController* controller =
       [[PacoCustomFeedbackController alloc] initWithNibName:nil bundle:nil];
   controller.experiment = experiment;
+  controller.htmlName = htmlName;
   return controller;
 }
 
@@ -69,7 +71,7 @@
 
   [self injectObjectsToJavascriptEnvironment];
 
-  NSString* htmlPath = [[NSBundle mainBundle] pathForResource:@"skeleton" ofType:@"html"];
+  NSString* htmlPath = [[NSBundle mainBundle] pathForResource:self.htmlName ofType:@"html"];
   NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]];
   [self.webView loadRequest:request];
 }

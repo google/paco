@@ -190,23 +190,15 @@ NSString *kCellIdQuestion = @"question";
   [self.evaluator.experiment.definition clearInputs];
   
   if ([self.evaluator.experiment.definition hasCustomFeedback]) {
-    [self showCustomFeedback];
+    [self showFeedbackControllerWithHtml:@"skeleton"];
   } else {
-    NSString* title = NSLocalizedString(@"Nice", nil);
-    NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
-    [PacoAlertView showAlertWithTitle:title
-                              message:message
-                         dismissBlock:^(NSInteger buttonIndex) {
-                           [self dismiss];
-                         }
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil];
+    [self showFeedbackControllerWithHtml:@"default_feedback"];
   }
 }
 
-- (void)showCustomFeedback {
+- (void)showFeedbackControllerWithHtml:(NSString*)htmlName {
   PacoCustomFeedbackController* controller =
-      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment];
+      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment htmlName:htmlName];
   [self.navigationController pushViewController:controller animated:YES];
 }
 
