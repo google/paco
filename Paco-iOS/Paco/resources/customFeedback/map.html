@@ -18,7 +18,7 @@
       function initialize() {
         var infoDialogBox= confirm("Your data will be sent to Google Maps servers to be plotted. Press OK to proceed, or Cancel to decline.");
         if (infoDialogBox==false){
-          document.location.href = "file:///android_asset/default_feedback.html";
+          document.location.href = "default_feedback.html";
           return;
         }
         
@@ -83,6 +83,21 @@
         }
         
         
+        /*
+         TODO: this code should be re-usable
+         Inject all objects into window layer;
+         To be compatible with Android, check to see if window has the injections first
+         */
+        if (!window.eventLoader) {
+          window.eventLoader = eventLoader;
+        }
+        if (!window.db) {
+          window.db = db;
+        }
+        if (!window.env) {
+          window.env = env;
+        }
+
         var jsondata = window.eventLoader.loadAllEvents();
         var experimentData = $.parseJSON(jsondata);
         if (!experimentData) {

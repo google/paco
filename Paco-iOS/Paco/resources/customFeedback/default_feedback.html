@@ -10,7 +10,22 @@
     
 
 <script language="javascript" type="text/javascript">
-  $(document).ready(defaultPage);    
+  /*
+   TODO: this code should be re-usable
+   Inject all objects into window layer;
+   To be compatible with Android, check to see if window has the injections first
+   */
+  if (!window.eventLoader) {
+    window.eventLoader = eventLoader;
+  }
+  if (!window.db) {
+    window.db = db;
+  }
+  if (!window.env) {
+    window.env = env;
+  }
+
+  $(document).ready(defaultPage);
 </script>
 </head>
 <body style='text-align: center; color: #4272db;'>

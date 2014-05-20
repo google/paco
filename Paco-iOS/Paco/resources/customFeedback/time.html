@@ -72,6 +72,22 @@
         }
         }
         
+        /*
+         TODO: this code should be re-usable
+         Inject all objects into window layer;
+         To be compatible with Android, check to see if window has the injections first
+         */
+        if (!window.eventLoader) {
+          window.eventLoader = eventLoader;
+        }
+        if (!window.db) {
+          window.db = db;
+        }
+        if (!window.env) {
+          window.env = env;
+        }
+
+        
         var jsondata = window.eventLoader.loadAllEvents();
         var experimentData = $.parseJSON(jsondata);
         if (!experimentData) {
@@ -141,7 +157,7 @@
             }
           }
           if (!(checkChartData(d))){
-            document.location.href = "file:///android_asset/default_feedback.html";
+            document.location.href = "default_feedback.html";
             return;
           }
           $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time" },
@@ -221,7 +237,7 @@
             ticks.push([i, truncString(keyIndexes[i].key, 8)]);
           }
           if (!(checkChartData(d))){
-            document.location.href = "file:///android_asset/default_feedback.html";
+            document.location.href = "default_feedback.html";
             return;
           }
           var data = [ {label: 'count', data : d} ]; 
@@ -250,7 +266,7 @@
           }
           tableData += "</table>";
           if (!(checkTableData(tableData))){
-            document.location.href = "file:///android_asset/default_feedback.html";
+            document.location.href = "default_feedback.html";
             return;
           }
           $("#placeholder").html(tableData);
