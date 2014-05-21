@@ -14,7 +14,6 @@
  */
 
 #import "PacoMainViewController.h"
-#import <MessageUI/MessageUI.h>
 
 #import "UIColor+Paco.h"
 #import "PacoFindExperimentsViewController.h"
@@ -34,11 +33,6 @@
 #import "NSString+Paco.h"
 #import "PacoOpenSourceLibViewController.h"
 
-@interface PacoMainViewController ()<MFMailComposeViewControllerDelegate>
-
-@property (nonatomic, retain) PacoWebViewController* webViewController;
-
-@end
 
 @implementation PacoMainViewController
 
@@ -288,18 +282,10 @@
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
-  NSString* urlString = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
-  self.webViewController = [[PacoWebViewController alloc] initWithNibName:nil bundle:nil];
-  [self.webViewController setTitle:title];
-  [self.webViewController loadWebView:[NSURL fileURLWithPath:urlString]];
-  UIBarButtonItem* backBarButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main", nil)
-                                                                    style:UIBarButtonItemStylePlain
-                                                                   target:self
-                                                                   action:@selector(removeWebView)];
-  self.webViewController.navigationItem.backBarButtonItem = backBarButton;
-  [self.navigationController pushViewController:self.webViewController animated:YES];
+  PacoWebViewController* webViewController = [PacoWebViewController controllerWithTitle:title];
+  [webViewController loadStaticHtmlWithName:htmlName];
+  [self.navigationController pushViewController:webViewController animated:YES];
 }
-
 
 - (void)openMailViewController {
   if ([MFMailComposeViewController canSendMail]) {

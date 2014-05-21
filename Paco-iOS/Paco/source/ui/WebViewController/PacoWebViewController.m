@@ -15,29 +15,43 @@
 
 #import "PacoWebViewController.h"
 
-@implementation PacoWebViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+@implementation PacoWebViewController
+- (id)initWithTitle:(NSString*)title {
+  self = [super initWithNibName:nil bundle:nil];
   if (self) {
-    
+    self.title = title;
   }
   return self;
+}
+
++ (instancetype)controllerWithTitle:(NSString*)title {
+  return [[PacoWebViewController alloc] initWithTitle:title];
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.edgesForExtendedLayout = UIRectEdgeNone;
-}
-
-- (void)loadWebView:(NSURL *)url {
-
   UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
                                                                    0,
                                                                    self.view.frame.size.width,
                                                                    self.view.frame.size.height)];
-  [webView loadRequest:[NSURLRequest requestWithURL:url]];
   self.view = webView;
 }
+
+- (void)loadStaticHtmlWithName:(NSString*)htmlName {
+  NSString* htmlPath = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
+  [self startLoadingURL:[NSURL fileURLWithPath:htmlPath]];
+}
+
+- (void)loadURL:(NSString*)urlString {
+  [self startLoadingURL:[NSURL URLWithString:urlString]];
+}
+
+- (void)startLoadingURL:(NSURL*)url {
+  NSURLRequest* request = [NSURLRequest requestWithURL:url];
+  [(UIWebView*)self.view loadRequest:request];
+}
+
 
 @end
