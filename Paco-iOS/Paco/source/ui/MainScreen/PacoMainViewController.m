@@ -32,8 +32,11 @@
 #import "PacoPublicExperimentController.h"
 #import "PacoAlertView.h"
 #import "NSString+Paco.h"
+#import "PacoOpenSourceLibViewController.h"
 
 @interface PacoMainViewController ()<MFMailComposeViewControllerDelegate>
+
+@property (nonatomic, retain) PacoWebViewController* webViewController;
 
 @end
 
@@ -213,24 +216,27 @@
                                              destructiveButtonTitle:nil
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
                                                                     NSLocalizedString(@"Send Logs to Paco Team", nil),
-                                                                    NSLocalizedString(@"Configure Server Address", nil), nil];
+                                                                    NSLocalizedString(@"Configure Server Address", nil),
+                                                                    NSLocalizedString(@"Open Source Libraries", nil), nil];
   [actionSheet showInView:self.view];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
   switch (buttonIndex) {
-    case 0:
-    {
+    case 0: {
       [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
       break;
     }
-    case 1:
-    {
+    case 1: {
       [self openMailViewController];
       break;
     }
     case 2: {
       [self manualServerAddressConfiguration];
+      break;
+    }
+    case 3: {
+      [self opensourceCreditsPage];
       break;
     }
     default:
@@ -275,11 +281,25 @@
   [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverAddress]];
   [alert show];
 }
+  
+- (void)opensourceCreditsPage {
+  PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
+  [self.navigationController pushViewController:creditsViewController animated:YES];
+}
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
-  PacoWebViewController* webViewController =  [PacoWebViewController controllerWithTitle:title andHtml:htmlName];
-  [self.navigationController pushViewController:webViewController animated:YES];
+  NSString* urlString = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
+  self.webViewController = [[PacoWebViewController alloc] initWithNibName:nil bundle:nil];
+  [self.webViewController setTitle:title];
+  [self.webViewController loadWebView:[NSURL fileURLWithPath:urlString]];
+  UIBarButtonItem* backBarButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main", nil)
+                                                                    style:UIBarButtonItemStylePlain
+                                                                   target:self
+                                                                   action:@selector(removeWebView)];
+  self.webViewController.navigationItem.backBarButtonItem = backBarButton;
+  [self.navigationController pushViewController:self.webViewController animated:YES];
 }
+
 
 - (void)openMailViewController {
   if ([MFMailComposeViewController canSendMail]) {

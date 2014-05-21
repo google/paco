@@ -37,7 +37,7 @@
 "About Paco" = "About Paco";
 "Send Logs to Paco Team" = "Send Logs to Paco Team";
 "Paco Logs" = "Paco Logs";
-
+"Open Source Libraries" = "Open Source Libraries";
 //Ways to talk to Paco
 "Ways to talk to Paco" = "Ways to talk to Paco";
 "Email user group" = "Email user group";
@@ -165,4 +165,6 @@
 "Loading" = "Loading ...";
 "Value" = "Value";
 "This is the location that will be recorded for your response." = "This is the location that will be recorded for your response.";
+//opensource libraries screen
+"OpenSource Library View Header title" = "Thanks for the work of the following open source projects, which have been very useful to make Paco a better quantified system!";
 

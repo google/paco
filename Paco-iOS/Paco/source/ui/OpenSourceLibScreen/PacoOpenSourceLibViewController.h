@@ -15,8 +15,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PacoWebViewController : UIViewController
-
-- (void)loadWebView:(NSURL *)url;
+@interface PacoOpenSourceLibViewController : UIViewController
 
 @end

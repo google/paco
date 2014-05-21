@@ -17,36 +17,27 @@
 
 @implementation PacoWebViewController
 
-+ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName {
-  PacoWebViewController* controller = [[PacoWebViewController alloc] initWithNibName:nil bundle:nil];
-  controller.title = title;
-  [controller loadWebViewWithHTML:htmlName];
-  return controller;
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    
+  }
+  return self;
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.edgesForExtendedLayout = UIRectEdgeNone;
-  
-  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
-                                                                           style:UIBarButtonItemStylePlain
-                                                                          target:self
-                                                                          action:@selector(gotoMainPage)];
 }
 
-- (void)gotoMainPage {
-  [self.navigationController popToRootViewControllerAnimated:YES];
-}
+- (void)loadWebView:(NSURL *)url {
 
-- (void)loadWebViewWithHTML:(NSString*)htmlName {
-  NSString *htmlFile = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
-  UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
+  UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
                                                                    0,
                                                                    self.view.frame.size.width,
                                                                    self.view.frame.size.height)];
-  [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlFile]]];
+  [webView loadRequest:[NSURLRequest requestWithURL:url]];
   self.view = webView;
 }
-
 
 @end
