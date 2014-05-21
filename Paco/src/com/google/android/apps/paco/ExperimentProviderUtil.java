@@ -500,6 +500,7 @@ public class ExperimentProviderUtil {
           }
         }
         experiment.setFeedbackType(feedbackType);
+        experiment.setFeedback(experimentFromJson.getFeedback());
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {

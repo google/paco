@@ -73,8 +73,8 @@ public class ExperimentServlet extends HttpServlet {
 
   private void doMigrateWork() {
     //populatePublicExperimentsList();
-    setFeedbackTypeOnExperiments();
-    convertScheduleTimeLongsToSignalTimeObjects();
+    //setFeedbackTypeOnExperiments();
+    //convertScheduleTimeLongsToSignalTimeObjects();
   }
 
 
