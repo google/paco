@@ -203,7 +203,10 @@
 
 - (void)onInfoSelect:(UIButton *)sender {
   NSString* version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
-  NSString* title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  NSString* versionStr =
+      [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  NSString* accountStr = [[PacoClient sharedInstance] userEmail];
+  NSString* title = [NSString stringWithFormat:@"%@\n%@", versionStr, accountStr];
   UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:title
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)
