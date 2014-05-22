@@ -959,7 +959,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       openTextView.setText(message);
       autocompleteDatabase.updateAutoCompleteDatabase(bestPhrase);
     } else {
-      Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
+      Toast.makeText(getContext(), R.string.i_did_not_understand, Toast.LENGTH_SHORT).show();
     }
     ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
   }

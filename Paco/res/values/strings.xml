@@ -296,5 +296,6 @@
     <string name="this_experiment_schedule_is_not_editable">This experiment schedule is not editable</string>
     <string name="multiselectListManyItemsChosen">items chosen</string>
     <string name="multiselectListOneItemChosen">item chosen</string>
+    <string name="i_did_not_understand">I did not understand</string>
 
 </resources>
