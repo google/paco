@@ -127,7 +127,7 @@ public class ExperimentManagerActivity extends Activity {
 
         new AlertDialog.Builder(v.getContext())
             .setMessage(formattedMessage)
-        		.setTitle(R.string.create_experiment_title)
+        		.setTitle(R.string.create_experiment)
         		.setCancelable(true)
         		.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 
