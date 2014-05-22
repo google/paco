@@ -1,5 +1,6 @@
 package com.google.android.apps.paco;
 
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -118,7 +119,8 @@ public class DownloadHelper {
     if (limit != null) {
       path += "&limit=" + limit;
     }
-    path += "&tz=" + new DateTime().getZone().getID();
+    String timezoneId = new DateTime().getZone().getID();
+    path += "&tz=" + URLEncoder.encode(timezoneId, "UTF-8");
     request = manager.createRequest();
     Response response = request.setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
         .addHeader("http.useragent", "Android")
