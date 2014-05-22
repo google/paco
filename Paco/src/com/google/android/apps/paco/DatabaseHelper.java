@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalTimeDAO;
@@ -242,6 +243,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER"
               + ";");
     }
+    if (oldVersion <= 19) {
+      // redo the migration because some experiments had empty lists of times
+      migrateExistingLongTimeValuesToSignalTimeValues(db);
+    }
   }
 
   private void migrateExistingLongTimeValuesToSignalTimeValues(SQLiteDatabase db) {
@@ -382,13 +387,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             List<SignalTime> signalTimes = Lists.newArrayList();
             Iterable<String> dates = Splitter.on(",").split(csvTimes);
             for (String time : dates) {
-
+              if (Strings.isNullOrEmpty(time)) {
+                continue;
+              }
               SignalTime signalTime = new SignalTime(SignalTimeDAO.FIXED_TIME, SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
                              Integer.parseInt(time), SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME, 0, "");
               signalTimes.add(signalTime);
 
             }
-            data.put(id, toJson(signalTimes));
+            if (!signalTimes.isEmpty()) {
+              data.put(id, toJson(signalTimes));
+            }
           }
         }
       }
