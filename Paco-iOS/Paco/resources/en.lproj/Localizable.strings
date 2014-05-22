@@ -15,7 +15,6 @@
 
 //Main Screen
 "Find My Experiments" = "Find My Experiments";
-"Current Experiments" = "Current Experiments";
 "Explore Your Data" = "Explore Your Data";
 "Create an experiment" = "Create an experiment";
 "User Guide" = "User Guide";
@@ -76,7 +75,7 @@
 
 //Running Experiments
 "Running Experiments" = "Running Experiments";
-"Loading Current Experiments ..." = "Loading Current Experiments ...";
+"Loading Running Experiments ..." = "Loading Running Experiments ...";
 "Modify" = "Modify";
 "Participate" = "Participate";
 "Stop Experiment" = "Stop Experiment";
@@ -105,7 +104,7 @@
 "End Date:" = "End Date:";
 "Creator:" = "Creator:";
 "Join this Experiment" = "Join this Experiment";
-"Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Current Experiments.";
+"Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Running Experiments.";
 "Incompatible with iOS" = "Incompatible with iOS";
 "Experiment Incompatibility alertview message" = "This experiment is not compatible with iOS, thus won't work as expected on your iOS device.";
 "Join anyway" = "Join anyway";

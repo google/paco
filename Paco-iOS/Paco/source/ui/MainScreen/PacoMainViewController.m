@@ -77,7 +77,7 @@
   [buttonFind sizeToFit];
 
   PacoMenuButton *buttonRunningExperiment = [[PacoMenuButton alloc] init];
-  buttonRunningExperiment.text.text = NSLocalizedString(@"Current Experiments",nil);
+  buttonRunningExperiment.text.text = NSLocalizedString(@"Running Experiments",nil);
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_normal.png"] forState:UIControlStateNormal];
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_pressed.png"] forState:UIControlStateHighlighted];
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_disabled.png"] forState:UIControlStateDisabled];

@@ -85,7 +85,7 @@
   
   BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
   if (!finishLoading) {
-    [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Current Experiments ...", nil)];
+    [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Running Experiments ...", nil)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
