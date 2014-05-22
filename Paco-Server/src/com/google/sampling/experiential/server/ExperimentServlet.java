@@ -255,7 +255,7 @@ public class ExperimentServlet extends HttpServlet {
   }
 
   private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
+    userService = UserServiceFactory.getUserService();
     return userService.getCurrentUser();
   }
 
