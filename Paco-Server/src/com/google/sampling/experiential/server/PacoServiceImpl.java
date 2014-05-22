@@ -43,6 +43,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentQueryResult;
@@ -341,6 +342,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
         long experimentId = Long.parseLong(event.getExperimentId());
         experimentIds.add(experimentId);
         String experimentTitle = event.getExperimentName();
+        if (Strings.isNullOrEmpty(experimentTitle)) {
+          experimentTitle = "";
+        }
         experimentIdTitleMap.put(experimentId, experimentTitle);
 
       }
