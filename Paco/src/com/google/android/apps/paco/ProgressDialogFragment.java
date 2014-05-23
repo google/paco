@@ -112,7 +112,7 @@ public class ProgressDialogFragment extends DialogFragment {
                  .setMessage(getString(R.string.need_network_connection))
                  .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
                          public void onClick(DialogInterface dialog, int which) {
-                           ((FindExperimentsActivity)getActivity()).showNetworkConnectionActivity();
+                           ((NetworkActivityLauncher)getActivity()).showNetworkConnectionActivity();
                          }
                        })
                  .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
