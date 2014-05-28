@@ -87,6 +87,28 @@
                     otherButtonTitles:nil] show];
 }
 
++ (void)showRefreshErrorAlert {
+  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
+                              message:NSLocalizedString(@"Failed to refresh, please try again later.", nil)
+                             delegate:nil
+                    cancelButtonTitle:@"OK"
+                    otherButtonTitles:nil] show];
+}
+
++ (void)showAlertWithError:(NSError*)error {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (![error localizedDescription]) {
+      [self showGeneralErrorAlert];
+    } else {
+      [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
+                                  message:[error localizedDescription]
+                                 delegate:nil
+                        cancelButtonTitle:@"OK"
+                        otherButtonTitles:nil] show];
+    }
+  });
+}
+
 #pragma mark UIAlertViewDelegate implementation
 - (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
 {

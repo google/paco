@@ -647,14 +647,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
           if (error == nil || (error != nil && [self.prefetchState succeedToLoadDefinitions])) {
             self.prefetchState.errorLoadingDefinitions = nil;
             self.prefetchState.errorLoadingExperiments = nil;
-            [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
-                                                                object:nil];
           } else {
             self.prefetchState.errorLoadingDefinitions = error;
             self.prefetchState.errorLoadingExperiments = error;
-            [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
-                                                                object:error];
           }
+          [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
+                                                              object:error];
         });
       }];
     });

@@ -67,7 +67,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
-    [self updateUIWithError:prefetchError];
+    [self updateUIWithError:prefetchError isRefresh:NO];
   }
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(refreshFinished:)
@@ -87,18 +87,12 @@
 }
 
 
-- (void)updateUIWithError:(NSError*)error {
+- (void)updateUIWithError:(NSError*)error isRefresh:(BOOL)isRefresh{
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
-    if (error) {
-      tableView.data = @[];
-      [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
-                                  message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
-                                 delegate:nil
-                        cancelButtonTitle:@"OK"
-                        otherButtonTitles:nil] show];
-    }else{
+    
+    if (!error) {
       tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
       if ([tableView.data count] > 0) {
         [self.createExperimentLabel setHidden:YES];
@@ -117,25 +111,36 @@
         }
         [self.createExperimentLabel setHidden:NO];
       }
+    } else {
+      if (!isRefresh) {
+        tableView.data = @[];
+        [PacoAlertView showGeneralErrorAlert];
+      } else {
+        [PacoAlertView showRefreshErrorAlert];
+      }
     }
-
-    UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
-                                                               style:UIBarButtonItemStyleDone
-                                                              target:self
-                                                              action:@selector(onClickRefresh)];
-    self.navigationItem.rightBarButtonItem = button;
+    
+    if (!self.navigationItem.rightBarButtonItem) {
+      UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
+                                                                 style:UIBarButtonItemStyleDone
+                                                                target:self
+                                                                action:@selector(onClickRefresh)];
+      self.navigationItem.rightBarButtonItem = button;
+    }
   });
 }
 
 - (void)refreshFinished:(NSNotification*)notification {
-  [self definitionsUpdate:notification];
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  [self updateUIWithError:error isRefresh:YES];
   [[PacoLoadingView sharedInstance] dismissLoadingScreen];
 }
 
 - (void)definitionsUpdate:(NSNotification*)notification {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  [self updateUIWithError:error];
+  [self updateUIWithError:error isRefresh:NO];
 }
 
 #pragma mark - PacoTableViewDelegate

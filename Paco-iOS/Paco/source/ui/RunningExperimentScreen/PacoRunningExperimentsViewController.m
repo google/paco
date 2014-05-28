@@ -93,7 +93,7 @@
   } else {
     NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
     if (prefetchError) {
-      [self updateUIWithError:prefetchError];
+      [self updateUIWithError:prefetchError isRefresh:NO];
     } else {
       [self updateUIWithExperiments];
     }
@@ -105,13 +105,17 @@
 }
 
 
-- (void)updateUIWithError:(NSError*)error {
+- (void)updateUIWithError:(NSError*)error isRefresh:(BOOL)isRefresh {
   NSAssert(error, @"error should be valid");
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
-    tableView.data = @[];
-    [PacoAlertView showGeneralErrorAlert];
+    if (!isRefresh) {
+      tableView.data = @[];
+      [PacoAlertView showGeneralErrorAlert];
+    } else {
+      [PacoAlertView showRefreshErrorAlert];
+    }
   });
 }
 
@@ -156,11 +160,13 @@
 
 - (void)onClickRefresh {
   [[PacoLoadingView sharedInstance] showLoadingScreen];
-  [[PacoClient sharedInstance] refreshRunningExperimentsWithBlock:^(NSError *error) {
+  [[PacoClient sharedInstance] refreshRunningExperimentsWithBlock:^(NSError* error) {
+    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
     if (!error) {
       [self update];
+    } else {
+      [PacoAlertView showRefreshErrorAlert];
     }
-    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
   }];
 }
 
@@ -195,7 +201,7 @@
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
   if (error) {
-    [self updateUIWithError:error];
+    [self updateUIWithError:error isRefresh:YES];
   } else {
     [self updateUIWithExperiments];
   }
