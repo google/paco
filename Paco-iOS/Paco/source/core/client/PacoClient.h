@@ -54,6 +54,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 #define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 
+typedef void(^PacoRefreshRunningExperimentsBlock)(NSError* error);
 
 @interface PacoClient : NSObject
 
@@ -108,7 +109,11 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
 
-- (void)refreshDefinitions;
+//refresh definitions published to the current user
+- (void)refreshMyDefinitions;
+//refresh all running experiments' definitions
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshRunningExperimentsBlock)completionBlock;
+
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
 
 @end

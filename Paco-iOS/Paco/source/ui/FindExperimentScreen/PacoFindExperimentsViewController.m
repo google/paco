@@ -83,12 +83,11 @@
 
 - (void)onClickRefresh {
   [[PacoLoadingView sharedInstance] showLoadingScreen];
-  [[PacoClient sharedInstance] refreshDefinitions];
+  [[PacoClient sharedInstance] refreshMyDefinitions];
 }
 
 
-- (void)updateUIWithError:(NSError*)error
-{
+- (void)updateUIWithError:(NSError*)error {
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
@@ -120,10 +119,11 @@
       }
     }
 
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
-                                                                              style:UIBarButtonItemStyleDone
-                                                                             target:self
-                                                                             action:@selector(onClickRefresh)];
+    UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
+                                                               style:UIBarButtonItemStyleDone
+                                                              target:self
+                                                              action:@selector(onClickRefresh)];
+    self.navigationItem.rightBarButtonItem = button;
   });
 }
 

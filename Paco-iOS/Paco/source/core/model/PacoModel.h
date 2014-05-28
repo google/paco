@@ -40,9 +40,12 @@ extern NSString* const PacoAppBecomeActive;
 //NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;
 
-- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
-- (BOOL)saveExperimentInstancesToFile;
+- (void)fullyUpdateDefinitionList:(NSArray*)definitionList;
+- (void)partiallyUpdateDefinitionList:(NSArray*)defintionList;
 
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
+- (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentInstancesToFile;
 
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
 
@@ -58,8 +61,9 @@ extern NSString* const PacoAppBecomeActive;
 
 
 - (BOOL)hasRunningExperiments;
+- (NSArray*)runningExperimentIdList; //<NSString>
 
-- (BOOL)refreshExperiments;
+- (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList;
 
 @end
 

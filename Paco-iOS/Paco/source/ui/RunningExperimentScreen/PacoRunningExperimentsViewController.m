@@ -32,6 +32,7 @@
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoFindExperimentsViewController.h"
+#import "PacoLoadingView.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -39,6 +40,8 @@
 
 @property(nonatomic, strong) UILabel* msgLabel;
 @property(nonatomic, strong) UIButton* goToDefinitionButton;
+@property(nonatomic, strong) UIBarButtonItem* refreshButton;
+
 
 @end
 
@@ -114,38 +117,54 @@
 
 
 - (void)updateLabelAndButton:(BOOL)visible {
-  if (visible && !self.msgLabel && !self.goToDefinitionButton) {
-    UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
-    [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
-    [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-    [msgLabel setTextColor:[UIColor darkGrayColor]];
-    msgLabel.textAlignment = NSTextAlignmentCenter;
-    [msgLabel sizeToFit];
-    msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
-    [self.view addSubview:msgLabel];
-    self.msgLabel = msgLabel;
-    
-    UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
-    msgButton.titleLabel.numberOfLines = 2;
-    msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-    [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:msgButton];
-    [msgButton sizeToFit];
-    msgButton.center = self.view.center;
-    self.goToDefinitionButton = msgButton;
+  if (visible) {
+    if (!self.msgLabel) {
+      UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
+      [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
+      [msgLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+      [msgLabel setTextColor:[UIColor darkGrayColor]];
+      msgLabel.textAlignment = NSTextAlignmentCenter;
+      [msgLabel sizeToFit];
+      msgLabel.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
+      [self.view addSubview:msgLabel];
+      self.msgLabel = msgLabel;
+    }
+    if (!self.goToDefinitionButton) {
+      UIButton* msgButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+      [msgButton setTitle:NSLocalizedString(@"Go to Find My Experiments", nil) forState:UIControlStateNormal];
+      msgButton.titleLabel.numberOfLines = 2;
+      msgButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+      [msgButton addTarget:self action:@selector(goToFindMyExperiments:) forControlEvents:UIControlEventTouchUpInside];
+      [self.view addSubview:msgButton];
+      [msgButton sizeToFit];
+      msgButton.center = self.view.center;
+      self.goToDefinitionButton = msgButton;
+    }
+  } else {
+    if (!self.refreshButton) {
+      UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
+                                                                 style:UIBarButtonItemStyleDone
+                                                                target:self
+                                                                action:@selector(onClickRefresh)];
+      self.refreshButton = button;
+    }
   }
   self.msgLabel.hidden = !visible;
   self.goToDefinitionButton.hidden = !visible;
+  self.navigationItem.rightBarButtonItem = visible ? nil : self.refreshButton;
 }
 
+- (void)onClickRefresh {
+  [[PacoLoadingView sharedInstance] showLoadingScreen];
+  [[PacoClient sharedInstance] refreshRunningExperimentsWithBlock:^(NSError *error) {
+    if (!error) {
+      [self update];
+    }
+    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
+  }];
+}
 
-- (void)updateUIWithExperiments {
-  if (![[PacoClient sharedInstance].model areRunningExperimentsLoaded]) {
-    DDLogError(@"Try to update view controller without running experiments loaded.");
-    return;
-  }
-  
+- (void)update {
   //send UI update to main thread to avoid potential crash
   dispatch_async(dispatch_get_main_queue(), ^{
     PacoTableView* tableView = (PacoTableView*)self.view;
@@ -153,6 +172,15 @@
     [self updateLabelAndButton:visible];
     tableView.data = [PacoClient sharedInstance].model.experimentInstances;
   });
+}
+
+
+- (void)updateUIWithExperiments {
+  if (![[PacoClient sharedInstance].model areRunningExperimentsLoaded]) {
+    DDLogError(@"Try to update view controller without running experiments loaded.");
+  } else {
+    [self update];
+  }
 }
 
 - (void)goToFindMyExperiments:(UIButton*)button {

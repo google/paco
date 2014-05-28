@@ -602,30 +602,31 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
 }
 
-- (void)applyDefinitionsFromServer:(NSArray*)definitions {
-  DDLogInfo(@"Fetched %lu definitions from server", (unsigned long)[definitions count]);
-  [self.model applyDefinitionJSON:definitions];
-  [self.model saveExperimentDefinitionListJson:definitions];
-}
+//refreshing all definitions published to the current user is a full refreshing
+//refreshing only running experiments' definitions is a partial refreshing
+- (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions isPartialUpdate:(BOOL)isPartial{
+  DDLogInfo(@"Fetched %lu definitions from server", (unsigned long)[newDefinitions count]);
 
-
-- (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions {
   //save survey missing events
   [self.scheduler cleanExpiredNotifications];
   
-  [self applyDefinitionsFromServer:newDefinitions];
+  if (isPartial) {
+    [self.model partiallyUpdateDefinitionList:newDefinitions];
+  } else {
+    [self.model fullyUpdateDefinitionList:newDefinitions];
+  }
   
   if (![self.model hasRunningExperiments]) {
     return;
   }
   
-  BOOL shouldRefreshSchedules = [self.model refreshExperiments];
+  BOOL shouldRefreshSchedules = [self.model refreshExperimentsWithDefinitionList:newDefinitions];
   if (shouldRefreshSchedules) { //reset notification system
     [self.scheduler restartNotificationSystem];
   }
 }
 
-- (void)refreshDefinitions {
+- (void)refreshMyDefinitions {
   @synchronized(self) {
     if (![self.prefetchState finishLoadingAll]) {
       return;
@@ -636,7 +637,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
           if (!error) {
             DDLogInfo(@"Succeeded to refreshing definitions.");
-            [self refreshSucceedWithDefinitions:definitions];
+            [self refreshSucceedWithDefinitions:definitions isPartialUpdate:NO];
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
@@ -659,6 +660,33 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     });
 
 
+  }
+}
+
+
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshRunningExperimentsBlock)completionBlock {
+  @synchronized(self) {
+    if (![self.model hasRunningExperiments]) {
+      if (completionBlock) {
+        completionBlock(nil);
+      }
+      return;
+    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      NSArray* definitionIdList = [self.model runningExperimentIdList];
+      void(^finishBlock)(NSArray* , NSError*) = ^(NSArray* definitions, NSError* error) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          if (!error) {
+            [self refreshSucceedWithDefinitions:definitions isPartialUpdate:YES];
+          }
+          if (completionBlock) {
+            completionBlock(error);
+          }
+        });
+      };
+      [self.service loadFullDefinitionListWithIDs:definitionIdList andBlock:finishBlock];
+    });
   }
 }
 
@@ -706,7 +734,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
         }
         return;
       }
-      [self applyDefinitionsFromServer:definitions];
+      [self.model fullyUpdateDefinitionList:definitions];
       [self definitionsLoadedWithError:nil];
       [self prefetchExperimentsWithBlock:completionBlock];
     }];

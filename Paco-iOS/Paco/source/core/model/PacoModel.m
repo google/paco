@@ -76,6 +76,37 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   self.experimentDefinitions = definitions;
 }
 
+- (void)saveNewDefinitionList:(NSArray*)newDefinitions {
+  @synchronized(self) {
+    self.experimentDefinitions = newDefinitions;
+    [self saveExperimentDefinitionsToFile];
+  }
+}
+
+- (void)fullyUpdateDefinitionList:(NSArray*)definitionList {
+  @synchronized(self) {
+    [self saveNewDefinitionList:definitionList];
+  }
+}
+
+- (void)partiallyUpdateDefinitionList:(NSArray*)defintionList {
+  @synchronized(self) {
+    NSMutableArray* newDefinitionList =
+        [NSMutableArray arrayWithCapacity:[self.experimentDefinitions count]];
+    for (PacoExperimentDefinition* oldDefinition in self.experimentDefinitions) {
+      PacoExperimentDefinition* definitionToBeAdded = oldDefinition;
+      for (PacoExperimentDefinition* newDefinition in defintionList) {
+        if ([newDefinition.experimentId isEqualToString:oldDefinition.experimentId]) {
+          definitionToBeAdded = newDefinition;
+          break;
+        }
+      }
+      [newDefinitionList addObject:definitionToBeAdded];
+    }
+    [self saveNewDefinitionList:[NSArray arrayWithArray:newDefinitionList]];
+  }
+}
+
 - (void)applyInstanceJSON:(id)jsonObject {
   NSMutableArray *instances = [NSMutableArray array];
   if (jsonObject == nil) {
@@ -149,26 +180,44 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (BOOL)refreshExperiments {
+- (id)makeJSONObjectFromDefinitions {
+  NSMutableArray* newDefinitions = [[NSMutableArray alloc] initWithCapacity:[self.experimentDefinitions count]];
+  for (PacoExperimentDefinition* definition in self.experimentDefinitions) {
+    id json = [definition serializeToJSON];
+    NSAssert(json, @"experiment json should not be nil");
+    [newDefinitions addObject:json];
+  }
+  return newDefinitions;
+}
+
+
+- (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList {
   @synchronized(self) {
     if (![self hasRunningExperiments]) {
       return NO;
     }
-
+    
     BOOL schedulesChanged = NO;
     for (PacoExperiment* experiment in self.experimentInstances) {
       NSString* definitionId = experiment.definition.experimentId;
       NSAssert(definitionId, @"definitionId should be valid");
       
-      PacoExperimentDefinition* newDefinition = [self experimentDefinitionForId:definitionId];
+      PacoExperimentDefinition* newDefinition = nil;
+      for (PacoExperimentDefinition* definition in newDefinitionList) {
+        if ([definition.experimentId isEqualToString:definitionId]) {
+          newDefinition = definition;
+          break;
+        }
+      }
       PacoExperimentDefinition* oldDefinition = experiment.definition;
       NSAssert(oldDefinition, @"oldDefinition should be valid");
-
       /*
        In the following 3 cases, definition won't be returned from server:
-       a. definition expires 
+       a. definition expires
        b. definition was purged by administrator
        c. definition is no longer published to this user
+       d. newDefinitionList is from refreshing only my experiments, however the exepriment
+          is from public experiments
        **/
       if (newDefinition) {
         //replace with the new definition, if newDefinition is nil, then keep the old definition
@@ -202,6 +251,12 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 #pragma mark file writing operations
+- (BOOL)saveExperimentDefinitionsToFile {
+  id definitionListJson = [self makeJSONObjectFromDefinitions];
+  return [self saveExperimentDefinitionListJson:definitionListJson];
+}
+
+
 - (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson {
   NSError *jsonError = nil;
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:definitionsJson
@@ -362,6 +417,16 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 - (BOOL)hasRunningExperiments {
   return [self.experimentInstances count] > 0;
+}
+
+- (NSArray*)runningExperimentIdList {
+  @synchronized(self) {
+    NSMutableArray* list = [NSMutableArray arrayWithCapacity:[self.experimentInstances count]];
+    for (PacoExperiment* experiment in self.experimentInstances) {
+      [list addObject:experiment.definition.experimentId];
+    }
+    return [NSArray arrayWithArray:list];
+  }
 }
 
 @end
