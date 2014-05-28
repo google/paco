@@ -453,7 +453,6 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
         pm = PMF.get().getPersistenceManager();
         javax.jdo.Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
         List<Experiment> experiments = (List<Experiment>) q.execute(experimentIds);
-
         for (Experiment experiment : experiments) {
           triggerLoadingOfMemberObjects(experiment);
         }
@@ -462,7 +461,6 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
         experimentDAOs = filterSortAndSanitizeExperimentsUnavailableToUser(experimentDAOs, email, timezone);
 
         markEndOfDayExperiments(pm, experimentDAOs);
-
         return experimentDAOs;
      // }
     } finally {
