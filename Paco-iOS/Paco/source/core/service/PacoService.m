@@ -162,7 +162,14 @@
     PacoExperimentDefinition* definition = nil;
     if (!error) {
       definition = [definitionList firstObject];
-      NSAssert(definition, @"definition should be valid");
+      if (!definition) {
+        DDLogWarn(@"Warning: No full definition is found for id=%@, the experiment could expire already", definitionID);
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey : @"No full definition is found on server! "
+                                                               @"The experiment could expire already."};
+        error = [NSError errorWithDomain:@"paco_error"
+                                    code:0
+                                userInfo:userInfo];
+      }
     }
     if (completionBlock) {
       completionBlock(definition, error);
