@@ -234,6 +234,7 @@
     cell.textLabel.font = [UIFont pacoTableCellFont];
     cell.textLabel.textColor = [UIColor pacoBlue];
     cell.textLabel.text = experiment.definition.title;
+    cell.textLabel.numberOfLines = 2;
     if ([experiment isScheduledExperiment] &&
         [[PacoClient sharedInstance].scheduler hasActiveNotificationForExperiment:experiment.instanceId]) {
       cell.detailTextLabel.text = NSLocalizedString(@"Time to participate!", nil);

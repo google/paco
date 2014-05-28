@@ -219,7 +219,7 @@
   self.backgroundColor = [UIColor pacoBackgroundWhite];
   CGRect headerFrame = self.header ? self.header.frame : CGRectZero;
   CGRect footerFrame = self.footer ? self.footer.frame : CGRectZero;
-  CGFloat yStart = 0;
+  CGFloat yStart = 10;
   if (self.header) {
     self.header.frame = CGRectMake(0, yStart, headerFrame.size.width, headerFrame.size.height);
     yStart += headerFrame.size.height;
@@ -435,7 +435,7 @@
     assert([value isKindOfClass:[NSNumber class]]);
     return [value intValue];
   }
-  return 45;
+  return 54;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

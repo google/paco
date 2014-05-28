@@ -178,6 +178,7 @@
 
     cell.textLabel.font = [UIFont pacoTableCellFont];
     cell.textLabel.textColor = [UIColor pacoSystemButtonBlue];
+    cell.textLabel.numberOfLines = 2;
     cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }
@@ -190,7 +191,7 @@
 
 #pragma mark UITableViewDelegate
 -(CGFloat)tableView:(UITableView*)tableView heightForRowAtIndexPath:(NSIndexPath*)indexPath {
-  return 55.0f;
+  return 60.0f;
 }
 
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {

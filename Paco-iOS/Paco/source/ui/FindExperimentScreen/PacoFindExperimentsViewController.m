@@ -156,6 +156,7 @@
       cell.imageView.image = [UIImage imageNamed:@"incompatible"];
     }
     cell.textLabel.font = [UIFont pacoTableCellFont];
+    cell.textLabel.numberOfLines = 2;
     cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.textLabel.text = experiment.title;
     cell.textLabel.textColor = [UIColor pacoBlue];
