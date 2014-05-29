@@ -2,6 +2,7 @@ package com.google.sampling.experiential.server;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
@@ -10,6 +11,8 @@ import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 
 public class ExperimentServletSelectedExperimentsFullLoadHandler extends ExperimentServletHandler {
+
+  private static final Logger log = Logger.getLogger(ExperimentServletSelectedExperimentsFullLoadHandler.class.getName());
 
   private String selectedExperimentsParam;
 
@@ -23,6 +26,7 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
     List<Long> experimentIds = parseExperimentIds(selectedExperimentsParam);
     if (experimentIds.isEmpty()) {
+      log.fine("Experiment Id list is empty for slectedExperimentFullLoadHandler: " + selectedExperimentsParam);
       return Collections.EMPTY_LIST;
     }
     return getFullExperimentsById(experimentIds, email, timezone);
