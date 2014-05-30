@@ -16,9 +16,9 @@
 //Main Screen
 "Find My Experiments" = "Find My Experiments";
 "Explore Your Data" = "Explore Your Data";
-"Create an experiment" = "Create an experiment";
+"Create an experiment" = "Create an Experiment";
 "User Guide" = "User Guide";
-"Contact us" = "Contact us";
+"Contact us" = "Contact Us";
 "User Guide" = "User Guide";
 "How to Create an Experiment" = "How to Create an Experiment";
 "How to Message" = "Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments.\n\nPlease point your browser to\nhttp://pacoapp.com/ to create an experiment.";
@@ -65,7 +65,8 @@
 "2-factor Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";
 "Go to Safari" = "Go to Safari";
 
-//Find Experiment
+//Find My Experiment View
+"My Experiments" = "My Experiments";
 "Finding Experiments" = "Finding Experiments";
 "Sorry" = "Sorry";
 "Something went wrong, please try again later." = "Something went wrong, please try again later.";
@@ -73,7 +74,7 @@
 "The notification should send an error!" = "The notification should send an error!";
 "Paco CreateExperiments Message" = "There aren't any experiments published to you or created by you. You can go to the Paco website to create an experiment now.";
 
-//Running Experiments
+//Running Experiments View
 "Running Experiments" = "Running Experiments";
 "Loading Running Experiments ..." = "Loading Running Experiments ...";
 "Participate" = "Participate";

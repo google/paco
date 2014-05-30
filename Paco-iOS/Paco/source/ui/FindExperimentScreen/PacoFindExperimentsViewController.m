@@ -39,7 +39,7 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    self.navigationItem.title = NSLocalizedString(@"Find My Experiments", nil);
+    self.navigationItem.title = NSLocalizedString(@"My Experiments", nil);
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
                                                                              style:UIBarButtonItemStylePlain
                                                                             target:self
