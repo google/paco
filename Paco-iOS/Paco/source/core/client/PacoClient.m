@@ -251,7 +251,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (NSString*)serverAddress {
   NSString* endOfPrefix = @"//";
   NSRange range = [self.serverDomain rangeOfString:endOfPrefix];
-  int index = range.location + [endOfPrefix length];
+  NSUInteger index = range.location + [endOfPrefix length];
   return [self.serverDomain substringFromIndex:index];
 }
 
