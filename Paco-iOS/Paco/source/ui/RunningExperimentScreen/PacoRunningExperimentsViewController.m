@@ -259,11 +259,12 @@
     self.selectedExperiment = rowData;
     //TODO: @"Edit Schedule",@"Explore Data"
     UIAlertView *alert =
-    [[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Modify", nil), self.selectedExperiment.definition.title]
-                               message:nil
-                              delegate:self
-                     cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                     otherButtonTitles:NSLocalizedString(@"Participate", nil), NSLocalizedString(@"Stop Experiment", nil), nil];
+        [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
+                                   message:nil
+                                  delegate:self
+                         cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
+                         otherButtonTitles:NSLocalizedString(@"Participate", nil),
+                                           NSLocalizedString(@"Stop Experiment", nil), nil];
     [alert show];
   }else{
     self.selectedExperiment = nil;
