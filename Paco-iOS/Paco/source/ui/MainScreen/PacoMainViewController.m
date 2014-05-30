@@ -142,7 +142,8 @@
   [view setNeedsLayout];
 
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
-    NSString* message = NSLocalizedString(@"You are logged in successfully!", nil);
+    NSString* welcomeFormat = NSLocalizedString(@"Welcome back %@!", nil);
+    NSString* message = [NSString stringWithFormat:welcomeFormat, [[PacoClient sharedInstance] userEmail]];
     if (error) {
       message = [GoogleClientLogin descriptionForError:error.domain];
       if (0 == [message length]) {//just in case

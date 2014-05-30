@@ -22,7 +22,7 @@
 "User Guide" = "User Guide";
 "How to Create an Experiment" = "How to Create an Experiment";
 "How to Message" = "Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments.\n\nPlease point your browser to\nhttp://pacoapp.com/ to create an experiment.";
-"You are logged in successfully!" = "You are logged in successfully!";
+"Welcome back %@!" = "Welcome back %@!";
 "Something went wrong, please try again." = "Something went wrong, please try again.";
 "Configure Server Address" = "Configure Server Address";
 "WARNING: Only change this if you know what you are doing" = "WARNING: Only change this if you know what you are doing";
