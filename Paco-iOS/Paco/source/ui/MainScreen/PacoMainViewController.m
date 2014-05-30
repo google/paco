@@ -142,8 +142,7 @@
   [view setNeedsLayout];
 
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
-    NSString* welcomeFormat = NSLocalizedString(@"Welcome back %@!", nil);
-    NSString* message = [NSString stringWithFormat:welcomeFormat, [[PacoClient sharedInstance] userEmail]];
+    NSString* message = [self welcomeMessage];
     if (error) {
       message = [GoogleClientLogin descriptionForError:error.domain];
       if (0 == [message length]) {//just in case
@@ -157,6 +156,27 @@
                                                                     tapHandler:nil];
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
+}
+
+- (NSString*)welcomeMessage {
+  NSString* msgFormat = nil;
+  if ([self isFirstTimeWelcome]) {
+    msgFormat = NSLocalizedString(@"Welcome to Paco %@!", nil);
+  } else {
+    msgFormat = NSLocalizedString(@"Welcome back %@!", nil);
+  }
+  return [NSString stringWithFormat:msgFormat, [[PacoClient sharedInstance] userEmail]];
+}
+
+- (BOOL)isFirstTimeWelcome {
+  NSString* key = @"firstTimeWelcome";
+  if (![[NSUserDefaults standardUserDefaults] objectForKey:key]) {
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return YES;
+  } else {
+    return NO;
+  }
 }
 
 - (void)didReceiveMemoryWarning {
