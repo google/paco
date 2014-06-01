@@ -211,6 +211,8 @@ public class ExperimentDefinitionPanel extends Composite {
     formPanel.add(createDurationPanel(experiment));
     formPanel.add(createSignalMechanismPanel(experiment));
 
+    formPanel.add(createBackgroundPollingPanel(experiment));
+
     formPanel.add(createAdminDisclosurePanel(experiment));
 
     PanelPair informedConsentPanelPair = createInformedConsentPanel(experiment);
@@ -223,8 +225,11 @@ public class ExperimentDefinitionPanel extends Composite {
 
     formPanel.add(createFeedbackEntryPanel(experiment));
 
-
     createButtonPanel(experiment);
+  }
+
+  private Widget createBackgroundPollingPanel(ExperimentDAO experiment2) {
+    return new BackgroundPollingPanel(experiment);
   }
 
   private SignalMechanismChooserPanel createSignalMechanismPanel(ExperimentDAO experiment2) {

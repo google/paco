@@ -501,6 +501,7 @@ public class ExperimentProviderUtil {
         }
         experiment.setFeedbackType(feedbackType);
         experiment.setFeedback(experimentFromJson.getFeedback());
+        experiment.setLogActions(experimentFromJson.isLogActions());
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {

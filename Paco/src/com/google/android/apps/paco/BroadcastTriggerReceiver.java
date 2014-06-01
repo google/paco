@@ -9,18 +9,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.os.PowerManager;
+import android.provider.Browser;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private static final String FREQUENCY = "Frequency";
   public static final String RUNNING_PROCESS_WATCHER_FLAG = "RUNNING_PROCESS_WATCHER";
+  private static final String LOGGING_ACTIONS_FLAG = "LOGGING_ACTIONS";
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
 
+
 	@Override
-  public void onReceive(Context context, Intent intent) {
+  public void onReceive(final Context context, final Intent intent) {
     if (isPhoneHangup(intent)) {
       triggerPhoneHangup(context, intent);
     } else if (isUserPresent(intent)) {
@@ -28,16 +37,165 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     } else if (intent.getAction().equals(PACO_TRIGGER_INTENT)) {
       triggerPacoTriggerReceived(context, intent);
     }
-    // handle polling events for screen on actions (app usage)
-    boolean shouldPoll = shouldPoll(context);
-    if (isUserPresent(intent) && shouldPoll) {
-      startProcessService(context);
-    } else if (isScreenOn(intent) && !isKeyGuardOn(context) && shouldPoll) {
-      startProcessService(context);
-    } else if (isScreenOff(intent)) {
-      stopProcessingService(context);
+    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                                                    "Paco BroadcastTriggerService wakelock");
+    wl.acquire();
+
+    Runnable runnable = new Runnable() {
+      public void run() {
+        try {
+          // handle polling events for screen on actions (app usage)
+          initPollingAndLoggingPreference(context);
+          boolean shouldPoll = BroadcastTriggerReceiver.shouldWatchProcesses(context);
+          if (isUserPresent(intent) && shouldPoll) {
+            startProcessService(context);
+          } else if (isScreenOn(intent) && !isKeyGuardOn(context) && shouldPoll) {
+            startProcessService(context);
+          } else if (isScreenOff(intent)) {
+            stopProcessingService(context);
+//            if (BroadcastTriggerReceiver.shouldLogActions(context)) {
+//              createBrowserHistoryEndSnapshot(context);
+//            }
+
+          }
+
+        } finally {
+          wl.release();
+        }
+      }
+    };
+    (new Thread(runnable)).start();
+
+  }
+
+  public static void createBrowserHistoryStartSnapshot(Context context) {
+//    List<String> searchHistory = getSearchHistory(context);
+//    int browserHistoryItemCount = searchHistory.size();
+//    String topItemInBrowserHistory = null;
+//    if (browserHistoryItemCount > 0) {
+//      topItemInBrowserHistory = searchHistory.get(0);
+//    }
+
+    setUserPrefsForBrowserAndSession(context, /*browserHistoryItemCount, topItemInBrowserHistory, */System.currentTimeMillis());
+  }
+
+  public static void setUserPrefsForBrowserAndSession(Context context, Long currentTimeMillis) {
+//    BroadcastTriggerReceiver.setBrowserHistoryCount(context, browserHistoryItemCount);
+//    BroadcastTriggerReceiver.setLastBrowserHistoryItem(context, topItemInBrowserHistory);
+    BroadcastTriggerReceiver.setSessionStartMillis(context, currentTimeMillis);
+  }
+
+  public static void createBrowserHistoryEndSnapshot(Context context) {
+    Long sessionStartMillis = BroadcastTriggerReceiver.getSessionStartMillis(context);
+    List<String> newSearchHistory = getSearchHistory(context, sessionStartMillis);
+//    int browserHistoryItemCount = searchHistory.size();
+
+//    Integer oldItemCount = BroadcastTriggerReceiver.getBrowserHistoryCount(context);
+//    String lastTopItem = BroadcastTriggerReceiver.getLastBrowserHistoryItem(context);
+//    Long sessionStartMillis = BroadcastTriggerReceiver.getSessionStartMillis(context);
+
+
+//    List<String> newSearchHistory = Lists.newArrayList();
+//    if (browserHistoryItemCount > oldItemCount) {
+//      List<String> newItems = searchHistory.subList(0, browserHistoryItemCount - oldItemCount);
+//      for (String newHistoryItem : newItems) {
+//        newSearchHistory.add(newHistoryItem);
+//      }
+//    }
+
+    // reset browser prefs
+    setUserPrefsForBrowserAndSession(context, /*0, null,*/ null);
+
+    if (newSearchHistory.isEmpty()) {
+      return;
+    }
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
+
+    String usedAppsString = Joiner.on(",").join(newSearchHistory);
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createSitesVisitedPacoEvent(usedAppsString, experiment, sessionStartMillis);
+      experimentProviderUtil.insertEvent(event);
+    }
+
+  }
+
+  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!experiment2.isOver(now) && experiment2.isLogActions()) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
+  }
+
+
+  public static List<String> getSearchHistory(Context context, long startTimeMillis) {
+    List<String> results = Lists.newArrayList();
+    if (startTimeMillis == 0) {
+      return results;
+    }
+    String[] proj = new String[] { Browser.BookmarkColumns.TITLE, Browser.BookmarkColumns.URL, Browser.BookmarkColumns.DATE };
+    String sel = /*Browser.BookmarkColumns.BOOKMARK + " = 0 & " +*/ Browser.BookmarkColumns.DATE + " > ?"; // 0 = history, 1 = bookmark
+    String[] selArgs = new String[] { String.valueOf(startTimeMillis) };
+    Cursor mCur = null;
+    try {
+      mCur = context.getContentResolver().query(Browser.BOOKMARKS_URI, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
+      mCur.moveToFirst();
+
+      String title = "";
+
+      String url = "";
+
+      String ts = "";
+      if (mCur.moveToFirst() && mCur.getCount() > 0) {
+          boolean cont = true;
+          while (mCur.isAfterLast() == false && cont) {
+              title = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.TITLE));
+              url = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.URL));
+              ts = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.DATE));
+              if (ts != null) {
+                ts = new DateTime(Long.parseLong(ts)).toString();
+              }
+              results.add( ts + " _ " + title.replaceAll("_",  " ") + " _ " + url );
+              mCur.moveToNext();
+          }
+      }
+      return results;
+    } finally {
+      if (mCur != null) {
+        mCur.close();
+      }
     }
   }
+
+  public static Event createSitesVisitedPacoEvent(String usedAppsString, Experiment experiment, long startTime) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(usedAppsString);
+    responseForInput.setName("sites_visited");
+    event.addResponse(responseForInput);
+
+    Output responseForInputSessionDuration = new Output();
+    long sessionDuration = (System.currentTimeMillis() - startTime) / 1000;
+    responseForInputSessionDuration.setAnswer(Long.toString(sessionDuration));
+    responseForInputSessionDuration.setName("session_duration");
+
+    event.addResponse(responseForInputSessionDuration);
+    return event;
+  }
+
 
   private boolean isUserPresent(Intent intent) {
     return intent.getAction().equals(android.content.Intent.ACTION_USER_PRESENT);
@@ -58,41 +216,108 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private void startProcessService(Context context) {
     Log.i(PacoConstants.TAG, "Starting App Usage poller");
-    toggleWatchRunningProcesses(context, true);
+    BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, true);
     Intent intent = new Intent(context, ProcessService.class);
     context.startService(intent);
   }
 
   private void stopProcessingService(Context context) {
     Log.i(PacoConstants.TAG, "Stopping App Usage poller");
-    toggleWatchRunningProcesses(context, false);
+    BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, false);
   }
 
-  private static boolean shouldPoll(Context context) {
-    boolean shouldPoll = isAtLeastOneExperimentWatchingTasks(context);
-    BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, shouldPoll);
-    return shouldPoll;
-  }
+  private static void initPollingAndLoggingPreference(Context context) {
+    boolean shouldWatchProcesses = false;
+    boolean shouldLogActions = false;
 
-  private static boolean isAtLeastOneExperimentWatchingTasks(Context context) {
     ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
     DateTime now = new DateTime();
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
-      if (!experiment.isOver(now) && experiment.shouldPoll()) {
-        return true;
+      if (!experiment.isOver(now)) {
+       if (experiment.shouldWatchProcesses()) {
+        shouldWatchProcesses = true;
+       }
+       if (experiment.isLogActions()) {
+         shouldLogActions = true;
+       }
       }
     }
-    return false;
+    BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, shouldWatchProcesses);
+    BroadcastTriggerReceiver.toggleLogActions(context, shouldLogActions);
   }
 
   public static boolean shouldWatchProcesses(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getBoolean(RUNNING_PROCESS_WATCHER_FLAG, true);
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getBoolean(RUNNING_PROCESS_WATCHER_FLAG, false);
   }
 
   public static void toggleWatchRunningProcesses(Context context, boolean running) {
     SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
     prefs.edit().putBoolean(RUNNING_PROCESS_WATCHER_FLAG, running).commit();
+  }
+
+  public static boolean shouldLogActions(Context context) {
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getBoolean(LOGGING_ACTIONS_FLAG, false);
+  }
+
+  public static void toggleLogActions(Context context, boolean running) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    prefs.edit().putBoolean(LOGGING_ACTIONS_FLAG, running).commit();
+  }
+
+  public static boolean isInBrowser(Context context) {
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getBoolean("inBrowserTask", false);
+  }
+
+  public static void toggleInBrowser(Context context, boolean running) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    prefs.edit().putBoolean("inBrowserTask", running).commit();
+  }
+
+
+  public static String getLastBrowserHistoryItem(Context context) {
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getString("LastBrowserHistoryItem", null);
+  }
+
+  public static void setLastBrowserHistoryItem(Context context, String lastItem) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    if (lastItem == null) {
+      editor.remove("LastBrowserHistoryItem");
+    } else {
+      editor.putString("LastBrowserHistoryItem", lastItem);
+    }
+    editor.commit();
+  }
+
+  public static Integer getBrowserHistoryCount(Context context) {
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getInt("browserHistorySize", 0);
+  }
+
+  public static void setBrowserHistoryCount(Context context, Integer count) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    if (count == null) {
+      editor.remove("browserHistorySize");
+    } else {
+      editor.putInt("browserHistorySize", count);
+    }
+    editor.commit();
+  }
+
+  public static Long getSessionStartMillis(Context context) {
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getLong("sessionStartMillis", 0);
+  }
+
+  public static void setSessionStartMillis(Context context, Long sessionStartMillis) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    if (sessionStartMillis == null) {
+      editor.remove("sessionStartMillis");
+    } else {
+    editor.putLong("sessionStartMillis", sessionStartMillis);
+    }
+    editor.commit();
   }
 
   public static void setFrequency(Context context, int freq) {
@@ -140,5 +365,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
     context.startService(broadcastTriggerServiceIntent);
   }
+
 
 }

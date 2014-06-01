@@ -101,6 +101,7 @@ public class Experiment implements Parcelable {
 
   private List<Feedback> feedback = new ArrayList<Feedback>();
   private Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
+  private Boolean logActions = false;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -591,8 +592,13 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
-  public boolean shouldPoll() {
-    return trigger != null && trigger.getEventCode() == Trigger.APP_USAGE;
+  public boolean shouldWatchProcesses() {
+    return hasAppUsageTrigger() || isLogActions();
+  }
+
+  @JsonIgnore
+  public boolean hasAppUsageTrigger() {
+    return (trigger != null && trigger.getEventCode() == Trigger.APP_USAGE);
   }
 
 
@@ -640,6 +646,17 @@ public class Experiment implements Parcelable {
 
   public boolean isStarted(DateTime now) {
     return isFixedDuration() == null || !isFixedDuration() || !now.isBefore(getStartDateTime());
+  }
+
+  public Boolean isLogActions() {
+    if (logActions == null) {
+      logActions = false; // json deserialization problem
+    }
+    return logActions;
+  }
+
+  public void setLogActions(Boolean logActions) {
+    this.logActions = logActions;
   }
 
 

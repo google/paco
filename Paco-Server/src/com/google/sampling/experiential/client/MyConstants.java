@@ -481,5 +481,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Only 0 or 1 repeat allowed")
   String only1SnoozeRepeat();
 
+  @DefaultStringValue("Contextual polling")
+  String backgroundPollingTitle();
+
+  @DefaultStringValue("Log app usage and browser history")
+  String shouldBackgroundPoll();
+
 
 }

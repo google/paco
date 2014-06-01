@@ -147,6 +147,9 @@ public class Experiment {
   @Persistent
   private Integer feedbackType;
 
+  @Persistent
+  private Boolean logActions = false;
+
 
   /**
    * @param id
@@ -529,6 +532,14 @@ public class Experiment {
   public void setFeedbackType(Integer feedbackType2) {
     this.feedbackType = feedbackType2;
 
+  }
+
+  public Boolean shouldLogActions() {
+    return logActions;
+  }
+
+  public void setLogActions(Boolean val) {
+    this.logActions = val;
   }
 
 

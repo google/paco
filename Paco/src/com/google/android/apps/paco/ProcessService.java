@@ -1,5 +1,6 @@
 package com.google.android.apps.paco;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -9,15 +10,21 @@ import android.app.ActivityManager.RecentTaskInfo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 public class ProcessService extends Service {
 
   private ActivityManager am;
+  private ExperimentProviderUtil experimentProviderUtil;
+  private List<Experiment> experimentsNeedingEvent;
 
   @Override
   public void onStart(Intent intent, int startId) {
@@ -30,68 +37,122 @@ public class ProcessService extends Service {
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco App Usage Poller Service wakelock");
     wl.acquire();
 
+    experimentProviderUtil = new ExperimentProviderUtil(getApplicationContext());
+    experimentsNeedingEvent = initializeExperimentsWatchingAppUsage();
+
     Runnable runnable = new Runnable() {
 
-
       public void run() {
-        List<String> tasks = initializeWatchedTasks();
-        List<String> lastTaskNames = null;
+        List<String> tasksOfInterest = initializeTasksToWatch();
+        List<String> previousTaskNames = null;
+        boolean inBrowser = BroadcastTriggerReceiver.isInBrowser(getApplicationContext());
 
         try {
           while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
             synchronized (this) {
               try {
                 Log.i(PacoConstants.TAG, "polling on: instance = " + ProcessService.this.toString());
-                lastTaskNames = checkForRecentlyUsedProcesses(lastTaskNames, tasks);
+                List<String> recentTaskNames = getRecentTaskNames();
+
+                List<String> newlyUsedTasks = checkForNewlyUsedTasks(previousTaskNames, tasksOfInterest,
+                                                                     recentTaskNames);
+                if (newlyUsedTasks.size() > 0 && isBrowserTask(newlyUsedTasks.get(0))
+                    && BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
+                  BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(getApplicationContext());
+                  BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), true);
+                  inBrowser = true;
+                } else if (inBrowser == true && newlyUsedTasks.size() > 0 && !isBrowserTask(newlyUsedTasks.get(0))) {
+                  inBrowser = false;
+                  BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), false);
+                  BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
+                }
+                createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
+
+                if (BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
+                  logProcessesUsedSinceLastPolling(newlyUsedTasks);
+                }
+
+                previousTaskNames = recentTaskNames;
                 wait(BroadcastTriggerReceiver.getFrequency(ProcessService.this) * 1000);
               } catch (Exception e) {
               }
             }
           }
-          Log.i(PacoConstants.TAG, "polling stopping: instance = " +ProcessService.this.toString());
+          // if (!pm.isScreenOn()) {
+          // BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
+          // //testIfUserHasResponded
+          // //createNotificationIfNotResponded
+          //
+          // }
+          Log.i(PacoConstants.TAG, "polling stopping: instance = " + ProcessService.this.toString());
         } finally {
-          lastTaskNames = null;
+          previousTaskNames = null;
           wl.release();
           stopSelf();
         }
       }
 
+      private boolean isBrowserTask(String topTask) {
+        return topTask.equals("com.android.browser/com.android.browser.BrowserActivity") ||
+                topTask.startsWith("com.android.chrome/") ||
+                topTask.startsWith("org.mozilla.firefox/");
+        // TODO add more browser process names, e.g., Chrome, Firefox, vendor specific?
+      }
 
-      protected List<String> checkForRecentlyUsedProcesses(List<String> lastTaskNames, List<String> tasks) {
-        List<RecentTaskInfo> recentTasks = am.getRecentTasks(30, 0);
-        // these are sorted most-recently-used first
-        List<String> recentTaskNames = Lists.newArrayList();
+      private void createTriggersForNewlyUsedTasksOfInterest(List<String> tasksOfInterest, List<String> newlyUsedTasks) {
         List<String> tasksToSendTrigger = Lists.newArrayList();
+        for (int i = 0; i < newlyUsedTasks.size(); i++) {
+          String taskName = newlyUsedTasks.get(i);
+          if (tasksOfInterest.contains(taskName)) {
+            tasksToSendTrigger.add(taskName);
+          }
+        }
+        for (String taskName : tasksToSendTrigger) {
+          triggerAppUsed(taskName);
+        }
+      }
+
+
+      protected List<String> checkForNewlyUsedTasks(List<String> lastTaskNames, List<String> tasksOfInterest, List<String> recentTaskNames) {
+        if (lastTaskNames == null) {
+          return Collections.EMPTY_LIST; // skip first run as we need a previous run to compare against
+        }
+
+        List<String> newlyUsedTasks = Lists.newArrayList();
+        for (int i = 0; i < recentTaskNames.size(); i++) {
+          String taskName = recentTaskNames.get(i);
+          int indexOfTaskNameInLastTaskNames = lastTaskNames.indexOf(taskName);
+          if (indexOfTaskNameInLastTaskNames == -1 || i < indexOfTaskNameInLastTaskNames) {
+            newlyUsedTasks.add(taskName);
+          }
+        }
+        return newlyUsedTasks;
+      }
+
+
+      private List<String> getRecentTaskNames() {
+        List<RecentTaskInfo> recentTasks = am.getRecentTasks(30, 0);
+        List<String> recentTaskNames = Lists.newArrayList();
+
         for (int i = 0; i < recentTasks.size(); i++) {
           RecentTaskInfo recentTaskInfo = recentTasks.get(i);
           String taskName = recentTaskInfo.baseIntent.getComponent().flattenToString();
           recentTaskNames.add(taskName);
-
-          if (lastTaskNames == null) {
-            continue; // skip first run as we need a previous run to compare against
-          } else if (tasks.contains(taskName)) {
-            int indexOfTaskNameInLastTaskNames = lastTaskNames.indexOf(taskName);
-            if (indexOfTaskNameInLastTaskNames == -1 || i < indexOfTaskNameInLastTaskNames) {
-              // TODO Is there an issue with launching the same service multiple times (this happens if we have more than one experiment watching processes...)
-              tasksToSendTrigger.add(taskName);
-            }
-          }
-        }
-
-        for (String taskName : tasksToSendTrigger) {
-          triggerAppUsed(taskName);
         }
         return recentTaskNames;
       }
 
-      private List<String> initializeWatchedTasks() {
+      private List<String> initializeTasksToWatch() {
         List<String> tasks = Lists.newArrayList();
         ExperimentProviderUtil eu = new ExperimentProviderUtil(ProcessService.this);
         DateTime now = new DateTime();
         List<Experiment> joined = eu.getJoinedExperiments();
         for (Experiment experiment : joined) {
-          if (!experiment.isOver(now) && experiment.shouldPoll()) {
-            tasks.add(experiment.getTrigger().getSourceIdentifier());
+          if (!experiment.isOver(now) && experiment.hasAppUsageTrigger()) {
+            Trigger trigger = experiment.getTrigger();
+            if (trigger != null) {
+              tasks.add(trigger.getSourceIdentifier());
+            }
           }
         }
         return tasks;
@@ -111,6 +172,75 @@ public class ProcessService extends Service {
     };
     (new Thread(runnable)).start();
 
+  }
+
+  // create PacoEvent for list of apps in mru order
+  protected void logProcessesUsedSinceLastPolling(List<String> newlyUsedTasks) {
+    if (newlyUsedTasks.isEmpty()) {
+      return;
+    }
+
+    List<String> prettyAppNames = getNamesForApps(newlyUsedTasks);
+    String usedAppsString = Joiner.on(",").join(prettyAppNames);
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createAppsUsedPacoEvent(usedAppsString, experiment);
+      experimentProviderUtil.insertEvent(event);
+    }
+
+
+  }
+
+  private List<String> getNamesForApps(List<String> newlyUsedTasks) {
+    List<String> appNames = Lists.newArrayList();
+    PackageManager pm = getApplicationContext().getPackageManager();
+    for (String activityName : newlyUsedTasks) {
+      ApplicationInfo info = null;
+      try {
+        info = pm.getApplicationInfo(getPackageFromActivity(activityName), 0);
+        appNames.add(pm.getApplicationLabel(info).toString());
+      } catch (final NameNotFoundException e) {
+        appNames.add(activityName);
+      }
+
+    }
+    return appNames;
+  }
+
+  private String getPackageFromActivity(String activityName) {
+    int slashIndex = activityName.indexOf("/");
+    if (slashIndex != -1) {
+      return activityName.substring(0, slashIndex);
+    } else {
+      return activityName;
+    }
+  }
+
+  private Event createAppsUsedPacoEvent(String usedAppsString, Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(usedAppsString);
+    responseForInput.setName("apps_used");
+    event.addResponse(responseForInput);
+    return event;
+  }
+
+  private List<Experiment> initializeExperimentsWatchingAppUsage() {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!experiment2.isOver(now) && experiment2.isLogActions()) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
   }
 
   @Override

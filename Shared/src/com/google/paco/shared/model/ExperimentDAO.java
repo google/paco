@@ -57,7 +57,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected Boolean customRendering = false;
   protected String customRenderingCode;
   protected Integer feedbackType;
-
+  protected Boolean logActions = false;
 
   /**
    * @param id
@@ -71,9 +71,10 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param published
    * @param admins
    * @param customRenderingCode
+   * @param feedbackType2
+   * @param logActions TODO
    * @param showFeedback
    * @param hasCustomFeedback
-   * @param feedbackType2
    * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -81,7 +82,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
       Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
-      Integer feedbackType2) {
+      Integer feedbackType2, Boolean logActions) {
 
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
     this.id = id;
@@ -110,6 +111,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     }
     this.customRenderingCode = customRenderingCode;
     this.feedbackType = feedbackType2;
+    this.logActions = logActions;
   }
 
   /**
@@ -270,6 +272,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setFeedbackType(Integer i) {
     this.feedbackType = i;
 
+  }
+
+  public Boolean isLogActions() {
+    return logActions;
+  }
+
+  public void setLogActions(Boolean logActions) {
+    this.logActions = logActions;
   }
 
 }
