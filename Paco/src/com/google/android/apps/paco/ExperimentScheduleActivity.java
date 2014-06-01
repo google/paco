@@ -30,7 +30,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -561,18 +564,31 @@ public class ExperimentScheduleActivity extends Activity {
     event.setExperimentVersion(experiment.getVersion());
     event.setResponseTime(new DateTime());
 
-    Output responseForInput = new Output();
-    responseForInput.setAnswer("true");
-    responseForInput.setName("joined");
-    event.addResponse(responseForInput);
+    event.addResponse(createOutput("joined", "true"));
 
-    Output responseForSchedule = new Output();
     SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    responseForSchedule.setAnswer(schedule.toString());
-    responseForSchedule.setName("schedule");
-    event.addResponse(responseForSchedule);
+    event.addResponse(createOutput("schedule", schedule.toString()));
+
+    Display defaultDisplay = getWindowManager().getDefaultDisplay();
+    String size = Integer.toString(defaultDisplay.getHeight()) + "x" +
+            Integer.toString(defaultDisplay.getWidth());
+    event.addResponse(createOutput("display", size));
+
+    event.addResponse(createOutput("make", Build.MANUFACTURER));
+    event.addResponse(createOutput("model", Build.MODEL));
+    event.addResponse(createOutput("android", Build.VERSION.RELEASE));
+    TelephonyManager manager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+    String carrierName = manager.getNetworkOperatorName();
+    event.addResponse(createOutput("carrier", carrierName));
 
     experimentProviderUtil.insertEvent(event);
+  }
+
+  private Output createOutput(String key, String answer) {
+    Output responseForInput = new Output();
+    responseForInput.setAnswer(answer);
+    responseForInput.setName(key);
+    return responseForInput;
   }
 
   private void save() {
