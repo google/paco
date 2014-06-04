@@ -244,9 +244,6 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)saveEvents:(NSArray*)events {
-  if (ADD_TEST_DEFINITION) {
-    return;
-  }
   @synchronized(self) {
     NSAssert([events count] > 0, @"events should have more than one element");
     

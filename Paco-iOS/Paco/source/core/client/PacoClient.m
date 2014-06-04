@@ -171,9 +171,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSString*)userEmail {
-  if (SKIP_LOG_IN) {
-    return @"test@gmail.com";
-  }
   return [self.authenticator userEmail];
 }
 
@@ -413,13 +410,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
-  if (SKIP_LOG_IN) {
-    [self prefetchInBackgroundWithBlock:^{
-      [self setUpNotificationSystem];
-    }];
-    return;
-  }
-  
   UINavigationController* navi = (UINavigationController*)
       ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
   if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
@@ -495,15 +485,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
-  if (SKIP_LOG_IN) {
-    [self startWorkingAfterLogIn];
-    if (block != nil) {
-      block(nil);
-    }
-    return;
-  }
-  
-  
   if ([self isLoggedIn]) {
     if (block) {
       block(nil);
@@ -691,11 +672,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 #pragma mark Private methods
 - (void)definitionsLoadedWithError:(NSError*)error
 {
-  if (ADD_TEST_DEFINITION) {
-    // for testing purposes let's load a sample experiment
-    //[self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
-    [self.model addExperimentDefinition:[PacoExperimentDefinition testDefinitionWithId:@"999999999"]];
-  }
   self.prefetchState.finishLoadingDefinitions = YES;
   self.prefetchState.errorLoadingDefinitions = error;
   [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
@@ -709,12 +685,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
     [self.prefetchState reset];
     
-    if (SKIP_LOG_IN) {
-      [self definitionsLoadedWithError:nil];
-      [self prefetchExperimentsWithBlock:completionBlock];
-      return;
-    }
-
     // Load the experiment definitions.
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {
