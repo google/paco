@@ -27,10 +27,8 @@ extern NSString* const PacoAppBecomeActive;
 
 
 @interface PacoModel : NSObject
-//YMZ:TODO: need to think about if it's necessary to use atomic
-//for the following properties
 @property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain, readonly) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain, readonly) NSArray *experimentInstances;  // <PacoExperiment>
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;

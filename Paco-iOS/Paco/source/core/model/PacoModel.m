@@ -38,7 +38,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 @interface PacoModel ()
 @property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain) NSArray *experimentInstances;  // <PacoExperiment>
 @end
 
 
@@ -46,17 +46,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 #pragma mark Object Lifecycle
-//designated initializer
-- (id)init {
-  self = [super init];
-  if (self) {
-    _experimentDefinitions = @[];
-    _experimentInstances = [NSMutableArray array];
-  }
-  return self;
-}
-
-
 - (NSString*)description {
   return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
 }
@@ -73,7 +62,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experimentDefinition, @"definition should be created successfully");
     [definitions addObject:experimentDefinition];
   }
-  self.experimentDefinitions = definitions;
+  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
 }
 
 - (void)saveNewDefinitionList:(NSArray*)newDefinitions {
@@ -395,23 +384,31 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
                                       schedule:(PacoExperimentSchedule *)schedule {
-  //create an experiment instance
-  NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  PacoExperiment* experimentInstance = [PacoExperiment experimentWithDefinition:definition
-                                                                       schedule:schedule
-                                                                       joinTime:nowdate];
-  //add it to instances array and save the instance file
-  [self.experimentInstances addObject:experimentInstance];
-  [self saveExperimentInstancesToFile];
-  return experimentInstance;
+  @synchronized(self) {
+    //create an experiment instance
+    NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
+    PacoExperiment* experimentInstance = [PacoExperiment experimentWithDefinition:definition
+                                                                         schedule:schedule
+                                                                         joinTime:nowdate];
+    //add it to instances array and save the instance file
+    NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.experimentInstances];
+    [newInstances addObject:experimentInstance];
+    self.experimentInstances = [NSArray arrayWithArray:newInstances];
+    [self saveExperimentInstancesToFile];
+    return experimentInstance;
+  }
 }
 
 
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment {
-  NSUInteger index = [self.experimentInstances indexOfObject:experiment];
-  NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
-  [self.experimentInstances removeObject:experiment];
-  [self saveExperimentInstancesToFile];
+  @synchronized(self) {
+    NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.experimentInstances];
+    NSUInteger index = [newInstances indexOfObject:experiment];
+    NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
+    [newInstances removeObject:experiment];
+    self.experimentInstances = [NSArray arrayWithArray:newInstances];
+    [self saveExperimentInstancesToFile];
+  }
 }
 
 
