@@ -15,6 +15,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PacoFindExperimentsViewController : UIViewController
+@interface PacoFindMyExperimentsViewController : UIViewController
 
 @end

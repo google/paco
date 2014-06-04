@@ -31,7 +31,7 @@
 #import "PacoSubtitleTableCell.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
-#import "PacoFindExperimentsViewController.h"
+#import "PacoFindMyExperimentsViewController.h"
 #import "PacoLoadingView.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
@@ -192,7 +192,7 @@
 - (void)goToFindMyExperiments:(UIButton*)button {
   UINavigationController* navigationController = self.navigationController;
   [navigationController popToRootViewControllerAnimated:NO];
-  PacoFindExperimentsViewController* controller = [[PacoFindExperimentsViewController alloc] init];
+  PacoFindMyExperimentsViewController* controller = [[PacoFindMyExperimentsViewController alloc] init];
   [navigationController pushViewController:controller animated:NO];
 }
 

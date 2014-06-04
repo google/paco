@@ -27,7 +27,7 @@ extern NSString* const PacoAppBecomeActive;
 
 
 @interface PacoModel : NSObject
-@property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain, readonly) NSArray *myDefinitions;  // <PacoExperimentDefinition>
 @property (retain, readonly) NSArray *experimentInstances;  // <PacoExperiment>
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;

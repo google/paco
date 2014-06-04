@@ -118,7 +118,7 @@
 		36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3417568DAF004CF035 /* PacoTimeSelectionView.m */; };
 		36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */; };
 		36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */; };
-		36B8EB7E17568DAF004CF035 /* PacoFindExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4017568DAF004CF035 /* PacoFindExperimentsViewController.m */; };
+		36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */; };
 		36B8EB7F17568DAF004CF035 /* PacoLoginScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4317568DAF004CF035 /* PacoLoginScreenViewController.m */; };
 		36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4617568DAF004CF035 /* PacoMainViewController.m */; };
 		36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4817568DAF004CF035 /* PacoMenuButton.m */; };
@@ -441,8 +441,8 @@
 		36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoConsentViewController.m; sourceTree = "<group>"; };
 		36B8EB3D17568DAF004CF035 /* PacoExperimentDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentDetailsViewController.h; sourceTree = "<group>"; };
 		36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentDetailsViewController.m; sourceTree = "<group>"; };
-		36B8EB3F17568DAF004CF035 /* PacoFindExperimentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFindExperimentsViewController.h; sourceTree = "<group>"; };
-		36B8EB4017568DAF004CF035 /* PacoFindExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFindExperimentsViewController.m; sourceTree = "<group>"; };
+		36B8EB3F17568DAF004CF035 /* PacoFindMyExperimentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFindMyExperimentsViewController.h; sourceTree = "<group>"; };
+		36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFindMyExperimentsViewController.m; sourceTree = "<group>"; };
 		36B8EB4217568DAF004CF035 /* PacoLoginScreenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoginScreenViewController.h; sourceTree = "<group>"; };
 		36B8EB4317568DAF004CF035 /* PacoLoginScreenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoginScreenViewController.m; sourceTree = "<group>"; };
 		36B8EB4517568DAF004CF035 /* PacoMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMainViewController.h; sourceTree = "<group>"; };
@@ -955,8 +955,8 @@
 			children = (
 				36B8EB3917568DAF004CF035 /* ConsentScreen */,
 				36B8EB3C17568DAF004CF035 /* ExperimentDetailsScreen */,
-				36B8EB3F17568DAF004CF035 /* PacoFindExperimentsViewController.h */,
-				36B8EB4017568DAF004CF035 /* PacoFindExperimentsViewController.m */,
+				36B8EB3F17568DAF004CF035 /* PacoFindMyExperimentsViewController.h */,
+				36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */,
 			);
 			path = FindExperimentScreen;
 			sourceTree = "<group>";
@@ -1575,7 +1575,7 @@
 				36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */,
 				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
-				36B8EB7E17568DAF004CF035 /* PacoFindExperimentsViewController.m in Sources */,
+				36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */,
 				36B8EB7F17568DAF004CF035 /* PacoLoginScreenViewController.m in Sources */,
 				36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */,
 				36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */,

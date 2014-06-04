@@ -16,7 +16,7 @@
 #import "PacoMainViewController.h"
 
 #import "UIColor+Paco.h"
-#import "PacoFindExperimentsViewController.h"
+#import "PacoFindMyExperimentsViewController.h"
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
@@ -213,7 +213,7 @@
 }
 
 - (void)onFindAllExperiments {
-  PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
+  PacoFindMyExperimentsViewController *controller = [[PacoFindMyExperimentsViewController alloc] init];
   [self.navigationController pushViewController:controller animated:YES];
 }
 

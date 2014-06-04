@@ -37,7 +37,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 @interface PacoModel ()
-@property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
+@property (retain) NSArray *myDefinitions;  // <PacoExperimentDefinition>
 @property (retain) NSArray *experimentInstances;  // <PacoExperiment>
 @end
 
@@ -62,12 +62,12 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experimentDefinition, @"definition should be created successfully");
     [definitions addObject:experimentDefinition];
   }
-  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+  self.myDefinitions = [NSArray arrayWithArray:definitions];
 }
 
 - (void)saveNewDefinitionList:(NSArray*)newDefinitions {
   @synchronized(self) {
-    self.experimentDefinitions = newDefinitions;
+    self.myDefinitions = newDefinitions;
     [self saveExperimentDefinitionsToFile];
   }
 }
@@ -81,8 +81,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 - (void)partiallyUpdateDefinitionList:(NSArray*)defintionList {
   @synchronized(self) {
     NSMutableArray* newDefinitionList =
-        [NSMutableArray arrayWithCapacity:[self.experimentDefinitions count]];
-    for (PacoExperimentDefinition* oldDefinition in self.experimentDefinitions) {
+        [NSMutableArray arrayWithCapacity:[self.myDefinitions count]];
+    for (PacoExperimentDefinition* oldDefinition in self.myDefinitions) {
       PacoExperimentDefinition* definitionToBeAdded = oldDefinition;
       for (PacoExperimentDefinition* newDefinition in defintionList) {
         if ([newDefinition.experimentId isEqualToString:oldDefinition.experimentId]) {
@@ -140,7 +140,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId {
-  for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
+  for (PacoExperimentDefinition *definition in self.myDefinitions) {
     if ([definition.experimentId isEqualToString:experimentId]) {
       return definition;
     }
@@ -170,8 +170,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (id)makeJSONObjectFromDefinitions {
-  NSMutableArray* newDefinitions = [[NSMutableArray alloc] initWithCapacity:[self.experimentDefinitions count]];
-  for (PacoExperimentDefinition* definition in self.experimentDefinitions) {
+  NSMutableArray* newDefinitions = [[NSMutableArray alloc] initWithCapacity:[self.myDefinitions count]];
+  for (PacoExperimentDefinition* definition in self.myDefinitions) {
     id json = [definition serializeToJSON];
     NSAssert(json, @"experiment json should not be nil");
     [newDefinitions addObject:json];
@@ -374,10 +374,10 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 #pragma mark Experiment Definition operations
 - (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
-  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
+  NSMutableArray* definitions = [self.myDefinitions mutableCopy];
   [definitions insertObject:experimentDefinition atIndex:0];
   
-  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
+  self.myDefinitions = [NSArray arrayWithArray:definitions];
 }
 
 

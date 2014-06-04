@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import "PacoFindExperimentsViewController.h"
+#import "PacoFindMyExperimentsViewController.h"
 
 #import "UIColor+Paco.h"
 #import "PacoClient.h"
@@ -28,13 +28,13 @@
 #import "PacoLoadingView.h"
 #import "PacoSubtitleTableCell.h"
 
-@interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
+@interface PacoFindMyExperimentsViewController () <PacoTableViewDelegate>
 
 @property (nonatomic, retain) UILabel* createExperimentLabel;
 
 @end
 
-@implementation PacoFindExperimentsViewController
+@implementation PacoFindMyExperimentsViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -93,7 +93,7 @@
     PacoTableView* tableView = (PacoTableView*)self.view;
     
     if (!error) {
-      tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
+      tableView.data = [PacoClient sharedInstance].model.myDefinitions;
       if ([tableView.data count] > 0) {
         [self.createExperimentLabel setHidden:YES];
       } else {
