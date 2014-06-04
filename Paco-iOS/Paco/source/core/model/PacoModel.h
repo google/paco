@@ -49,8 +49,6 @@ extern NSString* const PacoAppBecomeActive;
 
 /* Operations on the model */
 
-/* adding/removing Experiment Definitions */
-- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition

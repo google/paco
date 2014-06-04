@@ -372,14 +372,6 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return NO;
 }
 
-#pragma mark Experiment Definition operations
-- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
-  NSMutableArray* definitions = [self.myDefinitions mutableCopy];
-  [definitions insertObject:experimentDefinition atIndex:0];
-  
-  self.myDefinitions = [NSArray arrayWithArray:definitions];
-}
-
 
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
