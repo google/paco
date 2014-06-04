@@ -317,12 +317,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSArray*)nextNotificationsToSchedule {
-  NSUInteger numOfRunningExperiments = [self.model.experimentInstances count];
+  NSUInteger numOfRunningExperiments = [self.model.runningExperiments count];
   NSMutableArray* allNotifications =
       [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
   
   NSDate* now = [NSDate date];
-  for (PacoExperiment* experiment in [self.model experimentInstances]) {
+  for (PacoExperiment* experiment in [self.model runningExperiments]) {
     if (![experiment shouldScheduleNotificationsFromNow]) {
       continue;
     }

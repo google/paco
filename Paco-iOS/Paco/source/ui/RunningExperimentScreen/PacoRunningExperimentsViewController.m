@@ -176,7 +176,7 @@
     PacoTableView* tableView = (PacoTableView*)self.view;
     BOOL visible = [[PacoClient sharedInstance].model hasRunningExperiments] ? NO : YES;
     [self updateLabelAndButton:visible];
-    tableView.data = [PacoClient sharedInstance].model.experimentInstances;
+    tableView.data = [PacoClient sharedInstance].model.runningExperiments;
   });
 }
 
