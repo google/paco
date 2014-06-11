@@ -90,7 +90,7 @@
     [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Running Experiments ...", nil)];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(experimentsLoaded:)
-                                                 name:PacoFinishLoadingExperimentNotification
+                                                 name:kPacoNotificationLoadedRunningExperiments
                                                object:nil];
   }
 }
@@ -194,7 +194,7 @@
   } else {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(experimentsLoaded:)
-                                                 name:PacoFinishLoadingExperimentNotification
+                                                 name:kPacoNotificationLoadedRunningExperiments
                                                object:nil];
   }
 }

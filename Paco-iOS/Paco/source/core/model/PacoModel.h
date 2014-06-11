@@ -15,10 +15,10 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const PacoFinishLoadingDefinitionNotification;
-extern NSString* const PacoFinishLoadingExperimentNotification;
-extern NSString* const PacoFinishRefreshing;
-extern NSString* const PacoAppBecomeActive;
+extern NSString* const kPacoNotificationLoadedMyDefinitions;
+extern NSString* const kPacoNotificationLoadedRunningExperiments;
+extern NSString* const kPacoNotificationRefreshedMyDefinitions;
+extern NSString* const kPacoNotificationAppBecomeActive;
 
 @class PacoModel;
 @class PacoExperimentSchedule;

@@ -26,10 +26,10 @@
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 
-NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
-NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
-NSString* const PacoFinishRefreshing = @"PacoFinishRefreshing";
-NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
+NSString* const kPacoNotificationLoadedMyDefinitions = @"kPacoNotificationLoadedMyDefinitions";
+NSString* const kPacoNotificationLoadedRunningExperiments = @"kPacoNotificationLoadedRunningExperiments";
+NSString* const kPacoNotificationRefreshedMyDefinitions = @"kPacoNotificationRefreshedMyDefinitions";
+NSString* const kPacoNotificationAppBecomeActive = @"kPacoNotificationAppBecomeActive";
 
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";

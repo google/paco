@@ -549,7 +549,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
-          [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
+          [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationRefreshedMyDefinitions
                                                               object:error];
         });
       }];
@@ -592,7 +592,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     //dispatch loading running experiments to another thread
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       NSError* error = [self.model loadExperimentInstancesFromFile];
-      [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification
+      [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
                                                           object:error];
       [self setUpNotificationSystem];
     });
@@ -602,7 +602,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
       // Load the experiment definitions.
       BOOL success = [self.model loadExperimentDefinitionsFromFile];
       if (success) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
                                                             object:nil];
       } else {
         [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
@@ -611,7 +611,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
           } else {
             DDLogError(@"Failed to prefetch definitions: %@", [error description]);
           }
-          [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification
+          [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
                                                               object:error];
         }];
       }

@@ -66,7 +66,7 @@
     [table setLoadingSpinnerEnabledWithLoadingText:[NSString stringWithFormat:@"%@ ...", NSLocalizedString(@"Finding Experiments", nil)]];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(definitionsUpdate:)
-                                                 name:PacoFinishLoadingDefinitionNotification
+                                                 name:kPacoNotificationLoadedMyDefinitions
                                                object:nil];
   } else {
     [self updateUI];
@@ -115,7 +115,7 @@
       self.navigationItem.rightBarButtonItem = button;
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(refreshFinished:)
-                                                   name:PacoFinishRefreshing
+                                                   name:kPacoNotificationRefreshedMyDefinitions
                                                  object:nil];
     }
   });
