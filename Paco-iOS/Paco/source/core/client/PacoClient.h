@@ -76,17 +76,13 @@ typedef void(^PacoRefreshRunningExperimentsBlock)(NSError* error);
 //3. pop up the log-in dialog to ask user re-logIn
 - (void)invalidateUserAccount;
 
-- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
-
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 
-- (BOOL)prefetchedDefinitions;
-- (NSError*)errorOfPrefetchingDefinitions;
-- (BOOL)prefetchedExperiments;
-- (NSError*)errorOfPrefetchingexperiments;
 - (BOOL)hasRunningExperiments;
+
+- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 

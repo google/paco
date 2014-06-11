@@ -59,69 +59,70 @@
   return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)viewDidLoad {
-  [super viewDidLoad];
-
-  PacoTableView* table = [[PacoTableView alloc] init];
-  table.delegate = self;
-  [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperiment class]];
-  table.backgroundColor = [UIColor pacoBackgroundWhite];
-  self.view = table;
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(experimentsUpdate:)
-                                               name:PacoFinishRefreshing
-                                             object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(appBecomeActive)
-                                               name:PacoAppBecomeActive
-                                             object:nil];
-}
-
-
-- (void)viewWillAppear:(BOOL)animated {
-  [super viewWillAppear:animated];
-  
-  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
-  if (!finishLoading) {
-    [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Running Experiments ...", nil)];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(experimentsUpdate:) name:PacoFinishLoadingExperimentNotification object:nil];
-  } else {
-    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
-    if (prefetchError) {
-      [self updateUIWithError:prefetchError isRefresh:NO];
-    } else {
-      [self updateUIWithExperiments];
-    }
-  }
-}
 
 - (void)gotoMainPage {
   [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 
-- (void)updateUIWithError:(NSError*)error isRefresh:(BOOL)isRefresh {
-  NSAssert(error, @"error should be valid");
-  //send UI update to main thread to avoid potential crash
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  
+  PacoTableView* table = [[PacoTableView alloc] init];
+  table.delegate = self;
+  [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperiment class]];
+  table.backgroundColor = [UIColor pacoBackgroundWhite];
+  self.view = table;
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+  [super viewWillAppear:animated];
+  
+  BOOL finishLoading = [[PacoClient sharedInstance].model hasLoadedRunningExperiments];
+  if (finishLoading) {
+    [self updateUI];
+  } else {
+    [(PacoTableView*)self.view setLoadingSpinnerEnabledWithLoadingText:NSLocalizedString(@"Loading Running Experiments ...", nil)];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(experimentsLoaded:)
+                                                 name:PacoFinishLoadingExperimentNotification
+                                               object:nil];
+  }
+}
+
+
+- (void)updateUI {
+  if (![[PacoClient sharedInstance].model hasLoadedRunningExperiments]) {
+    DDLogError(@"Try to update view controller without running experiments loaded.");
+    return;
+  }
+  
   dispatch_async(dispatch_get_main_queue(), ^{
-    PacoTableView* tableView = (PacoTableView*)self.view;
-    if (!isRefresh) {
-      tableView.data = @[];
-      [PacoAlertView showGeneralErrorAlert];
-    } else {
-      [PacoAlertView showRefreshErrorAlert];
-    }
+    //update table view data
+    ((PacoTableView*)self.view).data = [PacoClient sharedInstance].model.runningExperiments;
+    
+    //update label and button when there is no running experiment
+    [self updateLabelAndButtons:[[PacoClient sharedInstance].model hasRunningExperiments]];
   });
 }
 
 
-- (void)updateLabelAndButton:(BOOL)visible {
-  if (visible) {
+- (void)updateLabelAndButtons:(BOOL)hasExperiments {
+  //lazy initialization
+  if (hasExperiments) {
+    if (!self.refreshButton) {
+      UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
+                                                                 style:UIBarButtonItemStyleDone
+                                                                target:self
+                                                                action:@selector(onClickRefresh)];
+      self.refreshButton = button;
+    }
+  } else {
     if (!self.msgLabel) {
       UILabel *msgLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 100)];
       [msgLabel setText:NSLocalizedString(@"You haven't joined any experiment yet.", nil)];
@@ -144,50 +145,38 @@
       msgButton.center = self.view.center;
       self.goToDefinitionButton = msgButton;
     }
-  } else {
-    if (!self.refreshButton) {
-      UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
-                                                                 style:UIBarButtonItemStyleDone
-                                                                target:self
-                                                                action:@selector(onClickRefresh)];
-      self.refreshButton = button;
-    }
   }
-  self.msgLabel.hidden = !visible;
-  self.goToDefinitionButton.hidden = !visible;
-  self.navigationItem.rightBarButtonItem = visible ? nil : self.refreshButton;
+  //update the hidden properties
+  self.navigationItem.rightBarButtonItem = hasExperiments ? self.refreshButton : nil;
+  self.msgLabel.hidden = hasExperiments;
+  self.goToDefinitionButton.hidden = hasExperiments;
 }
+
 
 - (void)onClickRefresh {
   [[PacoLoadingView sharedInstance] showLoadingScreen];
   [[PacoClient sharedInstance] refreshRunningExperimentsWithBlock:^(NSError* error) {
     [[PacoLoadingView sharedInstance] dismissLoadingScreen];
     if (!error) {
-      [self update];
+      [self updateUI];
     } else {
+      //if there is an error during refresh, keep the original data but show an error alert
       [PacoAlertView showRefreshErrorAlert];
     }
   }];
 }
 
-- (void)update {
-  //send UI update to main thread to avoid potential crash
-  dispatch_async(dispatch_get_main_queue(), ^{
-    PacoTableView* tableView = (PacoTableView*)self.view;
-    BOOL visible = [[PacoClient sharedInstance].model hasRunningExperiments] ? NO : YES;
-    [self updateLabelAndButton:visible];
-    tableView.data = [PacoClient sharedInstance].model.runningExperiments;
-  });
-}
 
-
-- (void)updateUIWithExperiments {
-  if (![[PacoClient sharedInstance].model areRunningExperimentsLoaded]) {
-    DDLogError(@"Try to update view controller without running experiments loaded.");
-  } else {
-    [self update];
+- (void)experimentsLoaded:(NSNotification*)notification {
+  [self updateUI];
+  
+  NSError* error = (NSError*)notification.object;
+  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
+  if (error) {
+    [PacoAlertView showGeneralErrorAlert];
   }
 }
+
 
 - (void)goToFindMyExperiments:(UIButton*)button {
   UINavigationController* navigationController = self.navigationController;
@@ -196,30 +185,20 @@
   [navigationController pushViewController:controller animated:NO];
 }
 
-- (void)experimentsUpdate:(NSNotification*)notification
-{
-  NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  if (error) {
-    [self updateUIWithError:error isRefresh:YES];
-  } else {
-    [self updateUIWithExperiments];
-  }
-}
 
-
+//when app becomes active, viewWillAppear is not called, but we need to give running experiments a
+//chance to update the Time to Participate label
 - (void)appBecomeActive {
-  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedExperiments];
-  NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingexperiments];
-  if (finishLoading && !prefetchError) {
-    [self updateUIWithExperiments];
+  if ([[PacoClient sharedInstance].model hasLoadedRunningExperiments]) {
+    [self updateUI];
+  } else {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(experimentsLoaded:)
+                                                 name:PacoFinishLoadingExperimentNotification
+                                               object:nil];
   }
 }
 
-
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
-}
 
 
 #pragma mark - PacoTableViewDelegate
@@ -286,7 +265,7 @@
   }
 
   PacoQuestionScreenViewController *questions =
-  [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
+      [PacoQuestionScreenViewController controllerWithExperiment:self.selectedExperiment];
   [self.navigationController pushViewController:questions animated:YES];
 }
 
@@ -300,7 +279,7 @@
     [PacoAlertView showAlertWithTitle:title
                               message:message
                          dismissBlock:^(NSInteger buttonIndex) {
-                           [self updateUIWithExperiments];
+                           [self updateUI];
                          }
                     cancelButtonTitle:@"OK"
                     otherButtonTitles:nil];

@@ -115,12 +115,17 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   self.runningExperiments = instances;
 }
 
-- (BOOL)areRunningExperimentsLoaded {
+- (BOOL)hasLoadedRunningExperiments {
   return self.runningExperiments != nil;
 }
 
+- (BOOL)hasLoadedMyDefinitions {
+  return self.myDefinitions != nil;
+}
+
+
 - (BOOL)shouldTriggerNotificationSystem {
-  if (![self areRunningExperimentsLoaded]) {
+  if (![self hasLoadedRunningExperiments]) {
     DDLogError(@"Running experiments are not loaded yet!");
   }
   
