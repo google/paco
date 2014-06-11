@@ -64,8 +64,8 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   
   NSMutableArray* definitionList = [NSMutableArray arrayWithObject:definition];
   NSMutableArray* experimentList = [NSMutableArray arrayWithObject:experimentInstance];
-  [self.client.model setValue:definitionList forKey:@"experimentDefinitions"];
-  [self.client.model setValue:experimentList forKey:@"experimentInstances"];
+  [self.client.model setValue:definitionList forKey:@"myDefinitions"];
+  [self.client.model setValue:experimentList forKey:@"runningExperiments"];
 }
 
 - (void)tearDown {

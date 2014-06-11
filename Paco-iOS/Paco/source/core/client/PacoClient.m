@@ -32,57 +32,17 @@
 #import "NSMutableArray+Paco.h"
 #import "PacoExperimentSchedule.h"
 
-static NSString* const RunningExperimentsKey = @"has_running_experiments";
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
 static NSString* const kPacoProductionServerAddress = @"quantifiedself.appspot.com";
 static NSString* const kPacoLocalServerAddress = @"127.0.0.1";
 static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.appspot.com";
 
-@interface PacoPrefetchState : NSObject
-@property(atomic, assign) BOOL finishLoadingDefinitions;
-@property(atomic, strong) NSError* errorLoadingDefinitions;
-
-@property(atomic, assign) BOOL finishLoadingExperiments;
-@property(atomic, strong) NSError* errorLoadingExperiments;
-
-@end
-
-@implementation PacoPrefetchState
-
-
-- (BOOL)succeedToLoadDefinitions {
-  return self.finishLoadingDefinitions && self.errorLoadingDefinitions == nil;
-}
-
-
-- (BOOL)succeedToLoadExperiments {
-  return self.finishLoadingExperiments && self.errorLoadingExperiments == nil;
-}
-
-- (BOOL)succeedToLoadAll {
-  return [self succeedToLoadDefinitions] && [self succeedToLoadExperiments];
-}
-
-- (BOOL)finishLoadingAll {
-  return self.finishLoadingDefinitions && self.finishLoadingExperiments;
-}
-
-- (void)reset
-{
-  self.finishLoadingDefinitions = NO;
-  self.errorLoadingDefinitions = NO;
-  
-  self.finishLoadingExperiments = NO;
-  self.errorLoadingExperiments = nil;
-}
-@end
-
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
 - (NSError*)loadExperimentInstancesFromFile;
-- (void)applyDefinitionJSON:(id)jsonObject;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
+- (BOOL)hasRunningExperiments;
 @end
 
 
@@ -96,7 +56,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 @property (nonatomic, retain) PacoService *service;
 @property (nonatomic, strong) Reachability* reachability;
 @property (nonatomic, retain) NSString *serverDomain;
-@property (nonatomic, retain) PacoPrefetchState *prefetchState;
 @property (nonatomic, assign) BOOL firstLaunch;
 @property (nonatomic, copy) BackgroundFetchCompletionBlock backgroundFetchBlock;
 
@@ -130,8 +89,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     self.model = [[PacoModel alloc] init];
     
     _eventManager = [PacoEventManager defaultManager];
-    
-    self.prefetchState = [[PacoPrefetchState alloc] init];
     
     [self setupServerDomain];
     
@@ -171,9 +128,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSString*)userEmail {
-  if (SKIP_LOG_IN) {
-    return @"test@gmail.com";
-  }
   return [self.authenticator userEmail];
 }
 
@@ -294,7 +248,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 //return YES if Paco finishes loading both running experiments and also notifications
 - (BOOL)isDoneInitializationForMajorTask {
-  if (![self.model areRunningExperimentsLoaded]) {
+  if (![self.model hasLoadedRunningExperiments]) {
     DDLogInfo(@"PacoClient: running experiments are not loaded yet!");
     return NO;
   }
@@ -320,12 +274,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSArray*)nextNotificationsToSchedule {
-  NSUInteger numOfRunningExperiments = [self.model.experimentInstances count];
+  NSUInteger numOfRunningExperiments = [self.model.runningExperiments count];
   NSMutableArray* allNotifications =
       [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
   
   NSDate* now = [NSDate date];
-  for (PacoExperiment* experiment in [self.model experimentInstances]) {
+  for (PacoExperiment* experiment in [self.model runningExperiments]) {
     if (![experiment shouldScheduleNotificationsFromNow]) {
       continue;
     }
@@ -413,13 +367,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 #pragma mark bring up login flow if necessary
 - (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
 {
-  if (SKIP_LOG_IN) {
-    [self prefetchInBackgroundWithBlock:^{
-      [self setUpNotificationSystem];
-    }];
-    return;
-  }
-  
   UINavigationController* navi = (UINavigationController*)
       ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
   if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
@@ -434,10 +381,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   self.service.authenticator = self.authenticator;
   
   // Fetch the experiment definitions and the events of joined experiments.
-  [self prefetchInBackgroundWithBlock:^{
-    [self setUpNotificationSystem];
-  }];
-  
+  [self prefetchInBackground];
   [self uploadPendingEventsInBackground];
 }
 
@@ -469,9 +413,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
   //we will re-authenticate user
   if (!self.reachability.isReachable) {
-    [self prefetchInBackgroundWithBlock:^{
-      [self setUpNotificationSystem];
-    }];
+    [self prefetchInBackground];
     if (block != nil) {
       block(nil);
     }
@@ -495,15 +437,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
-  if (SKIP_LOG_IN) {
-    [self startWorkingAfterLogIn];
-    if (block != nil) {
-      block(nil);
-    }
-    return;
-  }
-  
-  
   if ([self isLoggedIn]) {
     if (block) {
       block(nil);
@@ -558,11 +491,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
         // Authorize the service.
         self.service.authenticator = self.authenticator;
         // Fetch the experiment definitions and the events of joined experiments.
-        [self prefetchInBackgroundWithBlock:^{
-          // let's handle setting up the notifications after that thread completes
-          NSLog(@"Paco loginWithOAuth2CompletionHandler experiments load has completed.");
-          [self setUpNotificationSystem];
-        }];
+        [self prefetchInBackground];
         completionHandler(nil);
       } else {
         completionHandler(error);
@@ -578,28 +507,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   });
 }
 
-- (BOOL)prefetchedDefinitions
-{
-  return self.prefetchState.finishLoadingDefinitions;
-}
-
-- (NSError*)errorOfPrefetchingDefinitions
-{
-  return self.prefetchState.errorLoadingDefinitions;
-}
-
-- (BOOL)prefetchedExperiments
-{
-  return self.prefetchState.finishLoadingExperiments;
-}
-
-- (NSError*)errorOfPrefetchingexperiments
-{
-  return self.prefetchState.errorLoadingExperiments;
-}
 
 - (BOOL)hasRunningExperiments {
-  return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
+  return [self.model hasRunningExperiments];
 }
 
 //refreshing all definitions published to the current user is a full refreshing
@@ -626,11 +536,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   }
 }
 
-- (void)refreshMyDefinitions {
+- (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
-    if (![self.prefetchState finishLoadingAll]) {
-      return;
-    }
     DDLogInfo(@"Start refreshing definitions...");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
@@ -641,28 +548,17 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
-          self.prefetchState.finishLoadingDefinitions = YES;
-          self.prefetchState.finishLoadingExperiments = YES;
-          //if it succeeded this time or last time
-          if (error == nil || (error != nil && [self.prefetchState succeedToLoadDefinitions])) {
-            self.prefetchState.errorLoadingDefinitions = nil;
-            self.prefetchState.errorLoadingExperiments = nil;
-          } else {
-            self.prefetchState.errorLoadingDefinitions = error;
-            self.prefetchState.errorLoadingExperiments = error;
+          if (completionBlock) {
+            completionBlock(error);
           }
-          [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishRefreshing
-                                                              object:error];
         });
       }];
     });
-
-
   }
 }
 
 
-- (void)refreshRunningExperimentsWithBlock:(PacoRefreshRunningExperimentsBlock)completionBlock {
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
     if (![self.model hasRunningExperiments]) {
       if (completionBlock) {
@@ -689,73 +585,38 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 #pragma mark Private methods
-- (void)definitionsLoadedWithError:(NSError*)error
-{
-  if (ADD_TEST_DEFINITION) {
-    // for testing purposes let's load a sample experiment
-    //[self.model addExperimentDefinition:[PacoExperimentDefinition testPacoExperimentDefinition]];
-    [self.model addExperimentDefinition:[PacoExperimentDefinition testDefinitionWithId:@"999999999"]];
-  }
-  self.prefetchState.finishLoadingDefinitions = YES;
-  self.prefetchState.errorLoadingDefinitions = error;
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingDefinitionNotification object:error];
-}
+- (void)prefetchInBackground {
+  @synchronized(self) {
+    //dispatch loading running experiments to another thread
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      NSError* error = [self.model loadExperimentInstancesFromFile];
+      [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
+                                                          object:error];
+      [self setUpNotificationSystem];
+    });
 
-- (void)prefetchInBackgroundWithBlock:(void (^)(void))completionBlock {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    if ([self.prefetchState succeedToLoadAll]) {
-      return;
-    }
-
-    [self.prefetchState reset];
-    
-    if (SKIP_LOG_IN) {
-      [self definitionsLoadedWithError:nil];
-      [self prefetchExperimentsWithBlock:completionBlock];
-      return;
-    }
-
-    // Load the experiment definitions.
-    BOOL success = [self.model loadExperimentDefinitionsFromFile];
-    if (success) {
-      [self definitionsLoadedWithError:nil];
-      [self prefetchExperimentsWithBlock:completionBlock];
-      return;
-    }
-    
-    [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
-      if (error) {
-        DDLogError(@"Failed to prefetch definitions: %@", [error description]);
-        [self definitionsLoadedWithError:error];
-        if (completionBlock) {
-          completionBlock();
-        }
-        return;
+    //dispatch loading my definitions to another thread
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      // Load the experiment definitions.
+      BOOL success = [self.model loadExperimentDefinitionsFromFile];
+      if (success) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
+                                                            object:nil];
+      } else {
+        [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+          if (!error) {
+            [self.model fullyUpdateDefinitionList:definitions];
+          } else {
+            DDLogError(@"Failed to prefetch definitions: %@", [error description]);
+          }
+          [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
+                                                              object:error];
+        }];
       }
-      [self.model fullyUpdateDefinitionList:definitions];
-      [self definitionsLoadedWithError:nil];
-      [self prefetchExperimentsWithBlock:completionBlock];
-    }];
-  });
-}
-
-
-- (void)experimentsLoadedWithError:(NSError*)error
-{
-  self.prefetchState.finishLoadingExperiments = YES;
-  self.prefetchState.errorLoadingExperiments = error;
-  
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoFinishLoadingExperimentNotification object:error];
-}
-
-
-- (void)prefetchExperimentsWithBlock:(void (^)(void))completionBlock {
-  NSError* error = [self.model loadExperimentInstancesFromFile];
-  [self experimentsLoadedWithError:error];
-  if (completionBlock) {
-    completionBlock();
+    });
   }
 }
+
 
 #pragma mark join an experiment
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
@@ -771,8 +632,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 
-  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:RunningExperimentsKey];
-  [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark stop an experiment
@@ -793,10 +652,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //shut down notification if needed after experiment is deleted from model
   if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
     [self shutDownNotificationSystemIfNeeded];
-  }
-  if (![self.model hasRunningExperiments]) {
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:RunningExperimentsKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 

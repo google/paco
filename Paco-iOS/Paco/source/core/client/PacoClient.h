@@ -36,15 +36,6 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 #endif
 
-/*
- Set both ADD_TEST_DEFINITION and SKIP_LOG_IN to 1 
- will run the test definition only, and is easier to test notification
- **/
-//Load a test experiment definition for test
-#define ADD_TEST_DEFINITION 0
-//Skip log in flow so that you can focus on testing notification
-#define SKIP_LOG_IN 0
-
 
 //production server: 0
 //local server: 1
@@ -54,7 +45,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 #define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 
-typedef void(^PacoRefreshRunningExperimentsBlock)(NSError* error);
+typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 
 @interface PacoClient : NSObject
 
@@ -85,17 +76,13 @@ typedef void(^PacoRefreshRunningExperimentsBlock)(NSError* error);
 //3. pop up the log-in dialog to ask user re-logIn
 - (void)invalidateUserAccount;
 
-- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
-
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 
-- (BOOL)prefetchedDefinitions;
-- (NSError*)errorOfPrefetchingDefinitions;
-- (BOOL)prefetchedExperiments;
-- (NSError*)errorOfPrefetchingexperiments;
 - (BOOL)hasRunningExperiments;
+
+- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
@@ -110,9 +97,10 @@ typedef void(^PacoRefreshRunningExperimentsBlock)(NSError* error);
                       notification:(UILocalNotification*)notification;
 
 //refresh definitions published to the current user
-- (void)refreshMyDefinitions;
+- (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock;
+
 //refresh all running experiments' definitions
-- (void)refreshRunningExperimentsWithBlock:(PacoRefreshRunningExperimentsBlock)completionBlock;
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshCompletionBlock)completionBlock;
 
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
 

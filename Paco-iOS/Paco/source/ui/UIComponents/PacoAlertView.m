@@ -80,19 +80,23 @@
 
 + (void)showGeneralErrorAlert
 {
-  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
-                              message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
-                             delegate:nil
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil] show];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
+                                message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  });
 }
 
 + (void)showRefreshErrorAlert {
-  [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
-                              message:NSLocalizedString(@"Failed to refresh, please try again later.", nil)
-                             delegate:nil
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil] show];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
+                                message:NSLocalizedString(@"Failed to refresh, please try again later.", nil)
+                               delegate:nil
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil] show];
+  });
 }
 
 + (void)showAlertWithError:(NSError*)error {

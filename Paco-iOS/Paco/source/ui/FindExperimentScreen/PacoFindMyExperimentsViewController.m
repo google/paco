@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import "PacoFindExperimentsViewController.h"
+#import "PacoFindMyExperimentsViewController.h"
 
 #import "UIColor+Paco.h"
 #import "PacoClient.h"
@@ -28,13 +28,13 @@
 #import "PacoLoadingView.h"
 #import "PacoSubtitleTableCell.h"
 
-@interface PacoFindExperimentsViewController () <PacoTableViewDelegate>
+@interface PacoFindMyExperimentsViewController () <PacoTableViewDelegate>
 
 @property (nonatomic, retain) UILabel* createExperimentLabel;
 
 @end
 
-@implementation PacoFindExperimentsViewController
+@implementation PacoFindMyExperimentsViewController
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -61,18 +61,16 @@
   [table registerClass:[PacoSubtitleTableCell class] forStringKey:nil dataClass:[PacoExperimentDefinition class]];
   table.backgroundColor = [UIColor pacoBackgroundWhite];
   self.view = table;
-  BOOL finishLoading = [[PacoClient sharedInstance] prefetchedDefinitions];
+  BOOL finishLoading = [[PacoClient sharedInstance].model hasLoadedMyDefinitions];
   if (!finishLoading) {
     [table setLoadingSpinnerEnabledWithLoadingText:[NSString stringWithFormat:@"%@ ...", NSLocalizedString(@"Finding Experiments", nil)]];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(definitionsUpdate:) name:PacoFinishLoadingDefinitionNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(definitionsUpdate:)
+                                                 name:kPacoNotificationLoadedMyDefinitions
+                                               object:nil];
   } else {
-    NSError* prefetchError = [[PacoClient sharedInstance] errorOfPrefetchingDefinitions];
-    [self updateUIWithError:prefetchError isRefresh:NO];
+    [self updateUI];
   }
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(refreshFinished:)
-                                               name:PacoFinishRefreshing
-                                             object:nil];
 }
 
 
@@ -83,43 +81,38 @@
 
 - (void)onClickRefresh {
   [[PacoLoadingView sharedInstance] showLoadingScreen];
-  [[PacoClient sharedInstance] refreshMyDefinitions];
+  [[PacoClient sharedInstance] refreshMyDefinitionsWithBlock:^(NSError *error) {
+    [self updateUI];
+    if (error) {
+      [self handleErrorWithRefreshFlag:YES];
+    }
+    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
+  }];
 }
 
 
-- (void)updateUIWithError:(NSError*)error isRefresh:(BOOL)isRefresh{
-  //send UI update to main thread to avoid potential crash
+- (void)updateUI {
   dispatch_async(dispatch_get_main_queue(), ^{
-    PacoTableView* tableView = (PacoTableView*)self.view;
+    NSArray* myDefinitions = [PacoClient sharedInstance].model.myDefinitions;
     
-    if (!error) {
-      tableView.data = [PacoClient sharedInstance].model.experimentDefinitions;
-      if ([tableView.data count] > 0) {
-        [self.createExperimentLabel setHidden:YES];
-      } else {
-        //lazy initialization
-        if (!self.createExperimentLabel) {
-          self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
-          [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
-          [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-          [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
-          self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
-          self.createExperimentLabel.numberOfLines = 0;
-          [self.createExperimentLabel sizeToFit];
-          self.createExperimentLabel.center = self.view.center;
-          [self.view addSubview:self.createExperimentLabel];
-        }
-        [self.createExperimentLabel setHidden:NO];
-      }
-    } else {
-      if (!isRefresh) {
-        tableView.data = @[];
-        [PacoAlertView showGeneralErrorAlert];
-      } else {
-        [PacoAlertView showRefreshErrorAlert];
-      }
+    //update tableview's data
+    ((PacoTableView*)self.view).data = myDefinitions;
+    
+    //update experiments not found label
+    if ([myDefinitions count] > 0 && !self.createExperimentLabel) {
+      self.createExperimentLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 400)];
+      [self.createExperimentLabel setText:NSLocalizedString(@"Paco CreateExperiments Message", nil)];
+      [self.createExperimentLabel setFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
+      [self.createExperimentLabel setTextColor:[UIColor darkGrayColor]];
+      self.createExperimentLabel.textAlignment = NSTextAlignmentCenter;
+      self.createExperimentLabel.numberOfLines = 0;
+      [self.createExperimentLabel sizeToFit];
+      self.createExperimentLabel.center = self.view.center;
+      [self.view addSubview:self.createExperimentLabel];
     }
-    
+    [self.createExperimentLabel setHidden:([myDefinitions count] > 0)];
+
+    //add a refresh button
     if (!self.navigationItem.rightBarButtonItem) {
       UIBarButtonItem* button = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Refresh", nil)
                                                                  style:UIBarButtonItemStyleDone
@@ -130,17 +123,24 @@
   });
 }
 
-- (void)refreshFinished:(NSNotification*)notification {
-  NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  [self updateUIWithError:error isRefresh:YES];
-  [[PacoLoadingView sharedInstance] dismissLoadingScreen];
+- (void)handleErrorWithRefreshFlag:(BOOL)isRefresh {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (!isRefresh) {
+      [PacoAlertView showGeneralErrorAlert];
+    } else {
+      [PacoAlertView showRefreshErrorAlert];
+    }
+  });
 }
+
 
 - (void)definitionsUpdate:(NSNotification*)notification {
   NSError* error = (NSError*)notification.object;
   NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  [self updateUIWithError:error isRefresh:NO];
+  [self updateUI];
+  if (error) {
+    [self handleErrorWithRefreshFlag:NO];
+  }
 }
 
 #pragma mark - PacoTableViewDelegate
