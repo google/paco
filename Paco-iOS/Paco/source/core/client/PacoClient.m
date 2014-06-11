@@ -32,7 +32,6 @@
 #import "NSMutableArray+Paco.h"
 #import "PacoExperimentSchedule.h"
 
-static NSString* const RunningExperimentsKey = @"has_running_experiments";
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
 static NSString* const kPacoProductionServerAddress = @"quantifiedself.appspot.com";
@@ -42,8 +41,8 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 @interface PacoModel ()
 - (BOOL)loadExperimentDefinitionsFromFile;
 - (NSError*)loadExperimentInstancesFromFile;
-- (void)applyDefinitionJSON:(id)jsonObject;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
+- (BOOL)hasRunningExperiments;
 @end
 
 
@@ -510,7 +509,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 
 - (BOOL)hasRunningExperiments {
-  return [[NSUserDefaults standardUserDefaults] boolForKey:RunningExperimentsKey];
+  return [self.model hasRunningExperiments];
 }
 
 //refreshing all definitions published to the current user is a full refreshing
@@ -633,8 +632,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
 
-  [[NSUserDefaults standardUserDefaults] setBool:YES forKey:RunningExperimentsKey];
-  [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 #pragma mark stop an experiment
@@ -655,10 +652,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //shut down notification if needed after experiment is deleted from model
   if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
     [self shutDownNotificationSystemIfNeeded];
-  }
-  if (![self.model hasRunningExperiments]) {
-    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:RunningExperimentsKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
   }
 }
 

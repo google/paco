@@ -56,7 +56,6 @@ extern NSString* const kPacoNotificationAppBecomeActive;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 
-- (BOOL)hasRunningExperiments;
 - (NSArray*)runningExperimentIdList; //<NSString>
 
 - (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList;

@@ -26,6 +26,8 @@
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 
+static NSString* const kPacoKeyHasRunningExperiments = @"has_running_experiments";
+
 NSString* const kPacoNotificationLoadedMyDefinitions = @"kPacoNotificationLoadedMyDefinitions";
 NSString* const kPacoNotificationLoadedRunningExperiments = @"kPacoNotificationLoadedRunningExperiments";
 NSString* const kPacoNotificationRefreshedMyDefinitions = @"kPacoNotificationRefreshedMyDefinitions";
@@ -117,6 +119,13 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 - (BOOL)hasLoadedRunningExperiments {
   return self.runningExperiments != nil;
+}
+
+- (BOOL)hasRunningExperiments {
+  if ([self hasLoadedRunningExperiments]) {
+    return [self.runningExperiments count] > 0;
+  }
+  return [[NSUserDefaults standardUserDefaults] boolForKey:kPacoKeyHasRunningExperiments];
 }
 
 - (BOOL)hasLoadedMyDefinitions {
@@ -391,6 +400,10 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.runningExperiments];
     [newInstances addObject:experimentInstance];
     self.runningExperiments = [NSArray arrayWithArray:newInstances];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPacoKeyHasRunningExperiments];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     [self saveExperimentInstancesToFile];
     return experimentInstance;
   }
@@ -404,13 +417,14 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
     [newInstances removeObject:experiment];
     self.runningExperiments = [NSArray arrayWithArray:newInstances];
+    
+    if (0 == [self.runningExperiments count]) {
+      [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kPacoKeyHasRunningExperiments];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
     [self saveExperimentInstancesToFile];
   }
-}
-
-
-- (BOOL)hasRunningExperiments {
-  return [self.runningExperiments count] > 0;
 }
 
 - (NSArray*)runningExperimentIdList {

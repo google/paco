@@ -107,7 +107,7 @@
     ((PacoTableView*)self.view).data = [PacoClient sharedInstance].model.runningExperiments;
     
     //update label and button when there is no running experiment
-    [self updateLabelAndButtons:[[PacoClient sharedInstance].model hasRunningExperiments]];
+    [self updateLabelAndButtons:[[PacoClient sharedInstance] hasRunningExperiments]];
   });
 }
 
