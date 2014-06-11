@@ -42,7 +42,7 @@ public class ExperimentProvider extends ContentProvider {
   static final String TAG = "ExperimentProvider";
 
   static final String DATABASE_NAME = "experiments.db";
-  static final int DATABASE_VERSION = 17;
+  static final int DATABASE_VERSION = 20;
 
   static final String EXPERIMENTS_TABLE_NAME = "experiments";
   static final String SCHEDULES_TABLE_NAME = "schedules";

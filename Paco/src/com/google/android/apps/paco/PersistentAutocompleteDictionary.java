@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.Context;
 import android.util.Log;
@@ -71,7 +71,7 @@ public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
   }
 
   private Map<String, Integer> loadAutocompleteDataFromDisk() {
-    Map<String, Integer> wordCounts = new HashMap<String, Integer>();
+    Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
     BufferedReader buf = null;
     try {
       InputStream in = getContext().openFileInput(AUTOCOMPLETE_DATA_FILE_NAME);

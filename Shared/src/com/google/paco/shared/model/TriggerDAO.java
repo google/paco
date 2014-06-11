@@ -34,8 +34,8 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
     this.type = "trigger";
     this.timeout = timeout;
     this.minimumBuffer = minimumBuffer;
-    this.snoozeCount = snoozeCount;
-    this.snoozeTime = snoozeTime;
+    this.snoozeCount = (snoozeCount != null) ? snoozeCount : SNOOZE_COUNT_DEFAULT;
+    this.snoozeTime = (snoozeTime != null) ? snoozeTime : SNOOZE_TIME_DEFAULT;
   }
 
 

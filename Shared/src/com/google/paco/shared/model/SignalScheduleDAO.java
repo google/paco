@@ -19,6 +19,8 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -62,7 +64,8 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Long esmStartHour = 9 * 60 * 60 * 1000L;
     private Long esmEndHour = 17 * 60 * 60 * 1000L;
 
-    private Long[] times;
+    private List<Long> times;
+    private List<SignalTimeDAO> signalTimes;
     private Integer repeatRate = 1;
     private Integer weekDaysScheduled = 0;
     private Integer nthOfMonth = 1;
@@ -70,6 +73,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Integer dayOfMonth = 1;
     private Boolean esmWeekends = false;
     private Boolean userEditable;
+    private Boolean onlyEditableOnJoin;
 
     /**
      *
@@ -87,13 +91,14 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
      * @param weekDaysScheduled
      * @param esmWeekends TODO
      * @param minimumBuffer
-     * @param snoozeTime
      * @param snoozeCount
+     * @param snoozeTime
+     * @param onlyEditableOnJoin TODO
      */
     public SignalScheduleDAO(long id, Integer scheduleType, Boolean byDayOfMonth,
         Integer dayOfMonth, Long esmEndHour, Integer esmFrequency, Integer esmPeriodInDays,
-        Long esmStartHour, Integer nthOfMonth, Integer repeatRate, Long[] times,
-        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime) {
+        Long esmStartHour, Integer nthOfMonth, Integer repeatRate, List<SignalTimeDAO> times,
+        Integer weekDaysScheduled, Boolean esmWeekends, Boolean userEditable, Integer timeout, Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin) {
       this.id = id;
       this.scheduleType = scheduleType;
       this.byDayOfMonth = byDayOfMonth;
@@ -105,7 +110,7 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.esmWeekends = esmWeekends;
       this.nthOfMonth = nthOfMonth;
       this.repeatRate = repeatRate;
-      this.times = times;
+      this.signalTimes = times;
       this.weekDaysScheduled = weekDaysScheduled;
       this.userEditable = userEditable;
       this.timeout = timeout;
@@ -113,13 +118,14 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
       this.type = "signalSchedule";
       this.snoozeCount = (snoozeCount != null) ? snoozeCount : SNOOZE_COUNT_DEFAULT;
       this.snoozeTime = (snoozeTime != null) ? snoozeTime : SNOOZE_TIME_DEFAULT;
+      this.onlyEditableOnJoin = onlyEditableOnJoin;
     }
 
     /**
      *
      */
     public SignalScheduleDAO() {
-      this.times = new Long[0];
+      this.signalTimes = new ArrayList<SignalTimeDAO>();
       this.type = "signalSchedule";
     }
 
@@ -163,12 +169,12 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
         this.esmEndHour = esmEndHour;
     }
 
-    public Long[] getTimes() {
-        return times;
+    public List<SignalTimeDAO> getSignalTimes() {
+        return signalTimes;
     }
 
-    public void setTimes(Long[] times) {
-        this.times = times;
+    public void setSignalTimes(List<SignalTimeDAO> times) {
+        this.signalTimes = times;
     }
 
     public Integer getRepeatRate() {
@@ -250,6 +256,23 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
 
     public void setTimeout(Integer timeout) {
       this.timeout = timeout;
+    }
+
+    public Boolean getOnlyEditableOnJoin() {
+      return onlyEditableOnJoin;
+    }
+
+    public void setOnlyEditableOnJoin(Boolean value) {
+      this.onlyEditableOnJoin = value;
+
+    }
+
+    public List<Long> getTimes() {
+      return times;
+    }
+
+    public void setTimes(List<Long> times) {
+      this.times = times;
     }
 
 }

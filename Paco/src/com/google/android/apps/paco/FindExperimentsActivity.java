@@ -61,7 +61,7 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class FindExperimentsActivity extends FragmentActivity {
+public class FindExperimentsActivity extends FragmentActivity implements NetworkActivityLauncher {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
@@ -198,7 +198,7 @@ public class FindExperimentsActivity extends FragmentActivity {
     listHeader.setText(header);
   }
 
-  void showNetworkConnectionActivity() {
+  public void showNetworkConnectionActivity() {
     try {
       startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
     } catch (Exception e) {
@@ -247,7 +247,6 @@ public class FindExperimentsActivity extends FragmentActivity {
 
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
-    // saveDownloadedExperiments(contentAsString);
     try {
       Map<String, Object> results = ExperimentProviderUtil.fromEntitiesJson(contentAsString);
       String newExperimentCursor = (String) results.get("cursor");

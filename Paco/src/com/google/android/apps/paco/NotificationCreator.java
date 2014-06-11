@@ -193,7 +193,9 @@ public class NotificationCreator {
   private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder) {
     int icon = R.drawable.paco32;
 
-    Notification notification = new Notification(icon, context.getString(R.string.time_for_notification_title) + experiment.getTitle(), notificationHolder.getAlarmTime());
+    String tickerText = context.getString(R.string.time_for_notification_title) + experiment.getTitle();
+
+    Notification notification = new Notification(icon, tickerText, notificationHolder.getAlarmTime());
 
     Intent surveyIntent = new Intent(context, ExperimentExecutor.class);
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

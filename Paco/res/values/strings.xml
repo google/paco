@@ -43,7 +43,7 @@
 
     <!-- About -->
     <string name="about">About</string>
-    <string name="user_guide">User Guide</string>
+    <string name="user_guide">User guide</string>
     <string name="about_team">Team:</string>
     <string name="about_version">Version:</string>
     <string name="about_email">Support</string>
@@ -114,7 +114,7 @@
     <string name="save_response">Save Response</string>
     <string name="contact_us">Contact us</string>
     <string name="find_experiments">Find experiments</string>
-    <string name="running_experiments">Current experiments</string>
+    <string name="running_experiments">Running experiments</string>
     <string name="experiment_manager_screen_subtitle">Personal Analytics COmpanion</string>
     <string name="experiment_manager_screen_welcome_to_paco">Welcome to PACO!</string>
     <string name="go_to_website_button_text">Browse Website</string>
@@ -122,7 +122,7 @@
     <string name="email_us">Email user group</string>
     <string name="ways_to_talk_to_paco">Ways to Talk to Paco</string>
     <string name="explore_data">Explore Data</string>
-    <string name="create_experiment">Create an experiment</string>
+    <string name="create_experiment">How to create an experiment</string>
     <string name="intro_howto_title">Getting Started</string>
     <string name="account_chooser_title">Choose an Account</string>
     <string name="do_on_phone_anyway">I will respond here anyway</string>
@@ -154,8 +154,7 @@
     <string name="found_updated_questions">I found new questions.</string>
     <string name="didnt_find_updated_questions">I did not find new questions on the server.</string>
     <string name="invalid_experiment_warning">Experiment may be invalid now. Closing screen. Please reopen.</string>
-    <string name="create_experiment_instructions">Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments. \n\nPlease point your browser to http://%1$s/ to create an experiment.</string>
-    <string name="create_experiment_title">How to Create an Experiment</string>
+    <string name="create_experiment_instructions">Creating experiments involves a fair amount of text entry. \n\nPlease point your browser to http://%1$s/ to create an experiment.</string>
     <string name="about_paco_menu_item">About Paco</string>
     <string name="debug_menu_item">Debug</string>
     <string name="server_address_menu_item">Server Address</string>
@@ -183,7 +182,7 @@
     <string name="thanks_for_participating_message">Thanks for Participating!</string>
     <string name="edit_schedule_menu_item">Edit Schedule</string>
     <string name="stop_experiment_menu_item">Stop Experiment</string>
-    <string name="explore_data_menu_item">Explore Data</string>
+    <string name="explore_data_menu_item">Explore data</string>
     <string name="running_experiments_title">Running Experiments</string>
     <string name="available_experiments_title">Available Experiments</string>
     <string name="stop_the_experiment_dialog_title">Stop the Experiment?</string>
@@ -293,6 +292,10 @@
     <string name="find_my_experiments">Find My Experiments</string>
     <string name="find_all_public_experiments">Find All Public Experiments</string>
     <string name="could_not_load_full_experiment_">Could not load full experiment.</string>
-    <string name="no_more_experiments_on_server">No more experiments on server</string>
+    <string name="no_more_experiments_on_server">All experiments downloaded from server</string>
+    <string name="this_experiment_schedule_is_not_editable">This experiment schedule is not editable</string>
+    <string name="multiselectListManyItemsChosen">items chosen</string>
+    <string name="multiselectListOneItemChosen">item chosen</string>
+    <string name="i_did_not_understand">I did not understand</string>
 
 </resources>

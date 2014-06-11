@@ -15,9 +15,29 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top|center_vertical"
+        android:text="Time"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#007dc6"
+        android:textSize="20dp" />
 
 <Button
- xmlns:android="http://schemas.android.com/apk/res/android" 
-android:textSize="20dip" android:text="@string/default_start_time"
-	android:layout_width="wrap_content" android:layout_gravity="left|bottom"
-	android:layout_height="wrap_content" android:id="@+id/timePickerLabel" style="@android:style/Widget.Button" />
+    android:id="@+id/timePickerLabel"
+    style="@android:style/Widget.Button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="left|bottom"
+    android:gravity="center_vertical|right|top"
+    android:text="@string/default_start_time"
+    android:textSize="20dip" />
+
+</LinearLayout>

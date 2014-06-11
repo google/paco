@@ -61,7 +61,7 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class FindMyExperimentsActivity extends FragmentActivity {
+public class FindMyExperimentsActivity extends FragmentActivity implements NetworkActivityLauncher {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
@@ -79,6 +79,7 @@ public class FindMyExperimentsActivity extends FragmentActivity {
   private String experimentCursor;
   private boolean loadedAllExperiments;
   private Button refreshButton;
+  private boolean dialogable;
 
   private static DownloadMyExperimentsTask experimentDownloadTask;
 
@@ -146,6 +147,7 @@ public class FindMyExperimentsActivity extends FragmentActivity {
   @Override
   protected void onResume() {
     super.onResume();
+    dialogable = true;
     if (userPrefs.getSelectedAccount() == null) {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
@@ -155,6 +157,8 @@ public class FindMyExperimentsActivity extends FragmentActivity {
       }
     }
   }
+
+
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -198,7 +202,7 @@ public class FindMyExperimentsActivity extends FragmentActivity {
     listHeader.setText(header);
   }
 
-  void showNetworkConnectionActivity() {
+  public void showNetworkConnectionActivity() {
     try {
       startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
     } catch (Exception e) {
@@ -344,11 +348,13 @@ public class FindMyExperimentsActivity extends FragmentActivity {
 
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialogById(DownloadHelper.INVALID_DATA_ERROR);
-    } else {
-      showDialogById(DownloadHelper.SERVER_ERROR);
+    if (dialogable) {
+      if (status.equals(DownloadHelper.CONTENT_ERROR) ||
+          status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+        showDialogById(DownloadHelper.INVALID_DATA_ERROR);
+      } else {
+        showDialogById(DownloadHelper.SERVER_ERROR);
+      }
     }
   }
 
@@ -405,6 +411,12 @@ public class FindMyExperimentsActivity extends FragmentActivity {
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
+  }
+
+  @Override
+  protected void onPause() {
+    dialogable = false;
+    super.onPause();
   }
 
 

@@ -111,6 +111,10 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Copy")
   String copy();
 
+  @DefaultStringValue("Copy of ")
+  String copyOfExperimentTitlePrefix();
+
+
   @DefaultStringValue("Welcome to the Daily Information Needs Study")
   String welcomeDIN();
 

@@ -103,16 +103,21 @@ public class JobStatusServlet extends HttpServlet {
   private void writeJobStatus(HttpServletResponse resp, ReportJobStatus jobReport, String jobId, String who) throws IOException {
     resp.setContentType("text/html;charset=UTF-8");
     PrintWriter printWriter = resp.getWriter();
+    boolean finished = !Strings.isNullOrEmpty(jobReport.getErrorMessage())
+                       || !Strings.isNullOrEmpty(jobReport.getLocation());
 
     StringBuilder out = new StringBuilder();
-    out.append("<html><head><meta http-equiv=\"refresh\" content=\"5\"><title>Current Status of Report Generation for job: " + jobReport.getId() + "</title>" +
-        "<style type=\"text/css\">"+
-            "body {font-family: verdana,arial,sans-serif;color:#333333}" +
-          "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: #666666;border-collapse: collapse;}" +
-          "table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}" +
-          "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
-          "</style>" +
-               "</head><body>");
+    out.append("<html><head>");
+    if (!finished) {
+      out.append("<meta http-equiv=\"refresh\" content=\"5\">");
+    }
+    out.append("<title>Current Status of Report Generation for job: " + jobReport.getId() + "</title>");
+    out.append("<style type=\"text/css\">");
+    out.append("body {font-family: verdana,arial,sans-serif;color:#333333}");
+    out.append("table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: #666666;border-collapse: collapse;}");
+    out.append("table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}");
+    out.append("table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}");
+    out.append("</style></head><body>");
     out.append("<h1>Hello, " + jobReport.getRequestor() + ".<br>Your report is being generated</h1>");
     out.append("<!-- Report Job ID:  ");
     out.append(jobReport.getId());
