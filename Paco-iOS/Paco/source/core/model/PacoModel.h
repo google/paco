@@ -17,7 +17,6 @@
 
 extern NSString* const kPacoNotificationLoadedMyDefinitions;
 extern NSString* const kPacoNotificationLoadedRunningExperiments;
-extern NSString* const kPacoNotificationRefreshedMyDefinitions;
 extern NSString* const kPacoNotificationAppBecomeActive;
 
 @class PacoModel;

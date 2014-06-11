@@ -81,7 +81,13 @@
 
 - (void)onClickRefresh {
   [[PacoLoadingView sharedInstance] showLoadingScreen];
-  [[PacoClient sharedInstance] refreshMyDefinitions];
+  [[PacoClient sharedInstance] refreshMyDefinitionsWithBlock:^(NSError *error) {
+    [self updateUI];
+    if (error) {
+      [self handleErrorWithRefreshFlag:YES];
+    }
+    [[PacoLoadingView sharedInstance] dismissLoadingScreen];
+  }];
 }
 
 
@@ -113,10 +119,6 @@
                                                                 target:self
                                                                 action:@selector(onClickRefresh)];
       self.navigationItem.rightBarButtonItem = button;
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(refreshFinished:)
-                                                   name:kPacoNotificationRefreshedMyDefinitions
-                                                 object:nil];
     }
   });
 }
@@ -131,16 +133,6 @@
   });
 }
 
-- (void)refreshFinished:(NSNotification*)notification {
-  NSError* error = (NSError*)notification.object;
-  NSAssert([error isKindOfClass:[NSError class]] || error == nil, @"The notification should send an error!");
-  
-  [self updateUI];
-  if (error) {
-    [self handleErrorWithRefreshFlag:YES];
-  }
-  [[PacoLoadingView sharedInstance] dismissLoadingScreen];
-}
 
 - (void)definitionsUpdate:(NSNotification*)notification {
   NSError* error = (NSError*)notification.object;

@@ -537,7 +537,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   }
 }
 
-- (void)refreshMyDefinitions {
+- (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
     DDLogInfo(@"Start refreshing definitions...");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -549,18 +549,17 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
           } else {
             DDLogError(@"Failed to refresh definitions: %@", [error description]);
           }
-          [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationRefreshedMyDefinitions
-                                                              object:error];
+          if (completionBlock) {
+            completionBlock(error);
+          }
         });
       }];
     });
-
-
   }
 }
 
 
-- (void)refreshRunningExperimentsWithBlock:(PacoRefreshRunningExperimentsBlock)completionBlock {
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
     if (![self.model hasRunningExperiments]) {
       if (completionBlock) {
