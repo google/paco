@@ -112,18 +112,20 @@
 
 - (void)onAccept {
   if (!self.definition.schedule.userEditable) {
+    void(^completionBlock)() = ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSString* title = NSLocalizedString(@"Congratulations!", nil);
+        NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
+        [[[UIAlertView alloc] initWithTitle:title
+                                    message:message
+                                   delegate:self
+                          cancelButtonTitle:@"OK"
+                          otherButtonTitles:nil] show];
+      });
+    };
     [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
-                                                  andSchedule:self.definition.schedule];
-
-    NSString* title = NSLocalizedString(@"Congratulations!", nil);
-    NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
-    [PacoAlertView showAlertWithTitle:title
-                              message:message
-                         dismissBlock:^(NSInteger buttonIndex) {
-                           [self.navigationController popToRootViewControllerAnimated:YES];
-                         }
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil];
+                                                     schedule:self.definition.schedule
+                                              completionBlock:completionBlock];
   } else {
     PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
     edit.definition = self.definition;
@@ -131,8 +133,5 @@
   }
 }
 
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
-}
 
 @end

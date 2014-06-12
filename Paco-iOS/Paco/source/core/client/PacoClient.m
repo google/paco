@@ -620,39 +620,50 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 #pragma mark join an experiment
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
-                         andSchedule:(PacoExperimentSchedule*)schedule {
-  if (definition == nil) {
-    return;
-  }
-  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
-  //create a new experiment and save it to cache
-  PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
-                                                              schedule:schedule];
-  DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
-  //start scheduling notifications for this joined experiment
-  [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
-
+                            schedule:(PacoExperimentSchedule*)schedule
+                     completionBlock:(void(^)())completionBlock {
+  NSAssert(definition, @"definition should not be nil");
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
+    //create a new experiment and save it to cache
+    PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
+                                                                schedule:schedule];
+    DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
+    //start scheduling notifications for this joined experiment
+    [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
+    
+    if (completionBlock) {
+      completionBlock();
+    }
+  });
 }
 
 #pragma mark stop an experiment
-- (void)stopExperiment:(PacoExperiment*)experiment {
-  if (experiment == nil) {
+- (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock {
+  if (!experiment) {
     return;
   }
-  [self.eventManager saveStopEventWithExperiment:experiment];
 
-  if ([experiment isScheduledExperiment]) {
-    //clear all scheduled notifications and notifications in the tray for the stopped experiment
-    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
-  }
-  //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
-  //is called, since we may need to store missing survey events, which needs the experiment from model
-  [self.model deleteExperimentInstance:experiment];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.eventManager saveStopEventWithExperiment:experiment];
 
-  //shut down notification if needed after experiment is deleted from model
-  if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
-    [self shutDownNotificationSystemIfNeeded];
-  }
+    if ([experiment isScheduledExperiment]) {
+      //clear all scheduled notifications and notifications in the tray for the stopped experiment
+      [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+    }
+    //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
+    //is called, since we may need to store missing survey events, which needs the experiment from model
+    [self.model deleteExperimentInstance:experiment];
+
+    //shut down notification if needed after experiment is deleted from model
+    if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
+      [self shutDownNotificationSystemIfNeeded];
+    }
+
+    if (completionBlock) {
+      completionBlock();
+    }
+  });
 }
 
 #pragma mark submit a survey

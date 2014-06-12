@@ -271,19 +271,19 @@
 
 - (void)stopExperiment {
   //stop an experiment and update UI
-  [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment];
-
-  dispatch_async(dispatch_get_main_queue(), ^{
-    NSString* title = NSLocalizedString(@"Success", nil);
-    NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
-    [PacoAlertView showAlertWithTitle:title
-                              message:message
-                         dismissBlock:^(NSInteger buttonIndex) {
-                           [self updateUI];
-                         }
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil];
-  });
+  [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment withBlock:^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSString* title = NSLocalizedString(@"Success", nil);
+      NSString* message = NSLocalizedString(@"The experiment was stopped.", nil);
+      [PacoAlertView showAlertWithTitle:title
+                                message:message
+                           dismissBlock:^(NSInteger buttonIndex) {
+                             [self updateUI];
+                           }
+                      cancelButtonTitle:@"OK"
+                      otherButtonTitles:nil];
+    });
+  }];
 }
 
 - (void)showStopConfirmAlert

@@ -90,8 +90,10 @@ typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 - (void)uploadPendingEventsInBackground;
 
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
-                         andSchedule:(PacoExperimentSchedule*)schedule;
-- (void)stopExperiment:(PacoExperiment*)experiment;
+                            schedule:(PacoExperimentSchedule*)schedule
+                     completionBlock:(void(^)())completionBlock;
+
+- (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock;
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
