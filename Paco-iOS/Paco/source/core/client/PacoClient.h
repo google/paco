@@ -93,7 +93,7 @@ typedef void(^PacoRefreshCompletionBlock)(NSError* error);
                             schedule:(PacoExperimentSchedule*)schedule
                      completionBlock:(void(^)())completionBlock;
 
-- (void)stopExperiment:(PacoExperiment*)experiment;
+- (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock;
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
