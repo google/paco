@@ -243,6 +243,7 @@
                                   delegate:self
                          cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
                          otherButtonTitles:NSLocalizedString(@"Participate", nil),
+                                           NSLocalizedString(@"Modify Schedule", nil),
                                            NSLocalizedString(@"Stop Experiment", nil), nil];
     [alert show];
   }else{
@@ -269,6 +270,10 @@
   [self.navigationController pushViewController:questions animated:YES];
 }
 
+- (void)showEditScheduleController {
+
+}
+
 - (void)stopExperiment {
   //stop an experiment and update UI
   [[PacoClient sharedInstance] stopExperiment:self.selectedExperiment withBlock:^{
@@ -293,9 +298,10 @@
       case 0://cancel
         break;
 
-      case 1://confirm
+      case 1://stop an experiment
         [self stopExperiment];
         break;
+
       default:
         NSAssert(NO, @"buttonIndex has to be 0 or 1");
         break;
@@ -316,11 +322,16 @@
   switch (buttonIndex) {
     case 0: // Cancel
       break;
+
     case 1: // Participate
       [self showParticipateController];
       break;
 
-    case 2: // Stop
+    case 2://modify schedule
+      [self showEditScheduleController];
+      break;
+
+    case 3: // Stop
       [self showStopConfirmAlert];
       break;
 
