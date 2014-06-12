@@ -72,17 +72,23 @@
     return;
   }
 
+  
+  void(^completionBlock)() = ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+      NSString* title = NSLocalizedString(@"Congratulations!", nil);
+      NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
+      [[[UIAlertView alloc] initWithTitle:title
+                                  message:message
+                                 delegate:self
+                        cancelButtonTitle:@"OK"
+                        otherButtonTitles:nil] show];
+    });
+  };
+  
   PacoExperimentSchedule* modifiedSchedule = [(PacoScheduleEditView*)self.view schedule];
   [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
-                                                andSchedule:modifiedSchedule];
-
-  NSString* title = NSLocalizedString(@"Congratulations!", nil);
-  NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
-  [[[UIAlertView alloc] initWithTitle:title
-                              message:message
-                             delegate:self
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil] show];
+                                                   schedule:modifiedSchedule
+                                            completionBlock:completionBlock];
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
