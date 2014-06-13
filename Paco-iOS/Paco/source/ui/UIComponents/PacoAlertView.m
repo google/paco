@@ -30,8 +30,7 @@
 - (id)initWithTitle:(NSString*)title
             message:(NSString*)message
        dismissBlock:(PacoAlertViewDidDismissBlock)dismissBlock
-  cancelButtonTitle:(NSString*)cancelButtonTitle
-{
+  cancelButtonTitle:(NSString*)cancelButtonTitle {
   self = [super initWithTitle:title
                       message:message
                      delegate:self
@@ -47,39 +46,39 @@
                    message:(NSString*)message
               dismissBlock:(PacoAlertViewDidDismissBlock)dismissBlock
          cancelButtonTitle:(NSString*)cancelButtonTitle
-         otherButtonTitles:(NSString*)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION
-{
-  PacoAlertView* alertView = [[PacoAlertView alloc] initWithTitle:title
-                                                          message:message
-                                                     dismissBlock:dismissBlock
-                                                cancelButtonTitle:cancelButtonTitle];
+         otherButtonTitles:(NSString*)otherButtonTitles, ... NS_REQUIRES_NIL_TERMINATION {
+    PacoAlertView* alertView = [[PacoAlertView alloc] initWithTitle:title
+                                                            message:message
+                                                       dismissBlock:dismissBlock
+                                                  cancelButtonTitle:cancelButtonTitle];
 
-  va_list args;
-  va_start(args, otherButtonTitles);
-  for (NSString* buttonTitle = otherButtonTitles;
-       buttonTitle != nil;
-       buttonTitle = va_arg(args, NSString*)) {
-    [alertView addButtonWithTitle:buttonTitle];
-  }
-  va_end(args);
-
-  [alertView show];
+    va_list args;
+    va_start(args, otherButtonTitles);
+    for (NSString* buttonTitle = otherButtonTitles;
+         buttonTitle != nil;
+         buttonTitle = va_arg(args, NSString*)) {
+      [alertView addButtonWithTitle:buttonTitle];
+    }
+    va_end(args);
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [alertView show];
+    });
 }
 
 + (void)showAlertWithTitle:(NSString *)title
                    message:(NSString *)message
-         cancelButtonTitle:(NSString *)cancelButtonTitle
-{
-  [[[UIAlertView alloc] initWithTitle:title
-                              message:message
-                             delegate:nil
-                    cancelButtonTitle:cancelButtonTitle
-                    otherButtonTitles:nil] show];
-
+         cancelButtonTitle:(NSString *)cancelButtonTitle {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[[UIAlertView alloc] initWithTitle:title
+                                message:message
+                               delegate:nil
+                      cancelButtonTitle:cancelButtonTitle
+                      otherButtonTitles:nil] show];
+  });
 }
 
-+ (void)showGeneralErrorAlert
-{
++ (void)showGeneralErrorAlert {
   dispatch_async(dispatch_get_main_queue(), ^{
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Sorry", nil)
                                 message:NSLocalizedString(@"Something went wrong, please try again later.", nil)
@@ -114,8 +113,7 @@
 }
 
 #pragma mark UIAlertViewDelegate implementation
-- (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
-{
+- (void)alertView:(UIAlertView*)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
   if (self != alertView) {
     return;
   }
