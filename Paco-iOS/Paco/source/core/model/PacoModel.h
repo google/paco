@@ -34,6 +34,7 @@ extern NSString* const kPacoNotificationAppBecomeActive;
 
 - (BOOL)hasLoadedMyDefinitions;
 - (BOOL)hasLoadedRunningExperiments;
+- (BOOL)hasRunningExperiments;
 
 //NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;

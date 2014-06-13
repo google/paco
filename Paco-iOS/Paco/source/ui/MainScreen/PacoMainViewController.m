@@ -32,7 +32,7 @@
 #import "PacoAlertView.h"
 #import "NSString+Paco.h"
 #import "PacoOpenSourceLibViewController.h"
-
+#import "PacoModel.h"
 
 @implementation PacoMainViewController
 
@@ -63,7 +63,7 @@
   view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   //if user has running experiments, load RunningExperimentsViewController
-  if ([[PacoClient sharedInstance] hasRunningExperiments]) {
+  if ([[PacoClient sharedInstance].model hasRunningExperiments]) {
     [self onRunningExperiments];
   }
 
@@ -152,7 +152,7 @@
     [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
     JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
                                                                        message:message
-                                                                       timeout:2.
+                                                                       timeout:3.
                                                                     tapHandler:nil];
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
