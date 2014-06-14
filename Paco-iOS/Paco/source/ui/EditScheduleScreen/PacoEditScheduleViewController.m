@@ -91,15 +91,18 @@
                                             completionBlock:completionBlock];
 }
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
-{
+- (void)goBack {
   for (UIViewController *controller in [self.navigationController viewControllers]) {
     if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
         [controller isKindOfClass:[PacoPublicExperimentController class]]) {
       [self.navigationController popToViewController:controller animated:YES];
-      return;
+      break;
     }
   }
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  [self goBack];
 }
 
 

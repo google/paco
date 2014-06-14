@@ -24,6 +24,8 @@
 #import "UIFont+Paco.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoAlertView.h"
+#import "PacoFindMyExperimentsViewController.h"
+#import "PacoPublicExperimentController.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition* definition;
@@ -132,6 +134,21 @@
     [self.navigationController pushViewController:edit animated:YES];
   }
 }
+
+- (void)goBack {
+  for (UIViewController *controller in [self.navigationController viewControllers]) {
+    if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
+        [controller isKindOfClass:[PacoPublicExperimentController class]]) {
+      [self.navigationController popToViewController:controller animated:YES];
+      break;
+    }
+  }
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  [self goBack];
+}
+
 
 
 @end
