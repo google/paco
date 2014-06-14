@@ -24,27 +24,27 @@
 - (id)serializeToJSON
 {
   NSMutableDictionary* scheduleJson =
-      [NSMutableDictionary dictionaryWithObjectsAndKeys:
-          @(self.byDayOfMonth), @"byDayOfMonth",
-          @(self.byDayOfWeek), @"byDayOfWeek",
-          @(self.dayOfMonth), @"dayOfMonth",
-          @(self.esmEndHour), @"esmEndHour",
-          @(self.esmFrequency), @"esmFrequency",
-          @(self.esmPeriodInDays), @"esmPeriodInDays",
-          @(self.esmStartHour), @"esmStartHour",
-          @(self.esmWeekends), @"esmWeekends",
-          @([self.scheduleId longLongValue]), @"id",
-          @(self.nthOfMonth), @"nthOfMonth",
-          @(self.repeatRate), @"repeatRate",
-          
-          @(self.timeout), @"timeout",
-          @(self.minimumBuffer), @"minimumBuffer",
-          @(self.scheduleType), @"scheduleType",
-          self.times, @"times",
-          @(self.userEditable), @"userEditable",
-          @(self.weekDaysScheduled), @"weekDaysScheduled",
-          nil];
-  
+  [NSMutableDictionary dictionaryWithObjectsAndKeys:
+   @(self.byDayOfMonth), @"byDayOfMonth",
+   @(self.byDayOfWeek), @"byDayOfWeek",
+   @(self.dayOfMonth), @"dayOfMonth",
+   @(self.esmEndHour), @"esmEndHour",
+   @(self.esmFrequency), @"esmFrequency",
+   @(self.esmPeriodInDays), @"esmPeriodInDays",
+   @(self.esmStartHour), @"esmStartHour",
+   @(self.esmWeekends), @"esmWeekends",
+   @([self.scheduleId longLongValue]), @"id",
+   @(self.nthOfMonth), @"nthOfMonth",
+   @(self.repeatRate), @"repeatRate",
+
+   @(self.timeout), @"timeout",
+   @(self.minimumBuffer), @"minimumBuffer",
+   @(self.scheduleType), @"scheduleType",
+   self.times, @"times",
+   @(self.userEditable), @"userEditable",
+   @(self.weekDaysScheduled), @"weekDaysScheduled",
+   nil];
+
   if ([self.esmScheduleList count] > 0) {
     NSMutableArray* dateStringArr = [NSMutableArray arrayWithCapacity:[self.esmScheduleList count]];
     for (NSDate* date in self.esmScheduleList) {
@@ -75,21 +75,21 @@
   schedule.repeatRate = [scheduleMembers[@"repeatRate"] integerValue];
   schedule.scheduleType = [scheduleMembers[@"scheduleType"] intValue];
   schedule.timeout = [scheduleMembers[@"timeout"] intValue];
-  
+
   NSNumber* minimumBufferNum = scheduleMembers[@"minimumBuffer"];
   if (minimumBufferNum != nil) {
     schedule.minimumBuffer = [minimumBufferNum intValue];
   } else {
     schedule.minimumBuffer = 59; //default
   }
-  
+
   schedule.times = scheduleMembers[@"times"];
   schedule.times = [schedule.times sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     NSDate *lhs = obj1;
     NSDate *rhs = obj2;
     return [lhs compare:rhs];
   }];
-  
+
   NSNumber* userEditableObject = scheduleMembers[@"userEditable"];
   if (userEditableObject) {
     schedule.userEditable = [userEditableObject boolValue];
@@ -97,7 +97,7 @@
     schedule.userEditable = YES; //userEditable is YES by default
   }
   schedule.weekDaysScheduled = [scheduleMembers[@"weekDaysScheduled"] intValue];
-  
+
   // !!! TPE temporary timeout fix for issue #9
   if (schedule.timeout == 0) {
     if (schedule.scheduleType == kPacoScheduleTypeESM) {
@@ -114,7 +114,7 @@
     }
     schedule.esmScheduleList = dateArr;
   }
-  
+
   return schedule;
 }
 
@@ -256,7 +256,7 @@
   if (0 == self.weekDaysScheduled) { //none of any day is selected, should be validated by server
     return nil;
   }
-  
+
   NSMutableArray* table = [NSMutableArray arrayWithCapacity:kPacoNumOfDaysInWeek];
   for (int digit = 0; digit < kPacoNumOfDaysInWeek; digit++) {
     BOOL daySelected = (self.weekDaysScheduled & (1 << digit));
@@ -282,9 +282,9 @@
 
 - (NSString *)jsonString {
   NSMutableString *json = [NSMutableString stringWithString:@"{"];
-  
+
   [json appendFormat:@"type = %@,", [self typeString]];
-  
+
   if (self.scheduleType == kPacoScheduleTypeESM) {
     [json appendFormat:@"frequency = %ld,", (long)self.esmFrequency];
     [json appendFormat:@"esmPeriod = %@,", [self periodString]];
@@ -349,7 +349,7 @@
   return startTime;
 }
 
-- (NSString*)evaluateSchedule {
+- (NSString*)validate {
   if (self.scheduleType == kPacoScheduleTypeDaily) {
     self.times = [self.times pacoSortedNumbers];
     if (![self.times pacoIsNonDuplicate]) {
@@ -364,10 +364,8 @@
 }
 
 
-//Note: userEditable is ignored here
-//ESM startHour and endHour are ignored here
-//times are ignored if the number of times are the same
-- (BOOL)isEqualToSchedule:(PacoExperimentSchedule*)another {
+//Note: userEditable is ignored, since it won't influence notification system
+- (BOOL)compareWithSchedule:(PacoExperimentSchedule*)another includeConfigure:(BOOL)includeConfigure {
   if (!another) {
     return NO;
   }
@@ -381,25 +379,29 @@
   if (self.timeout != another.timeout) {
     return NO;
   }
-  
+
+  BOOL hasSameTimes = includeConfigure ? [self.times isEqualToArray:another.times] :
+                                         [self.times count] == [another.times count];
   switch (self.scheduleType) {
-    case kPacoScheduleTypeDaily:
-      return (self.repeatRate == another.repeatRate && [self.times count] == [another.times count]);
+    case kPacoScheduleTypeDaily: {
+      return (self.repeatRate == another.repeatRate && hasSameTimes);
+    }
 
-    case kPacoScheduleTypeWeekday:
-      return ([self.times count] == [another.times count]);
-      
-    case kPacoScheduleTypeWeekly:
+    case kPacoScheduleTypeWeekday: {
+      return hasSameTimes;
+    }
+
+    case kPacoScheduleTypeWeekly: {
       return (self.repeatRate == another.repeatRate &&
-               self.weekDaysScheduled == another.weekDaysScheduled &&
-               [self.times count] == [another.times count]);
+              self.weekDaysScheduled == another.weekDaysScheduled &&
+              hasSameTimes);
+    }
 
-    case kPacoScheduleTypeMonthly:
-    {
+    case kPacoScheduleTypeMonthly: {
       if (self.repeatRate != another.repeatRate) {
         return NO;
       }
-      if ([self.times count] != [another.times count]) {
+      if (!hasSameTimes) {
         return NO;
       }
       if (self.byDayOfMonth) {
@@ -410,18 +412,36 @@
       }
     }
 
-    case kPacoScheduleTypeESM:
-      return (self.esmFrequency == another.esmFrequency &&
-              self.esmPeriod == another.esmPeriod &&
-              ((self.esmWeekends && another.esmWeekends) || (!self.esmWeekends && !another.esmWeekends)) &&
-              self.minimumBuffer == another.minimumBuffer);
-      
+    case kPacoScheduleTypeESM: {
+      BOOL isEqual = (self.esmFrequency == another.esmFrequency &&
+                      self.esmPeriod == another.esmPeriod &&
+                      ((self.esmWeekends && another.esmWeekends) || (!self.esmWeekends && !another.esmWeekends)) &&
+                      self.minimumBuffer == another.minimumBuffer);
+      if (includeConfigure) {
+        BOOL hasSameStartEndTime = (self.esmStartHour == another.esmStartHour &&
+                                    self.esmEndHour == another.esmEndHour);
+        return isEqual && hasSameStartEndTime;
+      } else {
+        return isEqual;
+      }
+    }
+
     default:
       NSAssert(NO, @"should be a valid schedule type");
       return NO;
   }
 }
 
+
+//ESM startHour and endHour are ignored here
+//times are considered the same if the number of times are the same
+- (BOOL)isEqualToSchedule:(PacoExperimentSchedule*)another {
+  return [self compareWithSchedule:another includeConfigure:NO];
+}
+
+- (BOOL)isExactlyEqualToSchedule:(PacoExperimentSchedule*)another {
+  return [self compareWithSchedule:another includeConfigure:YES];
+}
 
 
 @end

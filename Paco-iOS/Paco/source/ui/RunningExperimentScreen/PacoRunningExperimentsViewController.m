@@ -19,20 +19,19 @@
 #import "UIColor+Paco.h"
 #import "UIFont+Paco.h"
 #import "PacoLoadingTableCell.h"
-#import "PacoModel.h"
-#import "PacoService.h"
 #import "PacoTableView.h"
 #import "PacoQuestionScreenViewController.h"
-#import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
 #import "PacoAlertView.h"
-#import "PacoEvent.h"
-#import "PacoEventManager.h"
 #import "PacoSubtitleTableCell.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoFindMyExperimentsViewController.h"
 #import "PacoLoadingView.h"
+#import "PacoExperimentDefinition.h"
+#import "PacoModel.h"
+#import "PacoEditScheduleAfterJoinController.h"
+#import "PacoExperimentSchedule.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -107,7 +106,7 @@
     ((PacoTableView*)self.view).data = [PacoClient sharedInstance].model.runningExperiments;
     
     //update label and button when there is no running experiment
-    [self updateLabelAndButtons:[[PacoClient sharedInstance] hasRunningExperiments]];
+    [self updateLabelAndButtons:[[PacoClient sharedInstance].model hasRunningExperiments]];
   });
 }
 
@@ -233,18 +232,32 @@
   }
 }
 
+- (BOOL)allowEditingSchedule {
+  return self.selectedExperiment.schedule.userEditable;
+}
+
 - (void)cellSelected:(UITableViewCell *)cell rowData:(id)rowData reuseId:(NSString *)reuseId {
   if ([rowData isKindOfClass:[PacoExperiment class]]) { //YMZ: is this necessary?
     self.selectedExperiment = rowData;
-    //TODO: @"Edit Schedule",@"Explore Data"
-    UIAlertView *alert =
-        [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
-                                   message:nil
-                                  delegate:self
-                         cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-                         otherButtonTitles:NSLocalizedString(@"Participate", nil),
-                                           NSLocalizedString(@"Modify Schedule", nil),
-                                           NSLocalizedString(@"Stop Experiment", nil), nil];
+    //TODO:@"Explore Data"
+    NSString* cancelStr = NSLocalizedString(@"Cancel", nil);
+    NSString* participateStr = NSLocalizedString(@"Participate", nil);
+    NSString* modifyStr = NSLocalizedString(@"Modify Schedule", nil);
+    NSString* stopStr = NSLocalizedString(@"Stop Experiment", nil);
+    UIAlertView *alert = nil;
+    if ([self allowEditingSchedule]) {
+      alert =  [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
+                                          message:nil
+                                         delegate:self
+                                cancelButtonTitle:cancelStr
+                                otherButtonTitles:participateStr, modifyStr, stopStr, nil];
+    } else {
+      alert =  [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
+                                          message:nil
+                                         delegate:self
+                                cancelButtonTitle:cancelStr
+                                otherButtonTitles:participateStr, stopStr, nil];
+    }
     [alert show];
   }else{
     self.selectedExperiment = nil;
@@ -271,7 +284,29 @@
 }
 
 - (void)showEditScheduleController {
+  EditScheduleCompletionBlock block = ^(PacoEditScheduleStatus status, PacoExperimentSchedule *schedule) {
+    if (status == PacoEditScheduleStatusChanged) {
+      void(^completionBlock)() = ^ {
+        NSString* title = self.selectedExperiment.definition.title;
+        NSString* msg = NSLocalizedString(@"Schedule is changed successfully.", nil);
+        [PacoAlertView showAlertWithTitle:title
+                                  message:msg
+                        cancelButtonTitle:@"OK"];
+      };
+      [[PacoClient sharedInstance] changeScheduleForExperiment:self.selectedExperiment
+                                                   newSchedule:schedule
+                                               completionBlock:completionBlock];
+    } else if (status == PacoEditScheduleStatusUnchanged) {
+      [PacoAlertView showAlertWithTitle:nil
+                                message:NSLocalizedString(@"No change was made.", nil)
+                      cancelButtonTitle:@"OK"];
+    }
+  };
 
+  PacoEditScheduleAfterJoinController* controller =
+      [PacoEditScheduleAfterJoinController controllerWithSchedule:self.selectedExperiment.schedule
+                                                  completionBlock:block];
+  [self.navigationController pushViewController:controller animated:YES];
 }
 
 - (void)stopExperiment {
@@ -327,9 +362,14 @@
       [self showParticipateController];
       break;
 
-    case 2://modify schedule
-      [self showEditScheduleController];
+    case 2: { //modify schedule or stop
+      if ([self allowEditingSchedule]) {
+        [self showEditScheduleController];
+      } else {
+        [self showStopConfirmAlert];
+      }
       break;
+    }
 
     case 3: // Stop
       [self showStopConfirmAlert];

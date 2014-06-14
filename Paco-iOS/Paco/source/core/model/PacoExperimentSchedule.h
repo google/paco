@@ -91,11 +91,13 @@ static const int kPacoNumOfDaysInWeek = 7;
 - (NSInteger)minutesPerDayOfESM;
 - (NSDate*)esmStartTimeOnDate:(NSDate*)date;
 
-- (NSString*)evaluateSchedule;
+- (NSString*)validate;
 
 //Note: userEditable is ignored here
 //ESM startHour and endHour are ignored here
 //times are ignored if the number of times are the same
 - (BOOL)isEqualToSchedule:(PacoExperimentSchedule*)another;
+
+- (BOOL)isExactlyEqualToSchedule:(PacoExperimentSchedule*)another;
 
 @end

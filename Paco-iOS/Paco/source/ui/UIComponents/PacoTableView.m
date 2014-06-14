@@ -248,6 +248,9 @@
                                 animated:YES];
 }
 
+- (void)dismissAnyDatePicker {
+  [self replaceDatePickerWithFooterIfNeeded:nil];
+}
 
 - (void)replaceDatePickerWithFooterIfNeeded:(UIView*)footer {
   BOOL isDatePicker = [self.footer isKindOfClass:[PacoDatePickerView class]] ||

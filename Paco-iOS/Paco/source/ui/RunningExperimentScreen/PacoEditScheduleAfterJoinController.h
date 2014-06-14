@@ -14,24 +14,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "PacoScheduleEditView.h"
 
 @class PacoExperimentSchedule;
-@class PacoTableView;
 
+@interface PacoEditScheduleAfterJoinController : UIViewController
 
-typedef enum {
-  PacoEditScheduleStatusCancelled,
-  PacoEditScheduleStatusChanged,
-  PacoEditScheduleStatusUnchanged,
-} PacoEditScheduleStatus;
++ (instancetype)controllerWithSchedule:(PacoExperimentSchedule*)schedule
+                       completionBlock:(EditScheduleCompletionBlock)block;
 
-
-typedef void(^EditScheduleCompletionBlock)(PacoEditScheduleStatus status,
-                                           PacoExperimentSchedule *schedule);
-
-@interface PacoScheduleEditView : UIView
-@property (nonatomic, copy) PacoExperimentSchedule* schedule;
-@property (nonatomic, retain) PacoTableView *tableView;
-
-+ (instancetype)viewWithFrame:(CGRect)frame schedule:(PacoExperimentSchedule*)schedule;
 @end

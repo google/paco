@@ -127,8 +127,8 @@
                                                      schedule:self.definition.schedule
                                               completionBlock:completionBlock];
   } else {
-    PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-    edit.definition = self.definition;
+    PacoEditScheduleViewController *edit =
+        [PacoEditScheduleViewController controllerWithDefinition:self.definition];
     [self.navigationController pushViewController:edit animated:YES];
   }
 }
