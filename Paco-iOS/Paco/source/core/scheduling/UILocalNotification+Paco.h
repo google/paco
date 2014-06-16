@@ -17,12 +17,12 @@
 
 @class PacoExperiment;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoNotificationStatus) {
   PacoNotificationStatusUnknown = 0,      //unknown
   PacoNotificationStatusNotFired,         //not fired yet
   PacoNotificationStatusFiredNotTimeout,  //fired, but not timed out
   PacoNotificationStatusTimeout,          //fired, and timed out
-} PacoNotificationStatus;
+};
 
 
 extern NSString* const kNotificationSoundName;

@@ -159,7 +159,7 @@
           @"scheduleId=%@ "
           @"nthOfMonth=%ld "
           @"repeatRate=%ld "
-          @"scheduleType=%d "
+          @"scheduleType=%ld "
           @"times=%@ "
           @"timeout=%ld "
           @"minimumBuffer=%ld "
@@ -178,7 +178,7 @@
           self.scheduleId,
           (long)self.nthOfMonth,
           (long)self.repeatRate,
-          self.scheduleType,
+          (long)self.scheduleType,
           [self.times pacoDescriptionForTimeNumbers],
           (long)self.timeout,
           (long)self.minimumBuffer,

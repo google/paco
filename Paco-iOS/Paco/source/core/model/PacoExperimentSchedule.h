@@ -15,13 +15,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoScheduleRepeatPeriod) {
   kPacoScheduleRepeatPeriodDay = 0,
   kPacoScheduleRepeatPeriodWeek = 1,
   kPacoScheduleRepeatPeriodMonth = 2,
-} PacoScheduleRepeatPeriod;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoScheduleDay) {
   kPacoScheduleDaySunday = 1,
   kPacoScheduleDayMonday = 1 << 1,
   kPacoScheduleDayTuesday = 1 << 2,
@@ -29,9 +29,9 @@ typedef enum {
   kPacoScheduleDayThursday = 1 << 4,
   kPacoScheduleDayFriday = 1 << 5,
   kPacoScheduleDaySaturday = 1 << 6,
-} PacoScheduleDay;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoScheduleType) {
   kPacoScheduleTypeDaily = 0,
   kPacoScheduleTypeWeekday = 1,
   kPacoScheduleTypeWeekly = 2,
@@ -39,7 +39,7 @@ typedef enum {
   kPacoScheduleTypeESM = 4,
   kPacoScheduleTypeSelfReport = 5,
   kPacoScheduleTypeTesting = 999, // TPE a scheduleType introducted for testing Notifications
-} PacoScheduleType;
+};
 
 
 static const int kPacoNumOfDaysInWeek = 7;

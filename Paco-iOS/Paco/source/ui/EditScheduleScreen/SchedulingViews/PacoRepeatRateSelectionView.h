@@ -17,11 +17,11 @@
 
 #import "PacoSliderView.h"
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoScheduleRepeatStyle) {
   kPacoScheduleRepeatDays,
   kPacoScheduleRepeatWeeks,
   kPacoScheduleRepeatMonths,
-} PacoScheduleRepeatStyle;
+};
 
 @interface PacoRepeatRateSelectionView : PacoSliderView
 @property (nonatomic, assign) PacoScheduleRepeatStyle repeatStyle;

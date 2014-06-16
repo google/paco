@@ -19,11 +19,11 @@
 @class PacoTableView;
 
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoEditScheduleStatus) {
   PacoEditScheduleStatusCancelled,
   PacoEditScheduleStatusChanged,
   PacoEditScheduleStatusUnchanged,
-} PacoEditScheduleStatus;
+};
 
 
 typedef void(^EditScheduleCompletionBlock)(PacoEditScheduleStatus status,
