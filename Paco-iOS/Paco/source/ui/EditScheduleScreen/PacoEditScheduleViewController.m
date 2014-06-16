@@ -92,13 +92,16 @@
 }
 
 - (void)goBack {
+  UIViewController* controllerToGoBack = nil;
   for (UIViewController *controller in [self.navigationController viewControllers]) {
     if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
         [controller isKindOfClass:[PacoPublicExperimentController class]]) {
-      [self.navigationController popToViewController:controller animated:YES];
+      controllerToGoBack = controller;
       break;
     }
   }
+  NSAssert(controllerToGoBack, @"should have a valid controller to go back to");
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
