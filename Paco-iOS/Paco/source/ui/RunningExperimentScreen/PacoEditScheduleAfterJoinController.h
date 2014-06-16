@@ -14,16 +14,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "PacoScheduleEditView.h"
 
-#import "PacoSliderView.h"
+@class PacoExperimentSchedule;
 
-typedef NS_ENUM(NSInteger, PacoScheduleRepeatStyle) {
-  kPacoScheduleRepeatDays,
-  kPacoScheduleRepeatWeeks,
-  kPacoScheduleRepeatMonths,
-};
+@interface PacoEditScheduleAfterJoinController : UIViewController
 
-@interface PacoRepeatRateSelectionView : PacoSliderView
-@property (nonatomic, assign) PacoScheduleRepeatStyle repeatStyle;
-@property (nonatomic, retain) NSNumber *repeatNumberValue;
++ (instancetype)controllerWithSchedule:(PacoExperimentSchedule*)schedule
+                       completionBlock:(EditScheduleCompletionBlock)block;
+
 @end

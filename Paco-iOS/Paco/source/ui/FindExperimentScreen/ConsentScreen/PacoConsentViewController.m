@@ -24,6 +24,8 @@
 #import "UIFont+Paco.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoAlertView.h"
+#import "PacoFindMyExperimentsViewController.h"
+#import "PacoPublicExperimentController.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition* definition;
@@ -127,11 +129,29 @@
                                                      schedule:self.definition.schedule
                                               completionBlock:completionBlock];
   } else {
-    PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-    edit.definition = self.definition;
+    PacoEditScheduleViewController *edit =
+        [PacoEditScheduleViewController controllerWithDefinition:self.definition];
     [self.navigationController pushViewController:edit animated:YES];
   }
 }
+
+- (void)goBack {
+  UIViewController* controllerToGoBack = nil;
+  for (UIViewController *controller in [self.navigationController viewControllers]) {
+    if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
+        [controller isKindOfClass:[PacoPublicExperimentController class]]) {
+      controllerToGoBack = controller;
+      break;
+    }
+  }
+  NSAssert(controllerToGoBack, @"should have a valid controller to go back to");
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  [self goBack];
+}
+
 
 
 @end

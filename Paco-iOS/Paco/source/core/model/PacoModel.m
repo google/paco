@@ -238,7 +238,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
         continue;
       }
       
-      BOOL refreshed = [experiment refreshWithSchedule:newDefinition.schedule];
+      BOOL refreshed = [experiment refreshSchedule:newDefinition.schedule];
       if (refreshed) {
         schedulesChanged = YES;
       }
@@ -249,6 +249,16 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     
     [self saveExperimentInstancesToFile];
     return schedulesChanged;
+  }
+}
+
+- (void)configureExperiment:(PacoExperiment*)experiment
+               withSchedule:(PacoExperimentSchedule*)newSchedule {
+  @synchronized(self) {
+    NSUInteger index = [self.runningExperiments indexOfObject:experiment];
+    NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
+    [experiment configureSchedule:newSchedule];
+    [self saveExperimentInstancesToFile];
   }
 }
 

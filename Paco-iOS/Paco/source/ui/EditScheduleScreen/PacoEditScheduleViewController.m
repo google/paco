@@ -31,38 +31,38 @@
 
 @interface PacoEditScheduleViewController ()<UIAlertViewDelegate>
 
+@property (nonatomic, retain) PacoExperimentDefinition *definition;
 @property(nonatomic, assign) BOOL isJoinSuccessful;
 
 @end
 
 @implementation PacoEditScheduleViewController
-@synthesize definition = _definition;
 
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+- (instancetype)initWithDefinition:(PacoExperimentDefinition*)definition {
+  self = [super initWithNibName:nil bundle:nil];
   if (self) {
-    self.navigationItem.title = NSLocalizedString(@"Scheduling", nil);
+    _definition = definition;
+    self.title = _definition.title;
+    self.navigationItem.rightBarButtonItem =
+      [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Join", nil)
+                                       style:UIBarButtonItemStyleDone
+                                      target:self
+                                      action:@selector(onJoin)];
   }
   return self;
 }
-- (void)viewDidLoad {
-  [super viewDidLoad];
 
-  PacoScheduleEditView* editView = [[PacoScheduleEditView alloc] initWithFrame:CGRectZero];
-  [editView.joinButton addTarget:self action:@selector(onJoin) forControlEvents:UIControlEventTouchUpInside];
-  self.view = editView;
-  editView.schedule = self.definition.schedule;
++ (instancetype)controllerWithDefinition:(PacoExperimentDefinition*)definition {
+  return [[[self class] alloc] initWithDefinition:definition];
 }
 
-- (void)setDefinition:(PacoExperimentDefinition *)definition {
-  _definition = definition;
-  self.title = definition.title;
-  [(PacoScheduleEditView *)self.view setSchedule:_definition.schedule];
+- (void)viewDidLoad {
+  [super viewDidLoad];
+  self.view = [PacoScheduleEditView viewWithFrame:CGRectZero schedule:self.definition.schedule];
 }
 
 - (void)onJoin {
-  NSString* errorMsg = [[(PacoScheduleEditView*)self.view schedule] evaluateSchedule];
+  NSString* errorMsg = [[(PacoScheduleEditView*)self.view schedule] validate];
   if (errorMsg) {
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
                                 message:errorMsg
@@ -91,15 +91,21 @@
                                             completionBlock:completionBlock];
 }
 
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;  // after animation
-{
+- (void)goBack {
+  UIViewController* controllerToGoBack = nil;
   for (UIViewController *controller in [self.navigationController viewControllers]) {
     if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
         [controller isKindOfClass:[PacoPublicExperimentController class]]) {
-      [self.navigationController popToViewController:controller animated:YES];
-      return;
+      controllerToGoBack = controller;
+      break;
     }
   }
+  NSAssert(controllerToGoBack, @"should have a valid controller to go back to");
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  [self goBack];
 }
 
 

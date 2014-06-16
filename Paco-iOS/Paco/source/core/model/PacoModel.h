@@ -34,6 +34,7 @@ extern NSString* const kPacoNotificationAppBecomeActive;
 
 - (BOOL)hasLoadedMyDefinitions;
 - (BOOL)hasLoadedRunningExperiments;
+- (BOOL)hasRunningExperiments;
 
 //NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;
@@ -59,6 +60,9 @@ extern NSString* const kPacoNotificationAppBecomeActive;
 - (NSArray*)runningExperimentIdList; //<NSString>
 
 - (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList;
+
+- (void)configureExperiment:(PacoExperiment*)experiment
+               withSchedule:(PacoExperimentSchedule*)newSchedule;
 
 @end
 

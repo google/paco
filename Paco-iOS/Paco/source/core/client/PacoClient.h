@@ -80,8 +80,6 @@ typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 
-- (BOOL)hasRunningExperiments;
-
 - (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
@@ -93,7 +91,12 @@ typedef void(^PacoRefreshCompletionBlock)(NSError* error);
                             schedule:(PacoExperimentSchedule*)schedule
                      completionBlock:(void(^)())completionBlock;
 
+- (void)changeScheduleForExperiment:(PacoExperiment*)experiment
+                        newSchedule:(PacoExperimentSchedule*)newSchedule
+                    completionBlock:(void(^)())completionBlock;
+
 - (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock;
+
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;

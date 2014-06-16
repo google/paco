@@ -508,10 +508,6 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 
-- (BOOL)hasRunningExperiments {
-  return [self.model hasRunningExperiments];
-}
-
 //refreshing all definitions published to the current user is a full refreshing
 //refreshing only running experiments' definitions is a partial refreshing
 - (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions isPartialUpdate:(BOOL)isPartial{
@@ -632,6 +628,25 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     //start scheduling notifications for this joined experiment
     [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
     
+    if (completionBlock) {
+      completionBlock();
+    }
+  });
+}
+
+#pragma mark modify a running experiment's schedule
+- (void)changeScheduleForExperiment:(PacoExperiment*)experiment
+                        newSchedule:(PacoExperimentSchedule*)newSchedule
+                    completionBlock:(void(^)())completionBlock {
+  if ([newSchedule isExactlyEqualToSchedule:experiment.schedule]) {
+    if (completionBlock) {
+      completionBlock();
+    }
+    return;
+  }
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.model configureExperiment:experiment withSchedule:newSchedule];
+    [self.scheduler restartNotificationSystem];
     if (completionBlock) {
       completionBlock();
     }
