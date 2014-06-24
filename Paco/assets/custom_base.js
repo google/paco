@@ -22,7 +22,7 @@ var paco = (function (init) {
              "isMultiselect" : input.isMultiselect,
              "answer" : input.answer, 
              "answerOrder" : input.answerOrder, 
-             "responseType" : input.responseType 
+             "responseType" : input.responseType
            };
   };
 
@@ -210,21 +210,38 @@ var paco = (function (init) {
       return null;
     };
 
-      
-    return {
-      saveEvent : function(event, callback) {
+
+    var saveEvent = function(event, callback) {
         var status = db.saveEvent(event);
         if (callback) {
           callback(status);
         }
-      },
-
-      getAllEvents : function() {
+    };
+      
+    var getAllEvents = function() {
         // shallow cloning of the events array
         var newarray = new Array();
         $.each(db.getAllEvents(), function(index, value) { newarray[index] = value });
         return newarray;
-      },
+    };
+
+    var getResponsesForEventNTimesAgo = function (nBack) {
+        var experimentData = db.getAllEvents();
+        if (nBack > experimentData.length) {
+          return null; // todo decide whether to throw an exception instead?
+        } 
+        var event = experimentData[nBack - 1]; 
+        return event.responses;
+    };
+
+    var getAnswerNTimesAgoFor = function (item, nBack) {
+        var responses = getResponsesForEventNTimesAgo(nBack);
+        return getResponseForItem(responses, item);
+    };
+
+    return {
+      saveEvent : saveEvent,
+      getAllEvents : getAllEvents,
 
       getLastEvent : function() {
         return db.getLastEvent();
@@ -235,20 +252,9 @@ var paco = (function (init) {
         return events.slice(0..n);
       },
 
-      getResponsesForEventNTimesAgo : function (nBack) {
-        var experimentData = db.getAllEvents();
-        if (nBack > experimentData.length) {
-          return null; // todo decide whether to throw an exception instead?
-        } 
-        var event = experimentData[nBack - 1]; 
-        return event.responses;
-      },
+      getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
 
-      getAnswerNTimesAgoFor : function (item, nBack) {
-        var responses = getResponsesForNTimesAgo(nBack);
-        return getResponseForItem(responses, item);
-      },
-
+      getAnswerNTimesAgoFor : getAnswerNTimesAgoFor,
       getLastAnswerFor : function (item) {
         return getAnswerNTimesAgoFor(item, 1);
       },
@@ -507,7 +513,7 @@ paco.renderer = (function() {
       if (!input.multiselect) {
         var val = this.selectedIndex; 
         response.answerOrder = val;
-        response.answer = val;        
+        response.answer = val;
       } else {
         var values = [];
         var list = $("select[name=" + input.name + "]");
@@ -833,6 +839,7 @@ paco.renderer = (function() {
   obj.renderCustomExperimentForm = renderCustomExperimentForm;
   obj.loadCustomExperiment = loadCustomExperiment;
   obj.renderSaveButton = renderSaveButton;
+  obj.registerValidationErrorMarkingCallback = registerValidationErrorMarkingCallback;
   obj.renderFeedback = renderFeedback;
   return obj;
 
