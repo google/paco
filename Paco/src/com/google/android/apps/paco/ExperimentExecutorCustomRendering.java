@@ -371,7 +371,7 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
     if (savedInstanceState != null){
       webView.loadUrl((String) savedInstanceState.get("url"));
       String showDialogString =  (String) savedInstanceState.get("showDialog");
-      if (showDialogString.equals("false")){
+      if (showDialogString == null || showDialogString.equals("false")){
         showDialog = false;
       }else{
         showDialog = true;
