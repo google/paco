@@ -313,20 +313,27 @@ public class FeedbackActivity extends Activity {
           JSONObject responseJson = new JSONObject();
           Input input = experiment.getInputById(response.getInputServerId());
           if (input == null) {
-            continue;
+            // just create the event based on all of the values in the datum
+            responseJson.put("name", response.getName());
+            responseJson.put("isMultiselect", false);
+            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
+            responseJson.put("answer", response.getAnswer());
+            // deprecate answerOrder for answerRaw
+            responseJson.put("answerOrder", response.getAnswer());
+            responseJson.put("answerRaw", response.getAnswer());
+            responses.put(responseJson);
+          } else {
+            responseJson.put("inputId", input.getServerId());
+            responseJson.put("name", input.getName());
+            responseJson.put("responseType", input.getResponseType());
+            responseJson.put("isMultiselect", input.isMultiselect());
+            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
+            responseJson.put("answer", response.getDisplayOfAnswer(input));
+            // deprecate answerOrder for answerRaw
+            responseJson.put("answerOrder", response.getAnswer());
+            responseJson.put("answerRaw", response.getAnswer());
+            responses.put(responseJson);
           }
-          responseJson.put("inputId", input.getServerId());
-          // deprecate inputName in favor of name. Some experiments still use it though
-          responseJson.put("inputName", input.getName());
-          responseJson.put("name", input.getName());
-          responseJson.put("responseType", input.getResponseType());
-          responseJson.put("isMultiselect", input.isMultiselect());
-          responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-          responseJson.put("answer", response.getDisplayOfAnswer(input));
-          // deprecate answerOrder for answerRaw
-          responseJson.put("answerOrder", response.getAnswer());
-          responseJson.put("answerRaw", response.getAnswer());
-          responses.put(responseJson);
         }
 
         eventObject.put("responses", responses);

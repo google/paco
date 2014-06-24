@@ -18,6 +18,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 public class ProcessService extends Service {
@@ -181,9 +182,10 @@ public class ProcessService extends Service {
     }
 
     List<String> prettyAppNames = getNamesForApps(newlyUsedTasks);
-    String usedAppsString = Joiner.on(",").join(prettyAppNames);
+    String usedAppsPrettyNamesString = Joiner.on(",").join(prettyAppNames);
+    String usedAppsNamesString = Joiner.on(",").join(newlyUsedTasks);
     for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createAppsUsedPacoEvent(usedAppsString, experiment);
+      Event event = createAppsUsedPacoEvent(usedAppsPrettyNamesString, usedAppsNamesString, experiment);
       experimentProviderUtil.insertEvent(event);
     }
 
@@ -197,7 +199,20 @@ public class ProcessService extends Service {
       ApplicationInfo info = null;
       try {
         info = pm.getApplicationInfo(getPackageFromActivity(activityName), 0);
-        appNames.add(pm.getApplicationLabel(info).toString());
+        String appName = pm.getApplicationLabel(info).toString();
+        if (Strings.isNullOrEmpty(appName)) {
+          appName = activityName;
+        } else if (appName.equals("Google Search")) {
+          String[] parts = appName.split(".");
+          String simpleActivityName = parts[parts.length - 1];
+          if (simpleActivityName .equals("GEL")) {
+            appName = "Launcher";
+          }
+        }
+        if (appName.equals("Launcher")) {
+          appName = "Home";
+        }
+        appNames.add(appName);
       } catch (final NameNotFoundException e) {
         appNames.add(activityName);
       }
@@ -215,7 +230,7 @@ public class ProcessService extends Service {
     }
   }
 
-  private Event createAppsUsedPacoEvent(String usedAppsString, Experiment experiment) {
+  private Event createAppsUsedPacoEvent(String usedAppsPrettyNamesString, String usedAppsTaskNamesString, Experiment experiment) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
@@ -224,10 +239,14 @@ public class ProcessService extends Service {
     event.setResponseTime(new DateTime());
 
     Output responseForInput = new Output();
-
-    responseForInput.setAnswer(usedAppsString);
+    responseForInput.setAnswer(usedAppsPrettyNamesString);
     responseForInput.setName("apps_used");
     event.addResponse(responseForInput);
+
+    Output usedAppsNamesResponse = new Output();
+    usedAppsNamesResponse.setAnswer(usedAppsTaskNamesString);
+    usedAppsNamesResponse.setName("apps_used_raw");
+    event.addResponse(usedAppsNamesResponse);
     return event;
   }
 

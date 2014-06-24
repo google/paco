@@ -49,8 +49,10 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           initPollingAndLoggingPreference(context);
           boolean shouldPoll = BroadcastTriggerReceiver.shouldWatchProcesses(context);
           if (isUserPresent(intent) && shouldPoll) {
+            createScreenOnPacoEvents(context);
             startProcessService(context);
           } else if (isScreenOn(intent) && !isKeyGuardOn(context) && shouldPoll) {
+            createScreenOnPacoEvents(context);
             startProcessService(context);
           } else if (isScreenOff(intent)) {
             stopProcessingService(context);
@@ -67,6 +69,34 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     };
     (new Thread(runnable)).start();
 
+  }
+
+  protected void createScreenOnPacoEvents(Context context) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
+
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createScreenOnPacoEvent(experiment);
+      experimentProviderUtil.insertEvent(event);
+    }
+
+
+  }
+
+  protected Event createScreenOnPacoEvent(Experiment experiment) {
+      Event event = new Event();
+      event.setExperimentId(experiment.getId());
+      event.setServerExperimentId(experiment.getServerId());
+      event.setExperimentName(experiment.getTitle());
+      event.setExperimentVersion(experiment.getVersion());
+      event.setResponseTime(new DateTime());
+
+      Output responseForInput = new Output();
+
+      responseForInput.setAnswer(new DateTime().toString());
+      responseForInput.setName("userPresent");
+      event.addResponse(responseForInput);
+      return event;
   }
 
   public static void createBrowserHistoryStartSnapshot(Context context) {
@@ -161,7 +191,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
               if (ts != null) {
                 ts = new DateTime(Long.parseLong(ts)).toString();
               }
-              results.add( ts + " _ " + title.replaceAll("_",  " ") + " _ " + url );
+              results.add( ts + " _ " + title.replaceAll("_",  " ").replaceAll(", ", " ") + " _ " + url );
               mCur.moveToNext();
           }
       }
