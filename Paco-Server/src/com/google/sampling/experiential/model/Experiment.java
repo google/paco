@@ -150,6 +150,9 @@ public class Experiment {
   @Persistent
   private Boolean logActions = false;
 
+  @Persistent
+  private Boolean recordPhoneDetails = false;
+
 
   /**
    * @param id
@@ -540,6 +543,14 @@ public class Experiment {
 
   public void setLogActions(Boolean val) {
     this.logActions = val;
+  }
+
+  public Boolean isRecordPhoneDetails() {
+    return recordPhoneDetails;
+  }
+
+  public void setRecordPhoneDetails(Boolean recordPhoneDetails) {
+    this.recordPhoneDetails = recordPhoneDetails;
   }
 
 

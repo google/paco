@@ -270,6 +270,8 @@ public class ExperimentProviderUtil {
     existingExperiment.setCustomRendering(experiment.isCustomRendering());
     existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
     existingExperiment.setFeedbackType(experiment.getFeedbackType());
+    existingExperiment.setLogActions(experiment.isLogActions());
+    existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -502,6 +504,7 @@ public class ExperimentProviderUtil {
         experiment.setFeedbackType(feedbackType);
         experiment.setFeedback(experimentFromJson.getFeedback());
         experiment.setLogActions(experimentFromJson.isLogActions());
+        experiment.setRecordPhoneDetails(experimentFromJson.isRecordPhoneDetails());
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {

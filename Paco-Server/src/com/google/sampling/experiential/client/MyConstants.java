@@ -487,5 +487,11 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Log app usage and browser history")
   String shouldBackgroundPoll();
 
+  @DefaultStringValue("Record Phone Details")
+  String recordPhoneDetailsTitle();
+
+  @DefaultStringValue("Record phone details (make, model, display size, carrier) in the \"Join\" event")
+  String shouldRecordPhoneDetailsOnJoin();
+
 
 }

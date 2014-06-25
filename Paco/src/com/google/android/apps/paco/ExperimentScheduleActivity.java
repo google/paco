@@ -569,17 +569,19 @@ public class ExperimentScheduleActivity extends Activity {
     SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
     event.addResponse(createOutput("schedule", schedule.toString()));
 
-    Display defaultDisplay = getWindowManager().getDefaultDisplay();
-    String size = Integer.toString(defaultDisplay.getHeight()) + "x" +
-            Integer.toString(defaultDisplay.getWidth());
-    event.addResponse(createOutput("display", size));
+    if (experiment.isRecordPhoneDetails()) {
+      Display defaultDisplay = getWindowManager().getDefaultDisplay();
+      String size = Integer.toString(defaultDisplay.getHeight()) + "x" +
+              Integer.toString(defaultDisplay.getWidth());
+      event.addResponse(createOutput("display", size));
 
-    event.addResponse(createOutput("make", Build.MANUFACTURER));
-    event.addResponse(createOutput("model", Build.MODEL));
-    event.addResponse(createOutput("android", Build.VERSION.RELEASE));
-    TelephonyManager manager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-    String carrierName = manager.getNetworkOperatorName();
-    event.addResponse(createOutput("carrier", carrierName));
+      event.addResponse(createOutput("make", Build.MANUFACTURER));
+      event.addResponse(createOutput("model", Build.MODEL));
+      event.addResponse(createOutput("android", Build.VERSION.RELEASE));
+      TelephonyManager manager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+      String carrierName = manager.getNetworkOperatorName();
+      event.addResponse(createOutput("carrier", carrierName));
+    }
 
     experimentProviderUtil.insertEvent(event);
   }
