@@ -615,6 +615,10 @@ public class ExperimentScheduleActivity extends Activity {
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     if (uri != null) {
       startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+      if (experiment.shouldWatchProcesses()) {
+        BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+        BroadcastTriggerReceiver.startProcessService(this);
+      }
     }
     finish();
   }

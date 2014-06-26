@@ -244,19 +244,19 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
 
-  private void startProcessService(Context context) {
+  public static void startProcessService(Context context) {
     Log.i(PacoConstants.TAG, "Starting App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, true);
     Intent intent = new Intent(context, ProcessService.class);
     context.startService(intent);
   }
 
-  private void stopProcessingService(Context context) {
+  public static void stopProcessingService(Context context) {
     Log.i(PacoConstants.TAG, "Stopping App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, false);
   }
 
-  private static void initPollingAndLoggingPreference(Context context) {
+  public static void initPollingAndLoggingPreference(Context context) {
     boolean shouldWatchProcesses = false;
     boolean shouldLogActions = false;
 

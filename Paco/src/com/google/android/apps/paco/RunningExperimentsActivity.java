@@ -221,6 +221,7 @@ public class RunningExperimentsActivity extends Activity {
 
   // Visible for testing
   public void deleteExperiment(long id) {
+
     NotificationCreator nc = NotificationCreator.create(this);
     nc.timeoutNotificationsForExperiment(id);
     Uri experimentUri = Uri.withAppendedPath(getIntent().getData(), Long.toString(id));
@@ -228,6 +229,10 @@ public class RunningExperimentsActivity extends Activity {
     createStopEvent(experiment);
 
     experimentProviderUtil.deleteFullExperiment(experimentUri);
+    if (experiment.shouldWatchProcesses()) {
+      BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+    }
+
     new AlarmStore(this).deleteAllSignalsForSurvey(id);
 
     cursor.requery();
