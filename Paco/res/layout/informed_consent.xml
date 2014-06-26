@@ -14,26 +14,105 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" android:layout_width="wrap_content"
-	android:layout_height="fill_parent" >
-	<TextView android:textSize="15dip" android:layout_height="wrap_content"
-		android:layout_width="wrap_content" 
-    android:text="@string/data_handling_title" android:textColor="#000000" android:textStyle="bold"></TextView>
-	<TextView android:textSize="15dip" android:id="@+id/textView1" android:layout_height="wrap_content" android:layout_width="wrap_content"
-      android:text="@string/informed_consent_preamble" android:textColor="#000000" android:fadingEdge="horizontal"></TextView>
-	<ScrollView android:id="@+id/ScrollView01"
-	android:layout_height="0dip" android:layout_weight="1"	
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/data_handling_title"
+        android:textColor="#000000"
+        android:textSize="15dip"
+        android:textStyle="bold" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadingEdge="horizontal"
+        android:text="@string/informed_consent_preamble"
+        android:textColor="#000000"
+        android:textSize="15dip" >
+    </TextView>
     
-    android:layout_width="wrap_content" android:background="#fafafa">
-		<TextView android:text=""
-		android:textSize="20dip"
-	android:id="@+id/InformedConsentTextView" android:layout_width="wrap_content"
-	android:layout_height="wrap_content"></TextView>
-	</ScrollView>
-	<CheckBox android:id="@+id/InformedConsentAgreementCheckBox" 
-		android:layout_gravity="center" 
-		android:layout_height="65dip"
-		android:layout_alignParentBottom="true" android:layout_width="fill_parent" android:text="@string/consent_checkbox_text"></CheckBox>
+    <!-- data collection list -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="@string/types_of_data_collected"
+        android:textColor="#000000"
+        android:textStyle="bold" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/dataCollectedSurveyResponseView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:text="@string/survey_responses_data_collected" >
+    </TextView>    
+    
+    <TextView
+        android:id="@+id/dataCollectedAppAndBrowserUsageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:text="@string/app_usage_and_browser_usage_data_collected" 
+        android:visibility="gone">        
+    </TextView> 
+      
+    <TextView
+        android:id="@+id/dataCollectedPhoneDetailsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:text="Phone make, model, carrier" 
+        android:visibility="gone">        
+    </TextView>
+    
+    <!-- Experiment informed consent content -->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:textColor="#000000"
+        android:text="@string/experiment_informed_consent"
+        android:textStyle="bold" >
+    </TextView>
+
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:background="#fafafa" >
+
+        <TextView
+            android:id="@+id/InformedConsentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Placeholder informed consent text"
+            android:textSize="20dip" >
+        </TextView>
+    </ScrollView>
+
+    <CheckBox
+        android:id="@+id/InformedConsentAgreementCheckBox"
+        android:layout_width="fill_parent"
+        android:layout_height="65dip"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:text="@string/consent_checkbox_text" >
+    </CheckBox>
+
 </LinearLayout>

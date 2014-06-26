@@ -13,10 +13,12 @@ public class ExperimentDAOCore implements Serializable {
   protected String endDate;
   protected String joinDate;
   protected Long id;
+  private Boolean logActions;
+  private Boolean recordPhoneDetails;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String email, Boolean fixedDuration, 
-                           String startDate, String endDate, String joinDate) {
+                           String email, Boolean fixedDuration,
+                           String startDate, String endDate, String joinDate, Boolean logActions, Boolean recordPhoneDetails) {
     super();
     this.id = id;
     this.title = title;
@@ -27,10 +29,12 @@ public class ExperimentDAOCore implements Serializable {
     this.startDate = startDate;
     this.endDate = endDate;
     this.joinDate = joinDate;
+    this.setLogActions(logActions);
+    this.setRecordPhoneDetails(recordPhoneDetails);
   }
-  
+
   /**
-   * 
+   *
    */
   public ExperimentDAOCore() {
     super();
@@ -91,7 +95,7 @@ public class ExperimentDAOCore implements Serializable {
   public void setEndDate(String endDate) {
     this.endDate = endDate;
   }
-  
+
   public String getJoinDate() {
     return joinDate;
   }
@@ -107,5 +111,23 @@ public class ExperimentDAOCore implements Serializable {
   public void setId(Long id) {
     this.id = id;
   }
+
+  public Boolean isLogActions() {
+    return logActions;
+  }
+
+  public void setLogActions(Boolean logActions) {
+    this.logActions = logActions;
+  }
+
+  public Boolean isRecordPhoneDetails() {
+    return recordPhoneDetails;
+  }
+
+  public void setRecordPhoneDetails(Boolean recordDetails) {
+    this.recordPhoneDetails = recordDetails;
+  }
+
+
 
 }

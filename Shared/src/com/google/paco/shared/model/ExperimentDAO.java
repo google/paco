@@ -57,8 +57,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected Boolean customRendering = false;
   protected String customRenderingCode;
   protected Integer feedbackType;
-  protected Boolean logActions = false;
-  private Boolean recordPhoneDetails = false;
 
   /**
    * @param id
@@ -86,7 +84,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
       Integer feedbackType2, Boolean logActions, Boolean recordPhoneDetails) {
 
-    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
+    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate, logActions, recordPhoneDetails);
     this.id = id;
     this.title = title;
     this.description = description;
@@ -113,8 +111,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     }
     this.customRenderingCode = customRenderingCode;
     this.feedbackType = feedbackType2;
-    this.logActions = logActions;
-    this.recordPhoneDetails = recordPhoneDetails;
   }
 
   /**
@@ -275,22 +271,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setFeedbackType(Integer i) {
     this.feedbackType = i;
 
-  }
-
-  public Boolean isLogActions() {
-    return logActions;
-  }
-
-  public void setLogActions(Boolean logActions) {
-    this.logActions = logActions;
-  }
-
-  public Boolean isRecordPhoneDetails() {
-    return recordPhoneDetails;
-  }
-
-  public void setRecordPhoneDetails(Boolean recordDetails) {
-    this.recordPhoneDetails = recordDetails;
   }
 
 }
