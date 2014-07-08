@@ -49,6 +49,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 - (void)setUp {
   [super setUp];
+  [[UIApplication sharedApplication] cancelAllLocalNotifications];
 
   self.testID = @"12345";
   self.testTitle = @"Paco Notification One";
@@ -77,13 +78,16 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 }
 
 - (void)tearDown {
+  [[UIApplication sharedApplication] cancelAllLocalNotifications];
   self.testID = nil;
   self.testFireDate = nil;
   self.testTimeoutDate = nil;
   self.testExperiment = nil;
   self.testDatesToSchedule = nil;
+
   [super tearDown];
 }
+
 
 - (void)testCreatePacoInfo {
   NSDictionary* dict = @{@"experimentInstanceId":self.testID,
@@ -746,5 +750,110 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                        @"experimentId, and each bucket's notifications should be sorted by fire date");
 }
 
+
+- (void)testCompareAndCancel {
+  NSTimeInterval tenMinutes = 60 * 10;
+  NSTimeInterval twentyMinutes = 60 * 20;
+  NSTimeInterval thirtyMinutes = 60 * 30;
+  NSTimeInterval timeoutOne = 20;
+  NSTimeInterval timeoutTwo = 40;
+
+  NSMutableArray *notifications = [NSMutableArray array];
+
+  NSString* testIdOne = @"12345";
+  NSString* testTitleOne = @"Experiment One";
+  NSDate* dateOne = [NSDate dateWithTimeIntervalSinceNow:tenMinutes];
+  NSDate* timeOutDateOne = [dateOne dateByAddingTimeInterval:timeoutOne];
+  UILocalNotification* noti11 = [UILocalNotification pacoNotificationWithExperimentId:testIdOne
+                                                                    experimentTitle:testTitleOne
+                                                                           fireDate:dateOne
+                                                                        timeOutDate:timeOutDateOne];
+  [notifications addObject:noti11];
+  dateOne = [NSDate dateWithTimeIntervalSinceNow:twentyMinutes];
+  timeOutDateOne = [dateOne dateByAddingTimeInterval:timeoutOne];
+  UILocalNotification* noti12 = [UILocalNotification pacoNotificationWithExperimentId:testIdOne
+                                               experimentTitle:testTitleOne
+                                                      fireDate:dateOne
+                                                   timeOutDate:timeOutDateOne];
+  [notifications addObject:noti12];
+
+
+  NSString* testIdTwo = @"34567";
+  NSString* testTitleTwo = @"Experiment Two";
+  NSDate* dateTwo = [NSDate dateWithTimeIntervalSinceNow:twentyMinutes];
+  NSDate* timeOutDateTwo = [dateTwo dateByAddingTimeInterval:timeoutTwo];
+  UILocalNotification* noti21 = [UILocalNotification pacoNotificationWithExperimentId:testIdTwo
+                                                                       experimentTitle:testTitleTwo
+                                                                              fireDate:dateTwo
+                                                                           timeOutDate:timeOutDateTwo];
+  [notifications addObject:noti21];
+
+  for (UILocalNotification *noti in notifications) {
+    [[UIApplication sharedApplication] scheduleLocalNotification:noti];
+  }
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  NSArray *expect = @[noti11, noti12, noti21];
+  XCTAssertEqualObjects(scheduled, expect, @"there should be 3 notification scheduled!");
+
+
+  UILocalNotification *new1 = [noti11 copy];
+  UILocalNotification *new2 = [noti21 copy];
+
+  NSString *newId = @"891011";
+  NSString *newTitle = @"Experiment New";
+  NSDate *newDate = [NSDate dateWithTimeIntervalSinceNow:thirtyMinutes];
+  NSDate *newTimeOutDate = [newDate dateByAddingTimeInterval:timeoutTwo];
+  UILocalNotification *new3 = [UILocalNotification pacoNotificationWithExperimentId:newId
+                                                                    experimentTitle:newTitle
+                                                                           fireDate:newDate
+                                                                        timeOutDate:newTimeOutDate];
+
+  NSArray* newNotifications = @[new1, new2, new3];
+
+  NSMutableArray *notificationsToCancel = [NSMutableArray array];
+  NSMutableArray *notificationsToSchedule = [NSMutableArray array];
+  for (UILocalNotification *newNoti in newNotifications) {
+    UILocalNotification *notiScheduled = nil;
+    for (UILocalNotification *oldNoti in notifications) {
+      if ([newNoti isEqual:oldNoti]) {
+        notiScheduled = oldNoti;
+        break;
+      }
+    }
+    if (!notiScheduled) {
+      [notificationsToSchedule addObject:newNoti];
+    }
+  }
+  for (UILocalNotification *oldNoti in notifications) {
+    UILocalNotification *notiToSchedule = nil;
+    for (UILocalNotification *newNoti in newNotifications) {
+      if ([newNoti isEqual:oldNoti]) {
+        notiToSchedule = newNoti;
+        break;
+      }
+    }
+    if (!notiToSchedule) {
+      [notificationsToCancel addObject:oldNoti];
+    }
+  }
+
+  NSArray *expectToCancel = @[noti12];
+  NSArray *expectToSchedule = @[new3];
+  XCTAssertEqualObjects(notificationsToCancel, expectToCancel, @"should only cancel noti12");
+  XCTAssertEqualObjects(notificationsToSchedule, expectToSchedule,
+                        @"should have one new notification to schedule");
+
+  for (UILocalNotification *noti in notificationsToCancel) {
+    [[UIApplication sharedApplication] cancelLocalNotification:noti];
+  }
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 2, @"there should be 2 notification scheduled!");
+  for (UILocalNotification *noti in notificationsToSchedule) {
+    [[UIApplication sharedApplication] scheduleLocalNotification:noti];
+  }
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  expect = @[noti11, noti21, new3];
+  XCTAssertEqualObjects(scheduled, expect, @"should have correct notifications scheduled");
+}
 
 @end
