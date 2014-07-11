@@ -32,6 +32,8 @@
 #import "PacoModel.h"
 #import "PacoEditScheduleAfterJoinController.h"
 #import "PacoExperimentSchedule.h"
+#import "PacoEventManager.h"
+#import "PacoExperiment.h"
 
 @interface PacoRunningExperimentsViewController () <UIAlertViewDelegate, PacoTableViewDelegate>
 
@@ -245,14 +247,31 @@
     NSString* modifyStr = NSLocalizedString(@"Modify Schedule", nil);
     NSString* stopStr = NSLocalizedString(@"Stop Experiment", nil);
     UIAlertView *alert = nil;
+
+    NSString *title = self.selectedExperiment.definition.title;
+    if ([self.selectedExperiment isScheduledExperiment]) {
+      NSString *experimentId = self.selectedExperiment.instanceId;
+      PacoParticipateStatus *stats = [[PacoClient sharedInstance].eventManager statsForExperiment:experimentId];
+      if (0 == stats.numberOfNotifications) {
+        title = [NSString stringWithFormat:@"%lu pings", (unsigned long)stats.numberOfNotifications];
+      } else {
+        title = [NSString stringWithFormat:@"%lu pings, %lu responses\n%@ response rate",
+                 (unsigned long)stats.numberOfNotifications,
+                 (unsigned long)stats.numberOfParticipations,
+                 stats.percentageText];
+      }
+      if (stats.numberOfSelfReports > 0) {
+        title = [title stringByAppendingFormat:@"\n%lu self reports", (unsigned long)stats.numberOfSelfReports];
+      }
+    }
     if ([self allowEditingSchedule]) {
-      alert =  [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
+      alert =  [[UIAlertView alloc] initWithTitle:title
                                           message:nil
                                          delegate:self
                                 cancelButtonTitle:cancelStr
                                 otherButtonTitles:participateStr, modifyStr, stopStr, nil];
     } else {
-      alert =  [[UIAlertView alloc] initWithTitle:self.selectedExperiment.definition.title
+      alert =  [[UIAlertView alloc] initWithTitle:title
                                           message:nil
                                          delegate:self
                                 cancelButtonTitle:cancelStr

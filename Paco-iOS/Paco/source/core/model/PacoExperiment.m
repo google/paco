@@ -97,7 +97,7 @@
 }
 
 - (BOOL)isScheduledExperiment {
-  return [self.schedule isScheduled];
+  return ![self.definition isTriggerExperiment] && [self.schedule isScheduled];
 }
 
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {

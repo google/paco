@@ -28,7 +28,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 @property(nonatomic) NSUInteger numberOfNotifications;
 @property(nonatomic) NSUInteger numberOfParticipations;
 @property(nonatomic) NSUInteger numberOfSelfReports;
-@property(nonatomic) float percentageOfParticipation ;
+@property(nonatomic) float percentageOfParticipation;
+@property(nonatomic, copy) NSString *percentageText;
+
 @end
 
 @implementation PacoParticipateStatus
@@ -44,6 +46,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
     if (_numberOfNotifications > 0) {
       _percentageOfParticipation = (float)_numberOfParticipations / (float)_numberOfNotifications;
+      long int percentage = lroundf(_percentageOfParticipation * 100);
+      _percentageText = [[NSString stringWithFormat:@"%ld%%", percentage] copy];
     }
   }
   return self;

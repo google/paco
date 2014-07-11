@@ -27,7 +27,8 @@
 @property(nonatomic, readonly) NSUInteger numberOfNotifications;
 @property(nonatomic, readonly) NSUInteger numberOfParticipations;
 @property(nonatomic, readonly) NSUInteger numberOfSelfReports;
-@property(nonatomic, readonly) float percentageOfParticipation ;
+@property(nonatomic, readonly) float percentageOfParticipation; //0.867
+@property(nonatomic, copy, readonly) NSString *percentageText; //87%
 
 @end
 
