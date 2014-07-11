@@ -30,8 +30,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 @property (atomic, assign) BOOL areNotificationsLoaded;
 
 
-- (void)purgeCachedNotifications;
-
 @end
 
 @implementation PacoNotificationManager
@@ -48,13 +46,17 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (void)adjustBadgeNumber {
-  int numOfActiveNotifications = [self totalNumberOfActiveNotifications];
-  DDLogInfo(@"There are %d active notifications", numOfActiveNotifications);
-  int badgeNumber = numOfActiveNotifications > 0 ? 1 : 0;
-  DDLogInfo(@"Badge number set to %d", badgeNumber);
-  [UIApplication sharedApplication].applicationIconBadgeNumber = badgeNumber;
+  [self updateBadgeNumber:[self totalNumberOfActiveNotifications]];
 }
 
+- (void)updateBadgeNumber:(NSUInteger)numOfActiveNotifications {
+  DDLogInfo(@"There are %lu active notifications", (unsigned long)numOfActiveNotifications);
+
+  int badgeNumber = numOfActiveNotifications > 0 ? 1 : 0;
+  [UIApplication sharedApplication].applicationIconBadgeNumber = badgeNumber;
+
+  DDLogInfo(@"Badge number set to %d", badgeNumber);
+}
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   if (!self.delegate) {
@@ -166,62 +168,79 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 /*
  - Keep the active notifications
- 
+
  - For all expired notifications:
  a. cancel them from iOS
  b. save survey-missed events
  c. delete them from the local cache
- 
- - For all scheduled but not fired notifications:
- a. cancel them from iOS
- b. delete them from the local cache
- **/
-- (void)purgeCachedNotifications {
-  DDLogInfo(@"Purge cached notifications...");
-  [self processCachedNotificationsWithBlock:^(NSMutableDictionary* newNotificationDict,
-                                              NSArray* expiredNotifications,
-                                              NSArray* notFiredNotifications) {
-    NSAssert(newNotificationDict, @"newNotificationDict should not be nil!");
-    DDLogInfo(@"There are %lu expired notifications.", (unsigned long)[expiredNotifications count]);
-    DDLogInfo(@"There are %lu not fired notifications.", (unsigned long)[notFiredNotifications count]);
-    
-    int numOfActiveNotifications = 0;
-    for (NSString* experimentId in newNotificationDict) {
-      numOfActiveNotifications += [newNotificationDict[experimentId] count];
-    }
-    DDLogInfo(@"There are %d active notifications.", numOfActiveNotifications);
-    
-    self.notificationDict = newNotificationDict;
-    if (expiredNotifications) {
-      [UILocalNotification pacoCancelNotifications:expiredNotifications];
-      [self handleExpiredNotifications:expiredNotifications];
-    }
-    if (notFiredNotifications) {
-      [UILocalNotification pacoCancelNotifications:notFiredNotifications];
-    }
-  }];
-}
 
-- (void)addNotifications:(NSArray*)allNotifications {
-  if (0 == [allNotifications count]) {
-    return;
-  }
-  
-  @synchronized(self) {
-    NSDictionary* sortedNotificationDict = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
-    for (NSString* experimentId in sortedNotificationDict) {
-      NSArray* sortedNotifications = sortedNotificationDict[experimentId];
-      NSMutableArray* currentNotifications = (self.notificationDict)[experimentId];
-      if (currentNotifications == nil) {
-        currentNotifications = [NSMutableArray arrayWithCapacity:[sortedNotifications count]];
-      }
-      NSAssert([currentNotifications isKindOfClass:[NSMutableArray class]],
-               @"currentNotifications should be an array!");
-      //clean duplicate notification with the same fireDate just to be safe
-      [currentNotifications addObjectsFromArray:sortedNotifications];
-      NSMutableArray* nonDuplicate = [currentNotifications pacoSortLocalNotificationsAndRemoveDuplicates];
-      (self.notificationDict)[experimentId] = nonDuplicate;
+ - For a scheduled but not fired notification in local cache:
+ a. if it is in the new notification list, then don't do anything
+ b. if it isn't in the new notification list, then cancel it from iOS and delete it from local cache
+
+ - For a notification in the new notification list
+ a. if it is in local cache, meaning it's scheduled already, don't do anything
+ b. if it isn't in local cache, schedule it and save it in cache
+ **/
+- (void)scheduleNotifications:(NSArray*)newNotifications {
+  @synchronized (self) {
+    NSMutableArray *allActive = [NSMutableArray array];
+    NSMutableArray *allExpired = [NSMutableArray array];
+    NSMutableArray *allToCancel = [NSMutableArray array];
+    NSMutableArray *allToSchedule = [NSMutableArray array];
+    NSMutableDictionary *resultDict = [NSMutableDictionary dictionary];
+
+    //generate a dictionary from the new list of notifcations
+    NSDictionary *newNotificationDict = [UILocalNotification pacoSortedDictionaryFromNotifications:newNotifications];
+    for (NSString* experimentId in self.notificationDict) {
+      NSArray *currentNotifications = self.notificationDict[experimentId];
+      NSArray *newNotifications = newNotificationDict[experimentId];
+
+      NotificationReplaceBlock block = ^(UILocalNotification *active,
+                                         NSArray *expired,
+                                         NSArray *toBeCanceled,
+                                         NSArray *toBeScheduled) {
+        NSMutableArray *results = [NSMutableArray arrayWithArray:newNotifications];
+        if (active) {
+          [allActive addObject:active];
+          [results addObject:active];
+        }
+        resultDict[experimentId] = [results pacoSortLocalNotificationsAndRemoveDuplicates];
+
+        [allExpired addObjectsFromArray:expired];
+        [allToCancel addObjectsFromArray:toBeCanceled];
+        [allToSchedule addObjectsFromArray:toBeScheduled];
+      };
+      [UILocalNotification pacoReplaceCurrentNotifications:currentNotifications
+                                      withNewNotifications:newNotifications
+                                                  andBlock:block];
     }
+
+    for (NSString *experimentId in newNotificationDict) {
+      BOOL isNewExperiment = (self.notificationDict[experimentId] == nil);
+      if (isNewExperiment) {
+        NSMutableArray *notifications = newNotificationDict[experimentId];
+        resultDict[experimentId] = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+        [allToSchedule addObjectsFromArray:notifications];
+      }
+    }
+
+    DDLogInfo(@"%ld active: %@", [allActive count], [allActive pacoDescriptionForNotifications]);
+    DDLogInfo(@"%ld expired: %@", [allExpired count], [allExpired pacoDescriptionForNotifications]);
+    DDLogInfo(@"%ld to be canceled: %@",
+              [allToCancel count], [allToCancel pacoDescriptionForNotifications]);
+    DDLogInfo(@"%ld new to be scheduled: %@",
+              [allToSchedule count], [allToSchedule pacoDescriptionForNotifications]);
+
+    self.notificationDict = resultDict;
+    [self saveNotificationsToCache];
+    DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+
+    [self handleExpiredNotifications:allExpired];
+    [allToCancel addObjectsFromArray:allExpired];
+    [UILocalNotification pacoCancelNotifications:allToCancel];
+    [UILocalNotification pacoScheduleNotifications:allToSchedule];
+    [self updateBadgeNumber:[allActive count]];
   }
 }
 
@@ -233,30 +252,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   return (kTotalNumOfNotifications == [self numOfScheduledNotifications]);
 }
 
-- (void)schedulePacoNotifications:(NSArray*)notifications {
-  @synchronized(self) {
-    [self purgeCachedNotifications];
-    
-    if ([notifications count] > 0) {
-      [self addNotifications:notifications];
-    }
-    //save the new notifications
-    [self saveNotificationsToCache];
-    
-    DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
-    
-    /*
-     schedule the new notifications, and don't use the following code to set local notifications,
-     since it will clear all notifications in the notification center:
-     [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
-     **/
-    for (UILocalNotification* notification in notifications) {
-      [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-    }
-    
-    [self adjustBadgeNumber];
-  }
-}
 
 
 /*
@@ -403,11 +398,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSString* experimentId = [notification pacoExperimentId];
     NSAssert([experimentId length] > 0, @"experimentId should be nil");
     UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
-    if (activeNotification && [activeNotification pacoIsEqualTo:notification]) {
-      return YES;
-    } else {
-      return NO;
-    }
+    BOOL isActive = activeNotification && [activeNotification pacoIsEqualTo:notification];
+    return isActive;
   }
 }
 
@@ -446,12 +438,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       self.notificationDict = [NSMutableDictionary dictionary];
     }
     self.areNotificationsLoaded = YES;
-    
-    if (error != nil && ![error pacoIsFileNotExistError]) {
-      return NO;
-    } else {
-      return YES;
-    }
+
+    BOOL hasError = (error != nil && ![error pacoIsFileNotExistError]);
+    return !hasError;
   }
 }
 

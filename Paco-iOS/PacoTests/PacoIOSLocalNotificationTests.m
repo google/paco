@@ -313,7 +313,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
-  NSLog(@"[%d]%@",[scheduled count], scheduled);
+  NSLog(@"[%lu]%@",(unsigned long)[scheduled count], scheduled);
   XCTAssertEqual((int)[scheduled count], 1,
                  @"notifications with same information should be treated as one notification");
 }
@@ -366,7 +366,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
-  NSLog(@"[%d]%@",[scheduled count], scheduled);
+  NSLog(@"[%lu]%@",(unsigned long)[scheduled count], scheduled);
   XCTAssertEqual((int)[scheduled count], 2,
                  @"notifications with different userInfo should be treated as two notifications");
 }

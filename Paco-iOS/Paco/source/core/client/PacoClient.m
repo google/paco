@@ -645,6 +645,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     return;
   }
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    DDLogInfo(@"Change schedule for experiment ...");
     [self.model configureExperiment:experiment withSchedule:newSchedule];
     [self.scheduler restartNotificationSystem];
     if (completionBlock) {
