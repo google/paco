@@ -21,6 +21,17 @@
 @class PacoExperimentSchedule;
 @class PacoExperiment;
 
+
+@interface PacoParticipateStatus : NSObject
+
+@property(nonatomic, readonly) NSUInteger numberOfNotifications;
+@property(nonatomic, readonly) NSUInteger numberOfParticipations;
+@property(nonatomic, readonly) NSUInteger numberOfSelfReports;
+@property(nonatomic, readonly) float percentageOfParticipation ;
+
+@end
+
+
 //YMZ:TODO: fully testing
 //YMZ:TODO: thread safe
 //YMZ:TODO: use async design
@@ -50,5 +61,7 @@
 - (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime;
+
+- (PacoParticipateStatus*)statsForExperiment:(NSString*)experimentId;
 
 @end

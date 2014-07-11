@@ -23,6 +23,74 @@
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
 
+
+@interface PacoParticipateStatus ()
+@property(nonatomic) NSUInteger numberOfNotifications;
+@property(nonatomic) NSUInteger numberOfParticipations;
+@property(nonatomic) NSUInteger numberOfSelfReports;
+@property(nonatomic) float percentageOfParticipation ;
+@end
+
+@implementation PacoParticipateStatus
+
+- (instancetype)initWithNotificationNumber:(NSUInteger)numOfNotifications
+                       participationNumber:(NSUInteger)numOfParticipations
+                          selfReportNumber:(NSUInteger)numOfSelfReports {
+  self = [super init];
+  if (self) {
+    _numberOfNotifications = numOfNotifications;
+    _numberOfParticipations = numOfParticipations;
+    _numberOfSelfReports = numOfSelfReports;
+
+    if (_numberOfNotifications > 0) {
+      _percentageOfParticipation = (float)_numberOfParticipations / (float)_numberOfNotifications;
+    }
+  }
+  return self;
+}
+
++ (instancetype)statusWithNotificationNumber:(NSUInteger)numOfNotifications
+                         participationNumber:(NSUInteger)numOfParticipations
+                            selfReportNumber:(NSUInteger)numOfSelfReports {
+  return [[self alloc] initWithNotificationNumber:numOfNotifications
+                              participationNumber:numOfParticipations
+                                 selfReportNumber:numOfSelfReports];
+
+}
+
+//assume events are ordered
++ (instancetype)statusWithEvents:(NSArray*)events {
+  if (0 == [events count]) {
+    return [self statusWithNotificationNumber:0 participationNumber:0 selfReportNumber:0];
+  }
+  int numOfMiss = 0;
+  int numOfParticipations = 0;
+  int numOfSelfReports = 0;
+  NSInteger index = [events count] - 1;
+  for (; index >= 0; index--) {
+    PacoEventType eventType = [(PacoEvent *)events[index] type];
+    if (eventType == PacoEventTypeJoin || eventType == PacoEventTypeStop) {
+      break;
+    }
+    if (eventType == PacoEventTypeSurvey) {
+      numOfParticipations++;
+    } else if (eventType == PacoEventTypeMiss) {
+      numOfMiss++;
+    } else if (eventType == PacoEventTypeSelfReport) {
+      numOfSelfReports++;
+    } else {
+      NSAssert(NO, @"invalid type");
+    }
+  }
+  return [self statusWithNotificationNumber:(numOfMiss + numOfParticipations)
+                        participationNumber:numOfParticipations
+                           selfReportNumber:numOfSelfReports];
+}
+
+@end
+
+
+
 @interface PacoEventManager () <PacoEventUploaderDelegate>
 //array of PacoEvent
 @property(atomic, strong) NSMutableArray* pendingEvents;
@@ -367,6 +435,14 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 
+#pragma mark participation stats
+- (PacoParticipateStatus*)statsForExperiment:(NSString*)experimentId {
+  if (!experimentId) {
+    return nil;
+  }
+  [self fetchAllEventsIfNecessary];
+  return [PacoParticipateStatus statusWithEvents:self.eventsDict[experimentId]];
+}
 
 
 @end
