@@ -84,10 +84,6 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
 + (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
 
-
-//{ NSString : NSMutableArray }
-+ (NSDictionary*)pacoDictionaryFromNotifications:(NSArray*)notifications;
-
 //{ NSString : NSMutableArray }
 + (NSDictionary*)pacoSortedDictionaryFromNotifications:(NSArray*)notifications;
 

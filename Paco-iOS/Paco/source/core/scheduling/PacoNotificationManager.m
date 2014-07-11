@@ -49,8 +49,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   [self updateBadgeNumber:[self totalNumberOfActiveNotifications]];
 }
 
-- (void)updateBadgeNumber:(int)numOfActiveNotifications {
-  DDLogInfo(@"There are %d active notifications", numOfActiveNotifications);
+- (void)updateBadgeNumber:(NSUInteger)numOfActiveNotifications {
+  DDLogInfo(@"There are %lu active notifications", (unsigned long)numOfActiveNotifications);
 
   int badgeNumber = numOfActiveNotifications > 0 ? 1 : 0;
   [UIApplication sharedApplication].applicationIconBadgeNumber = badgeNumber;
@@ -184,14 +184,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
  **/
 - (void)scheduleNotifications:(NSArray*)newNotifications {
   @synchronized (self) {
+    NSMutableArray *allActive = [NSMutableArray array];
     NSMutableArray *allExpired = [NSMutableArray array];
     NSMutableArray *allToCancel = [NSMutableArray array];
     NSMutableArray *allToSchedule = [NSMutableArray array];
     NSMutableDictionary *resultDict = [NSMutableDictionary dictionary];
-    __block int numOfActive = 0;
 
     //generate a dictionary from the new list of notifcations
-    NSDictionary *newNotificationDict = [UILocalNotification pacoDictionaryFromNotifications:newNotifications];
+    NSDictionary *newNotificationDict = [UILocalNotification pacoSortedDictionaryFromNotifications:newNotifications];
     for (NSString* experimentId in self.notificationDict) {
       NSArray *currentNotifications = self.notificationDict[experimentId];
       NSArray *newNotifications = newNotificationDict[experimentId];
@@ -202,8 +202,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                          NSArray *toBeScheduled) {
         NSMutableArray *results = [NSMutableArray arrayWithArray:newNotifications];
         if (active) {
+          [allActive addObject:active];
           [results addObject:active];
-          numOfActive++;
         }
         resultDict[experimentId] = [results pacoSortLocalNotificationsAndRemoveDuplicates];
 
@@ -215,7 +215,17 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                       withNewNotifications:newNotifications
                                                   andBlock:block];
     }
-    DDLogInfo(@"%d active.", numOfActive);
+
+    for (NSString *experimentId in newNotificationDict) {
+      BOOL isNewExperiment = (self.notificationDict[experimentId] == nil);
+      if (isNewExperiment) {
+        NSMutableArray *notifications = newNotificationDict[experimentId];
+        resultDict[experimentId] = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
+        [allToSchedule addObjectsFromArray:notifications];
+      }
+    }
+
+    DDLogInfo(@"%ld active: %@", [allActive count], [allActive pacoDescriptionForNotifications]);
     DDLogInfo(@"%ld expired: %@", [allExpired count], [allExpired pacoDescriptionForNotifications]);
     DDLogInfo(@"%ld to be canceled: %@",
               [allToCancel count], [allToCancel pacoDescriptionForNotifications]);
@@ -230,7 +240,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     [allToCancel addObjectsFromArray:allExpired];
     [UILocalNotification pacoCancelNotifications:allToCancel];
     [UILocalNotification pacoScheduleNotifications:allToSchedule];
-    [self updateBadgeNumber:numOfActive];
+    [self updateBadgeNumber:[allActive count]];
   }
 }
 

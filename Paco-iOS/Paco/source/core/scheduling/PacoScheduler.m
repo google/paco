@@ -24,7 +24,6 @@
 #import "PacoNotificationManager.h"
 #import "UILocalNotification+Paco.h"
 
-NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 int const kTotalNumOfNotifications = 60;
 
 

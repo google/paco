@@ -386,14 +386,12 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
     NSMutableArray *toCancel = [NSMutableArray array];
     NSMutableArray *toSchedule = [NSMutableArray array];
     for (UILocalNotification *newNotification in newNotifications) {
-      NSInteger scheduledIndex = [notFiredNotifications indexOfObject:newNotification];
-      if (scheduledIndex == NSNotFound) {
+      if (![notFiredNotifications containsObject:newNotification]) {
         [toSchedule addObject:newNotification];
       }
     }
     for (UILocalNotification *oldNotification in notFiredNotifications) {
-      NSInteger toScheduleIndex = [newNotifications indexOfObject:oldNotification];
-      if (toScheduleIndex == NSNotFound) {
+      if (![newNotifications containsObject:oldNotification]) {
         [toCancel addObject:oldNotification];
       }
     }
