@@ -738,7 +738,7 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
   //id:2, fireDate:date3
   //id:1, fireDate:date1
   //id:2, fireDate:date2
-  NSDictionary* result = [UILocalNotification sortNotificationsPerExperiment:allNotifications];
+  NSDictionary* result = [UILocalNotification pacoSortedDictionaryFromNotifications:allNotifications];
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSArray* notifications1 = @[notification3, notification1];
   NSArray* notifications2 = @[notification4, notification2];

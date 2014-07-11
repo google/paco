@@ -32,8 +32,9 @@
                                 firstLaunchFlag:(BOOL)firstLaunchFlag;
 
 
+- (void)scheduleNotifications:(NSArray*)newNotifications;
+
 //notifications MUST be sorted already
-- (void)schedulePacoNotifications:(NSArray*)notifications;
 - (void)cleanExpiredNotifications;
 
 //call this when the user stops an experiment

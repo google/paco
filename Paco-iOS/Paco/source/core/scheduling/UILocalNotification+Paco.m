@@ -288,6 +288,13 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   }
 }
 
++ (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
+  if (notification != nil) {
+    //NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
+    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+  }
+}
+
 + (void)pacoCancelNotifications:(NSArray*)notifications {
   for (UILocalNotification* notification in notifications) {
     NSAssert([notification isKindOfClass:[UILocalNotification class]],
@@ -296,12 +303,20 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   }
 }
 
-+ (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
-  if (notification != nil) {
-    //NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
-    [[UIApplication sharedApplication] cancelLocalNotification:notification];
+/*
+  NOTE: Don't use the following code to set local notifications:
+
+  [UIApplication sharedApplication].scheduledLocalNotifications = notifications;
+
+  This API will not only schedule the future notifications,
+  but also clear all notifications in the notification center:
+ **/
++ (void)pacoScheduleNotifications:(NSArray*)notifications {
+  for (UILocalNotification* notification in notifications) {
+    [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
 }
+
 
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block {
   if (!block) {
@@ -362,6 +377,32 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   block(activeNotication, expiredNotifications, notFiredNotifications);
 }
 
++ (void)pacoReplaceCurrentNotifications:(NSArray*)currentNotifications
+                   withNewNotifications:(NSArray*)newNotifications
+                               andBlock:(NotificationReplaceBlock)block{
+  NotificationProcessBlock processBlock = ^(UILocalNotification* activeNotification,
+                                            NSArray* expiredNotifications,
+                                            NSArray* notFiredNotifications) {
+    NSMutableArray *toCancel = [NSMutableArray array];
+    NSMutableArray *toSchedule = [NSMutableArray array];
+    for (UILocalNotification *newNotification in newNotifications) {
+      NSInteger scheduledIndex = [notFiredNotifications indexOfObject:newNotification];
+      if (scheduledIndex == NSNotFound) {
+        [toSchedule addObject:newNotification];
+      }
+    }
+    for (UILocalNotification *oldNotification in notFiredNotifications) {
+      NSInteger toScheduleIndex = [newNotifications indexOfObject:oldNotification];
+      if (toScheduleIndex == NSNotFound) {
+        [toCancel addObject:oldNotification];
+      }
+    }
+    block(activeNotification, expiredNotifications, toCancel, toSchedule);
+  };
+
+  [UILocalNotification pacoProcessNotifications:currentNotifications withBlock:processBlock];
+}
+
 
 + (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block {
   if (!block) {
@@ -388,26 +429,30 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
 }
 
 
-
-+ (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications {
-  NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithCapacity:[allNotifications count]];
-  //create a dictionary from allNotifications
-  for (UILocalNotification* notification in allNotifications) {
+//{ NSString : NSMutableArray }
++ (NSDictionary*)pacoDictionaryFromNotifications:(NSArray*)notifications {
+  NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithCapacity:[notifications count]];
+  for (UILocalNotification* notification in notifications) {
     NSString* experimentId = [notification pacoExperimentId];
-    NSAssert(experimentId, @"experimentId should be valid!");
     NSMutableArray* notificationList = dict[experimentId];
-    if (notificationList == nil) {
-      notificationList = [NSMutableArray arrayWithCapacity:[allNotifications count]];
+    if (!notificationList) {
+      notificationList = [NSMutableArray arrayWithCapacity:[notifications count]];
     }
     [notificationList addObject:notification];
     dict[experimentId] = notificationList;
   }
-  
+  return [NSDictionary dictionaryWithDictionary:dict];
+}
+
+
+//{ NSString : NSMutableArray }
++ (NSDictionary*)pacoSortedDictionaryFromNotifications:(NSArray*)notifications {
+  NSDictionary *dict = [self pacoDictionaryFromNotifications:notifications];
   //sort each array inside this dictionary
   for (NSString* experimentId in dict) {
     NSMutableArray* notificationList = dict[experimentId];
     NSAssert([notificationList isKindOfClass:[NSMutableArray class]],
-             @"notificationList should be an array");
+             @"notificationList should be NSMutableArray");
     [notificationList pacoSortLocalNotificationsByFireDate];
   }
   return dict;
