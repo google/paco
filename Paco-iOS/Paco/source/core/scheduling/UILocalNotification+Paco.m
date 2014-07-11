@@ -19,6 +19,7 @@
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "PacoExperimentDefinition.h"
+#import "PacoClient.h"
 
 NSString* const kNotificationSoundName = @"deepbark_trial.mp3";
 
@@ -296,6 +297,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
 }
 
 + (void)pacoCancelNotifications:(NSArray*)notifications {
+  DDLogInfo(@"iOS Cancelling %lu notifications.", (unsigned long)[notifications count]);
   for (UILocalNotification* notification in notifications) {
     NSAssert([notification isKindOfClass:[UILocalNotification class]],
              @"should be a UILocalNotification!");
@@ -312,6 +314,7 @@ NSString* const kUserInfoKeyNotificationTimeoutDate = @"timeoutDate";
   but also clear all notifications in the notification center:
  **/
 + (void)pacoScheduleNotifications:(NSArray*)notifications {
+  DDLogInfo(@"iOS Scheduling %lu notifications.", (unsigned long)[notifications count]);
   for (UILocalNotification* notification in notifications) {
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
