@@ -225,12 +225,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       }
     }
 
-    DDLogInfo(@"%ld active: %@", [allActive count], [allActive pacoDescriptionForNotifications]);
-    DDLogInfo(@"%ld expired: %@", [allExpired count], [allExpired pacoDescriptionForNotifications]);
-    DDLogInfo(@"%ld to be canceled: %@",
-              [allToCancel count], [allToCancel pacoDescriptionForNotifications]);
-    DDLogInfo(@"%ld new to be scheduled: %@",
-              [allToSchedule count], [allToSchedule pacoDescriptionForNotifications]);
+    DDLogInfo(@"%lu active: %@", (unsigned long)[allActive count], [allActive pacoDescriptionForNotifications]);
+    DDLogInfo(@"%lu expired: %@", (unsigned long)[allExpired count], [allExpired pacoDescriptionForNotifications]);
+    DDLogInfo(@"%lu to be canceled: %@",
+              (unsigned long)[allToCancel count], [allToCancel pacoDescriptionForNotifications]);
+    DDLogInfo(@"%lu new to be scheduled: %@",
+              (unsigned long)[allToSchedule count], [allToSchedule pacoDescriptionForNotifications]);
 
     self.notificationDict = resultDict;
     [self saveNotificationsToCache];
