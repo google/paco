@@ -249,20 +249,19 @@
     UIAlertView *alert = nil;
 
     NSString *title = self.selectedExperiment.definition.title;
+    NSString *experimentId = self.selectedExperiment.instanceId;
+    PacoParticipateStatus *stats =
+        [[PacoClient sharedInstance].eventManager statsForExperiment:experimentId];
     if ([self.selectedExperiment isScheduledExperiment]) {
-      NSString *experimentId = self.selectedExperiment.instanceId;
-      PacoParticipateStatus *stats = [[PacoClient sharedInstance].eventManager statsForExperiment:experimentId];
-      if (0 == stats.numberOfNotifications) {
-        title = [NSString stringWithFormat:@"%lu pings", (unsigned long)stats.numberOfNotifications];
-      } else {
-        title = [NSString stringWithFormat:@"%lu pings, %lu responses\n%@ response rate",
-                 (unsigned long)stats.numberOfNotifications,
+      title = [NSString stringWithFormat:@"%lu pings", (unsigned long)stats.numberOfNotifications];
+      if (stats.numberOfNotifications > 0) {
+        title = [title stringByAppendingFormat:@", %lu responses\n%@ response rate",
                  (unsigned long)stats.numberOfParticipations,
                  stats.percentageText];
       }
-      if (stats.numberOfSelfReports > 0) {
-        title = [title stringByAppendingFormat:@"\n%lu self reports", (unsigned long)stats.numberOfSelfReports];
-      }
+    }
+    if (stats.numberOfSelfReports > 0) {
+      title = [title stringByAppendingFormat:@"\n%lu self reports", (unsigned long)stats.numberOfSelfReports];
     }
     if ([self allowEditingSchedule]) {
       alert =  [[UIAlertView alloc] initWithTitle:title
