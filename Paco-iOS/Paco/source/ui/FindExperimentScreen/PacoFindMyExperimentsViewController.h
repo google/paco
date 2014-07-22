@@ -15,15 +15,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "PacoSliderView.h"
+@interface PacoFindMyExperimentsViewController : UIViewController
 
-typedef NS_ENUM(NSInteger, PacoScheduleRepeatStyle) {
-  kPacoScheduleRepeatDays,
-  kPacoScheduleRepeatWeeks,
-  kPacoScheduleRepeatMonths,
-};
-
-@interface PacoRepeatRateSelectionView : PacoSliderView
-@property (nonatomic, assign) PacoScheduleRepeatStyle repeatStyle;
-@property (nonatomic, retain) NSNumber *repeatNumberValue;
 @end

@@ -19,6 +19,9 @@
 
 @class PacoTableView;
 
+
+typedef void(^TimeSelectionCompletionBlock)(void);
+
 @interface PacoTableCell : UITableViewCell
 
 @property (nonatomic, copy) NSString *reuseId;

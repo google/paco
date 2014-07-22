@@ -22,9 +22,7 @@
 @interface PacoNotificationManager ()
 
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
-- (void)purgeCachedNotifications;
 - (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block;
-- (void)addNotifications:(NSArray*)allNotifications;
 - (int)totalNumberOfActiveNotifications;
 
 @end

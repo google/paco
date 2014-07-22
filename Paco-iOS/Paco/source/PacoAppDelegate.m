@@ -77,6 +77,7 @@
 
 
 - (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification {
+  DDLogInfo(@"Show a banner of No Survey Needed");
   JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
   [JCNotificationCenter sharedCenter].presenter = style;
   
@@ -171,7 +172,8 @@
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
   [[PacoClient sharedInstance] uploadPendingEventsInBackground];
   
-  [[NSNotificationCenter defaultCenter] postNotificationName:PacoAppBecomeActive object:nil];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive
+                                                      object:nil];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

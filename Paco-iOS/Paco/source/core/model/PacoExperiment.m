@@ -97,7 +97,7 @@
 }
 
 - (BOOL)isScheduledExperiment {
-  return [self.schedule isScheduled];
+  return ![self.definition isTriggerExperiment] && [self.schedule isScheduled];
 }
 
 - (BOOL)isExperimentValidSinceDate:(NSDate*)fromDate {
@@ -168,7 +168,7 @@ static int INVALID_INDEX = -1;
   return [self.joinTime pacoCurrentDayAtMidnight];
 }
 
-- (BOOL)refreshWithSchedule:(PacoExperimentSchedule*)newSchedule {
+- (BOOL)refreshSchedule:(PacoExperimentSchedule*)newSchedule {
   NSAssert(newSchedule, @"newSchedule should be valid");
   
   self.schedule.userEditable = newSchedule.userEditable;
@@ -192,6 +192,15 @@ static int INVALID_INDEX = -1;
     self.schedule.times = timesConfigured;
   }
   return YES;
+}
+
+- (void)configureSchedule:(PacoExperimentSchedule*)newSchedule {
+  NSAssert(newSchedule, @"newSchedule should be valid");
+  //clear the previously cached esm schedule list
+  if ([newSchedule isESMSchedule]) {
+    newSchedule.esmScheduleList = nil;
+  }
+  self.schedule = newSchedule;
 }
 
 @end

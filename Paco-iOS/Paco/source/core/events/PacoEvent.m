@@ -41,6 +41,8 @@ NSString* const kPacoResponseKeyName = @"name";
 NSString* const kPacoResponseKeyAnswer = @"answer";
 NSString* const kPacoResponseKeyInputId = @"inputId";
 
+NSString* const kPacoResponseJoin = @"joined";
+
 @interface PacoEvent ()
 @property (nonatomic, readwrite, copy) NSString *appId;
 @property (nonatomic, readwrite, copy) NSString *pacoVersion;
@@ -81,6 +83,23 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   event.experimentVersion = [eventMembers[kPacoEventKeyExperimentVersion] intValue];
   event.responses = eventMembers[kPacoEventKeyResponses];
   return event;
+}
+
+
+- (PacoEventType)type {
+  for (NSDictionary *response in self.responses) {
+    if ([response[kPacoResponseKeyName] isEqualToString:kPacoResponseJoin]) {
+      return [response[kPacoResponseKeyAnswer] boolValue] ? PacoEventTypeJoin : PacoEventTypeStop;
+    }
+  }
+  if (self.scheduledTime && self.responseTime) {
+    return PacoEventTypeSurvey;
+  } else if (self.scheduledTime && !self.responseTime) {
+    return PacoEventTypeMiss;
+  } else {
+    NSAssert(self.responseTime, @"responseTime should be valid for self report event");
+    return PacoEventTypeSelfReport;
+  }
 }
 
 
@@ -207,7 +226,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   //Special response values to indicate the user is joining this experiement.
   //For now, we need to indicate inputId=-1 to avoid server exception,
   //in the future, server needs to fix and accept JOIN and STOP events without inputId
-  NSDictionary* joinResponse = @{kPacoResponseKeyName:@"joined",
+  NSDictionary* joinResponse = @{kPacoResponseKeyName:kPacoResponseJoin,
                                  kPacoResponseKeyAnswer:@"true",
                                  kPacoResponseKeyInputId:@"-1"};
   NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
@@ -235,7 +254,7 @@ NSString* const kPacoResponseKeyInputId = @"inputId";
   
   //For now, we need to indicate inputId=-1 to avoid server exception,
   //in the future, server needs to fix and accept JOIN and STOP events without inputId
-  NSDictionary *responsePair = @{kPacoResponseKeyName:@"joined",
+  NSDictionary *responsePair = @{kPacoResponseKeyName:kPacoResponseJoin,
                                  kPacoResponseKeyAnswer:@"false",
                                  kPacoResponseKeyInputId:@"-1"};
   event.responses = @[responsePair];

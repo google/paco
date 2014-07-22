@@ -505,9 +505,7 @@ UIImagePickerControllerDelegate>
 
   self.questionText.frame = self.bounds;
   [self.questionText sizeToFit];
-  CGSize textsize = [self.class textSizeToFitSize:self.questionText.frame.size
-                                             text:self.questionText.text
-                                             font:self.questionText.font];
+  CGSize textsize = self.questionText.frame.size;
 
   if (self.question == nil) {
     return;
