@@ -59,10 +59,11 @@ public class BroadcastTriggerService extends Service {
     DateTime now = new DateTime();
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
+      SignalingMechanism signalingMechanism = experiment.getSignalingMechanisms().get(0);
       if (experiment.isRunning(now)
           && experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)
           && !recentlyTriggered(experiment.getServerId(),
-                                experiment.getSignalingMechanisms().get(0).getMinimumBuffer())) {
+                                signalingMechanism.getMinimumBuffer())) {
         setRecentlyTriggered(now, experiment.getServerId());
         notificationCreator.createNotificationsForTrigger(experiment, time, triggerEvent, sourceIdentifier);
       }

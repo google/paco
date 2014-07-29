@@ -134,16 +134,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-                <activity
-            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" />
+        <activity
+            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" 
+             android:screenOrientation="portrait"/>
         
         <activity
             android:name="com.google.android.apps.paco.FeedbackActivity"
             android:label="Visualize Experiment Data"
             android:noHistory="true" >
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
