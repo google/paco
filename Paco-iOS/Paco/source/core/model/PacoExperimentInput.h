@@ -15,7 +15,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSInteger, ResponseEnumType) {
   ResponseEnumTypeLikertSmileys,
   ResponseEnumTypeLikert,
   ResponseEnumTypeOpenText,
@@ -24,7 +24,7 @@ typedef enum {
   ResponseEnumTypeLocation,
   ResponseEnumTypePhoto,
   ResponseEnumTypeInvalid
-} ResponseEnumType;
+};
 
 // ExperimentInput is basically something like a question, or measure of some input like a location or photo.
 @interface PacoExperimentInput : NSObject <NSCopying>

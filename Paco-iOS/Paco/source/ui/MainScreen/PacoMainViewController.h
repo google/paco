@@ -14,7 +14,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <MessageUI/MessageUI.h>
 
-@interface PacoMainViewController : UIViewController <UIActionSheetDelegate>
+@interface PacoMainViewController : UIViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 
 @end

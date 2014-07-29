@@ -36,23 +36,16 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 #endif
 
-/*
- Set both ADD_TEST_DEFINITION and SKIP_LOG_IN to 1 
- will run the test definition only, and is easier to test notification
- **/
-//Load a test experiment definition for test
-#define ADD_TEST_DEFINITION 0
-//Skip log in flow so that you can focus on testing notification
-#define SKIP_LOG_IN 0
-
 
 //production server: 0
 //local server: 1
+//staging server: 2
 #define SERVER_DOMAIN_FLAG 0
 
 
 #define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 
+typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 
 @interface PacoClient : NSObject
 
@@ -69,6 +62,9 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 + (PacoClient *)sharedInstance;
 
+//server domain without the prefix of https:// or http://
+- (NSString*)serverAddress;
+
 - (NSString*)userEmail;
 - (NSString*)userName;
 
@@ -80,17 +76,11 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 //3. pop up the log-in dialog to ask user re-logIn
 - (void)invalidateUserAccount;
 
-- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
-
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 
-- (BOOL)prefetchedDefinitions;
-- (NSError*)errorOfPrefetchingDefinitions;
-- (BOOL)prefetchedExperiments;
-- (NSError*)errorOfPrefetchingexperiments;
-- (BOOL)hasRunningExperiments;
+- (BOOL)hasJoinedExperimentWithId:(NSString*)definitionId;
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
@@ -98,12 +88,25 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 - (void)uploadPendingEventsInBackground;
 
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
-                         andSchedule:(PacoExperimentSchedule*)schedule;
-- (void)stopExperiment:(PacoExperiment*)experiment;
+                            schedule:(PacoExperimentSchedule*)schedule
+                     completionBlock:(void(^)())completionBlock;
+
+- (void)changeScheduleForExperiment:(PacoExperiment*)experiment
+                        newSchedule:(PacoExperimentSchedule*)newSchedule
+                    completionBlock:(void(^)())completionBlock;
+
+- (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock;
+
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
 
-- (void)refreshDefinitions;
+//refresh definitions published to the current user
+- (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock;
+
+//refresh all running experiments' definitions
+- (void)refreshRunningExperimentsWithBlock:(PacoRefreshCompletionBlock)completionBlock;
+
+- (void)configurePacoServerAddress:(NSString *)serverAddress;
 
 @end

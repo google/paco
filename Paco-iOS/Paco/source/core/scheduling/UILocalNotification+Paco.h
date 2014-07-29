@@ -17,12 +17,12 @@
 
 @class PacoExperiment;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PacoNotificationStatus) {
   PacoNotificationStatusUnknown = 0,      //unknown
   PacoNotificationStatusNotFired,         //not fired yet
   PacoNotificationStatusFiredNotTimeout,  //fired, but not timed out
   PacoNotificationStatusTimeout,          //fired, and timed out
-} PacoNotificationStatus;
+};
 
 
 extern NSString* const kNotificationSoundName;
@@ -43,6 +43,11 @@ extern NSString* const kUserInfoKeyNotificationTimeoutDate;
 typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                         NSArray* expiredNotifications,
                                         NSArray* notFiredNotifications);
+
+typedef void(^NotificationReplaceBlock)(UILocalNotification* active,
+                                        NSArray* expired,
+                                        NSArray* toBeCanceled,
+                                        NSArray* toBeScheduled);
 
 typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpiredNotifications);
 
@@ -71,15 +76,21 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 + (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId;
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
 
-+ (void)pacoCancelNotifications:(NSArray*)notifications;
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification;
++ (void)pacoCancelNotifications:(NSArray*)notifications;
++ (void)pacoScheduleNotifications:(NSArray*)notifications;
 
 //notifications MUST be sorted already
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
 + (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
 
-+ (NSDictionary*)sortNotificationsPerExperiment:(NSArray*)allNotifications;
+//{ NSString : NSMutableArray }
++ (NSDictionary*)pacoSortedDictionaryFromNotifications:(NSArray*)notifications;
 
 - (BOOL)pacoIsEqualTo:(UILocalNotification*)notification;
+
++ (void)pacoReplaceCurrentNotifications:(NSArray*)currentNotifications
+                   withNewNotifications:(NSArray*)newNotifications
+                               andBlock:(NotificationReplaceBlock)block;
 
 @end

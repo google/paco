@@ -15,10 +15,9 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString* const PacoFinishLoadingDefinitionNotification;
-extern NSString* const PacoFinishLoadingExperimentNotification;
-extern NSString* const PacoFinishRefreshing;
-extern NSString* const PacoAppBecomeActive;
+extern NSString* const kPacoNotificationLoadedMyDefinitions;
+extern NSString* const kPacoNotificationLoadedRunningExperiments;
+extern NSString* const kPacoNotificationAppBecomeActive;
 
 @class PacoModel;
 @class PacoExperimentSchedule;
@@ -27,29 +26,30 @@ extern NSString* const PacoAppBecomeActive;
 
 
 @interface PacoModel : NSObject
-//YMZ:TODO: need to think about if it's necessary to use atomic
-//for the following properties
-@property (retain, readonly) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain, readonly) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain, readonly) NSArray *myDefinitions;  // <PacoExperimentDefinition>
+@property (retain, readonly) NSArray *runningExperiments;  // <PacoExperiment>
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId;
 - (PacoExperiment *)experimentForId:(NSString *)instanceId;
 
-- (BOOL)areRunningExperimentsLoaded;
+- (BOOL)hasLoadedMyDefinitions;
+- (BOOL)hasLoadedRunningExperiments;
+- (BOOL)hasRunningExperiments;
 
 //NOTE: this method should only be called when PacoModel finishes loading running experiments
 - (BOOL)shouldTriggerNotificationSystem;
 
-- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
-- (BOOL)saveExperimentInstancesToFile;
+- (void)fullyUpdateDefinitionList:(NSArray*)definitionList;
+- (void)partiallyUpdateDefinitionList:(NSArray*)defintionList;
 
+- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson;
+- (BOOL)saveExperimentDefinitionsToFile;
+- (BOOL)saveExperimentInstancesToFile;
 
 - (BOOL)isExperimentJoined:(NSString*)definitionId;
 
 /* Operations on the model */
 
-/* adding/removing Experiment Definitions */
-- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition;
 
 /* adding/removing Experiment Instances */
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition*)definition
@@ -57,9 +57,12 @@ extern NSString* const PacoAppBecomeActive;
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment;
 
 
-- (BOOL)hasRunningExperiments;
+- (NSArray*)runningExperimentIdList; //<NSString>
 
-- (BOOL)refreshExperiments;
+- (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList;
+
+- (void)configureExperiment:(PacoExperiment*)experiment
+               withSchedule:(PacoExperimentSchedule*)newSchedule;
 
 @end
 
