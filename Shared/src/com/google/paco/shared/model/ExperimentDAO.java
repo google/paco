@@ -58,7 +58,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected String customRenderingCode;
   protected Integer feedbackType;
 
-
   /**
    * @param id
    * @param title
@@ -71,9 +70,11 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param published
    * @param admins
    * @param customRenderingCode
+   * @param feedbackType2
+   * @param logActions TODO
+   * @param recordPhoneDetails TODO
    * @param showFeedback
    * @param hasCustomFeedback
-   * @param feedbackType2
    * @param customHtml
    */
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -81,9 +82,9 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
       Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
-      Integer feedbackType2) {
+      Integer feedbackType2, Boolean logActions, Boolean recordPhoneDetails) {
 
-    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate);
+    super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate, logActions, recordPhoneDetails);
     this.id = id;
     this.title = title;
     this.description = description;

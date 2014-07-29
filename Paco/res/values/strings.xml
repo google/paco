@@ -156,6 +156,7 @@
     <string name="invalid_experiment_warning">Experiment may be invalid now. Closing screen. Please reopen.</string>
     <string name="create_experiment_instructions">Creating experiments involves a fair amount of text entry. \n\nPlease point your browser to http://%1$s/ to create an experiment.</string>
     <string name="about_paco_menu_item">About Paco</string>
+    <string name="eula_menu_item">User Agreement</string>
     <string name="debug_menu_item">Debug</string>
     <string name="server_address_menu_item">Server Address</string>
     <string name="check_updates_menu_item">Check Updates</string>
@@ -184,7 +185,8 @@
     <string name="stop_experiment_menu_item">Stop Experiment</string>
     <string name="explore_data_menu_item">Explore data</string>
     <string name="running_experiments_title">Running Experiments</string>
-    <string name="available_experiments_title">Available Experiments</string>
+    <string name="find_my_experiments_list_title">Experiments for You</string>
+    <string name="find_public_experiments_title">Public Experiments</string>
     <string name="stop_the_experiment_dialog_title">Stop the Experiment?</string>
     <string name="stop_experiment_dialog_body">Are you sure you want to stop the experiment?</string>
     <string name="unknown_author_text">unknown author</string>
@@ -200,7 +202,7 @@
     <string name="missed_signal_value">Missed</string>
     <string name="version_is_current">This version is current.</string>
     <string name="update_found">Update Found</string>
-    <string name="choose_account">Please Choose an Accounts to use with Paco</string>
+    <string name="choose_account">Please Choose an Account to use with Paco</string>
     <string name="daily_scheduled_times_for">"Daily Scheduled Times for: "</string>
     <string name="scheduled_times">Scheduled Times</string>
     <string name="save_schedule">Save Schedule</string>
@@ -297,5 +299,10 @@
     <string name="multiselectListManyItemsChosen">items chosen</string>
     <string name="multiselectListOneItemChosen">item chosen</string>
     <string name="i_did_not_understand">I did not understand</string>
+    <string name="types_of_data_collected">Types of Data Collected</string>
+    <string name="experiment_informed_consent">Experimenter\'s Informed Consent Statement</string>
+    <string name="survey_responses_data_collected">User responses to experiment form</string>
+    <string name="app_usage_and_browser_usage_data_collected">Apps and sites used during experiment</string>
+    <string name="discover_experiments_title">Discover Experiments</string>
 
 </resources>

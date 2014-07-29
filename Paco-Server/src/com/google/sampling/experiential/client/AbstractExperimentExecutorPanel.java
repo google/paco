@@ -19,27 +19,28 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.Output;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 
 public abstract class AbstractExperimentExecutorPanel extends Composite {
 
   protected VerticalPanel mainPanel;
   protected ExperimentDAO experiment;
   protected List<InputExecutorPanel> inputsPanelsList;
-  protected PacoServiceAsync mapService;
+  protected PacoServiceAsync pacoService;
   protected ExperimentListener experimentListener;
   protected MyConstants myConstants;
   protected MyMessages myMessages;
 
 
-  public AbstractExperimentExecutorPanel(ExperimentListener experimentListener, 
-                                         ExperimentDAO experiment, PacoServiceAsync mapService) {
+
+  public AbstractExperimentExecutorPanel(ExperimentListener experimentListener,
+                                         ExperimentDAO experiment, PacoServiceAsync pacoService) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
     this.experiment = experiment;
-    this.mapService = mapService;
+    this.pacoService = pacoService;
     this.experimentListener = experimentListener;
     inputsPanelsList = new ArrayList<InputExecutorPanel>();
     //createLayout();
@@ -47,8 +48,8 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
 
   protected void createLayout() {
     createMainPanel();
-    createExperimentHeader();    
-    renderInputItems();  
+    createExperimentHeader();
+    renderInputItems();
     HorizontalPanel buttonPanel = new HorizontalPanel();
     mainPanel.add(buttonPanel);
     renderSaveButton(buttonPanel);
@@ -73,56 +74,56 @@ public abstract class AbstractExperimentExecutorPanel extends Composite {
     Button saveButton = new Button(myConstants.save());
     buttonPanel.add(saveButton);
     saveButton.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         saveResponse();
       }
-    });    
+    });
   }
 
   protected void renderCancelButton(HorizontalPanel buttonPanel) {
     Button cancelButton = new Button(myConstants.cancel());
     buttonPanel.add(cancelButton);
     cancelButton.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE, experiment, true, false);
       }
-    });    
+    });
   }
 
   protected void saveResponse() {
-    EventDAO event = createEvent();    
+    EventDAO event = createEvent();
     addOutputsToEvent(event);
     postEventToServer(event);
   }
 
   protected void postEventToServer(EventDAO event) {
     AsyncCallback<Void> asyncCallback = new AsyncCallback<Void>(){
-  
+
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert(myMessages.saveFailed(caught.getMessage()));        
+        Window.alert(myMessages.saveFailed(caught.getMessage()));
       }
-  
+
       @Override
       public void onSuccess(Void result) {
-        Window.alert(myConstants.success());        
+        Window.alert(myConstants.success());
         experimentListener.eventFired(ExperimentListener.EXPERIMENT_RESPONSE_CODE, experiment, true, false);
       }
-      
+
     };
-    
-    mapService.saveEvent(event, asyncCallback);    
+
+    pacoService.saveEvent(event, asyncCallback);
   }
 
   protected void addOutputsToEvent(EventDAO event) {
-    Map<String, String> outputs = new HashMap<String, String>();    
+    Map<String, String> outputs = new HashMap<String, String>();
     for (int i=0; i < inputsPanelsList.size(); i++) {
       InputExecutorPanel inputPanel = inputsPanelsList.get(i);
-      Output output = inputPanel.getValue();      
+      Output output = inputPanel.getValue();
       outputs.put(output.getName(), output.getValue());
     }
     event.setWhat(outputs);

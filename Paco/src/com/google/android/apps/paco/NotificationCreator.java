@@ -80,14 +80,17 @@ public class NotificationCreator {
         if (notificationHolder.isActive(now)) {
           Experiment experiment = experimentProviderUtil.getExperiment(notificationHolder.getExperimentId());
           cancelNotification(context, notificationHolder.getId());  // in case this exists on the status bar, blow it away (this happens on package_replace calls).
-          fireNotification(context, notificationHolder, experiment);
+          String message = context.getString(R.string.time_to_participate_notification_text);
+          if (notificationHolder.isCustomNotification()) {
+            message = notificationHolder.getMessage();
+          }
+          fireNotification(context, notificationHolder, experiment, message);
           if (experiment.isExpiringAlarm()) {
             createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
           }
           if (experiment.getSignalingMechanisms().get(0).getSnoozeCount() > SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT) {
             createAlarmForSnooze(context, notificationHolder);
           }
-
         } else {
           timeoutNotification(notificationHolder);
         }
@@ -106,7 +109,7 @@ public class NotificationCreator {
     if (notificationHolder.isActive(now)) {
         Experiment experiment = experimentProviderUtil.getExperiment(notificationHolder.getExperimentId());
         cancelNotification(context, notificationHolder.getId());  // in case this exists on the status bar, blow it away (this happens on package_replace calls).
-        fireNotification(context, notificationHolder, experiment);
+        fireNotification(context, notificationHolder, experiment,  context.getString(R.string.time_to_participate_notification_text));
     }
     // TODO
     // Optionally create another snooze alarm if the snoozeCount says it should happen and there is time left
@@ -122,7 +125,7 @@ public class NotificationCreator {
         experimentProviderUtil.getJoinedExperiments(), context);
     for (TimeExperiment timeExperiment : times) {
       timeoutNotifications(experimentProviderUtil.getNotificationsFor(timeExperiment.experiment.getId()));
-      createNewNotificationForExperiment(context, timeExperiment);
+      createNewNotificationForExperiment(context, timeExperiment, false);
     }
   }
 
@@ -165,12 +168,16 @@ public class NotificationCreator {
     notificationManager.cancel(new Long(notificationId).intValue());
   }
 
-  private void createNewNotificationForExperiment(Context context, TimeExperiment timeExperiment) {
+  private void createNewNotificationForExperiment(Context context, TimeExperiment timeExperiment, boolean customGenerated) {
     DateTime time = timeExperiment.time;
     Experiment experiment = timeExperiment.experiment;
-    NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0, experiment.getExpirationTimeInMillis());
-    experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, experiment);
+    long expirationTimeInMillis = experiment.getExpirationTimeInMillis();
+
+    NotificationHolder notificationHolder = createNewNotificationWithDetails(context, time, experiment,
+                                                                             experiment.getSignalingMechanisms().get(0).getName(),
+                                                                             expirationTimeInMillis,
+                                                                             context.getString(R.string.time_to_participate_notification_text));
+
     if (experiment.isExpiringAlarm()) {
       createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
     }
@@ -180,20 +187,44 @@ public class NotificationCreator {
 
   }
 
-  private void fireNotification(Context context, NotificationHolder notificationHolder, Experiment experiment) {
+  private void createNewCustomNotificationForExperiment(Context context, DateTime time, Experiment experiment, long expirationTimeInMillis, String message) {
+    NotificationHolder notificationHolder = createNewNotificationWithDetails(context, time, experiment, NotificationHolder.CUSTOM_GENERATED_NOTIFICATION,
+                                                                             expirationTimeInMillis,
+                                                                             message);
+
+    if (experiment.isExpiringAlarm()) {
+      createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
+    }
+  }
+
+
+
+  private NotificationHolder createNewNotificationWithDetails(Context context, DateTime time, Experiment experiment,
+                                                              String source, long expirationTimeInMillis, String message) {
+    NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0, expirationTimeInMillis, source, message);
+    experimentProviderUtil.insertNotification(notificationHolder);
+    fireNotification(context, notificationHolder, experiment, message);
+    return notificationHolder;
+  }
+
+  private void fireNotification(Context context, NotificationHolder notificationHolder, Experiment experiment, String message) {
     Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experiment.getTitle() +
         ". alarmTime: " + notificationHolder.getAlarmTime().toString() + " holderId = " + notificationHolder.getId());
 
-    Notification notification = createNotification(context, experiment, notificationHolder);
+    Notification notification = createNotification(context, experiment, notificationHolder, message);
     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     notificationManager.notify(notificationHolder.getId().intValue(), notification);
 
   }
 
-  private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder) {
+  private Notification createNotification(Context context, Experiment experiment, NotificationHolder notificationHolder, String message) {
     int icon = R.drawable.paco32;
 
+
     String tickerText = context.getString(R.string.time_for_notification_title) + experiment.getTitle();
+    if (notificationHolder.isCustomNotification()) {
+      tickerText = message;
+    }
 
     Notification notification = new Notification(icon, tickerText, notificationHolder.getAlarmTime());
 
@@ -208,7 +239,7 @@ public class NotificationCreator {
     PendingIntent notificationIntent = PendingIntent.getActivity(context, 1,
         surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     notification.setLatestEventInfo(context, experiment.getTitle(),
-        context.getString(R.string.time_to_participate_notification_text), notificationIntent);
+        message, notificationIntent);
     notification.when = notificationHolder.getAlarmTime();
 
 
@@ -275,8 +306,18 @@ public class NotificationCreator {
     }
 
     timeoutNotifications(notificationsForTrigger);
-    createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment));
+    createNewNotificationForExperiment(context, new TimeExperiment(triggeredDateTime, experiment), false);
   }
+
+  public void createNotificationsForCustomGeneratedScript(Experiment experiment, String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
+    List<NotificationHolder> notifications = experimentProviderUtil.getNotificationsFor(experiment.getId());
+
+    if (activeNotificationForCustomGeneratedScript(notifications)) {
+      return;
+    }
+    createNewCustomNotificationForExperiment(context, DateTime.now(), experiment, timeoutMillis, message);
+  }
+
 
   private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForTrigger) {
     DateTime now = new DateTime();
@@ -288,6 +329,18 @@ public class NotificationCreator {
     }
     return false;
   }
+
+  private boolean activeNotificationForCustomGeneratedScript(List<NotificationHolder> notifications) {
+    DateTime now = new DateTime();
+    for (NotificationHolder notificationHolder : notifications) {
+      if (notificationHolder.isCustomNotification()) {
+        Log.d(PacoConstants.TAG, "There is already a live custom-generated notification for this experiment.");
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   private void createAlarmForSnooze(Context context, NotificationHolder notificationHolder) {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
@@ -315,6 +368,16 @@ public class NotificationCreator {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+  }
+
+  public void removeNotificationsForCustomGeneratedScript(Experiment experiment) {
+      List<NotificationHolder> notifs = experimentProviderUtil.getNotificationsFor(experiment.getId());
+      for (NotificationHolder notificationHolder : notifs) {
+        if (notificationHolder.isCustomNotification()) {
+          timeoutNotification(notificationHolder);
+          return; // there can only ever be one custom notification per experiment.
+        }
+      }
   }
 
 

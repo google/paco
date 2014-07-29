@@ -332,7 +332,11 @@ parser = (function(){
         if (result0 !== null) {
           result0 = (function(offset, line, column, left, right) { 
                 var pred = env[left]; 
-                if (!pred.substring || pred.indexOf(",") == -1) {
+            if (typeof(pred) == 'undefined') {
+//              alert("pred is nil for " + left + ". env = " + JSON.stringify(env));
+              return false;
+            }
+            if (!pred.substring || pred.indexOf(",") == -1) {
                   return pred == right; 
                 } else {
                   if (pred == right) {

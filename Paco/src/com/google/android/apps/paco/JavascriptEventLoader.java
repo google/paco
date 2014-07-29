@@ -6,6 +6,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -26,9 +28,13 @@ public class JavascriptEventLoader {
   }
 
   public String loadAllEvents() {
+    long t1 = System.currentTimeMillis();
     experimentProviderUtil.loadEventsForExperiment(experiment);
     final Feedback feedback = experiment.getFeedback().get(0);
-    return FeedbackActivity.convertExperimentResultsToJsonString(feedback, experiment);
+    String convertExperimentResultsToJsonString = FeedbackActivity.convertExperimentResultsToJsonString(feedback, experiment);
+    long t2= System.currentTimeMillis();
+    Log.e(PacoConstants.TAG, "time to load all Events: " + (t2 - t1));
+    return convertExperimentResultsToJsonString;
   }
 
   public String getLastEvent() {

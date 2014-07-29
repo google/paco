@@ -380,7 +380,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
             titleFromEvent = " (Deleted)";
           }
           experimentDAOs.add(new ExperimentDAO(id, titleFromEvent, "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM));
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM, false, false));
         }
       } finally {
         if (pm != null) {

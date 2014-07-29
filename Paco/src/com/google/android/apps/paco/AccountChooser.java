@@ -21,7 +21,7 @@ public class AccountChooser extends ListActivity {
   public static final String ACCOUNT_NAME = "ACCOUNT_NAME";
   public static final String ACCOUNT_TYPE = "accountType";
   private static final String GOOGLE_ACCOUNT = "com.google";
-  
+
   private String accountType = GOOGLE_ACCOUNT;
   private Account[] accounts;
   private UserPreferences userPrefs;
@@ -54,8 +54,8 @@ public class AccountChooser extends ListActivity {
       setListAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, accountNames));
     }
   }
-  
-  
+
+
 
   @Override
   protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -71,10 +71,10 @@ public class AccountChooser extends ListActivity {
     result.putExtra(ACCOUNT_NAME, accountName);
     setResult(0, result);
   }
-  
-  
-  
 
-  
+
+
+
+
 
 }
