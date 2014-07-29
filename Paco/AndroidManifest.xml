@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="104"
-    android:versionName="2.0.104" >
+    android:versionCode="109"
+    android:versionName="2.0.109" >
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -118,25 +118,15 @@
             android:label="Record Data in Experiment"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.apps.paco.LINKED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
+            </intent-filter>           
         </activity>
-        <activity
-            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" 
-             android:screenOrientation="portrait"/>
+                <activity
+            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" />
         
         <activity
             android:name="com.google.android.apps.paco.FeedbackActivity"
@@ -178,6 +168,7 @@
         </activity>
         <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" />
         <activity android:name="com.google.android.apps.paco.HelpActivity" />
+        <activity android:name="com.google.android.apps.paco.EulaDisplayActivity" />
 
         <!-- services -->
         <service android:name="com.google.android.apps.paco.NotificationCreatorService" >

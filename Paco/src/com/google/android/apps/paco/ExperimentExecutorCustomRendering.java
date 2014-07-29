@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +43,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -80,6 +82,7 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.pacoapp.paco.R;
 
@@ -93,8 +96,6 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private OptionsMenu optionsMenu;
   private Long scheduledTime = 0L;
   private Object updateLock = new Object();
-  private UserPreferences userPrefs;
-  private ProgressDialog p;
 
   private ArrayList<InputLayout> locationInputs;
   private Location location;
@@ -102,7 +103,6 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private Long notificationHolderId;
   private boolean shouldExpireNotificationHolder;
   private View buttonView;
-  private Button doOnPhoneButton;
   private Button doOnWebButton;
   private TextView warningText;
 
@@ -125,7 +125,6 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    userPrefs = new UserPreferences(this);
     experiment = getExperimentFromIntent();
     if (experiment == null) {
       displayNoExperimentMessage();
@@ -401,6 +400,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
   webView.addJavascriptInterface(new JavascriptPhotoService(), "photoService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(), "notificationService");
 
   env = new Environment(map);
   webView.addJavascriptInterface(env, "env");
@@ -869,11 +869,58 @@ private String findAccount(String userEmail) {
 
   private class JavascriptExperimentLoader {
     private Experiment experiment;
+
     public JavascriptExperimentLoader(Experiment experiment) {
         this.experiment = experiment;
     }
+
     public String getExperiment() {
-      return ExperimentProviderUtil.getJson(experiment);
+      long t1 = System.currentTimeMillis();
+      String json = ExperimentProviderUtil.getJson(experiment);
+      long t2= System.currentTimeMillis();
+      Log.e(PacoConstants.TAG, "time to load experiment: " + (t2 - t1));
+      return json;
+    }
+    /**
+     * Takes the json of an experiment.
+     *
+     * @param experimentJson
+     * @return json object of an outcome { status: [1|0], error_message : [nil|errorstring] }
+     */
+    public String saveExperiment(final String experimentJson) {
+      new Thread(new Runnable() {
+
+
+        @Override
+        public void run() {
+          try {
+            long t1 = System.currentTimeMillis();
+            Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(experimentJson);
+            experimentProviderUtil.updateExistingExperiments(Lists.newArrayList(experiment));
+            startService(new Intent(ExperimentExecutorCustomRendering.this, BeeperService.class));
+            if (experiment.shouldWatchProcesses()) {
+              BroadcastTriggerReceiver.initPollingAndLoggingPreference(ExperimentExecutorCustomRendering.this);
+              BroadcastTriggerReceiver.startProcessService(ExperimentExecutorCustomRendering.this);
+            } else {
+              BroadcastTriggerReceiver.stopProcessingService(ExperimentExecutorCustomRendering.this);
+            }
+            long t2= System.currentTimeMillis();
+            Log.e(PacoConstants.TAG, "time to save experiment: " + (t2 - t1));
+          } catch (JsonParseException e) {
+            e.printStackTrace();
+            //return "{ \"status\" : 0, \"error_message\" : \"json parse error: " + e.getMessage() + "\" }";
+          } catch (JsonMappingException e) {
+            e.printStackTrace();
+            //return "{ \"status\" : 0, \"error_message\" : \"json mapping error: " + e.getMessage() + "\" }";
+          } catch (IOException e) {
+            e.printStackTrace();
+            //return "{ \"status\" : 0, \"error_message\" : \"io error: " + e.getMessage() + "\" }";
+          }
+          //return "{ \"status\" : 1, \"error_message\" : \"\" }";
+        }
+
+      }).start();
+      return null;
     }
   }
 
@@ -898,6 +945,22 @@ private String findAccount(String userEmail) {
       finish();
     }
   }
+
+  private class JavascriptNotificationService {
+
+    public void createNotification(String message) {
+      createNotification(message, true, true, 1000 * 60 * 60 * 24); // timeout in 24 hours.
+    }
+
+    private void createNotification(String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
+      NotificationCreator.create(ExperimentExecutorCustomRendering.this).createNotificationsForCustomGeneratedScript(experiment, message, makeSound, makeVibrate, timeoutMillis);
+    }
+
+    public void removeNotification() {
+      NotificationCreator.create(ExperimentExecutorCustomRendering.this).removeNotificationsForCustomGeneratedScript(experiment);
+    }
+  }
+
 
   private class JavascriptPhotoService {
 

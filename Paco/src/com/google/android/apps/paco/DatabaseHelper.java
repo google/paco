@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,7 +21,6 @@ import com.google.paco.shared.model.SignalTimeDAO;
 /**
  * This class helps open, create, and upgrade the database file.
  */
-@SuppressLint("UseSparseArrays")
 public class DatabaseHelper extends SQLiteOpenHelper {
 
   private Context context;
@@ -133,7 +131,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + NotificationHolderColumns.ALARM_TIME + " INTEGER, "
         + NotificationHolderColumns.EXPERIMENT_ID + " INTEGER, "
         + NotificationHolderColumns.NOTICE_COUNT + " INTEGER, "
-        + NotificationHolderColumns.TIMEOUT_MILLIS + " INTEGER"
+        + NotificationHolderColumns.TIMEOUT_MILLIS + " INTEGER, "
+        + NotificationHolderColumns.NOTIFICATION_SOURCE + " TEXT, "
+        + NotificationHolderColumns.CUSTOM_MESSAGE + " TEXT"
         + ");");
 
     //	  insertValues(db);
@@ -246,6 +246,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     if (oldVersion <= 19) {
       // redo the migration because some experiments had empty lists of times
       migrateExistingLongTimeValuesToSignalTimeValues(db);
+    }
+    if (oldVersion <= 20) {
+      db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD "
+              + NotificationHolderColumns.NOTIFICATION_SOURCE + " TEXT default " + SignalingMechanism.DEFAULT_SIGNALING_GROUP_NAME
+              + ";");
+      db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD "
+              + NotificationHolderColumns.CUSTOM_MESSAGE + " TEXT;");
     }
   }
 

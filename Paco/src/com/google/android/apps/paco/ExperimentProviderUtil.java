@@ -1541,6 +1541,8 @@ public class ExperimentProviderUtil {
     int alarmIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ALARM_TIME);
     int noticeCountIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.NOTICE_COUNT);
     int timeoutMillisIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.TIMEOUT_MILLIS);
+    int notificationSourceIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.NOTIFICATION_SOURCE);
+    int customMessageIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.CUSTOM_MESSAGE);
 
     NotificationHolder notification = new NotificationHolder();
 
@@ -1561,6 +1563,13 @@ public class ExperimentProviderUtil {
 
     if (!cursor.isNull(timeoutMillisIdIndex)) {
       notification.setTimeoutMillis(cursor.getLong(timeoutMillisIdIndex));
+    }
+
+    if (!cursor.isNull(notificationSourceIndex)) {
+      notification.setNotificationSource(cursor.getString(notificationSourceIndex));
+    }
+    if (!cursor.isNull(customMessageIndex)) {
+      notification.setMessage(cursor.getString(customMessageIndex));
     }
     return notification;
   }
@@ -1643,6 +1652,12 @@ public class ExperimentProviderUtil {
     }
     if (notification.getTimeoutMillis() != null) {
       values.put(NotificationHolderColumns.TIMEOUT_MILLIS, notification.getTimeoutMillis());
+    }
+    if (notification.getNotificationSource() != null) {
+      values.put(NotificationHolderColumns.NOTIFICATION_SOURCE, notification.getNotificationSource());
+    }
+    if (notification.getMessage() != null) {
+      values.put(NotificationHolderColumns.CUSTOM_MESSAGE, notification.getMessage());
     }
 
     return values;

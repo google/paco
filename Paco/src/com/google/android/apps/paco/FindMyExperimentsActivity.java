@@ -174,7 +174,7 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
   private TextView createListHeader() {
 	TextView listHeader = (TextView)findViewById(R.id.ExperimentListTitle);
     String header = null;
-    header = getString(R.string.available_experiments_title);
+    header = getString(R.string.find_my_experiments_list_title);
     listHeader.setText(header);
     listHeader.setTextSize(25);
     return listHeader;

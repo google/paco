@@ -63,6 +63,7 @@ public class ExperimentManagerActivity extends Activity {
   private static final int ACCOUNT_CHOOSER_ITEM = 7;
   private static final int RINGTONE_CHOOSER_ITEM = 8;
   private static final int SEND_LOG_ITEM = 9;
+  private static final int EULA_ITEM = 10;
 
   static final int CHECK_UPDATE_REQUEST_CODE = 0;
 
@@ -87,8 +88,18 @@ public class ExperimentManagerActivity extends Activity {
       startActivity(executorIntent);
       finish();
     }
-
     Eula.showEula(this);
+//
+//    if (!hasRegisteredExperiments()) {
+//      Intent findMyExperimentsIntent = new Intent(this, FindMyExperimentsActivity.class);
+//      startActivity(findMyExperimentsIntent);
+//      finish();
+//    } else {
+//      Intent intent = new Intent(ExperimentManagerActivity.this, RunningExperimentsActivity.class);
+//      intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+//      startActivity(intent);
+//    }
+
     setContentView(R.layout.experiment_manager_main);
     currentExperimentsButton = (ImageButton) findViewById(R.id.CurrentExperimentsBtn);
 
@@ -189,6 +200,7 @@ public class ExperimentManagerActivity extends Activity {
     menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
     menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
     menu.add(0, SEND_LOG_ITEM, 4, R.string.send_log_menu_item);
+    menu.add(0, EULA_ITEM, 4, R.string.eula_menu_item);
     return true;
   }
 
@@ -216,10 +228,18 @@ public class ExperimentManagerActivity extends Activity {
     case SEND_LOG_ITEM:
       launchLogSender();
       return true;
+    case EULA_ITEM:
+      launchEula();
+      return true;
 
     default:
       return false;
     }
+  }
+
+  private void launchEula() {
+    Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
+    startActivity(eulaIntent);
   }
 
   private void launchLogSender() {

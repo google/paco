@@ -16,6 +16,7 @@ import com.google.paco.shared.model.SignalingMechanismDAO;
               @Type(value = Trigger.class, name = "trigger") })
 public class SignalingMechanism {
 
+  public static final String DEFAULT_SIGNALING_GROUP_NAME = "signalGroup1";
   private static final int DEFAULT_TIMEOUT_MINUTES = 59;
   private static final Integer DEFAULT_MINIMUM_BUFFER = 59;
 
@@ -23,6 +24,7 @@ public class SignalingMechanism {
   protected Integer minimumBuffer;
   protected Integer snoozeCount = SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT;
   protected Integer snoozeTime = SignalingMechanismDAO.SNOOZE_TIME_DEFAULT;
+  protected String name = DEFAULT_SIGNALING_GROUP_NAME;
 
   public Integer getTimeout() {
     if (timeout == null) {
@@ -70,6 +72,14 @@ public class SignalingMechanism {
 
   public void setSnoozeTime(Integer snoozeTime) {
     this.snoozeTime = snoozeTime;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
 

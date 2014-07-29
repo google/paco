@@ -170,7 +170,7 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
   private TextView createListHeader() {
 	TextView listHeader = (TextView)findViewById(R.id.ExperimentListTitle);
     String header = null;
-    header = getString(R.string.available_experiments_title);
+    header = getString(R.string.find_public_experiments_title);
     listHeader.setText(header);
     listHeader.setTextSize(25);
     return listHeader;
