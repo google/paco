@@ -27,6 +27,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
@@ -212,7 +214,9 @@ public class NotificationCreator {
         ". alarmTime: " + notificationHolder.getAlarmTime().toString() + " holderId = " + notificationHolder.getId());
 
     Notification notification = createNotification(context, experiment, notificationHolder, message);
-    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    //NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
     notificationManager.notify(notificationHolder.getId().intValue(), notification);
 
   }
@@ -226,40 +230,44 @@ public class NotificationCreator {
       tickerText = message;
     }
 
-    Notification notification = new Notification(icon, tickerText, notificationHolder.getAlarmTime());
+
+    //Notification notification = new Notification(icon, tickerText, notificationHolder.getAlarmTime());
 
     Intent surveyIntent = new Intent(context, ExperimentExecutor.class);
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-        experiment.getId().toString());
+    Uri uri = Uri.withAppendedPath(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, experiment.getId().toString());
     surveyIntent.setData(uri);
     surveyIntent.putExtra(Experiment.SCHEDULED_TIME, notificationHolder.getAlarmTime());
     surveyIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().longValue());
 
-    PendingIntent notificationIntent = PendingIntent.getActivity(context, 1,
-        surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-    notification.setLatestEventInfo(context, experiment.getTitle(),
-        message, notificationIntent);
-    notification.when = notificationHolder.getAlarmTime();
+    PendingIntent notificationIntent = PendingIntent.getActivity(context, 1, surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
+    // new wearable compatible way to do it
+    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+            .setSmallIcon(icon)
+            .setContentTitle(experiment.getTitle())
+            .setTicker(tickerText)
+            .setContentText(message)
+            .setWhen(notificationHolder.getAlarmTime())
+            .setContentIntent(notificationIntent)
+            .setAutoCancel(true);
+
+    int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
     String ringtoneUri = new UserPreferences(context).getRingtone();
-    if (ringtoneUri == null) {
-      notification.defaults |= Notification.DEFAULT_SOUND;
-//      notification.sound = Uri.parse(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-//                                     + "/Android/data/" + context.getPackageName() + "/" +
-//                                     "deepbark_trial.mp3");
+    if (ringtoneUri != null) {
+      notificationBuilder.setSound(Uri.parse(ringtoneUri));
     } else {
-      notification.sound = Uri.parse(ringtoneUri);
+      defaults |= Notification.DEFAULT_SOUND;
+//    notification.sound = Uri.parse(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
+//                                   + "/Android/data/" + context.getPackageName() + "/" +
+//                                   "deepbark_trial.mp3");
     }
+    notificationBuilder.setDefaults(defaults);
 
-    notification.defaults |= Notification.DEFAULT_VIBRATE;
-    notification.defaults |= Notification.DEFAULT_LIGHTS;
-    notification.flags |= Notification.FLAG_AUTO_CANCEL;
-    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      notification.flags |= Notification.FLAG_NO_CLEAR;
-    }
-    return notification;
+    //end wearable
+
+    return notificationBuilder.build();
   }
 
   private void createAlarmToCancelNotificationAtTimeout(Context context, NotificationHolder notificationHolder) {
