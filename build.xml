@@ -46,7 +46,7 @@
 
   <target name="build-server">
     <subant target="build">
-      <fileset dir="${Paco-Server.location}" includes="build.xml"/>
+      <fileset dir="${Paco-Server.location}" includes="antbuild.xml"/>
     </subant>
   </target>
 
