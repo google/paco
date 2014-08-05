@@ -47,7 +47,6 @@ public class BroadcastTriggerService extends Service {
     (new Thread(runnable)).start();
   }
 
-  // TODO:phil branch this code, allowing passiveLogging and/or notification creation
   // TODO:phil refactor the backgroundListen thing into its own DAO?
   // TODO:phil refactor this backgroundListen thing to have a better name? like 'appListen'?
   protected void notifyExperimentsThatCare(Bundle extras) {
@@ -71,20 +70,7 @@ public class BroadcastTriggerService extends Service {
       if (experiment.isRunning(now)
           && experiment.isBackgroundListen()
           && experiment.getBackgroundListenSourceIdentifier().equals(sourceIdentifier)) {
-        
-        // add PACO outputs and the original intent's extras as Output responses,
-        // and insert event into ExperimentExecutor
-        Event event = ExperimentExecutor.createEvent(experiment, now.getMillis());
-        Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
-        for (String key : payload.keySet()) {
-          Output output = new Output();
-          output.setEventId(event.getId());
-          output.setName(key);
-          output.setAnswer(payload.get(key).toString());
-          event.addResponse(output);
-        }
-        eu.insertEvent(event);
-        notifySyncService();
+        persistBroadcastData(eu, experiment, extras);
       }
       
       // see if this experiment wants a notification given the current event
@@ -109,6 +95,23 @@ public class BroadcastTriggerService extends Service {
     UserPreferences prefs = new UserPreferences(getApplicationContext());
     DateTime recentlyTriggered = prefs.getRecentlyTriggeredTime(experimentId);
     return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBufferInMinutes).isAfterNow();
+  }
+  
+  /*
+   * create and persist event containing any payload data sent along in original PACO_INTENT broadcast
+   */
+  private void persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment, Bundle extras) {
+    Event event = ExperimentExecutor.createEvent(experiment, new DateTime().getMillis());
+    Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
+    for (String key : payload.keySet()) {
+      Output output = new Output();
+      output.setEventId(event.getId());
+      output.setName(key);
+      output.setAnswer(payload.get(key).toString());
+      event.addResponse(output);
+    }
+    eu.insertEvent(event);
+    notifySyncService();
   }
 
   private void notifySyncService() {
