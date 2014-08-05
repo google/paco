@@ -47,8 +47,6 @@ public class BroadcastTriggerService extends Service {
     (new Thread(runnable)).start();
   }
 
-  // TODO:phil refactor the backgroundListen thing into its own DAO?
-  // TODO:phil refactor this backgroundListen thing to have a better name? like 'appListen'?
   protected void notifyExperimentsThatCare(Bundle extras) {
     
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
