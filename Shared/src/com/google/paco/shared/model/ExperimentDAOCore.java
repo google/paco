@@ -13,12 +13,15 @@ public class ExperimentDAOCore implements Serializable {
   protected String endDate;
   protected String joinDate;
   protected Long id;
+  private Boolean backgroundListen;
+  private String backgroundListenSourceIdentifier;
   private Boolean logActions;
   private Boolean recordPhoneDetails;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
                            String email, Boolean fixedDuration,
-                           String startDate, String endDate, String joinDate, Boolean logActions, Boolean recordPhoneDetails) {
+                           String startDate, String endDate, String joinDate, Boolean backgroundListen,
+                           String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails) {
     super();
     this.id = id;
     this.title = title;
@@ -29,6 +32,8 @@ public class ExperimentDAOCore implements Serializable {
     this.startDate = startDate;
     this.endDate = endDate;
     this.joinDate = joinDate;
+    this.setBackgroundListen(backgroundListen);
+    this.setBackgroundListenSourceIdentifier(backgroundListenSourceIdentifier);
     this.setLogActions(logActions);
     this.setRecordPhoneDetails(recordPhoneDetails);
   }
@@ -118,6 +123,22 @@ public class ExperimentDAOCore implements Serializable {
 
   public void setLogActions(Boolean logActions) {
     this.logActions = logActions;
+  }
+  
+  public Boolean isBackgroundListen() {
+    return backgroundListen;
+  }
+  
+  public void setBackgroundListen(Boolean backgroundListen) {
+    this.backgroundListen = backgroundListen;
+  }
+  
+  public String getBackgroundListenSourceIdentifier() {
+    return backgroundListenSourceIdentifier;
+  }
+  
+  public void setBackgroundListenSourceIdentifier(String sourceId) {
+    this.backgroundListenSourceIdentifier = sourceId;
   }
 
   public Boolean isRecordPhoneDetails() {

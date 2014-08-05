@@ -146,6 +146,12 @@ public class Experiment {
 
   @Persistent
   private Integer feedbackType;
+  
+  @Persistent
+  private Boolean backgroundListen = false;
+  
+  @Persistent
+  private String backgroundListenSourceIdentifier = "";
 
   @Persistent
   private Boolean logActions = false;
@@ -553,5 +559,20 @@ public class Experiment {
     this.recordPhoneDetails = recordPhoneDetails;
   }
 
+  public Boolean isBackgroundListen() {
+    return backgroundListen;
+  }
+
+  public void setBackgroundListen(Boolean backgroundListen) {
+    this.backgroundListen = backgroundListen;
+  }
+
+  public String getBackgroundListenSourceIdentifier() {
+    return backgroundListenSourceIdentifier;
+  }
+  
+  public void setBackgroundListenSourceIdentifier(String sourceId) {
+    this.backgroundListenSourceIdentifier = sourceId;
+  }
 
 }
