@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Browser;
 import android.telephony.TelephonyManager;
@@ -26,6 +27,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private static final String LOGGING_ACTIONS_FLAG = "LOGGING_ACTIONS";
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
+  public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
 
 
 	@Override
@@ -364,7 +366,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     if (sourceIdentifier == null || sourceIdentifier.length() == 0) {
       Log.d(PacoConstants.TAG, "No source identifier specified for PACO_TRIGGER");
     } else {
-      triggerEvent(context, Trigger.PACO_ACTION_EVENT, sourceIdentifier);
+      triggerEvent(context, Trigger.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
     }
   }
 
@@ -383,13 +385,17 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private void triggerEvent(Context context, int triggerEventCode) {
-    triggerEvent(context, triggerEventCode, null);
+    triggerEvent(context, triggerEventCode, null, null);
   }
 
-  private void triggerEvent(Context context, int triggerEventCode, String sourceIdentifier) {
+  private void triggerEvent(Context context, int triggerEventCode, String sourceIdentifier, Bundle payload) {
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, triggerEventCode);
+    if (payload == null) {
+      payload = new Bundle();
+    }
+    broadcastTriggerServiceIntent.putExtra(PACO_ACTION_PAYLOAD, payload);
     if (sourceIdentifier != null) {
       broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_SOURCE_IDENTIFIER, sourceIdentifier);
     }
