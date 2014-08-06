@@ -273,6 +273,7 @@ public class ExperimentProviderUtil {
     existingExperiment.setLogActions(experiment.isLogActions());
     existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
     existingExperiment.setBackgroundListen(experiment.isBackgroundListen());
+    existingExperiment.setBackgroundListenSourceIdentifier(experiment.getBackgroundListenSourceIdentifier());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
