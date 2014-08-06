@@ -213,9 +213,11 @@ public class ProcessService extends Service {
           appName = activityName;
         } else if (appName.equals("Google Search")) {
           String[] parts = appName.split(".");
-          String simpleActivityName = parts[parts.length - 1];
-          if (simpleActivityName.equals("GEL")) {
-            appName = "Launcher";
+          if (parts.length > 0) {
+            String simpleActivityName = parts[parts.length - 1];
+            if (simpleActivityName.equals("GEL")) {
+              appName = "Launcher";
+            }
           }
         }
         if (appName.equals("Launcher")) {

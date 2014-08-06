@@ -1,9 +1,9 @@
 #/bin/bash
 
-echo "enter experimentId"
+echo "enter experimentId (from definition page on server)"
 read experiment_id
 
-echo "enter report format"
+echo "enter report format (csv,json,html)"
 read report_format
  
 echo "output file name"
