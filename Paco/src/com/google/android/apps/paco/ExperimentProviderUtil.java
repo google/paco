@@ -43,6 +43,7 @@ import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 import android.util.Log;
 
+import com.google.android.apps.paco.utils.CallingStack;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
@@ -207,10 +208,18 @@ public class ExperimentProviderUtil {
     }
   }
 
+  /**
+   * This is used by refresh downloaders only
+   *
+   * @param contentAsString
+   * @throws JsonParseException
+   * @throws JsonMappingException
+   * @throws IOException
+   */
   public void updateExistingExperiments(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
     Map<String, Object> results = fromEntitiesJson(contentAsString);
     List<Experiment> experimentList = (List<Experiment>) results.get("results");
-    updateExistingExperiments(experimentList);
+    updateExistingExperiments(experimentList, false);
   }
 
   /**
@@ -218,8 +227,10 @@ public class ExperimentProviderUtil {
    * If the experiment server id is already in the database,
    * then update it, otherwise, add it.
    * @param experiments
+   * @param shouldOverrideExistingSettings downloaded (refreshed experiments should not override certain
+   * local properties. Locally modified experiments should override local properties, e.g., logActions.
    */
-  public void updateExistingExperiments(List<Experiment> experiments) {
+  public void updateExistingExperiments(List<Experiment> experiments, Boolean shouldOverrideExistingSettings) {
 
     for (Experiment experiment : experiments) {
       long t1 = System.currentTimeMillis();
@@ -253,7 +264,7 @@ public class ExperimentProviderUtil {
         }
         insertInputsForJoinedExperiment(existingExperiment);
         insertFeedbackForJoinedExperiment(existingExperiment);
-        copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment);
+        copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment, shouldOverrideExistingSettings);
         updateJoinedExperiment(existingExperiment);
         Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
       }
@@ -261,7 +272,7 @@ public class ExperimentProviderUtil {
     }
   }
 
-  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment) {
+  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment, Boolean shouldOverrideExistingSettings) {
     existingExperiment.setCreator(experiment.getCreator());
     existingExperiment.setVersion(experiment.getVersion());
     existingExperiment.setDescription(experiment.getDescription());
@@ -279,7 +290,9 @@ public class ExperimentProviderUtil {
     // for now, because we can modify the experiment in the js at runtime, we do not want to update this.
     // however, this creates a problem for admins who want to update experiments.
     // TODO find a way to merge current state and updates correctly
-    //existingExperiment.setLogActions(experiment.isLogActions());
+    if (shouldOverrideExistingSettings) {
+      existingExperiment.setLogActions(experiment.isLogActions());
+    }
 
     existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
   }
@@ -495,6 +508,7 @@ public class ExperimentProviderUtil {
         long t1 = System.currentTimeMillis();
         Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
         Log.e(PacoConstants.TAG, "time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
+        //Log.e(PacoConstants.TAG, "Stack: ", CallingStack.callChain());
         Trigger trigger = experimentFromJson.getTrigger();
         if (trigger != null) {
           List<SignalingMechanism> signalingMechanisms = new ArrayList();
