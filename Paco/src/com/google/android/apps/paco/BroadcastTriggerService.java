@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.Toast;
 
 public class BroadcastTriggerService extends Service {
 
@@ -37,7 +36,7 @@ public class BroadcastTriggerService extends Service {
     Runnable runnable = new Runnable() {
       public void run() {
         try {
-          notifyExperimentsThatCare(extras);
+          propagateToExperimentsThatCare(extras);
         } finally {
           wl.release();
           stopSelf();
@@ -47,7 +46,7 @@ public class BroadcastTriggerService extends Service {
     (new Thread(runnable)).start();
   }
 
-  protected void notifyExperimentsThatCare(Bundle extras) {
+  protected void propagateToExperimentsThatCare(Bundle extras) {
     
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
@@ -102,6 +101,9 @@ public class BroadcastTriggerService extends Service {
     Event event = ExperimentExecutor.createEvent(experiment, new DateTime().getMillis());
     Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
     for (String key : payload.keySet()) {
+      if (payload.get(key) == null) {
+        continue;
+      }
       Output output = new Output();
       output.setEventId(event.getId());
       output.setName(key);
