@@ -272,6 +272,8 @@ public class ExperimentProviderUtil {
     existingExperiment.setFeedbackType(experiment.getFeedbackType());
     existingExperiment.setLogActions(experiment.isLogActions());
     existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
+    existingExperiment.setBackgroundListen(experiment.isBackgroundListen());
+    existingExperiment.setBackgroundListenSourceIdentifier(experiment.getBackgroundListenSourceIdentifier());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -505,6 +507,8 @@ public class ExperimentProviderUtil {
         experiment.setFeedback(experimentFromJson.getFeedback());
         experiment.setLogActions(experimentFromJson.isLogActions());
         experiment.setRecordPhoneDetails(experimentFromJson.isRecordPhoneDetails());
+        experiment.setBackgroundListen(experimentFromJson.isBackgroundListen());
+        experiment.setBackgroundListenSourceIdentifier(experimentFromJson.getBackgroundListenSourceIdentifier());
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {

@@ -481,6 +481,18 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Only 0 or 1 repeat allowed")
   String only1SnoozeRepeat();
 
+  @DefaultStringValue("Background listening")
+  String backgroundListeningTitle();
+  
+  @DefaultStringValue("Listen for other apps sending data to PACO")
+  String shouldBackgroundListen();
+  
+  @DefaultStringValue("Identifier for the source of the background data (often a package name)")
+  String backgroundListenSourceIdentifier();
+  
+  @DefaultStringValue("com.example.myapp")
+  String backgroundListenSourceIdentifierDefault();
+
   @DefaultStringValue("Contextual polling")
   String backgroundPollingTitle();
 

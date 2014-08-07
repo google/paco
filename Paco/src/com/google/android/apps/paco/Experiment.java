@@ -103,6 +103,8 @@ public class Experiment implements Parcelable {
   private Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
   private Boolean logActions = false;
   private Boolean recordPhoneDetails = false;
+  private Boolean backgroundListen = false;
+  private String backgroundListenSourceIdentifier = "";
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -666,6 +668,22 @@ public class Experiment implements Parcelable {
 
   public void setRecordPhoneDetails(Boolean recordPhoneDetails) {
     this.recordPhoneDetails = recordPhoneDetails;
+  }
+
+  public Boolean isBackgroundListen() {
+    return backgroundListen;
+  }
+  
+  public void setBackgroundListen(Boolean backgroundListen) {
+    this.backgroundListen = backgroundListen;
+  }
+  
+  public String getBackgroundListenSourceIdentifier() {
+    return backgroundListenSourceIdentifier;
+  }
+  
+  public void setBackgroundListenSourceIdentifier(String sourceId) {
+    this.backgroundListenSourceIdentifier = sourceId;
   }
 
 
