@@ -220,9 +220,15 @@ public class ExperimentProviderUtil {
    * @param experiments
    */
   public void updateExistingExperiments(List<Experiment> experiments) {
+
     for (Experiment experiment : experiments) {
-      //Log.i(PacoConstants.TAG, "experiment = " + experiment.getTitle() + ", serverId = " + experiment.getServerId());
+      long t1 = System.currentTimeMillis();
+
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
+
+      long t2 = System.currentTimeMillis();
+      Log.e(PacoConstants.TAG, "time to load existing experiments (count: " + existingList.size() + " : " + (t2 - t1));
+
       if (existingList.size() == 0) {
         continue;
       }
@@ -270,7 +276,11 @@ public class ExperimentProviderUtil {
     existingExperiment.setCustomRendering(experiment.isCustomRendering());
     existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
     existingExperiment.setFeedbackType(experiment.getFeedbackType());
-    existingExperiment.setLogActions(experiment.isLogActions());
+    // for now, because we can modify the experiment in the js at runtime, we do not want to update this.
+    // however, this creates a problem for admins who want to update experiments.
+    // TODO find a way to merge current state and updates correctly
+    //existingExperiment.setLogActions(experiment.isLogActions());
+
     existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
   }
 
@@ -297,10 +307,11 @@ public class ExperimentProviderUtil {
   }
 
   public void updateJoinedExperiment(Experiment experiment) {
+    long t1 = System.currentTimeMillis();
     int count = contentResolver.update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
         createContentValues(experiment),
         ExperimentColumns._ID + "=" + experiment.getId(), null);
-    Log.i(ExperimentProviderUtil.class.getSimpleName(), "updated "+ count + " rows");
+    Log.i(ExperimentProviderUtil.class.getSimpleName(), " updated "+ count + " rows. Time: " + (System.currentTimeMillis() - t1));
     SignalSchedule schedule = experiment.getSchedule();
     if (schedule != null) {
       updateSchedule(schedule);
@@ -481,7 +492,9 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(jsonIndex)) {
       String jsonOfExperiment = cursor.getString(jsonIndex);
       try {
+        long t1 = System.currentTimeMillis();
         Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
+        Log.e(PacoConstants.TAG, "time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
         Trigger trigger = experimentFromJson.getTrigger();
         if (trigger != null) {
           List<SignalingMechanism> signalingMechanisms = new ArrayList();
@@ -567,7 +580,9 @@ public class ExperimentProviderUtil {
 
     // TODO remove almost all other fields other than ID fields and this json serialization.
     // Leave only fields that we need to query by.
+    long t1 = System.currentTimeMillis();
     String json = getJson(experiment);
+    Log.e(PacoConstants.TAG, "time to jsonify experiment (bytes: " + json.getBytes().length + "): " + (System.currentTimeMillis() - t1));
     values.put(ExperimentColumns.JSON, json);
     return values;
   }
