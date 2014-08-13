@@ -26,10 +26,12 @@
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 
-NSString* const PacoFinishLoadingDefinitionNotification = @"PacoFinishLoadingDefinitionNotification";
-NSString* const PacoFinishLoadingExperimentNotification = @"PacoFinishLoadingExperimentNotification";
-NSString* const PacoFinishRefreshing = @"PacoFinishRefreshing";
-NSString* const PacoAppBecomeActive = @"PacoAppBecomeActive";
+static NSString* const kPacoKeyHasRunningExperiments = @"has_running_experiments";
+
+NSString* const kPacoNotificationLoadedMyDefinitions = @"kPacoNotificationLoadedMyDefinitions";
+NSString* const kPacoNotificationLoadedRunningExperiments = @"kPacoNotificationLoadedRunningExperiments";
+NSString* const kPacoNotificationRefreshedMyDefinitions = @"kPacoNotificationRefreshedMyDefinitions";
+NSString* const kPacoNotificationAppBecomeActive = @"kPacoNotificationAppBecomeActive";
 
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
@@ -37,8 +39,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 @interface PacoModel ()
-@property (retain) NSArray *experimentDefinitions;  // <PacoExperimentDefinition>
-@property (retain) NSMutableArray *experimentInstances;  // <PacoExperiment>
+@property (retain) NSArray *myDefinitions;  // <PacoExperimentDefinition>
+@property (retain) NSArray *runningExperiments;  // <PacoExperiment>
 @end
 
 
@@ -46,19 +48,8 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 #pragma mark Object Lifecycle
-//designated initializer
-- (id)init {
-  self = [super init];
-  if (self) {
-    _experimentDefinitions = @[];
-    _experimentInstances = [NSMutableArray array];
-  }
-  return self;
-}
-
-
 - (NSString*)description {
-  return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.experimentInstances];
+  return [NSString stringWithFormat:@"<PacoModel:%p - experiments=%@>", self, self.runningExperiments];
 }
 
 
@@ -73,13 +64,44 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experimentDefinition, @"definition should be created successfully");
     [definitions addObject:experimentDefinition];
   }
-  self.experimentDefinitions = definitions;
+  self.myDefinitions = [NSArray arrayWithArray:definitions];
+}
+
+- (void)saveNewDefinitionList:(NSArray*)newDefinitions {
+  @synchronized(self) {
+    self.myDefinitions = newDefinitions;
+    [self saveExperimentDefinitionsToFile];
+  }
+}
+
+- (void)fullyUpdateDefinitionList:(NSArray*)definitionList {
+  @synchronized(self) {
+    [self saveNewDefinitionList:definitionList];
+  }
+}
+
+- (void)partiallyUpdateDefinitionList:(NSArray*)defintionList {
+  @synchronized(self) {
+    NSMutableArray* newDefinitionList =
+        [NSMutableArray arrayWithCapacity:[self.myDefinitions count]];
+    for (PacoExperimentDefinition* oldDefinition in self.myDefinitions) {
+      PacoExperimentDefinition* definitionToBeAdded = oldDefinition;
+      for (PacoExperimentDefinition* newDefinition in defintionList) {
+        if ([newDefinition.experimentId isEqualToString:oldDefinition.experimentId]) {
+          definitionToBeAdded = newDefinition;
+          break;
+        }
+      }
+      [newDefinitionList addObject:definitionToBeAdded];
+    }
+    [self saveNewDefinitionList:[NSArray arrayWithArray:newDefinitionList]];
+  }
 }
 
 - (void)applyInstanceJSON:(id)jsonObject {
   NSMutableArray *instances = [NSMutableArray array];
   if (jsonObject == nil) {
-    self.experimentInstances = instances;
+    self.runningExperiments = instances;
     return;
   }
   
@@ -92,15 +114,27 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     NSAssert(experiment, @"experiment should be valid");
     [instances addObject:experiment];
   }
-  self.experimentInstances = instances;
+  self.runningExperiments = instances;
 }
 
-- (BOOL)areRunningExperimentsLoaded {
-  return self.experimentInstances != nil;
+- (BOOL)hasLoadedRunningExperiments {
+  return self.runningExperiments != nil;
 }
+
+- (BOOL)hasRunningExperiments {
+  if ([self hasLoadedRunningExperiments]) {
+    return [self.runningExperiments count] > 0;
+  }
+  return [[NSUserDefaults standardUserDefaults] boolForKey:kPacoKeyHasRunningExperiments];
+}
+
+- (BOOL)hasLoadedMyDefinitions {
+  return self.myDefinitions != nil;
+}
+
 
 - (BOOL)shouldTriggerNotificationSystem {
-  if (![self areRunningExperimentsLoaded]) {
+  if (![self hasLoadedRunningExperiments]) {
     DDLogError(@"Running experiments are not loaded yet!");
   }
   
@@ -108,19 +142,19 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     DDLogInfo(@"No running experiments.");
     return NO;
   }
-  for (PacoExperiment* experiment in self.experimentInstances) {
+  for (PacoExperiment* experiment in self.runningExperiments) {
     if ([experiment shouldScheduleNotificationsFromNow]) {
       return YES;
     }
   }
   DDLogInfo(@"There are %lu running experiments, none of them should schedule notifications.",
-            (unsigned long)[self.experimentInstances count]);
+            (unsigned long)[self.runningExperiments count]);
   return NO;
 }
 
 
 - (PacoExperimentDefinition *)experimentDefinitionForId:(NSString *)experimentId {
-  for (PacoExperimentDefinition *definition in self.experimentDefinitions) {
+  for (PacoExperimentDefinition *definition in self.myDefinitions) {
     if ([definition.experimentId isEqualToString:experimentId]) {
       return definition;
     }
@@ -129,7 +163,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 - (PacoExperiment *)experimentForId:(NSString *)instanceId {
-  for (PacoExperiment *instance in self.experimentInstances) {
+  for (PacoExperiment *instance in self.runningExperiments) {
     if ([instance.instanceId isEqualToString:instanceId]) {
       return instance;
     }
@@ -140,7 +174,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 - (id)makeJSONObjectFromInstances {
   NSMutableArray *experiments = [[NSMutableArray alloc] init];
-  for (PacoExperiment *experiment in self.experimentInstances) {
+  for (PacoExperiment *experiment in self.runningExperiments) {
     id json = [experiment serializeToJSON];
     NSAssert(json, @"experiment json should not be nil");
     [experiments addObject:json];
@@ -149,26 +183,44 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
-- (BOOL)refreshExperiments {
+- (id)makeJSONObjectFromDefinitions {
+  NSMutableArray* newDefinitions = [[NSMutableArray alloc] initWithCapacity:[self.myDefinitions count]];
+  for (PacoExperimentDefinition* definition in self.myDefinitions) {
+    id json = [definition serializeToJSON];
+    NSAssert(json, @"experiment json should not be nil");
+    [newDefinitions addObject:json];
+  }
+  return newDefinitions;
+}
+
+
+- (BOOL)refreshExperimentsWithDefinitionList:(NSArray*)newDefinitionList {
   @synchronized(self) {
     if (![self hasRunningExperiments]) {
       return NO;
     }
-
+    
     BOOL schedulesChanged = NO;
-    for (PacoExperiment* experiment in self.experimentInstances) {
+    for (PacoExperiment* experiment in self.runningExperiments) {
       NSString* definitionId = experiment.definition.experimentId;
       NSAssert(definitionId, @"definitionId should be valid");
       
-      PacoExperimentDefinition* newDefinition = [self experimentDefinitionForId:definitionId];
+      PacoExperimentDefinition* newDefinition = nil;
+      for (PacoExperimentDefinition* definition in newDefinitionList) {
+        if ([definition.experimentId isEqualToString:definitionId]) {
+          newDefinition = definition;
+          break;
+        }
+      }
       PacoExperimentDefinition* oldDefinition = experiment.definition;
       NSAssert(oldDefinition, @"oldDefinition should be valid");
-
       /*
        In the following 3 cases, definition won't be returned from server:
-       a. definition expires 
+       a. definition expires
        b. definition was purged by administrator
        c. definition is no longer published to this user
+       d. newDefinitionList is from refreshing only my experiments, however the exepriment
+          is from public experiments
        **/
       if (newDefinition) {
         //replace with the new definition, if newDefinition is nil, then keep the old definition
@@ -186,7 +238,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
         continue;
       }
       
-      BOOL refreshed = [experiment refreshWithSchedule:newDefinition.schedule];
+      BOOL refreshed = [experiment refreshSchedule:newDefinition.schedule];
       if (refreshed) {
         schedulesChanged = YES;
       }
@@ -200,8 +252,24 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   }
 }
 
+- (void)configureExperiment:(PacoExperiment*)experiment
+               withSchedule:(PacoExperimentSchedule*)newSchedule {
+  @synchronized(self) {
+    NSUInteger index = [self.runningExperiments indexOfObject:experiment];
+    NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
+    [experiment configureSchedule:newSchedule];
+    [self saveExperimentInstancesToFile];
+  }
+}
+
 
 #pragma mark file writing operations
+- (BOOL)saveExperimentDefinitionsToFile {
+  id definitionListJson = [self makeJSONObjectFromDefinitions];
+  return [self saveExperimentDefinitionListJson:definitionListJson];
+}
+
+
 - (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson {
   NSError *jsonError = nil;
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:definitionsJson
@@ -319,7 +387,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
     return NO;
   }
   
-  for (PacoExperiment* experiment in self.experimentInstances) {
+  for (PacoExperiment* experiment in self.runningExperiments) {
     NSAssert([experiment.definition.experimentId length] > 0, @"experimentId is invalid!");
     if ([experiment.definition.experimentId isEqualToString:definitionId]) {
       return YES;
@@ -328,40 +396,55 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return NO;
 }
 
-#pragma mark Experiment Definition operations
-- (void)addExperimentDefinition:(PacoExperimentDefinition*)experimentDefinition {
-  NSMutableArray* definitions = [self.experimentDefinitions mutableCopy];
-  [definitions insertObject:experimentDefinition atIndex:0];
-  
-  self.experimentDefinitions = [NSArray arrayWithArray:definitions];
-}
-
 
 #pragma mark Experiment Instance operations
 - (PacoExperiment*)addExperimentWithDefinition:(PacoExperimentDefinition *)definition
                                       schedule:(PacoExperimentSchedule *)schedule {
-  //create an experiment instance
-  NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
-  PacoExperiment* experimentInstance = [PacoExperiment experimentWithDefinition:definition
-                                                                       schedule:schedule
-                                                                       joinTime:nowdate];
-  //add it to instances array and save the instance file
-  [self.experimentInstances addObject:experimentInstance];
-  [self saveExperimentInstancesToFile];
-  return experimentInstance;
+  @synchronized(self) {
+    //create an experiment instance
+    NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
+    PacoExperiment* experimentInstance = [PacoExperiment experimentWithDefinition:definition
+                                                                         schedule:schedule
+                                                                         joinTime:nowdate];
+    //add it to instances array and save the instance file
+    NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.runningExperiments];
+    [newInstances addObject:experimentInstance];
+    self.runningExperiments = [NSArray arrayWithArray:newInstances];
+    
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPacoKeyHasRunningExperiments];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    [self saveExperimentInstancesToFile];
+    return experimentInstance;
+  }
 }
 
 
 - (void)deleteExperimentInstance:(PacoExperiment*)experiment {
-  NSUInteger index = [self.experimentInstances indexOfObject:experiment];
-  NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
-  [self.experimentInstances removeObject:experiment];
-  [self saveExperimentInstancesToFile];
+  @synchronized(self) {
+    NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.runningExperiments];
+    NSUInteger index = [newInstances indexOfObject:experiment];
+    NSAssert(index != NSNotFound, @"An experiment must be in model to be deleted!");
+    [newInstances removeObject:experiment];
+    self.runningExperiments = [NSArray arrayWithArray:newInstances];
+    
+    if (0 == [self.runningExperiments count]) {
+      [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kPacoKeyHasRunningExperiments];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    
+    [self saveExperimentInstancesToFile];
+  }
 }
 
-
-- (BOOL)hasRunningExperiments {
-  return [self.experimentInstances count] > 0;
+- (NSArray*)runningExperimentIdList {
+  @synchronized(self) {
+    NSMutableArray* list = [NSMutableArray arrayWithCapacity:[self.runningExperiments count]];
+    for (PacoExperiment* experiment in self.runningExperiments) {
+      [list addObject:experiment.definition.experimentId];
+    }
+    return [NSArray arrayWithArray:list];
+  }
 }
 
 @end

@@ -35,7 +35,7 @@ static const int kPacoDefaultEnumeratorLimit = 20;
 }
 
 - (void)updateCursor:(NSString*)cursor numOfResults:(int)numOfResults {
-  if (numOfResults < self.limit || 0 == numOfResults) {
+  if (!cursor || numOfResults < self.limit || 0 == numOfResults) { //last page
     self.cursor = (NSString*)[NSNull null];
   } else {
     NSAssert([cursor length] > 0, @"cursor should be valid");

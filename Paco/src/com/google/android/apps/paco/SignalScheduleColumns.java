@@ -45,11 +45,14 @@ public class SignalScheduleColumns implements BaseColumns {
   public static final String MINIMUM_BUFFER = "minimum_buffer";
   public static final String SNOOZE_COUNT = "snooze_count";
   public static final String SNOOZE_TIME = "snooze_time";
+  public static final String SIGNAL_TIMES = "signalTimesJson";
+  public static final String ONLY_EDITABLE_ON_JOIN = "only_editable_on_join";
 
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.schedule";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.schedule";
 
   public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/schedules");
+
 
 
 

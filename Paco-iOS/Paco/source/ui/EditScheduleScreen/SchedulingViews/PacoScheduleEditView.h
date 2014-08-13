@@ -18,9 +18,20 @@
 @class PacoExperimentSchedule;
 @class PacoTableView;
 
+
+typedef NS_ENUM(NSInteger, PacoEditScheduleStatus) {
+  PacoEditScheduleStatusCancelled,
+  PacoEditScheduleStatusChanged,
+  PacoEditScheduleStatusUnchanged,
+};
+
+
+typedef void(^EditScheduleCompletionBlock)(PacoEditScheduleStatus status,
+                                           PacoExperimentSchedule *schedule);
+
 @interface PacoScheduleEditView : UIView
-@property (nonatomic, retain) UIButton *joinButton;
 @property (nonatomic, copy) PacoExperimentSchedule* schedule;
 @property (nonatomic, retain) PacoTableView *tableView;
 
++ (instancetype)viewWithFrame:(CGRect)frame schedule:(PacoExperimentSchedule*)schedule;
 @end

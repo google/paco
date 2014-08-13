@@ -24,6 +24,8 @@
 #import "UIFont+Paco.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoAlertView.h"
+#import "PacoFindMyExperimentsViewController.h"
+#import "PacoPublicExperimentController.h"
 
 @interface PacoConsentViewController () <UIAlertViewDelegate>
 @property (nonatomic, retain) PacoExperimentDefinition* definition;
@@ -112,27 +114,44 @@
 
 - (void)onAccept {
   if (!self.definition.schedule.userEditable) {
+    void(^completionBlock)() = ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSString* title = NSLocalizedString(@"Congratulations!", nil);
+        NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
+        [[[UIAlertView alloc] initWithTitle:title
+                                    message:message
+                                   delegate:self
+                          cancelButtonTitle:@"OK"
+                          otherButtonTitles:nil] show];
+      });
+    };
     [[PacoClient sharedInstance] joinExperimentWithDefinition:self.definition
-                                                  andSchedule:self.definition.schedule];
-
-    NSString* title = NSLocalizedString(@"Congratulations!", nil);
-    NSString* message = NSLocalizedString(@"You've successfully joined this experiment!", nil);
-    [PacoAlertView showAlertWithTitle:title
-                              message:message
-                         dismissBlock:^(NSInteger buttonIndex) {
-                           [self.navigationController popToRootViewControllerAnimated:YES];
-                         }
-                    cancelButtonTitle:@"OK"
-                    otherButtonTitles:nil];
+                                                     schedule:self.definition.schedule
+                                              completionBlock:completionBlock];
   } else {
-    PacoEditScheduleViewController *edit = [[PacoEditScheduleViewController alloc] init];
-    edit.definition = self.definition;
+    PacoEditScheduleViewController *edit =
+        [PacoEditScheduleViewController controllerWithDefinition:self.definition];
     [self.navigationController pushViewController:edit animated:YES];
   }
 }
 
-- (void)didReceiveMemoryWarning {
-  [super didReceiveMemoryWarning];
+- (void)goBack {
+  UIViewController* controllerToGoBack = nil;
+  for (UIViewController *controller in [self.navigationController viewControllers]) {
+    if ([controller isKindOfClass:[PacoFindMyExperimentsViewController class]] ||
+        [controller isKindOfClass:[PacoPublicExperimentController class]]) {
+      controllerToGoBack = controller;
+      break;
+    }
+  }
+  NSAssert(controllerToGoBack, @"should have a valid controller to go back to");
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
 }
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  [self goBack];
+}
+
+
 
 @end

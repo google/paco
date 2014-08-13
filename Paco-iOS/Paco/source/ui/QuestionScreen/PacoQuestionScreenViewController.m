@@ -56,11 +56,10 @@ NSString *kCellIdQuestion = @"question";
                                      style:UIBarButtonItemStyleDone
                                     target:self
                                     action:@selector(onDone)];
-    UIBarButtonItem* cancelButton =
+    self.navigationItem.leftBarButtonItem =
         [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                       target:self
                                                       action:@selector(onCancel:)];
-    self.navigationItem.leftBarButtonItem = cancelButton;
     _evaluator = [PacoInputEvaluator evaluatorWithExperiment:experiment];
     _notification = notification;
   }

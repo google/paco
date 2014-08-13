@@ -43,6 +43,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentQueryResult;
@@ -332,12 +333,20 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + getWhoFromLogin().getEmail().toLowerCase());
       List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(),
           TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
+      Map<Long, String> experimentIdTitleMap = Maps.newConcurrentMap();
       Set<Long> experimentIds = Sets.newHashSet();
       for(Event event : events) {
         if (event.getExperimentId() == null) {
           continue; // legacy check
         }
-        experimentIds.add(Long.parseLong(event.getExperimentId()));
+        long experimentId = Long.parseLong(event.getExperimentId());
+        experimentIds.add(experimentId);
+        String experimentTitle = event.getExperimentName();
+        if (Strings.isNullOrEmpty(experimentTitle)) {
+          experimentTitle = "";
+        }
+        experimentIdTitleMap.put(experimentId, experimentTitle);
+
       }
       List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
       if (experimentIds.size() == 0) {
@@ -364,7 +373,13 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
           }
         }
         for (Long id : idList) {
-          experimentDAOs.add(new ExperimentDAO(id, "Deleted Experiment Definition", "", "", "",
+          String titleFromEvent = experimentIdTitleMap.get(id);
+          if (titleFromEvent != null) {
+            titleFromEvent = titleFromEvent + " (Deleted)";
+          } else {
+            titleFromEvent = " (Deleted)";
+          }
+          experimentDAOs.add(new ExperimentDAO(id, titleFromEvent, "", "", "",
               null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM));
         }
       } finally {

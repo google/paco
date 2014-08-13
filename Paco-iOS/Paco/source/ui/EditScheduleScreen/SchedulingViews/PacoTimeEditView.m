@@ -19,10 +19,13 @@
 #import "PacoLayout.h"
 #import "UIFont+Paco.h"
 #import "PacoDateUtility.h"
+#import "PacoDatePickerView.h"
 
-@interface PacoTimeEditView ()
+@interface PacoTimeEditView ()<PacoDatePickerDelegate>{
+  NSNumber* defaultTime;
+}
 
-@property (nonatomic, retain) UIDatePicker* picker;
+@property (nonatomic, retain) PacoDatePickerView *datePicker;
 @property (nonatomic, retain) UILabel* timeLabel;
 @property (nonatomic, retain) UILabel* titleLabel;
 @property (nonatomic, retain) UIButton* editButton;
@@ -30,7 +33,7 @@
 @end
 
 @implementation PacoTimeEditView
-
+@synthesize time = _time;
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
   if (self) {
@@ -62,9 +65,12 @@
     return;
   }
   _title = [title copy];
-  self.titleLabel.text = _title;
+  self.titleLabel.text = [NSString stringWithFormat:@"%@: ", _title];
   [self.titleLabel sizeToFit];
+}
 
+- (NSNumber *)time {
+  return _time;
 }
 
 - (void)setTime:(NSNumber*)time {
@@ -72,27 +78,44 @@
     return;
   }
   _time = time;
+  if (!defaultTime) {
+    defaultTime = _time;
+  }
   self.timeLabel.text = [PacoDateUtility timeStringAMPMFromMilliseconds:[_time longLongValue]];
   [self.timeLabel sizeToFit];
 }
 
 - (void)onEditTime:(id)sender {
-  //lazy initialization
-  if (!self.picker) {
-    UIDatePicker *picker = [[UIDatePicker alloc] initWithFrame:CGRectZero];
-    [picker addTarget:self action:@selector(onTimeChange) forControlEvents:UIControlEventValueChanged];
-    picker.datePickerMode = UIDatePickerModeTime;
-    [picker setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-    self.picker = picker;
+  if (!self.datePicker) {
+    PacoDatePickerView* datePickerView = [[PacoDatePickerView alloc] initWithFrame:CGRectZero];
+    NSString* localizedStr = NSLocalizedString(@"Set %@", nil);
+    [datePickerView setTitle:[NSString stringWithFormat:localizedStr, self.title]];
+    datePickerView.delegate = self;
+    self.datePicker = datePickerView;
   }
-  //update picker's date before showing it
-  self.picker.date = [NSDate dateWithTimeIntervalSince1970:[self.time longLongValue] / 1000];
-  [[self pacoTableView] presentDatePicker:self.picker forCell:self];
+  [self.datePicker setDateNumber:self.time];
+  [[self pacoTableView] presentPacoDatePicker:self.datePicker forCell:self];
 }
 
-- (void)onTimeChange {
-  self.time = [NSNumber numberWithLongLong:self.picker.date.timeIntervalSince1970 * 1000];
+#pragma mark - PacoDatePickerViewDelegate
+- (void)onDateChanged:(PacoDatePickerView *)datePickerView {
+  self.time = datePickerView.dateNumber;
   [self.tableDelegate dataUpdated:self rowData:self.time reuseId:self.reuseId];
+}
+
+- (void)cancelDateEdit {
+  self.time = defaultTime;
+  [self.tableDelegate dataUpdated:self rowData:self.time reuseId:self.reuseId];
+  if (self.completionBlock) {
+    self.completionBlock();
+  }
+}
+
+- (void)saveDateEdit {
+  defaultTime = self.time;
+  if (self.completionBlock) {
+    self.completionBlock();
+  }
 }
 
 static CGFloat CELL_HEIGHT = 51;

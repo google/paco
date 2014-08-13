@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,6 +15,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class TimeUtil {
 
+  public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   public static final String DATE_FORMAT = "yyyy/MM/dd";
 
@@ -51,11 +53,16 @@ public class TimeUtil {
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
-    String tzStr = HttpUtil.getParam(req, "tz");
+    String tzStr = req.getParameter("tz"); // don't urldecode this as it always gets decoded properly..
     if (tzStr != null && !tzStr.isEmpty()) {
-      DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
-      if (jodaTimeZone != null) {
-        return jodaTimeZone;
+      DateTimeZone jodaTimeZone = null;
+      try {
+        jodaTimeZone = DateTimeZone.forID(tzStr);
+        if (jodaTimeZone != null) {
+          return jodaTimeZone;
+        }
+      } catch (IllegalArgumentException e) {
+        log.severe("Could not parse timezone: " + tzStr);
       }
     }
 

@@ -21,6 +21,7 @@
 #import "PacoClient.h"
 #import "PacoService.h"
 #import "UIFont+Paco.h"
+#import "PacoAlertView.h"
 
 @interface PacoPublicExperimentController () <UITableViewDelegate, UITableViewDataSource>
 @property(nonatomic, strong) UITableView* tableView;
@@ -87,17 +88,10 @@
   }];
 }
 
-- (void)showErrorAlert {
-  [[[UIAlertView alloc] initWithTitle:@"Oops"
-                              message:@"Something went wrong, please try again."
-                             delegate:nil
-                    cancelButtonTitle:@"ok"
-                    otherButtonTitles:nil] show];
-}
 
 -(void)handleDataItems:(NSArray*)dataItems error:(NSError*)error {
   if (error) {
-    [self showErrorAlert];
+    [PacoAlertView showAlertWithError:error];
   }
   
   if(dataItems.count > 0) {
@@ -178,6 +172,7 @@
 
     cell.textLabel.font = [UIFont pacoTableCellFont];
     cell.textLabel.textColor = [UIColor pacoSystemButtonBlue];
+    cell.textLabel.numberOfLines = 2;
     cell.detailTextLabel.font = [UIFont pacoTableCellDetailFont];
     cell.detailTextLabel.textColor = [UIColor darkGrayColor];
   }
@@ -190,7 +185,7 @@
 
 #pragma mark UITableViewDelegate
 -(CGFloat)tableView:(UITableView*)tableView heightForRowAtIndexPath:(NSIndexPath*)indexPath {
-  return 55.0f;
+  return 60.0f;
 }
 
 -(void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
@@ -207,7 +202,7 @@
                         andBlock:^(PacoExperimentDefinition* definition, NSError* error) {
                           dispatch_async(dispatch_get_main_queue(), ^{
                             if (error) {
-                              [self showErrorAlert];
+                              [PacoAlertView showAlertWithError:error];
                             } else {
                               [self goToDefinitionDetailControllerWithDefinition:definition];
                             }

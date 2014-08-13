@@ -18,7 +18,6 @@
 #import "PacoModel.h"
 
 
-extern NSString* const kExperimentHasFiredKey;
 extern int const kTotalNumOfNotifications;
 
 @class PacoExperiment;

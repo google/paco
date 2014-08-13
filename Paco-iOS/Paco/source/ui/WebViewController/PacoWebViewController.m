@@ -15,37 +15,42 @@
 
 #import "PacoWebViewController.h"
 
-@implementation PacoWebViewController
 
-+ (PacoWebViewController*)controllerWithTitle:(NSString*)title andHtml:(NSString*)htmlName {
-  PacoWebViewController* controller = [[PacoWebViewController alloc] initWithNibName:nil bundle:nil];
-  controller.title = title;
-  [controller loadWebViewWithHTML:htmlName];
-  return controller;
+@implementation PacoWebViewController
+- (id)initWithTitle:(NSString*)title {
+  self = [super initWithNibName:nil bundle:nil];
+  if (self) {
+    self.title = title;
+  }
+  return self;
+}
+
++ (instancetype)controllerWithTitle:(NSString*)title {
+  return [[PacoWebViewController alloc] initWithTitle:title];
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.edgesForExtendedLayout = UIRectEdgeNone;
-  
-  self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Main",nil)
-                                                                           style:UIBarButtonItemStylePlain
-                                                                          target:self
-                                                                          action:@selector(gotoMainPage)];
-}
-
-- (void)gotoMainPage {
-  [self.navigationController popToRootViewControllerAnimated:YES];
-}
-
-- (void)loadWebViewWithHTML:(NSString*)htmlName {
-  NSString *htmlFile = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
-  UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
+  UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectMake(0,
                                                                    0,
                                                                    self.view.frame.size.width,
                                                                    self.view.frame.size.height)];
-  [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlFile]]];
   self.view = webView;
+}
+
+- (void)loadStaticHtmlWithName:(NSString*)htmlName {
+  NSString* htmlPath = [[NSBundle mainBundle] pathForResource:htmlName ofType:@"html"];
+  [self startLoadingURL:[NSURL fileURLWithPath:htmlPath]];
+}
+
+- (void)loadURL:(NSString*)urlString {
+  [self startLoadingURL:[NSURL URLWithString:urlString]];
+}
+
+- (void)startLoadingURL:(NSURL*)url {
+  NSURLRequest* request = [NSURLRequest requestWithURL:url];
+  [(UIWebView*)self.view loadRequest:request];
 }
 
 

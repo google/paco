@@ -17,10 +17,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.ExperimentDAOCore;
 import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 
@@ -39,12 +41,23 @@ public class JsonConverter {
       ObjectMapper mapper = new ObjectMapper();
       mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 
-      if (pacoProtocol == null) {
+      Float pacoProtocolFloat = null;
+      if (pacoProtocol != null) {
+        try {
+          pacoProtocolFloat = Float.parseFloat(pacoProtocol);
+        } catch (NumberFormatException e) {
+          e.printStackTrace();
+        }
+      }
+      if (pacoProtocolFloat == null) {
         if (experiments == null) {
           experiments = Collections.EMPTY_LIST;
         }
         return mapper.writeValueAsString(experiments);
-      } else if (pacoProtocol.equals("3.0")) {
+      } else if (pacoProtocolFloat >= 3.0) {
+        if (pacoProtocolFloat == 3.0) {
+          mapSignalTimesToTimesFor30BackwardCompatibility(experiments);
+        }
         Map<String, Object> preJsonObject = buildV3ProtocolJson(experiments, limit, cursor);
         return mapper.writeValueAsString(preJsonObject);
       }
@@ -57,6 +70,31 @@ public class JsonConverter {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
     return null;
+  }
+
+  private static void mapSignalTimesToTimesFor30BackwardCompatibility(List<? extends ExperimentDAOCore> experiments) {
+    for (ExperimentDAOCore experimentDAOCore : experiments) {
+      if (experimentDAOCore instanceof ExperimentDAO) {
+        ExperimentDAO experiment = (ExperimentDAO)experimentDAOCore;
+        SignalingMechanismDAO signalingMechanism = experiment.getSignalingMechanisms()[0];
+        if (signalingMechanism instanceof SignalScheduleDAO) {
+          SignalScheduleDAO schedule = (SignalScheduleDAO)signalingMechanism;
+          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT) {
+            List<SignalTimeDAO> signalTimes = schedule.getSignalTimes();
+            List<Long> times = Lists.newArrayList();
+            for (SignalTimeDAO signalTimeDAO : signalTimes) {
+              if (signalTimeDAO.getType() == SignalTimeDAO.FIXED_TIME) {
+                times.add(new Long(signalTimeDAO.getFixedTimeMillisFromMidnight()));
+              }
+            }
+            schedule.setTimes(times);
+
+          }
+
+        }
+      }
+    }
+
   }
 
   private static Map<String, Object> buildV3ProtocolJson(List<? extends ExperimentDAOCore> experiments, Integer limit,

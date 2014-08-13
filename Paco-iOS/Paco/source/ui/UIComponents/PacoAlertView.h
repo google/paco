@@ -32,5 +32,8 @@ typedef void(^PacoAlertViewDidDismissBlock)(NSInteger buttonIndex);
          cancelButtonTitle:(NSString *)cancelButtonTitle;
 
 + (void)showGeneralErrorAlert;
++ (void)showRefreshErrorAlert;
+
++ (void)showAlertWithError:(NSError*)error;
 
 @end

@@ -386,11 +386,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       if (extras != null) {
         extras.clear();
       }
-
+      updateAlarms();
       notifySyncService();
       showFeedback();
-      // TODO(bobevans): trying to make it so that reopening from the home longpress doesn't
-      // cause the same scheduleTime for a previously signalled experiment.
       finish();
     } catch (IllegalStateException ise) {
       new AlertDialog.Builder(this)
@@ -398,6 +396,10 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       .setTitle(R.string.required_answers_missing)
       .setMessage(ise.getMessage()).show();
     }
+  }
+
+  private void updateAlarms() {
+    startService(new Intent(this, BeeperService.class));
   }
 
   private void deleteNotification() {
@@ -544,7 +546,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   public void stopExperiment() {
     experimentProviderUtil.deleteFullExperiment(getIntent().getData());
-    startService(new Intent(this, BeeperService.class));
+    updateAlarms();
     finish();
   }
 
@@ -587,33 +589,33 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    if (resultCode == RESULT_OK) {
-      if (requestCode == RESULT_SPEECH) {
+    if (requestCode == RESULT_SPEECH) {
+      if (resultCode == RESULT_OK) {
         handleSpeechRecognitionActivityResult(resultCode, data);
-      } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE) {
-        for (InputLayout inputLayout : inputs) {
-          inputLayout.cameraPictureTaken(requestCode);
-        }
       } else {
-        Uri selectedImage = data.getData();
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        speechRecognitionListeners.clear();
+      }
+    } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+      for (InputLayout inputLayout : inputs) {
+        inputLayout.cameraPictureTaken(requestCode);
+      }
+    } else if (resultCode == RESULT_OK) {
+      Uri selectedImage = data.getData();
+      String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-        try {
-          Cursor cursor = getContentResolver().query(
-                             selectedImage, filePathColumn, null, null, null);
-          cursor.moveToFirst();
+      try {
+        Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+        cursor.moveToFirst();
 
-          int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-          String filePath = cursor.getString(columnIndex);
-          cursor.close();
-          for (InputLayout inputLayout : inputs) {
-            inputLayout.galleryPicturePicked(filePath, requestCode);
-          }
-        } catch (Exception e) {
-          Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
-          e.printStackTrace();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String filePath = cursor.getString(columnIndex);
+        cursor.close();
+        for (InputLayout inputLayout : inputs) {
+          inputLayout.galleryPicturePicked(filePath, requestCode);
         }
-
+      } catch (Exception e) {
+        Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
+        e.printStackTrace();
       }
 
     }
@@ -628,7 +630,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private void notifySpeechRecognitionListeners(List<String> guesses) {
     List<SpeechRecognitionListener> copyOfSpeechListeners = new ArrayList<SpeechRecognitionListener>(speechRecognitionListeners);
-    for (SpeechRecognitionListener listener : speechRecognitionListeners) {
+    for (SpeechRecognitionListener listener : copyOfSpeechListeners) {
       listener.speechRetrieved(guesses);
     }
   }
@@ -638,7 +640,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
 
   public void startSpeechRecognition(SpeechRecognitionListener listener) {
-    speechRecognitionListeners .add(listener);
+    //speechRecognitionListeners.clear(); // just in case they canceled the last recognition (android gives us no feedback)
+    speechRecognitionListeners.add(listener);
     Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
     intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, Locale.getDefault().getDisplayName());
 

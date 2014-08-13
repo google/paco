@@ -51,24 +51,16 @@ NSString *kCellIdText = @"text";
 @implementation PacoScheduleEditView
 @synthesize schedule = _schedule;
 
-- (id)initWithFrame:(CGRect)frame {
+- (id)initWithFrame:(CGRect)frame schedule:(PacoExperimentSchedule*)schedule {
   self = [super initWithFrame:frame];
   if (self) {
+    _schedule = [schedule copy];
+
     [self setBackgroundColor:[UIColor pacoBackgroundWhite]];
 
     _tableView = [[PacoTableView alloc] initWithFrame:CGRectZero];
     _tableView.delegate = self;
     _tableView.backgroundColor = [UIColor pacoBackgroundWhite];
-    [self addSubview:_tableView];
-
-    _joinButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    [_joinButton setTitle:NSLocalizedString(@"Join", nil) forState:UIControlStateNormal];
-    if (IS_IOS_7) {
-      _joinButton.titleLabel.font = [UIFont pacoNormalButtonFont];
-    }
-
-    _tableView.footer = _joinButton;
-    [_joinButton sizeToFit];
 
     [_tableView registerClass:[PacoTimeSelectionView class] forStringKey:kCellIdSignalTimes dataClass:[NSArray class]];
     [_tableView registerClass:[PacoRepeatRateSelectionView class] forStringKey:kCellIdRepeat dataClass:[NSNumber class]];
@@ -80,14 +72,15 @@ NSString *kCellIdText = @"text";
     [_tableView registerClass:[PacoTimeEditView class] forStringKey:kCellIdESMStartTime dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoTimeEditView class] forStringKey:kCellIdESMEndTime dataClass:[NSNumber class]];
     [_tableView registerClass:[PacoTableTextCell class] forStringKey:kCellIdText dataClass:[NSString class]];
+
+    [self addSubview:_tableView];
+    _tableView.data = [[self class] dataFromExperimentSchedule:_schedule];
   }
   return self;
 }
 
-- (void)setSchedule:(PacoExperimentSchedule *)schedule {
-  _schedule = [schedule copy];
-  _tableView.data = [[self class] dataFromExperimentSchedule:_schedule];
-  [self setNeedsLayout];
++ (instancetype)viewWithFrame:(CGRect)frame schedule:(PacoExperimentSchedule*)schedule {
+  return [[[self class] alloc] initWithFrame:frame schedule:schedule];
 }
 
 - (void)layoutSubviews {
@@ -154,10 +147,16 @@ NSString *kCellIdText = @"text";
     case kPacoScheduleTypeESM: {
       if ([self isCellType:kCellIdESMStartTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"Start Time", nil);
       } else if([self isCellType:kCellIdESMEndTime reuseId:reuseId]) {
         PacoTimeEditView *cellView = (PacoTimeEditView *)cell;
+        cellView.completionBlock = ^{
+          [self onDoneEditing];
+        };
         cellView.time = [self realRowData:rowData];
         cellView.title = NSLocalizedString(@"End Time", nil);
       } else {
@@ -186,7 +185,7 @@ NSString *kCellIdText = @"text";
 }
 
 - (void)onDoneEditing {
-  NSString* errorMsg = [self.schedule evaluateSchedule];
+  NSString* errorMsg = [self.schedule validate];
   if (errorMsg) {
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Oops", nil)
                                 message:errorMsg
@@ -194,7 +193,7 @@ NSString *kCellIdText = @"text";
                       cancelButtonTitle:@"OK"
                       otherButtonTitles:nil] show];
   }
-  [self.tableView replaceDatePickerWithFooterIfNeeded:self.joinButton];
+  [self.tableView dismissAnyDatePicker];
 }
 
 

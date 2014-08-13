@@ -69,7 +69,9 @@
 //when definition is refreshed, refresh experiment's schedule
 //but keep the esmStartHour, esmEndHour, or times configured specifically by user
 //return YES if the schedule is changed, NO if the schedule doesn't need to be updated
-- (BOOL)refreshWithSchedule:(PacoExperimentSchedule*)newSchedule;
+- (BOOL)refreshSchedule:(PacoExperimentSchedule*)newSchedule;
+
+- (void)configureSchedule:(PacoExperimentSchedule*)newSchedule;
 
 - (PacoExperimentInput*)inputWithId:(NSString*)inputId;
 

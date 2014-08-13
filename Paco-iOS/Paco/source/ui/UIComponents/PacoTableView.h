@@ -38,5 +38,5 @@
 - (void)presentDatePicker:(UIDatePicker*)picker forCell:(PacoTableCell*)cell;
 - (void)presentPacoDatePicker:(PacoDatePickerView*)pickerView forCell:(PacoTableCell*)cell;
 
-- (void)replaceDatePickerWithFooterIfNeeded:(UIView*)footer;
+- (void)dismissAnyDatePicker;
 @end

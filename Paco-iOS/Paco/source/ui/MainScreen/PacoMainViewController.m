@@ -14,10 +14,9 @@
  */
 
 #import "PacoMainViewController.h"
-#import <MessageUI/MessageUI.h>
 
 #import "UIColor+Paco.h"
-#import "PacoFindExperimentsViewController.h"
+#import "PacoFindMyExperimentsViewController.h"
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
@@ -32,10 +31,8 @@
 #import "PacoPublicExperimentController.h"
 #import "PacoAlertView.h"
 #import "NSString+Paco.h"
-
-@interface PacoMainViewController ()<MFMailComposeViewControllerDelegate>
-
-@end
+#import "PacoOpenSourceLibViewController.h"
+#import "PacoModel.h"
 
 @implementation PacoMainViewController
 
@@ -66,7 +63,7 @@
   view.backgroundColor = [UIColor pacoBackgroundWhite];
 
   //if user has running experiments, load RunningExperimentsViewController
-  if ([[PacoClient sharedInstance] hasRunningExperiments]) {
+  if ([[PacoClient sharedInstance].model hasRunningExperiments]) {
     [self onRunningExperiments];
   }
 
@@ -80,7 +77,7 @@
   [buttonFind sizeToFit];
 
   PacoMenuButton *buttonRunningExperiment = [[PacoMenuButton alloc] init];
-  buttonRunningExperiment.text.text = NSLocalizedString(@"Current Experiments",nil);
+  buttonRunningExperiment.text.text = NSLocalizedString(@"Running Experiments",nil);
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_normal.png"] forState:UIControlStateNormal];
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_pressed.png"] forState:UIControlStateHighlighted];
   [buttonRunningExperiment.button setBackgroundImage:[UIImage imageNamed:@"experiment_disabled.png"] forState:UIControlStateDisabled];
@@ -145,7 +142,7 @@
   [view setNeedsLayout];
 
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
-    NSString* message = NSLocalizedString(@"You are logged in successfully!", nil);
+    NSString* message = [self welcomeMessage];
     if (error) {
       message = [GoogleClientLogin descriptionForError:error.domain];
       if (0 == [message length]) {//just in case
@@ -155,10 +152,31 @@
     [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
     JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
                                                                        message:message
-                                                                       timeout:2.
+                                                                       timeout:3.
                                                                     tapHandler:nil];
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
+}
+
+- (NSString*)welcomeMessage {
+  NSString* msgFormat = nil;
+  if ([self isFirstTimeWelcome]) {
+    msgFormat = NSLocalizedString(@"Welcome to Paco %@!", nil);
+  } else {
+    msgFormat = NSLocalizedString(@"Welcome back %@!", nil);
+  }
+  return [NSString stringWithFormat:msgFormat, [[PacoClient sharedInstance] userEmail]];
+}
+
+- (BOOL)isFirstTimeWelcome {
+  NSString* key = @"firstTimeWelcome";
+  if (![[NSUserDefaults standardUserDefaults] objectForKey:key]) {
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return YES;
+  } else {
+    return NO;
+  }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -195,7 +213,7 @@
 }
 
 - (void)onFindAllExperiments {
-  PacoFindExperimentsViewController *controller = [[PacoFindExperimentsViewController alloc] init];
+  PacoFindMyExperimentsViewController *controller = [[PacoFindMyExperimentsViewController alloc] init];
   [self.navigationController pushViewController:controller animated:YES];
 }
 
@@ -206,26 +224,37 @@
 
 - (void)onInfoSelect:(UIButton *)sender {
   NSString* version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
-  NSString* title = [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  NSString* versionStr =
+      [NSString stringWithFormat:@"%@ %@", NSLocalizedString(@"Version", nil), version];
+  NSString* accountStr = [[PacoClient sharedInstance] userEmail];
+  NSString* title = [NSString stringWithFormat:@"%@\n%@", versionStr, accountStr];
   UIActionSheet* actionSheet = [[UIActionSheet alloc] initWithTitle:title
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"Close", nil)
                                              destructiveButtonTitle:nil
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
-                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil), nil];
+                                                                    NSLocalizedString(@"Send Logs to Paco Team", nil),
+                                                                    NSLocalizedString(@"Configure Server Address", nil),
+                                                                    NSLocalizedString(@"Open Source Libraries", nil), nil];
   [actionSheet showInView:self.view];
 }
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
   switch (buttonIndex) {
-    case 0:
-    {
+    case 0: {
       [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
       break;
     }
-    case 1:
-    {
+    case 1: {
       [self openMailViewController];
+      break;
+    }
+    case 2: {
+      [self manualServerAddressConfiguration];
+      break;
+    }
+    case 3: {
+      [self opensourceCreditsPage];
       break;
     }
     default:
@@ -233,8 +262,52 @@
   }
 }
 
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+  if ((int)buttonIndex == 1) {
+    NSString* serverAddress = [[alertView textFieldAtIndex:0] text];
+    if([self checkStringValidity:serverAddress]) {
+      [[PacoClient sharedInstance] configurePacoServerAddress:serverAddress];
+    }
+  }
+}
+
+- (BOOL)checkStringValidity:(NSString *)address {
+  NSString* trimmedAddress = [address stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  if ([trimmedAddress length] > 0) {
+    NSString* localizedStr = NSLocalizedString(@"Server address is configured to %@", nil);
+    NSString *messageStr = [NSString stringWithFormat:localizedStr, address];
+    [PacoAlertView showAlertWithTitle:NSLocalizedString(@"Success", nil)
+                              message:messageStr
+                    cancelButtonTitle:@"OK"];
+    return YES;
+  }
+  [PacoAlertView showAlertWithTitle:@"Failed to change server address"
+                            message:@"You have input an invalid address!"
+                  cancelButtonTitle:@"OK"];
+  return NO;
+}
+
+- (void)manualServerAddressConfiguration {
+  NSString* title = NSLocalizedString(@"WARNING: Only change this if you know what you are doing", nil);
+  UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title
+                                                  message:NSLocalizedString(@"Enter Server Address", nil)
+                                                 delegate:self
+                                        cancelButtonTitle:@"Cancel"
+                                        otherButtonTitles:@"Done", nil];
+
+  [alert setAlertViewStyle:UIAlertViewStylePlainTextInput];
+  [[alert textFieldAtIndex:0] setText:[[PacoClient sharedInstance] serverAddress]];
+  [alert show];
+}
+  
+- (void)opensourceCreditsPage {
+  PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
+  [self.navigationController pushViewController:creditsViewController animated:YES];
+}
+
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
-  PacoWebViewController* webViewController =  [PacoWebViewController controllerWithTitle:title andHtml:htmlName];
+  PacoWebViewController* webViewController = [PacoWebViewController controllerWithTitle:title];
+  [webViewController loadStaticHtmlWithName:htmlName];
   [self.navigationController pushViewController:webViewController animated:YES];
 }
 

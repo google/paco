@@ -69,7 +69,11 @@ public class ParticipantStatServlet extends HttpServlet {
         }
 
         PrintWriter writer = resp.getWriter();
-        writer.write("<html><head><title>Participant Stats for " + experiment.getTitle() + "</title>" +
+        String experimentTitle = "No Title (deleted?)";
+        if (experiment != null) {
+          experimentTitle = experiment.getTitle();
+        }
+        writer.write("<html><head><title>Participant Stats for " + experimentTitle + "</title>" +
         "<style type=\"text/css\">"+
             "body {font-family: verdana,arial,sans-serif;color:#333333}" +
           "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: " +
@@ -79,18 +83,18 @@ public class ParticipantStatServlet extends HttpServlet {
           "</style>" +
       		"</head><body>");
         writer.write("<div style=\"float: left;\">");
-        writer.write("<h2>" + experiment.getTitle() +" Participant Stats</h2>");
+        writer.write("<h2>" + experimentTitle +" Participant Stats</h2>");
         if (alpha) {
           writer.write("<p>Sorted alphabetically</p>");
           writer.write("<p><a href=\"/participantStats?experimentId="+ experimentId +"\">Click for sorted by today's signaled response rate</a></p>");
         } else {
           writer.write("<p>Sorted by lowest signaled response rate for today</p>");
           writer.write("<p><a href=\"/participantStats?alpha=true&experimentId="+ experimentId +"\">Click for alphabetically sorted</a></p>");
-            
+
         }
         writer.write("<div><span style=\"font-weight: bold;\">Number of Joined Participants: </span>");
         writer.write("<span>" + participantReports.keySet().size() +"</span></div>");
-        
+
         writer.write("<div><span style=\"font-weight: bold;\">Number of Responses: </span>");
         writer.write("<span>" + totalResponses +"</span></div>");
 
@@ -99,16 +103,16 @@ public class ParticipantStatServlet extends HttpServlet {
         writer.write("<tr style=\"font-weight: bold; text-align:left;\">");
         writer.write("<th>Who</th>" +
         		"<th>Today's Signal Response<br/>" +
-        		"% = Responded / Sent</th>" +        		
+        		"% = Responded / Sent</th>" +
         		"<th>Today's Self Reports</th>" +
-        		
+
             "<th style=\"background-color: #a9a9a9;\">Total Signaled Response<br/>" +
             "% = Responded / Sent</th>" +
             "<th>Total Self Reports</th>" +
             "<th>Total Reports<br/>(signaled + self)</th>" +
             "</tr>");
 
-        
+
         Collections.sort(participantReportValues, new Comparator<ParticipantReport>() {
           @Override
           public int compare(ParticipantReport participantReport1, ParticipantReport participantReport2) {
@@ -126,7 +130,7 @@ public class ParticipantStatServlet extends HttpServlet {
               }
             }
           }
-          
+
         });
         NumberFormat percentFormat = NumberFormat.getPercentInstance();
         for (ParticipantReport report : participantReportValues) {
@@ -134,22 +138,22 @@ public class ParticipantStatServlet extends HttpServlet {
           String who = report.getWho();
           String anonymousId = Event.getAnonymousId(who);
           writer.write("<td style=\"text-align:left;\">" + who + "</td>");
-          writer.write("<td>" + 
+          writer.write("<td>" +
               percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
-          
+
           writer.write(Integer.toString(report.getTodaysSignaledResponseCount()) + " / " +
               Integer.toString(report.getTodaysScheduledCount()) +
               "</td>");
-          
+
           writer.write("<td>" + Integer.toString(report.getTodaysSelfReportResponseCount()) + "</td>");
-          
+
           writer.write("<td style=\"background-color: #dedede;\">" + percentFormat.format(report.getSignaledResponseRate()) + " = ");
-          
+
           writer.write(Integer.toString(report.getSignaledResponseCount()) + " / " +
-              Integer.toString(report.getScheduledCount()) +              
+              Integer.toString(report.getScheduledCount()) +
               "</td>");
           writer.write("<td>" + Integer.toString(report.getSelfReportResponseCount()) + "</td>");
-          
+
           writer.write("<td>" + Integer.toString(report.getSelfReportAndSignaledResponseCount()) + "</td>");
           writer.write("</tr>");
         }

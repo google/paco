@@ -45,7 +45,7 @@
                                  numOfDates:(NSInteger)numOfDates
                                    fromDate:(NSDate*)fromDate {
   NSArray* datesToSchedule = [experiment ESMSchedulesFromDate:fromDate];
-  NSUInteger extraNumOfDates = numOfDates - [datesToSchedule count];
+  NSInteger extraNumOfDates = numOfDates - [datesToSchedule count];
   if (extraNumOfDates > 0) {
     NSArray* extraDates = [self generateESMDatesForExperiment:experiment
                                             minimumNumOfDates:extraNumOfDates

@@ -15,24 +15,29 @@
 
 //Main Screen
 "Find My Experiments" = "Find My Experiments";
-"Current Experiments" = "Current Experiments";
 "Explore Your Data" = "Explore Your Data";
-"Create an experiment" = "Create an experiment";
+"Create an experiment" = "Create an Experiment";
 "User Guide" = "User Guide";
-"Contact us" = "Contact us";
+"Contact us" = "Contact Us";
 "User Guide" = "User Guide";
 "How to Create an Experiment" = "How to Create an Experiment";
 "How to Message" = "Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments.\n\nPlease point your browser to\nhttp://pacoapp.com/ to create an experiment.";
-"You are logged in successfully!" = "You are logged in successfully!";
+"Welcome back %@!" = "Welcome back %@!";
+"Welcome to Paco %@!" = "Welcome to PACO %@!";
 "Something went wrong, please try again." = "Something went wrong, please try again.";
-
+"Configure Server Address" = "Configure Server Address";
+"WARNING: Only change this if you know what you are doing" = "WARNING: Only change this if you know what you are doing";
+"Enter Server Address" = "Enter Server Address";
+"Failed to change server address" = "Failed to change server address";
+"You have input an invalid address!" = "You have input an invalid address!";
+"Server address is configured to %@" = "Server address is configured to %@";
 //Get Info screen
 "Version" = "Version";
 "Close" = "Close";
 "About Paco" = "About Paco";
 "Send Logs to Paco Team" = "Send Logs to Paco Team";
 "Paco Logs" = "Paco Logs";
-
+"Open Source Libraries" = "Open Source Libraries";
 //Ways to talk to Paco
 "Ways to talk to Paco" = "Ways to talk to Paco";
 "Email user group" = "Email user group";
@@ -61,7 +66,8 @@
 "2-factor Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";
 "Go to Safari" = "Go to Safari";
 
-//Find Experiment
+//Find My Experiment View
+"My Experiments" = "My Experiments";
 "Finding Experiments" = "Finding Experiments";
 "Sorry" = "Sorry";
 "Something went wrong, please try again later." = "Something went wrong, please try again later.";
@@ -69,10 +75,9 @@
 "The notification should send an error!" = "The notification should send an error!";
 "Paco CreateExperiments Message" = "There aren't any experiments published to you or created by you. You can go to the Paco website to create an experiment now.";
 
-//Running Experiments
+//Running Experiments View
 "Running Experiments" = "Running Experiments";
-"Loading Current Experiments ..." = "Loading Current Experiments ...";
-"Modify" = "Modify";
+"Loading Running Experiments ..." = "Loading Running Experiments ...";
 "Participate" = "Participate";
 "Stop Experiment" = "Stop Experiment";
 "Success" = "Success";
@@ -100,7 +105,7 @@
 "End Date:" = "End Date:";
 "Creator:" = "Creator:";
 "Join this Experiment" = "Join this Experiment";
-"Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Current Experiments.";
+"Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Running Experiments.";
 "Incompatible with iOS" = "Incompatible with iOS";
 "Experiment Incompatibility alertview message" = "This experiment is not compatible with iOS, thus won't work as expected on your iOS device.";
 "Join anyway" = "Join anyway";
@@ -125,8 +130,8 @@
 "Repeat every %d weeks." = "Repeat every %d weeks.";
 "Repeat every %d month(s)." = "Repeat every %d month(s).";
 "Join" = "Join";
-"Start Time" = "Start Time: ";
-"End Time" = "End Time: ";
+"Start Time" = "Start Time";
+"End Time" = "End Time";
 "Self scheduled." = "Self scheduled.";
 "Submit responses whenever you wish." = "Submit responses whenever you wish.";
 "Signal Time(s)" = "Signal Time(s)";
@@ -134,6 +139,7 @@
 "Edit" = "Edit";
 "Done" = "Done";
 "Set Time" = "Set a Time";
+"Set %@" = "Set %@";
 
 //Question screen
 "Participate!" = "Participate!";
@@ -159,4 +165,6 @@
 "Loading" = "Loading ...";
 "Value" = "Value";
 "This is the location that will be recorded for your response." = "This is the location that will be recorded for your response.";
+//opensource libraries screen
+"OpenSource Library View Header title" = "Thanks for the work of the following open source projects, which have been very useful to make Paco a better quantified system!";
 

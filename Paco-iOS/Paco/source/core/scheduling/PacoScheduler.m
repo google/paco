@@ -24,7 +24,6 @@
 #import "PacoNotificationManager.h"
 #import "UILocalNotification+Paco.h"
 
-NSString* const kExperimentHasFiredKey = @"experimentHasFired";
 int const kTotalNumOfNotifications = 60;
 
 
@@ -169,7 +168,7 @@ int const kTotalNumOfNotifications = 60;
     }
     if (needToScheduleNewNotifications) {
       DDLogInfo(@"Schedule %lu new notifications ...",(unsigned long)[notificationsToSchedule count]);
-      [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
+      [self.notificationManager scheduleNotifications:notificationsToSchedule];
     } else {
       [self.notificationManager cleanExpiredNotifications];
     }
@@ -188,7 +187,7 @@ int const kTotalNumOfNotifications = 60;
 - (void)restartNotificationSystem {
   DDLogInfo(@"restart notification system...");
   NSArray* notificationsToSchedule = [self.delegate nextNotificationsToSchedule];
-  [self.notificationManager schedulePacoNotifications:notificationsToSchedule];
+  [self.notificationManager scheduleNotifications:notificationsToSchedule];
   [self.delegate updateNotificationSystem];
 }
 

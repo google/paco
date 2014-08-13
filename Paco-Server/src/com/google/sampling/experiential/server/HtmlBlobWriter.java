@@ -184,8 +184,10 @@ public class HtmlBlobWriter {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
       List<String> inputKeys = Lists.newArrayList();
-      for (Input item : experiment.getInputs()) {
-        inputKeys.add(item.getName());
+      if (experiment != null) {
+        for (Input item : experiment.getInputs()) {
+          inputKeys.add(item.getName());
+        }
       }
 
       StringBuilder out = new StringBuilder();

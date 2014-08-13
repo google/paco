@@ -145,7 +145,14 @@
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
   [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
-      completionBlock(items, error);
+      NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
+      for (id definitionJson in items) {
+        NSAssert([definitionJson isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
+        PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionJson];
+        NSAssert(definition, @"definition should be valid");
+        [definitionList addObject:definition];
+      }
+      completionBlock([NSArray arrayWithArray:definitionList], error);
     }
   }];
 }
@@ -154,10 +161,15 @@
   [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSArray* definitionList, NSError* error) {
     PacoExperimentDefinition* definition = nil;
     if (!error) {
-      id json = [definitionList firstObject];
-      NSAssert([json isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
-      definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:json];
-      NSAssert(definition, @"definition should be valid");
+      definition = [definitionList firstObject];
+      if (!definition) {
+        DDLogWarn(@"Warning: No full definition is found for id=%@, the experiment could expire already", definitionID);
+        NSDictionary* userInfo = @{NSLocalizedDescriptionKey : @"No full definition is found on server! "
+                                                               @"The experiment could expire already."};
+        error = [NSError errorWithDomain:@"paco_error"
+                                    code:0
+                                userInfo:userInfo];
+      }
     }
     if (completionBlock) {
       completionBlock(definition, error);
@@ -188,27 +200,23 @@
 
 //YMZ:TODO: there should be a single endpoint for this API
 - (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+  NSAssert(completionBlock != nil, @"a completion block has to be passed in");
+  
   [self loadMyDefinitionIDListWithBlock:^(NSArray* idList, NSError* error) {
-    if (error == nil) {
+    if (!error) {
       if (0 == [idList count]) {
-        if (completionBlock) {
-          completionBlock(idList, error);
-        }
+        completionBlock(idList, nil);
       } else {
         [self loadFullDefinitionListWithIDs:idList andBlock:^(NSArray* fullList, NSError* error) {
-          if (error == nil) {
-            if (completionBlock) {
-              completionBlock(fullList, error);
-            } 
+          if (!error) {
+            completionBlock(fullList, nil);
           } else {
             completionBlock(nil, error);
           }
         }];
       }
     } else {
-      if (completionBlock) {
-        completionBlock(nil, error);
-      }
+      completionBlock(nil, error);
     }
   }];
 }

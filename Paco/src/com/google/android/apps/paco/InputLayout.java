@@ -639,15 +639,31 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderMultiSelectListButton() {
     View listView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.multiselect_list_button, this, true);
-    Button multiSelectListButton = (Button) findViewById(R.id.multiselect_list_button);
+    final Button multiSelectListButton = (Button) findViewById(R.id.multiselect_list_button);
 
     DialogInterface.OnMultiChoiceClickListener multiselectListDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        if (isChecked)
+        if (isChecked) {
           checkedChoices.add(new Integer(which));
-        else
+        } else {
           checkedChoices.remove(new Integer(which));
+        }
+
+        showChoiceCountOnButtonText(multiSelectListButton);
+      }
+
+      private void showChoiceCountOnButtonText(final Button multiSelectListButton) {
+        int chosenCount = checkedChoices.size();
+        if (chosenCount == 1) {
+          String choicesText = Integer.toString(chosenCount) + " " + getContext().getString(R.string.multiselectListOneItemChosen);
+          multiSelectListButton.setText(choicesText);
+        } else if (chosenCount > 1) {
+          String choicesText = Integer.toString(chosenCount) + " " + getContext().getString(R.string.multiselectListManyItemsChosen);
+          multiSelectListButton.setText(choicesText);
+        } else {
+          multiSelectListButton.setText(R.string.make_selections);
+        }
       }
     };
 
@@ -943,7 +959,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       openTextView.setText(message);
       autocompleteDatabase.updateAutoCompleteDatabase(bestPhrase);
     } else {
-      Toast.makeText(getContext(), "I did not understand", Toast.LENGTH_SHORT).show();
+      Toast.makeText(getContext(), R.string.i_did_not_understand, Toast.LENGTH_SHORT).show();
     }
     ((ExperimentExecutor)getContext()).removeSpeechRecognitionListener(this);
   }

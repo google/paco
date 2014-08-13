@@ -25,7 +25,8 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
-  
+
+  <!-- 
   <filter>
    <filter-name>whitelistFilter</filter-name>
    <filter-class>com.google.sampling.experiential.server.WhitelistFilter</filter-class>
@@ -74,7 +75,8 @@
   <filter-mapping>
    <filter-name>whitelistFilter</filter-name>
    <servlet-name>jobStatusServlet</servlet-name>
-  </filter-mapping> 
+  </filter-mapping>
+  --> 
 <!-- 
   <filter>
         <filter-name>appstats</filter-name>
@@ -148,8 +150,27 @@
     <servlet-name>backendReportJobExecutorServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.BackendReportJobExecutorServlet</servlet-class>
   </servlet>
-  
 
+    <servlet>   
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.MigrationFrontendServlet</servlet-class>
+  </servlet>
+  
+    <servlet>   
+    <servlet-name>migrationBackendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.MigrationBackendServlet</servlet-class>
+  </servlet>
+    
+    <servlet-mapping>
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <url-pattern>/migrate</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+    <servlet-name>migrationBackendServlet</servlet-name>
+    <url-pattern>/migrateBackend</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
     <servlet-name>backendReportJobExecutorServlet</servlet-name>
     <url-pattern>/backendReportJobExecutor</url-pattern>
@@ -224,6 +245,8 @@
 	        <web-resource-collection>
 	            <url-pattern>/whitelist.jsp*</url-pattern>
 	            <url-pattern>/pacoserver/whitelist*</url-pattern>
+              <url-pattern>/migrate*</url-pattern>
+              <url-pattern>/pacoserver/migrate*</url-pattern>
 	        </web-resource-collection>
 	        <auth-constraint>
 	            <role-name>admin</role-name>

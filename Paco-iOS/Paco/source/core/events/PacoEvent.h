@@ -25,6 +25,14 @@ extern NSString* const kPacoResponseKeyAnswer;
 extern NSString* const kPacoResponseKeyInputId;
 
 
+typedef NS_ENUM(NSInteger, PacoEventType) {
+  PacoEventTypeJoin,
+  PacoEventTypeStop,
+  PacoEventTypeSurvey,
+  PacoEventTypeMiss,
+  PacoEventTypeSelfReport
+};
+
 @interface PacoEvent : NSObject
 
 @property (nonatomic, copy) NSString *who;
@@ -45,6 +53,8 @@ extern NSString* const kPacoResponseKeyInputId;
 
 - (NSArray*)responseListWithImageString;
 - (id)payloadJsonWithImageString;
+
+- (PacoEventType)type;
 
 + (PacoEvent*)stopEventForExperiment:(PacoExperiment*)experiment;
 + (PacoEvent*)joinEventForDefinition:(PacoExperimentDefinition*)definition

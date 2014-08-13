@@ -269,7 +269,7 @@ public class ExperimentProviderUtil {
     existingExperiment.setWebRecommended(experiment.isWebRecommended());
     existingExperiment.setCustomRendering(experiment.isCustomRendering());
     existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
-    existingExperiment.setJson(getJson(experiment));
+    existingExperiment.setFeedbackType(experiment.getFeedbackType());
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
@@ -478,7 +478,6 @@ public class ExperimentProviderUtil {
 
     if (!cursor.isNull(jsonIndex)) {
       String jsonOfExperiment = cursor.getString(jsonIndex);
-      experiment.setJson(jsonOfExperiment);
       try {
         Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
         Trigger trigger = experimentFromJson.getTrigger();
@@ -493,13 +492,15 @@ public class ExperimentProviderUtil {
         experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
         Integer feedbackType = experimentFromJson.getFeedbackType();
         if (feedbackType == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
-          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experimentFromJson.getFeedback().get(0).getText())) {
+          String text = experimentFromJson.getFeedback().get(0).getText();
+          if (text.length() == 0 || FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(text)) {
             feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE;
           } else {
             feedbackType = FeedbackDAO.FEEDBACK_TYPE_CUSTOM;
           }
         }
         experiment.setFeedbackType(feedbackType);
+        experiment.setFeedback(experimentFromJson.getFeedback());
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {
@@ -560,10 +561,9 @@ public class ExperimentProviderUtil {
 
     values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
 
-    String json = experiment.getJson();
-    if (json == null || json.length() == 0) {
-      json = getJson(experiment);
-    }
+    // TODO remove almost all other fields other than ID fields and this json serialization.
+    // Leave only fields that we need to query by.
+    String json = getJson(experiment);
     values.put(ExperimentColumns.JSON, json);
     return values;
   }
@@ -577,7 +577,7 @@ public class ExperimentProviderUtil {
     return experimentJsons;
   }
 
-  public String getJson(Experiment experiment) {
+  public static String getJson(Experiment experiment) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 
@@ -594,7 +594,7 @@ public class ExperimentProviderUtil {
     return null;
   }
 
-  public String getJson(List<Experiment> experiments) {
+  public static String getJson(List<Experiment> experiments) {
     ObjectMapper mapper = new ObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 
@@ -1002,7 +1002,7 @@ public class ExperimentProviderUtil {
     return uri;
   }
 
-  private SignalSchedule createSchedule(Cursor cursor) {
+  public SignalSchedule createSchedule(Cursor cursor) {
     int idIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns._ID);
     int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
     int experimentIndex = cursor.getColumnIndex(SignalScheduleColumns.EXPERIMENT_ID);
@@ -1022,10 +1022,12 @@ public class ExperimentProviderUtil {
     int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
     int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
     int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
+    int onlyEditableOnJoinIndex = cursor.getColumnIndex(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN);
     int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
     int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
     int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
     int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
+    int signalTimesJsonIndex = cursor.getColumnIndex(SignalScheduleColumns.SIGNAL_TIMES);
 
     SignalSchedule schedule = new SignalSchedule();
     if (!cursor.isNull(idIndex)) {
@@ -1049,6 +1051,11 @@ public class ExperimentProviderUtil {
       }
       schedule.setTimes(times);
     }
+    if (!cursor.isNull(signalTimesJsonIndex)) {
+      List<SignalTime> signalTimes = fromJson(cursor.getString(signalTimesJsonIndex));
+      schedule.setSignalTimes(signalTimes);
+    }
+
     if (!cursor.isNull(esmFrequencyIndex)) {
       schedule.setEsmFrequency(cursor.getInt(esmFrequencyIndex));
     }
@@ -1084,6 +1091,9 @@ public class ExperimentProviderUtil {
     }
     if (!cursor.isNull(userEditableIndex)) {
       schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
+    if (!cursor.isNull(onlyEditableOnJoinIndex)) {
+      schedule.setOnlyEditableOnJoin(cursor.getInt(onlyEditableOnJoinIndex) == 1? Boolean.TRUE : Boolean.FALSE);
     }
     if (!cursor.isNull(timeoutIndex)) {
       schedule.setTimeout(cursor.getInt(timeoutIndex));
@@ -1139,6 +1149,9 @@ public class ExperimentProviderUtil {
     if (schedule.getUserEditable() != null) {
       values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0);
     }
+    if (schedule.getOnlyEditableOnJoin() != null) {
+      values.put(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN, schedule.getOnlyEditableOnJoin() == Boolean.TRUE ? 1 : 0);
+    }
     if (schedule.getTimeout() != null) {
       values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout());
     }
@@ -1155,17 +1168,8 @@ public class ExperimentProviderUtil {
       values.put(SignalScheduleColumns.SNOOZE_TIME, schedule.getSnoozeTime());
     }
 
-    StringBuilder buf = new StringBuilder();
-    boolean first = true;
-    for (Long time : schedule.getTimes()) {
-      if (!first) {
-        buf.append(",");
-      } else {
-        first = false;
-      }
-      buf.append(time);
-    }
-    values.put(SignalScheduleColumns.TIMES_CSV, buf.toString());
+
+    values.put(SignalScheduleColumns.SIGNAL_TIMES, toJson(schedule.getSignalTimes()));
 
     if (schedule.getRepeatRate() != null) {
       values.put(SignalScheduleColumns.REPEAT_RATE, schedule.getRepeatRate());
@@ -1191,6 +1195,30 @@ public class ExperimentProviderUtil {
     }
     return values;
   }
+
+  private String toJson(List<SignalTime> signalTimes) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.writeValueAsString(signalTimes);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
+
+  private List<SignalTime> fromJson(String string) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.readValue(string, new TypeReference<List<SignalTime>>() {});
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Lists.newArrayList();
+  }
+
+
 
   public void deleteSchedule(long scheduleId) {
     Input input = getInput(scheduleId);
@@ -1826,6 +1854,38 @@ public class ExperimentProviderUtil {
     return mapper.readValue(contentAsString, Experiment.class);
   }
 
+  public List<SignalSchedule> getAllSchedules() {
+    List<SignalSchedule> schedules = Lists.newArrayList();
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(SignalScheduleColumns.CONTENT_URI, null, null, null, null);
+      if (cursor != null) {
+        while (cursor.moveToNext()) {
+          SignalSchedule schedule = createSchedule(cursor);
+          schedules.add(schedule);
+        }
+      }
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return schedules;
+  }
 
+  public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
+    if (scheduledTime == null) {
+      return null;
+    }
+    Event event = findEventBy(EventColumns.EXPERIMENT_SERVER_ID + "=" + experimentServerId + " AND " + EventColumns.SCHEDULE_TIME + "=" + scheduledTime.getMillis(),
+                                                    EventColumns._ID +" DESC");
+    if (event != null) {
+      Log.i(PacoConstants.TAG, "Found event for experimentId: " + experimentServerId +", st = " + scheduledTime);
+    } else {
+      Log.i(PacoConstants.TAG, "DID NOT Find event for experimentId: " + experimentServerId +", st = " + scheduledTime);
+    }
+    return event;
+  }
 }
-

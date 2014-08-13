@@ -18,3 +18,6 @@ Also, you can stay in touch
 -----
 * Twitter: https://twitter.com/pacoapp
 * Google+: https://plus.google.com/u/0/b/115229263290117262376/
+
+LICENSE:
+Paco is licensed under the Apache 2.0 License

@@ -84,16 +84,31 @@ public class PublicExperimentList {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(PUBLIC_EXPERIMENT_KIND);
 
+    DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
+    String dateString = toDateString(nowInUserTimezone);
     Filter endDateFilter = new Query.FilterPredicate(END_DATE_PROPERTY,
                                                      FilterOperator.LESS_THAN,
-                                                     toDateString(TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone))));
+                                                     dateString);
     query.setFilter(endDateFilter);
     QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
     List<Long> experimentIds = Lists.newArrayList();
     for (Entity entity : result) {
-      experimentIds.add(entity.getKey().getId());
+      Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
+      if (!expired(endDateProperty, nowInUserTimezone)) {
+        experimentIds.add(entity.getKey().getId());
+      }
     }
     return experimentIds;
+  }
+
+  private static boolean expired(Date endDateProperty, DateTime nowInUserTimezone) {
+    try {
+      DateTime endDateTime = new DateTime(endDateProperty.getTime());
+      return endDateTime.isBefore(nowInUserTimezone);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return false; // false because it was not a date
   }
 
   private static String toDateString(DateTime userTime) {
