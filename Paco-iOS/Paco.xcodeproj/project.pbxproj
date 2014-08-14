@@ -27,7 +27,7 @@
 		361A11A418F5A89A000E9CA2 /* UIFont+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A218F5A89A000E9CA2 /* UIFont+Paco.m */; };
 		361A11A618F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */; };
 		361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 361AB05517DA77000053C313 /* PacoNotificationManager.m */; };
-		3620EB9B190EEBD60088DBFB /* PacoCustomFeedbackController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */; };
+		3620EB9B190EEBD60088DBFB /* PacoFeedbackWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EB9A190EEBD60088DBFB /* PacoFeedbackWebViewController.m */; };
 		3620EBA6190F01080088DBFB /* EasyJSDataFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EB9F190F01080088DBFB /* EasyJSDataFunction.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3620EBA7190F01080088DBFB /* EasyJSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EBA1190F01080088DBFB /* EasyJSWebView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3620EBA8190F01080088DBFB /* EasyJSWebViewProxyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3620EBA3190F01080088DBFB /* EasyJSWebViewProxyDelegate.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -329,8 +329,8 @@
 		361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorDailyTests.m; sourceTree = "<group>"; };
 		361AB05417DA77000053C313 /* PacoNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoNotificationManager.h; sourceTree = "<group>"; };
 		361AB05517DA77000053C313 /* PacoNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManager.m; sourceTree = "<group>"; };
-		3620EB99190EEBD60088DBFB /* PacoCustomFeedbackController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoCustomFeedbackController.h; sourceTree = "<group>"; };
-		3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoCustomFeedbackController.m; sourceTree = "<group>"; };
+		3620EB99190EEBD60088DBFB /* PacoFeedbackWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFeedbackWebViewController.h; sourceTree = "<group>"; };
+		3620EB9A190EEBD60088DBFB /* PacoFeedbackWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFeedbackWebViewController.m; sourceTree = "<group>"; };
 		3620EB9D190F01080088DBFB /* easyjs-inject.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "easyjs-inject.js"; sourceTree = "<group>"; };
 		3620EB9E190F01080088DBFB /* EasyJSDataFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSDataFunction.h; sourceTree = "<group>"; };
 		3620EB9F190F01080088DBFB /* EasyJSDataFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSDataFunction.m; sourceTree = "<group>"; };
@@ -733,8 +733,8 @@
 		3620EB91190EEBAD0088DBFB /* CustomFeedback */ = {
 			isa = PBXGroup;
 			children = (
-				3620EB99190EEBD60088DBFB /* PacoCustomFeedbackController.h */,
-				3620EB9A190EEBD60088DBFB /* PacoCustomFeedbackController.m */,
+				3620EB99190EEBD60088DBFB /* PacoFeedbackWebViewController.h */,
+				3620EB9A190EEBD60088DBFB /* PacoFeedbackWebViewController.m */,
 				364977DA19170CBF0018CE7E /* JavascriptEventLoader.h */,
 				364977DB19170CBF0018CE7E /* JavascriptEventLoader.m */,
 				364977E5191728500018CE7E /* Environment.h */,
@@ -1748,7 +1748,7 @@
 				366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
 				369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */,
 				C5C4F5EC17B17520009E9F18 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
-				3620EB9B190EEBD60088DBFB /* PacoCustomFeedbackController.m in Sources */,
+				3620EB9B190EEBD60088DBFB /* PacoFeedbackWebViewController.m in Sources */,
 				E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */,
 				C5C4F5EE17B17520009E9F18 /* JCNotificationBannerPresenterSmokeStyle.m in Sources */,
 				36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,

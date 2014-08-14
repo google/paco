@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#import "PacoCustomFeedbackController.h"
+#import "PacoFeedbackWebViewController.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentFeedback.h"
 #import "EasyJSWebView.h"
@@ -45,21 +45,21 @@
 @end
 
 
-@interface PacoCustomFeedbackController ()
+@interface PacoFeedbackWebViewController ()
 @property(nonatomic, strong) EasyJSWebView* webView;
 @property(nonatomic, strong) PacoExperiment* experiment;
 @property(nonatomic, strong) Environment* env;
 @property(nonatomic, copy) NSString* htmlName;
-@property(nonatomic, copy) PacoCustomFeedbackDismissBlock dismissBlock;
+@property(nonatomic, copy) PacoFeedbackWebViewDismissBlock dismissBlock;
 @end
 
 
-@implementation PacoCustomFeedbackController
+@implementation PacoFeedbackWebViewController
 + (id)controllerWithExperiment:(PacoExperiment*)experiment
                       htmlName:(NSString*)htmlName
-                  dismissBlock:(PacoCustomFeedbackDismissBlock)dismissBlock {
-  PacoCustomFeedbackController* controller =
-      [[PacoCustomFeedbackController alloc] initWithNibName:nil bundle:nil];
+                  dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock {
+  PacoFeedbackWebViewController* controller =
+      [[PacoFeedbackWebViewController alloc] initWithNibName:nil bundle:nil];
   controller.experiment = experiment;
   controller.htmlName = htmlName;
   controller.dismissBlock = dismissBlock;

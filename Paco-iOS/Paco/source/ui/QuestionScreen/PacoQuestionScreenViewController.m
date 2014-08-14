@@ -31,7 +31,7 @@
 #import "PacoInputEvaluator.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
-#import "PacoCustomFeedbackController.h"
+#import "PacoFeedbackWebViewController.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -209,7 +209,7 @@ NSString *kCellIdQuestion = @"question";
   for (int index = (int)[stackedControllers count] - 1; index >= 0; index--) {
     UIViewController *controller = stackedControllers[index];
     if (![controller isKindOfClass:[PacoQuestionScreenViewController class]] &&
-        ![controller isKindOfClass:[PacoCustomFeedbackController class]]) {
+        ![controller isKindOfClass:[PacoFeedbackWebViewController class]]) {
       controllerToGoBack = controller;
       break;
     }
@@ -218,8 +218,8 @@ NSString *kCellIdQuestion = @"question";
 }
 
 - (void)showFeedbackControllerWithHtml:(NSString*)htmlName {
-  PacoCustomFeedbackController* controller =
-      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment
+  PacoFeedbackWebViewController* controller =
+      [PacoFeedbackWebViewController controllerWithExperiment:self.evaluator.experiment
                                                     htmlName:htmlName
                                                 dismissBlock:^{
                                                   [self navigateToNonQuestionViewController];
