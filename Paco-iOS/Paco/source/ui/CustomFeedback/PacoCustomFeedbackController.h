@@ -18,11 +18,15 @@
 @class PacoExperiment;
 @class EasyJSWebView;
 
+typedef void(^PacoCustomFeedbackDismissBlock)();
+
 @interface PacoCustomFeedbackController : UIViewController
 
 @property(nonatomic, strong, readonly) EasyJSWebView* webView;
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment htmlName:(NSString*)htmlName;
++ (id)controllerWithExperiment:(PacoExperiment*)experiment
+                      htmlName:(NSString*)htmlName
+                  dismissBlock:(PacoCustomFeedbackDismissBlock)dismissBlock;
 
 @end

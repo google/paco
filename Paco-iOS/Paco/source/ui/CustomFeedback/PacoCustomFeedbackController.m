@@ -50,21 +50,31 @@
 @property(nonatomic, strong) PacoExperiment* experiment;
 @property(nonatomic, strong) Environment* env;
 @property(nonatomic, copy) NSString* htmlName;
+@property(nonatomic, copy) PacoCustomFeedbackDismissBlock dismissBlock;
 @end
 
 
 @implementation PacoCustomFeedbackController
-
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment htmlName:(NSString*)htmlName{
++ (id)controllerWithExperiment:(PacoExperiment*)experiment
+                      htmlName:(NSString*)htmlName
+                  dismissBlock:(PacoCustomFeedbackDismissBlock)dismissBlock {
   PacoCustomFeedbackController* controller =
       [[PacoCustomFeedbackController alloc] initWithNibName:nil bundle:nil];
   controller.experiment = experiment;
   controller.htmlName = htmlName;
+  controller.dismissBlock = dismissBlock;
   return controller;
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+
+  UIBarButtonItem *backButton = [[UIBarButtonItem alloc] initWithTitle:@"Done"
+                                                                 style:UIBarButtonItemStyleDone
+                                                                target:self
+                                                                action:@selector(goBack:)];
+  self.navigationItem.leftBarButtonItem = backButton;
+
   self.webView = [[EasyJSWebView alloc] initWithFrame:self.view.frame];
   self.webView.scalesPageToFit = YES;
   [self.view addSubview:self.webView];
@@ -74,6 +84,12 @@
   NSString* htmlPath = [[NSBundle mainBundle] pathForResource:self.htmlName ofType:@"html"];
   NSURLRequest* request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:htmlPath]];
   [self.webView loadRequest:request];
+}
+
+- (void)goBack:(id)sender {
+  if (self.dismissBlock) {
+    self.dismissBlock();
+  }
 }
 
 - (void)didReceiveMemoryWarning {

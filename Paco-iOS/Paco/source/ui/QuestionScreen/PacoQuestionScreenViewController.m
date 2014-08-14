@@ -203,9 +203,27 @@ NSString *kCellIdQuestion = @"question";
   }
 }
 
+- (void)navigateToNonQuestionViewController {
+  NSArray *stackedControllers = [self.navigationController viewControllers];
+  UIViewController* controllerToGoBack = nil;
+  for (int index = (int)[stackedControllers count] - 1; index >= 0; index--) {
+    UIViewController *controller = stackedControllers[index];
+    if (![controller isKindOfClass:[PacoQuestionScreenViewController class]] &&
+        ![controller isKindOfClass:[PacoCustomFeedbackController class]]) {
+      controllerToGoBack = controller;
+      break;
+    }
+  }
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
+}
+
 - (void)showFeedbackControllerWithHtml:(NSString*)htmlName {
   PacoCustomFeedbackController* controller =
-      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment htmlName:htmlName];
+      [PacoCustomFeedbackController controllerWithExperiment:self.evaluator.experiment
+                                                    htmlName:htmlName
+                                                dismissBlock:^{
+                                                  [self navigateToNonQuestionViewController];
+                                                }];
   [self.navigationController pushViewController:controller animated:YES];
 }
 
