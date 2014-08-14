@@ -16,6 +16,14 @@
 #import <Foundation/Foundation.h>
 @class PacoExperimentSchedule;
 
+typedef NS_ENUM(NSInteger, PacoFeedbackType) {
+  PacoFeedbackTypeStaticMessage,
+  PacoFeedbackTypeRetrospective,
+  PacoFeedbackTypeResponsive,
+  PacoFeedbackTypeCustomCode,
+  PacoFeedbackTypeDisableMessage
+};
+
 @interface PacoExperimentDefinition : NSObject <NSCopying>
 
 @property (nonatomic, copy) NSString *experimentId;
@@ -36,6 +44,7 @@
 
 
 @property (nonatomic, assign) BOOL deleted;
+@property (nonatomic, assign) PacoFeedbackType feedbackType;
 @property (nonatomic, retain) NSArray *feedbackList;  // <PacoExperimentFeedback>
 @property (nonatomic, assign) BOOL isCustomRendering;
 @property (nonatomic, assign) BOOL fixedDuration;
@@ -53,9 +62,9 @@
 - (id)serializeToJSON;
 
 - (BOOL)isTriggerExperiment;
-- (BOOL)hasCustomFeedback;
 
 - (BOOL)isCompatibleWithIOS;
+- (NSString*)feedbackMessage;
 
 //An experiment can be either on-going or fixed-length with valid start date and end date
 - (BOOL)isFixedLength;
@@ -70,8 +79,5 @@
 //clear the old response objects
 - (void)clearInputs;
 
-//TEST debug code
-+ (PacoExperimentDefinition *)testPacoExperimentDefinition;
-+ (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId;
 
 @end

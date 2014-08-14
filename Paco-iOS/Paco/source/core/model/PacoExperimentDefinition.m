@@ -25,6 +25,7 @@ static NSString* const DEFINITION_ADMINS = @"admins";
 static NSString* const DEFINITION_CREATOR = @"creator";
 static NSString* const DEFINITION_DELETED = @"deleted";
 static NSString* const DEFINITION_DESCRIPTION = @"description";
+static NSString* const DEFINITION_FEEDBACK_TYPE = @"feedbackType";
 static NSString* const DEFINITION_FEEDBACK = @"feedback";
 static NSString* const DEFINITION_FIXED_DURATION = @"fixedDuration";
 static NSString* const DEFINITION_ID = @"id";
@@ -60,6 +61,8 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   definition.creator = definitionMembers[DEFINITION_CREATOR];
   definition.deleted = [definitionMembers[DEFINITION_DELETED] boolValue];
   definition.experimentDescription = definitionMembers[DEFINITION_DESCRIPTION];
+
+  definition.feedbackType = [definitionMembers[DEFINITION_FEEDBACK_TYPE] intValue];
   NSArray *jsonFeedbackList = definitionMembers[DEFINITION_FEEDBACK];
   NSMutableArray *feedbackObjects = [NSMutableArray array];
   for (id jsonFeedback in jsonFeedbackList) {
@@ -129,6 +132,7 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   another.creator = [self.creator copyWithZone:zone];
   another.deleted = self.deleted;
   another.experimentDescription = [self.experimentDescription copyWithZone:zone];
+  another.feedbackType = self.feedbackType;
   another.feedbackList = [self.feedbackList copyWithZone:zone];
   another.isCustomRendering = self.isCustomRendering;
   another.fixedDuration = self.fixedDuration;
@@ -169,7 +173,8 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   if (self.experimentDescription) {
     json[DEFINITION_DESCRIPTION] = self.experimentDescription;
   }
-  
+
+  json[DEFINITION_FEEDBACK_TYPE] = @(self.feedbackType);
   NSMutableArray* feedbackJson = [NSMutableArray arrayWithCapacity:[self.feedbackList count]];
   for (PacoExperimentFeedback* feedback in self.feedbackList) {
     [feedbackJson addObject:[feedback serializeToJSON]];
@@ -223,13 +228,18 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
   return [[self.signalMechanismList firstObject] isKindOfClass:[PacoTriggerSignal class]];
 }
 
-- (BOOL)hasCustomFeedback {
-  return [[self.feedbackList firstObject] isCustomFeedback];
+- (BOOL)isFeedbackCompatibleWithIOS {
+  return self.feedbackType == PacoFeedbackTypeStaticMessage
+         || self.feedbackType == PacoFeedbackTypeRetrospective
+         || self.feedbackType == PacoFeedbackTypeCustomCode;
 }
 
-
 - (BOOL)isCompatibleWithIOS {
-  return ![self isTriggerExperiment] && ![self hasCustomFeedback] && !self.isCustomRendering;
+  return ![self isTriggerExperiment] && [self isFeedbackCompatibleWithIOS] && !self.isCustomRendering;
+}
+
+- (NSString*)feedbackMessage {
+  return ((PacoExperimentFeedback*)[self.feedbackList firstObject]).text;
 }
 
 - (BOOL)isFixedLength {
@@ -276,7 +286,6 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 //          @"experimentDescription=%@ "
           @"feedback=%@ "
           @"isCustomRendering=%@ "
-          @"hasCustomFeedback=%@ "
           @"fixedDuration=%d "
 //          @"informedConsentForm=%@ "
 //          @"inputs=%@ "
@@ -300,7 +309,6 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 //          self.experimentDescription,
           self.feedbackList,
           self.isCustomRendering ? @"YES" : @"NO",
-          [self hasCustomFeedback] ?  @"YES" : @"NO",
           self.fixedDuration,
 //          self.informedConsentForm,
 //          self.inputs,
@@ -325,29 +333,6 @@ static NSString* const DEFINITION_CUSTOM_RENDERING = @"customRendering";
 }
 
 
-#pragma mark TEST code
-+ (PacoExperimentDefinition*)testDefinitionWithId:(NSString*)definitionId {
-  NSString* path = [NSString stringWithFormat:@"Test_%@", definitionId];
-  NSDictionary* definitionDict =
-      [NSDictionary dictionaryWithContentsOfFile:[[NSBundle mainBundle] pathForResource:path ofType:@"plist"]];
-  return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
-}
-
-
-+ (PacoExperimentDefinition*)testPacoExperimentDefinition {
-  int timeOutMinutes = 2;
-  
-  int firstTime = (10 /* hour */ * 3600000) + (7 /* minutes */ * 60000);
-  int secondTime = (10 /* hour */ * 3600000) + (8 /* minutes */ * 60000);
-  
-  NSString *testDefinitionJSON = [NSString stringWithFormat:@"{\"title\":\"Test Local: Notification iOS Experiment\",\"description\":\"This experiment is to test the iOS Notification system for Paco.\",\"informedConsentForm\":\"You consent to be used for world domination\",\"creator\":\"tom.pennings@gmail.com\",\"fixedDuration\":false,\"id\":8798005,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":%d,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[%d,%d],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":%d,\"id\":1,\"scheduleType\":0,\"esmFrequency\":99,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[%d,%d],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false},\"questionsChange\":false,\"modifyDate\":\"2013/07/25\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"Do you feel OK today?\",\"mandatory\":true,\"responseType\":\"list\",\"likertSteps\":5,\"name\":\"feel_ok\",\"conditional\":false,\"listChoices\":[\"Yes\",\"No\"],\"multiselect\":true,\"invisibleInput\":false}],\"feedback\":[{\"id\":2,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":1}", timeOutMinutes, firstTime, secondTime, timeOutMinutes, firstTime, secondTime];
-  
-  NSError* jsonError = nil;
-  NSData* jsonData = [testDefinitionJSON dataUsingEncoding:NSUTF8StringEncoding];
-  id jsonObj = !jsonData ? nil : [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&jsonError];
-  
-  return [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:jsonObj];
-}
 
 
 @end

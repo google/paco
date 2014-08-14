@@ -187,11 +187,19 @@ NSString *kCellIdQuestion = @"question";
 
   //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];
-  
-  if ([self.evaluator.experiment.definition hasCustomFeedback]) {
-    [self showFeedbackControllerWithHtml:@"skeleton"];
-  } else {
-    [self showFeedbackControllerWithHtml:@"default_feedback"];
+
+  switch (self.evaluator.experiment.definition.feedbackType) {
+    case PacoFeedbackTypeRetrospective:
+      [self showFeedbackControllerWithHtml:@"default_feedback"];
+      break;
+
+    case PacoFeedbackTypeCustomCode:
+      [self showFeedbackControllerWithHtml:@"skeleton"];
+      break;
+
+    default:
+      [self showFeedbackMessage:[self.evaluator.experiment.definition feedbackMessage]];
+      break;
   }
 }
 
@@ -201,6 +209,16 @@ NSString *kCellIdQuestion = @"question";
   [self.navigationController pushViewController:controller animated:YES];
 }
 
+- (void)showFeedbackMessage:(NSString*)message {
+  NSString* title = message;
+  [PacoAlertView showAlertWithTitle:title
+                            message:nil
+                       dismissBlock:^(NSInteger buttonIndex) {
+                         [self dismiss];
+                       }
+                  cancelButtonTitle:@"Ok"
+                  otherButtonTitles:nil];
+}
 
 #pragma mark - PacoTableViewDelegate
 
