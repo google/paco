@@ -36,7 +36,6 @@ function defaultPage(){
       responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='map.html?inputId=" + response["inputId"] + "'>Maps</a>";
     } else {
       responsesHtml += response["answer"];
-      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='time.html?inputId=" + response["inputId"] + "'>Chart</a>";
     }
     responsesHtml += "</div><br/></div>";
   }
