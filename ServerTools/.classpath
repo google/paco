@@ -5,6 +5,6 @@
 	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.5.0.1/lib/appengine-remote-api.jar" sourcepath="/Users/bobevans/applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.7.5/appengine-java-sdk-1.7.5/src/user/appengine-api-1.0-sdk-1.7.5-src.zip"/>
 	<classpathentry kind="lib" path="lib/bsh-2.0b4.jar"/>
 	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.5.0.1/lib/impl/appengine-api.jar"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/Paco-Server/war/WEB-INF/lib/guava-r09.jar"/>
+	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
