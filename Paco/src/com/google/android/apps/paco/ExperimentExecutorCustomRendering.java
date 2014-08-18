@@ -134,8 +134,6 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
 
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
 
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor_custom_rendering, null);
       setContentView(mainLayout);
@@ -878,7 +876,7 @@ private String findAccount(String userEmail) {
       long t1 = System.currentTimeMillis();
       String json = ExperimentProviderUtil.getJson(experiment);
       long t2= System.currentTimeMillis();
-      Log.e(PacoConstants.TAG, "time to load experiment: " + (t2 - t1));
+      Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
       return json;
     }
     /**
@@ -896,7 +894,11 @@ private String findAccount(String userEmail) {
           try {
             long t1 = System.currentTimeMillis();
             Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(experimentJson);
-            experimentProviderUtil.updateExistingExperiments(Lists.newArrayList(experiment));
+            long t2= System.currentTimeMillis();
+            Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
+            experimentProviderUtil.updateExistingExperiments(Lists.newArrayList(experiment), true);
+            long t3= System.currentTimeMillis();
+            Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
             startService(new Intent(ExperimentExecutorCustomRendering.this, BeeperService.class));
             if (experiment.shouldWatchProcesses()) {
               BroadcastTriggerReceiver.initPollingAndLoggingPreference(ExperimentExecutorCustomRendering.this);
@@ -904,8 +906,8 @@ private String findAccount(String userEmail) {
             } else {
               BroadcastTriggerReceiver.stopProcessingService(ExperimentExecutorCustomRendering.this);
             }
-            long t2= System.currentTimeMillis();
-            Log.e(PacoConstants.TAG, "time to save experiment: " + (t2 - t1));
+            long t4 = System.currentTimeMillis();
+            Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));
           } catch (JsonParseException e) {
             e.printStackTrace();
             //return "{ \"status\" : 0, \"error_message\" : \"json parse error: " + e.getMessage() + "\" }";

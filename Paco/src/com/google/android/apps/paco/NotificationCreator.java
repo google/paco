@@ -296,7 +296,7 @@ public class NotificationCreator {
   }
 
   public void createNotificationsForTrigger(Experiment experiment, DateTime triggeredDateTime, int triggerEvent, String sourceIdentifier) {
-    Trigger trigger = experiment.getTrigger();
+    Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
     List<NotificationHolder> notificationsForTrigger = experimentProviderUtil.getNotificationsFor(experiment.getId());
 
     // Approach 1 for triggers, mark old triggers notification as missed, cancel them, and install notification for new trigger.

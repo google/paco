@@ -102,9 +102,6 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
 
-      experimentProviderUtil.loadInputsForExperiment(experiment);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
-
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);
       setContentView(mainLayout);
 
