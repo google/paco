@@ -39,14 +39,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.CallingStack;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.FeedbackDAO;
 
 public class ExperimentProviderUtil {
 
@@ -62,11 +61,6 @@ public class ExperimentProviderUtil {
     super();
     this.context = context;
     this.contentResolver = context.getContentResolver();
-  }
-
-  public List<Experiment> getExperiments() {
-    return findExperimentsBy(null, ExperimentColumns.CONTENT_URI);
-
   }
 
   public List<Experiment> getJoinedExperiments() {
@@ -124,37 +118,20 @@ public class ExperimentProviderUtil {
    * @return
    */
   public Uri insertFullJoinedExperiment(Experiment experiment) {
-    // fully load the other parts of the experiment prototype
-    // before saving a cloned version
-//    loadInputsForExperiment(experiment);
-//    loadFeedbackForExperiment(experiment);
-//    loadScheduleForExperiment(experiment);
-//    experiment.unsetId();
-
+    List<SignalingMechanism> signalingMechanisms = experiment.getSignalingMechanisms();
+    Long joinDateMillis = getJoinDateMillis(experiment);
+    for (SignalingMechanism signalingMechanism : signalingMechanisms) {
+      if (signalingMechanism instanceof SignalSchedule) {
+        SignalSchedule schedule = (SignalSchedule) signalingMechanism;
+        schedule.setBeginDate(joinDateMillis);
+      }
+    }
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
 
     long rowId = Long.parseLong(uri.getLastPathSegment());
 
     experiment.setId(rowId);
-    SignalSchedule schedule = experiment.getSchedule();
-    if (schedule != null) {
-      schedule.setExperimentId(rowId);
-      schedule.setBeginDate(getJoinDateMillis(experiment));
-      insertSchedule(schedule);
-    }
-
-    for (Input input : experiment.getInputs()) {
-//      input.setId(null);
-      input.setExperimentId(rowId);
-      insertInput(input);
-    }
-    for (Feedback feedback : experiment.getFeedback()) {
-//      feedback.setId(null);
-      feedback.setExperimentId(rowId);
-      insertFeedback(feedback);
-    }
-
     return uri;
   }
 
@@ -167,35 +144,6 @@ public class ExperimentProviderUtil {
     Experiment experiment = getSingleExperimentFromJson(contentAsString);
     experiment.setJoinDate(TimeUtil.formatDateWithZone(new DateTime()));
     return insertFullJoinedExperiment(experiment);
-  }
-
-  private void loadScheduleForExperiment(Experiment experiment) {
-      String select = SignalScheduleColumns.EXPERIMENT_ID + " = " + experiment.getId();
-      SignalSchedule schedule = findScheduleBy(select);
-      if (schedule != null) {
-        List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
-        signalingMechanisms.add(schedule);
-        experiment.setSchedule(schedule);
-        experiment.setSignalingMechanisms(signalingMechanisms);
-      }
-  }
-
-  private SignalSchedule findScheduleBy(String select) {
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(SignalScheduleColumns.CONTENT_URI,
-          null, select, null, null);
-      if (cursor != null && cursor.moveToNext()) {
-        return createSchedule(cursor);
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return null;
   }
 
   public void deleteExperiment(long experimentId) {
@@ -245,25 +193,11 @@ public class ExperimentProviderUtil {
       }
       for (Experiment existingExperiment : existingList) {
         long startTime = System.currentTimeMillis();
-        deleteAllInputsForExperiment(existingExperiment.getId());
         existingExperiment.setInputs(experiment.getInputs());
-        deleteAllFeedbackForExperiment(existingExperiment.getId());
         existingExperiment.setFeedback(experiment.getFeedback());
-        SignalSchedule schedule = experiment.getSchedule();
-        if (schedule != null) {
-          schedule.setExperimentId(existingExperiment.getId());
-          existingExperiment.setSchedule(schedule);
-          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
-          signalingMechanisms.add(schedule);
-          existingExperiment.setSignalingMechanisms(signalingMechanisms);
-          insertSchedule(schedule);
-        } else {
-          List<SignalingMechanism> signalingMechanisms = new ArrayList<SignalingMechanism>();
-          signalingMechanisms.add(experiment.getTrigger());
-          existingExperiment.setSignalingMechanisms(signalingMechanisms);
+        if (false /* TODO test if the user has modified any of the signaling mechanisms and update if they have not created custom times */) {
+          existingExperiment.setSignalingMechanisms(experiment.getSignalingMechanisms());
         }
-        insertInputsForJoinedExperiment(existingExperiment);
-        insertFeedbackForJoinedExperiment(existingExperiment);
         copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment, shouldOverrideExistingSettings);
         updateJoinedExperiment(existingExperiment);
         Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
@@ -298,25 +232,7 @@ public class ExperimentProviderUtil {
   }
 
   private void deleteFullExperiment(Experiment experiment2) {
-    deleteScheduleForExperiment(experiment2.getId());
-    deleteAllInputsForExperiment(experiment2.getId());
-    deleteAllFeedbackForExperiment(experiment2.getId());
     deleteExperiment(experiment2.getId());
-  }
-
-  private int deleteScheduleForExperiment(Long id) {
-    return contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
-        SignalScheduleColumns.EXPERIMENT_ID + " = " + id, null);
-  }
-
-  private int deleteAllFeedbackForExperiment(Long id) {
-    return contentResolver.delete(FeedbackColumns.CONTENT_URI,
-        FeedbackColumns.EXPERIMENT_ID + " = " + id, null);
-  }
-
-  private int deleteAllInputsForExperiment(Long id) {
-    return contentResolver.delete(InputColumns.CONTENT_URI,
-          InputColumns.EXPERIMENT_ID + " = " + id, null);
   }
 
   public void updateJoinedExperiment(Experiment experiment) {
@@ -325,17 +241,10 @@ public class ExperimentProviderUtil {
         createContentValues(experiment),
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), " updated "+ count + " rows. Time: " + (System.currentTimeMillis() - t1));
-    SignalSchedule schedule = experiment.getSchedule();
-    if (schedule != null) {
-      updateSchedule(schedule);
-    }
   }
 
   public void deleteAllExperiments() {
     contentResolver.delete(ExperimentColumns.CONTENT_URI, null, null);
-    contentResolver.delete(SignalScheduleColumns.CONTENT_URI, null, null);
-    contentResolver.delete(InputColumns.CONTENT_URI, null, null);
-    contentResolver.delete(FeedbackColumns.CONTENT_URI, null, null);
   }
 
   public void deleteAllJoinedExperiments() {
@@ -360,12 +269,6 @@ public class ExperimentProviderUtil {
         contentResolver.delete(
             ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, null, null);
         // TODO delete all from child tables where experiment_ids match
-        contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
-            InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        contentResolver.delete(InputColumns.CONTENT_URI,
-            InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        contentResolver.delete(FeedbackColumns.CONTENT_URI,
-            FeedbackColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
       }
     } finally {
       if (cursor != null) {
@@ -382,9 +285,6 @@ public class ExperimentProviderUtil {
           null, select, null, null);
       if (cursor != null && cursor.moveToNext()) {
         Experiment experiment = createExperiment(cursor);
-        if (experiment.getTrigger() == null) {
-          loadScheduleForExperiment(experiment);
-        }
         return experiment;
       }
     } catch (RuntimeException e) {
@@ -406,7 +306,6 @@ public class ExperimentProviderUtil {
       if (cursor != null) {
         while (cursor.moveToNext()) {
          Experiment experiment = createExperiment(cursor);
-         loadScheduleForExperiment(experiment);
          experiments.add(experiment);
         }
       }
@@ -421,117 +320,22 @@ public class ExperimentProviderUtil {
   }
 
 
-  private Experiment createExperiment(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(ExperimentColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(ExperimentColumns.SERVER_ID);
-    int titleIndex = cursor.getColumnIndex(ExperimentColumns.TITLE);
-    int versionIndex = cursor.getColumnIndex(ExperimentColumns.VERSION);
-    int descIndex = cursor.getColumnIndex(ExperimentColumns.DESCRIPTION);
-    int creatorIndex = cursor.getColumnIndex(ExperimentColumns.CREATOR);
-    int icIndex = cursor.getColumnIndex(ExperimentColumns.INFORMED_CONSENT);
-    int hashIndex = cursor.getColumnIndex(ExperimentColumns.HASH);
-    int fixedDurationIndex = cursor.getColumnIndex(ExperimentColumns.FIXED_DURATION);
-    int startDateIndex = cursor.getColumnIndex(ExperimentColumns.START_DATE);
-    int endDateIndex = cursor.getColumnIndex(ExperimentColumns.END_DATE);
-    int joinDateIndex = cursor.getColumnIndex(ExperimentColumns.JOIN_DATE);
-    int questionsChangeIndex = cursor.getColumnIndex(ExperimentColumns.QUESTIONS_CHANGE);
-    int iconIndex = cursor.getColumnIndex(ExperimentColumns.ICON);
-    int webRecommendedIndex = cursor.getColumnIndex(ExperimentColumns.WEB_RECOMMENDED);
+  static Experiment createExperiment(Cursor cursor) {
+    int idIndex = cursor.getColumnIndex(ExperimentColumns._ID);
     int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
-
-    Experiment experiment = new Experiment();
-
-    if (!cursor.isNull(idIndex)) {
-      experiment.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(serverIdIndex)) {
-      experiment.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(titleIndex)) {
-      experiment.setTitle(cursor.getString(titleIndex));
-    }
-
-    if (!cursor.isNull(versionIndex)) {
-      experiment.setVersion(cursor.getInt(versionIndex));
-    }
-
-    if (!cursor.isNull(descIndex)) {
-      experiment.setDescription(cursor.getString(descIndex));
-    }
-
-    if (!cursor.isNull(creatorIndex)) {
-      experiment.setCreator(cursor.getString(creatorIndex));
-    }
-
-    if (!cursor.isNull(icIndex)) {
-      experiment.setInformedConsentForm(cursor.getString(icIndex));
-    }
-
-    if (!cursor.isNull(hashIndex)) {
-      experiment.setHash(cursor.getString(hashIndex));
-    }
-
-    if (!cursor.isNull(fixedDurationIndex)) {
-      experiment.setFixedDuration(cursor.getLong(fixedDurationIndex) == 1);
-    }
-
-    if (!cursor.isNull(startDateIndex)) {
-      experiment.setStartDate(cursor.getString(startDateIndex));
-    }
-
-    if (!cursor.isNull(endDateIndex)) {
-      experiment.setEndDate(cursor.getString(endDateIndex));
-    }
-
-    if (!cursor.isNull(joinDateIndex)) {
-      // TODO (bobevans) add the timezone from the user. The default is probably fine for now.
-      experiment.setJoinDate(cursor.getString(joinDateIndex));
-    }
-
-    if (!cursor.isNull(questionsChangeIndex)) {
-      experiment.setQuestionsChange(cursor.getLong(questionsChangeIndex) == 1);
-    }
-
-    if (!cursor.isNull(iconIndex)) {
-      experiment.setIcon(cursor.getBlob(iconIndex));
-    }
-
-    if (!cursor.isNull(webRecommendedIndex)) {
-      experiment.setWebRecommended(cursor.getLong(webRecommendedIndex) == 1);
-    }
 
     if (!cursor.isNull(jsonIndex)) {
       String jsonOfExperiment = cursor.getString(jsonIndex);
       try {
         long t1 = System.currentTimeMillis();
-        Experiment experimentFromJson = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
-        Log.e(PacoConstants.TAG, "time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
-        //Log.e(PacoConstants.TAG, "Stack: ", CallingStack.callChain());
-        Trigger trigger = experimentFromJson.getTrigger();
-        if (trigger != null) {
-          List<SignalingMechanism> signalingMechanisms = new ArrayList();
-          signalingMechanisms.add(trigger);
-          experiment.setTrigger(trigger);
-          experiment.setSignalingMechanisms(signalingMechanisms);
-        }
-        Boolean customRendering = experimentFromJson.isCustomRendering();
-        experiment.setCustomRendering(customRendering != null ? customRendering : false);
-        experiment.setCustomRenderingCode(experimentFromJson.getCustomRenderingCode());
-        Integer feedbackType = experimentFromJson.getFeedbackType();
-        if (feedbackType == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
-          String text = experimentFromJson.getFeedback().get(0).getText();
-          if (text.length() == 0 || FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(text)) {
-            feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE;
-          } else {
-            feedbackType = FeedbackDAO.FEEDBACK_TYPE_CUSTOM;
+        Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(jsonOfExperiment);
+        if (experiment.getId() == null) {
+          if (!cursor.isNull(idIndex)) {
+            experiment.setId(cursor.getLong(idIndex));
           }
         }
-        experiment.setFeedbackType(feedbackType);
-        experiment.setFeedback(experimentFromJson.getFeedback());
-        experiment.setLogActions(experimentFromJson.isLogActions());
-        experiment.setRecordPhoneDetails(experimentFromJson.isRecordPhoneDetails());
+        Log.e(PacoConstants.TAG, "time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
+        return experiment;
       } catch (JsonParseException e) {
         e.printStackTrace();
       } catch (JsonMappingException e) {
@@ -539,12 +343,13 @@ public class ExperimentProviderUtil {
       } catch (IOException e) {
         e.printStackTrace();
       }
-    }
 
-    return experiment;
+    }
+    return null;
+
   }
 
-  private ContentValues createContentValues(Experiment experiment) {
+  static ContentValues createContentValues(Experiment experiment) {
     ContentValues values = new ContentValues();
     // Values id < 0 indicate no id is available:
     if (experiment.getId() != null) {
@@ -553,47 +358,10 @@ public class ExperimentProviderUtil {
     if (experiment.getServerId() != null) {
       values.put(ExperimentColumns.SERVER_ID, experiment.getServerId());
     }
-    if (experiment.getTitle() != null) {
-      values.put(ExperimentColumns.TITLE, experiment.getTitle() );
-    }
-    if (experiment.getVersion() != null) {
-      values.put(ExperimentColumns.VERSION, experiment.getVersion() );
-    }
-    if (experiment.getDescription() != null) {
-      values.put(ExperimentColumns.DESCRIPTION, experiment.getDescription() );
-    }
-    if (experiment.getCreator() != null) {
-      values.put(ExperimentColumns.CREATOR, experiment.getCreator() );
-    }
-    if (experiment.getInformedConsentForm() != null) {
-      values.put(ExperimentColumns.INFORMED_CONSENT, experiment.getInformedConsentForm() );
-    }
-    if (experiment.getHash() != null) {
-      values.put(ExperimentColumns.HASH, experiment.getHash() );
-    }
-
-    values.put(ExperimentColumns.FIXED_DURATION, experiment.isFixedDuration() != null && experiment.isFixedDuration() ? 1 : 0);
-
-    if (experiment.getStartDate() != null) {
-      values.put(ExperimentColumns.START_DATE, experiment.getStartDate());
-    }
-    if (experiment.getEndDate() != null) {
-      values.put(ExperimentColumns.END_DATE, experiment.getEndDate());
-    }
-
     if (experiment.getJoinDate() != null) {
       values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
-    values.put(ExperimentColumns.QUESTIONS_CHANGE, experiment.isQuestionsChange() ? 1 : 0 );
 
-    if (experiment.getIcon() != null) {
-          values.put(ExperimentColumns.ICON, experiment.getIcon() );
-    }
-
-    values.put(ExperimentColumns.WEB_RECOMMENDED, experiment.isWebRecommended() != null && experiment.isWebRecommended() ? 1 : 0);
-
-    // TODO remove almost all other fields other than ID fields and this json serialization.
-    // Leave only fields that we need to query by.
     long t1 = System.currentTimeMillis();
     String json = getJson(experiment);
     Log.e(PacoConstants.TAG, "time to jsonify experiment (bytes: " + json.getBytes().length + "): " + (System.currentTimeMillis() - t1));
@@ -644,383 +412,10 @@ public class ExperimentProviderUtil {
     return null;
   }
 
-
-  public void loadInputsForExperiment(Experiment experiment) {
-    String select = InputColumns.EXPERIMENT_ID + " = " + experiment.getId();
-    experiment.setInputs(findInputsBy(select));
-  }
-
   public void loadEventsForExperiment(Experiment experiment) {
     List<Event> eventSingleEntryList = findEventsBy(EventColumns.EXPERIMENT_ID + "=" + experiment.getId(),
         EventColumns._ID +" DESC");
     experiment.setEvents(eventSingleEntryList);
-  }
-
-
-  public void insertInputsForJoinedExperiment(Experiment experiment) {
-    List<Input> inputs = experiment.getInputs();
-    for (Input input : inputs) {
-      input.setExperimentId(experiment.getId());
-      insertInput(input);
-    }
-  }
-    // The same things for Inputs
-
-  public Input getInput(long id) {
-    String select = InputColumns._ID + "=" + id;
-    return findInputBy(select);
-  }
-
-  public Uri insertInput(Input input) {
-    return contentResolver.insert(InputColumns.CONTENT_URI,
-        createContentValues(input));
-  }
-
-  public void deleteInput(long inputId) {
-    Input input = getInput(inputId);
-    if (input != null) {
-      String[] selectionArgs = new String[] {Long.toString(inputId)};
-      contentResolver.delete(InputColumns.CONTENT_URI,
-          "_id = ?",
-          selectionArgs);
-    }
-  }
-
-  public void updateInput(Input input) {
-    contentResolver.update(InputColumns.CONTENT_URI,
-        createContentValues(input), "_id=" + input.getId(), null);
-  }
-
-  private Input findInputBy(String select) {
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(InputColumns.CONTENT_URI,
-          null, select, null, null);
-      if (cursor != null && cursor.moveToNext()) {
-        return createInput(cursor);
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return null;
-  }
-
-  private List<Input> findInputsBy(String select) {
-    List<Input> inputs = new ArrayList<Input>();
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(InputColumns.CONTENT_URI,
-          null, select, null, null);
-      if (cursor != null) {
-        while (cursor.moveToNext()) {
-          inputs.add(createInput(cursor));
-        }
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return inputs;
-  }
-
-
-  private Input createInput(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(InputColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(InputColumns.SERVER_ID);
-    int experimentIndex = cursor.getColumnIndex(InputColumns.EXPERIMENT_ID);
-    int quesstionTypeIndex = cursor.getColumnIndex(InputColumns.QUESTION_TYPE);
-    int responseTypeIndex = cursor.getColumnIndex(InputColumns.RESPONSE_TYPE);
-    int mandatoryIndex = cursor.getColumnIndex(InputColumns.MANDATORY);
-    int textIndex = cursor.getColumnIndex(InputColumns.TEXT);
-    int nameIndex = cursor.getColumnIndex(InputColumns.NAME);
-    int scheduledDateIndex = cursor.getColumnIndex(InputColumns.SCHEDULED_DATE);
-    int likertStepsIndex = cursor.getColumnIndex(InputColumns.LIKERT_STEPS);
-    int leftSideLabelIndex = cursor.getColumnIndex(InputColumns.LEFT_SIDE_LABEL);
-    int rightSideLabelIndex = cursor.getColumnIndex(InputColumns.RIGHT_SIDE_LABEL);
-    int listChoiceIndex = cursor.getColumnIndex(InputColumns.LIST_CHOICES_JSON);
-    int conditionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL);
-    int conditionExpressionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL_EXPRESSION);
-    int multiselectIndex = cursor.getColumnIndex(InputColumns.MULTISELECT);
-
-    Input input = new Input();
-
-    if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(serverIdIndex)) {
-      input.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(experimentIndex)) {
-      input.setExperimentId(cursor.getLong(experimentIndex));
-    }
-
-    if (!cursor.isNull(nameIndex)) {
-      input.setName(cursor.getString(nameIndex));
-    }
-
-    if (!cursor.isNull(quesstionTypeIndex)) {
-      input.setQuestionType(cursor.getString(quesstionTypeIndex));
-    }
-
-    if (!cursor.isNull(responseTypeIndex)) {
-      input.setResponseType(cursor.getString(responseTypeIndex));
-    }
-
-    if (!cursor.isNull(scheduledDateIndex)) {
-      input.setScheduleDateFromLong(cursor.getLong(scheduledDateIndex));
-    }
-
-    if (!cursor.isNull(mandatoryIndex)) {
-      input.setMandatory(cursor.getInt(mandatoryIndex) == 1);
-    }
-
-    if (!cursor.isNull(textIndex)) {
-      input.setText(cursor.getString(textIndex));
-    }
-
-    if (!cursor.isNull(likertStepsIndex)) {
-      input.setLikertSteps(cursor.getInt(likertStepsIndex));
-    }
-    if (!cursor.isNull(leftSideLabelIndex)) {
-      input.setLeftSideLabel(cursor.getString(leftSideLabelIndex));
-    }
-    if (!cursor.isNull(rightSideLabelIndex)) {
-      input.setRightSideLabel(cursor.getString(rightSideLabelIndex));
-    }
-
-    List<String> listChoices = null;
-    if (!cursor.isNull(listChoiceIndex)) {
-      String jsonChoices = cursor.getString(listChoiceIndex);
-      ObjectMapper mapper = new ObjectMapper();
-      try {
-        listChoices = mapper.readValue(jsonChoices, new TypeReference<List<String>>() {
-        });
-      } catch (JsonParseException e) {
-        e.printStackTrace();
-      } catch (JsonMappingException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    if (listChoices == null) {
-      listChoices = new ArrayList<String>();
-    }
-    input.setListChoices(listChoices);
-
-    if (!cursor.isNull(conditionIndex)) {
-      input.setConditional(cursor.getInt(conditionIndex) == 1);
-    }
-    if (!cursor.isNull(conditionExpressionIndex)) {
-      input.setConditionExpression(cursor.getString(conditionExpressionIndex));
-    }
-    if (!cursor.isNull(multiselectIndex)) {
-      input.setMultiselect(cursor.getInt(multiselectIndex) == 1);
-    }
-    return input;
-  }
-
-  private ContentValues createContentValues(Input input) {
-    ContentValues values = new ContentValues();
-    // Values id < 0 indicate no id is available:
-    if (input.getId() != null) {
-      values.put(InputColumns._ID, input.getId());
-    }
-    if (input.getServerId() != null) {
-      values.put(InputColumns.SERVER_ID, input.getServerId());
-    }
-    if (input.getExperimentId() != null) {
-      values.put(InputColumns.EXPERIMENT_ID, input.getExperimentId());
-    }
-    if (input.getQuestionType() != null) {
-      values.put(InputColumns.QUESTION_TYPE, input.getQuestionType());
-    }
-    if (input.getName() != null) {
-      values.put(InputColumns.NAME, input.getName());
-    }
-
-    if (input.getResponseType() != null) {
-      values.put(InputColumns.RESPONSE_TYPE, input.getResponseType());
-    }
-
-    if (input.getScheduleDate() != null) {
-      values.put(InputColumns.SCHEDULED_DATE, input.getScheduleDate().getTime());
-    }
-    values.put(InputColumns.MANDATORY, input.isMandatory() ? 1 : 0);
-
-    if (input.getText() != null) {
-      values.put(InputColumns.TEXT, input.getText() );
-    }
-    if (input.getLikertSteps() != null) {
-      values.put(InputColumns.LIKERT_STEPS, input.getLikertSteps());
-    }
-    if (input.getLeftSideLabel() != null) {
-      values.put(InputColumns.LEFT_SIDE_LABEL, input.getLeftSideLabel());
-    }
-    if (input.getRightSideLabel() != null) {
-      values.put(InputColumns.RIGHT_SIDE_LABEL, input.getRightSideLabel());
-    }
-    List<String> choices = input.getListChoices();
-
-    if (choices != null && choices.size() > 0) {
-      for (int i=0; i < choices.size(); i++) {
-        String jsonChoices = null;
-        try {
-          jsonChoices = new ObjectMapper().writeValueAsString(choices);
-        } catch (JsonGenerationException e) {
-          e.printStackTrace();
-        } catch (JsonMappingException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        if (jsonChoices != null) {
-          values.put(InputColumns.LIST_CHOICES_JSON, jsonChoices);
-        }
-      }
-    }
-
-    if (input.getConditional() != null) {
-      values.put(InputColumns.CONDITIONAL, input.getConditional());
-    }
-    if (input.getConditionExpression() != null) {
-      values.put(InputColumns.CONDITIONAL_EXPRESSION, input.getConditionExpression());
-    }
-    values.put(InputColumns.MULTISELECT, (input.isMultiselect() != null && input.isMultiselect()) ? 1 : 0);
-    return values;
-  }
-
-    //The same things for Feedback
-
-  public void loadFeedbackForExperiment(Experiment experiment) {
-    String select = FeedbackColumns.EXPERIMENT_ID + " = " + experiment.getId();
-    experiment.setFeeback(findFeedbackBy(select));
-  }
-
-  public void insertFeedbackForJoinedExperiment(Experiment experiment) {
-    List<Feedback> feedback = experiment.getFeedback();
-    for (Feedback feedbackItem : feedback) {
-      feedbackItem.setExperimentId(experiment.getId());
-      insertFeedback(feedbackItem);
-    }
-  }
-    // The same things for Inputs
-
-  public Feedback getFeedbackItem(long id) {
-    String select = FeedbackColumns._ID + "=" + id;
-    return findFeedbackItemBy(select);
-  }
-
-  public Uri insertFeedback(Feedback feedback) {
-    return contentResolver.insert(FeedbackColumns.CONTENT_URI,
-        createContentValues(feedback));
-  }
-
-  public void deleteFeedback(long feedbackId) {
-    Feedback feedback = getFeedbackItem(feedbackId);
-    if (feedback != null) {
-      String[] selectionArgs = new String[] {Long.toString(feedbackId)};
-      contentResolver.delete(FeedbackColumns.CONTENT_URI,
-          "_id = ?",
-          selectionArgs);
-    }
-  }
-
-  public void updateFeedback(Feedback feedback) {
-    contentResolver.update(FeedbackColumns.CONTENT_URI,
-        createContentValues(feedback), "_id=" + feedback.getId(), null);
-  }
-
-  private Feedback findFeedbackItemBy(String select) {
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
-          null, select, null, null);
-      if (cursor != null && cursor.moveToNext()) {
-        return createFeedback(cursor);
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return null;
-  }
-
-  private List<Feedback> findFeedbackBy(String select) {
-    List<Feedback> feedback = new ArrayList<Feedback>();
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
-          null, select, null, null);
-      if (cursor != null) {
-        while (cursor.moveToNext()) {
-          feedback.add(createFeedback(cursor));
-        }
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return feedback;
-  }
-
-
-  private Feedback createFeedback(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(FeedbackColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(FeedbackColumns.SERVER_ID);
-    int experimentIndex = cursor.getColumnIndex(FeedbackColumns.EXPERIMENT_ID);
-    int textIndex = cursor.getColumnIndex(FeedbackColumns.TEXT);
-
-    Feedback input = new Feedback();
-
-    if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(serverIdIndex)) {
-      input.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(experimentIndex)) {
-      input.setExperimentId(cursor.getLong(experimentIndex));
-    }
-    if (!cursor.isNull(textIndex)) {
-      input.setText(cursor.getString(textIndex));
-    }
-    return input;
-  }
-
-  private ContentValues createContentValues(Feedback feedback) {
-    ContentValues values = new ContentValues();
-
-    if (feedback.getId() != null) {
-      values.put(FeedbackColumns._ID, feedback.getId());
-    }
-    if (feedback.getServerId() != null) {
-      values.put(FeedbackColumns.SERVER_ID, feedback.getServerId());
-    }
-    if (feedback.getExperimentId() != null) {
-      values.put(FeedbackColumns.EXPERIMENT_ID, feedback.getExperimentId());
-    }
-    if (feedback.getText() != null) {
-      values.put(FeedbackColumns.TEXT, feedback.getText() );
-    }
-    return values;
   }
 
   public Uri insertEvent(Event event) {
@@ -1034,245 +429,6 @@ public class ExperimentProviderUtil {
     }
     return uri;
   }
-
-  public SignalSchedule createSchedule(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
-    int experimentIndex = cursor.getColumnIndex(SignalScheduleColumns.EXPERIMENT_ID);
-    int scheduleTypeIndex = cursor.getColumnIndex(SignalScheduleColumns.SCHEDULE_TYPE);
-    int timesCSVIndex = cursor.getColumnIndex(SignalScheduleColumns.TIMES_CSV);
-    int esmFrequencyIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_FREQUENCY);
-    int esmPeriodIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_PERIOD);
-
-    int esmStartIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_START_HOUR);
-    int esmEndIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_END_HOUR);
-    int esmWeekendsIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_WEEKENDS);
-
-    int repeatIndex = cursor.getColumnIndex(SignalScheduleColumns.REPEAT_RATE);
-    int weekdaysIndex = cursor.getColumnIndex(SignalScheduleColumns.WEEKDAYS_SCHEDULED);
-    int nthIndex = cursor.getColumnIndex(SignalScheduleColumns.NTH_OF_MONTH);
-    int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
-    int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
-    int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
-    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
-    int onlyEditableOnJoinIndex = cursor.getColumnIndex(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN);
-    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
-    int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
-    int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
-    int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
-    int signalTimesJsonIndex = cursor.getColumnIndex(SignalScheduleColumns.SIGNAL_TIMES);
-
-    SignalSchedule schedule = new SignalSchedule();
-    if (!cursor.isNull(idIndex)) {
-      schedule.setId(cursor.getLong(idIndex));
-    }
-    if (!cursor.isNull(serverIdIndex)) {
-      schedule.setServerId(cursor.getLong(serverIdIndex));
-    }
-    if (!cursor.isNull(experimentIndex)) {
-      schedule.setExperimentId(cursor.getLong(experimentIndex));
-    }
-    if (!cursor.isNull(scheduleTypeIndex)) {
-      schedule.setScheduleType(cursor.getInt(scheduleTypeIndex));
-    }
-    if (!cursor.isNull(timesCSVIndex)) {
-      List<Long> times = new ArrayList<Long>();
-      StringSplitter sp = new TextUtils.SimpleStringSplitter(',');
-      sp.setString(cursor.getString(timesCSVIndex));
-      for (String string : sp) {
-        times.add(Long.parseLong(string));
-      }
-      schedule.setTimes(times);
-    }
-    if (!cursor.isNull(signalTimesJsonIndex)) {
-      List<SignalTime> signalTimes = fromJson(cursor.getString(signalTimesJsonIndex));
-      schedule.setSignalTimes(signalTimes);
-    }
-
-    if (!cursor.isNull(esmFrequencyIndex)) {
-      schedule.setEsmFrequency(cursor.getInt(esmFrequencyIndex));
-    }
-    if (!cursor.isNull(esmPeriodIndex)) {
-      schedule.setEsmPeriodInDays(cursor.getInt(esmPeriodIndex));
-    }
-    if (!cursor.isNull(esmStartIndex)) {
-      schedule.setEsmStartHour(cursor.getLong(esmStartIndex));
-    }
-    if (!cursor.isNull(esmEndIndex)) {
-      schedule.setEsmEndHour(cursor.getLong(esmEndIndex));
-    }
-    if (!cursor.isNull(esmWeekendsIndex)) {
-      schedule.setEsmWeekends(cursor.getInt(esmWeekendsIndex) == 1 ? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(repeatIndex)) {
-      schedule.setRepeatRate(cursor.getInt(repeatIndex));
-    }
-    if (!cursor.isNull(weekdaysIndex)) {
-      schedule.setWeekDaysScheduled(cursor.getInt(weekdaysIndex));
-    }
-    if (!cursor.isNull(nthIndex)) {
-      schedule.setNthOfMonth(cursor.getInt(nthIndex));
-    }
-    if (!cursor.isNull(byDayIndex)) {
-      schedule.setByDayOfMonth(cursor.getInt(byDayIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(dayIndex)) {
-      schedule.setDayOfMonth(cursor.getInt(dayIndex));
-    }
-    if (!cursor.isNull(beginDateIndex)) {
-      schedule.setBeginDate(cursor.getLong(beginDateIndex));
-    }
-    if (!cursor.isNull(userEditableIndex)) {
-      schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(onlyEditableOnJoinIndex)) {
-      schedule.setOnlyEditableOnJoin(cursor.getInt(onlyEditableOnJoinIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(timeoutIndex)) {
-      schedule.setTimeout(cursor.getInt(timeoutIndex));
-    }
-    if (!cursor.isNull(minBufferIndex)) {
-      schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
-    }
-
-    if (!cursor.isNull(snoozeCountIndex)) {
-      schedule.setSnoozeCount(cursor.getInt(snoozeCountIndex));
-    }
-
-    if (!cursor.isNull(snoozeTimeIndex)) {
-      schedule.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
-    }
-
-    return schedule;
-  }
-
-
-  private ContentValues createContentValues(SignalSchedule schedule) {
-    ContentValues values = new ContentValues();
-    if (schedule.getId() != null) {
-      values.put(EventColumns._ID, schedule.getId());
-    }
-    if (schedule.getExperimentId() != null) {
-      values.put(SignalScheduleColumns.EXPERIMENT_ID, schedule.getExperimentId());
-    }
-    if (schedule.getServerId() != null) {
-      values.put(SignalScheduleColumns.SERVER_ID, schedule.getServerId());
-    }
-    if (schedule.getByDayOfMonth() != null) {
-      values.put(SignalScheduleColumns.BY_DAY_OF_MONTH, schedule.getByDayOfMonth());
-    }
-    if (schedule.getScheduleType() != null) {
-      values.put(SignalScheduleColumns.SCHEDULE_TYPE, schedule.getScheduleType());
-    }
-    if (schedule.getEsmFrequency() != null) {
-      values.put(SignalScheduleColumns.ESM_FREQUENCY, schedule.getEsmFrequency());
-    }
-    if (schedule.getEsmPeriodInDays() != null) {
-      values.put(SignalScheduleColumns.ESM_PERIOD, schedule.getEsmPeriodInDays());
-    }
-    if (schedule.getEsmStartHour() != null) {
-      values.put(SignalScheduleColumns.ESM_START_HOUR, schedule.getEsmStartHour());
-    }
-    if (schedule.getEsmEndHour() != null) {
-      values.put(SignalScheduleColumns.ESM_END_HOUR, schedule.getEsmEndHour());
-    }
-    if (schedule.getEsmWeekends() != null) {
-      values.put(SignalScheduleColumns.ESM_WEEKENDS, schedule.getEsmWeekends() == Boolean.TRUE ? 1 : 0);
-    }
-    if (schedule.getUserEditable() != null) {
-      values.put(SignalScheduleColumns.USER_EDITABLE, schedule.getUserEditable() == Boolean.TRUE ? 1 : 0);
-    }
-    if (schedule.getOnlyEditableOnJoin() != null) {
-      values.put(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN, schedule.getOnlyEditableOnJoin() == Boolean.TRUE ? 1 : 0);
-    }
-    if (schedule.getTimeout() != null) {
-      values.put(SignalScheduleColumns.TIME_OUT, schedule.getTimeout());
-    }
-
-    if (schedule.getMinimumBuffer() != null) {
-      values.put(SignalScheduleColumns.MINIMUM_BUFFER, schedule.getMinimumBuffer());
-    }
-
-    if (schedule.getSnoozeCount() != null) {
-      values.put(SignalScheduleColumns.SNOOZE_COUNT, schedule.getSnoozeCount());
-    }
-
-    if (schedule.getSnoozeTime() != null) {
-      values.put(SignalScheduleColumns.SNOOZE_TIME, schedule.getSnoozeTime());
-    }
-
-
-    values.put(SignalScheduleColumns.SIGNAL_TIMES, toJson(schedule.getSignalTimes()));
-
-    if (schedule.getRepeatRate() != null) {
-      values.put(SignalScheduleColumns.REPEAT_RATE, schedule.getRepeatRate());
-    }
-
-    if (schedule.getWeekDaysScheduled() != null) {
-      values.put(SignalScheduleColumns.WEEKDAYS_SCHEDULED, schedule.getWeekDaysScheduled());
-    }
-
-    if (schedule.getNthOfMonth() != null) {
-      values.put(SignalScheduleColumns.NTH_OF_MONTH, schedule.getNthOfMonth());
-    }
-
-    if (schedule.getByDayOfMonth() != null) {
-      values.put(SignalScheduleColumns.BY_DAY_OF_MONTH, schedule.getByDayOfMonth() == Boolean.TRUE ? 1 : 0);
-    }
-
-    if (schedule.getDayOfMonth() != null) {
-      values.put(SignalScheduleColumns.DAY_OF_MONTH, schedule.getDayOfMonth());
-    }
-    if (schedule.getBeginDate() != null) {
-      values.put(SignalScheduleColumns.BEGIN_DATE, schedule.getBeginDate());
-    }
-    return values;
-  }
-
-  private String toJson(List<SignalTime> signalTimes) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return mapper.writeValueAsString(signalTimes);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return "";
-  }
-
-  private List<SignalTime> fromJson(String string) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return mapper.readValue(string, new TypeReference<List<SignalTime>>() {});
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return Lists.newArrayList();
-  }
-
-
-
-  public void deleteSchedule(long scheduleId) {
-    Input input = getInput(scheduleId);
-    if (input != null) {
-      String[] selectionArgs = new String[] {Long.toString(scheduleId)};
-      contentResolver.delete(SignalScheduleColumns.CONTENT_URI,
-          "_id = ?",
-          selectionArgs);
-    }
-  }
-
-  public void updateSchedule(SignalSchedule schedule) {
-    contentResolver.update(SignalScheduleColumns.CONTENT_URI,
-        createContentValues(schedule), "_id=" + schedule.getId(), null);
-  }
-
-  public Uri insertSchedule(SignalSchedule schedule) {
-    return contentResolver.insert(SignalScheduleColumns.CONTENT_URI,
-        createContentValues(schedule));
-  }
-
 
   private ContentValues createContentValues(Event event) {
     ContentValues values = new ContentValues();
@@ -1489,41 +645,6 @@ public class ExperimentProviderUtil {
     if (experiment != null) {
       deleteFullExperiment(experiment);
     }
-  }
-
-  public void deleteAllUnJoinedExperiments() {
-
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(ExperimentColumns.CONTENT_URI,
-          new String[] { ExperimentColumns._ID },
-          ExperimentColumns.JOIN_DATE + " IS NULL ",
-          null, null);
-      if (cursor != null) {
-        StringBuilder idsStringBuilder = new StringBuilder();
-        int lineCount = 0;
-        while (cursor.moveToNext()) {
-          if (lineCount > 0) {
-            idsStringBuilder.append(",");
-          }
-          idsStringBuilder.append(cursor.getString(0));
-          lineCount++;
-        }
-        String idsString = idsStringBuilder.toString();
-        contentResolver.delete(
-            ExperimentColumns.CONTENT_URI, ExperimentColumns._ID + " in (" + idsString + ")", null);
-        // TODO delete all from child tables where experiment_ids match
-        contentResolver.delete(InputColumns.CONTENT_URI,
-            InputColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-        contentResolver.delete(FeedbackColumns.CONTENT_URI,
-            FeedbackColumns.EXPERIMENT_ID + " in (" + idsString + ")", null);
-      }
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-
   }
 
   public NotificationHolder getNotificationFor(long experimentId) {
@@ -1902,27 +1023,6 @@ public class ExperimentProviderUtil {
     return mapper.readValue(contentAsString, Experiment.class);
   }
 
-  public List<SignalSchedule> getAllSchedules() {
-    List<SignalSchedule> schedules = Lists.newArrayList();
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(SignalScheduleColumns.CONTENT_URI, null, null, null, null);
-      if (cursor != null) {
-        while (cursor.moveToNext()) {
-          SignalSchedule schedule = createSchedule(cursor);
-          schedules.add(schedule);
-        }
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return schedules;
-  }
-
   public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
     if (scheduledTime == null) {
       return null;
@@ -1936,4 +1036,378 @@ public class ExperimentProviderUtil {
     }
     return event;
   }
+
+  // legacy for 21->22 db upgrade
+  public void loadInputsForExperiment(Experiment experiment) {
+    String select = "_id" + " = " + experiment.getId();
+    experiment.setInputs(findInputsBy(select));
+  }
+
+  private List<Input> findInputsBy(String select) {
+    List<Input> inputs = new ArrayList<Input>();
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(InputColumns.CONTENT_URI,
+          null, select, null, null);
+      if (cursor != null) {
+        while (cursor.moveToNext()) {
+          inputs.add(createInput(cursor));
+        }
+      }
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return inputs;
+  }
+
+  static class InputColumns implements BaseColumns {
+    public static final String EXPERIMENT_ID = "experiment_id";
+    public static final String SERVER_ID = "question_id";
+    public static final String NAME = "name";
+    public static final String TEXT = "text";
+    public static final String MANDATORY = "mandatory";
+    public static final String QUESTION_TYPE = "question_type";
+    public static final String RESPONSE_TYPE = "response_type";
+    public static final String LIKERT_STEPS = "likert_steps";
+    public static final String LEFT_SIDE_LABEL = "left_side_label";
+    public static final String RIGHT_SIDE_LABEL = "right_side_label";
+    public static final String LIST_CHOICES_JSON = "list_choices";
+    public static final String SCHEDULED_DATE = "scheduledDate";
+    public static final String CONDITIONAL = "conditional";
+    public static final String CONDITIONAL_EXPRESSION = "condition_expression";
+    public static final String MULTISELECT = "multiselect";
+
+    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.input";
+    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.input";
+
+    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/inputs");
+
+
+
+  }
+  public static Input createInput(Cursor cursor) {
+    int idIndex = cursor.getColumnIndexOrThrow(InputColumns._ID);
+    int serverIdIndex = cursor.getColumnIndexOrThrow(InputColumns.SERVER_ID);
+    int experimentIndex = cursor.getColumnIndex(InputColumns.EXPERIMENT_ID);
+    int quesstionTypeIndex = cursor.getColumnIndex(InputColumns.QUESTION_TYPE);
+    int responseTypeIndex = cursor.getColumnIndex(InputColumns.RESPONSE_TYPE);
+    int mandatoryIndex = cursor.getColumnIndex(InputColumns.MANDATORY);
+    int textIndex = cursor.getColumnIndex(InputColumns.TEXT);
+    int nameIndex = cursor.getColumnIndex(InputColumns.NAME);
+    int scheduledDateIndex = cursor.getColumnIndex(InputColumns.SCHEDULED_DATE);
+    int likertStepsIndex = cursor.getColumnIndex(InputColumns.LIKERT_STEPS);
+    int leftSideLabelIndex = cursor.getColumnIndex(InputColumns.LEFT_SIDE_LABEL);
+    int rightSideLabelIndex = cursor.getColumnIndex(InputColumns.RIGHT_SIDE_LABEL);
+    int listChoiceIndex = cursor.getColumnIndex(InputColumns.LIST_CHOICES_JSON);
+    int conditionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL);
+    int conditionExpressionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL_EXPRESSION);
+    int multiselectIndex = cursor.getColumnIndex(InputColumns.MULTISELECT);
+
+    Input input = new Input();
+
+    if (!cursor.isNull(idIndex)) {
+      input.setId(cursor.getLong(idIndex));
+    }
+
+    if (!cursor.isNull(serverIdIndex)) {
+      input.setServerId(cursor.getLong(serverIdIndex));
+    }
+
+    if (!cursor.isNull(experimentIndex)) {
+      input.setExperimentId(cursor.getLong(experimentIndex));
+    }
+
+    if (!cursor.isNull(nameIndex)) {
+      input.setName(cursor.getString(nameIndex));
+    }
+
+    if (!cursor.isNull(quesstionTypeIndex)) {
+      input.setQuestionType(cursor.getString(quesstionTypeIndex));
+    }
+
+    if (!cursor.isNull(responseTypeIndex)) {
+      input.setResponseType(cursor.getString(responseTypeIndex));
+    }
+
+    if (!cursor.isNull(scheduledDateIndex)) {
+      input.setScheduleDateFromLong(cursor.getLong(scheduledDateIndex));
+    }
+
+    if (!cursor.isNull(mandatoryIndex)) {
+      input.setMandatory(cursor.getInt(mandatoryIndex) == 1);
+    }
+
+    if (!cursor.isNull(textIndex)) {
+      input.setText(cursor.getString(textIndex));
+    }
+
+    if (!cursor.isNull(likertStepsIndex)) {
+      input.setLikertSteps(cursor.getInt(likertStepsIndex));
+    }
+    if (!cursor.isNull(leftSideLabelIndex)) {
+      input.setLeftSideLabel(cursor.getString(leftSideLabelIndex));
+    }
+    if (!cursor.isNull(rightSideLabelIndex)) {
+      input.setRightSideLabel(cursor.getString(rightSideLabelIndex));
+    }
+
+    List<String> listChoices = null;
+    if (!cursor.isNull(listChoiceIndex)) {
+      String jsonChoices = cursor.getString(listChoiceIndex);
+      ObjectMapper mapper = new ObjectMapper();
+      try {
+        listChoices = mapper.readValue(jsonChoices, new TypeReference<List<String>>() {
+        });
+      } catch (JsonParseException e) {
+        e.printStackTrace();
+      } catch (JsonMappingException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    if (listChoices == null) {
+      listChoices = new ArrayList<String>();
+    }
+    input.setListChoices(listChoices);
+
+    if (!cursor.isNull(conditionIndex)) {
+      input.setConditional(cursor.getInt(conditionIndex) == 1);
+    }
+    if (!cursor.isNull(conditionExpressionIndex)) {
+      input.setConditionExpression(cursor.getString(conditionExpressionIndex));
+    }
+    if (!cursor.isNull(multiselectIndex)) {
+      input.setMultiselect(cursor.getInt(multiselectIndex) == 1);
+    }
+    return input;
+  }
+
+  public static class FeedbackColumns implements BaseColumns {
+
+    public static final String EXPERIMENT_ID = "experiment_id";
+    public static final String SERVER_ID = "server_id";
+    public static final String TEXT = "text";
+
+    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.feedback";
+    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.feedback";
+
+    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/feedback");
+
+  }
+//  public static void loadFeedbackForExperiment(Experiment experiment) {
+//    String select = FeedbackColumns.EXPERIMENT_ID + " = " + experiment.getId();
+//    experiment.setFeeback(ExperimentProviderUtil.findFeedbackBy(select));
+//  }
+
+//  private static List<Feedback> findFeedbackBy(String select) {
+//    List<Feedback> feedback = new ArrayList<Feedback>();
+//    Cursor cursor = null;
+//    try {
+//      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
+//          null, select, null, null);
+//      if (cursor != null) {
+//        while (cursor.moveToNext()) {
+//          feedback.add(createFeedback(cursor));
+//        }
+//      }
+//    } catch (RuntimeException e) {
+//      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+//    } finally {
+//      if (cursor != null) {
+//        cursor.close();
+//      }
+//    }
+//    return feedback;
+//  }
+
+  public static Feedback createFeedback(Cursor cursor) {
+    int idIndex = cursor.getColumnIndexOrThrow(FeedbackColumns._ID);
+    int serverIdIndex = cursor.getColumnIndexOrThrow(FeedbackColumns.SERVER_ID);
+    int experimentIndex = cursor.getColumnIndex(FeedbackColumns.EXPERIMENT_ID);
+    int textIndex = cursor.getColumnIndex(FeedbackColumns.TEXT);
+
+    Feedback input = new Feedback();
+
+    if (!cursor.isNull(idIndex)) {
+      input.setId(cursor.getLong(idIndex));
+    }
+
+    if (!cursor.isNull(serverIdIndex)) {
+      input.setServerId(cursor.getLong(serverIdIndex));
+    }
+
+    if (!cursor.isNull(experimentIndex)) {
+      input.setExperimentId(cursor.getLong(experimentIndex));
+    }
+    if (!cursor.isNull(textIndex)) {
+      input.setText(cursor.getString(textIndex));
+    }
+    return input;
+  }
+
+  public static class SignalScheduleColumns implements BaseColumns {
+    public static final String EXPERIMENT_ID = "experiment_id";
+    public static final String SERVER_ID = "server_id";
+    public static final String SCHEDULE_TYPE = "schedule_type";
+    public static final String TIMES_CSV = "times";
+    public static final String ESM_FREQUENCY = "esm_frequency";
+    public static final String ESM_PERIOD = "esm_period";
+
+    public static final String ESM_START_HOUR = "esm_start_hour";
+    public static final String ESM_END_HOUR = "esm_end_hour";
+    public static final String ESM_WEEKENDS = "esm_weekends";
+
+    public static final String REPEAT_RATE =  "repeat_rate";
+    public static final String WEEKDAYS_SCHEDULED  = "weekdays_scheduled";
+    public static final String NTH_OF_MONTH  = "nth_of_month";
+    public static final String BY_DAY_OF_MONTH = "by_day_of_month";
+    public static final String DAY_OF_MONTH  = "day_of_month";
+    public static final String BEGIN_DATE  = "begin_date";
+    public static final String USER_EDITABLE = "user_editable";
+    public static final String TIME_OUT = "timeout";
+    public static final String MINIMUM_BUFFER = "minimum_buffer";
+    public static final String SNOOZE_COUNT = "snooze_count";
+    public static final String SNOOZE_TIME = "snooze_time";
+    public static final String SIGNAL_TIMES = "signalTimesJson";
+    public static final String ONLY_EDITABLE_ON_JOIN = "only_editable_on_join";
+
+    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.schedule";
+    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.schedule";
+
+    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/schedules");
+
+
+
+
+
+
+
+  }
+  public static SignalingMechanism createSchedule(Cursor cursor) {
+    int idIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns._ID);
+    int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
+    int scheduleTypeIndex = cursor.getColumnIndex(SignalScheduleColumns.SCHEDULE_TYPE);
+    int timesCSVIndex = cursor.getColumnIndex(SignalScheduleColumns.TIMES_CSV);
+    int esmFrequencyIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_FREQUENCY);
+    int esmPeriodIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_PERIOD);
+
+    int esmStartIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_START_HOUR);
+    int esmEndIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_END_HOUR);
+    int esmWeekendsIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_WEEKENDS);
+
+    int repeatIndex = cursor.getColumnIndex(SignalScheduleColumns.REPEAT_RATE);
+    int weekdaysIndex = cursor.getColumnIndex(SignalScheduleColumns.WEEKDAYS_SCHEDULED);
+    int nthIndex = cursor.getColumnIndex(SignalScheduleColumns.NTH_OF_MONTH);
+    int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
+    int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
+    int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
+    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
+    int onlyEditableOnJoinIndex = cursor.getColumnIndex(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN);
+    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
+    int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
+    int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
+    int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
+    int signalTimesJsonIndex = cursor.getColumnIndex(SignalScheduleColumns.SIGNAL_TIMES);
+
+    SignalSchedule schedule = new SignalSchedule();
+    if (!cursor.isNull(idIndex)) {
+      schedule.setId(cursor.getLong(idIndex));
+    }
+    if (!cursor.isNull(serverIdIndex)) {
+      schedule.setServerId(cursor.getLong(serverIdIndex));
+    }
+
+    if (!cursor.isNull(scheduleTypeIndex)) {
+      schedule.setScheduleType(cursor.getInt(scheduleTypeIndex));
+    }
+    if (!cursor.isNull(timesCSVIndex)) {
+      List<Long> times = new ArrayList<Long>();
+      StringSplitter sp = new TextUtils.SimpleStringSplitter(',');
+      sp.setString(cursor.getString(timesCSVIndex));
+      for (String string : sp) {
+        times.add(Long.parseLong(string));
+      }
+      schedule.setTimes(times);
+    }
+    if (!cursor.isNull(signalTimesJsonIndex)) {
+      List<SignalTime> signalTimes = fromJson(cursor.getString(signalTimesJsonIndex));
+      schedule.setSignalTimes(signalTimes);
+    }
+
+    if (!cursor.isNull(esmFrequencyIndex)) {
+      schedule.setEsmFrequency(cursor.getInt(esmFrequencyIndex));
+    }
+    if (!cursor.isNull(esmPeriodIndex)) {
+      schedule.setEsmPeriodInDays(cursor.getInt(esmPeriodIndex));
+    }
+    if (!cursor.isNull(esmStartIndex)) {
+      schedule.setEsmStartHour(cursor.getLong(esmStartIndex));
+    }
+    if (!cursor.isNull(esmEndIndex)) {
+      schedule.setEsmEndHour(cursor.getLong(esmEndIndex));
+    }
+    if (!cursor.isNull(esmWeekendsIndex)) {
+      schedule.setEsmWeekends(cursor.getInt(esmWeekendsIndex) == 1 ? Boolean.TRUE : Boolean.FALSE);
+    }
+    if (!cursor.isNull(repeatIndex)) {
+      schedule.setRepeatRate(cursor.getInt(repeatIndex));
+    }
+    if (!cursor.isNull(weekdaysIndex)) {
+      schedule.setWeekDaysScheduled(cursor.getInt(weekdaysIndex));
+    }
+    if (!cursor.isNull(nthIndex)) {
+      schedule.setNthOfMonth(cursor.getInt(nthIndex));
+    }
+    if (!cursor.isNull(byDayIndex)) {
+      schedule.setByDayOfMonth(cursor.getInt(byDayIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
+    if (!cursor.isNull(dayIndex)) {
+      schedule.setDayOfMonth(cursor.getInt(dayIndex));
+    }
+    if (!cursor.isNull(beginDateIndex)) {
+      schedule.setBeginDate(cursor.getLong(beginDateIndex));
+    }
+    if (!cursor.isNull(userEditableIndex)) {
+      schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
+    if (!cursor.isNull(onlyEditableOnJoinIndex)) {
+      schedule.setOnlyEditableOnJoin(cursor.getInt(onlyEditableOnJoinIndex) == 1? Boolean.TRUE : Boolean.FALSE);
+    }
+    if (!cursor.isNull(timeoutIndex)) {
+      schedule.setTimeout(cursor.getInt(timeoutIndex));
+    }
+    if (!cursor.isNull(minBufferIndex)) {
+      schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
+    }
+
+    if (!cursor.isNull(snoozeCountIndex)) {
+      schedule.setSnoozeCount(cursor.getInt(snoozeCountIndex));
+    }
+
+    if (!cursor.isNull(snoozeTimeIndex)) {
+      schedule.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
+    }
+
+    return schedule;
+  }
+
+  private static List<SignalTime> fromJson(String string) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return mapper.readValue(string, new TypeReference<List<SignalTime>>() {});
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return Lists.newArrayList();
+  }
+
+
+  // end 21-> 22 backward compat code.
+
 }

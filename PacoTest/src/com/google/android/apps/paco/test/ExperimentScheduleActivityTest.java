@@ -109,21 +109,24 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
     checkSavedExperimentWeeklySchedule(timesLength, savedExperiment);
   }
 
+  private SignalSchedule getSchedule(Experiment experiment) {
+    return (SignalSchedule) experiment.getSignalingMechanisms().get(0);
+  }
   public void testWeeklySchedulingSetsOnlyCorrectDays() {
     Experiment experiment = getTestExperiment(ExperimentTestConstants.ONGOING_WEEKLY);
     joinExperiment(experiment);
     configureActivityForTesting(experiment);
 
     int timesLength = setActivityExperimentRepeatRateAndTimes();
-    activity.getExperiment().getSchedule().removeAllWeekDaysScheduled();
-    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.SUNDAY);
+    getSchedule(activity.getExperiment()).removeAllWeekDaysScheduled();
+    getSchedule(activity.getExperiment()).addWeekDayToSchedule(SignalSchedule.SUNDAY);
     saveExperimentSchedule();
 
     Experiment savedExperiment = getSavedExperiment(experiment);
     checkSavedExperimentRepeatRateAndTimes(timesLength, savedExperiment);
-    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.SUNDAY));
+    assertTrue(getSchedule(activity.getExperiment()).isWeekDayScheduled(SignalSchedule.SUNDAY));
     for (int i = 1; i < 7; ++i) {
-      assertFalse(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.DAYS_OF_WEEK[i]));
+      assertFalse(getSchedule(activity.getExperiment()).isWeekDayScheduled(SignalSchedule.DAYS_OF_WEEK[i]));
     }
   }
 
@@ -194,13 +197,13 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private void checkSavedExperimentEsmSchedule(Experiment savedExperiment) {
-    assertEquals(savedExperiment.getSchedule().getEsmStartHour(), START_TIME);
-    assertEquals(savedExperiment.getSchedule().getEsmEndHour(), END_TIME);
+    assertEquals(getSchedule(savedExperiment).getEsmStartHour(), START_TIME);
+    assertEquals(getSchedule(savedExperiment).getEsmEndHour(), END_TIME);
   }
 
   private void setActivityExperimentEsmSchedule() {
-    activity.getExperiment().getSchedule().setEsmStartHour(START_TIME);
-    activity.getExperiment().getSchedule().setEsmEndHour(END_TIME);
+    getSchedule(activity.getExperiment()).setEsmStartHour(START_TIME);
+    getSchedule(activity.getExperiment()).setEsmEndHour(END_TIME);
   }
 
   private void checkSavedExperimentWeekdaySchedule(int timesLength, Experiment savedExperiment) {
@@ -221,52 +224,52 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
 
   private void checkSavedExperimentWeeklySchedule(int timesLength, Experiment savedExperiment) {
     checkSavedExperimentRepeatRateAndTimes(timesLength, savedExperiment);
-    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.WEDNESDAY));
-    assertTrue(activity.getExperiment().getSchedule().isWeekDayScheduled(SignalSchedule.FRIDAY));
+    assertTrue(getSchedule(activity.getExperiment()).isWeekDayScheduled(SignalSchedule.WEDNESDAY));
+    assertTrue(getSchedule(activity.getExperiment()).isWeekDayScheduled(SignalSchedule.FRIDAY));
   }
 
   private int setActivityExperimentWeeklySchedule() {
     int timesLength = setActivityExperimentRepeatRateAndTimes();
-    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.WEDNESDAY);
-    activity.getExperiment().getSchedule().addWeekDayToSchedule(SignalSchedule.FRIDAY);
+    getSchedule(activity.getExperiment()).addWeekDayToSchedule(SignalSchedule.WEDNESDAY);
+    getSchedule(activity.getExperiment()).addWeekDayToSchedule(SignalSchedule.FRIDAY);
     return timesLength;
   }
 
   private void checkSavedExperimentMonthlyDayOfMonthSchedule(Experiment savedExperiment) {
-    assertEquals(savedExperiment.getSchedule().getRepeatRate(), REPEAT_RATE);
-    assertEquals(savedExperiment.getSchedule().getDayOfMonth(), DAY_OF_MONTH);
+    assertEquals(getSchedule(savedExperiment).getRepeatRate(), REPEAT_RATE);
+    assertEquals(getSchedule(savedExperiment).getDayOfMonth(), DAY_OF_MONTH);
   }
 
   private void setActivityExperimentMonthlyDayOfMonthSchedule() {
-    activity.getExperiment().getSchedule().setRepeatRate(REPEAT_RATE);
-    activity.getExperiment().getSchedule().setDayOfMonth(DAY_OF_MONTH);
+    getSchedule(activity.getExperiment()).setRepeatRate(REPEAT_RATE);
+    getSchedule(activity.getExperiment()).setDayOfMonth(DAY_OF_MONTH);
   }
 
   private void checkSavedExperimentMonthlyNthOfMonthSchedule(Experiment savedExperiment) {
-    assertEquals(savedExperiment.getSchedule().getRepeatRate(), REPEAT_RATE);
-    assertEquals(savedExperiment.getSchedule().getNthOfMonth(), DAY_OF_MONTH);
-    assertEquals(savedExperiment.getSchedule().getWeekDaysScheduled(), DAY_OF_WEEK);
+    assertEquals(getSchedule(savedExperiment).getRepeatRate(), REPEAT_RATE);
+    assertEquals(getSchedule(savedExperiment).getNthOfMonth(), DAY_OF_MONTH);
+    assertEquals(getSchedule(savedExperiment).getWeekDaysScheduled(), DAY_OF_WEEK);
   }
 
   private void setActivityExperimentMonthlyNthOfMonthSchedule() {
-    activity.getExperiment().getSchedule().setRepeatRate(REPEAT_RATE);
-    activity.getExperiment().getSchedule().setNthOfMonth(DAY_OF_MONTH);
-    activity.getExperiment().getSchedule().setWeekDaysScheduled(DAY_OF_WEEK);
+    getSchedule(activity.getExperiment()).setRepeatRate(REPEAT_RATE);
+    getSchedule(activity.getExperiment()).setNthOfMonth(DAY_OF_MONTH);
+    getSchedule(activity.getExperiment()).setWeekDaysScheduled(DAY_OF_WEEK);
   }
 
   private void checkSavedExperimentRepeatRateAndTimes(int timesLength, Experiment savedExperiment) {
-    assertEquals(savedExperiment.getSchedule().getRepeatRate(), REPEAT_RATE);
+    assertEquals(getSchedule(savedExperiment).getRepeatRate(), REPEAT_RATE);
     checkExperimentTimesList(timesLength, savedExperiment);
   }
 
   private int setActivityExperimentRepeatRateAndTimes() {
-    activity.getExperiment().getSchedule().setRepeatRate(REPEAT_RATE);
+    getSchedule(activity.getExperiment()).setRepeatRate(REPEAT_RATE);
     int timesLength = setExperimentTimes();
     return timesLength;
   }
 
   private int setExperimentTimes() {
-    List<SignalTime> times = activity.getExperiment().getSchedule().getSignalTimes();
+    List<SignalTime> times = getSchedule(activity.getExperiment()).getSignalTimes();
     int timesLength = times.size();
     for (int i = 0; i < timesLength; ++i) {
       times.set(i, ADAPTER_TIME);
@@ -275,7 +278,7 @@ public class ExperimentScheduleActivityTest extends ActivityUnitTestCase<Experim
   }
 
   private void checkExperimentTimesList(int timesLength, Experiment savedExperiment) {
-    List<SignalTime> newTimes = savedExperiment.getSchedule().getSignalTimes();
+    List<SignalTime> newTimes = getSchedule(savedExperiment).getSignalTimes();
     assertEquals(newTimes.size(), timesLength);
     for (int j = 0; j < timesLength; ++j) {
       assertEquals(newTimes.get(j), ADAPTER_TIME);

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -28,13 +28,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.pacoapp.paco.R;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,12 +46,13 @@ import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TwoLineListItem;
+
+import com.pacoapp.paco.R;
 
 
 /**
@@ -75,14 +73,14 @@ public class ExploreDataActivity extends Activity {
   boolean showDialog = true;
   private Environment env;
   private List<Experiment> experiments;
-    
+
   @Override
   //Make the first screen with which choices of what to do: Trends, Relationships, or Distributions (TRD)
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.explore_data, null);
     setContentView(mainLayout);
-    
+
     //Check for experiments. If they do not exist, disable buttons and alert the user of that.
     experimentProviderUtil = new ExperimentProviderUtil(this);
     experiments = experimentProviderUtil.getJoinedExperiments();
@@ -92,50 +90,50 @@ public class ExploreDataActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
           dialog.dismiss();
         }
-        
+
       }).create().show();
       Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
       Button chooseRelationships = (Button)findViewById(R.id.RelationshipsButton);
       Button chooseDistributions = (Button)findViewById(R.id.DistributionsButton);
       chooseTrends.setEnabled(false);
       chooseRelationships.setEnabled(false);
-      chooseDistributions.setEnabled(false);      
+      chooseDistributions.setEnabled(false);
       return;
     }
     ////
-    
+
     Button chooseTrends = (Button)findViewById(R.id.TrendsButton);
     chooseTrends.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(1);
-      }     
+      }
       });
-    
+
     Button chooseRelationships = (Button)findViewById(R.id.RelationshipsButton);
     chooseRelationships.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(2);
-      }     
+      }
       });
-    
+
     Button chooseDistributions = (Button)findViewById(R.id.DistributionsButton);
     chooseDistributions.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         gotoVarSelection(3);
-      }     
+      }
       });
-    
+
   }
-  
+
   //When we click on a TRD option, go to the next screen which is set up below with the options of which variables we want.
   //The screen will show you all of the experiments you are running. You can click on an experiment and decide
   //and a dialog will pop up allowing you to choose which variables you want to explore.
   //Then there is an OK button which will take you to the next screen or will tell you if you have an error.
-  
+
   protected void gotoVarSelection(final int whichOption){
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.variable_choices, null);
     setContentView(mainLayout);
-    
+
     final Button varOkButton = (Button) findViewById(R.id.VarOkButton);
     switch (whichOption){
       case 1: varOkButton.setText(R.string.show_trends_button); break;
@@ -143,51 +141,50 @@ public class ExploreDataActivity extends Activity {
       case 3: varOkButton.setText(R.string.show_distributions_button); break;
       default: varOkButton.setText("  " + getString(R.string.ok) + "  "); break;
     }
-    
+
     varOkButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
         showVisualizations(checkedChoices, whichOption);
       }
     });
-    
+
     userPrefs = new UserPreferences(this);
     list = (ListView)findViewById(R.id.exploreable_experiments_list);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    
-    Cursor cursor = managedQuery(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, 
-        new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE}, 
+
+    Cursor cursor = managedQuery(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
+        new String[] { ExperimentColumns._ID, ExperimentColumns.TITLE},
         null, null, null);
-    
-    
-    SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, 
-      android.R.layout.simple_list_item_2, cursor, 
-      new String[] { ExperimentColumns.TITLE}, 
+
+
+    SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+      android.R.layout.simple_list_item_2, cursor,
+      new String[] { ExperimentColumns.TITLE},
       new int[] { android.R.id.text1}) {
     };
-    
+
     list.setAdapter(adapter);
     list.setOnItemClickListener(new OnItemClickListener() {
-      
+
       @Override
       public void onItemClick(AdapterView<?> listview, View textview, int position,
           long id) {
         Experiment experiment = experimentProviderUtil.getExperiment(id);
-        experimentProviderUtil.loadInputsForExperiment(experiment);
-        
+
         if (experiment!= null) {
          inputIds = getInputIds(experiment.getInputs());
          inpNames = getInputNames(experiment.getInputs());
          renderMultiSelectListButton(id, (TextView) ((TwoLineListItem) textview).getChildAt(1));
          varOkButton.setVisibility(View.VISIBLE);
-        } else{    
+        } else{
           Toast.makeText(ExploreDataActivity.this, R.string.experiment_choice_warning,
           Toast.LENGTH_SHORT).show();
         }
       }
     });
   }
-  
+
   //Make the dialog box containing variables in the experiment that is clicked on
   private View renderMultiSelectListButton(final Long id, final TextView textview) {
 
@@ -237,15 +234,14 @@ public class ExploreDataActivity extends Activity {
     multiSelectListDialog.show();
     return multiSelectListDialog.getListView();
   }
-  
+
   private void getLabelWithSelectedVariables(long id, TextView textview){
     if (checkedChoices.get(id) !=null){
       String finalString = "  ";
       List<Long> tempVals;
-      
+
         tempVals = checkedChoices.get(id);
         Experiment e = getExperiment(id);
-        experimentProviderUtil.loadInputsForExperiment(e);
         for (Long val: tempVals){
           finalString+=(e.getInputById(val).getName()+"  ");
         }
@@ -254,7 +250,7 @@ public class ExploreDataActivity extends Activity {
       textview.setText("");
     }
   }
-  
+
   private void showVisualizations(HashMap<Long, List<Long>> choices, int whichOpt) {
     int choicesSize = 0;
     for (Long key : choices.keySet()) {
@@ -296,27 +292,27 @@ public class ExploreDataActivity extends Activity {
     } else {
       setContentView(R.layout.feedback);
       loadRestOfExperimentInformation(experimentProviderUtil, experiment);
-      
-      final Map<String,String> map = new HashMap<String, String>();      
+
+      final Map<String,String> map = new HashMap<String, String>();
 
       map.put("experimentalData", convertExperimentResultsToJsonString(experiment));
 
       map.put("inputId", inpId+"");
-      
+
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
       rawDataButton.setVisibility(View.GONE);
-      
+
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
-            
+
       env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
       webView.addJavascriptInterface(new JavascriptEventLoader(experimentProviderUtil, experiment), "eventLoader");
-      
+
       setWebChromeClientThatHandlesAlertsAsDialogs();
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();      
+      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();
       webView.setWebViewClient(webViewClient);
-      
+
       if (whichOpt==1)
         webView.loadUrl("file:///android_asset/trends.html");
       else if (whichOpt==3)
@@ -327,9 +323,9 @@ public class ExploreDataActivity extends Activity {
 
   //execute relationships for two variables from different experiments
   private void showRelationshipForVarsInDifferentExperiments(HashMap<Long, List<Long>> choices) {
-    
+
     ArrayList<Pair<Experiment, Long>> experimentInputPairs = new ArrayList<Pair<Experiment, Long>>();
-    
+
     for (Long experimentId : choices.keySet()){
       Long inputId = choices.get(experimentId).get(0);
       Experiment fullyLoadedExperiment = getFullyLoadedExperiment(experimentId);
@@ -339,34 +335,34 @@ public class ExploreDataActivity extends Activity {
       }
       experimentInputPairs.add(new Pair<Experiment, Long>(fullyLoadedExperiment, inputId));
     }
-    
+
     setContentView(R.layout.feedback);
     rawDataButton = (Button)findViewById(R.id.rawDataButton);
     rawDataButton.setVisibility(View.INVISIBLE);
-    
+
     webView = (WebView)findViewById(R.id.feedbackText);
     webView.getSettings().setJavaScriptEnabled(true);
 
-    final Map<String,String> map = new HashMap<String, String>();    
+    final Map<String,String> map = new HashMap<String, String>();
 
     map.put("xAxisData", convertExperimentResultsToJsonString(experimentInputPairs.get(0).first));
     map.put("yAxisData", convertExperimentResultsToJsonString(experimentInputPairs.get(1).first));
 
     map.put("xAxisInputId", Long.toString(experimentInputPairs.get(0).second));
     map.put("yAxisInputId", Long.toString(experimentInputPairs.get(1).second));
-    
+
     setWebChromeClientThatHandlesAlertsAsDialogs();
-    WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();      
+    WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();
     webView.setWebViewClient(webViewClient);
-    
+
     final Environment env = new Environment(map);
     webView.addJavascriptInterface(env, "env");
 
     webView.loadUrl("file:///android_asset/relationships.html");
-    
+
   }
-  
-  
+
+
   //execute relationships for two variables within the same experiment
   private void showRelationshipForVarsInSameExperiment(Long experimentId, long xAxisInputId, long yAxisInputId) {
     Experiment experiment = getFullyLoadedExperiment(experimentId);
@@ -375,40 +371,40 @@ public class ExploreDataActivity extends Activity {
         Toast.LENGTH_SHORT).show();
     } else {
       setContentView(R.layout.feedback);
-      
-      final Map<String,String> map = new HashMap<String, String>();      
+
+      final Map<String,String> map = new HashMap<String, String>();
       String experimentJsonResults = convertExperimentResultsToJsonString(experiment);
       map.put("xAxisData", experimentJsonResults);
       map.put("yAxisData", experimentJsonResults);
       map.put("xAxisInputId", Long.toString(xAxisInputId));
       map.put("yAxisInputId", Long.toString(yAxisInputId));
-      
+
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
       rawDataButton.setVisibility(View.INVISIBLE);
-      
+
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 
       env = new Environment(map);
       webView.addJavascriptInterface(env, "env");
-      
+
       setWebChromeClientThatHandlesAlertsAsDialogs();
-      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();      
+      WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts();
       webView.setWebViewClient(webViewClient);
-      
+
       webView.loadUrl("file:///android_asset/relationships.html");
     }
   }
-   
+
   public void chooseOneVarToast(){
     Toast.makeText(ExploreDataActivity.this, R.string.sorry_please_select_exactly_one_variable_warning,
         Toast.LENGTH_SHORT).show();
   }
-  
+
   public void chooseTwoVarsToast(){
     Toast.makeText(ExploreDataActivity.this, R.string.sorry_please_select_exactly_two_variables_warning, Toast.LENGTH_SHORT).show();
   }
-  
+
   private List<String> getInputNames(List<Input> i){
     List<String> tempInputNames = new ArrayList<String>();
     for (Input inp: i){
@@ -416,7 +412,7 @@ public class ExploreDataActivity extends Activity {
     }
     return tempInputNames;
   }
-  
+
   private List<Long> getInputIds(List<Input> inputs){
     List<Long> tempIds = new ArrayList<Long>();
     for (Input inp: inputs){
@@ -424,8 +420,8 @@ public class ExploreDataActivity extends Activity {
     }
     return tempIds;
   }
-  
-  
+
+
   private Experiment getExperiment(long expId){
     return experimentProviderUtil.getExperiment(expId);
   }
@@ -450,19 +446,19 @@ public class ExploreDataActivity extends Activity {
         if (!missed) {
           eventObject.put("responseTime", event.getResponseTime().getMillis());
         }
-        
+
         boolean selfReport = event.getScheduledTime() == null;
         eventObject.put("isSelfReport", selfReport);
         if (!selfReport) {
           eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
         }
-        
-        
-        
+
+
+
         JSONArray responses = new JSONArray();
         for (Output response : event.getResponses()) {
           JSONObject responseJson = new JSONObject();
-          Input input = experiment.getInputById(response.getInputServerId());     
+          Input input = experiment.getInputById(response.getInputServerId());
           if (input == null) {
             continue;
           }
@@ -471,24 +467,24 @@ public class ExploreDataActivity extends Activity {
           responseJson.put("responseType", input.getResponseType());
           responseJson.put("prompt", experiment.getFeedback().get(0).getTextOfInputForOutput(experiment, response));
           responseJson.put("answer", response.getDisplayOfAnswer(input));
-          responseJson.put("answerOrder", response.getAnswer());  
+          responseJson.put("answerOrder", response.getAnswer());
           responses.put(responseJson);
-        }          
-        
+        }
+
         eventObject.put("responses", responses);
         if (responses.length() > 0) {
           experimentData.put(eventObject);
         }
       } catch (JSONException jse) {
-        // skip this event and do the next event. 
+        // skip this event and do the next event.
       }
     }
     return experimentData;
   }
-  
-  
-  
-  
+
+
+
+
   private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     webView.setWebChromeClient(new WebChromeClient() {
       @Override
@@ -499,12 +495,12 @@ public class ExploreDataActivity extends Activity {
           public void onClick(DialogInterface dialog, int which) {
             dialog.dismiss();
           }
-          
+
         }).create().show();
         result.confirm();
         return true;
       }
-      
+
       public boolean onJsConfirm (WebView view, String url, String message, final JsResult result){
         if (url.contains("file:///android_asset/map.html")){
           if (showDialog == false){
@@ -521,7 +517,7 @@ public class ExploreDataActivity extends Activity {
               public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 result.cancel();
-              } 
+              }
             }).create().show();
             return true;
           }
@@ -530,7 +526,7 @@ public class ExploreDataActivity extends Activity {
       }
     });
   }
-  
+
   private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
     WebViewClient webViewClient = new WebViewClient() {
 
@@ -539,18 +535,16 @@ public class ExploreDataActivity extends Activity {
         if (uri.getScheme().startsWith("http")) {
           return true;
         }
-        
+
         view.loadUrl(FeedbackActivity.stripQuery(url));
         return true;
       }
-      
+
     };
     return webViewClient;
   }
-  
+
   private void loadRestOfExperimentInformation(ExperimentProviderUtil epu, Experiment exp) {
-    epu.loadFeedbackForExperiment(exp);
-    epu.loadInputsForExperiment(exp);
     epu.loadEventsForExperiment(exp);
   }
 
@@ -568,19 +562,19 @@ public class ExploreDataActivity extends Activity {
         continue; // missed signal;
       }
       eventJson.put(responseTime.getMillis());
-      
+
       // in this case we are looking for one input from the responses that we are charting.
       for (Output response : event.getResponses()) {
         if (response.getInputServerId() == inputId ) {
           Input inputById = localExperiment.getInputById(inputId);
-          if (!inputById.isInvisible() && inputById.isNumeric()) {               
+          if (!inputById.isInvisible() && inputById.isNumeric()) {
             eventJson.put(response.getDisplayOfAnswer(inputById));
             results.put(eventJson);
             continue;
           }
         }
       }
-      
+
     }
     return results;
   }

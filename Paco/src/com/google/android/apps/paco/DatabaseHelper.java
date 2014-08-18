@@ -4,19 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
 
 /**
  * This class helps open, create, and upgrade the database file.
@@ -59,49 +54,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + ExperimentColumns.WEB_RECOMMENDED + " INTEGER, "
         + ExperimentColumns.JSON + " TEXT "
         + ");");
-    db.execSQL("CREATE TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ("
-        + SignalScheduleColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-        + SignalScheduleColumns.SERVER_ID + " INTEGER, "
-        + SignalScheduleColumns.EXPERIMENT_ID + " INTEGER, "
-        + SignalScheduleColumns.SCHEDULE_TYPE + " INTEGER, "
-        + SignalScheduleColumns.ESM_FREQUENCY + " INTEGER, "
-        + SignalScheduleColumns.ESM_PERIOD + " INTEGER, "
-        + SignalScheduleColumns.ESM_START_HOUR + " INTEGER, "
-        + SignalScheduleColumns.ESM_END_HOUR + " INTEGER, "
-        + SignalScheduleColumns.ESM_WEEKENDS + " INTEGER, "
-        + SignalScheduleColumns.TIMES_CSV + " TEXT, "
-        + SignalScheduleColumns.REPEAT_RATE + " INTEGER, "
-        + SignalScheduleColumns.WEEKDAYS_SCHEDULED + " INTEGER, "
-        + SignalScheduleColumns.NTH_OF_MONTH + " INTEGER, "
-        + SignalScheduleColumns.BY_DAY_OF_MONTH + " INTEGER, "
-        + SignalScheduleColumns.DAY_OF_MONTH + " INTEGER, "
-        + SignalScheduleColumns.BEGIN_DATE + " INTEGER, "
-        + SignalScheduleColumns.USER_EDITABLE + " INTEGER, "
-        + SignalScheduleColumns.TIME_OUT + " INTEGER, "
-        + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER, "
-        + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER, "
-        + SignalScheduleColumns.SNOOZE_TIME + " INTEGER, "
-        + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER, "
-        + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER "
-        + ");");
-    db.execSQL("CREATE TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ("
-        + InputColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-        + InputColumns.EXPERIMENT_ID + " INTEGER, "
-        + InputColumns.SERVER_ID + " INTEGER, "
-        + InputColumns.NAME + " TEXT,"
-        + InputColumns.TEXT + " TEXT,"
-        + InputColumns.MANDATORY + " INTEGER,"
-        + InputColumns.SCHEDULED_DATE + " INTEGER,"
-        + InputColumns.QUESTION_TYPE + " INTEGER,"
-        + InputColumns.RESPONSE_TYPE + " INTEGER,"
-        + InputColumns.LIKERT_STEPS + " INTEGER,"
-        + InputColumns.LEFT_SIDE_LABEL + " TEXT,"
-        + InputColumns.RIGHT_SIDE_LABEL + " TEXT,"
-        + InputColumns.LIST_CHOICES_JSON + " TEXT,"
-        + InputColumns.CONDITIONAL + " INTEGER,"
-        + InputColumns.CONDITIONAL_EXPRESSION + " TEXT,"
-        + InputColumns.MULTISELECT + " INTEGER"
-        + ");");
     db.execSQL("CREATE TABLE " + ExperimentProvider.EVENTS_TABLE_NAME + " ("
         + EventColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
         + EventColumns.EXPERIMENT_ID + " INTEGER, "
@@ -118,12 +70,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + OutputColumns.INPUT_SERVER_ID + " INTEGER, "
         + OutputColumns.NAME + " TEXT,"
         + OutputColumns.ANSWER + " TEXT"
-        + ");");
-    db.execSQL("CREATE TABLE " + ExperimentProvider.FEEDBACK_TABLE_NAME + " ("
-        + FeedbackColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-        + FeedbackColumns.EXPERIMENT_ID + " INTEGER, "
-        + FeedbackColumns.SERVER_ID + " INTEGER, "
-        + FeedbackColumns.TEXT + " TEXT"
         + ");");
 
     db.execSQL("CREATE TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ("
@@ -144,43 +90,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     Log.w(ExperimentProvider.TAG, "Upgrading database from version " + oldVersion + " to "
         + newVersion + ".");
 
-    if (oldVersion <= 8) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.INPUTS_TABLE_NAME + " ADD "
-          + InputColumns.MULTISELECT + " INTEGER default 0"
-          + ";");
-    }
-
-    if (oldVersion <= 9) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-          + SignalScheduleColumns.USER_EDITABLE + " INTEGER default 1"
-          + ";");
-    }
-    if (oldVersion <= 10) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
-          + ExperimentColumns.WEB_RECOMMENDED + " INTEGER default 0"
-          + ";");
-    }
-    if (oldVersion <= 11) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
-          + ExperimentColumns.VERSION + " INTEGER default 0"
-          + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EVENTS_TABLE_NAME + " ADD "
-          + EventColumns.EXPERIMENT_VERSION + " INTEGER default 0"
-          + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-          + SignalScheduleColumns.TIME_OUT + " INTEGER"
-          + ";");
-    }
     if (oldVersion <= 12) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " ADD "
-          + ExperimentColumns.JSON + " TEXT "
-          + ";");
-      ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
-      List<Experiment> joined = eu.getJoinedExperiments();
-
-      for (Experiment experiment : joined) {
-        eu.updateJoinedExperiment(experiment);
-      }
+      throw new IllegalStateException("Your paco client is too old. Uninstall this version and install the new one");
+      // TODO create a notification to the user instead.
     }
     if (oldVersion <= 13) {
 
@@ -201,11 +113,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       insertNewDateColumnWithData(db, ExperimentProvider.EXPERIMENTS_TABLE_NAME, joinDatePairs,
                                   ExperimentColumns.JOIN_DATE, ExperimentColumns._ID);
     }
-    if (oldVersion <= 14) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-              + SignalScheduleColumns.MINIMUM_BUFFER + " INTEGER"
-              + ";");
-    }
     if (oldVersion <= 15) {
       ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
       List<Experiment> joined = eu.getJoinedExperiments();
@@ -213,7 +120,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       for (Experiment experiment : joined) {
       //verify that feedbackType is correct
         if (experiment.getFeedbackType() == null || experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) { // the default
-          eu.loadFeedbackForExperiment(experiment);
           // if it is our default value make sure that it is not actually custom code.
           if (!FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getText())) {
             experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
@@ -224,29 +130,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       }
       eu.deleteExperimentCachesOnDisk();
     }
-    if (oldVersion <= 16) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-              + SignalScheduleColumns.SNOOZE_COUNT + " INTEGER"
-              + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-              + SignalScheduleColumns.SNOOZE_TIME + " INTEGER"
-              + ";");
-    }
-    if (oldVersion <= 17) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-              + SignalScheduleColumns.SIGNAL_TIMES + " INTEGER"
-              + ";");
-      migrateExistingLongTimeValuesToSignalTimeValues(db);
-    }
-    if (oldVersion <= 18) {
-      db.execSQL("ALTER TABLE " + ExperimentProvider.SCHEDULES_TABLE_NAME + " ADD "
-              + SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN + " INTEGER"
-              + ";");
-    }
-    if (oldVersion <= 19) {
-      // redo the migration because some experiments had empty lists of times
-      migrateExistingLongTimeValuesToSignalTimeValues(db);
-    }
     if (oldVersion <= 20) {
       db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD "
               + NotificationHolderColumns.NOTIFICATION_SOURCE + " TEXT default " + SignalingMechanism.DEFAULT_SIGNALING_GROUP_NAME
@@ -254,19 +137,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD "
               + NotificationHolderColumns.CUSTOM_MESSAGE + " TEXT;");
     }
-  }
+    if (oldVersion <= 21) {
+      List<Experiment> joined = Lists.newArrayList();
+      Cursor experimentCursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME, null, null, null, null, null, null);
+      while (experimentCursor.moveToNext()) {
+        Experiment experiment = ExperimentProviderUtil.createExperiment(experimentCursor);
+        joined.add(experiment);
+      }
+      experimentCursor.close();
+      for (Experiment experiment : joined) {
+        Log.i(PacoConstants.TAG, "Re-assembling experiment: id: " + experiment.getId());
+        //Log.i(PacoConstants.TAG, "Current json for experiment:\n " + ExperimentProviderUtil.getJson(experiment));
 
-  private void migrateExistingLongTimeValuesToSignalTimeValues(SQLiteDatabase db) {
-    HashMap<Integer, String> data = convertLongTimesCSVToJsonString(db,
-                                                                        ExperimentProvider.SCHEDULES_TABLE_NAME,
-                                                                        SignalScheduleColumns.TIMES_CSV, SignalScheduleColumns._ID);
-    for (Map.Entry<Integer, String> entry : data.entrySet()) {
-      db.execSQL("UPDATE " + ExperimentProvider.SCHEDULES_TABLE_NAME +
-                 " SET " + SignalScheduleColumns.SIGNAL_TIMES + " = " + "\'" + entry.getValue() + "\'" +
-                 " WHERE " + SignalScheduleColumns._ID + " = " + entry.getKey() + ";");
+        // inputs
+        List<Input> inputsList = Lists.newArrayList();
+        Cursor inputCursor = db.query("inputs", null, ExperimentProviderUtil.InputColumns.EXPERIMENT_ID + " = " + experiment.getId(), null, null, null, null, null);
+        while (inputCursor.moveToNext()) {
+          Input input = ExperimentProviderUtil.createInput(inputCursor);
+          inputsList.add(input);
+        }
+        //Log.i(PacoConstants.TAG, "Experiment: " + experiment.getTitle() +" has " + inputsList.size() +" inputs");
+        experiment.setInputs(inputsList);
+        inputCursor.close();
+        // feedback
+        List<Feedback> feedbackList = Lists.newArrayList();
+        Cursor feedbackCursor = db.query("feedback", null, ExperimentProviderUtil.FeedbackColumns.EXPERIMENT_ID + " = " + experiment.getId(), null, null, null, null, null);
+        while (feedbackCursor.moveToNext()) {
+          Feedback feedback = ExperimentProviderUtil.createFeedback(feedbackCursor);
+          feedbackList.add(feedback);
+        }
+        experiment.setFeeback(feedbackList);
+        //Log.i(PacoConstants.TAG, "Experiment: " + experiment.getTitle() +" has " + feedbackList.size() +" feedbacks");
+        feedbackCursor.close();
+        // signalingMechanisms
+        List<SignalingMechanism> scheduleList = Lists.newArrayList();
+        Cursor scheduleCursor = db.query("schedules", null, ExperimentProviderUtil.SignalScheduleColumns.EXPERIMENT_ID + " = " + experiment.getId(), null, null, null, null, null);
+        while (scheduleCursor.moveToNext()) {
+          SignalingMechanism schedule = ExperimentProviderUtil.createSchedule(scheduleCursor);
+          scheduleList.add(schedule);
+        }
+        //Log.i(PacoConstants.TAG, "Experiment: " + experiment.getTitle() +" has " + scheduleList.size() +" schedules");
+        if (!scheduleList.isEmpty()) {
+          experiment.setSignalingMechanisms(scheduleList);
+        }
+        scheduleCursor.close();
+        //Log.i(PacoConstants.TAG, "Final json for experiment:\n " + ExperimentProviderUtil.getJson(experiment));
+        db.update(ExperimentProvider.EXPERIMENTS_TABLE_NAME, ExperimentProviderUtil.createContentValues(experiment), ExperimentColumns._ID + " = " +experiment.getId(), null);
+      }
+
+      // might need to make the json field of experiments up-to-date
+      db.execSQL("DROP TABLE " + "schedules" + ";");
+      db.execSQL("DROP TABLE " + "inputs" + ";");
+      db.execSQL("DROP TABLE " + "feedback" + ";");
     }
   }
-
 
   private static HashMap<Integer, String> convertDateLongsToStrings(SQLiteDatabase db,
                                                                     String tableName,
@@ -377,55 +301,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                  " WHERE " + refCol + " = " + entry.getKey() + ";");
     }
   }
-
-  private static HashMap<Integer, String> convertLongTimesCSVToJsonString(SQLiteDatabase db,
-                                                                    String tableName,
-                                                                    String timesCSVCol, String refCol) {
-    String[] columns = {timesCSVCol, refCol};
-    HashMap<Integer, String> data = new HashMap<Integer, String>();
-    Cursor cursor = db.query(tableName, columns, null, null, null, null, null);
-
-    try {
-      if (cursor != null) {
-        while (cursor.moveToNext()) {
-          String csvTimes = cursor.getString(cursor.getColumnIndex(timesCSVCol));
-          Integer id = cursor.getInt(cursor.getColumnIndex(refCol));
-          if (csvTimes != null) {
-            List<SignalTime> signalTimes = Lists.newArrayList();
-            Iterable<String> dates = Splitter.on(",").split(csvTimes);
-            for (String time : dates) {
-              if (Strings.isNullOrEmpty(time)) {
-                continue;
-              }
-              SignalTime signalTime = new SignalTime(SignalTimeDAO.FIXED_TIME, SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
-                             Integer.parseInt(time), SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME, 0, "");
-              signalTimes.add(signalTime);
-
-            }
-            if (!signalTimes.isEmpty()) {
-              data.put(id, toJson(signalTimes));
-            }
-          }
-        }
-      }
-    } finally {
-      cursor.close();
-    }
-    return data;
-  }
-
-  //TODO combine with the version in ExperimentProviderUtil.createContentValues
-  private static String toJson(List<SignalTime> signalTimes) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return mapper.writeValueAsString(signalTimes);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return "";
-  }
-
-
 
 }
