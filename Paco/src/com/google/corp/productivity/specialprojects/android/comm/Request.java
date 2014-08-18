@@ -16,6 +16,7 @@
 */
 package com.google.corp.productivity.specialprojects.android.comm;
 
+import com.pacoapp.paco.R;
 import java.nio.charset.UnsupportedCharsetException;
 
 /**
@@ -47,6 +48,14 @@ public interface Request {
    * @return this {@link Request} object.
    */
   Request addHeader(String headerKey, String headerValue);
+  
+  /**
+   * Gets value of a header given a key.
+   * 
+   * @param headerKey Key of the header.
+   * @return Value of the header.
+   */
+  String getHeaderValue(String headerKey);
   
   /**
    * Remove the first header from this request.  Only headers

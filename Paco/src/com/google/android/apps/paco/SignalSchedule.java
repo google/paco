@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -25,13 +25,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.content.Context;
+
+import com.pacoapp.paco.R;
 
 /**
- * 
+ *
  */
-public class SignalSchedule implements Parcelable {
+public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/ {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;
@@ -40,7 +41,7 @@ public class SignalSchedule implements Parcelable {
   public static final int TUESDAY = 4;
   public static final int MONDAY = 2;
   public static final int SUNDAY = 1;
-  
+
   public static final int DAILY = 0;
   public static final int WEEKDAY = 1;
   public static final int WEEKLY = 2;
@@ -51,71 +52,80 @@ public class SignalSchedule implements Parcelable {
   public static final int[] SCHEDULE_TYPES = new int[] { DAILY, WEEKDAY,
       WEEKLY, MONTHLY, ESM, SELF_REPORT, ADVANCED };
 
-  public static final String[] SCHEDULE_TYPES_NAMES = new String[] { "Daily",
-      "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)",
-      "Self report only", "Advanced" };
+  public static final int[] SCHEDULE_TYPES_NAMES = new int[] { R.string.daily_schedule_type,
+      R.string.weekdays_schedule_type, R.string.weekly_schedule_type, R.string.monthly_schedule_type, R.string.random_sampling_esm_schedule_type,
+      R.string.self_report_only_schedule_type, R.string.advanced_schedule_type };
 
+  public static final String[] SCHEDULE_TYPES_NAMES_DATA_STRINGS = new String[] { "daily", "weekday", "weekly", "monthly", "esm", "self report", "advanced"
+                                                                           };
   public static final int ESM_PERIOD_DAY = 0;
   public static final int ESM_PERIOD_WEEK = 1;
   public static final int ESM_PERIOD_MONTH = 2;
 
   public static final int DEFAULT_ESM_PERIOD = ESM_PERIOD_DAY;
-  public static final String[] ESM_PERIODS_NAMES = new String[] { "Day",
-      "Week", "Month" };
+  public static final int[] ESM_PERIODS_NAMES = new int[] { R.string.day_esm_period,
+      R.string.week_esm_period, R.string.month_esm_period };
+  public static final String[] ESM_PERIODS_NAMES_DATA_STRINGS= new String[] { "day",
+                                                            "week", "month"};
   public static final Integer DEFAULT_REPEAT_RATE = 1;
   public static final int[] DAYS_OF_WEEK = new int[] { SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY };
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
   public static int[] ESM_PERIODS = new int[] { ESM_PERIOD_DAY,
       ESM_PERIOD_WEEK, ESM_PERIOD_MONTH };
-  
 
-  public static class Creator implements Parcelable.Creator<SignalSchedule> {
 
-    public SignalSchedule createFromParcel(Parcel source) {
-      ClassLoader classLoader = getClass().getClassLoader();
-      SignalSchedule schedule = new SignalSchedule();
-      schedule.id = source.readLong();
-      schedule.serverId = source.readLong();
-      schedule.experimentId = source.readLong();
+//  public static class Creator implements Parcelable.Creator<SignalSchedule> {
+//
+//    public SignalSchedule createFromParcel(Parcel source) {
+//      ClassLoader classLoader = getClass().getClassLoader();
+//      SignalSchedule schedule = new SignalSchedule();
+//      schedule.id = source.readLong();
+//      schedule.serverId = source.readLong();
+//      schedule.experimentId = source.readLong();
+//
+//      schedule.scheduleType = source.readInt();
+//      schedule.esmFrequency = source.readInt();
+//      schedule.esmPeriodInDays = source.readInt();
+//      schedule.esmStartHour = source.readLong();
+//      schedule.esmEndHour = source.readLong();
+//      schedule.esmWeekends = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
+//
+//
+//      List<Long> times = new ArrayList<Long>();
+//      schedule.times = times;
+//      int numberOfTimes = source.readInt();
+//      if (numberOfTimes != -1) {
+//        times.add(source.readLong());
+//      }
+//
+//      schedule.repeatRate = source.readInt();
+//      schedule.weekDaysScheduled  = source.readInt();
+//      schedule.nthOfMonth = source.readInt();
+//      schedule.byDayOfMonth = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
+//      schedule.dayOfMonth = source.readInt();
+//      schedule.beginDate = source.readLong();
+//
+//      schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
+//      schedule.timeout = source.readInt();
+//      schedule.minimumBuffer = source.readInt();
+//      schedule.snoozeCount = source.readInt();
+//      schedule.snoozeTime = source.readInt();
+//      return schedule;
+//    }
+//
+//    public SignalSchedule[] newArray(int size) {
+//      return new SignalSchedule[size];
+//    }
+//  }
 
-      schedule.scheduleType = source.readInt();
-      schedule.esmFrequency = source.readInt();
-      schedule.esmPeriodInDays = source.readInt();
-      schedule.esmStartHour = source.readLong();
-      schedule.esmEndHour = source.readLong();
-      schedule.esmWeekends = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-
-      List<Long> times = new ArrayList<Long>();
-      schedule.times = times;
-      int numberOfTimes = source.readInt();
-      if (numberOfTimes != -1) {
-        times.add(source.readLong());
-      }
-      
-      schedule.repeatRate = source.readInt();
-      schedule.weekDaysScheduled  = source.readInt();
-      schedule.nthOfMonth = source.readInt();
-      schedule.byDayOfMonth = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-      schedule.dayOfMonth = source.readInt();
-      schedule.beginDate = source.readLong();
-
-      schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-      return schedule;
-    }
-
-    public SignalSchedule[] newArray(int size) {
-      return new SignalSchedule[size];
-    }
-  }
-  
-  public static final Creator CREATOR = new Creator();
+//  public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
   private Long id;
-  
+
   @JsonProperty("id")
   private Long serverId;
-  
+
   @JsonIgnore
   private Long experimentId;
 
@@ -124,8 +134,11 @@ public class SignalSchedule implements Parcelable {
   private Integer esmPeriodInDays;
   private Long esmStartHour;
   private Long esmEndHour;
+  /** timeout in minutes */
+  private Integer timeout;
 
   private List<Long> times;
+  private List<SignalTime> signalTimes;
   private Integer repeatRate = 1;
   private Integer weekDaysScheduled = 0;
   private Integer nthOfMonth = 1;
@@ -135,9 +148,10 @@ public class SignalSchedule implements Parcelable {
   private long beginDate = new Date().getTime();
   private Boolean esmWeekends;
   private Boolean userEditable = Boolean.TRUE;
+  private Boolean onlyEditableOnJoin;
 
   /**
-   * 
+   *
    * @param id
    * @param scheduleType
    * @param byDayOfMonth
@@ -153,11 +167,14 @@ public class SignalSchedule implements Parcelable {
    * @param weekDaysScheduled
    * @param beginDate TODO
    * @param userEditable TODO
+   * @param snoozeCount TODO
+   * @param snoozeTime TODO
+   * @param onlyEditableOnJoin TODO
    */
   public SignalSchedule(long id, Integer scheduleType, Boolean byDayOfMonth,
       Integer dayOfMonth, Long esmEndHour, Integer esmFrequency,
       Integer esmPeriodInDays, Long esmStartHour, Boolean esmWeekends,
-      Integer nthOfMonth, Integer repeatRate, List<Long> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable) {
+      Integer nthOfMonth, Integer repeatRate, List<SignalTime> times, Integer weekDaysScheduled, Long beginDate, Boolean userEditable, Integer timeout, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin) {
     this.id = id;
     this.scheduleType = scheduleType;
     this.byDayOfMonth = byDayOfMonth;
@@ -169,18 +186,23 @@ public class SignalSchedule implements Parcelable {
     this.esmWeekends = esmWeekends;
     this.nthOfMonth = nthOfMonth;
     this.repeatRate = repeatRate;
-    this.times = times;
+    this.signalTimes = times;
     this.weekDaysScheduled = weekDaysScheduled;
     if (beginDate != null) {
       this.beginDate = beginDate;
     }
     this.userEditable = userEditable;
+    this.timeout = timeout;
+    this.snoozeCount = snoozeCount;
+    this.snoozeTime = snoozeTime;
+    this.onlyEditableOnJoin = onlyEditableOnJoin;
   }
 
   /**
-       * 
+       *
        */
   public SignalSchedule() {
+    this.signalTimes = new ArrayList<SignalTime>();
     this.times = new ArrayList<Long>();
   }
 
@@ -215,14 +237,14 @@ public class SignalSchedule implements Parcelable {
       return 1;
     case ESM_PERIOD_WEEK:
       return 7;
-    case ESM_PERIOD_MONTH:      
+    case ESM_PERIOD_MONTH:
       return 30;
     default:
       return 1;
     }
-    
+
   }
-  
+
   public Long getEsmStartHour() {
     return esmStartHour;
   }
@@ -239,12 +261,12 @@ public class SignalSchedule implements Parcelable {
     this.esmEndHour = esmEndHour;
   }
 
-  public List<Long> getTimes() {
-    return times;
+  public List<SignalTime> getSignalTimes() {
+    return signalTimes;
   }
 
-  public void setTimes(List<Long> times) {
-    this.times = times;
+  public void setSignalTimes(List<SignalTime> times) {
+    this.signalTimes = times;
   }
 
   public Integer getRepeatRate() {
@@ -261,6 +283,23 @@ public class SignalSchedule implements Parcelable {
 
   public Integer getWeekDaysScheduled() {
     return weekDaysScheduled;
+  }
+
+  public void addWeekDayToSchedule(Integer day) {
+    weekDaysScheduled |= day;
+  }
+
+  public void removeWeekDayFromSchedule(Integer day) {
+    weekDaysScheduled &= (~day);
+  }
+
+  // Visible for testing
+  public void removeAllWeekDaysScheduled() {
+    this.weekDaysScheduled = 0;
+  }
+
+  public boolean isWeekDayScheduled(Integer day) {
+    return (weekDaysScheduled & day) != 0;
   }
 
   public Integer getNthOfMonth() {
@@ -329,43 +368,44 @@ public class SignalSchedule implements Parcelable {
   public int describeContents() {
     return 0;
   }
+//
+//  public void writeToParcel(Parcel dest, int flags) {
+//    dest.writeLong(id);
+//    dest.writeLong(serverId);
+//    dest.writeLong(experimentId);
+//    dest.writeInt(scheduleType);
+//    dest.writeInt(esmFrequency);
+//    dest.writeInt(esmPeriodInDays);
+//    dest.writeLong(esmStartHour);
+//    dest.writeLong(esmEndHour);
+//    dest.writeInt(esmWeekends == Boolean.TRUE ? 1 : 0);
+//
+//    dest.writeString(toJson(times));
+//
+//    dest.writeInt(repeatRate);
+//    dest.writeInt(weekDaysScheduled);
+//    dest.writeInt(nthOfMonth);
+//    dest.writeInt(byDayOfMonth == Boolean.TRUE ? 1 : 0);
+//    dest.writeInt(dayOfMonth);
+//    dest.writeLong(beginDate);
+//    dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
+//    dest.writeInt(timeout);
+//    dest.writeInt(minimumBuffer);
+//    dest.writeInt(snoozeCount);
+//    dest.writeInt(snoozeTime);
+//  }
 
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(id);
-    dest.writeLong(serverId);
-    dest.writeLong(experimentId);
-    dest.writeInt(scheduleType);
-    dest.writeInt(esmFrequency);
-    dest.writeInt(esmPeriodInDays);
-    dest.writeLong(esmStartHour);
-    dest.writeLong(esmEndHour);
-    dest.writeInt(esmWeekends == Boolean.TRUE ? 1 : 0);
-
-    dest.writeInt(times.size());
-    for (Long time : times) {
-      dest.writeLong(time);
-    }
-    
-    dest.writeInt(repeatRate);
-    dest.writeInt(weekDaysScheduled);
-    dest.writeInt(nthOfMonth);
-    dest.writeInt(byDayOfMonth == Boolean.TRUE ? 1 : 0);
-    dest.writeInt(dayOfMonth);
-    dest.writeLong(beginDate);
-    dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
-  }
-
-  public DateTime getNextAlarmTime(DateTime dateTime) {
+  public DateTime getNextAlarmTime(DateTime dateTime, Context context, Long experimentServerId) {
     if (!getScheduleType().equals(SignalSchedule.ESM)) {
-      return new NonESMSignalGenerator(this).getNextAlarmTime(dateTime);
+      return new NonESMSignalGenerator(this, experimentServerId, new ExperimentProviderUtil(context)).getNextAlarmTime(dateTime);
     }
-    return null;  // TODO (bobevans) move the esm handling in Experiment to here.  
+    return null;  // TODO (bobevans) move the esm handling in Experiment to here.
   }
 
   public Long getBeginDate() {
     return beginDate;
   }
-  
+
   public void setBeginDate(Long beginDate) {
     this.beginDate = beginDate;
   }
@@ -373,7 +413,7 @@ public class SignalSchedule implements Parcelable {
   public Boolean getEsmWeekends() {
     return esmWeekends;
   }
-  
+
   public void setEsmWeekends(Boolean weekends) {
     this.esmWeekends = weekends;
   }
@@ -381,12 +421,12 @@ public class SignalSchedule implements Parcelable {
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES[scheduleType]);
+    appendKeyValue(buf, "type", SCHEDULE_TYPES_NAMES_DATA_STRINGS[scheduleType]);
     comma(buf);
     if (scheduleType == ESM) {
       appendKeyValue(buf, "frequency", esmFrequency.toString());
       comma(buf);
-      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES[esmPeriodInDays]);
+      appendKeyValue(buf,"esmPeriod", ESM_PERIODS_NAMES_DATA_STRINGS[esmPeriodInDays]);
       comma(buf);
       appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
       comma(buf);
@@ -397,13 +437,13 @@ public class SignalSchedule implements Parcelable {
     }
     buf.append("times = [");
     boolean firstTime = true;
-    for (Long time : times) {
+    for (SignalTime time : signalTimes) {
       if (firstTime) {
         firstTime = false;
       } else {
         buf.append(",");
-      }    
-      buf.append(getHourOffsetAsTimeString(time));      
+      }
+      buf.append(time.toString());
     }
     buf.append("]");
     comma(buf);
@@ -416,7 +456,7 @@ public class SignalSchedule implements Parcelable {
     appendKeyValue(buf,"byDayOfMonth", byDayOfMonth != null ? byDayOfMonth.toString() : "");
     comma(buf);
     appendKeyValue(buf,"dayOfMonth", dayOfMonth != null ? dayOfMonth.toString() : "");
-    
+
     return buf.toString();
   }
 
@@ -463,8 +503,47 @@ public class SignalSchedule implements Parcelable {
   public Boolean getUserEditable() {
     return userEditable;
   }
-  
+
   public void setUserEditable(Boolean userEditable) {
     this.userEditable = userEditable;
   }
+
+  public Integer getTimeout() {
+    if (timeout == null) {
+      return getOldDefaultTimeout();
+    }
+    return timeout;
+  }
+
+
+  private Integer getOldDefaultTimeout() {
+    if (getScheduleType().equals(ESM)) {
+      setTimeout(59);
+      return 59;
+    } else {
+      setTimeout(479);
+      return 479;
+    }
+  }
+
+  public void setTimeout(Integer timeout) {
+    this.timeout = timeout;
+  }
+
+  public List<Long> getTimes() {
+    return times;
+  }
+
+  public void setTimes(List<Long> times) {
+    this.times = times;
+  }
+
+  public Boolean getOnlyEditableOnJoin() {
+    return onlyEditableOnJoin;
+  }
+
+  public void setOnlyEditableOnJoin(Boolean value) {
+    this.onlyEditableOnJoin = value;
+  }
+
 }

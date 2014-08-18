@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
  ~ Copyright 2011 Google Inc. All Rights Reserved.
  ~
@@ -16,15 +16,19 @@
  ~ under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.apps.paco"
-    android:versionCode="64"
-    android:versionName="2.0.64" >
-
+    package="com.pacoapp.paco"
+    android:versionCode="109"
+    android:versionName="2.0.109" >
+    <uses-feature android:name="android.hardware.location" android:required="false"/>
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    
     <application
-        android:debuggable="true"
+        
         android:icon="@drawable/paco64"
         android:label="@string/app_name"
         android:theme="@style/PacoTheme" >
+                
         <activity android:name="com.google.android.apps.paco.ExperimentManagerActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,7 +45,26 @@
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
-        <activity android:name="com.google.android.apps.paco.FindExperimentsActivity" >
+        <activity
+            android:name="com.google.android.apps.paco.FindExperimentsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.google.android.apps.paco.FindMyExperimentsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.google.android.apps.paco.RunningExperimentsActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -95,30 +118,21 @@
             android:label="Record Data in Experiment"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.google.android.apps.paco.LINKED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
+            </intent-filter>           
         </activity>
+                <activity
+            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" />
+        
         <activity
             android:name="com.google.android.apps.paco.FeedbackActivity"
             android:label="Visualize Experiment Data"
             android:noHistory="true" >
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -126,18 +140,10 @@
                 <data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="VersionUpdateActivity"
-            android:label="Update Activity" >
-            <intent-filter>
-                <action android:name="com.google.android.apps.paco.UPDATE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name="com.google.android.apps.paco.WelcomeActivity" />
+        <activity android:name="com.google.android.apps.paco.AccountChooser" />
         <activity
-            android:name=".ESMSignalViewer"
+            android:name="com.google.android.apps.paco.ESMSignalViewer"
             android:label="ESM Signal Viewer"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -162,8 +168,9 @@
         </activity>
         <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" />
         <activity android:name="com.google.android.apps.paco.HelpActivity" />
-        
-        <!--  services -->
+        <activity android:name="com.google.android.apps.paco.EulaDisplayActivity" />
+
+        <!-- services -->
         <service android:name="com.google.android.apps.paco.NotificationCreatorService" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.NotificationCreatorService" />
@@ -178,9 +185,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service android:name=".SyncService" />
-        <service android:name=".ServerCommunicationService" />
-        <service android:name=".VersionCheckerService" />
+        <service android:name="com.google.android.apps.paco.SyncService" />
+        <service android:name="com.google.android.apps.paco.ServerCommunicationService" />
 
         <receiver android:name="com.google.android.apps.paco.AlarmReceiver" >
             <intent-filter>
@@ -213,41 +219,52 @@
         </receiver>
 
         <provider
-            android:name="SignalProvider"
+            android:name="com.google.android.apps.paco.SignalProvider"
             android:authorities="com.google.android.apps.paco.signal"
             android:exported="false" />
         <provider
-            android:name="ExperimentProvider"
+            android:name="com.google.android.apps.paco.ExperimentProvider"
             android:authorities="com.google.android.apps.paco.ExperimentProvider"
             android:exported="false" />
+
+        <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE_CHANGED" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.SCREEN_OFF" />    
+                <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.google.android.apps.paco.BroadcastTriggerService" />
+
+        <activity
+            android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
+            >
+        </activity>
+
+        <service android:name="com.google.android.apps.paco.ProcessService"></service>
     </application>
 
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.VIBRATE" >
-    </uses-permission>
-
-    <uses-sdk android:minSdkVersion="8" >
-    </uses-sdk>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
-    </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
+    
 
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-sdk android:minSdkVersion="8" ></uses-sdk>
 </manifest>

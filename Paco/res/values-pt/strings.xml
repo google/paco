@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+
+<resources>
+    <string name='app_name'>PACO</string>
+    
+  <string name='server'>quantifiedself.appspot.com</string>
+  <string name='app_package'>com.pacoapp.paco</string>
+  <string name='contact_email'>paco-users@googlegroups.com</string>
+  <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
+<!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
+  <string name='usergroup_website'>https://groups.google.com/group/paco-users</string>
+  <string name='about_weburl'>pacoapp.com</string>
+  <string name='about_copyright_message'/>
+  <string name='about_bob'>Bob Evans</string>
+  <string name='about_alberto'>Alberto Savoia</string>
+  <string name='about_arun'>Arun Saigal</string>
+  <string name='about_cp'>CP Lim</string>
+  <string name='about_stephen'>Stephen Uhler</string>
+  <string name='about_tina'>Tina Malm</string>
+  <string name='about_brian'>Brian Ong</string>
+  <string name='about_kanwal'>Kanwal Safdar</string>
+  
+    <!-- End User License Agreement -->
+  <string name='eula_title'>Contrato de licença de usuário final</string>
+  <string name='accept'>Aceitar</string>
+  <string name='decline'>Recusar</string>
+
+  <!-- About -->
+  <string name='about'>Sobre</string>
+  <string name='user_guide'>Guia do usuário</string>
+  <string name='about_team'>Equipe:</string>
+  <string name='about_version'>Versão:</string>
+  <string name='about_email'>Suporte</string>
+  <string name='about_support'>Suporte:</string>
+  <string name='about_paco'>Sobre o Paco</string>
+  
+    <!-- Welcome -->
+  <string name='welcome'>Boas-vindas</string>
+  <string name='welcome_read_later'>OK</string>
+  <string name='welcome_about'>Versão do Paco</string>
+  
+    <string name='no'>Não</string>
+  <string name='yes'>Sim</string>
+  <string name='ok'>OK</string>
+  <string name='error'>Erro</string>
+  <string name='success'>Sucesso</string>
+  
+  
+  <string-array name='repeat_range'>
+   <item>1</item>
+   <item>2</item>
+   <item>3</item>
+   <item>4</item>
+   <item>5</item>
+   <item>6</item>
+   <item>7</item>
+   <item>8</item>
+   <item>9</item>
+   <item>10</item>
+   <item>11</item>
+   <item>12</item>
+   <item>13</item>
+   <item>14</item>
+   <item>15</item>
+   <item>16</item>
+   <item>17</item>
+   <item>18</item>
+   <item>19</item>
+   <item>20</item>
+   <item>21</item>
+   <item>22</item>
+   <item>23</item>
+   <item>24</item>
+   <item>25</item>
+   <item>26</item>
+   <item>27</item>
+   <item>28</item>
+   <item>29</item>
+   <item>30</item>   
+  </string-array>
+  
+  <string-array name='days_of_week'>
+   <item>Domingo</item>
+   <item>Segunda</item>
+   <item>Terça</item>
+   <item>Quarta</item>
+   <item>Quinta</item>
+   <item>Sexta</item>
+   <item>Sábado</item>
+   </string-array>
+   
+   <string-array name='nth_of_month'>
+   <item>Primeiro(a)</item>
+   <item>Segundo(a)</item>
+   <item>Terceiro(a)</item>
+   <item>Quarto(a)</item>
+   <item>Quinto(a)</item>
+   </string-array>
+   <string name='experiment_title'>Título da experiência</string>
+   <string name='refresh_questions'>Atualizar perguntas</string>
+   <string name='save_response'>Salvar resposta</string>
+   <string name='contact_us'>Contato</string>
+   <string name='find_experiments'>Procurar experiências</string>
+   <string name='running_experiments'>Experiências atuais</string>
+   <string name='experiment_manager_screen_subtitle'>Assistente Pessoal de Análises</string>
+   <string name='experiment_manager_screen_welcome_to_paco'>O PACO lhe dá boas-vindas!</string>
+   <string name='go_to_website_button_text'>Navegar no site</string>
+   <string name='go_to_user_group'>Navegar no grupo de usuários</string>
+   <string name='email_us'>E-mail para grupo de usuários</string>
+   <string name='ways_to_talk_to_paco'>Maneiras de falar com o Paco</string>
+   <string name='explore_data'>Explorar dados</string>
+   <string name='create_experiment'>Criar uma experiência</string>
+   <string name='intro_howto_title'>Primeiros passos</string>
+   <string name='account_chooser_title'>Escolha uma conta</string>
+   <string name='do_on_phone_anyway'>De qualquer forma, vou responder aqui</string>
+   <string name='do_on_web'>Vou responder no computador</string>
+   <string name='webRecommendedWarning'>OBSERVAÇÃO: recomendamos que você preencha este estudo em seu computador.</string>
+   <string name="current_account">Conta atual</string>
+   <string name="experiment_refresh">Atualizar experiência</string>
+   <string name="checking_server_for_new_and_updated_experiment_definitions">Procurando definições de experiência novas e atualizadas no servidor</string>
+   <string name="selected_experiment_not_on_phone_refresh">A experiência selecionada não existe no telefone. Atualizar experiências a partir do servidor?</string>
+   <string name="ongoing_duration">contínua</string>
+   <string name="day_esm_period">Dia</string>
+   <string name="week_esm_period">Semana</string>
+   <string name="month_esm_period">Mês</string>
+   <string name="daily_schedule_type">Diariamente</string>
+   <string name="weekdays_schedule_type">Dias da semana</string>
+   <string name="weekly_schedule_type">Semanalmente</string>
+   <string name="monthly_schedule_type">Mensalmente</string>
+   <string name="random_sampling_esm_schedule_type">Amostragem aleatória (ESM)</string>
+   <string name="self_report_only_schedule_type">Somente espontânea</string>
+   <string name="advanced_schedule_type">Avançada</string>
+   <string name="use_browser">" Abra o endereço no navegador do seu computador"</string>
+   <string name="survey_expired">Esta solicitação de pesquisa expirou. Não é preciso inserir uma resposta.</string>
+   <string name="gps_message">"Usar GPS para melhorar a localização (somente em ambiente externo)? "</string>
+   <string name="enable_button">Ativar</string>
+   <string name="cancel_button">Cancelar</string>
+   <string name="need_location">"Você precisa ativar algum serviço de localização se quiser incluir os dados de local. "</string>
+   <string name="required_answers_missing">Faltam respostas obrigatórias</string>
+   <string name="must_answer">"É preciso responder:"</string>
+   <string name="found_updated_questions">Foram encontradas perguntas novas.</string>
+   <string name="didnt_find_updated_questions">Não foram encontradas perguntas novas no servidor.</string>
+   <string name="invalid_experiment_warning">A experiência pode estar inválida agora. Fechando tela. Por favor, reabra.</string>
+   <string name="create_experiment_instructions">Como criar experiências envolve inserir uma boa quantidade de texto, um telefone não é muito apropriado. \n\nVisite http://%1$s/ no navegador para criar uma experiência.</string>
+   <string name="create_experiment_title">Como criar uma experiência</string>
+   <string name="about_paco_menu_item">Sobre o Paco</string>
+   <string name="debug_menu_item">Depuração</string>
+   <string name="server_address_menu_item">Endereço do servidor</string>
+   <string name="check_updates_menu_item">Conferir atualizações</string>
+   <string name="choose_account_menu_item">Escolher conta</string>
+   <string name="choose_alert_menu_item">Escolher alerta</string>
+   <string name="send_log_menu_item">Enviar registro</string>
+   <string name="select_signal_tone">Escolher tom do sinal</string>
+   <string name="cannot_find_the_experiment_warning">Não é possível encontrar a experiência!</string>
+   <string name="save_button">Salvar</string>
+   <string name="start_time_title">Horário de início</string>
+   <string name="end_time_title">Horário de término</string>
+   <string name="modify_time_title">Modificar horário</string>
+   <string name="days_of_week_title">Dias da semana</string>
+   <string name="start_hour_must_be_before_end_hour_warning">O horário de início deve ser antes do de término</string>
+   <string name="no_experimental_data_warning">Você ainda não carregou nenhuma experiência, portanto esta opção não faz sentido. Volte depois de carregar uma experiência e inserir dados.</string>
+   <string name="show_trends_button">"  Exibir tendências  "</string>
+   <string name="show_relationships_button">"  Exibir relações  "</string>
+   <string name="show_distributions_button">"  Exibir distribuições  "</string>
+   <string name="experiment_choice_warning">Você não escolheu uma experiência adequada.</string>
+   <string name="make_selections">Fazer escolhas</string>
+   <string name="experiment_does_not_exist_warning">A experiência não existe!</string>
+   <string name="sorry_please_select_exactly_one_variable_warning">Desculpe, escolha exatamente uma variável.</string>
+   <string name="sorry_please_select_exactly_two_variables_warning">Desculpe, escolha exatamente duas variáveis.</string>
+   <string name="thanks_for_participating_message">Obrigado por participar!</string>
+   <string name="edit_schedule_menu_item">Editar programação</string>
+   <string name="stop_experiment_menu_item">Interromper experiência</string>
+   <string name="explore_data_menu_item">Explorar dados</string>
+   <string name="running_experiments_title">Experiências em andamento</string>
+   <string name="available_experiments_title">Experiências disponíveis</string>
+   <string name="stop_the_experiment_dialog_title">Interromper a experiência?</string>
+   <string name="stop_experiment_dialog_body">Tem certeza de que quer interromper a experiência?</string>
+   <string name="unknown_author_text">autor desconhecido</string>
+   <string name="retrieving_lat_lon">Recuperando</string>
+   <string name="missing_image_warning">Não é possível encontrar o arquivo de imagem da câmera!</string>
+   <string name="unknown_location">Desconhecido</string>
+   <string name="cannot_open_camera_warning">Não é possível abrir a câmera</string>
+   <string name="done_button">Pronto</string>
+   <string name="time_to_participate_notification_text">É hora de participar!</string>
+   <string name="time_for_notification_title">"Hora de "</string>
+   <string name="refresh_experiment_menu_item">Atualizar experiência</string>
+   <string name="main_page_menu_item">Página principal</string>
+   <string name="missed_signal_value">Perdido</string>
+   <string name="version_is_current">Esta versão é a atual.</string>
+   <string name="update_found">Atualização encontrada</string>
+   <string name="choose_account">Escolha uma conta para usar com o Paco</string>
+   <string name="daily_scheduled_times_for">"Horários programados diariamente para: "</string>
+   <string name="scheduled_times">Horários programados</string>
+   <string name="save_schedule">Salvar programação</string>
+   <string name="experiment_name">Nome da experiência</string>
+   <string name="suggested_signalling_schedule">Programação de sinalização sugerida:</string>
+   <string name="schedule_period">Período de programação:  "</string>
+   <string name="times_per_period">Vezes por período:</string>
+   <string name="weekends">Finais de semana?</string>
+   <string name="start_hour">Horário de início</string>
+   <string name="default_start_time">9:30 AM</string>
+   <string name="end_hour">"Horário de término:   "</string>
+   <string name="default_end_hour">5:30 AM</string>
+   <string name="responses">Respostas</string>
+   <string name="no_data">Sem dados</string>
+   <string name="description">Descrição:</string>
+   <string name="schedule">Programação: "</string>
+   <string name="start_date">"Data de início: "</string>
+   <string name="end_date">"Data de término: "</string>
+   <string name="esm_frequency">"Frequência de ESM: "</string>
+   <string name="scheduled_time">"Horário programado: "</string>
+   <string name="creator">criador</string>
+   <string name="join_this_experiment">Entrar nesta experiência</string>
+   <string name="title">Título</string>
+   <string name="edit_schedule">Editar programação</string>
+   <string name="stop_experiment">Interromper experiência</string>
+   <string name="list_of_experiments">Lista de experiências</string>
+   <string name="explore_data_title">Como quer explorar seus dados?</string>
+   <string name="trends">Tendências</string>
+   <string name="relationships">Relações</string>
+   <string name="distributions">Distribuições</string>
+   <string name="raw_data_button_text">Acessar dados brutos</string>
+   <string name="your_current_experiments">Suas experiências atuais</string>
+   <string name="refresh_experiments_list_from_server">Atualizar lista de experiências a partir do servidor</string>
+   <string name="data_handling_title">Acordo de tratamento e privacidade dos dados entre você e o criador da experiência</string>
+   <string name="informed_consent_preamble">Ao entrar nesta experiência, você pode compartilhar dados com o criador e os administradores dela. Leia a política de tratamento de dados que o criador forneceu abaixo, para decidir se quer ou não participar da experiência.</string>
+   <string name="consent_checkbox_text">"          Concordo"</string>
+   <string name="available_experiments">Experiências disponíveis</string>
+   <string name="retrieving_location">Recuperando...</string>
+   <string name="location_settings">Configurações de local</string>
+   <string name="daily_scheduled_time_for">"Horário programado diariamente para: "</string>
+   <string name="by_day_of_month">"          Por dia do mês"</string>
+   <string name="by_day_of_week">"          Por dias da semana"</string>
+   <string name="day_of_month">Dia do mês:</string>
+   <string name="day_of_week">Dia da semana:</string>
+   <string name="end_hour_signaling">Horário de término:</string>
+   <string name="signals_per_week_3_10">Sinais por semana (3-10)</string>
+   <string name="save">Salvar</string>
+   <string name="take_picture">Tirar foto</string>
+   <string name="refresh_experiments">Atualizar experiências</string>
+   <string name="repeat_every_">"Repetir a cada "</string>
+   <string name="days">Dias</string>
+   <string name="months">Meses</string>
+   <string name="weeks">Semanas</string>
+   <string name="days_of_week">Dias da semana</string>
+   <string name="this_experiment_is_self_reporting_only">Essa experiência não é programada. Ela é espontânea ou acionada.</string>
+   <string name="there_is_no_schedule_to_configure">Não há programação para configurar.</string>
+   <string name="finish">Terminar</string>
+   <string name="server_address_warning">AVISO: altere isto somente se souber o que está fazendo.</string>
+   <string name="enter_server_address">Insira o endereço do servidor</string>
+   <string name="checking_for_updates">Conferindo atualizações...</string>
+   <string name="install">Instalar</string>
+   <string name="explore_data_variable_title">Quais variáveis você quer explorar?</string>
+   <string name="no_accounts_found">Não há nenhuma conta do Google no telefone. Para adicionar uma, vá até Configurações/Conta.</string>
+   <string name="join_again">Você já entrou nesta experiência. Quer mesmo entrar nela de novo?</string>
+   <string name="updated_paco_notification_ticker_text">Atualização do Paco - versão nova disponível</string>
+   <string name="updated_paco_notification_content_title">Atualização do Paco</string>
+   <string name="updated_paco_notification_content_text">Uma versão nova do Paco está disponível</string>
+   <string name="default_list_item"></string>
+   <string name="retrieving_your_joined_experiment_from_the_server">Recuperando sua experiência aderida do servidor.</string>
+   <string name="experiment_retrieval">Recuperação de experiências</string>
+   <string name="dialog_dismiss">OK</string>
+   <string name="experiment_could_not_be_retrieved">Não foi possível recuperar a experiência.</string>
+   <string name="invalid_data">Alguma coisa deu errado ao recuperar os dados da experiência.</string>
+   <string name="server_error">Alguma coisa deu errado com o servidor.</string>
+   <string name="network_required">Rede necessária</string>
+   <string name="need_network_connection">Você precisa de uma conexão de rede para entrar na experiência. Ativar conexão agora?</string>
+   <string name="no_thanks">Não, obrigado.</string>
+   <string name="go_to_network_settings">Configurações de rede</string>
+   <string name="last_refreshed">Última atualização</string>
+   <string name="answer_by_speaking">Responder falando</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Ops! Seu dispositivo não suporta a conversão de voz em texto</string>
+   <string name="successfully_joined_experiment">Sucesso! Veja na seção Experiências atuais uma lista de todas as experiências aderidas.</string>
+   <string name="updating_your_joined_experiments_from_the_server">Atualizando as experiências aderidas do servidor</string>
+   <string name="please_choose_the_source_of_your_image">Por favor escolha a fonte de sua imagem</string>
+   <string name="camera">Câmera</string>
+   <string name="gallery">Galeria</string>
+   <string name="title_activity_find_my_or_all_experiments_chooser">FindMyOrAllExperimentsChooserActivity</string>
+   <string name="action_settings">Configurações</string>
+   <string name="hello_world">Hello world!</string>
+   <string name="find_my_experiments">Encontrar meus experimentos</string>
+   <string name="find_all_public_experiments">Encontrar todos os experimentos públicos</string>   
+</resources>

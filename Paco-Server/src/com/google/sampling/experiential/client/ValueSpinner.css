@@ -1,0 +1,56 @@
+@external .gwt-ValueSpinner .arrows {
+	width: 17px;
+	height: 18px;
+	margin-left: 1px;
+}
+
+@external .gwt-ValueSpinner .textBox {
+	border: 0px;
+	text-align: right;
+	font-family: sans-serif;
+	font-weight: bold;
+	border: 1px solid #7F9DB9;
+}
+
+@external .gwt-TimePicker {
+	padding: 1px;
+}
+
+@external .gwt-TimePicker .textBox {
+	border: 0px;
+	width: 22px;
+	text-align: center;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 11px;
+	color: #506374;
+	border: 1px solid #7F9DB9;
+	background: url('%background%') repeat-x;
+}
+
+@external .gwt-VolumeSlider .gwt-ProgressBar-shell {
+	border: 1px solid #faf9f7;
+	border-right: 1px solid #848280;
+	border-bottom: 1px solid #848280;
+	background-color: #AAAAAA;
+	width: 50%;
+	height: 12pt;
+}
+
+@external .gwt-VolumeSlider .gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+	background-color: #67A7E3;
+}
+
+@external .gwt-VolumeSlider .gwt-ProgressBar-shell .gwt-ProgressBar-text {
+	padding: 0px;
+	margin: 0px;
+	color: white;
+}
+
+@external .gwt-VolumeSlider .decreaseArrow {
+	margin: 4px;
+}
+
+@external .gwt-VolumeSlider .increaseArrow {
+	margin: 4px;
+}

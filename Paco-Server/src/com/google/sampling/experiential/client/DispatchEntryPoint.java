@@ -49,13 +49,17 @@ public class DispatchEntryPoint implements EntryPoint {
   }
 
   private void renderDesktopPage(String path) {
-    if (path == null || path.isEmpty() || path.endsWith("Main.html") || 
+    if (path == null || path.isEmpty() || path.endsWith("main.jsp") ||
         path.endsWith("Experiments.html")) {
       renderMainPage();
     } else if (path.endsWith("PacoEventServer.html")) {
       new PacoEventServer().onModuleLoad();
     } else if (path.endsWith("PostEvent.html")) {
       new PostEvent().onModuleLoad();
+    } else if (path.endsWith("whitelist.jsp")) {
+      new WhitelistModule().onModuleLoad();
+    } else if (path.endsWith("join.html")) {
+      new JoinExperimentModule().onModuleLoad();
     }
   }
 

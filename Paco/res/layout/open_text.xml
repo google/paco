@@ -14,14 +14,30 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+-->
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content" android:layout_height="wrap_content">
-<EditText 
-android:layout_height="wrap_content" 
-android:layout_width="fill_parent"
-android:id="@+id/open_text_answer"
-android:layout_gravity="center"
-></EditText>
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal" >
+
+        <AutoCompleteTextView
+            android:id="@+id/open_text_answer"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+        
+
+        <ImageButton
+            android:id="@+id/micButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_btn_speak_now" 
+            android:contentDescription="@string/answer_by_speaking"/>
+    </LinearLayout>
 
 </merge>

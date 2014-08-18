@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -19,6 +19,7 @@ package com.google.sampling.experiential.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,12 +28,12 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.mortbay.log.Log;
-
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 
 public class DBQuotaFilter implements Filter {
+
+  private static final Logger log = Logger.getLogger(DBQuotaFilter.class.getName());
 
   private List<String> blockedEmails;
 
@@ -46,7 +47,7 @@ public class DBQuotaFilter implements Filter {
     // TODO Auto-generated method stub
     User user = UserServiceFactory.getUserService().getCurrentUser();
     if (user != null && blockedEmails.contains(user.getEmail())) {
-      Log.info("Blocked User: " + user.getEmail());
+      log.info("Blocked User: " + user.getEmail());
       throw new ServletException("Unauthorized");
     }
     arg2.doFilter(arg0, arg1);
@@ -58,7 +59,7 @@ public class DBQuotaFilter implements Filter {
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
-    // TODO Auto-generated method stub        
+    // TODO Auto-generated method stub
     blockedEmails = new ArrayList<String>();
     blockedEmails.add("papercaked@gmail.com");
   }

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -18,6 +18,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.Date;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -31,12 +32,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.client.SpinnerListener;
-import com.google.gwt.widgetideas.client.ValueSpinner;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel for configuring the ESM scheduling for an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -45,6 +45,7 @@ public class EsmPanel extends Composite {
   private SignalScheduleDAO schedule;
 
   public EsmPanel(final SignalScheduleDAO schedule) {
+    MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -56,10 +57,10 @@ public class EsmPanel extends Composite {
     verticalPanel.setCellVerticalAlignment(horizontalPanel, HasVerticalAlignment.ALIGN_MIDDLE);
     horizontalPanel.setWidth("");
 
-    Label lblFrequency = new Label("Frequency:");
+    Label lblFrequency = new Label(myConstants.frequency() + ":");
     lblFrequency.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblFrequency);
-    ValueSpinner frequencySpinner = new ValueSpinner(schedule.getEsmFrequency(), 0, 100);
+    ValueSpinnerFixed frequencySpinner = new ValueSpinnerFixed(schedule.getEsmFrequency(), 0, 100);
     frequencySpinner.getTextBox().setWidth("18px");
     frequencySpinner.setWidth("35px");
     horizontalPanel.add(frequencySpinner);
@@ -69,7 +70,7 @@ public class EsmPanel extends Composite {
       }
     });
 
-    Label lblPeriod = new Label("Period: ");
+    Label lblPeriod = new Label(myConstants.period() + ": ");
     lblPeriod.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblPeriod);
 
@@ -97,7 +98,7 @@ public class EsmPanel extends Composite {
     weekendsPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
     verticalPanel.add(weekendsPanel);
     weekendsPanel.setWidth("");
-    Label lblWeekends = new Label("Include weekends: ");
+    Label lblWeekends = new Label(myConstants.includeWeekends() + ": ");
     lblWeekends.setStyleName("gwt-Label-Header");
     weekendsPanel.add(lblWeekends);
 
@@ -119,7 +120,7 @@ public class EsmPanel extends Composite {
     verticalPanel.add(horizontalPanel_1);
     horizontalPanel_1.setWidth("");
 
-    Label lblStartHour = new Label("Start Time:");
+    Label lblStartHour = new Label(myConstants.startTime() + ":");
     lblStartHour.setStyleName("gwt-Label-Header");
     horizontalPanel_1.add(lblStartHour);
     lblStartHour.setWidth("83px");
@@ -160,7 +161,7 @@ public class EsmPanel extends Composite {
     });
 
 
-    Label lblEndTime = new Label("End Time:  ");
+    Label lblEndTime = new Label(myConstants.endTime() + ":  ");
     lblEndTime.setStyleName("gwt-Label-Header");
     horizontalPanel_2.add(lblEndTime);
     lblEndTime.setWidth("83px");
@@ -192,6 +193,19 @@ public class EsmPanel extends Composite {
         schedule.setEsmEndHour(offset);
       }
     });
+
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    verticalPanel.add(timeoutPanel);
+    timeoutPanel.setWidth("286px");
+
+    MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
+    verticalPanel.add(minimumBufferPanel);
+    minimumBufferPanel.setWidth("286px");
+
+    SnoozePanel snoozePanel = new SnoozePanel(schedule);
+    verticalPanel.add(snoozePanel);
+    snoozePanel.setWidth("286px");
+
   }
 
 }

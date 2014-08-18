@@ -46,82 +46,115 @@
 				android:layout_gravity="center" android:gravity="center">
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
+
+					<ImageButton
+					    android:id="@+id/FindExperimentsBtn"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:background="@android:color/transparent"
+					    android:contentDescription="@string/find_experiments"
+					    android:maxWidth="140dp"
+					    android:minWidth="140dp"
+					    android:src="@drawable/find_experiments_button" />
+
 					<ImageButton android:layout_height="fill_parent"
 						android:layout_gravity="center" android:id="@+id/CurrentExperimentsBtn"
 						android:contentDescription="@string/running_experiments" android:layout_width="fill_parent"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" android:src="@drawable/current_experiments_button" />
-					<ImageButton android:layout_height="fill_parent"
-						android:id="@+id/FindExperimentsBtn"
-						android:layout_gravity="center" android:layout_width="fill_parent"
-						android:src="@drawable/find_experiments_button" android:minWidth="140dp"
-						android:maxWidth="140dp" android:background="@android:color/transparent" 
-                        android:contentDescription="@string/find_experiments"/>
 
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center" >
+
+					<TextView
+					    android:layout_width="wrap_content"
+					    android:layout_height="wrap_content"
+					    android:gravity="center"
+					    android:shrinkColumns="*"
+					    android:text="@string/find_experiments" />
+
 					<TextView android:text="@string/running_experiments" android:id="@+id/TextView01"
-						android:layout_width="wrap_content" android:layout_height="wrap_content"
-						android:gravity="center" />						
-					<TextView android:text="@string/find_experiments" 
-					android:shrinkColumns="*"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:gravity="center" />
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
-					<ImageButton android:layout_height="fill_parent"
-						android:layout_gravity="center" android:id="@+id/ExploreDataBtn"
-						android:contentDescription="@string/explore_data"
-						android:layout_width="fill_parent" android:src="@drawable/explore_data_button"
-						android:minWidth="140dp" android:maxWidth="140dp"
-						android:background="@android:color/transparent" />
-						
-				    <ImageButton android:layout_height="fill_parent"
-						android:layout_gravity="center" android:id="@+id/CreateExperimentBtn"
-						android:contentDescription="@string/create_experiment"
-						android:layout_width="fill_parent" android:src="@drawable/create_experiments_button"
-						android:minWidth="140dp" android:maxWidth="140dp"
-						android:background="@android:color/transparent" />
+
+					<ImageButton
+					    android:id="@+id/ExploreDataBtn"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:background="@android:color/transparent"
+					    android:contentDescription="@string/explore_data"
+					    android:maxWidth="140dp"
+					    android:minWidth="140dp"
+					    android:src="@drawable/explore_data_button" />
+
+					<ImageButton
+					    android:id="@+id/CreateExperimentBtn"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:background="@android:color/transparent"
+					    android:contentDescription="@string/create_experiment"
+					    android:maxWidth="140dp"
+					    android:minWidth="140dp"
+					    android:src="@drawable/create_experiments_button" />
 
 					
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
-					<TextView android:text="@string/explore_data" android:id="@+id/ExploreDataLabel"
-						android:layout_width="fill_parent" android:layout_height="fill_parent"
-						android:gravity="center" />
-				  <TextView android:text="@string/create_experiment" android:id="@+id/CreateExperimentLabel"
-						android:layout_width="fill_parent" android:layout_height="fill_parent"
-						android:gravity="center" />
+
+					<TextView
+					    android:id="@+id/ExploreDataLabel"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:gravity="center"
+					    android:text="@string/explore_data" />
+
+					<TextView
+					    android:id="@+id/CreateExperimentLabel"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:gravity="center"
+					    android:text="@string/create_experiment" />
 
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
+
+					<ImageButton
+					    android:id="@+id/HelpButton"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:background="@android:color/transparent"
+					    android:contentDescription="@string/user_guide"
+					    android:maxWidth="140dp"
+					    android:minWidth="140dp"
+					    android:src="@drawable/help_button" />
+
 					<ImageButton android:id="@+id/FeedbackButton"
                         android:contentDescription="@string/contact_us"
 						android:layout_gravity="center" android:layout_width="fill_parent"
 						android:layout_height="fill_parent" android:src="@drawable/feedback_button"
 						android:minWidth="140dp" android:maxWidth="140dp"
 						android:background="@android:color/transparent" />
-
-                    <ImageButton android:id="@+id/HelpButton"
-                        android:contentDescription="@string/user_guide"
-                        android:layout_gravity="center" android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" android:src="@drawable/help_button"
-                        android:minWidth="140dp" android:maxWidth="140dp"
-                        android:background="@android:color/transparent" />
      					
 				</TableRow>
 				<TableRow android:layout_weight="1" android:layout_width="fill_parent"
 					android:layout_height="fill_parent" android:layout_gravity="center">
+
+					<TextView
+					    android:id="@+id/helpLabel"
+					    android:layout_width="fill_parent"
+					    android:layout_height="fill_parent"
+					    android:gravity="center"
+					    android:text="@string/user_guide" />
+
 					<TextView android:text="@string/contact_us" android:id="@+id/FeedbackLabel"
 						android:layout_width="fill_parent" android:layout_height="fill_parent"
 						android:gravity="center"></TextView>
-                    <TextView android:text="@string/user_guide" android:id="@+id/helpLabel"
-                        android:layout_width="fill_parent" android:layout_height="fill_parent"
-                        android:gravity="center"></TextView>
      									
 				</TableRow>
 			</TableLayout>

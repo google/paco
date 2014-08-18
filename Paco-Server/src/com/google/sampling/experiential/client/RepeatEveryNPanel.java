@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Composite;
@@ -23,7 +24,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel to show choice of "Repeat Every N days" scheduling option.
@@ -38,6 +39,7 @@ public class RepeatEveryNPanel extends Composite {
   private SignalScheduleDAO schedule;
 
   public RepeatEveryNPanel(String period, final SignalScheduleDAO schedule) {
+    MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     this.periodLabel = period;
     HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -46,7 +48,7 @@ public class RepeatEveryNPanel extends Composite {
     horizontalPanel.setSize("265px", "25px");
     initWidget(horizontalPanel);
 
-    Label lblRepeatEvery = new Label("Repeat every:");
+    Label lblRepeatEvery = new Label(myConstants.repeatEvery() + ":");
     lblRepeatEvery.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblRepeatEvery);
     horizontalPanel.setCellVerticalAlignment(lblRepeatEvery, HasVerticalAlignment.ALIGN_MIDDLE);

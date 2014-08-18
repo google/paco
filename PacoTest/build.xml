@@ -82,4 +82,88 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
+
+<!--
+  <path id="project.class.path">
+    <pathelement location="../Paco/bin/classes"/>
+    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+    <fileset dir="../Paco/libs" includes="**/*.jar"/>
+  </path>
+
+  
+  <target name="javac.tests" depends="javac" description="Compiles test code">
+    <javac srcdir="tests" includes="**" encoding="utf-8"
+      source="1.5" target="1.5" nowarn="true"
+      destdir="bin/classes"
+      debug="true" debuglevel="lines,vars,source">
+      <classpath location="libs/junit-4.10.jar"/>
+      <classpath refid="project.class.path"/>
+    </javac>
+  </target>
+  
+  <target name="test.dev" depends="javac.tests" description="Run plain junit tests">
+    <mkdir dir="reports/htmlunit" />
+    <junit fork="yes" printsummary="yes" haltonfailure="yes">
+      <jvmarg line="-Xmx256m" />
+      <sysproperty key="java.awt.headless" value="true" />
+      <classpath>
+        <pathelement location="tests" />
+        <path refid="project.class.path" />
+        <pathelement location="libs/junit-4.10.jar" />
+      </classpath>
+      <batchtest todir="reports/htmlunit" >
+        <fileset dir="tests" >
+          <include name="**/*Test.java" />
+        </fileset>
+      </batchtest>
+      <formatter type="plain" />
+      <formatter type="xml" />
+    </junit>
+  </target>
+
+
+
+  <target name="javatest" description="Run plain junit tests, not android tests.">
+    <antcall target="test.dev" />
+  </target>
+-->
+
+  <target name="emulator" description="start an emulator for testing">
+    <exec executable ="emulator" spawn="true"> <!-- output="avd_log" incompatible with spawn but good for debugging emulator launch problems -->
+       <arg value="-sysdir"/>
+       <arg value="${basedir}/avd"/>
+       <arg value="-avd"/>
+       <arg value="4.0.3"/>
+    </exec>
+  </target>
+
+  <target name="killemu" description="kill the emulator started for unit testing">
+    <exec executable ="adb" spawn="true">
+       <arg value="emu"/>
+       <arg value="kill"/>
+    </exec>
+  </target>
+
+  <target name="killadb" description="kill the adb">
+    <exec executable ="adb" spawn="true">
+       <arg value="kill-server"/>
+    </exec>
+  </target>
+
+  <target name="startadb" description="start the adb">
+    <exec executable ="adb" spawn="true">
+       <arg value="start-server"/>
+    </exec>
+  </target>
+
+  <target name="emutest" description="start the emulator and then run the tests, all in one task">
+   <antcall target="emulator" />
+   <sleep seconds="100"/>
+   <antcall target="killadb"/>
+   <sleep seconds="5"/>
+   <antcall target="startadb"/>
+   <sleep seconds="5"/>
+   <antcall target="test"/>
+   <antcall target="killemu"/>
+  </target>
 </project>

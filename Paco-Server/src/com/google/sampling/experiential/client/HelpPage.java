@@ -21,8 +21,28 @@ public class HelpPage extends Composite {
   }
 
   private void createLayout() {
-    HTML page = new HTML(parent.resources.helpHtml().getText());
-    mainPanel.add(page);
+    mainPanel.add(new HelpPageLocaleHelper().getLocalizedResource());
   }
   
+
+  class HelpPageLocaleHelper extends GWTLocaleHelper<HTML> {
+
+    protected HTML getEnVersion() {
+      return new HTML(parent.resources.helpHtml().getText());
+    }
+  
+    protected HTML getJaVersion() {
+      return new HTML(parent.resources.helpHtml_ja().getText());
+    }
+    
+    protected HTML getFiVersion() {
+      return new HTML(parent.resources.helpHtml_fi().getText());
+    }
+
+    protected HTML getPtVersion() {
+      return new HTML(parent.resources.helpHtml_pt().getText());
+    }
+  };
+
+
 }

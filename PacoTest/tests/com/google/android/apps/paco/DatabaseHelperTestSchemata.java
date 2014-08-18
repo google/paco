@@ -1,0 +1,55 @@
+package com.google.android.apps.paco;
+
+public class DatabaseHelperTestSchemata {
+  
+  public static String v13_MOCK_SCHEMA = "PRAGMA foreign_keys=OFF;\n" + 
+//      "BEGIN TRANSACTION;\n" + 
+//      "CREATE TABLE android_metadata (locale TEXT);\n" + 
+//      "INSERT INTO \"android_metadata\" VALUES('en_US');\n" + 
+      "CREATE TABLE experiments (_id INTEGER PRIMARY KEY AUTOINCREMENT, server_id INTEGER,title TEXT, version INTEGER,description TEXT, creator TEXT, informed_consent TEXT, hash TEXT, fixed_duration INTEGER, start_date INTEGER, end_date INTEGER, join_date INTEGER, questions_change INTEGER, icon BLOB, web_recommended INTEGER, json TEXT );\n" + 
+      "INSERT INTO \"experiments\" VALUES(1,3234,'a - ongoing',2,'','donti@google.com','','',0,NULL,NULL,1371580528900,0,NULL,0,'{\"creator\":\"donti@google.com\",\"description\":\"\",\"events\":[],\"feedback\":[{\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\",\"id\":3276}],\"fixedDuration\":false,\"hash\":\"\",\"informedConsentForm\":\"\",\"inputs\":[{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"q1\",\"name\":\"q1\",\"questionType\":\"question\",\"responseType\":\"likert\",\"mandatory\":false,\"invisible\":false,\"id\":3237}],\"joinDate\":1371580528900,\"modifyDate\":1371484374185,\"questionsChange\":false,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":479,\"weekDaysScheduled\":0,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmEndHour\":61200000,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmWeekends\":false,\"nthOfMonth\":1,\"repeatRate\":1,\"scheduleType\":0,\"times\":[28800000],\"userEditable\":true,\"byDayOfWeek\":false,\"id\":3235}],\"title\":\"a - ongoing\",\"version\":2,\"webRecommended\":false,\"informedConsent\":\"\",\"id\":3234}');\n" + 
+      "INSERT INTO \"experiments\" VALUES(2,3239,'b - fixed',3,'description!','donti@google.com','informed consent!','',1,1371538800000,1371884400000,1371580558322,0,NULL,0,'{\"creator\":\"donti@google.com\",\"description\":\"description!\",\"endDate\":1371884400000,\"events\":[],\"feedback\":[{\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\",\"id\":3314}],\"fixedDuration\":true,\"hash\":\"\",\"informedConsentForm\":\"informed consent!\",\"inputs\":[{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"q1\",\"name\":\"q1\",\"questionType\":\"question\",\"responseType\":\"number\",\"mandatory\":false,\"invisible\":false,\"id\":3242},{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"Location\",\"name\":\"q2\",\"questionType\":\"question\",\"responseType\":\"location\",\"mandatory\":false,\"invisible\":true,\"id\":3243},{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"q3\",\"name\":\"q3\",\"questionType\":\"question\",\"responseType\":\"open text\",\"mandatory\":false,\"invisible\":false,\"id\":3244}],\"joinDate\":1371580558322,\"modifyDate\":1371484419874,\"questionsChange\":false,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":479,\"weekDaysScheduled\":0,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmEndHour\":61200000,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmWeekends\":false,\"nthOfMonth\":1,\"repeatRate\":1,\"scheduleType\":0,\"times\":[28800000],\"userEditable\":true,\"byDayOfWeek\":false,\"id\":3240}],\"startDate\":1371538800000,\"title\":\"b - fixed\",\"version\":3,\"webRecommended\":false,\"informedConsent\":\"informed consent!\",\"id\":3239}');\n" + 
+      "INSERT INTO \"experiments\" VALUES(3,3246,'c - ongoing, triggered',3,'ddddd','donti@google.com','iiiii ccccc ttttt','',0,NULL,NULL,1371580576846,0,NULL,0,'{\"creator\":\"donti@google.com\",\"description\":\"ddddd\",\"events\":[],\"feedback\":[{\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\",\"id\":3262}],\"fixedDuration\":false,\"hash\":\"\",\"informedConsentForm\":\"iiiii ccccc ttttt\",\"inputs\":[{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"q1\",\"name\":\"q1\",\"questionType\":\"question\",\"responseType\":\"likert\",\"mandatory\":false,\"invisible\":false,\"id\":3249},{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[\"\"],\"text\":\"q2\",\"name\":\"q2\",\"questionType\":\"question\",\"responseType\":\"list\",\"mandatory\":false,\"invisible\":false,\"id\":3250}],\"joinDate\":1371580576846,\"modifyDate\":1371484462466,\"questionsChange\":false,\"signalingMechanisms\":[{\"type\":\"trigger\",\"timeout\":59,\"eventCode\":1,\"delay\":5000}],\"title\":\"c - ongoing, triggered\",\"trigger\":{\"type\":\"trigger\",\"timeout\":59,\"eventCode\":1,\"delay\":5000},\"version\":3,\"webRecommended\":false,\"informedConsent\":\"iiiii ccccc ttttt\",\"id\":3246}');\n" + 
+      "INSERT INTO \"experiments\" VALUES(4,3252,'d - fixed length, triggered',1,'this one actually has a description','donti@google.com','this one actually has informed consent text','',1,1392624000000,1431673200000,1371580598568,0,NULL,0,'{\"creator\":\"donti@google.com\",\"description\":\"this one actually has a description\",\"endDate\":1431673200000,\"events\":[],\"feedback\":[{\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\",\"id\":3254}],\"fixedDuration\":true,\"hash\":\"\",\"informedConsentForm\":\"this one actually has informed consent text\",\"inputs\":[{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"\",\"name\":\"q1\",\"questionType\":\"question\",\"responseType\":\"photo\",\"mandatory\":false,\"invisible\":true,\"id\":3255},{\"conditional\":false,\"likertSteps\":5,\"listChoices\":[],\"text\":\"q2\",\"name\":\"q2\",\"questionType\":\"question\",\"responseType\":\"likert_smileys\",\"mandatory\":false,\"invisible\":false,\"id\":3256}],\"joinDate\":1371580598568,\"modifyDate\":1371484603835,\"questionsChange\":false,\"signalingMechanisms\":[{\"type\":\"trigger\",\"timeout\":59,\"eventCode\":1,\"delay\":5000}],\"startDate\":1392624000000,\"title\":\"d - fixed length, triggered\",\"trigger\":{\"type\":\"trigger\",\"timeout\":59,\"eventCode\":1,\"delay\":5000},\"version\":1,\"webRecommended\":false,\"informedConsent\":\"this one actually has informed consent text\",\"id\":3252}');\n" + 
+      "CREATE TABLE schedules (_id INTEGER PRIMARY KEY AUTOINCREMENT, server_id INTEGER, experiment_id INTEGER, schedule_type INTEGER, esm_frequency INTEGER, esm_period INTEGER, esm_start_hour INTEGER, esm_end_hour INTEGER, esm_weekends INTEGER, times TEXT, repeat_rate INTEGER, weekdays_scheduled INTEGER, nth_of_month INTEGER, by_day_of_month INTEGER, day_of_month INTEGER, begin_date INTEGER, user_editable INTEGER, timeout INTEGER );\n" + 
+      "INSERT INTO \"schedules\" VALUES(1,3235,1,0,3,0,32400000,61200000,0,'28800000',1,0,1,1,1,1371580528900,1,479);\n" + 
+      "INSERT INTO \"schedules\" VALUES(2,3240,2,0,3,0,32400000,61200000,0,'28800000',1,0,1,1,1,1371580558322,1,479);\n" + 
+      "CREATE TABLE inputs (_id INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id INTEGER, question_id INTEGER, name TEXT,text TEXT,mandatory INTEGER,scheduledDate INTEGER,question_type INTEGER,response_type INTEGER,likert_steps INTEGER,left_side_label TEXT,right_side_label TEXT,list_choices TEXT,conditional INTEGER,condition_expression TEXT,multiselect INTEGER);\n" + 
+      "INSERT INTO \"inputs\" VALUES(1,1,3237,'q1','q1',0,NULL,'question','likert',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(2,2,3242,'q1','q1',0,NULL,'question','number',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(3,2,3243,'q2','Location',0,NULL,'question','location',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(4,2,3244,'q3','q3',0,NULL,'question','open text',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(5,3,3249,'q1','q1',0,NULL,'question','likert',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(6,3,3250,'q2','q2',0,NULL,'question','list',5,NULL,NULL,'[\"\"]',0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(7,4,3255,'q1','',0,NULL,'question','photo',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "INSERT INTO \"inputs\" VALUES(8,4,3256,'q2','q2',0,NULL,'question','likert_smileys',5,NULL,NULL,NULL,0,NULL,0);\n" + 
+      "CREATE TABLE events (_id INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id INTEGER, experiment_server_id INTEGER, experiment_name TEXT, experiment_version INTEGER, schedule_time INTEGER, response_time INTEGER,uploaded INTEGER);\n" + 
+      "INSERT INTO \"events\" VALUES(1,1,3234,'a - ongoing',2,NULL,1371580529844,1);\n" + 
+      "INSERT INTO \"events\" VALUES(2,2,3239,'b - fixed',3,NULL,1371580559301,1);\n" + 
+      "INSERT INTO \"events\" VALUES(3,3,3246,'c - ongoing, triggered',3,NULL,1371580577779,1);\n" + 
+      "INSERT INTO \"events\" VALUES(4,4,3252,'d - fixed length, triggered',1,NULL,1371580599337,1);\n" + 
+      "CREATE TABLE outputs (_id INTEGER PRIMARY KEY AUTOINCREMENT, event_id INTEGER, input_server_id INTEGER, text TEXT,answer TEXT);\n" + 
+      "INSERT INTO \"outputs\" VALUES(1,1,NULL,'joined','true');\n" + 
+      "INSERT INTO \"outputs\" VALUES(2,1,NULL,'schedule','type = daily,times = [8:00],repeatRate = 1,daysOfWeek = ,nthOfMonth = 1,byDayOfMonth = true,dayOfMonth = 1');\n" + 
+      "INSERT INTO \"outputs\" VALUES(3,2,NULL,'joined','true');\n" + 
+      "INSERT INTO \"outputs\" VALUES(4,2,NULL,'schedule','type = daily,times = [8:00],repeatRate = 1,daysOfWeek = ,nthOfMonth = 1,byDayOfMonth = true,dayOfMonth = 1');\n" + 
+      "INSERT INTO \"outputs\" VALUES(5,3,NULL,'joined','true');\n" + 
+      "INSERT INTO \"outputs\" VALUES(6,3,NULL,'schedule','Trigger: event: Phone Hangup, delay = 5000');\n" + 
+      "INSERT INTO \"outputs\" VALUES(7,4,NULL,'joined','true');\n" + 
+      "INSERT INTO \"outputs\" VALUES(8,4,NULL,'schedule','Trigger: event: Phone Hangup, delay = 5000');\n" + 
+      "CREATE TABLE feedback (_id INTEGER PRIMARY KEY AUTOINCREMENT, experiment_id INTEGER, server_id INTEGER, feedback_type TEXT,text TEXT);\n" + 
+      "INSERT INTO \"feedback\" VALUES(1,1,3276,'display','Thanks for Participating!');\n" + 
+      "INSERT INTO \"feedback\" VALUES(2,2,3314,'display','Thanks for Participating!');\n" + 
+      "INSERT INTO \"feedback\" VALUES(3,3,3262,'display','Thanks for Participating!');\n" + 
+      "INSERT INTO \"feedback\" VALUES(4,4,3254,'display','Thanks for Participating!');\n" + 
+      "CREATE TABLE notifications (_id INTEGER PRIMARY KEY AUTOINCREMENT, alarm_time INTEGER, experiment_id INTEGER, notice_count INTEGER, timeout_millis INTEGER);\n" + 
+      "DELETE FROM sqlite_sequence;\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('experiments',4);\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('schedules',2);\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('inputs',8);\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('feedback',4);\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('events',4);\n" + 
+      "INSERT INTO \"sqlite_sequence\" VALUES('outputs',8);"; //+ 
+//      "COMMIT;";
+
+}

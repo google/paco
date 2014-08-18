@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -28,9 +28,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
+import com.pacoapp.paco.R;
+
 public class RawDataActivity extends ListActivity {
 
-  DateTimeFormatter df = DateTimeFormat.forPattern("MM/dd/yy:HH:mm");
+  DateTimeFormatter df = DateTimeFormat.forPattern("MM/dd/yy HH:mm");
 
   private ExperimentProviderUtil experimentProviderUtil;
   private Experiment experiment;
@@ -53,7 +55,7 @@ public class RawDataActivity extends ListActivity {
   }
 
     private Experiment getExperimentFromIntent() {
-      Uri uri = getIntent().getData();    
+      Uri uri = getIntent().getData();
       if (uri == null) {
         return null;
       }
@@ -76,10 +78,10 @@ public class RawDataActivity extends ListActivity {
           buf.append(output.getName());
           buf.append("=");
           Input input = experiment.getInputById(output.getInputServerId());
-          if (input != null && input.getResponseType() != null && 
-              (input.getResponseType().equals(Input.PHOTO) || 
+          if (input != null && input.getResponseType() != null &&
+              (input.getResponseType().equals(Input.PHOTO) ||
                   input.getResponseType().equals(Input.SOUND))) {
-            buf.append("<multimedia:"+input.getResponseType()+">");            
+            buf.append("<multimedia:"+input.getResponseType()+">");
           } else {
             buf.append(output.getAnswer());
           }
@@ -89,9 +91,9 @@ public class RawDataActivity extends ListActivity {
         if (responseTime == null) {
           DateTime scheduledTime = event.getScheduledTime();
           if (scheduledTime != null) {
-            signalTime = scheduledTime.toString(df) + ": missed";
+            signalTime = scheduledTime.toString(df) + ": " + getString(R.string.missed_signal_value);
           } else {
-            signalTime = "Missed";
+            signalTime = getString(R.string.missed_signal_value);
           }
         } else {
           signalTime = responseTime.toString(df);

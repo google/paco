@@ -36,9 +36,25 @@
 <inherits name="com.google.gwt.gen2.picker.Picker" />                      
 <inherits name="com.google.gwt.http.HTTP" />
 <inherits name="com.google.gwt.json.JSON" />
+<inherits name="com.google.gwt.i18n.I18N"/>
+<inherits name="com.google.paco.shared.Shared" />
+<inherits name='edu.ycp.cs.dh.acegwt.AceGWT'/>
+<inherits name='com.google.gwt.maps.Maps' />
+ 
+<extend-property name="locale" values="fi"/>
+ <extend-property name="locale" values="ja"/>
+  <extend-property name="locale" values="en"/>
+    <extend-property name="locale" values="pt"/>
+<set-property-fallback name="locale" value="en"/>
+
+<!-- <set-configuration-property name="locale.usemeta" value="N"/> -->
+ <set-configuration-property name="locale.searchorder" value="queryparam,useragent,cookie"/>
 
 <!-- <inherits name="com.google.gwt.maps.GoogleMaps" /> -->
+<!-- <inherits name='com.google.gwt.maps.Apis_Google_Maps' /> -->
+
 <inherits name="com.google.common.collect.Collect" />
+
 
  <!--
     If you want to deploy this application outside of localhost,
@@ -49,6 +65,7 @@
 <!--
 <script src="https://maps-api-ssl.google.com/maps/api/js?v=3&amp;sensor=false"></script>
 --> 
+
 
   <!-- Specify the app entry point class. -->
   <entry-point class='com.google.sampling.experiential.client.DispatchEntryPoint'/>

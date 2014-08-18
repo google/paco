@@ -1,0 +1,32 @@
+<html>
+<head>
+  <title>Explore the Mandelbrot Set</title>
+  <script type="text/javascript"
+    src="http://seadragon.com/ajax/0.8/seadragon-min.js"></script>
+  <script type="text/javascript">
+    var viewer = null;
+
+    function init() {
+      Seadragon.Config.springStiffness = 2.5;
+      Seadragon.Config.imageLoaderLimit = 4;
+      Seadragon.Config.zoomPerClick = 1.5;
+      Seadragon.Config.zoomPerSecond = 1.5;
+      viewer = new Seadragon.Viewer("map");
+      viewer.openDzi("mandelbrot256.dzi");
+    }
+    Seadragon.Utils.addEvent(window, "load", init);
+  </script>
+  <style type="text/css">
+    #map {
+      width: 600px;
+      height: 600px;
+      background-color: black;
+      border: 1px solid black;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+</body>
+</html>

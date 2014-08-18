@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.shared;
 
 import com.google.sampling.experiential.shared.WordCloud;
+import com.google.sampling.experiential.shared.WordCloud.WordWeight;
 
 import junit.framework.TestCase;
 
@@ -30,7 +31,8 @@ public class WordCloudTest extends TestCase {
     List<String> entries = new ArrayList<String>();
     entries.add("apple");
     WordCloud wc = new WordCloud(entries);
-    assertEquals("apple", wc.getWordsWithWeights().get(0).word);
-    assertEquals(1, wc.getWordsWithWeights().get(0).weight);
+    List<WordWeight> wordsWithWeights = wc.getWordsWithWeights();
+    assertEquals("apple", wordsWithWeights.get(0).word);
+    assertEquals(2, wordsWithWeights.get(0).weight);
   }
 }

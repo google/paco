@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="PacoTestJunit">
+    <loadproperties srcFile="local.properties" />
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+    <path id="PacoTestJunit.classpath">
+        <pathelement location="../Paco/bin/classes"/>
+<!--	<pathelement location="${sdk.dir}/platforms/android-16/android.jar"/> -->
+        <fileset dir="../Paco/libs" includes="**/*.jar"/>
+    </path>
+    <target name="clean">
+        <delete dir="testbin"/>
+        <delete dir="reports"/>
+    </target>
+    
+    <target name="test-init">
+        <mkdir dir="testbin"/>
+        <copy includeemptydirs="false" todir="testbin">
+            <fileset dir="tests">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>        
+    </target>
+    
+    <target name="test" depends="build-test">
+      <mkdir dir="reports/test" />
+      <junit fork="yes" printsummary="yes" haltonfailure="yes">
+        <jvmarg line="-Xmx256m" />
+        <sysproperty key="java.awt.headless" value="true" />
+        <classpath>
+          <pathelement location="tests" />
+          <path refid="PacoTestJunit.classpath" />
+          <pathelement location="testbin" />
+          <pathelement location="libs/junit-4.10.jar" />
+        </classpath>
+        <batchtest todir="reports/test" >
+          <fileset dir="tests" >
+            <include name="**/*Test.java" />
+          </fileset>
+        </batchtest>
+        <formatter type="plain" />
+        <formatter type="xml" />
+      </junit>
+        
+    </target>
+    
+    <target name="build-test" depends="test-init">
+        <javac debug="true" debuglevel="${debuglevel}" destdir="testbin" source="${source}" target="${target}">
+          <src path="tests"/>
+          <classpath>
+            <pathelement location="libs/junit-4.10.jar" />
+            <path refid="PacoTestJunit.classpath" />
+          </classpath>            
+        </javac>
+    </target>
+   
+    
+</project>

@@ -23,8 +23,8 @@ import java.util.LinkedList;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.InputDAO;
 
 /**
  * A composite container for a bunch of InputPanel views.
@@ -80,6 +80,30 @@ public class InputsListPanel extends Composite {
     mainPanel.insert(newInputsPanel, widgetIndex + 1);
 
     updateExperimentInputs();
+  }
+  
+  public boolean checkListItemsHaveAtLeatOneOptionAndHighlight() {
+    boolean requiredFieldsAreFilled = true;
+    for (InputsPanel inputsPanel : inputsPanelsList) {
+      if (!inputsPanel.checkListItemsHaveAtLeastOneOptionAndHighlight()) {
+        requiredFieldsAreFilled = false;
+        // Note: no break statement here since we need to continue
+        // highlighting erroneous panels.
+      }
+    }
+    return requiredFieldsAreFilled;
+  }
+  
+  public boolean checkVarNamesFilledWithoutSpacesAndHighlight() {
+    boolean varNamesHaveNoSpaces = true;
+    for (InputsPanel inputsPanel : inputsPanelsList) {
+      if (!inputsPanel.checkVarNameFilledWithoutSpacesAndHighlight()) {
+        varNamesHaveNoSpaces = false;
+        // Note: no break statement here since we need to continue
+        // highlighting erroneous panels.
+      }
+    }
+    return varNamesHaveNoSpaces;
   }
 
   /**

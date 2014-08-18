@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="Shared">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    
+      <property name="gwt.args" value="-style PRETTY" />
+
+  
+  <property name="gwt.sdk" location="../tools/gwt-2.6.0" />
+
+  <path id="gwt.project.class.path">
+    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+  </path>
+    
+    
+  
+  
+    <path id="Shared.classpath">
+        <pathelement location="bin"/>
+        <path refid="gwt.project.class.path"/>
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="testbin"/>
+        <delete dir="reports"/>
+    </target>
+    
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="test-init" depends="init">
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="test">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>        
+    </target>
+    
+    <target name="build" depends="build-project">
+      <jar destfile="dist/shared.jar"
+           basedir="bin" />
+    </target>
+
+	<target name="build-project" depends="init">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<copy todir="bin">
+			<fileset dir="src">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
+
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+			source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="Shared.classpath" />
+
+		</javac>
+	</target>
+    
+    
+    <target name="test" depends="build-test">
+      <mkdir dir="reports/test" />
+      <junit fork="yes" printsummary="yes" haltonfailure="yes">
+        <jvmarg line="-Xmx256m" />
+        <sysproperty key="java.awt.headless" value="true" />
+        <classpath>
+          <pathelement location="src" />
+          <pathelement location="test" />
+          <path refid="Shared.classpath" />
+          <pathelement location="testbin" />
+          <pathelement location="lib/junit-4.10.jar" />
+        </classpath>
+        <batchtest todir="reports/test" >
+          <fileset dir="test" >
+            <include name="**/*Test.java" />
+          </fileset>
+        </batchtest>
+        <formatter type="plain" />
+        <formatter type="xml" />
+      </junit>
+        
+    </target>
+    
+    <target name="build-test" depends="build-project,test-init">
+        <mkdir dir="testbin"></mkdir>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="testbin" source="${source}" target="${target}">
+          <src path="test"/>
+          <classpath>
+            <pathelement location="lib/junit-4.10.jar" />
+            <path refid="Shared.classpath" />
+          </classpath>            
+        </javac>
+    </target>
+    
+<!--       Arguments to gwtc and devmode targets
+  <property name="gwt.args" value="-style PRETTY" />
+
+  Configure path to GWT SDK
+  <property name="gwt.sdk" location="../tools/gwt-2.1.0" />
+
+  <path id="gwt.project.class.path">
+    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+    <fileset dir="${sdk.dir}" includes="*.jar"/>
+  </path>
+    
+   <target name="gwtc" depends="build" description="GWT compile to JavaScript (production mode)">
+    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+      <classpath>
+        <pathelement location="src"/>
+        <path refid="gwt.project.class.path"/>
+      </classpath>
+      add jvmarg -Xss16M or similar if you see a StackOverflowError
+      <jvmarg value="-Xmx256M"/>
+      <arg line="-war"/>
+      <arg value="war"/>
+      
+      Additional arguments like -style PRETTY or -logLevel DEBUG
+      <arg line="${gwt.args}"/>
+       <arg value="com.google.paco.shared.client.SharedModuleEntryPoint"/>
+    </java>
+ 
+ </target>
+-->
+    
+    
+</project>

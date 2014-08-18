@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -22,21 +22,27 @@ import org.joda.time.Minutes;
 
 public class NotificationHolder  {
 
+  private static final String DEFAULT_SIGNAL_GROUP = "default";
   private Long id;
   private Long alarmTime;
   private Long experimentId;
   private Integer noticeCount;
   private Long timeoutMillis;
-  
-  
-  
+  /** The source of this experiment, e.g., one of the signal groups (currently only one) or a custom notification created by api **/
+  private String notificationSource = DEFAULT_SIGNAL_GROUP;
+  private String message;
+  public static final String CUSTOM_GENERATED_NOTIFICATION = "customGenerated";
+
+
   public NotificationHolder(Long alarmTime, Long experimentId,
-      Integer noticeCount, Long timeoutMillis) {
+      Integer noticeCount, Long timeoutMillis, String notificationSource, String message) {
     super();
     this.alarmTime = alarmTime;
     this.experimentId = experimentId;
     this.noticeCount = noticeCount;
     this.timeoutMillis = timeoutMillis;
+    this.notificationSource = notificationSource;
+    this.message = message;
   }
 
   public NotificationHolder() {
@@ -86,5 +92,24 @@ public class NotificationHolder  {
     return now.isBefore(new DateTime(alarmTime).plus(Minutes.minutes(timeoutMillis.intValue() / 60000)));
   }
 
+  public String getNotificationSource() {
+    return notificationSource;
+  }
+
+  public void setNotificationSource(String notificationSource) {
+    this.notificationSource = notificationSource;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public boolean isCustomNotification() {
+    return this.notificationSource.equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION);
+  }
 
 }

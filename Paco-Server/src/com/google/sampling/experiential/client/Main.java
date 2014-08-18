@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,17 +16,29 @@
 */
 package com.google.sampling.experiential.client;
 
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.maps.client.LoadApi;
+import com.google.gwt.maps.client.LoadApi.LoadLibrary;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -37,71 +49,100 @@ import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentQueryResult;
+import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.ExperimentDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
-import com.google.sampling.experiential.shared.FeedbackDAO;
-import com.google.sampling.experiential.shared.InputDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
-import com.google.sampling.experiential.shared.MapService;
-import com.google.sampling.experiential.shared.MapServiceAsync;
+import com.google.sampling.experiential.shared.PacoService;
+import com.google.sampling.experiential.shared.PacoServiceAsync;
 
 /**
  * Default Entry point into the GWT application.
  * Checks login. Renders Joined Experiments view by default.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class Main implements EntryPoint, ExperimentListener {
 
+  private static final Integer DEFAULT_LIMIT_SIZE = 20;
+
+  public static String ERROR_HIGHLIGHT = "error-highlight";
+
   private Label statusLabel;
   private FlexTable flexTable;
   Images resources;
-  private HTML lblYourExperiments;
+  private HTML listTitle;
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
-  private List<ExperimentDAO> joinedExperiments;
-  private List<ExperimentDAO> adminedExperiments;
+  private List<ExperimentDAO> experiments;
 
-  private MapServiceAsync mapService = GWT.create(MapService.class);
+
+  private PacoServiceAsync pacoService = GWT.create(PacoService.class);
 
   private LoginInfo loginInfo = null;
-  private Anchor signInLink = new Anchor("Sign In");
-  private Anchor signOutLink = new Anchor("Sign out");
+  private Anchor signInLink = new Anchor("Login");
+  private Anchor signOutLink = new Anchor("Sign in as another user");
 
-  private VerticalPanel loginPanel = new VerticalPanel();
-  private Label loginLabel =
-      new Label("Please sign in to your Google Account " + "to access the application.");
+  private FlowPanel loginPanel = new FlowPanel();
+
+  protected MyConstants myConstants;
+  protected MyMessages myMessages;
+  private ScrollPanel leftSidePanel;
+
+  protected String cursor;
 
 
   public void onModuleLoad() {
+    if (GWT.getHostPageBaseURL().startsWith("http://") && !(GWT.getHostPageBaseURL().contains("127.0.0.1") ||
+        GWT.getHostPageBaseURL().contains("localhost"))) {
+      Window.Location.assign(GWT.getHostPageBaseURL().replace("http://", "https://") );
+    }
+    resources = GWT.create(Images.class);
+    myConstants = GWT.create(MyConstants.class);
+    myMessages = GWT.create(MyMessages.class);
+
+    signInLink = new Anchor(myConstants.login());
+    signOutLink = new Anchor(myConstants.signInAsOtherUser());
+
+
+    if (Document.get() != null) {
+      Document.get().setTitle(myConstants.pacoPageTitle());
+    }
+
     checkLoginStatusAndLoadPage();
   }
 
   private void checkLoginStatusAndLoadPage() {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
-    loginService.login(GWT.getHostPageBaseURL()+"Main.html", new AsyncCallback<LoginInfo>() {
+    loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
+        Window.alert(myConstants.failedToLogin());
       }
 
       public void onSuccess(LoginInfo result) {
-        loginInfo = result; 
-        if (loginInfo.isLoggedIn()) {
-//          Maps.loadMapsApi("", "2", false, new Runnable() {
-//            public void run() {
+        loginInfo = result;
+        if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
+          Runnable onLoad = new Runnable() {
+            @Override
+            public void run() {
+              loginPanel.setVisible(false);
               createHomePage();
               signOutLink.setHref(loginInfo.getLogoutUrl());
+            }
+          };
 
-//            }
-//          });
-
+          loadMapApi(onLoad);
         } else {
           loadLogin();
         }
@@ -109,125 +150,83 @@ public class Main implements EntryPoint, ExperimentListener {
     });
   }
 
-  private void loadLogin() {
-    signInLink.setHref(loginInfo.getLoginUrl());
-    loginPanel.add(loginLabel);
-    loginPanel.add(signInLink);
-    RootPanel.get().add(loginPanel);
+  private void loadMapApi(Runnable runnable) {
+    boolean sensor = true;
+
+    // load all the libs for use in the maps
+    ArrayList<LoadLibrary> loadLibraries = new ArrayList<LoadApi.LoadLibrary>();
+    loadLibraries.add(LoadLibrary.ADSENSE);
+    loadLibraries.add(LoadLibrary.DRAWING);
+    loadLibraries.add(LoadLibrary.GEOMETRY);
+    loadLibraries.add(LoadLibrary.PANORAMIO);
+    loadLibraries.add(LoadLibrary.PLACES);
+    loadLibraries.add(LoadLibrary.WEATHER);
+    //loadLibraries.add(LoadLibrary.VISUALIZATION);
+    LoadApi.go(runnable, loadLibraries, sensor);
   }
+  private void loadLogin() {
+    loginPanel.setStyleName("front_page");
+    HTML index2Html = null;
+
+    index2Html = new HomePageLocaleHelper().getLocalizedResource();
+
+    signInLink.setHref(loginInfo.getLoginUrl());
+    signInLink.setStyleName("paco-Login");
+    signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+
+    loginPanel.add(signInLink);
+
+    loginPanel.setVisible(true);
+    if (loginInfo.isLoggedIn() && !loginInfo.isWhitelisted()) {
+      Window.alert(myConstants.notWhiteListed());
+      //loginPanel.add(signOutLink);
+      signInLink.setHref(loginInfo.getLogoutUrl());
+//      signOutLink.setStyleName("paco-HTML-Large");
+//      signOutLink.setVisible(true);
+    }
+    loginPanel.add(index2Html);
+    RootPanel.get().add(loginPanel);
+    RootPanel.get().add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
+  }
+
+  class HomePageLocaleHelper extends GWTLocaleHelper<HTML> {
+
+    protected HTML getEnVersion() {
+      return new HTML(resources.indexHtml().getText());
+    }
+
+    protected HTML getJaVersion() {
+      return new HTML(resources.indexHtml_ja().getText());
+    }
+
+    protected HTML getFiVersion() {
+      return new HTML(resources.helpHtml_ja().getText());
+    }
+
+    protected HTML getPtVersion() {
+      return new HTML(resources.helpHtml_pt().getText());
+    }
+  };
 
 
 
   private void createHomePage() {
-    resources = GWT.create(Images.class);
     RootPanel rootPanel = RootPanel.get();
 
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     rootPanel.add(mainPanel);
 
-    HorizontalPanel menuPanel = new HorizontalPanel();
-    mainPanel.add(menuPanel);
-    Image pacoLogo = new Image(resources.pacoSmallLogo());
-    pacoLogo.setStylePrimaryName("paco-Logo");
-    menuPanel.add(pacoLogo);
+    HorizontalPanel menuPanel = createMenuBar();
+    createStatusPanelOnMenubar(menuPanel);
 
-    MenuBar rootMenuBar = new MenuBar(false);
-    menuPanel.add(rootMenuBar);
+    listTitle = new HTML("");
+    mainPanel.add(listTitle);
+    listTitle.setStyleName("paco-HTML-Large");
+    listTitle.setWordWrap(false);
+    listTitle.setSize("270px", "22");
 
-    MenuBar joinedSubMenuBar = new MenuBar(true);
-    MenuItem joinedMenuItem = new MenuItem("Joined Experiments", false, joinedSubMenuBar);
-    MenuItem mntmShowAllJoined = new MenuItem("Show All", false, new Command() {
-      public void execute() {
-        loadJoinedExperiments();
-      }
-    });
-    joinedSubMenuBar.addItem(mntmShowAllJoined);
-
-    MenuItem mntmFindExperiments = new MenuItem("Find Experiments", false, new Command() {
-      public void execute() {
-        findExperiments();
-      }
-    });
-    mntmFindExperiments.setEnabled(true);
-    joinedSubMenuBar.addItem(mntmFindExperiments);
-    rootMenuBar.addItem(joinedMenuItem);
-
-    MenuBar adminMenuBar = new MenuBar(true);
-    MenuItem adminMenuItem = new MenuItem("Administer Experiments", false, adminMenuBar);
-    MenuItem mntmShowAllAdmin = new MenuItem("Show All", false, new Command() {
-      public void execute() {
-        loadAdministeredExperiments(false);
-      }
-    });
-    adminMenuBar.addItem(mntmShowAllAdmin);
-
-    MenuItem mntmCreateNew = new MenuItem("Create New", false, new Command() {
-      public void execute() {
-        createNewExperiment();
-      }
-    });
-    adminMenuBar.addItem(mntmCreateNew);
-    rootMenuBar.addItem(adminMenuItem);
-    // //////////////////
-
-    MenuItem mntmQR_Code = new MenuItem("Get Android Client", false, new Command() {
-      public void execute() {
-        showAndroidDownloadPage();
-      }
-    });
-    rootMenuBar.addItem(mntmQR_Code);
-
-
-    // ////////////////
-    MenuBar helpMenuBar = new MenuBar(true);
-    MenuItem helpMenuItem = new MenuItem("Help", false, helpMenuBar);
-    rootMenuBar.addItem(helpMenuItem);
-
-    MenuItem helpContentsMenuItem = new MenuItem("Help Contents", false, new Command() {
-      public void execute() {
-        launchHelp();
-      }
-    });
-    //helpContentsMenuItem.setEnabled(false);
-    helpMenuBar.addItem(helpContentsMenuItem);
-
-    MenuItem aboutMenuItem = new MenuItem("About", false, new Command() {
-      public void execute() {
-        launchAbout();
-      }
-    });
-    aboutMenuItem.setEnabled(false);
-    helpMenuBar.addItem(aboutMenuItem);
-    
-    // logout
-
-    MenuItem mntmLogout = new MenuItem("Logout", false, new Command() {
-      public void execute() {
-        logout();
-      }
-    });
-    rootMenuBar.addItem(mntmLogout);
-
-    // status label
-
-
-    statusLabel = new Label("Loading");
-    statusLabel.setStyleName("paco-Loading-Panel");
-    statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-
-    statusLabel.setSize("80px", "24px");
-    statusLabel.setVisible(false);
-
-    menuPanel.add(statusLabel);
-
-    lblYourExperiments = new HTML("");
-    mainPanel.add(lblYourExperiments);
-    lblYourExperiments.setStyleName("paco-HTML-Large");
-    lblYourExperiments.setWordWrap(false);
-    lblYourExperiments.setSize("270px", "22");
-
-    mainPanel.setCellHorizontalAlignment(lblYourExperiments, HasHorizontalAlignment.ALIGN_CENTER);
+    mainPanel.setCellHorizontalAlignment(listTitle, HasHorizontalAlignment.ALIGN_CENTER);
 
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setSpacing(2);
@@ -235,7 +234,8 @@ public class Main implements EntryPoint, ExperimentListener {
     mainPanel.add(horizontalPanel);
 
     experimentPanel = new VerticalPanel();
-    horizontalPanel.add(experimentPanel);
+    leftSidePanel = new ScrollPanel(experimentPanel);
+    horizontalPanel.add(leftSidePanel);
     experimentPanel.setStyleName("paco-experimentPanel");
     experimentPanel.setSpacing(2);
     experimentPanel.setVisible(false);
@@ -250,10 +250,116 @@ public class Main implements EntryPoint, ExperimentListener {
     contentPanel = new VerticalPanel();
     contentPanel.setSpacing(2);
     horizontalPanel.add(contentPanel);
-    contentPanel.setSize("479px", "325px");
-
+    //contentPanel.setSize("550px", "325px");
+    rootPanel.add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
     loadJoinedExperiments();
+
     createCallbackForGviz();
+  }
+
+  private void createStatusPanelOnMenubar(HorizontalPanel menuPanel) {
+    statusLabel = new Label(myConstants.loading());
+    statusLabel.setStyleName("paco-Loading-Panel");
+    statusLabel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
+    statusLabel.setSize("80px", "26px");
+    statusLabel.setVisible(false);
+
+    menuPanel.add(statusLabel);
+  }
+
+  private HorizontalPanel createMenuBar() {
+    HorizontalPanel menuPanel = new HorizontalPanel();
+    mainPanel.add(menuPanel);
+    Image pacoLogo = new Image(resources.pacoSmallLogo());
+    pacoLogo.setStylePrimaryName("paco-Logo");
+    menuPanel.add(pacoLogo);
+
+    VerticalPanel rootMenuAndGreetingBar = new VerticalPanel();
+    menuPanel.add(rootMenuAndGreetingBar);
+    MenuBar rootMenuBar = new MenuBar(false);
+    rootMenuAndGreetingBar.add(rootMenuBar);
+
+    Label greeting = new Label(myMessages.hello(loginInfo.getEmailAddress()));
+    greeting.setStyleName("paco-Name-Greeting");
+    //greeting.setSize("200px", "20px");
+    rootMenuAndGreetingBar.add(greeting);
+
+
+    MenuBar joinedSubMenuBar = new MenuBar(true);
+    MenuItem joinedMenuItem = new MenuItem(myConstants.joinedExperiments(), false, joinedSubMenuBar);
+    MenuItem mntmShowAllJoined = new MenuItem(myConstants.showAll(), false, new Command() {
+      public void execute() {
+        loadJoinedExperiments();
+      }
+    });
+    joinedSubMenuBar.addItem(mntmShowAllJoined);
+
+    MenuItem mntmFindExperiments = new MenuItem(myConstants.findExperiments(), false, new Command() {
+      public void execute() {
+        findExperiments();
+      }
+    });
+    mntmFindExperiments.setEnabled(true);
+    joinedSubMenuBar.addItem(mntmFindExperiments);
+    rootMenuBar.addItem(joinedMenuItem);
+
+    MenuBar adminMenuBar = new MenuBar(true);
+    MenuItem adminMenuItem = new MenuItem(myConstants.administerExperiments(), false, adminMenuBar);
+    MenuItem mntmShowAllAdmin = new MenuItem(myConstants.showAll(), false, new Command() {
+      public void execute() {
+        loadAdministeredExperiments(false);
+      }
+    });
+    adminMenuBar.addItem(mntmShowAllAdmin);
+
+    MenuItem mntmCreateNew = new MenuItem(myConstants.createNew(), false, new Command() {
+      public void execute() {
+        createNewExperiment();
+      }
+    });
+    adminMenuBar.addItem(mntmCreateNew);
+    rootMenuBar.addItem(adminMenuItem);
+    // //////////////////
+
+    MenuItem mntmQR_Code = new MenuItem(myConstants.getAndroid(), false, new Command() {
+      public void execute() {
+        showAndroidDownloadPage();
+      }
+    });
+    rootMenuBar.addItem(mntmQR_Code);
+
+
+    // ////////////////
+    MenuBar helpMenuBar = new MenuBar(true);
+    MenuItem helpMenuItem = new MenuItem(myConstants.help(), false, helpMenuBar);
+    rootMenuBar.addItem(helpMenuItem);
+
+    MenuItem helpContentsMenuItem = new MenuItem(myConstants.userGuide(), false, new Command() {
+      public void execute() {
+        launchHelp();
+      }
+    });
+    //helpContentsMenuItem.setEnabled(false);
+    helpMenuBar.addItem(helpContentsMenuItem);
+
+    MenuItem aboutMenuItem = new MenuItem(myConstants.about(), false, new Command() {
+      public void execute() {
+        launchAbout();
+      }
+    });
+    aboutMenuItem.setEnabled(false);
+    helpMenuBar.addItem(aboutMenuItem);
+
+    // logout
+
+    MenuItem mntmLogout = new MenuItem(myConstants.logout(), false, new Command() {
+      public void execute() {
+        logout();
+      }
+    });
+    rootMenuBar.addItem(mntmLogout);
+    return menuPanel;
   }
 
   protected void logout() {
@@ -261,25 +367,24 @@ public class Main implements EntryPoint, ExperimentListener {
   }
 
   /**
-   * 
+   *
    */
   protected void showAndroidDownloadPage() {
     contentPanel.clear();
     experimentPanel.setVisible(false);
-    setContentTitle("Download the PACO Android Client");
+    setContentTitle(myConstants.downloadAppTitle());
     VerticalPanel dl = new VerticalPanel();
 
-    HTML barCodeLabel = new HTML("1) Ensure that you can install applications from Unknown Sources.");
+    HTML barCodeLabel = new HTML(myConstants.downloadAppStep1a());
     barCodeLabel.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel);
-    dl.add(new HTML("On your phone, open the 'Settings' app. Click 'Applications' and check 'Unknown Sources'."));
- 
-    HTML barCodeLabel2 = new HTML("2a) Scan this code with your phone which will launch the browser and download Paco.");
+
+    HTML barCodeLabel2 = new HTML(myConstants.downloadAppStep2a());
     barCodeLabel2.setStyleName("paco-HTML-Large");
     dl.add(barCodeLabel2);
     dl.add(new Image(resources.qrcode()));
-    
-    HTML downloadLink = new HTML("2b) If you are browsing this page from your phone, just <a href=\"/paco.apk\">click here to download Paco</a>.");
+
+    HTML downloadLink = new HTML(myMessages.downloadAppStep2b("http://play.google.com/store/apps/details?id=com.pacoapp.paco"));
     downloadLink.setStyleName("paco-HTML-Large");
     dl.add(downloadLink);
 
@@ -304,33 +409,32 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void findExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Find Experiments");
+    setContentTitle(myConstants.findExperiments());
     contentPanel.clear();
     experimentPanel.setVisible(true);
-    statusLabel.setVisible(false);
-    getExperiments(false, false);
+    getExperiments(false, false, true);
   }
 
   private void setContentTitle(String text) {
-    lblYourExperiments.setHTML(text);
+    listTitle.setHTML(text);
   }
 
   protected void createNewExperiment() {
-    setContentTitle("Create New Experiment");
+    setContentTitle(myConstants.createNewExperiment());
     contentPanel.clear();
     experimentPanel.setVisible(false);
     ExperimentDAO experiment = new ExperimentDAO();
-    showExperimentDetailPanel(experiment, true);
+    showExperimentDetailPanel(experiment, true, false);
   }
 
   protected void launchAbout() {
-    setContentTitle("About PACO");
+    setContentTitle(myConstants.about() + " PACO");
     contentPanel.clear();
     experimentPanel.setVisible(false);
   }
 
   protected void launchHelp() {
-    setContentTitle("Help");
+    setContentTitle(myConstants.help());
     contentPanel.clear();
     experimentPanel.setVisible(false);
     HelpPage hp = new HelpPage(this);
@@ -339,20 +443,22 @@ public class Main implements EntryPoint, ExperimentListener {
 
   protected void loadJoinedExperiments() {
     statusLabel.setVisible(true);
-    setContentTitle("Joined Experiments");
+    setContentTitle(myConstants.joinedExperiments());
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
-    getExperiments(true, false);
+    toggleExperimentList(true);
+    getExperiments(true, false, false);
   }
 
   protected void loadAdministeredExperiments(boolean experimentsDirty) {
     statusLabel.setVisible(true);
-    setContentTitle("Administered Experiments");
+    setContentTitle(myConstants.administerExperiments());
     contentPanel.clear();
     flexTable.clear();
     experimentPanel.setVisible(true);
-    getExperiments(false, experimentsDirty);
+    toggleExperimentList(true);
+    getExperiments(false, experimentsDirty, false);
   }
 
   private void addRowsToTable(List<ExperimentRow> exRows) {
@@ -362,55 +468,55 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private List<ExperimentRow> createExperimentRows(
-      boolean joined, List<ExperimentDAO> experiments) {
+  private List<ExperimentRow> createExperimentRows(boolean joinedExperimentsView, List<ExperimentDAO> experiments, boolean findExperimentsView) {
     List<ExperimentRow> exRows = new ArrayList<ExperimentRow>();
     for (ExperimentDAO experiment : experiments) {
-      exRows.add(new ExperimentRow(resources, experiment, this, joined));
+      exRows.add(new ExperimentRow(resources, experiment, this, joinedExperimentsView, findExperimentsView));
     }
     return exRows;
   }
 
-  private void getExperiments(final boolean joined, final boolean experimentsDirty) {
-    AsyncCallback<List<ExperimentDAO>> callback = new AsyncCallback<List<ExperimentDAO>>() {
+  private void getExperiments(final boolean joinedExperimentsView, final boolean experimentsDirty, final boolean findExperimentsView) {
+    AsyncCallback<ExperimentQueryResult> callback = new AsyncCallback<ExperimentQueryResult>() {
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve your experiments!!");
+        Window.alert(myMessages.loadExperimentsFailed(caught.getMessage()));
         statusLabel.setVisible(false);
       }
 
       @Override
-      public void onSuccess(List<ExperimentDAO> result) {
-        if (joined) {
-          if (joinedExperiments == null) {
-            joinedExperiments = result;
+      public void onSuccess(ExperimentQueryResult result) {
+        List<ExperimentDAO> experimentResults = result.getExperiments();
+        Collections.sort(experimentResults, new Comparator<ExperimentDAO>() {
+
+          @Override
+          public int compare(ExperimentDAO arg0, ExperimentDAO arg1) {
+            return arg0.getTitle().toLowerCase().compareTo(arg1.getTitle().toLowerCase());
           }
+
+        });
+        experiments = experimentResults;
+        cursor = result.getCursor();
+        if (experiments == null || experiments.size() == 0) {
+          Window.alert(myConstants.noExperimentsReturned());
         } else {
-          if (experimentsDirty || adminedExperiments == null) {
-            adminedExperiments = result;
-          }
+          addRowsToTable(createExperimentRows(joinedExperimentsView, experiments, findExperimentsView));
         }
-        addRowsToTable(createExperimentRows(joined, result));
         statusLabel.setVisible(false);
 
       }
     };
-    if (joined) {
-      mapService.getUsersJoinedExperiments(callback);
+    if (findExperimentsView) {
+      pacoService.getMyJoinableExperiments(TimeUtil.getTimezone(), null, null, callback);
+//      pacoService.getAllJoinableExperiments(TimeUtil.getTimezone(), null, null, callback);
+    } else if (joinedExperimentsView) {
+      pacoService.getUsersJoinedExperiments(DEFAULT_LIMIT_SIZE, cursor, callback);
     } else {
-      mapService.getExperimentsForUser(callback);
+      pacoService.getUsersAdministeredExperiments(DEFAULT_LIMIT_SIZE, cursor, callback);
     }
   }
 
-  private List<ExperimentDAO> retrieveAdminedExperiments() {
-    List<ExperimentDAO> experiments = new ArrayList<ExperimentDAO>();
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
-    experiments.add(new ExperimentDAO());
-    return experiments;
-  }
-
-  public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined) {
+  public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView) {
     switch (experimentCode) {
       case ExperimentListener.STATS_CODE:
         contentPanel.clear();
@@ -418,33 +524,34 @@ public class Main implements EntryPoint, ExperimentListener {
         break;
       case ExperimentListener.CHARTS_CODE:
         contentPanel.clear();
+
         showChart(experiment, joined);
         break;
       case ExperimentListener.CSV_CODE:
         String joinedStr = "";
         if (joined) {
-          joinedStr = ":who=" + loginInfo.getEmailAddress();
+          joinedStr = ":who=" + loginInfo.getEmailAddress().toLowerCase();
         }
-        Window.Location.assign(
-            "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'");
+        Window.open(
+            "/events?csv&q='experimentId=" + experiment.getId() + joinedStr + "'", "_blank","");
         break;
       case ExperimentListener.DELETE_CODE:
-        if (Window.confirm("Are you sure you want to deleted this experiment definition? " 
-            + "Perhaps you want to unpublish it to hide it from new users?")) {
+        if (Window.confirm(myConstants.areYouSureYouWantToDelete())) {
           deleteExperiment(experiment, joined);
         }
         break;
       case ExperimentListener.EDIT_CODE:
         contentPanel.clear();
-        showExperimentDetailPanel(experiment, !joined);
+        statusLabel.setVisible(true);
+        toggleExperimentList(false);
+        showExperimentDetailPanel(experiment, !joined, findView);
         break;
       case ExperimentListener.SAVED:
-        contentPanel.clear();
         saveToServer(experiment);
         break;
       case ExperimentListener.CANCELED:
         contentPanel.clear();
-        loadAdministeredExperiments(false);
+        toggleExperimentList(true);
         break;
       case ExperimentListener.SOFT_DELETE_CODE:
         softDeleteExperiment(experiment);
@@ -454,29 +561,175 @@ public class Main implements EntryPoint, ExperimentListener {
         if (joined) {
           whoStr = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'");
+        Window.open(
+            "/events?csv&anon=true&q='experimentId=" + experiment.getId() + whoStr + "'","_blank","");
         break;
       case ExperimentListener.COPY_EXPERIMENT_CODE:
         contentPanel.clear();
         copyExperiment(experiment);
-        showExperimentDetailPanel(experiment, true);
+        toggleExperimentList(false);
+        showExperimentDetailPanel(experiment, true, false);
         break;
       case ExperimentListener.ANON_MAPPING_CODE:
         String who2Str = "";
         if (joined) {
           who2Str = ":who=" + loginInfo.getEmailAddress();
         }
-        Window.Location.assign(
-            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'");
+        Window.open(
+            "/events?csv&mapping=true&q='experimentId=" + experiment.getId() + who2Str + "'", "_blank","");
         break;
-        
+      case ExperimentListener.DATA_CODE:
+        String dataQuery = "";
+        if (joined) {
+          dataQuery = ":who=" + loginInfo.getEmailAddress();
+        }
+        Window.open("/events?q='experimentId=" + experiment.getId() + dataQuery + "'", "_blank", "");
+        break;
+      case ExperimentListener.EXPERIMENT_RESPONSE_CODE:
+        contentPanel.clear();
+        toggleExperimentList(true);
+        break;
+      case ExperimentListener.EXPERIMENT_RESPONSE_CANCELED_CODE:
+        contentPanel.clear();
+        toggleExperimentList(true);
+        break;
+      case ExperimentListener.SHOW_EXPERIMENT_RESPONSE_CODE:
+        contentPanel.clear();
+        toggleExperimentList(false);
+        showExperimentExecutorPanel(experiment, joined);
+        break;
+      case ExperimentListener.SHOW_QR_CODE:
+        String experimentId = "0000"+Long.toString(experiment.getId());
+        Window.open("http://chart.apis.google.com/chart?cht=qr&chs=350x350&chld=" +
+        		"L&choe=UTF-8&chl=content%3A%2F%2Fcom.google.android.apps.paco.ExperimentProvider%2Fexperiments%2F"+experimentId,
+                    "_blank","");
+        break;
+      case ExperimentListener.SHOW_REF_CODE:
+        contentPanel.clear();
+        showExperimentReferencePanel(experiment);
+        break;
+      case ExperimentListener.INDIVIDUAL_STATS_CODE:
+        Window.open("/participantStats?experimentId=" + experiment.getId(),
+                    "_blank","");
+        break;
+      case ExperimentListener.JOINED_CODE:
+        contentPanel.clear();
+        joinExperiment(experiment);
+        break;
+
+
     }
+  }
+
+  private void joinExperiment(ExperimentDAO experiment) {
+    statusLabel.setVisible(true);
+
+    pacoService.joinExperiment(experiment.getId(), new AsyncCallback<Boolean>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        Window.alert(myConstants.failure());
+        statusLabel.setVisible(false);
+
+      }
+
+      @Override
+      public void onSuccess(Boolean result) {
+        if (result) {
+          Window.alert(myConstants.success());
+        } else {
+          Window.alert(myConstants.failureToJoinExperiment());
+        }
+        statusLabel.setVisible(false);
+
+      }
+    });
+
+
+  }
+
+  private void toggleExperimentList(boolean enable) {
+    leftSidePanel.setVisible(enable);
+    listTitle.setVisible(enable);
+  }
+
+  class ExperimentReferenceDialog extends DialogBox {
+
+    private Long referringExperimentId;
+
+    public ExperimentReferenceDialog(Long referringId) {
+      super();
+      this.referringExperimentId = referringId;
+      setText("Reference an Experiment from this Experiment");
+      VerticalPanel referenceDialogPanel = new VerticalPanel();
+      Label label = new Label("Enter ID of referenced Experiment");
+      referenceDialogPanel.add(label);
+      final TextBox id = new TextBox();
+      referenceDialogPanel.add(id);
+
+      HorizontalPanel buttonPanel = new HorizontalPanel();
+      referenceDialogPanel.add(buttonPanel);
+      Button ok = new Button(myConstants.ok());
+      buttonPanel.add(ok);
+      ok.addClickHandler(new ClickHandler() {
+
+        @Override
+        public void onClick(ClickEvent event) {
+          String value = id.getValue();
+          Long referencedExperimentId = null;
+          if (value != null) {
+            referencedExperimentId = Long.parseLong(value);
+            AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+              @Override
+              public void onFailure(Throwable caught) {
+                Window.alert("Could not make reference between experiments. " + caught.getMessage());
+              }
+
+              @Override
+              public void onSuccess(Void result) {
+                Window.alert(myConstants.success());
+              }
+
+            };
+            pacoService.setReferencedExperiment(referringExperimentId, referencedExperimentId, callback);
+          }
+          ExperimentReferenceDialog.this.hide();
+
+        }
+      });
+      Button cancel = new Button(myConstants.cancel());
+      buttonPanel.add(cancel);
+      cancel.addClickHandler(new ClickHandler() {
+
+        @Override
+        public void onClick(ClickEvent event) {
+          ExperimentReferenceDialog.this.hide();
+
+        }
+      });
+
+
+      setWidget(referenceDialogPanel);
+    }
+
+  }
+
+  private void showExperimentReferencePanel(ExperimentDAO experiment) {
+    statusLabel.setVisible(true);
+    ExperimentReferenceDialog experimentReferenceDialog = new ExperimentReferenceDialog(experiment.getId());
+    experimentReferenceDialog.center();
+    experimentReferenceDialog.show();
   }
 
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
-    experiment.getSchedule().setId(null);
+    experiment.setTitle(myConstants.copyOfExperimentTitlePrefix() + experiment.getTitle());
+    experiment.getSignalingMechanisms()[0].setId(null);
+    experiment.setPublished(false);
+    experiment.setPublishedUsers(new String[]{});
+    experiment.setAdmins(new String[]{});
+
     for(InputDAO input : experiment.getInputs()) {
       input.setId(null);
     }
@@ -489,18 +742,21 @@ public class Main implements EntryPoint, ExperimentListener {
   private void saveToServer(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
 
+      // PRIYA - see how this is
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Failure");
+        Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure()
+                     + "\n" + myConstants.errorMessage() + ": " + caught.getMessage());
         statusLabel.setVisible(false);
 
       }
 
       @Override
       public void onSuccess(Void result) {
-        Window.alert("Success");
+        Window.alert(myConstants.success());
+        contentPanel.clear();
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);
@@ -513,18 +769,18 @@ public class Main implements EntryPoint, ExperimentListener {
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
 
-    mapService.saveExperiment(experiment, new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Failure");
+        Window.alert(myConstants.failure());
         statusLabel.setVisible(false);
 
       }
 
       @Override
       public void onSuccess(Void result) {
-        Window.alert("Success");
+        Window.alert(myConstants.success());
         loadAdministeredExperiments(true);
 
         statusLabel.setVisible(false);
@@ -549,11 +805,11 @@ public class Main implements EntryPoint, ExperimentListener {
    */
   private void deleteExperimentDefinition(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
-    mapService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
+    pacoService.deleteExperiment(experiment, new AsyncCallback<Boolean>() {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Error deleting experiment.");
+        Window.alert(myConstants.errorDeletingExperiment());
         statusLabel.setVisible(false);
       }
 
@@ -579,7 +835,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve charts");
+        Window.alert(myConstants.couldNotRetrieveCharts());
         statusLabel.setVisible(false);
 
       }
@@ -587,11 +843,12 @@ public class Main implements EntryPoint, ExperimentListener {
       @Override
       public void onSuccess(List<EventDAO> eventList) {
         if (eventList.size() == 0) {
-          Window.alert("No results for your query");
+          Window.alert(myConstants.noResultsForQuery());
           statusLabel.setVisible(false);
           return;
         }
         // renderEventsOnList(eventList);
+
         ExperimentChartsPanel ep = new ExperimentChartsPanel(experiment, eventList);
         contentPanel.add(ep);
         statusLabel.setVisible(false);
@@ -599,9 +856,9 @@ public class Main implements EntryPoint, ExperimentListener {
     };
     String queryText = "experimentId=" + experiment.getId();
     if (joined) {
-      queryText += ":who=" + loginInfo.getEmailAddress();
+      queryText += ":who=" + loginInfo.getEmailAddress().toLowerCase();
     }
-    mapService.mapWithTags(queryText, callback);
+    pacoService.eventSearch(queryText, callback);
     // for each question in the experiment
     // print the title of the experiment
     // lookup the question in the events list,
@@ -611,10 +868,99 @@ public class Main implements EntryPoint, ExperimentListener {
 
   }
 
-  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined) {
+  private void showExperimentExecutorPanel(final ExperimentDAO experiment, final boolean joined) {
     statusLabel.setVisible(true);
-    ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, joined, loginInfo, this);
+
+    AsyncCallback<ExperimentDAO> referencedCheckCallback = new AsyncCallback<ExperimentDAO>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        //Window.alert("Could not find referenced experiment");
+        statusLabel.setVisible(false);
+        showRegularExperimentEntry(experiment, joined);
+      }
+
+      @Override
+      public void onSuccess(ExperimentDAO referringExperiment) {
+        statusLabel.setVisible(false);
+        if (referringExperiment == null) {
+          showRegularExperimentEntry(experiment, joined);
+        } else {
+          showReferredExperimentExecutor(experiment, referringExperiment);
+        }
+      }
+    };
+    pacoService.referencedExperiment(experiment.getId(), referencedCheckCallback);
+
+  }
+
+  protected void showReferredExperimentExecutor(final ExperimentDAO experiment, final ExperimentDAO referencedExperiment) {
+    statusLabel.setVisible(true);
+
+    // TODO rewrite this with two futures that join() before calling the EndofDayExecutor.
+    AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
+
+      @Override
+      public void onFailure(Throwable caught) {
+        Window.alert(myMessages.loadReferencedEventsFailed(caught.getMessage()));
+        statusLabel.setVisible(false);
+
+      }
+
+      @Override
+      public void onSuccess(final List<EventDAO> referencedEventList) {
+        if (referencedEventList.size() == 0) {
+          Window.alert(myConstants.noEventsFoundForReferredExperiment());
+          statusLabel.setVisible(false);
+          return;
+        }
+        AsyncCallback<Map<Date, EventDAO>> referringCallback = new AsyncCallback<Map<Date, EventDAO>>() {
+
+          @Override
+          public void onFailure(Throwable caught) {
+            Window.alert(myMessages.loadReferencedEventsFailed(caught.getMessage()));
+            statusLabel.setVisible(false);
+
+          }
+
+          @Override
+          public void onSuccess(Map<Date, EventDAO> eodEventList) {
+            AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(Main.this, pacoService,
+                                                                                     experiment, referencedEventList, eodEventList, referencedExperiment);
+            contentPanel.add(ep);
+            statusLabel.setVisible(false);
+          }
+        };
+
+        String queryText = "experimentId=" + experiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
+        pacoService.getEndOfDayEvents(queryText, referringCallback);
+      }
+    };
+    String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress().toLowerCase();
+    pacoService.eventSearch(queryText, callback);
+
+  }
+
+  protected void showRegularExperimentEntry(ExperimentDAO experiment, boolean joined) {
+    statusLabel.setVisible(true);
+    AbstractExperimentExecutorPanel ep = new ExperimentExecutorPanel(this, pacoService, experiment);
     contentPanel.add(ep);
+    statusLabel.setVisible(false);
+  }
+
+  private void showExperimentDetailPanel(ExperimentDAO experiment, boolean joined, boolean findView) {
+    statusLabel.setVisible(true);
+    if (findView) {
+      ExperimentJoinPanel ep = new ExperimentJoinPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);
+    } else if (!joined) {
+      ExperimentDescriptionPanel ep = new ExperimentDescriptionPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);
+    } else {
+      ExperimentDefinitionPanel ep = new ExperimentDefinitionPanel(experiment, loginInfo, this);
+      contentPanel.add(ep);
+    }
+
     statusLabel.setVisible(false);
   }
 
@@ -624,20 +970,20 @@ public class Main implements EntryPoint, ExperimentListener {
 
       @Override
       public void onFailure(Throwable caught) {
-        Window.alert("Could not retrieve results for experiment: " + experiment.getTitle() + "\n"
+        Window.alert(myMessages.loadEventsForExperimentFailed(experiment.getTitle()) + "\n"
             + caught.getMessage());
         statusLabel.setVisible(false);
       }
 
       @Override
       public void onSuccess(ExperimentStatsDAO stats) {
-        StatsPanel p = new StatsPanel(stats, experiment, joined);
+        StatsPanel p = new StatsPanel(stats, experiment, joined, Main.this);
         contentPanel.add(p);
         statusLabel.setVisible(false);
       }
     };
     // TODO (bobevans) move this to the server
-    mapService.statsForExperiment(experiment.getId(), joined, callback);
+    pacoService.statsForExperiment(experiment.getId(), joined, callback);
 
 
   }

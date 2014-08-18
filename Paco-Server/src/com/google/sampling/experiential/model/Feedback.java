@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -35,7 +35,7 @@ import com.google.appengine.api.datastore.Text;
 /**
  * Represents a visualization or intervention to the user in response
  * to events gathered in an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -43,30 +43,28 @@ import com.google.appengine.api.datastore.Text;
 public class Feedback {
 
   /**
-   * @param feedbackType
    * @param feedbackText
    */
-  public Feedback(String feedbackType, String longText) {
-    this.feedbackType = feedbackType;
+  public Feedback(String longText) {
     this.longText = new Text(longText);
   }
 
   /**
-   * @param experimentKey 
+   * @param experimentKey
    * @param id2
    * @param feedbackType2
    * @param text2
    */
-  public Feedback(Key experimentKey, Long id, String feedbackType, String longText) {
-    this(feedbackType, longText);
+  public Feedback(Key experimentKey, Long id, String longText) {
+    this(longText);
     if (id != null) {
       this.id = KeyFactory.createKey(experimentKey, Feedback.class.getSimpleName(), id);
     }
-    
+
   }
-  
+
   public Feedback() {
-    
+
   }
 
   @PrimaryKey
@@ -75,13 +73,7 @@ public class Feedback {
 
   @Persistent
   private Experiment experiment;
-  
-  /**
-   * currently only one type, display
-   */
-  @Persistent
-  private String feedbackType;
-  
+
   /**
    * display text
    * @deprecated
@@ -89,9 +81,9 @@ public class Feedback {
   @Persistent
   @JsonIgnore
   private String text;
-  
+
   /**
-   * Overflow from the text if > 500 chars. 
+   * Overflow from the text if > 500 chars.
    * Backwards compatibility since a String is not convertible to a Text.
    */
   @Persistent
@@ -114,20 +106,12 @@ public class Feedback {
     this.experiment = experiment;
   }
 
-  public String getFeedbackType() {
-    return feedbackType;
-  }
-
-  public void setFeedbackType(String feedbackType) {
-    this.feedbackType = feedbackType;
-  }
-
   @JsonIgnore
   public String getText() {
     return text;
   }
-  
-  
+
+
   public String getLongText() {
     if (longText == null && text != null) {
       longText = new Text(text);
@@ -148,7 +132,7 @@ public class Feedback {
     }
     return URLEncoder.encode(baseText);
   }
-  
+
   public void setLongText(String text) {
     longText = new Text(text);
   }
@@ -159,5 +143,5 @@ public class Feedback {
   }
 
 
-  
+
 }

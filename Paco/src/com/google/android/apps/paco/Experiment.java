@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,79 +16,51 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model.SignalTimeDAO;
+
 public class Experiment implements Parcelable {
+
+
 
   public static class Creator implements Parcelable.Creator<Experiment> {
 
     public Experiment createFromParcel(Parcel source) {
       ClassLoader classLoader = getClass().getClassLoader();
-      Experiment experiment = new Experiment();
-      experiment.id = source.readLong();
-      experiment.serverId = source.readLong();
-      experiment.title = source.readString();
-      experiment.description = source.readString();
-      
-      // TODO (bobevans):set icon from parcelable bytes
-      byte[] iconBytes = new byte[source.readInt()];
-      source.readByteArray(iconBytes);
-      experiment.icon = iconBytes;
-      
-      experiment.creator = source.readString();
-      experiment.hash = source.readString();
-      experiment.informedConsentForm = source.readString();
-      experiment.questionsChange = source.readInt() == 1;
-            
-      Long joinMillis = source.readLong();
-      if (joinMillis != -1) {
-        String tzId = source.readString();      
-        experiment.joinDate = new DateTime(joinMillis, DateTimeZone.forID(tzId));
+      String json = source.readString();
+      try {
+        return ExperimentProviderUtil.getSingleExperimentFromJson(json);
+      } catch (JsonParseException e) {
+        e.printStackTrace();
+      } catch (JsonMappingException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
-            
-      experiment.schedule = source.readParcelable(classLoader);
-      experiment.fixedDuration = source.readInt() == 1;
-      
-      if (experiment.fixedDuration) {
-        long startMillis = source.readLong();
-        experiment.startDate = new DateTime(startMillis, DateTimeZone.forID(source.readString()));
-        
-        long endMillis = source.readLong();      
-        experiment.endDate = new DateTime(endMillis, DateTimeZone.forID(source.readString()));
-      }
-      
-      int numberOfInputs = source.readInt();      
-      for (int i=0;i<numberOfInputs;i++) {
-        Input input = source.readParcelable(classLoader);
-        experiment.inputs.add(input);
-      }
-      
-      int numberOfFeedbacks = source.readInt();
-      for (int i=0;i<numberOfFeedbacks;i++) {
-        Feedback feedback = source.readParcelable(classLoader);
-        experiment.feedback.add(feedback);
-      }
-      
-      return experiment;
+      return new Experiment();
     }
 
     public Experiment[] newArray(int size) {
       return new Experiment[size];
     }
   }
-  
+
   public static final Creator CREATOR = new Creator();
   @JsonIgnore
   private Long id;
@@ -102,36 +74,51 @@ public class Experiment implements Parcelable {
   private String hash = "";
   private  byte[] icon;
   private Boolean questionsChange = false;
-  
+
+  @JsonIgnore
   private SignalSchedule schedule;
-//  private Integer minute;
-//  private Integer hour;
-//  private String scheduleType;
   private Boolean fixedDuration;
-  private DateTime startDate;
-  private DateTime endDate;
-//  private Integer esmFrequency;
-//  private Integer esmPeriodInDays;
+  private String startDate;
+  private String endDate;
+  public Boolean webRecommended;
+
+  private Trigger trigger;
+  private List<SignalingMechanism> signalingMechanisms;
+  private Boolean customRendering = false;
+  private String customRenderingCode;
 
 
 
   private List<Input> inputs = new ArrayList<Input>();
-  private List<Feedback> feedback = new ArrayList<Feedback>();
   private List<Event> events = new ArrayList<Event>();
 
-  private DateTime joinDate;
-  private DateTime modifyDate;
+  private String joinDate;
+  private String modifyDate;
+  private Integer version;
+
+  @JsonIgnore
+  private String json;
+
+  private List<Feedback> feedback = new ArrayList<Feedback>();
+  private Integer feedbackType = FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE; // The traditional qs-retrospective style feedback.
+  private Boolean logActions = false;
+  private Boolean recordPhoneDetails = false;
+  private Boolean backgroundListen = false;
+  private String backgroundListenSourceIdentifier = "";
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
   public static final String URI_AS_EXTRA = "uriAsExtra";
+  public static final String TRIGGERED_TIME = "triggeredTime";
+  public static final String TRIGGER_EVENT = "trigger_event";
+  public static final String TRIGGER_SOURCE_IDENTIFIER = "sourceIdentifier";
 
 
-  public DateTime getModifyDate() {
+  public String getModifyDate() {
     return modifyDate;
   }
 
-  public void setModifyDate(DateTime modifyDate) {
+  public void setModifyDate(String modifyDate) {
     this.modifyDate = modifyDate;
   }
 
@@ -140,9 +127,9 @@ public class Experiment implements Parcelable {
   }
 
   public Experiment(String title, String description, String creator,
-	  SignalSchedule schedule, Integer time, Integer frequency, 
+	  SignalSchedule schedule, Integer time, Integer frequency,
 	  Boolean fixedSchedule,
-	  DateTime startDate, DateTime endDate, String informedConsentForm, String hash) {
+	  String startDate, String endDate, String informedConsentForm, String hash) {
 	this.title = title;
 	this.description = description;
 	this.creator = creator;
@@ -167,7 +154,7 @@ public class Experiment implements Parcelable {
   }
 
   public String getDescription() {
-    return description; 
+    return description;
   }
 
   public void setDescription(String description) {
@@ -224,6 +211,12 @@ public class Experiment implements Parcelable {
     return questionsChange;
   }
 
+  @JsonIgnore
+  public boolean isOver(DateTime now) {
+    return isFixedDuration() != null && isFixedDuration() && now.isAfter(getEndDateTime());
+  }
+
+
   public void setQuestionsChange(boolean questionsChange) {
     this.questionsChange = questionsChange;
   }
@@ -244,11 +237,11 @@ public class Experiment implements Parcelable {
     this.feedback = feedback;
   }
 
-  public DateTime getJoinDate() {
+  public String getJoinDate() {
     return joinDate;
   }
 
-  public void setJoinDate(DateTime joinDate) {
+  public void setJoinDate(String joinDate) {
     this.joinDate = joinDate;
   }
 
@@ -260,19 +253,19 @@ public class Experiment implements Parcelable {
     this.fixedDuration = fixedSchedule;
   }
 
-  public DateTime getStartDate() {
+  public String getStartDate() {
     return startDate;
   }
 
-  public void setStartDate(DateTime startDate) {
+  public void setStartDate(String startDate) {
     this.startDate = startDate;
   }
 
-  public DateTime getEndDate() {
+  public String getEndDate() {
     return endDate;
   }
 
-  public void setEndDate(DateTime endDate) {
+  public void setEndDate(String endDate) {
     this.endDate = endDate;
   }
 
@@ -290,86 +283,55 @@ public class Experiment implements Parcelable {
     return 0;
   }
 
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(id);
-    dest.writeLong(serverId);
-    dest.writeString(title);
-    dest.writeString(description);
-    dest.writeInt(icon.length);
-    dest.writeByteArray(icon);
-    dest.writeString(creator);
-    dest.writeString(hash);
-    dest.writeString(informedConsentForm);
-    dest.writeInt(questionsChange ? 1 : 0);
-    
-    // TODO (bobevans):set icon from parcelable bytes
-    // byte[] iconBytes = icon.getBytes();    
-    // dest.writeInt(iconBytes.length);    
-    // dest.writeByteArray(iconBytes);
-    
-    if (joinDate != null) {
-      dest.writeLong(joinDate.getMillis());
-      dest.writeString(joinDate.getZone().getID());
-    } else {
-      dest.writeLong(-1);
-    }
-    
-    dest.writeParcelable(schedule, 0);
-    dest.writeInt(fixedDuration ? 1: 0);
-    
-    if (fixedDuration) {
-      dest.writeLong(startDate.getMillis());
-      dest.writeString(startDate.getZone().getID());
-      
-      dest.writeLong(endDate.getMillis());
-      dest.writeString(endDate.getZone().getID());
-    }
-    
-    dest.writeInt(inputs.size());      
-    for (Input input : inputs) {
-      dest.writeParcelable(input, 0);
-    }
-    
-    dest.writeInt(feedback.size());      
-    for (Feedback feedbackItem : feedback) {
-      dest.writeParcelable(feedbackItem, 0);
-    }
 
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(ExperimentProviderUtil.getJson(this));
   }
 
-  
+  @JsonIgnore
   public SignalSchedule getSchedule() {
     return schedule;
   }
 
+  @JsonIgnore
   public void setSchedule(SignalSchedule schedule) {
     this.schedule = schedule;
+  }
+
+
+
+  public Trigger getTrigger() {
+    return trigger;
+  }
+
+  public void setTrigger(Trigger trigger) {
+    this.trigger = trigger;
   }
 
   public void unsetId() {
     this.id = null;
   }
 
-  // we may need to discriminate more on inputs. For QOTD, there may be old 
-  // inputs, unless we delete them, so the experiment could know how to 
+  // we may need to discriminate more on inputs. For QOTD, there may be old
+  // inputs, unless we delete them, so the experiment could know how to
   // return only appropriate inputs (for today in the case of QOTD).
   // this assumes an experiment knows it's type is qotd which requires more fields
   // than just canQuestionsChange.
   // TODO (bobevans) Figure out right answer, at least for qotd
-  // e.g. if (IAmQOTD) { 
-  //         inputs = getInputsForToday() { 
-  //                    for each input 
+  // e.g. if (IAmQOTD) {
+  //         inputs = getInputsForToday() {
+  //                    for each input
   //                      if (input.getField("date") == today)
   //                        inputs.add(input);
-  //                  } 
-  //         return inputs.size() > 0 
+  //                  }
+  //         return inputs.size() > 0
   //      }
   public boolean hasFreshInputs() {
     if (!isQuestionsChange()) {
       return true;
     }
     DateMidnight dateMidnight = new DateMidnight();
-    
+
     for (Input input : getInputs()) {
       if (dateMidnight.isEqual(new DateMidnight(input.getScheduleDate().getTime()))) {
         return true;
@@ -381,29 +343,33 @@ public class Experiment implements Parcelable {
   public void setEvents(List<Event> list) {
     this.events = list;
   }
-  
+
   public List<Event> getEvents() {
     return events;
   }
 
   @JsonIgnore
   public DateTime getNextTime(DateTime now, Context context) {
-    if (now == null || isExperimentOver(now)) {
+    if (now == null || getTrigger() != null || isExperimentOver(now)) {
       return null;
     }
     if (isExperimentNotStartedYet(now)) {
-      now = getStartDate().toDateMidnight().toDateTime();
+      now = TimeUtil.unformatDate(getStartDate()).toDateMidnight().toDateTime();
     }
-
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return scheduleESM(now, context);
     } else {
-      return schedule.getNextAlarmTime(now);
+      return schedule.getNextAlarmTime(now, context, this.getServerId());
     }
   }
 
   private boolean isExperimentNotStartedYet(DateTime now) {
-    return isFixedDuration() && now.isBefore(getStartDate().toDateMidnight());
+    return isFixedDuration()
+            && now.isBefore(getStartDateAsDateMidnight());
+  }
+
+  private DateMidnight getStartDateAsDateMidnight() {
+    return TimeUtil.unformatDate(getStartDate()).toDateMidnight();
   }
 
   //@VisibleForTesting
@@ -418,34 +384,77 @@ public class Experiment implements Parcelable {
       nextPeriod = TimeUtil.skipWeekends(nextPeriod);
     }
 
-    ensureScheduleIsGeneratedForPeriod(nextPeriod, context);      
+    ensureScheduleIsGeneratedForPeriod(nextPeriod, context);
     DateTime next = lookupNextTimeOnEsmSchedule(now, context); // anymore this period
     if (next != null) {
-      return next;        
+      return next;
     }
     return lookupNextTimeOnEsmSchedule(nextPeriod, context);
   }
 
-  private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)) { 
-      List<Long> times = schedule.getTimes();
-      Collections.sort(times);
-      
-      DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
-      return new DateMidnight(getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
-    } else /*if (getScheduleType().equals(SCHEDULE_TYPE_ESM))*/ {
-      return new DateMidnight(getEndDate()).plusDays(1).toDateTime();
+  @JsonIgnore
+  public DateTime getEndDateTime() {
+    DateTime lastTime = null;
+    for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
+      DateTime lastTimeForSignalGroup = null;
+      if (signalingMechanism instanceof SignalSchedule) {
+        if (((SignalSchedule) signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)) {
+          List<SignalTime> times = schedule.getSignalTimes();
+          SignalTime lastSignalTime = times.get(times.size() - 1);
+          if (lastSignalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+            // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
+            DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
+            lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).toDateTime()
+                                                                      .withMillisOfDay(lastTimeForDay.getMillisOfDay());
+          } else {
+            lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).plusDays(1).toDateTime();
+          }
+        } else {
+          lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).plusDays(1).toDateTime();
+        }
+      } else {
+        lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getEndDate())).plusDays(1).toDateTime();
+      }
+      if (lastTime == null || lastTimeForSignalGroup.isAfter(lastTime)) {
+        lastTime = lastTimeForSignalGroup;
+      }
     }
+    return lastTime;
   }
 
+  @JsonIgnore
+  public DateTime getStartDateTime() {
+    DateTime firstTime = null;
+    for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
+      DateTime firstTimeForSignalGroup = null;
+      if (signalingMechanism instanceof SignalSchedule) {
+        if (((SignalSchedule) signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)) {
+          List<SignalTime> times = schedule.getSignalTimes();
+          DateTime firstTimeForDay = new DateTime().plus(times.get(0).getFixedTimeMillisFromMidnight());
+          firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime()
+                                                                      .withMillisOfDay(firstTimeForDay.getMillisOfDay());
+        } else {
+          firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime();
+        }
+      } else {
+        firstTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(getStartDate())).toDateTime();
+      }
+      if (firstTime == null || firstTimeForSignalGroup.isBefore(firstTime)) {
+        firstTime = firstTimeForSignalGroup;
+      }
+    }
+    return firstTime;
+  }
+
+
   private boolean isExperimentOver(DateTime now) {
-    return isFixedDuration() && now.isAfter(getEndDateTime());
+    return isFixedDuration() != null && isFixedDuration() && now.isAfter(getEndDateTime());
   }
 
   private DateTime lookupNextTimeOnEsmSchedule(DateTime now, Context context) {
     AlarmStore alarmStore = new AlarmStore(context);
     List<DateTime> signals = alarmStore.getSignals(getId(), getPeriodStart(now).getMillis());
-        
+
     DateTime next = getNextSignalAfterNow(now, signals);
     if (next != null) {
     	return next;
@@ -455,8 +464,8 @@ public class Experiment implements Parcelable {
       nextPeriod = TimeUtil.skipWeekends(nextPeriod);
     }
 
-    ensureScheduleIsGeneratedForPeriod(nextPeriod, context); 
-    signals = alarmStore.getSignals(getId(), getPeriodStart(nextPeriod).getMillis());    
+    ensureScheduleIsGeneratedForPeriod(nextPeriod, context);
+    signals = alarmStore.getSignals(getId(), getPeriodStart(nextPeriod).getMillis());
     return getNextSignalAfterNow(now, signals);
   }
 
@@ -476,10 +485,10 @@ public class Experiment implements Parcelable {
   private void ensureScheduleIsGeneratedForPeriod(DateTime now, Context context) {
     DateMidnight periodStart = getPeriodStart(now);
     AlarmStore alarmStore = new AlarmStore(context);
-    List<DateTime> signalTimes = alarmStore.getSignals(getId(), 
+    List<DateTime> signalTimes = alarmStore.getSignals(getId(),
         periodStart.getMillis());
 
-    if (signalTimes.size() == 0) {      
+    if (signalTimes.size() == 0) {
       generateNextPeriod(periodStart, alarmStore);
     }
 
@@ -504,12 +513,12 @@ public class Experiment implements Parcelable {
       return;
     }
     alarmStore.deleteSignalsForPeriod(getId(), generatingPeriodStart.getMillis());
-    
-    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart);      
+
+    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart);
     storeSignalTimes(generatingPeriodStart, signalTimes, alarmStore);
   }
 
-  private List<DateTime> generateSignalTimesForPeriod(DateMidnight periodStart) {    
+  private List<DateTime> generateSignalTimesForPeriod(DateMidnight periodStart) {
     return new EsmGenerator2().generateForSchedule(periodStart.toDateTime(), getSchedule());
   }
 
@@ -521,16 +530,27 @@ public class Experiment implements Parcelable {
   }
 
   @JsonIgnore
-  public long getExpirationTimeInMinutes() {
+  public Integer getExpirationTimeInMinutes() {
+    SignalingMechanism signalingMechanism = getSignalingMechanisms().get(0);
+    if (signalingMechanism instanceof Trigger) {
+      return  signalingMechanism.getTimeout();
+    } else {
+      Integer timeout = ((SignalSchedule) signalingMechanism).getTimeout();
+      return timeout != null ? timeout : getOldDefaultValuesForTimeout();
+    }
+  }
+
+  private Integer getOldDefaultValuesForTimeout() {
     if (getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
       return 59;
+    } else {
+      return 479;
     }
-    return 479;
   }
 
   @JsonIgnore
   public long getExpirationTimeInMillis() {
-      return getExpirationTimeInMinutes() * 60000;    
+      return getExpirationTimeInMinutes() * 60000;
   }
 
   @JsonIgnore
@@ -552,6 +572,119 @@ public class Experiment implements Parcelable {
   public String toString() {
     return getTitle();
   }
+
+  public Boolean isWebRecommended() {
+    return webRecommended;
+  }
+
+  public void setWebRecommended(Boolean webRecommended) {
+    this.webRecommended = webRecommended;
+  }
+
+  public Integer getVersion() {
+    return version;
+  }
+
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
+
+  @JsonIgnore
+  public boolean shouldTriggerBy(int event, String sourceIdentifier) {
+    return trigger != null && trigger.match(event, sourceIdentifier);
+  }
+
+  @JsonIgnore
+  public boolean shouldWatchProcesses() {
+    return hasAppUsageTrigger() || isLogActions();
+  }
+
+  @JsonIgnore
+  public boolean hasAppUsageTrigger() {
+    return (trigger != null && trigger.getEventCode() == Trigger.APP_USAGE);
+  }
+
+
+  public List<SignalingMechanism> getSignalingMechanisms() {
+    return signalingMechanisms;
+  }
+
+  public void setSignalingMechanisms(List<SignalingMechanism> signalingMechanisms) {
+    this.signalingMechanisms = signalingMechanisms;
+    SignalingMechanism signalingMechanism = signalingMechanisms.get(0);
+    if (signalingMechanism instanceof SignalSchedule) {
+      this.schedule = (SignalSchedule) signalingMechanism;
+    } else if (signalingMechanism instanceof Trigger) {
+      this.trigger = (Trigger)signalingMechanism;
+    }
+  }
+
+  public Boolean isCustomRendering() {
+    return customRendering;
+  }
+
+  public void setCustomRendering(Boolean customRendering) {
+    this.customRendering = customRendering;
+  }
+
+  public String getCustomRenderingCode() {
+    return customRenderingCode;
+  }
+
+  public void setCustomRenderingCode(String customRenderingCode) {
+    this.customRenderingCode = customRenderingCode;
+  }
+
+  public Integer getFeedbackType() {
+    return feedbackType;
+  }
+
+  public void setFeedbackType(Integer feedbackType) {
+    this.feedbackType = feedbackType;
+  }
+
+  public boolean isRunning(DateTime now) {
+    return  (isFixedDuration() == null || !isFixedDuration()) || (isFixedDuration() && isStarted(now) && !isOver(now));
+  }
+
+  public boolean isStarted(DateTime now) {
+    return isFixedDuration() == null || !isFixedDuration() || !now.isBefore(getStartDateTime());
+  }
+
+  public Boolean isLogActions() {
+    if (logActions == null) {
+      logActions = false; // json deserialization problem
+    }
+    return logActions;
+  }
+
+  public void setLogActions(Boolean logActions) {
+    this.logActions = logActions;
+  }
+
+  public Boolean isRecordPhoneDetails() {
+    return recordPhoneDetails;
+  }
+
+  public void setRecordPhoneDetails(Boolean recordPhoneDetails) {
+    this.recordPhoneDetails = recordPhoneDetails;
+  }
+
+  public Boolean isBackgroundListen() {
+    return backgroundListen;
+  }
   
+  public void setBackgroundListen(Boolean backgroundListen) {
+    this.backgroundListen = backgroundListen;
+  }
   
+  public String getBackgroundListenSourceIdentifier() {
+    return backgroundListenSourceIdentifier;
+  }
+  
+  public void setBackgroundListenSourceIdentifier(String sourceId) {
+    this.backgroundListenSourceIdentifier = sourceId;
+  }
+
+
 }

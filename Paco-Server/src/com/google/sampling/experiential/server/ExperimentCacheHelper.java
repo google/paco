@@ -1,28 +1,28 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import javax.jdo.PersistenceManager;
-
-import net.sf.jsr107cache.Cache;
-import net.sf.jsr107cache.CacheException;
-import net.sf.jsr107cache.CacheFactory;
-import net.sf.jsr107cache.CacheManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.joda.time.DateMidnight;
-import org.joda.time.DateTime;
-import org.mortbay.log.Log;
+import org.joda.time.DateTimeZone;
 
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.shared.ExperimentDAO;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model.ExperimentQueryResult;
 
 public class ExperimentCacheHelper {
 
-  public static final String EXPERIMENT_CACHE_KEY = "EXPERIMENT_CACHE_KEY";
+  private static final String PUBLIC_EXPERIMENT_KEY = "public_experiments";
+
+  public static final Logger log = Logger.getLogger(ExperimentCacheHelper.class.getName());
+
+  private static final String ALL_JOINABLE_EXPERIMENTS_CACHE_KEY = "ALL_JOINABLE_EXPERIMENTS_CACHE_KEY";
+  private static final String MY_JOINABLE_EXPERIMENTS_CACHE_KEY = "MY_JOINABLE_EXPERIMENTS_CACHE_KEY";
+
 
   private static ExperimentCacheHelper instance;
 
@@ -33,102 +33,137 @@ public class ExperimentCacheHelper {
     return instance;
   }
 
-  private Cache cache = null;
+  private ExperimentRetriever experimentRetriever;
+
+  private MemcacheService cache;
 
   private ExperimentCacheHelper() {
     super();
     createCache();
-  }
-
-  private void createCache() {
-    try {
-      CacheFactory cacheFactory = CacheManager.getInstance().getCacheFactory();
-      cache = cacheFactory.createCache(Collections.emptyMap());
-    } catch (CacheException e) {
-      Log.warn("Could not get a cache in the ExperimentCacheHelper ctor: " + e.getMessage());
-    }
+    experimentRetriever = ExperimentRetriever.getInstance();
   }
 
   public void clearCache() {
     if (cache != null) {
-      cache.clear();
+      cache.clearAll();
     }
   }
 
-  public String getExperimentsJsonForUser(String userId) {
-    String experimentsJson = null;
-    if (cache != null) {
-      experimentsJson = (String) cache.get(userId + EXPERIMENT_CACHE_KEY);
-    }
-    return experimentsJson;
+  private void createCache() {
+    cache = MemcacheServiceFactory.getMemcacheService();
+    cache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
   }
 
-  public void putExperimentJsonForUser(String userId, String experimentsJson) {
-    if (cache != null) {
-      cache.put(userId + EXPERIMENT_CACHE_KEY, experimentsJson);
-    }
+  /**
+   * NOTE: About to be deprecated by getMyJoinableExperiments (below).
+   *
+   * returns all experiments that the user can join.
+   * This is the collection of experiments that either
+   * 1) the user has created,
+   * 2) the user admins,
+   * 3) that have been published explicitly to the user.
+   *
+   * @param experimentIds List of ids of experiments that the user can join
+   * @param dateTimeZone used to decide if experiments are still running.
+   * @param cursor
+   * @param limit
+   * @return List of experiments that satisfy the criteria.
+   */
+  public ExperimentQueryResult getJoinableExperiments(String loggedInEmail, DateTimeZone dateTimeZone, Integer limit, String cursor) {
+    String experimentCacheKey = loggedInEmail + "_" + ALL_JOINABLE_EXPERIMENTS_CACHE_KEY;
+
+    ExperimentQueryResult experimentDAOs = null;// = getCachedExperimentsByKey(experimentCacheKey);
+//    if (experimentDAOs != null) {
+//      return experimentDAOs;
+//    }
+    experimentDAOs = experimentRetriever.getAllJoinableExperiments(loggedInEmail, dateTimeZone, limit, cursor);
+
+    //cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
+    return experimentDAOs;
   }
 
-  public List<ExperimentDAO> getJoinableExperiments() {
-    List<ExperimentDAO> experiments = getExperiments();
-    List<ExperimentDAO> joinable = Lists.newArrayList(experiments);
-    DateTime now = new DateTime();
-    for (ExperimentDAO experiment : experiments) {
-      if (experiment.getDeleted() != null && experiment.getDeleted() || isOver(experiment, now)) {
-        joinable.remove(experiment);
+  /**
+   * returns all experiments that the user can join.
+   * This is the collection of experiments that either
+   * 1) the user has created,
+   * 2) the user admins,
+   * 3) that have been published explicitly to the user.
+   *
+   * @param experimentIds List of ids of experiments that the user can join
+   * @param timezone used to decide if experiments are still running.
+   * @return List of experiments that satisfy the criteria.
+   */
+  public List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
+    return experimentRetriever.getExperimentsById(experimentIds, email, timezone);
+  }
+
+  /**
+   * returns all experiments that the user can join.
+   * This is the collection of experiments that either
+   * 1) the user has created,
+   * 2) the user admins,
+   * 3) that have been published explicitly to the user.
+   *
+   * @param dateTimeZone used to decide if experiments are still running.
+   * @param cursor
+   * @param limit
+   * @return List of experiments that satisfy the criteria.
+   */
+  public ExperimentQueryResult getMyJoinableExperiments(String email, DateTimeZone dateTimeZone, Integer limit, String cursor) {
+    String experimentCacheKey = email + "_" + MY_JOINABLE_EXPERIMENTS_CACHE_KEY;
+
+    ExperimentQueryResult experimentDAOs;// = getCachedExperimentsByKey(experimentCacheKey);
+//    if (experimentDAOs != null) {
+//      return experimentDAOs;
+//    }
+    experimentDAOs = experimentRetriever.getMyJoinableExperiments(email, dateTimeZone, limit, cursor);
+
+    //cacheExperimentsByKey(experimentCacheKey, experimentDAOs);
+    return experimentDAOs;
+  }
+
+  private void cacheExperimentsByKey(String experimentCacheKey, List<ExperimentDAO> experimentDAOs) {
+    if (cache != null && !experimentDAOs.isEmpty()) {
+      try {
+        // we want the cache to be flushed every night so that experiments which have expired are no longer cached. (well, at least not for more than a day.)
+        cache.put(experimentCacheKey, experimentDAOs, Expiration.onDate(new DateMidnight().plusDays(1).toDate()));
+      } catch (Exception e) {
+        log.severe("Could not put experiment entry in cache:" + e.getMessage());
       }
     }
-    return joinable;
   }
 
-  // TODO is it safe to send the joda time class info as part of the DAO when using GWT? It did not used to be serializable over gwt.
-  // This is the reason we are doing this here instead of on the dao class where it belongs.
-  public boolean isOver(ExperimentDAO experiment, DateTime now) {
-    return experiment.getFixedDuration() != null && experiment.getFixedDuration() && now.isAfter(getEndDateTime(experiment));
-  }
-
-  private DateTime getEndDateTime(ExperimentDAO experiment) {
-    if (experiment.getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      Long[] times = experiment.getSchedule().getTimes();
-      // get the latest time
-      Arrays.sort(times);
-
-      DateTime lastTimeForDay = new DateTime().plus(times[times.length - 1]);
-      return new DateMidnight(experiment.getEndDate()).toDateTime().withMillisOfDay(lastTimeForDay.getMillisOfDay());
-    } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
-      return new DateMidnight(experiment.getEndDate()).plusDays(1).toDateTime();
-    }
-  }
-
-  private synchronized List<ExperimentDAO> getExperiments() {
-    List<ExperimentDAO> experimentDAOs;
+  private List<ExperimentDAO> getCachedExperimentsByKey(String experimentCacheKey) {
     if (cache != null) {
-      experimentDAOs = (List<ExperimentDAO>) cache.get(EXPERIMENT_CACHE_KEY);
-      if (experimentDAOs != null) {
-        return experimentDAOs;
-      }
-    }  
-    experimentDAOs = getExperimentsFromDatastore();
-    
-    if (cache != null && experimentDAOs != null && !experimentDAOs.isEmpty()) {      
-      cache.put(EXPERIMENT_CACHE_KEY, experimentDAOs);
-      return experimentDAOs;
-    } else {
-      return Collections.EMPTY_LIST;   
-    }      
+      return (List<ExperimentDAO>) cache.get(experimentCacheKey);
+    }
+    return null;
   }
 
-  private List<ExperimentDAO> getExperimentsFromDatastore() {
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query q = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>) q.execute();
-      return DAOConverter.createDAOsFor(experiments);      
-    } finally {
-      if (pm != null) {
-        pm.close();
-      }
-    }
+//  public void addPublicExperiment(ExperimentDAO newExperimentDAO) {
+//    List<ExperimentDAO> currentExperiments = getCachedExperimentsByKey(PUBLIC_EXPERIMENT_KEY);
+//    List<ExperimentDAO> newExperiments = Lists.newArrayList();
+//    for (ExperimentDAO experimentDAO : currentExperiments) {
+//      if (!experimentDAO.getId().equals(newExperimentDAO.getId())) {
+//        newExperiments.add(experimentDAO);
+//      }
+//    }
+//    newExperiments.add(newExperimentDAO);
+//    cacheExperimentsByKey(PUBLIC_EXPERIMENT_KEY, newExperiments);
+//  }
+
+  public ExperimentQueryResult getPublicExperiments(DateTimeZone dateTimeZone, Integer limit, String cursor) {
+    //List<ExperimentDAO> cachedExperiments = getCachedExperimentsByKey(PUBLIC_EXPERIMENT_KEY);
+    //if (cachedExperiments == null) {
+     ExperimentQueryResult cachedExperiments = experimentRetriever.getExperimentsPublishedPublicly(dateTimeZone, limit, cursor);
+    //  cacheExperimentsByKey(PUBLIC_EXPERIMENT_KEY, cachedExperiments);
+    //}
+    return cachedExperiments;
   }
+
+  public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone dateTimeZone, Integer limit, String cursor) {
+    return experimentRetriever.getUsersAdministeredExperiments(email, dateTimeZone, limit, cursor);
+  }
+
+
 }

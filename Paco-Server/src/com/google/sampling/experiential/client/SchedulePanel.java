@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -29,11 +30,11 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Container for all scheduling configuration panels.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -42,9 +43,11 @@ public class SchedulePanel extends Composite {
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
   private SignalScheduleDAO schedule;
+  private MyConstants myConstants;
 
   public SchedulePanel(SignalScheduleDAO schedule) {
     this.schedule = schedule;
+    myConstants = GWT.create(MyConstants.class);
 
     VerticalPanel verticalPanel = new VerticalPanel();
     initWidget(verticalPanel);
@@ -53,12 +56,12 @@ public class SchedulePanel extends Composite {
     horizontalPanel.setSpacing(3);
     verticalPanel.add(horizontalPanel);
 
-    Label lblSignalSchedule = new Label("Signal Schedule:");
+    Label lblSignalSchedule = new Label(myConstants.signalSchedule() + ":");
     lblSignalSchedule.setStyleName("keyLabel");
     horizontalPanel.add(lblSignalSchedule);
     horizontalPanel.setCellVerticalAlignment(lblSignalSchedule, HasVerticalAlignment.ALIGN_MIDDLE);
-    lblSignalSchedule.setWidth("114px");    
-    
+    lblSignalSchedule.setWidth("114px");
+
     final ListBox listBox = createScheduleTypeListBox();
     horizontalPanel.add(listBox);
     horizontalPanel.setCellVerticalAlignment(listBox, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -69,6 +72,7 @@ public class SchedulePanel extends Composite {
     setPanelForScheduleType();
     addListSelectionListener(listBox);
     verticalPanel.add(createUserEditable(schedule));
+    verticalPanel.add(createUserEditableOnce(schedule));
 
   }
 
@@ -95,15 +99,45 @@ public class SchedulePanel extends Composite {
     return userEditablePanel;
   }
 
+  private Widget createUserEditableOnce(SignalScheduleDAO schedule2) {
+    HorizontalPanel userEditablePanel = new HorizontalPanel();
+    userEditablePanel.setSpacing(2);
+    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    userEditablePanel.setWidth("");
+    Label lblUserEditable = new Label("Only Editable on Join: ");
+    lblUserEditable.setStyleName("gwt-Label-Header");
+    userEditablePanel.add(lblUserEditable);
+
+    final CheckBox userEditableCheckBox = new CheckBox("");
+    userEditablePanel.add(userEditableCheckBox);
+    userEditableCheckBox.setValue(schedule.getOnlyEditableOnJoin() != null ? schedule.getOnlyEditableOnJoin() : Boolean.FALSE);
+    userEditableCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        schedule.setOnlyEditableOnJoin(userEditableCheckBox.getValue());
+      }
+
+    });
+    return userEditablePanel;
+  }
+
+
+
   private void addListSelectionListener(final ListBox listBox) {
     listBox.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {
         int index = listBox.getSelectedIndex();
-        schedule.setScheduleType(index);
-        setPanelForScheduleType();
+        respondToListSelection(index);
       }
+
     });
+  }
+
+  private void respondToListSelection(int index) {
+    schedule.setScheduleType(index);
+    setPanelForScheduleType();
   }
 
   private void setPanelForScheduleType() {
@@ -136,11 +170,16 @@ public class SchedulePanel extends Composite {
   }
 
   private ListBox createScheduleTypeListBox() {
+    return createListbox(SignalScheduleDAO.SCHEDULE_TYPES_NAMES, schedule.getScheduleType());
+  }
+
+  public static ListBox createListbox(String[] choices, Integer chosenItem) {
     final ListBox listBox = new ListBox();
-    for (int i = 0; i < SignalScheduleDAO.SCHEDULE_TYPES_NAMES.length; i++) {
-      listBox.addItem(SignalScheduleDAO.SCHEDULE_TYPES_NAMES[i]);
+    for (int i = 0; i < choices.length; i++) {
+      listBox.addItem(choices[i]);
     }
-    listBox.setSelectedIndex(schedule.getScheduleType() != null ? schedule.getScheduleType() : 0);
+
+    listBox.setSelectedIndex(chosenItem != null ? chosenItem : 0);
     return listBox;
   }
 

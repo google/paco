@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.InputDAO;
+import com.google.paco.shared.model.InputDAO;
 
 
 /**
@@ -42,6 +42,7 @@ public class ResponseViewPanel extends Composite {
   private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
+  private ListChoicesPanel listChoicesPanel;
 
   public ResponseViewPanel(InputDAO input) {
     super();
@@ -72,10 +73,13 @@ public class ResponseViewPanel extends Composite {
   }
 
   private void drawListPanel() {
-    ListChoicesPanel outer = new ListChoicesPanel(input);
-    outer.setStyleName("left");
-    mainPanel.add(outer);
-    // outer.add(new HTML("List responses not implemented yet!"));
+    listChoicesPanel = new ListChoicesPanel(input);
+    listChoicesPanel.setStyleName("left");
+    mainPanel.add(listChoicesPanel);
+  }
+  
+  public ListChoicesPanel getListChoicesPanel() {
+    return listChoicesPanel;
   }
 
   private void drawLikertStepsPanel() {
@@ -121,6 +125,7 @@ public class ResponseViewPanel extends Composite {
 
   private void setLikertValueInWidget() {
     if (input.getLikertSteps() == null) {
+      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
       stepsText.setValue(Integer.toString(InputDAO.DEFAULT_LIKERT_STEPS));
     } else {
       stepsText.setValue(Integer.toString(input.getLikertSteps()));

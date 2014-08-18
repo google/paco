@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,9 +24,6 @@ import android.os.Parcelable;
 
 public class Feedback implements Parcelable {
 
-  public static final String DEFAULT_FEEDBACK_MSG = "Thanks for Participating!";
-  public static final String DISPLAY_FEEBACK_TYPE = "display";
-  
   public static class Creator implements Parcelable.Creator<Feedback> {
 
     public Feedback createFromParcel(Parcel source) {
@@ -34,7 +31,6 @@ public class Feedback implements Parcelable {
       input.id = source.readLong();
       input.experimentId = source.readLong();
       input.serverId = source.readLong();
-      input.feedbackType = source.readString();
       input.text = source.readString();
       return input;
     }
@@ -43,16 +39,15 @@ public class Feedback implements Parcelable {
       return new Feedback[size];
     }
   }
-  
+
   public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
   private Long id;
   private Long experimentId;
-  
+
   @JsonProperty("id")
   private Long serverId;
-  private String feedbackType = "";
   private String text = "";
 
   @JsonIgnore
@@ -91,14 +86,6 @@ public class Feedback implements Parcelable {
     this.text = text;
   }
 
-  public String getFeedbackType() {
-    return feedbackType;
-  }
-
-  public void setFeedbackType(String feedbackType) {
-    this.feedbackType = feedbackType;
-  }
-
   public int describeContents() {
     return 0;
   }
@@ -107,7 +94,6 @@ public class Feedback implements Parcelable {
     dest.writeLong(id);
     dest.writeLong(experimentId);
     dest.writeLong(serverId);
-    dest.writeString(feedbackType);
     dest.writeString(text);
   }
 
@@ -125,19 +111,19 @@ public class Feedback implements Parcelable {
       //appendElidedText(buf, output.getText(), 25);
       String textOfInputForOutput = getTextOfInputForOutput(experiment, output);
       buf.append(textOfInputForOutput);
-      buf.append("</div><br/><div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>");      
+      buf.append("</div><br/><div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>");
       //appendElidedText(buf, output.getAnswer(), 25);
       if (textOfInputForOutput.equals(Input.PHOTO)) {
         buf.append("<img src=\"data:image/jpg;base64,");
         buf.append(output.getAnswer());
-        buf.append("\" width=150>"); 
+        buf.append("\" width=150>");
       } else{
         buf.append(output.getDisplayOfAnswer(input));
         buf.append("<a href='file:///android_asset/time.html?" + input.getId() + "'>Chart</a>");
-      }      
+      }
       buf.append("</div></div>");
     }
-    
+
     buf.append("</div></body></html>");
     return buf.toString();
   }
@@ -164,8 +150,5 @@ public class Feedback implements Parcelable {
     }
   }
 
-  public boolean isDefaultFeedback() {
-    return getFeedbackType().equals(DISPLAY_FEEBACK_TYPE) &&
-      getText().equals(DEFAULT_FEEDBACK_MSG);
-  }
+
 }

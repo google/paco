@@ -32,6 +32,8 @@ package com.google.android.apps.paco;
  */
 
 
+import com.pacoapp.paco.R;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;

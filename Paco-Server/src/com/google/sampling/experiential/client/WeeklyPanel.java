@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,24 +16,27 @@
 */
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.shared.SignalScheduleDAO;
+import com.google.paco.shared.model.SignalScheduleDAO;
 
 /**
  * Panel that allows configuration of a weekly experiment schedule.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class WeeklyPanel extends Composite {
 
   private SignalScheduleDAO schedule;
+  private MyConstants myConstants;
 
   public WeeklyPanel(SignalScheduleDAO schedule) {
+    myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
@@ -41,7 +44,7 @@ public class WeeklyPanel extends Composite {
     verticalPanel.setSize("290px", "43px");
     initWidget(verticalPanel);
 
-    RepeatEveryNPanel repeatWeeksPanel = new RepeatEveryNPanel("Weeks", schedule);
+    RepeatEveryNPanel repeatWeeksPanel = new RepeatEveryNPanel(myConstants.repeatTypeWeeks(), schedule);
     verticalPanel.add(repeatWeeksPanel);
     repeatWeeksPanel.setWidth("239px");
 
@@ -50,13 +53,22 @@ public class WeeklyPanel extends Composite {
     TimeListPanel timeListPanel = new TimeListPanel(schedule);
     verticalPanel.add(timeListPanel);
     timeListPanel.setWidth("286px");
+
+    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
+    verticalPanel.add(timeoutPanel);
+    timeoutPanel.setWidth("286px");
+
+    SnoozePanel snoozePanel = new SnoozePanel(schedule);
+    verticalPanel.add(snoozePanel);
+    snoozePanel.setWidth("286px");
+
   }
 
   private void createRepeatWeeklyPanel(VerticalPanel verticalPanel) {
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     verticalPanel.add(horizontalPanel);
     horizontalPanel.setWidth("239px");
-    Label lblRepeatOn = new Label("Repeat On:");
+    Label lblRepeatOn = new Label(myConstants.repeatOn() + ":");
     lblRepeatOn.setStyleName("gwt-Label-Header");
     horizontalPanel.add(lblRepeatOn);
     horizontalPanel.setCellVerticalAlignment(lblRepeatOn, HasVerticalAlignment.ALIGN_MIDDLE);

@@ -1,0 +1,2 @@
+function RUb(){var a,b,c,d,e;b=new wmc(4,4);d=b.i;c=b.g;for(e=0;e<d;++e){for(a=0;a<c;++a){Qlc(b,e,a,new Sac((kAb(),_zb)))}}Ilc(b,'cwGrid');return b}
+Bvb(814,1,NRc);_.qc=function XUb(){eyb(this.b,RUb())};ASc(In)(16);

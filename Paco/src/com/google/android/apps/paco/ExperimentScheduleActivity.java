@@ -1,19 +1,19 @@
 /*
-* Copyright 2011 Google Inc. All Rights Reserved.
-* 
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright 2011 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance  with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package com.google.android.apps.paco;
 
 import java.util.ArrayList;
@@ -29,10 +29,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
+import android.telephony.TelephonyManager;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,8 +42,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -53,37 +52,33 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
+import com.google.paco.shared.model.SignalTimeDAO;
+import com.pacoapp.paco.R;
+
 public class ExperimentScheduleActivity extends Activity {
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
-  private CharSequence[] dows = new CharSequence[] {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-  
   private Uri uri;
   private Experiment experiment;
-  ExperimentProviderUtil experimentProviderUtil;
+  private ExperimentProviderUtil experimentProviderUtil;
   private TimePicker timePicker;
-  private EditText frequencyField;
-  private Spinner periodField;
-  private SharedPreferences pagingHoursPreferences;
   private TextView startHourField;
   private TextView endHourField;
   private Spinner repeatRate;
-  private ListView dow;
   private boolean[] selections;
   private Button dowButton;
 
   private Spinner domSpinner;
 
   private Spinner nthOfMonthSpinner;
-  
-  private TextView nthOfMonthText;
-  
-  private TextView dayOfMonthText;
-  
-  private RadioGroup radioGroup;
 
-  private CheckBox weekendsCheckBox;
+  private TextView nthOfMonthText;
+
+  private TextView dayOfMonthText;
+
+  private RadioGroup radioGroup;
 
   private ListView timeList;
 
@@ -91,28 +86,54 @@ public class ExperimentScheduleActivity extends Activity {
 
   private LinearLayout timesScheduleLayout;
 
+  private boolean fromInformedConsentPage;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
-	// branch out into a different view to include based on the type of schedule in the experiment.
-	final Intent intent = getIntent();
-	uri = intent.getData();
-	
-	experimentProviderUtil = new ExperimentProviderUtil(this);
-    experiment = experimentProviderUtil.getExperiment(uri);
+    super.onCreate(savedInstanceState);
+
+    final Intent intent = getIntent();
+    uri = intent.getData();
+    if (uri != null) {
+      fromInformedConsentPage = intent.getExtras() != null ? intent.getExtras().getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY) : false;
+      // showingJoinedExperiments = uri.getPathSegments().get(0)
+      // .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
+
+      // branch out into a different view to include based on the type of
+      // schedule
+      // in the experiment.
+      experimentProviderUtil = new ExperimentProviderUtil(this);
+      // if (showingJoinedExperiments) {
+      experiment = experimentProviderUtil.getExperiment(uri);
+      // } else {
+      // experiment = experimentProviderUtil.getExperimentFromDisk(uri);
+      // }
+
+      setUpSchedulingLayout();
+    }
+  }
+
+  private void setUpSchedulingLayout() {
     if (experiment == null) {
-      Toast.makeText(this, "Cannot find the experiment!", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
       // setup ui pieces for times lists and esm start/end timepickers
-      inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
-      timesScheduleLayout = (LinearLayout)inflater.inflate(R.layout.times_schedule, null);
-      timePicker = (TimePicker)timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
+      inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+      timesScheduleLayout = (LinearLayout) inflater.inflate(R.layout.times_schedule, null);
+      timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
       timePicker.setIs24HourView(false);
       // end setup ui pieces
-      createSelections();
-      if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY) ||
-          experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
+      if (experiment.getSchedule() != null) {
+        createSelections();
+      }
+
+      if (experiment.getSchedule() == null
+          || experiment.getSchedule().getScheduleType().equals(SignalSchedule.SELF_REPORT)) {
+        setContentView(R.layout.self_report_schedule);
+        save();
+      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)
+                 || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
         showDailyScheduleConfiguration();
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
         showWeeklyScheduleConfiguration();
@@ -120,92 +141,112 @@ public class ExperimentScheduleActivity extends Activity {
         showMonthlyScheduleConfiguration();
       } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
         showEsmScheduleConfiguration();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.SELF_REPORT)) {
-        setContentView(R.layout.self_report_schedule);
       }
-      setupSaveButton();
-      if (experiment.getSchedule().getUserEditable() != null && experiment.getSchedule().getUserEditable() == Boolean.FALSE) {
-        save();
-      }
+      setupScheduleSaving();
     }
+  }
+
+  // Visible for testing
+  public void setActivityProperties(Experiment experiment, ExperimentProviderUtil experimentProviderUtil) {
+    this.experiment = experiment;
+    this.experimentProviderUtil = experimentProviderUtil;
+
+    // TODO: Uncomment this to do true instrumentation testing.
+    // setUpSchedulingLayout();
+  }
+
+  private void setupScheduleSaving() {
+    setupSaveButton();
+    if (userCannotConfirmSchedule()) {
+      save();
+    }
+  }
+
+  private Boolean userCannotConfirmSchedule() {
+    if (experiment.getSchedule() != null) {
+      if (experiment.getSchedule().getUserEditable() != null
+          && experiment.getSchedule().getUserEditable() == Boolean.FALSE) {
+        return true;
+      }
+      boolean userCanOnlyEditOnJoin = experiment.getSchedule().getOnlyEditableOnJoin() != null
+                                     && experiment.getSchedule().getOnlyEditableOnJoin() == Boolean.TRUE;
+      if (userCanOnlyEditOnJoin && !fromInformedConsentPage) {
+        return true;
+      }
+
+    }
+    return false;
   }
 
   private void showEsmScheduleConfiguration() {
     setContentView(R.layout.esm_schedule);
-    TextView title = (TextView)findViewById(R.id.experimentNameSchedule);
+    TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
-    
-    frequencyField = (EditText)findViewById(R.id.experimentEsmFrequency);
-    frequencyField.setInputType(InputType.TYPE_CLASS_NUMBER);
-    frequencyField.setText(Integer.toString(experiment.getSchedule().getEsmFrequency()));
-    
-    createPeriod();
-    
-    weekendsCheckBox = (CheckBox)findViewById(R.id.weekendsCheckBox);
-    weekendsCheckBox.setChecked(experiment.getSchedule().getEsmWeekends());
-    weekendsCheckBox.setOnClickListener(new OnClickListener() {
 
-      public void onClick(View v) {
-        experiment.getSchedule().setEsmWeekends(weekendsCheckBox.isChecked());
-      }
-      
-    });    
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
-    startHourField.setText(new DateMidnight().toDateTime().withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue()).toString(TIME_FORMAT_STRING));
+    startHourField.setText(new DateMidnight().toDateTime()
+                                             .withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue())
+                                             .toString(TIME_FORMAT_STRING));
 
     endHourField = (Button) findViewById(R.id.endHourTimePickerLabel);
-    endHourField.setText(new DateMidnight().toDateTime().withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue()).toString(TIME_FORMAT_STRING));
-    
+    endHourField.setText(new DateMidnight().toDateTime()
+                                           .withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue())
+                                           .toString(TIME_FORMAT_STRING));
+
     // TODO (bobevans): get rid of this duplication
-    
-    startHourField.setOnClickListener(new OnClickListener() { 
-      
+
+    startHourField.setOnClickListener(new OnClickListener() {
+
       public void onClick(View v) {
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
         unsetTimesViewParent();
         dialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog dialog = dialogBuilder.setTitle("Start Time").create();
+        final AlertDialog dialog = dialogBuilder.setTitle(R.string.start_time_title).create();
 
         Long offset = experiment.getSchedule().getEsmStartHour();
-        DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
+        DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(startHour.getHourOfDay());
-        timePicker.setCurrentMinute(startHour.getMinuteOfHour());      
+        timePicker.setCurrentMinute(startHour.getMinuteOfHour());
 
-        dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+        dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
+                         new DialogInterface.OnClickListener() {
 
-          public void onClick(DialogInterface dialog, int which) {
-            experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
-            startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour().intValue()));
-          }
-          
-        });
+                           public void onClick(DialogInterface dialog, int which) {
+                             experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
+                             startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour()
+                                                                                .intValue()));
+                           }
+
+                         });
         dialog.show();
       }
     });
-    
+
     //
-    
-    endHourField.setOnClickListener(new OnClickListener() { 
-      
+
+    endHourField.setOnClickListener(new OnClickListener() {
+
       public void onClick(View v) {
         final AlertDialog.Builder endHourDialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
         unsetTimesViewParent();
         endHourDialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog endHourDialog = endHourDialogBuilder.setTitle("End Time").create();
+        final AlertDialog endHourDialog = endHourDialogBuilder.setTitle(R.string.end_time_title).create();
 
         Long offset = experiment.getSchedule().getEsmEndHour();
-        DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue()); 
+        DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(endHour.getHourOfDay());
-        timePicker.setCurrentMinute(endHour.getMinuteOfHour());      
+        timePicker.setCurrentMinute(endHour.getMinuteOfHour());
 
-        endHourDialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
+        endHourDialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
+                                new DialogInterface.OnClickListener() {
 
-          public void onClick(DialogInterface dialog, int which) {
-            experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
-            endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour().intValue()));
-          }
-          
-        });
+                                  public void onClick(DialogInterface dialog, int which) {
+                                    experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
+                                    endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour()
+                                                                                     .intValue()));
+                                  }
+
+                                });
         endHourDialog.show();
       }
     });
@@ -218,65 +259,46 @@ public class ExperimentScheduleActivity extends Activity {
     }
   }
 
-  private void createPeriod() {
-    periodField = (Spinner)findViewById(R.id.experimentEsmPeriod);
-    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, 
-        android.R.layout.simple_spinner_item,
-        SignalSchedule.ESM_PERIODS_NAMES);
-    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    periodField.setAdapter(adapter);
-    periodField.setSelection(experiment.getSchedule().getEsmPeriodInDays());
-    periodField.setOnItemSelectedListener(new OnItemSelectedListener() {
-      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-          long arg3) {
-        experiment.getSchedule().setEsmPeriodInDays(arg2);
-      }
-
-      public void onNothingSelected(AdapterView<?> arg0) {
-      }
-    });
-  }
-
   private void showDailyScheduleConfiguration() {
-  	setContentView(R.layout.daily_schedule);
-  	if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-  	  createRepeatRate("Days");
+    setContentView(R.layout.daily_schedule);
+    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
+      createRepeatRate(getString(R.string.days));
     } else {
       hideRepeatRate();
     }
-    createTimesList();	
+    createTimesList();
   }
 
   private void hideRepeatRate() {
-      LinearLayout repeatRateLayout = (LinearLayout) findViewById(R.id.RepeatPeriodLayout);
-      repeatRateLayout.setVisibility(View.GONE);
+    LinearLayout repeatRateLayout = (LinearLayout) findViewById(R.id.RepeatPeriodLayout);
+    repeatRateLayout.setVisibility(View.GONE);
   }
 
   private void showWeeklyScheduleConfiguration() {
     setContentView(R.layout.weekly_schedule);
-    createRepeatRate("Weeks");
-    
+    createRepeatRate(getString(R.string.weeks));
+
     createDaysOfWeekPicker();
-    createTimesList();    
+    createTimesList();
   }
 
   private void showMonthlyScheduleConfiguration() {
     setContentView(R.layout.monthly_schedule);
-    createRepeatRate("Months");
-    
+    createRepeatRate(getString(R.string.months));
+
     createDayOfMonth();
-    
-    createNthOfMonth();    
+
+    createNthOfMonth();
     createDaysOfWeekPicker();
-    
-    radioGroup = (RadioGroup)findViewById(R.id.RadioGroup01);
-    
+
+    radioGroup = (RadioGroup) findViewById(R.id.RadioGroup01);
+
     if (experiment.getSchedule().getByDayOfMonth()) {
-      ((RadioButton)findViewById(R.id.domRadio)).setChecked(true);
+      ((RadioButton) findViewById(R.id.domRadio)).setChecked(true);
     } else {
-      ((RadioButton)findViewById(R.id.dowRadio)).setChecked(true);
+      ((RadioButton) findViewById(R.id.dowRadio)).setChecked(true);
     }
-    radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {     
+    radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
       public void onCheckedChanged(RadioGroup group, int checkedId) {
         toggleByDayOfMonth_DayOfWeekWidgets(checkedId == R.id.domRadio);
       }
@@ -287,17 +309,16 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void createDayOfMonth() {
-    dayOfMonthText = (TextView)findViewById(R.id.dayOfMonthText);
-    domSpinner = (Spinner)findViewById(R.id.dayOfMonthSpinner);
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-        this, R.array.repeat_range, android.R.layout.simple_spinner_item);
+    dayOfMonthText = (TextView) findViewById(R.id.dayOfMonthText);
+    domSpinner = (Spinner) findViewById(R.id.dayOfMonthSpinner);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.repeat_range,
+                                                                         android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     domSpinner.setAdapter(adapter);
     domSpinner.setSelection(experiment.getSchedule().getDayOfMonth() - 1);
     domSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-          long arg3) {
+      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         experiment.getSchedule().setDayOfMonth(arg2 + 1);
       }
 
@@ -305,19 +326,18 @@ public class ExperimentScheduleActivity extends Activity {
       }
     });
   }
-  
+
   private void createNthOfMonth() {
-    nthOfMonthSpinner = (Spinner)findViewById(R.id.NthOfMonthSpinner);
-    nthOfMonthText = (TextView)findViewById(R.id.NthOfMonthText);
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-        this, R.array.nth_of_month, android.R.layout.simple_spinner_item);
+    nthOfMonthSpinner = (Spinner) findViewById(R.id.NthOfMonthSpinner);
+    nthOfMonthText = (TextView) findViewById(R.id.NthOfMonthText);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.nth_of_month,
+                                                                         android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     nthOfMonthSpinner.setAdapter(adapter);
     nthOfMonthSpinner.setSelection(experiment.getSchedule().getNthOfMonth());
     nthOfMonthSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
-      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
-          long arg3) {
+      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         experiment.getSchedule().setNthOfMonth(arg2);
       }
 
@@ -326,7 +346,6 @@ public class ExperimentScheduleActivity extends Activity {
     });
 
   }
-
 
   private void toggleByDayOfMonth_DayOfWeekWidgets(boolean isByDayOfMonth) {
     if (isByDayOfMonth) {
@@ -347,199 +366,174 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void createDaysOfWeekPicker() {
-    dowButton = (Button)findViewById(R.id.dow_button);
+    dowButton = (Button) findViewById(R.id.dow_button);
     dowButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         showDialog(0);
-      }      
+      }
     });
   }
-  
+
   private void createRepeatRate(String period) {
     repeatRate = (Spinner) findViewById(R.id.RepeatRate);
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-        this, R.array.repeat_range, android.R.layout.simple_spinner_item);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.repeat_range,
+                                                                         android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     repeatRate.setAdapter(adapter);
     repeatRate.setSelection(experiment.getSchedule().getRepeatRate() - 1);
-    TextView repeatPeriodLabel = (TextView) findViewById(R.id.RepeatPeriodLabel);      
+
+    repeatRate.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        experiment.getSchedule().setRepeatRate(position + 1);
+      }
+
+      public void onNothingSelected(AdapterView<?> parent) {
+        // Nothing to be done here.
+      }
+    });
+
+    TextView repeatPeriodLabel = (TextView) findViewById(R.id.RepeatPeriodLabel);
     repeatPeriodLabel.setText(" " + period);
   }
 
   private void createTimesList() {
-    TextView title = (TextView)findViewById(R.id.experimentNameSchedule);
+    TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
     title.setText(experiment.getTitle());
-    
-    
-    timeList = (ListView)findViewById(R.id.timesList);
-    final List<Long> times = experiment.getSchedule().getTimes();
+
+    timeList = (ListView) findViewById(R.id.timesList);
+    final List<SignalTime> times = experiment.getSchedule().getSignalTimes();
     setArrayAdapter(times);
-    
-    
-//    timeList.setOnItemClickListener(new OnItemClickListener() {      
-//      public void onItemClick(AdapterView<?> listview, View textview, final int position, long id) {        
-//        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
-//        unsetTimesViewParent();
-//        dialogBuilder.setView(timesScheduleLayout);
-//        final AlertDialog dialog = dialogBuilder.setTitle("Modify Time").create();
-//        
-//        DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).intValue());
-//        timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
-//        timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());      
-//
-//        dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
-//
-//          public void onClick(DialogInterface dialog, int which) {
-//            long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + 
-//            timePicker.getCurrentMinute() * 60 * 1000;            
-//            times.set(position, offsetMillis);
-//            //timeAdapter.notifyDataSetChanged();
-//            setArrayAdapter(times);
-//          }
-//          
-//        });
-//        dialog.show();
-//      }
-//    });
+
+    // timeList.setOnItemClickListener(new OnItemClickListener() {
+    // public void onItemClick(AdapterView<?> listview, View textview, final int
+    // position, long id) {
+    // final AlertDialog.Builder dialogBuilder = new
+    // AlertDialog.Builder(ExperimentScheduleActivity.this);
+    // unsetTimesViewParent();
+    // dialogBuilder.setView(timesScheduleLayout);
+    // final AlertDialog dialog =
+    // dialogBuilder.setTitle("Modify Time").create();
+    //
+    // DateTime selectedDateTime = new
+    // DateTime().withMillisOfDay(times.get(position).intValue());
+    // timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
+    // timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());
+    //
+    // dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new
+    // DialogInterface.OnClickListener() {
+    //
+    // public void onClick(DialogInterface dialog, int which) {
+    // long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 +
+    // timePicker.getCurrentMinute() * 60 * 1000;
+    // times.set(position, offsetMillis);
+    // //timeAdapter.notifyDataSetChanged();
+    // setArrayAdapter(times);
+    // }
+    //
+    // });
+    // dialog.show();
+    // }
+    // });
   }
 
-  private void setArrayAdapter(final List<Long> times) {
+  private void setArrayAdapter(final List<SignalTime> times) {
     List<String> timeStrs = new ArrayList<String>();
-    for (Long time : times) {
+    for (SignalTime time : times) {
       timeStrs.add(getStringForTime(time));
     }
-    
-    final ArrayAdapter<String> timeAdapter = new ButtonArrayAdapter(this, 
-        R.layout.timelist_item, 
-        timeStrs);
+
+    final ArrayAdapter<String> timeAdapter = new ButtonArrayAdapter(this, R.layout.timelist_item, timeStrs);
     timeList.setAdapter(timeAdapter);
   }
 
-  private String getStringForTime(Long time) {
-    return new DateTime().withMillisOfDay(time.intValue()).toString("hh:mm a");
+  private String getStringForTime(SignalTime time) {
+    if (time.getType() == SignalTimeDAO.FIXED_TIME) {
+      return new DateTime().withMillisOfDay(time.getFixedTimeMillisFromMidnight()).toString("hh:mm a");
+    } else {
+      return "+" + time.getOffsetTimeMillis() / 1000 / 60 + " mins";
+    }
   }
 
-    
-    class ButtonArrayAdapter extends ArrayAdapter<String> implements View.OnClickListener {
-      public ButtonArrayAdapter(Context context, int textViewResourceId,
-          List<String> objects) {
-        super(context, textViewResourceId, objects);
-      }
-
-      
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
-        String text = getItem(position);
-        if (null == convertView) {
-                convertView = inflater.inflate(R.layout.timelist_item, null);
-        }
-        
-        Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);
-        btn.setOnClickListener(this);
-        btn.setText(text);
-        // set listener for the whole row
-        convertView.setOnClickListener(new OnItemClickListener(position));
-        return convertView;
-      }
-      
-      public void onClick(View v) {
-        
-      }
+  class ButtonArrayAdapter extends ArrayAdapter<String> {
+    public ButtonArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
+      super(context, textViewResourceId, objects);
     }
 
-    private class OnItemClickListener implements OnClickListener {           
-      private int position;
-      OnItemClickListener(int position){
-              this.position = position;
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+      String text = getItem(position);
+      if (null == convertView) {
+        convertView = inflater.inflate(R.layout.timelist_item, null);
       }
 
-      public void onClick(View arg0) {
-        final List<Long> times = experiment.getSchedule().getTimes();
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
-        unsetTimesViewParent();
-        dialogBuilder.setView(timesScheduleLayout);
-        final AlertDialog dialog = dialogBuilder.setTitle("Modify Time").create();
-        
-        DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).intValue());
-        timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
-        timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());      
-
-        dialog.setButton(Dialog.BUTTON_POSITIVE, "Save", new DialogInterface.OnClickListener() {
-
-          public void onClick(DialogInterface dialog, int which) {
-            timePicker.clearFocus(); // Maybe this will save whatever value is there, 
-            // so that the current hour will work when the user is editing it directly.
-            long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + 
-            timePicker.getCurrentMinute() * 60 * 1000;            
-            times.set(position, offsetMillis);
-            //timeAdapter.notifyDataSetChanged();
-            setArrayAdapter(times);
-          }
-          
-        });
-        dialog.show();                   
-      }               
+      TextView label = (TextView) convertView.findViewById(R.id.textView1);
+      String labelText = experiment.getSchedule().getSignalTimes().get(position).getLabel();
+      if (Strings.isNullOrEmpty(labelText)) {
+        labelText = "Time " + Integer.toString(position + 1);
+      }
+      label.setText(labelText + ": ");
+      Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);
+      btn.setText(text);
+      if (text.startsWith("+")) {
+        btn.setEnabled(false);
+      } else {
+        btn.setEnabled(true);
+      }
+      // set listener for the whole row
+      // convertView.setOnClickListener(new OnItemClickListener(position));
+      btn.setOnClickListener(new OnItemClickListener(position));
+      return convertView;
+    }
   }
-    private boolean[] createSelections() {
+
+  private class OnItemClickListener implements OnClickListener {
+    private int position;
+
+    OnItemClickListener(int position) {
+      this.position = position;
+    }
+
+    public void onClick(View arg0) {
+      final List<SignalTime> times = experiment.getSchedule().getSignalTimes();
+      final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
+      unsetTimesViewParent();
+      dialogBuilder.setView(timesScheduleLayout);
+      final AlertDialog dialog = dialogBuilder.setTitle(R.string.modify_time_title).create();
+
+      DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).getFixedTimeMillisFromMidnight());
+      timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
+      timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());
+
+      dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button), new DialogInterface.OnClickListener() {
+
+        public void onClick(DialogInterface dialog, int which) {
+          timePicker.clearFocus(); // Maybe this will save whatever value is
+          // there,
+          // so that the current hour will work when the user is editing it
+          // directly.
+          int offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
+          times.get(position).setFixedTimeMillisFromMidnight(offsetMillis);
+          // timeAdapter.notifyDataSetChanged();
+          setArrayAdapter(times);
+        }
+
+      });
+      dialog.show();
+    }
+  }
+
+  private boolean[] createSelections() {
     selections = new boolean[7];
     int weekDaysScheduled = experiment.getSchedule().getWeekDaysScheduled();
-    for (int i= 0; i < SignalSchedule.DAYS_OF_WEEK.length;i++) {      
+    for (int i = 0; i < SignalSchedule.DAYS_OF_WEEK.length; i++) {
       selections[i] = (weekDaysScheduled & SignalSchedule.DAYS_OF_WEEK[i]) == SignalSchedule.DAYS_OF_WEEK[i];
     }
     return selections;
   }
 
-  
-  protected Dialog onCreateDialog(int id, Bundle args) {
-    
-    AlertDialog.Builder dialogBldr = new AlertDialog.Builder( this )
-    .setTitle( "Days of Week" );
-    
-    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
-      dialogBldr.setMultiChoiceItems(dows, selections, new OnMultiChoiceClickListener() {      
-        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-          selections[which] = isChecked;
-        }
-      });
-    } else {
-      int selected = 0;
-      for (int i=0; i < selections.length; i++) {
-        if (selections[i]) {
-          selected = i;
-          break;
-        }
-      }
-      dialogBldr.setSingleChoiceItems(dows, selected, new DialogInterface.OnClickListener() {        
-        public void onClick(DialogInterface dialog, int which) {
-          for(int i =0; i < selections.length; i++) {
-            selections[i] = (i == which);
-          }
-        }
-      });
-    }
-    
-    dialogBldr.setPositiveButton( "OK", new DialogInterface.OnClickListener() {      
-      public void onClick(DialogInterface dialog, int which) {
-        int selected = 0;
-        
-        for (int i = 0; i < 7; i++) {
-          if (selections[i]) {
-            selected |= SignalSchedule.DAYS_OF_WEEK[i];
-          }           
-        }
-        experiment.getSchedule().setWeekDaysScheduled(selected);
-      }
-    });
-    return dialogBldr.create();
-  }
-
-  @Override
-  protected Dialog onCreateDialog(int id) {
-    return super.onCreateDialog(id);
-  }
-
   private void setupSaveButton() {
-    Button saveScheduleButton = (Button)findViewById(R.id.SetDailyScheduleButton);
+    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
     saveScheduleButton.setOnClickListener(new OnClickListener() {
 
       public void onClick(View v) {
@@ -547,86 +541,161 @@ public class ExperimentScheduleActivity extends Activity {
       }
     });
   }
-	
-    private void saveExperimentRegistration() {
-      if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY) ||
-          experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
 
-        if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-          saveRepeatRate();
+  private void saveExperimentRegistration() {
+    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+      AlarmStore alarmStore = new AlarmStore(this);
+      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
+      experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
+    }
+    experimentProviderUtil.updateJoinedExperiment(experiment);
+    createJoinEvent();
+    startService(new Intent(this, SyncService.class));
+  }
+
+  /**
+   * Creates a pacot for a newly registered experiment
+   */
+  private void createJoinEvent() {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getTitle());
+    event.setExperimentVersion(experiment.getVersion());
+    event.setResponseTime(new DateTime());
+
+    event.addResponse(createOutput("joined", "true"));
+
+    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
+    event.addResponse(createOutput("schedule", schedule.toString()));
+
+    if (experiment.isRecordPhoneDetails()) {
+      Display defaultDisplay = getWindowManager().getDefaultDisplay();
+      String size = Integer.toString(defaultDisplay.getHeight()) + "x" +
+              Integer.toString(defaultDisplay.getWidth());
+      event.addResponse(createOutput("display", size));
+
+      event.addResponse(createOutput("make", Build.MANUFACTURER));
+      event.addResponse(createOutput("model", Build.MODEL));
+      event.addResponse(createOutput("android", Build.VERSION.RELEASE));
+      TelephonyManager manager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+      String carrierName = manager.getNetworkOperatorName();
+      event.addResponse(createOutput("carrier", carrierName));
+    }
+
+    experimentProviderUtil.insertEvent(event);
+  }
+
+  private Output createOutput(String key, String answer) {
+    Output responseForInput = new Output();
+    responseForInput.setAnswer(answer);
+    responseForInput.setName(key);
+    return responseForInput;
+  }
+
+  private void save() {
+    Validation valid = isValid();
+    if (!valid.ok()) {
+      Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
+      return;
+    }
+    scheduleExperiment();
+    if (fromInformedConsentPage) {
+      Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
+    } else if (userCannotConfirmSchedule()) {
+      Toast.makeText(this, getString(R.string.this_experiment_schedule_is_not_editable), Toast.LENGTH_LONG).show();
+    } else {
+      Toast.makeText(this, getString(R.string.success), Toast.LENGTH_LONG).show();
+    }
+  }
+
+  // Visible for testing
+  public void scheduleExperiment() {
+    saveExperimentRegistration();
+    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+    if (uri != null) {
+      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
+      if (experiment.shouldWatchProcesses()) {
+        BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+        BroadcastTriggerReceiver.startProcessService(this);
+      }
+    }
+    finish();
+  }
+
+  private Validation isValid() {
+    Validation validation = new Validation();
+    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
+      if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
+        validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));
+      }
+    }
+    return validation;
+  }
+
+  private Long getHourOffsetFromPicker() {
+    return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour())
+                                      .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
+  }
+
+  private String getTextFromPicker(int esmOffset) {
+    return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
+  }
+
+  protected Dialog onCreateDialog(int id, Bundle args) {
+    return getDaysOfWeekDialog();
+  }
+
+  @Override
+  protected Dialog onCreateDialog(int id) {
+    return super.onCreateDialog(id);
+  }
+
+  private AlertDialog getDaysOfWeekDialog() {
+    AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
+
+    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
+      dialogBldr.setMultiChoiceItems(R.array.days_of_week, selections, new OnMultiChoiceClickListener() {
+        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+          selections[which] = isChecked;
         }
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
-        saveRepeatRate();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.MONTHLY)) {
-        saveRepeatRate();
-//        if (radioGroup.isSelected()) {
-//          experiment.getSchedule().setByDayOfMonth(Boolean.TRUE);
-//          experiment.getSchedule().setDayOfMonth(Integer.parseInt((String)domSpinner.getSelectedItem()) + 1);          
-//        } else {
-//          experiment.getSchedule().setByDayOfMonth(Boolean.FALSE);
-//          experiment.getSchedule().setNthOfMonth(Integer.parseInt((String)nthOfMonthSpinner.getSelectedItem()));          
-//        }
-        
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {            
-        Integer frequency = Integer.parseInt(frequencyField.getText().toString());        
-        experiment.getSchedule().setEsmFrequency(frequency);
-        new AlarmStore(this).deleteAllSignalsForSurvey(experiment.getId());
-        //new AlarmStore(this).deleteSignalsForPeriod(experiment.getId(), experiment.getPeriodStart(new DateTime()).getMillis());
-        experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
+      });
+    } else {
+      int selected = 0;
+      for (int i = 0; i < selections.length; i++) {
+        if (selections[i]) {
+          selected = i;
+          break;
+        }
       }
-       
-      if (experiment.getJoinDate() == null) {
-        experiment.setJoinDate(new DateTime());
-        experimentProviderUtil.insertFullJoinedExperiment(experiment);
-        createJoinEvent();
-      } else {
-        experimentProviderUtil.updateJoinedExperiment(experiment);
+      dialogBldr.setSingleChoiceItems(R.array.days_of_week, selected, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+          for (int i = 0; i < selections.length; i++) {
+            selections[i] = (i == which);
+          }
+        }
+      });
+    }
+
+    dialogBldr.setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int which) {
+        int selected = 0;
+
+        for (int i = 0; i < 7; i++) {
+          if (selections[i]) {
+            selected |= SignalSchedule.DAYS_OF_WEEK[i];
+          }
+        }
+        experiment.getSchedule().setWeekDaysScheduled(selected);
       }
-    }
+    });
+    return dialogBldr.create();
 
+  }
 
-    private void saveRepeatRate() {
-      experiment.getSchedule().setRepeatRate((repeatRate.getSelectedItem() != null) 
-          ? Integer.parseInt((String) repeatRate.getSelectedItem()) 
-          : 1);
-    }
-
-    /**
-     * Creates a pacot for a newly registered experiment
-     */
-    private void createJoinEvent() {
-      Event event = new Event();
-      event.setExperimentId(experiment.getId());
-      event.setServerExperimentId(experiment.getServerId());
-      event.setExperimentName(experiment.getTitle());
-      event.setResponseTime(new DateTime());
-
-      Output responseForInput = new Output();
-      responseForInput.setAnswer("true");
-      responseForInput.setName("joined");
-      event.addResponse(responseForInput);
-      
-      Output responseForSchedule = new Output();
-      responseForSchedule.setAnswer(experiment.getSchedule().toString());
-      responseForSchedule.setName("schedule");
-      event.addResponse(responseForSchedule);
-      
-      experimentProviderUtil.insertEvent(event);
-    }
-
-    private void save() {
-      saveExperimentRegistration();
-      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));        
-      finish();
-    }
-
-    private Long getHourOffsetFromPicker() {
-      return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour()).withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
-    }
-
-    private String getTextFromPicker(int esmOffset) {
-      return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
-    }
+  // Visible for testing
+  public Experiment getExperiment() {
+    return experiment;
+  }
 
 }

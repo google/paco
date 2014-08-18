@@ -1,0 +1,297 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+
+<resources>
+    <string name='app_name'>PACO</string>
+    
+  <string name='server'>quantifiedself.appspot.com</string>
+  <string name='app_package'>com.google.android.apps.paco</string>
+  <string name='contact_email'>paco-users@googlegroups.com</string>
+  <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
+<!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
+  <string name='usergroup_website'>https://groups.google.com/group/paco-users</string>
+  <string name='about_weburl'>pacoapp.com</string>
+  <string name='about_copyright_message'/>
+  <string name='about_bob'>Bob Evans</string>
+  <string name='about_alberto'>Alberto Savoia</string>
+  <string name='about_arun'>Arun Saigal</string>
+  <string name='about_cp'>CP Lim</string>
+  <string name='about_stephen'>Stephen Uhler</string>
+  <string name='about_tina'>Tina Malm</string>
+  <string name='about_brian'>Brian Ong</string>
+  <string name='about_kanwal'>Kanwal Safdar</string>
+  
+    <!-- End User License Agreement -->
+  <string name='eula_title'>End User License Agreement</string>
+  <string name='accept'>Accept</string>
+  <string name='decline'>Decline</string>
+
+  <!-- About -->
+  <string name='about'>About</string>
+  <string name='user_guide'>User Guide</string>
+  <string name='about_team'>Team:</string>
+  <string name='about_version'>Version:</string>
+  <string name='about_email'>Support</string>
+  <string name='about_support'>Support:</string>
+  <string name='about_paco'>About Paco</string>
+  
+    <!-- Welcome -->
+  <string name='welcome'>Welcome</string>
+  <string name='welcome_read_later'>Ok</string>
+  <string name='welcome_about'>Paco Version</string>
+  
+    <string name='no'>No</string>
+  <string name='yes'>Yes</string>
+  <string name='ok'>OK</string>
+  <string name='error'>Error</string>
+  <string name='success'>Success</string>
+  
+  
+  <string-array name='repeat_range'>
+   <item>1</item>
+   <item>2</item>
+   <item>3</item>
+   <item>4</item>
+   <item>5</item>
+   <item>6</item>
+   <item>7</item>
+   <item>8</item>
+   <item>9</item>
+   <item>10</item>
+   <item>11</item>
+   <item>12</item>
+   <item>13</item>
+   <item>14</item>
+   <item>15</item>
+   <item>16</item>
+   <item>17</item>
+   <item>18</item>
+   <item>19</item>
+   <item>20</item>
+   <item>21</item>
+   <item>22</item>
+   <item>23</item>
+   <item>24</item>
+   <item>25</item>
+   <item>26</item>
+   <item>27</item>
+   <item>28</item>
+   <item>29</item>
+   <item>30</item>   
+  </string-array>
+  
+  <string-array name='days_of_week'>
+   <item>Sunday</item>
+   <item>Monday</item>
+   <item>Tuesday</item>
+   <item>Wednesday</item>
+   <item>Thursday</item>
+   <item>Friday</item>
+   <item>Saturday</item>
+   </string-array>
+   
+   <string-array name='nth_of_month'>
+   <item>First</item>
+   <item>Second</item>
+   <item>Third</item>
+   <item>Fourth</item>
+   <item>Fifth</item>
+   </string-array>
+   <string name='experiment_title'>Experiment Title</string>
+   <string name='refresh_questions'>Refresh Questions</string>
+   <string name='save_response'>Save Response</string>
+   <string name='contact_us'>Contact us</string>
+   <string name='find_experiments'>Find experiments</string>
+   <string name='running_experiments'>Current experiments</string>
+   <string name='experiment_manager_screen_subtitle'>Personal Analytics COmpanion</string>
+   <string name='experiment_manager_screen_welcome_to_paco'>Welcome to PACO!</string>
+   <string name='go_to_website_button_text'>Browse Website</string>
+   <string name='go_to_user_group'>Browse user group</string>
+   <string name='email_us'>Email user group</string>
+   <string name='ways_to_talk_to_paco'>Ways to Talk to Paco</string>
+   <string name='explore_data'>Explore Data</string>
+   <string name='create_experiment'>Create an experiment</string>
+   <string name='intro_howto_title'>Getting Started</string>
+   <string name='account_chooser_title'>Choose an Account</string>
+   <string name='do_on_phone_anyway'>I will respond here anyway</string>
+   <string name='do_on_web'>I will respond on the web</string>
+   <string name='webRecommendedWarning'>NOTE: It is recommended that you fill this study out on your computer instead.</string>
+   <string name="current_account">Current Account</string>
+   <string name="experiment_refresh">Experiment Refresh</string>
+   <string name="checking_server_for_new_and_updated_experiment_definitions">Checking Server for New and Updated Experiment Definitions</string>
+   <string name="selected_experiment_not_on_phone_refresh">Selected Experiment does not exist on the phone. Refresh Experiments from Server?</string>
+   <string name="ongoing_duration">ongoing</string>
+   <string name="day_esm_period">Day</string>
+   <string name="week_esm_period">Week</string>
+   <string name="month_esm_period">Month</string>
+   <string name="daily_schedule_type">Daily</string>
+   <string name="weekdays_schedule_type">Weekdays</string>
+   <string name="weekly_schedule_type">Weekly</string>
+   <string name="monthly_schedule_type">Monthly</string>
+   <string name="random_sampling_esm_schedule_type">Random sampling (ESM)</string>
+   <string name="self_report_only_schedule_type">Self report only</string>
+   <string name="advanced_schedule_type">Advanced</string>
+   <string name="use_browser">" Please point your computer browser to "</string>
+   <string name="survey_expired">This survey request has expired. No need to enter a response</string>
+   <string name="gps_message">"Use GPS for improved location (outside only)? "</string>
+   <string name="enable_button">Enable</string>
+   <string name="cancel_button">Cancel</string>
+   <string name="need_location">"You must enable some form of Location Service if you want to include location data. "</string>
+   <string name="required_answers_missing">Required Answers Missing</string>
+   <string name="must_answer">"Must answer: "</string>
+   <string name="found_updated_questions">I found new questions.</string>
+   <string name="didnt_find_updated_questions">I did not find new questions on the server.</string>
+   <string name="invalid_experiment_warning">Experiment may be invalid now. Closing screen. Please reopen.</string>
+   <string name="create_experiment_instructions">Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments. \n\nPlease point your browser to http://%1$s/ to create an experiment.</string>
+   <string name="create_experiment_title">How to Create an Experiment</string>
+   <string name="about_paco_menu_item">About Paco</string>
+   <string name="debug_menu_item">Debug</string>
+   <string name="server_address_menu_item">Server Address</string>
+   <string name="check_updates_menu_item">Check Updates</string>
+   <string name="choose_account_menu_item">Choose Account</string>
+   <string name="choose_alert_menu_item">Choose Alert</string>
+   <string name="send_log_menu_item">Send Log</string>
+   <string name="select_signal_tone">Select Signal Tone</string>
+   <string name="cannot_find_the_experiment_warning">Cannot find the experiment!</string>
+   <string name="save_button">Save</string>
+   <string name="start_time_title">Start Time</string>
+   <string name="end_time_title">End Time</string>
+   <string name="modify_time_title">Modify Time</string>
+   <string name="days_of_week_title">Days of Week</string>
+   <string name="start_hour_must_be_before_end_hour_warning">Start hour must be before end hour</string>
+   <string name="no_experimental_data_warning">You haven\'t loaded any experiments yet, so this option does not make sense. Please come back after your have loaded an experiment and input data.</string>
+   <string name="show_trends_button">"  Show Trends  "</string>
+   <string name="show_relationships_button">"  Show Relationships  "</string>
+   <string name="show_distributions_button">"  Show Distributions  "</string>
+   <string name="experiment_choice_warning">You didn\'t pick a proper experiment.</string>
+   <string name="make_selections">Make selections</string>
+   <string name="experiment_does_not_exist_warning">Experiment does not exist!</string>
+   <string name="sorry_please_select_exactly_one_variable_warning">Sorry, please select exactly one variable.</string>
+   <string name="sorry_please_select_exactly_two_variables_warning">Sorry, please select exactly two variables.</string>
+   <string name="thanks_for_participating_message">Thanks for Participating!</string>
+   <string name="edit_schedule_menu_item">Edit Schedule</string>
+   <string name="stop_experiment_menu_item">Stop Experiment</string>
+   <string name="explore_data_menu_item">Explore Data</string>
+   <string name="running_experiments_title">Running Experiments</string>
+   <string name="available_experiments_title">Available Experiments</string>
+   <string name="stop_the_experiment_dialog_title">Stop the Experiment?</string>
+   <string name="stop_experiment_dialog_body">Are you sure you want to stop the experiment?</string>
+   <string name="unknown_author_text">unknown author</string>
+   <string name="retrieving_lat_lon">Retrieving</string>
+   <string name="missing_image_warning">Cannot find image file from camera!</string>
+   <string name="unknown_location">Unknown</string>
+   <string name="cannot_open_camera_warning">Cannot Open Camera</string>
+   <string name="done_button">Done</string>
+   <string name="time_to_participate_notification_text">Time to participate!</string>
+   <string name="time_for_notification_title">"Time for "</string>
+   <string name="refresh_experiment_menu_item">Refresh Experiment</string>
+   <string name="main_page_menu_item">Main Page</string>
+   <string name="missed_signal_value">Missed</string>
+   <string name="version_is_current">This version is current.</string>
+   <string name="update_found">Update Found</string>
+   <string name="choose_account">Please Choose an Accounts to use with Paco</string>
+   <string name="daily_scheduled_times_for">"Daily Scheduled Times for: "</string>
+   <string name="scheduled_times">Scheduled Times</string>
+   <string name="save_schedule">Save Schedule</string>
+   <string name="experiment_name">Experiment Name</string>
+   <string name="suggested_signalling_schedule">Suggested signalling schedule:</string>
+   <string name="schedule_period">"Schedule Period:  "</string>
+   <string name="times_per_period">Times per period:</string>
+   <string name="weekends">Weekends?</string>
+   <string name="start_hour">Start Hour</string>
+   <string name="default_start_time">9:30am</string>
+   <string name="end_hour">"End Hour:   "</string>
+   <string name="default_end_hour">5:30am</string>
+   <string name="responses">Responses</string>
+   <string name="no_data">No data</string>
+   <string name="description">Description:</string>
+   <string name="schedule">"Schedule: "</string>
+   <string name="start_date">"Start Date: "</string>
+   <string name="end_date">"End Date: "</string>
+   <string name="esm_frequency">"ESM Frequency: "</string>
+   <string name="scheduled_time">"Scheduled Time: "</string>
+   <string name="creator">creator</string>
+   <string name="join_this_experiment">Join this Experiment</string>
+   <string name="title">Title</string>
+   <string name="edit_schedule">Edit Schedule</string>
+   <string name="stop_experiment">Stop Experiment</string>
+   <string name="list_of_experiments">List of Experiments</string>
+   <string name="explore_data_title">How would you like to explore your data?</string>
+   <string name="trends">Trends</string>
+   <string name="relationships">Relationships</string>
+   <string name="distributions">Distributions</string>
+   <string name="raw_data_button_text">Go to Raw Data</string>
+   <string name="your_current_experiments">Your Current Experiments</string>
+   <string name="refresh_experiments_list_from_server">Refresh Experiments List From Server</string>
+   <string name="data_handling_title">Data Handling &amp;amp; Privacy Agreement between You and the Experiment Creator</string>
+   <string name="informed_consent_preamble">By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment.</string>
+   <string name="consent_checkbox_text">"          I consent"</string>
+   <string name="available_experiments">Available Experiments</string>
+   <string name="retrieving_location">Retrieving...</string>
+   <string name="location_settings">Location Settings</string>
+   <string name="daily_scheduled_time_for">"Daily Scheduled Time for: "</string>
+   <string name="by_day_of_month">"          By Day of Month"</string>
+   <string name="by_day_of_week">"          Day of Week"</string>
+   <string name="day_of_month">Day of Month:</string>
+   <string name="day_of_week">Day of Week:</string>
+   <string name="end_hour_signaling">End Hour</string>
+   <string name="signals_per_week_3_10">Signals per week (3-10)</string>
+   <string name="save">Save</string>
+   <string name="take_picture">Take Picture</string>
+   <string name="refresh_experiments">Refresh Experiments</string>
+   <string name="repeat_every_">"Repeat Every "</string>
+   <string name="days">Days</string>
+   <string name="months">Months</string>
+   <string name="weeks">Weeks</string>
+   <string name="days_of_week">Days of Week</string>
+   <string name="this_experiment_is_self_reporting_only">This experiment is self-reporting only.</string>
+   <string name="there_is_no_schedule_to_configure">There is no schedule to configure</string>
+   <string name="finish">Finish</string>
+   <string name="server_address_warning">WARNING: Only change this if you know what you are doing.</string>
+   <string name="enter_server_address">Enter Server Address</string>
+   <string name="checking_for_updates">Checking for Updates...</string>
+   <string name="install">Install</string>
+   <string name="explore_data_variable_title">Which variable(s) would you like to explore?</string>
+   <string name="no_accounts_found">No Google accounts on your phone. Go to Settings/Account to add one.</string>
+   <string name="join_again">You have already joined this experiment. Do you really want to join it again?</string>
+   <string name="updated_paco_notification_ticker_text">Paco Update - New Version Available</string>
+   <string name="updated_paco_notification_content_title">Paco Update</string>
+   <string name="updated_paco_notification_content_text">A new version of Paco is available</string>
+   <string name="default_list_item"/>
+   <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
+   <string name="experiment_retrieval">Experiment Retrieval</string>
+   <string name="dialog_dismiss">OK</string>
+   <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
+   <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
+   <string name="server_error">Something went wrong with the server.</string>
+   <string name="network_required">Network Required</string>
+   <string name="need_network_connection">You will need a network connection to join the experiment. Enable connection now?</string>
+   <string name="no_thanks">No, Thanks.</string>
+   <string name="go_to_network_settings">Network Settings</string>
+   <string name="last_refreshed">Last Refreshed</string>
+   <string name="answer_by_speaking">Answer by speaking</string>
+   <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
+   <string name="successfully_joined_experiment">Success! Please go to Current Experiments for a list of all joined experiments.</string>
+   <string name="updating_your_joined_experiments_from_the_server">Updating Your Joined Experiments From the Server</string>
+   <string name="please_choose_the_source_of_your_image">Please choose the source of your image</string>
+   <string name="camera">Camera</string>
+   <string name="gallery">Gallery</string>
+   <string name="action_settings">Settings</string>
+   <string name="find_my_experiments">Find My Experiments</string>
+   <string name="find_all_public_experiments">Find All Public Experiments</string>
+</resources>

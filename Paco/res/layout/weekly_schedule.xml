@@ -21,7 +21,7 @@
 	
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="20dip"
-		android:text="Daily Scheduled Time for: "></TextView>
+		android:text="@string/daily_scheduled_time_for"></TextView>
 
 	<TextView android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:textSize="25dip"
@@ -33,7 +33,7 @@
 	<ListView android:id="@+id/timesList" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 	<Button android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:id="@+id/SetDailyScheduleButton"
-		android:text="Save Schedule" android:layout_gravity="center"></Button>
+		android:text="@string/save_schedule" android:layout_gravity="center"></Button>
 
 
 </LinearLayout>
