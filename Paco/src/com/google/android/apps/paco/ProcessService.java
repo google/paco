@@ -160,7 +160,7 @@ public class ProcessService extends Service {
           List<Experiment> joined = eu.getJoinedExperiments();
           for (Experiment experiment : joined) {
             if (!experiment.isOver(now) && experiment.hasAppUsageTrigger()) {
-              Trigger trigger = experiment.getTrigger();
+              Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
               if (trigger != null) {
                 tasks.add(trigger.getSourceIdentifier());
               }
