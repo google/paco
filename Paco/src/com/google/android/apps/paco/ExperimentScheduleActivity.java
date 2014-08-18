@@ -132,7 +132,7 @@ public class ExperimentScheduleActivity extends Activity {
 
       if (signalingMechanism == null
           || signalingMechanism.getType().equals(SignalingMechanism.TRIGGER_TYPE)
-          || signalingMechanism.getType().equals(SignalSchedule.SELF_REPORT)) {
+          || (signalingMechanism.getType().equals(SignalSchedule.SIGNAL_SCHEDULE_TYPE) && ((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.SELF_REPORT))) {
         setContentView(R.layout.self_report_schedule);
         save();
         return;
@@ -160,9 +160,10 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void setupScheduleSaving() {
-    setupSaveButton();
     if (userCannotConfirmSchedule()) {
       save();
+    } else {
+      setupSaveButton();
     }
   }
 
