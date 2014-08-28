@@ -2,9 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.5.0.1/lib/appengine-remote-api.jar" sourcepath="/Users/bobevans/applications/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.7.5/appengine-java-sdk-1.7.5/src/user/appengine-api-1.0-sdk-1.7.5-src.zip"/>
-	<classpathentry kind="lib" path="lib/bsh-2.0b4.jar"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.5.0.1/lib/impl/appengine-api.jar"/>
 	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Paco-Server"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.0-paco"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/appengine-remote-api.jar"/>
+	
 	<classpathentry kind="output" path="bin"/>
 </classpath>
