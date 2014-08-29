@@ -101,11 +101,16 @@ public class DAOConverter {
 
     Boolean recordPhoneDetails = experiment.isRecordPhoneDetails();
 
+    List<Integer> extraDataCollectionDeclarations = experiment.getExtraDataCollectionDeclarations();
+    if (extraDataCollectionDeclarations != null) {
+      List<Integer> jdoDetachedList = Lists.newArrayList(extraDataCollectionDeclarations);
+      extraDataCollectionDeclarations = jdoDetachedList;
+    }
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
             userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, feedbackType,
             experiment.isBackgroundListen(), experiment.getBackgroundListenSourceIdentifier(), experiment.shouldLogActions(),
-            recordPhoneDetails);
+            recordPhoneDetails, extraDataCollectionDeclarations);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -251,6 +256,8 @@ public class DAOConverter {
     experiment.setRecordPhoneDetails(experimentDAO.isRecordPhoneDetails());
     experiment.setBackgroundListen(experimentDAO.isBackgroundListen());
     experiment.setBackgroundListenSourceIdentifier(experimentDAO.getBackgroundListenSourceIdentifier());
+
+    experiment.setExtraDataCollectionDeclarations(experimentDAO.getExtraDataCollectionDeclarations());
 
     return experiment;
   }

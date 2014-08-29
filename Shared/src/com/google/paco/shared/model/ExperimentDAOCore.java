@@ -1,8 +1,20 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExperimentDAOCore implements Serializable {
+
+  public static final int APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION = 1;
+  public static final int LOCATION_DATA_COLLECTION = 2;
+  public static final int PHONE_DETAILS = 3;
+  public static final List<Integer> EXTRA_DATA_COLLECTION_DECLS = new ArrayList<Integer>();
+  static {
+    EXTRA_DATA_COLLECTION_DECLS.add(APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
+    EXTRA_DATA_COLLECTION_DECLS.add(LOCATION_DATA_COLLECTION);
+    EXTRA_DATA_COLLECTION_DECLS.add(PHONE_DETAILS);
+   }
 
   protected String title;
   protected String description;
@@ -17,11 +29,13 @@ public class ExperimentDAOCore implements Serializable {
   private String backgroundListenSourceIdentifier;
   private Boolean logActions;
   private Boolean recordPhoneDetails;
+  protected List<Integer> extraDataCollectionDeclarations;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
                            String email, Boolean fixedDuration,
                            String startDate, String endDate, String joinDate, Boolean backgroundListen,
-                           String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails) {
+                           String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails,
+                           List<Integer> extraDataCollectionDeclarations) {
     super();
     this.id = id;
     this.title = title;
@@ -36,6 +50,11 @@ public class ExperimentDAOCore implements Serializable {
     this.setBackgroundListenSourceIdentifier(backgroundListenSourceIdentifier);
     this.setLogActions(logActions);
     this.setRecordPhoneDetails(recordPhoneDetails);
+    if (extraDataCollectionDeclarations == null) {
+      this.extraDataCollectionDeclarations = new ArrayList<Integer>();
+    } else {
+      this.extraDataCollectionDeclarations = extraDataCollectionDeclarations;
+    }
   }
 
   /**
@@ -43,6 +62,7 @@ public class ExperimentDAOCore implements Serializable {
    */
   public ExperimentDAOCore() {
     super();
+    this.extraDataCollectionDeclarations = new ArrayList<Integer>();
   }
 
   public String getTitle() {
@@ -124,19 +144,19 @@ public class ExperimentDAOCore implements Serializable {
   public void setLogActions(Boolean logActions) {
     this.logActions = logActions;
   }
-  
+
   public Boolean isBackgroundListen() {
     return backgroundListen;
   }
-  
+
   public void setBackgroundListen(Boolean backgroundListen) {
     this.backgroundListen = backgroundListen;
   }
-  
+
   public String getBackgroundListenSourceIdentifier() {
     return backgroundListenSourceIdentifier;
   }
-  
+
   public void setBackgroundListenSourceIdentifier(String sourceId) {
     this.backgroundListenSourceIdentifier = sourceId;
   }
@@ -147,6 +167,14 @@ public class ExperimentDAOCore implements Serializable {
 
   public void setRecordPhoneDetails(Boolean recordDetails) {
     this.recordPhoneDetails = recordDetails;
+  }
+
+  public List<Integer> getExtraDataCollectionDeclarations() {
+    return extraDataCollectionDeclarations;
+  }
+
+  public void setExtraDataCollectionDeclarations(List<Integer> extraDataDeclarations) {
+    this.extraDataCollectionDeclarations = extraDataDeclarations;
   }
 
 
