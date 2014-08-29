@@ -146,10 +146,10 @@ public class Experiment {
 
   @Persistent
   private Integer feedbackType;
-  
+
   @Persistent
   private Boolean backgroundListen = false;
-  
+
   @Persistent
   private String backgroundListenSourceIdentifier = "";
 
@@ -158,6 +158,9 @@ public class Experiment {
 
   @Persistent
   private Boolean recordPhoneDetails = false;
+
+  @Persistent
+  private List<Integer> extraDataCollectionDeclarations;
 
 
   /**
@@ -570,9 +573,16 @@ public class Experiment {
   public String getBackgroundListenSourceIdentifier() {
     return backgroundListenSourceIdentifier;
   }
-  
+
   public void setBackgroundListenSourceIdentifier(String sourceId) {
     this.backgroundListenSourceIdentifier = sourceId;
   }
 
+  public List<Integer> getExtraDataCollectionDeclarations() {
+    return extraDataCollectionDeclarations;
+  }
+
+  public void setExtraDataCollectionDeclarations(List<Integer> dataCollectionDeclarations) {
+    this.extraDataCollectionDeclarations = dataCollectionDeclarations;
+  }
 }

@@ -32,6 +32,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalTimeDAO;
 
@@ -100,6 +101,7 @@ public class Experiment implements Parcelable {
   private Boolean recordPhoneDetails = false;
   private Boolean backgroundListen = false;
   private String backgroundListenSourceIdentifier = "";
+  private List<Integer> extraDataCollectionDeclarations;
 
   public static final String SCHEDULED_TIME = "scheduledTime";
 
@@ -524,7 +526,7 @@ public class Experiment implements Parcelable {
     if (signalingMechanism instanceof Trigger) {
       return  signalingMechanism.getTimeout();
     } else {
-      Integer timeout = ((SignalingMechanism) signalingMechanism).getTimeout();
+      Integer timeout = signalingMechanism.getTimeout();
       Integer scheduleType = ((SignalSchedule) signalingMechanism).getScheduleType();
       return timeout != null ? timeout : getOldDefaultValuesForTimeout(scheduleType);
     }
@@ -673,17 +675,35 @@ public class Experiment implements Parcelable {
   public Boolean isBackgroundListen() {
     return backgroundListen;
   }
-  
+
   public void setBackgroundListen(Boolean backgroundListen) {
     this.backgroundListen = backgroundListen;
   }
-  
+
   public String getBackgroundListenSourceIdentifier() {
     return backgroundListenSourceIdentifier;
   }
-  
+
   public void setBackgroundListenSourceIdentifier(String sourceId) {
     this.backgroundListenSourceIdentifier = sourceId;
+  }
+
+  @JsonIgnore
+  public boolean declaresLogAppUsageAndBrowserCollection() {
+    return extraDataCollectionDeclarations != null && extraDataCollectionDeclarations.contains(ExperimentDAO.APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
+  }
+
+  @JsonIgnore
+  public boolean declaresPhoneDetailsCollection() {
+    return extraDataCollectionDeclarations != null && extraDataCollectionDeclarations.contains(ExperimentDAO.PHONE_DETAILS);
+  }
+
+  public List<Integer> getExtraDataCollectionDeclarations() {
+    return extraDataCollectionDeclarations;
+  }
+
+  public void setExtraDataCollectionDeclarations(List<Integer> extraDataDeclarations) {
+    this.extraDataCollectionDeclarations = extraDataDeclarations;
   }
 
 

@@ -483,13 +483,13 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Background listening")
   String backgroundListeningTitle();
-  
+
   @DefaultStringValue("Listen for other apps sending data to PACO")
   String shouldBackgroundListen();
-  
+
   @DefaultStringValue("Identifier for the source of the background data (often a package name)")
   String backgroundListenSourceIdentifier();
-  
+
   @DefaultStringValue("com.example.myapp")
   String backgroundListenSourceIdentifierDefault();
 
@@ -505,5 +505,27 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Record phone details (make, model, display size, carrier) in the \"Join\" event")
   String shouldRecordPhoneDetailsOnJoin();
 
+  @DefaultStringValue("Click to Edit Extra Data Collection Declarations")
+  String clickToEditExtraDataCollectionDeclarations();
 
+  @DefaultStringValue("Click to Close Extra Data Collection Declarations Editor")
+  String clickToCloseExtraDataCollectionDeclarations();
+
+  @DefaultStringValue("If you will be collecting other data types dynamically, you need to declare them here.")
+  String extraDataCollectionEditorPrompt();
+
+  @DefaultStringValue("App Usage and Browser History")
+  String appUsageAndBrowserHistoryDataCollection();
+
+  @DefaultStringValue("Phone Details (Make, Model, Carrier)")
+  String phoneDetailsDataCollection();
+
+  @DefaultStringValue("Location Information")
+  String locationDataCollection();
+
+  @DefaultStringValue("Unknown Data Collection Type")
+  String unknownDataCollectionLabel();
+
+  @DefaultStringValue("Extra Types of Data Collection")
+  String getExtraDataCollectionDeclarationTitle();
 }

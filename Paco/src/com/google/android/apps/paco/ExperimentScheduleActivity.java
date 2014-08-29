@@ -548,7 +548,8 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void saveExperimentRegistration() {
-    if ((experiment.getSignalingMechanisms().get(0)) != null && ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getScheduleType().equals(SignalSchedule.ESM)) {
+    SignalingMechanism sm = experiment.getSignalingMechanisms().get(0);
+    if (sm != null && sm.getType().equals(SignalingMechanism.SIGNAL_SCHEDULE_TYPE) && ((SignalSchedule)sm).getScheduleType().equals(SignalSchedule.ESM)) {
       AlarmStore alarmStore = new AlarmStore(this);
       alarmStore.deleteAllSignalsForSurvey(experiment.getId());
       experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());

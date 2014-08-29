@@ -132,7 +132,9 @@ public class JsonConverter {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
         experiment.getInformedConsentForm(), experiment.getCreator(),
         experiment.getFixedDuration(),
-        experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate(), experiment.isBackgroundListen(), experiment.getBackgroundListenSourceIdentifier(), experiment.isLogActions(), experiment.isRecordPhoneDetails());
+        experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate(),
+        experiment.isBackgroundListen(), experiment.getBackgroundListenSourceIdentifier(),
+        experiment.isLogActions(), experiment.isRecordPhoneDetails(), experiment.getExtraDataCollectionDeclarations());
   }
 
   public static String jsonify(ExperimentDAO experiment) {
