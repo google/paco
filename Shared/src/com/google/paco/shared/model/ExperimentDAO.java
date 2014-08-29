@@ -19,6 +19,9 @@
 package com.google.paco.shared.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 
 
 /**
@@ -32,10 +35,6 @@ import java.io.Serializable;
  *
  */
 public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
-
-  /**
-   *
-   */
 
   public static final int SCHEDULED_SIGNALING = 1;
   public static final int TRIGGERED_SIGNALING = 1;
@@ -75,6 +74,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
    * @param backgroundListenSourceIdentifier
    * @param logActions TODO
    * @param recordPhoneDetails TODO
+   * @param extraDataCollectionDeclarations TODO
    * @param showFeedback
    * @param hasCustomFeedback
    * @param customHtml
@@ -84,10 +84,10 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String startDate, String endDate, String hash, String joinDate,
       String modifyDate, Boolean published, String[] admins, String[] publishedUsers,
       Boolean deleted, Boolean webRecommended, Integer version, Boolean customRendering, String customRenderingCode,
-      Integer feedbackType2, Boolean backgroundListen, String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails) {
+      Integer feedbackType2, Boolean backgroundListen, String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails, List<Integer> extraDataCollectionDeclarations) {
 
     super(id, title, description, informedConsentForm, email, fixedDuration, startDate, endDate, joinDate, backgroundListen,
-        backgroundListenSourceIdentifier, logActions, recordPhoneDetails);
+        backgroundListenSourceIdentifier, logActions, recordPhoneDetails, extraDataCollectionDeclarations);
     this.id = id;
     this.title = title;
     this.description = description;
@@ -275,5 +275,4 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.feedbackType = i;
 
   }
-
 }

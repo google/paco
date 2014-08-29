@@ -221,6 +221,8 @@ public class ExperimentDefinitionPanel extends Composite {
     informedConsentPanel = (TextArea) informedConsentPanelPair.valueHolder;
     formPanel.add(informedConsentPanelPair.container);
 
+    formPanel.add(createExtraDataCollectionDeclarationPanel(experiment));
+
     formPanel.add(createPublishingPanel(experiment));
 
     formPanel.add(createCustomRenderingEntryPanel(experiment));
@@ -229,7 +231,7 @@ public class ExperimentDefinitionPanel extends Composite {
 
     createButtonPanel(experiment);
   }
-  
+
   private Widget createBackgroundListeningPanel(ExperimentDAO experiment) {
     return new BackgroundListeningPanel(experiment);
   }
@@ -467,7 +469,42 @@ public class ExperimentDefinitionPanel extends Composite {
     return adminPanel;
   }
 
+  private DisclosurePanel createExtraDataCollectionDeclarationPanel(ExperimentDAO experiment) {
+    final DisclosurePanel dataCollectedPanel = new DisclosurePanel();
+    dataCollectedPanel.setStyleName("bordered");
+    final DisclosurePanelHeader closedHeaderWidget = new DisclosurePanelHeader(
+                                                                               false,
+                                                                                myConstants.clickToEditExtraDataCollectionDeclarations()
+                                                                                   );
+    closedHeaderWidget.setStyleName("keyLabel");
+    final DisclosurePanelHeader openHeaderWidget = new DisclosurePanelHeader(
+                                                                             true,
+                                                                             myConstants.clickToCloseExtraDataCollectionDeclarations()
+                                                                                 );
+    openHeaderWidget.setStyleName("keyLabel");
+    dataCollectedPanel.setHeader(closedHeaderWidget);
+    dataCollectedPanel.addEventHandler(new DisclosureHandler() {
+      public void onClose(DisclosureEvent event) {
+        dataCollectedPanel.setHeader(closedHeaderWidget);
+      }
+
+      public void onOpen(DisclosureEvent event) {
+        dataCollectedPanel.setHeader(openHeaderWidget);
+      }
+    });
+    VerticalPanel dataCollectionDeclarationContentPanel = new VerticalPanel();
+    Label instructionlabel = new Label(myConstants.extraDataCollectionEditorPrompt());
+    dataCollectionDeclarationContentPanel.add(instructionlabel);
+    ListOfExtraDataCollectionDeclsPanel declList = new ListOfExtraDataCollectionDeclsPanel(experiment);
+    declList.setWidth("100");
+    declList.setHeight("100");
+    dataCollectionDeclarationContentPanel.add(declList);
+    dataCollectedPanel.setContent(dataCollectionDeclarationContentPanel);
+    return dataCollectedPanel;
+  }
+
   final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
+
 
   class DisclosurePanelHeader extends HorizontalPanel {
     public DisclosurePanelHeader(boolean isOpen, String html) {
