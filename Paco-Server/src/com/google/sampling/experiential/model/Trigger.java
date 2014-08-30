@@ -117,4 +117,11 @@ public class Trigger {
   public void setSnoozeTime(Integer snoozeTime) {
     this.snoozeTime = snoozeTime;
   }
+
+  @Override
+  public String toString() {
+    return "Trigger";
+  }
+
+
 }
