@@ -32,8 +32,6 @@ function defaultPage(){
     responsesHtml += "<div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>";
     if (response["responseType"] == "photo") {
       responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
-    } else if (response["responseType"] == "location") {
-      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='map.html?inputId=" + response["inputId"] + "'>Maps</a>";
     } else {
       responsesHtml += response["answer"];
     }

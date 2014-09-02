@@ -54,10 +54,9 @@
 }
 
 - (void) dealloc{
+  [proxyDelegate release];
+  proxyDelegate = nil;
 	[super dealloc];
-	
-	[self.proxyDelegate release];
-	self.proxyDelegate = nil;
 }
 
 @end
