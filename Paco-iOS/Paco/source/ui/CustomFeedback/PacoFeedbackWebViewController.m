@@ -40,7 +40,7 @@
 }
 
 - (NSString*)getExperiment {
-  
+  return [self.experiment jsonStringForJavascript];
 }
 @end
 
@@ -97,18 +97,19 @@
   // Dispose of any resources that can be recreated.
 }
 
-- (void)injectObjectsToJavascriptEnvironment {
-  //TODO: email, experimentLoader
-  
+- (void)injectObjectsToJavascriptEnvironment {  
   //db/eventLoader(deprecated)
   JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"db"];
-  
+
+  JavascriptExperimentLoader *experimentLoader = [JavascriptExperimentLoader loaderWithExperiment:self.experiment];
+  [self.webView addJavascriptInterfaces:experimentLoader WithName:@"experimentLoader"];
+
   //env
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
   dict[@"title"] = self.experiment.definition.title;
-//  dict[@"experiment"] = [self.experiment jsonStringForJavascript]; //TODO
+  dict[@"experiment"] = [self.experiment jsonStringForJavascript];
   dict[@"lastResponse"] = [eventLoader jsonStringForLastEvent];
   dict[@"test"] = @"false";
   //insert feedback string into env, since addJavascriptInterfaces will add it as an object,

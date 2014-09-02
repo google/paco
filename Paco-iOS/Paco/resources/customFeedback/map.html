@@ -97,6 +97,9 @@
         if (!window.env) {
           window.env = env;
         }
+        if (!window.experimentLoader) {
+          window.experimentLoader = experimentLoader;
+        }
 
         var jsondata = window.eventLoader.loadAllEvents();
         var experimentData = $.parseJSON(jsondata);

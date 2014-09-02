@@ -41,6 +41,10 @@
       if (!window.env) {
         window.env = env;
       }
+      if (!window.experimentLoader) {
+        window.experimentLoader = experimentLoader;
+      }
+
         
       function scriptBody(customFeedback) {
         var scriptStartIndex = customFeedback.indexOf("<script>");

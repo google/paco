@@ -24,6 +24,9 @@
   if (!window.env) {
     window.env = env;
   }
+  if (!window.experimentLoader) {
+    window.experimentLoader = experimentLoader;
+  }
 
   $(document).ready(defaultPage);
 </script>

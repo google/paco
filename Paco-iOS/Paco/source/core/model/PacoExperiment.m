@@ -19,6 +19,7 @@
 #import "NSDate+Paco.h"
 #import "PacoDateUtility.h"
 #import "PacoExperimentInput.h"
+#import "PacoClient.h"
 
 @interface PacoExperiment()
 
@@ -54,8 +55,19 @@
           self.definition];
 }
 
+// TODO: may need to override schedule and add the join time.
 - (NSString*)jsonStringForJavascript {
-  
+  NSError* error = nil;
+  NSData* jsonData = [NSJSONSerialization dataWithJSONObject:[self.definition serializeToJSON]
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&error];
+  NSString* jsonString = nil;
+  if (!error) {
+    jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+  } else {
+    DDLogError(@"Failed to converting eventJsonList to NSData: %@", [error description]);
+  }
+  return jsonString;
 }
 
 - (id)serializeToJSON {
