@@ -18,6 +18,8 @@
 @class PacoExperimentDefinition;
 @class PacoExperimentSchedule;
 @class PacoModel;
+@class PacoExperimentInput;
+@class PacoExperimentFeedback;
 
 @interface PacoExperiment : NSObject
 
@@ -34,6 +36,7 @@
                                    schedule:(PacoExperimentSchedule*)schedule
                                    joinTime:(NSDate*)joinTime;
 
+- (NSString*)jsonStringForJavascript;
 - (id)serializeToJSON;
 - (void)deserializeFromJSON:(id)json;
 
@@ -70,5 +73,8 @@
 
 - (void)configureSchedule:(PacoExperimentSchedule*)newSchedule;
 
+- (PacoExperimentInput*)inputWithId:(NSString*)inputId;
+
+- (PacoExperimentFeedback*)feedback;
 @end
 

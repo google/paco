@@ -31,6 +31,7 @@
 #import "PacoInputEvaluator.h"
 #import "PacoScheduler.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoFeedbackWebViewController.h"
 
 NSString *kCellIdQuestion = @"question";
 
@@ -187,17 +188,55 @@ NSString *kCellIdQuestion = @"question";
   //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];
 
-  NSString* title = NSLocalizedString(@"Nice", nil);
-  NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
+  switch (self.evaluator.experiment.definition.feedbackType) {
+    case PacoFeedbackTypeRetrospective:
+      [self showFeedbackControllerWithHtml:@"default_feedback"];
+      break;
+
+    case PacoFeedbackTypeCustomCode:
+      [self showFeedbackControllerWithHtml:@"skeleton"];
+      break;
+
+    default:
+      [self showFeedbackMessage:[self.evaluator.experiment.definition feedbackMessage]];
+      break;
+  }
+}
+
+- (void)navigateToNonQuestionViewController {
+  NSArray *stackedControllers = [self.navigationController viewControllers];
+  UIViewController* controllerToGoBack = nil;
+  for (int index = (int)[stackedControllers count] - 1; index >= 0; index--) {
+    UIViewController *controller = stackedControllers[index];
+    if (![controller isKindOfClass:[PacoQuestionScreenViewController class]] &&
+        ![controller isKindOfClass:[PacoFeedbackWebViewController class]]) {
+      controllerToGoBack = controller;
+      break;
+    }
+  }
+  [self.navigationController popToViewController:controllerToGoBack animated:YES];
+}
+
+- (void)showFeedbackControllerWithHtml:(NSString*)htmlName {
+  PacoFeedbackWebViewController* controller =
+      [PacoFeedbackWebViewController controllerWithExperiment:self.evaluator.experiment
+                                                    htmlName:htmlName
+                                                dismissBlock:^{
+                                                  [self navigateToNonQuestionViewController];
+                                                }];
+  [self.navigationController pushViewController:controller animated:YES];
+}
+
+- (void)showFeedbackMessage:(NSString*)message {
+  NSString* title = message;
   [PacoAlertView showAlertWithTitle:title
-                            message:message
+                            message:nil
                        dismissBlock:^(NSInteger buttonIndex) {
                          [self dismiss];
                        }
-                  cancelButtonTitle:@"OK"
+                  cancelButtonTitle:@"Ok"
                   otherButtonTitles:nil];
 }
-
 
 #pragma mark - PacoTableViewDelegate
 

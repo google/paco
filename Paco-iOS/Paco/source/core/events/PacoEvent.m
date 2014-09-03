@@ -177,12 +177,7 @@ NSString* const kPacoResponseJoin = @"joined";
   return [NSDictionary dictionaryWithDictionary:dictionary];
 }
 
-
-- (id)payloadJsonWithImageString {
-  if (0 == [self.responses count]) {
-    return [self generateJsonObject];
-  }
-  
+- (NSArray*)responseListWithImageString {
   NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:self.responses];
   for (int index=0; index<[self.responses count]; index++) {
     id responseDict = (self.responses)[index];
@@ -204,9 +199,18 @@ NSString* const kPacoResponseJoin = @"joined";
       newReponseList[index] = newResponseDict;
     }
   }
+  return [NSArray arrayWithArray:newReponseList];
+}
+
+
+- (id)payloadJsonWithImageString {
+  if (0 == [self.responses count]) {
+    return [self generateJsonObject];
+  }
+  
   NSMutableDictionary* jsonPayload =
       [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
-  jsonPayload[kPacoEventKeyResponses] = newReponseList;
+  jsonPayload[kPacoEventKeyResponses] = [self responseListWithImageString];
   return jsonPayload;
 }
 
