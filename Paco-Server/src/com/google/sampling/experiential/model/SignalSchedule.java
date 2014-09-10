@@ -294,13 +294,15 @@ public class SignalSchedule {
     }
     buf.append("times = [");
     boolean firstTime = true;
-    for (SignalTime time : signalTimes) {
-      if (firstTime) {
-        firstTime = false;
-      } else {
-        buf.append(",");
+    if (signalTimes != null) {
+      for (SignalTime time : signalTimes) {
+        if (firstTime) {
+          firstTime = false;
+        } else {
+          buf.append(",");
+        }
+        buf.append(getHourOffsetAsTimeString(time));
       }
-      buf.append(getHourOffsetAsTimeString(time));
     }
     buf.append("]");
     comma(buf);
