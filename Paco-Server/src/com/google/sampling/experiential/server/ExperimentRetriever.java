@@ -348,7 +348,7 @@ public class ExperimentRetriever {
     return UserServiceFactory.getUserService().isUserAdmin();
   }
 
-  private boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
+  public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
     return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail) ||
           experiment.getAdmins().contains(loggedInUserEmail);
   }

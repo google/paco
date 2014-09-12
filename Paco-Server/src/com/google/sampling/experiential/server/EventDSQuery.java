@@ -18,7 +18,11 @@ package com.google.sampling.experiential.server;
 
 import javax.jdo.Query;
 
-public class EventJDOQuery extends BaseJDOQuery {
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+
+public class EventDSQuery extends BaseJDOQuery {
 
   private boolean hasAWho;
   private String who;
@@ -32,13 +36,25 @@ public class EventJDOQuery extends BaseJDOQuery {
     this.who = who;
   }
 
-  public EventJDOQuery(Query newQuery) {
+  public EventDSQuery(Query newQuery) {
     super(newQuery);
     query.setOrdering("when desc");
   }
 
   public String who() {
     return who;
+  }
+
+  public void getLowLevelDatastoreEntityQuery(com.google.appengine.api.datastore.Query q) {
+    if (filters.size() > 0) {
+      for (String filter : filters) {
+        q.setFilter(createFilterPredicate(filter));
+      }
+    }
+  }
+
+  private Filter createFilterPredicate(String filter) {
+    return new FilterPredicate(filter, FilterOperator.EQUAL, filter);
   }
 
 }
