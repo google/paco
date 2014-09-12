@@ -85,7 +85,7 @@ public class ReportJobExecutor {
 
     // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
     log.info("Getting events for job: " + jobId);
-    List<Event> events = EventRetriever.getInstance().getEvents(query, requestorEmail, timeZoneForClient, 0, 20000);
+    List<Event> events = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000);
     EventRetriever.sortEvents(events);
     log.info("Got events for job: " + jobId);
 
