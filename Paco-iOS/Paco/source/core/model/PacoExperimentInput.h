@@ -54,4 +54,5 @@ typedef NS_ENUM(NSInteger, ResponseEnumType) {
 - (id)valueForValidation;
 - (id)payloadObject;
 
+
 @end

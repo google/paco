@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, PacoEventType) {
 + (id)pacoEventForIOS;
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)generateJsonObject;
+
+- (NSArray*)responseListWithImageString;
 - (id)payloadJsonWithImageString;
 
 - (PacoEventType)type;

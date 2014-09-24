@@ -18,6 +18,8 @@
 #import "PacoModel.h"
 #import "NSDate+Paco.h"
 #import "PacoDateUtility.h"
+#import "PacoExperimentInput.h"
+#import "PacoClient.h"
 
 @interface PacoExperiment()
 
@@ -51,6 +53,21 @@
           [PacoDateUtility pacoStringForDate:self.joinTime],
           self.schedule,
           self.definition];
+}
+
+// TODO: may need to override schedule and add the join time.
+- (NSString*)jsonStringForJavascript {
+  NSError* error = nil;
+  NSData* jsonData = [NSJSONSerialization dataWithJSONObject:[self.definition serializeToJSON]
+                                                     options:NSJSONWritingPrettyPrinted
+                                                       error:&error];
+  NSString* jsonString = nil;
+  if (!error) {
+    jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+  } else {
+    DDLogError(@"Failed to converting eventJsonList to NSData: %@", [error description]);
+  }
+  return jsonString;
 }
 
 - (id)serializeToJSON {
@@ -192,6 +209,23 @@ static int INVALID_INDEX = -1;
     self.schedule.times = timesConfigured;
   }
   return YES;
+}
+
+- (PacoExperimentInput*)inputWithId:(NSString*)inputId {
+  //invalid inputId, -1 is used as the input id for join and stop event
+  if ([inputId integerValue] < 0 || !inputId) {
+    return nil;
+  }
+  for (PacoExperimentInput* input in self.definition.inputs) {
+    if ([inputId isEqualToString:input.inputIdentifier]) {
+      return input;
+    }
+  }
+  return nil;
+}
+
+- (PacoExperimentFeedback*)feedback {
+  return [self.definition.feedbackList firstObject];
 }
 
 - (void)configureSchedule:(PacoExperimentSchedule*)newSchedule {

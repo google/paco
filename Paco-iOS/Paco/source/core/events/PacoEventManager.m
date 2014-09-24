@@ -310,6 +310,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Public API
+- (NSArray*)eventsForExperiment:(NSString*)experimentId {
+  @synchronized(self) {
+    return (self.eventsDict)[experimentId];
+  }
+}
+
 - (void)saveEvent:(PacoEvent*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
   [self saveEvents:@[event]];
