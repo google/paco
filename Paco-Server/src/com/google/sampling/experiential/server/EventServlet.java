@@ -235,7 +235,7 @@ public class EventServlet extends HttpServlet {
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat, String cursor) throws IOException {
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker","113");
+    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
      try {
 
       BufferedReader reader = null;
@@ -266,7 +266,11 @@ public class EventServlet extends HttpServlet {
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
                                        String backendAddress, String reportFormat, String cursor) throws MalformedURLException, IOException {
-    URL url = new URL("https://" + backendAddress + "/backendReportJobExecutor?q=" +
+    String httpScheme = "https";
+    if (req.getLocalAddr().matches("127.0.0.1")) {
+      httpScheme = "http";
+    }
+    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
             req.getParameter("q") +
             "&who="+getWhoFromLogin().getEmail().toLowerCase() +
             "&anon=" + req.getParameter("anon") +
