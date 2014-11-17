@@ -1,0 +1,26 @@
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+
+<!--  <application>quantifiedself</application> -->
+  <module>mapreduce</module>
+  <version>112</version>
+  <threadsafe>true</threadsafe>
+
+  <!-- Larger / higher memory instances are useful for their improved sorting performance -->
+  <instance-class>F4</instance-class>
+  <automatic-scaling>
+    <max-pending-latency>1000ms</max-pending-latency>
+
+  <!-- max-concurrent-requests affects how quickly instances will get spun up and
+    performance of running the job. It can be tuned lower for larger or more memory intensive
+    jobs or jobs on smaller instances, and higher for workers that require very little
+    memory or are on larger memory instances. Regardless of this setting, MapReduce will
+    use memory estimates to limit concurrent requests (per instance) if needed to prevent
+    running out of memory -->
+  <max-concurrent-requests>4</max-concurrent-requests>
+  </automatic-scaling>
+
+  <system-properties>
+    <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+  </system-properties>
+
+</appengine-web-app>

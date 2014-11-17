@@ -595,12 +595,14 @@ paco.renderer = (function() {
     element.attr("type", "button");
     element.attr("name", input.name);
     element.attr("value", "Click");
+    
+    
     var imgElement = $("<img/>", { src : "file:///android_asset/paco_sil.png"});    
+    imgElement.attr("height", "100");
     element.click(function() {
       function cameraCallback(cameraData) {
-        //confirm("Got CameraData: " + (cameraData ? cameraData.substring(0, 40) : "empty"));
         if (cameraData && cameraData.length > 0) {          
-          imgElement.attr("src", "data:image/png;base64," + cameraData);
+          imgElement.attr("src", "data:image/png;base64," + cameraData);          
           response.answer = cameraData;
           conditionalListener.inputChanged();        
         }
@@ -608,8 +610,12 @@ paco.renderer = (function() {
       paco.photoService.launch(cameraCallback);
       
     });
+    
+    element.css("vertical-align", "bottom").css("margin-bottom", "0");
+    imgElement.css("vertical-align", "bottom");
     parent.append(element);
     parent.append(imgElement);
+    
     
     conditionalListener.addInput(input, response, parent);
 

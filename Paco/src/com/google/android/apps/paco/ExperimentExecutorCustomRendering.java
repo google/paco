@@ -118,6 +118,8 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private File photoFile;
 
   boolean showDialog = true;
+  private String notificationMessage;
+  private String notificationSource;
 
 
 
@@ -184,6 +186,8 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
       if (notificationHolder != null) {
         scheduledTime = notificationHolder.getAlarmTime();
+        notificationMessage = notificationHolder.getMessage();
+        notificationSource = notificationHolder.getNotificationSource();
         Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
         scheduledTime = null;
@@ -383,6 +387,8 @@ private void injectObjectsIntoJavascriptEnvironment() {
   map.put("experiment", ExperimentProviderUtil.getJson(experiment));
   map.put("test", "false");
   map.put("scheduledTime", Long.toString(scheduledTime));
+  map.put("notificationLabel", notificationMessage);
+  map.put("notificationSource", notificationSource);
 
   String text = experiment.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
@@ -1065,7 +1071,7 @@ private String findAccount(String userEmail) {
   }
 
   private Bitmap decodeFileAndScaleToThumb(File f) {
-    return decodeBitmapFromFileWithMaxDimension(f, 100);
+    return decodeBitmapFromFileWithMaxDimension(f, IMAGE_MAX_SIZE);
   }
 
   private Bitmap decodeBitmapFromFileWithMaxDimension(File f, int maxDimension) {
