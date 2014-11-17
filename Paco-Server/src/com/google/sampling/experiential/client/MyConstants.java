@@ -196,7 +196,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("T")
   String thursdayInitial();
 
-  @DefaultStringValue("SF")
+  @DefaultStringValue("F")
   String fridayInitial();
 
   @DefaultStringValue("S")
