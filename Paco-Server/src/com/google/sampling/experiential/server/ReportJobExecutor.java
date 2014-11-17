@@ -46,7 +46,7 @@ public class ReportJobExecutor {
   }
 
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
-                             final List<Query> query, final boolean anon, final String reportFormat) {
+                             final List<Query> query, final boolean anon, final String reportFormat, final String cursor, final String originalQuery) {
     // TODO get a real id function for jobs
 
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
@@ -60,11 +60,12 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat);
+          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, cursor, originalQuery);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
           log.severe("Could not run job: " + e.getMessage());
+          e.printStackTrace();
         }
       }
     });
@@ -74,7 +75,7 @@ public class ReportJobExecutor {
   }
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat) throws IOException {
+                         String reportFormat, String cursor, String originalQuery) throws IOException {
     log.info("starting doJob");
     String experimentId = null;
     for (Query query2 : query) {
@@ -83,56 +84,71 @@ public class ReportJobExecutor {
       }
     }
 
-    // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
-    log.info("Getting events for job: " + jobId);
-    List<Event> events = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000);
-    EventRetriever.sortEvents(events);
-    log.info("Got events for job: " + jobId);
 
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
-      return generateCSVReport(anon, jobId, experimentId, events, timeZoneForClient);
+      // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
+      log.info("Getting events for job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = null;
+      List<Event> events = EventRetriever.getInstance().getEvents(query, requestorEmail, timeZoneForClient, 0, 20000);
+      eventQueryResultPair = new EventQueryResultPair(events, null);
+      //EventRetriever.sortEvents(events);
+      log.info("Got events for job: " + jobId);
+
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
-      return generatePhotoZip(jobId, experimentId, events, anon, timeZoneForClient);
+      // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
+      log.info("Getting events for job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000, cursor);
+      //EventRetriever.sortEvents(events);
+      log.info("Got events for job: " + jobId);
+
+      return generatePhotoZip(jobId, experimentId, eventQueryResultPair, anon, timeZoneForClient);
     } else {
-      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, events);
+      // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
+      log.info("Getting events for job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000, cursor);
+      //EventRetriever.sortEvents(events);
+      log.info("Got events for job: " + jobId);
+
+      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
     }
   }
 
-  private String generatePhotoZip(String jobId, String experimentId, List<Event> events, boolean anon, DateTimeZone timeZoneForClient) {
-      return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, events, jobId, timeZoneForClient.getID());
+  private String generatePhotoZip(String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, boolean anon, DateTimeZone timeZoneForClient) {
+      return new PhotoZipBlobWriter().writePhotoZipFile(anon, experimentId, eventQueryResultPair, jobId, timeZoneForClient.getID());
   }
 
   private String generateHtmlReport(DateTimeZone timeZoneForClient, boolean anon, String jobId, String experimentId,
-                                    List<Event> events) throws IOException {
+                                    EventQueryResultPair eventQueryResultPair, String originalQuery, String requestorEmail) throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODHtml(anon, jobId, experimentId, events, timeZoneForClient.getID());
+      String eodFile = generateEODHtml(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient.getID());
       if (eodFile != null) {
         return eodFile;
       }
     }
-    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, events, jobId, experimentId, timeZoneForClient.getID());
+    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId, timeZoneForClient.getID(), originalQuery, requestorEmail);
   }
 
-  private String generateEODHtml(boolean anon, String jobId, String experimentId, List<Event> events, String timeZoneForClient) throws IOException {
+  private String generateEODHtml(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, String timeZoneForClient) throws IOException {
     log.info("Checking referred experiment for job: " + jobId);
     Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
     if (referredExperiment != null) {
-      List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(events);
+      List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
       return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient);
     }
     return null;
   }
 
-  private String generateCSVReport(boolean anon, String jobId, String experimentId, List<Event> events, DateTimeZone clientTimezone)
+  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, DateTimeZone clientTimezone)
                                                                                                        throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODCSV(anon, jobId, experimentId, events, clientTimezone.getID());
+      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), clientTimezone.getID());
       if (eodFile != null) {
         return eodFile;
       }
     }
-    return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, events, jobId);
+    return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, eventQueryResultPair.getEvents(), jobId);
   }
 
   private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {

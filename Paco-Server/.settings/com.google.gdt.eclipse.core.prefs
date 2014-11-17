@@ -1,6 +1,5 @@
-#Fri May 27 03:16:46 PDT 2011
 eclipse.preferences.version=1
 jarsExcludedFromWebInfLib=
 launchConfigExternalUrlPrefix=
-warSrcDir=war
+warSrcDir=ear/default
 warSrcDirIsOutput=true

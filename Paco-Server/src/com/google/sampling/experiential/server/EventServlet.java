@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -43,8 +44,8 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.backends.BackendService;
-import com.google.appengine.api.backends.BackendServiceFactory;
+import com.google.appengine.api.modules.ModulesService;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -174,7 +175,7 @@ public class EventServlet extends HttpServlet {
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv");
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv", req.getParameter("cursor"));
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -192,7 +193,7 @@ public class EventServlet extends HttpServlet {
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html");
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html", req.getParameter("cursor"));
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -208,7 +209,7 @@ public class EventServlet extends HttpServlet {
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip");
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip", req.getParameter("cursor"));
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -227,24 +228,26 @@ public class EventServlet extends HttpServlet {
    * @param timeZoneForClient
    * @param req
    * @param reportFormat
+   * @param cursor
    * @return the jobId to check in on the status of this background job
    * @throws IOException
    */
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat) throws IOException {
-    BackendService backendsApi = BackendServiceFactory.getBackendService();
-    String backendAddress = backendsApi.getBackendAddress("reportworker");
+                                 HttpServletRequest req, String reportFormat, String cursor) throws IOException {
+    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+     try {
 
-    try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor);
       } catch (SocketTimeoutException se) {
+        log.info("Timed out sending to backend. Trying again...");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -262,15 +265,22 @@ public class EventServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" +
+                                       String backendAddress, String reportFormat, String cursor) throws MalformedURLException, IOException {
+    String httpScheme = "https";
+    if (req.getLocalAddr().matches("127.0.0.1")) {
+      httpScheme = "http";
+    }
+    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
             req.getParameter("q") +
             "&who="+getWhoFromLogin().getEmail().toLowerCase() +
             "&anon=" + req.getParameter("anon") +
-            "&tz="+timeZoneForClient +
-            "&reportFormat="+reportFormat);
+            "&tz=" + timeZoneForClient +
+            "&reportFormat=" + reportFormat +
+            "&cursor=" + cursor);
     log.info("URL to backend = " + url.toString());
-    InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setInstanceFollowRedirects(false);
+    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);
     return reader;
   }

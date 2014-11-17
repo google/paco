@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.backends.BackendService;
-import com.google.appengine.api.backends.BackendServiceFactory;
+import com.google.appengine.api.modules.ModulesService;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -62,8 +62,9 @@ public class MigrationFrontendServlet extends HttpServlet {
 
 
   private String sendMigrateRequestToBackend(HttpServletRequest req) throws IOException {
-    BackendService backendsApi = BackendServiceFactory.getBackendService();
-    String backendAddress = backendsApi.getBackendAddress("reportworker");
+    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    String backendAddress = modulesApi.getVersionHostname("reportworker","112");
+
 
     try {
       BufferedReader reader = null;
