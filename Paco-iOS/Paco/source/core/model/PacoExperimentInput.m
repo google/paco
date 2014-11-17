@@ -96,7 +96,13 @@ static NSString* const INPUT_TEXT = @"text";
   }
   json[INPUT_MANDATORY] = @(self.mandatory);
   json[INPUT_MULTI_SELECT] = @(self.multiSelect);
-  json[INPUT_NAME] = self.name;
+  
+  if (self.name && self.name.length > 0) {
+    json[INPUT_NAME] = self.name;
+  } else {
+    json[INPUT_NAME] = @"";
+  }
+  
   if (self.questionType) {
     json[INPUT_QUESTION_TYPE] = self.questionType;
   }
