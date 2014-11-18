@@ -272,7 +272,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark PacoEventUploaderDelegate 
 - (BOOL)hasPendingEvents {
   @synchronized(self) {
-    [self fetchPendingEventsIfNecessary];
+      [self fetchPendingEventsIfNecessary];
     return [self.pendingEvents count] > 0;
   }
 }
