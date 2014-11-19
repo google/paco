@@ -40,6 +40,13 @@
   return converted;
 }
 
++ (NSString*)escapedTimeZoneName {
+  NSString *timeZoneName = [[NSTimeZone systemTimeZone] name];
+  CFStringRef escaped = CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                (CFStringRef)timeZoneName, NULL, CFSTR("/_"), kCFStringEncodingUTF8);
+  return CFBridgingRelease(escaped);
+}
+
 - (void)authenticateRequest:(NSMutableURLRequest *)request
                 withFetcher:(GTMHTTPFetcher *)fetcher {
   if (self.authenticator.auth) {
@@ -61,7 +68,7 @@
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
   [request setValue:version forHTTPHeaderField:@"paco.version"];
   [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
-
+  
   // Authenticate
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];
@@ -70,25 +77,25 @@
   
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-      if (error) {
-        DDLogError(@"Service Call Failed [%@]", error);
+    if (error) {
+      DDLogError(@"Service Call Failed [%@]", error);
+    }
+    // Convert to string and return.
+    id jsonObj = nil;
+    NSError *jsonError = nil;
+    if ([data length]) {
+      jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
+      if (jsonError) {
+        DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
+        DDLogError(@"PROBABLY AN AUTH ERROR");
+        
+        [[PacoClient sharedInstance] invalidateUserAccount];
       }
-      // Convert to string and return.
-      id jsonObj = nil;
-      NSError *jsonError = nil;
-      if ([data length]) {
-        jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
-        if (jsonError) {
-          DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
-          DDLogError(@"PROBABLY AN AUTH ERROR");
-          
-          [[PacoClient sharedInstance] invalidateUserAccount];
-        }
-      }
-      if (completionHandler) {
-        completionHandler(jsonObj, error ? error : jsonError);
-      }
-    }];
+    }
+    if (completionHandler) {
+      completionHandler(jsonObj, error ? error : jsonError);
+    }
+  }];
 }
 
 //http request to load paginated experiment definitions
@@ -96,11 +103,11 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                   [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
+                [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
-    [NSMutableURLRequest requestWithURL:url
+  [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
+                      timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
@@ -128,12 +135,14 @@
   if (limit > 0) {
     endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
   }
+  endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoService escapedTimeZoneName]];
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }
 
 
 - (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+  NSString *endPoint = [@"experiments?mine" stringByAppendingFormat:@"&tz=%@", [PacoService escapedTimeZoneName]];
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
     if (completionBlock) {
       completionBlock(items, error);
     }
@@ -142,7 +151,7 @@
 
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
-  NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
+  NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@&tz=%@",[idList componentsJoinedByString:@","], [PacoService escapedTimeZoneName]];
   [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
       NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
@@ -165,7 +174,7 @@
       if (!definition) {
         DDLogWarn(@"Warning: No full definition is found for id=%@, the experiment could expire already", definitionID);
         NSDictionary* userInfo = @{NSLocalizedDescriptionKey : @"No full definition is found on server! "
-                                                               @"The experiment could expire already."};
+                                   @"The experiment could expire already."};
         error = [NSError errorWithDomain:@"paco_error"
                                     code:0
                                 userInfo:userInfo];
@@ -267,7 +276,7 @@
                      [successEventIndexes addObject:eventIndex];
                    }
                  }
-               }                
+               }
                if (completionBlock) {
                  completionBlock(successEventIndexes, error);
                }
@@ -275,30 +284,30 @@
 }
 
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
-    withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
+          withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
   // Setup our request.
   NSString *urlString =
-      [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
-           [PacoClient sharedInstance].serverDomain,
-           experiment.experimentId,
-           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
+  [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
+   [PacoClient sharedInstance].serverDomain,
+   experiment.experimentId,
+   [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
+  [NSMutableURLRequest requestWithURL:url
+                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                      timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
-
+  
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
-      if (completionHandler) {
-        NSLog(@"_+_+_+_EVENT RESPONSE _+_+_+_\n%@", jsonData);
-
-        completionHandler(jsonData, error);
-      }
-  }];
+               if (completionHandler) {
+                 NSLog(@"_+_+_+_EVENT RESPONSE _+_+_+_\n%@", jsonData);
+                 
+                 completionHandler(jsonData, error);
+               }
+             }];
 }
 
 
