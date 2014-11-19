@@ -103,11 +103,11 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                  [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
+                 [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                        timeoutInterval:120];
+                      timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
@@ -288,22 +288,23 @@
   // Setup our request.
   NSString *urlString =
       [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
-          [PacoClient sharedInstance].serverDomain,
-          experiment.experimentId,
-          [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
+           [PacoClient sharedInstance].serverDomain,
+           experiment.experimentId,
+           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request =
-  [NSMutableURLRequest requestWithURL:url
-                          cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                      timeoutInterval:120];
+      [NSMutableURLRequest requestWithURL:url
+                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                          timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
+
   // Make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
       if (completionHandler) {
         NSLog(@"_+_+_+_EVENT RESPONSE _+_+_+_\n%@", jsonData);
-                 
+
         completionHandler(jsonData, error);
       }
   }];
