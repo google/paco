@@ -103,7 +103,7 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                  [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
+                   [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
     [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
