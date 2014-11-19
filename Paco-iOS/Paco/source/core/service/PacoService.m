@@ -77,25 +77,25 @@
   
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-  if (error) {
-    DDLogError(@"Service Call Failed [%@]", error);
-  }
-  // Convert to string and return.
-  id jsonObj = nil;
-  NSError *jsonError = nil;
-  if ([data length]) {
-    jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
-    if (jsonError) {
-      DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
-      DDLogError(@"PROBABLY AN AUTH ERROR");
-      
-      [[PacoClient sharedInstance] invalidateUserAccount];
-    }
-  }
-  if (completionHandler) {
-    completionHandler(jsonObj, error ? error : jsonError);
-  }
-  }];
+      if (error) {
+        DDLogError(@"Service Call Failed [%@]", error);
+      }
+      // Convert to string and return.
+      id jsonObj = nil;
+      NSError *jsonError = nil;
+      if ([data length]) {
+        jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
+        if (jsonError) {
+          DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
+          DDLogError(@"PROBABLY AN AUTH ERROR");
+          
+          [[PacoClient sharedInstance] invalidateUserAccount];
+        }
+      }
+      if (completionHandler) {
+        completionHandler(jsonObj, error ? error : jsonError);
+      }
+    }];
 }
 
 //http request to load paginated experiment definitions
