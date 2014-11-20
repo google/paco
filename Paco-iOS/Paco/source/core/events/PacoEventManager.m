@@ -49,7 +49,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
       long int percentage = lroundf(_percentageOfParticipation * 100);
       _percentageText = [[NSString stringWithFormat:@"%ld%%", percentage] copy];
     }
-  }
+  } 
   return self;
 }
 
