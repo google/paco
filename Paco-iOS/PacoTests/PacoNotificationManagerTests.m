@@ -711,7 +711,7 @@
   //id:2, fireDate:date3
   //id:1, fireDate:date1
   //id:2, fireDate:date2
-//  [self.testManager addNotifications:allNotifications];  HK: commented to enable build
+  [self.testManager addNotifications:allNotifications];
   
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
 
@@ -817,7 +817,7 @@
   //notification2: id:2, fireDate:date3
   //notification3: id:1, fireDate:date1
   //notification4: id:2, fireDate:date2
-//  [self.testManager addNotifications:allNotifications];  HK: commented to enable building
+  [self.testManager addNotifications:allNotifications];
   
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 2, @"should have 2 active notifications");
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
