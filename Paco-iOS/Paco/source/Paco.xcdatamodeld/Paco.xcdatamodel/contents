@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6252" systemVersion="14A389" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="PacoEvent" syncable="YES">
+        <attribute name="appId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="experimentId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="experimentName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="experimentVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="isPending" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="latitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="pacoVersion" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="responses" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="responseTime" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="scheduledTime" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="when" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="who" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="PacoEvent" positionX="-63" positionY="-18" width="128" height="240"/>
+    </elements>
+</model>

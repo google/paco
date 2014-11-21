@@ -201,6 +201,8 @@
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		CE3DFF0B1A1EC46300C70BCD /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3DFF091A1EBE7C00C70BCD /* CoreData.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		CE3DFF0E1A1EC68500C70BCD /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */; };
+		CE3DFF151A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */; };
+		CE3DFF161A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
 		E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */; };
 		E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E462379118F9F1E900610F56 /* PacoDatePickerView.m */; };
@@ -567,6 +569,7 @@
 		CE3DFF091A1EBE7C00C70BCD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		CE3DFF0C1A1EC68500C70BCD /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
 		CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAppDelegate.m; sourceTree = "<group>"; };
+		CE3DFF141A1EC85F00C70BCD /* Paco.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Paco.xcdatamodel; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
 		E440AB3919140E0800D6FD09 /* PacoOpenSourceLibViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoOpenSourceLibViewController.h; sourceTree = "<group>"; };
@@ -763,6 +766,7 @@
 				CE3DFF0C1A1EC68500C70BCD /* PacoAppDelegate.h */,
 				CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */,
 				36B8EB1B17568DAF004CF035 /* PacoConfig.h */,
+				CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */,
 				36B8EB0117568DAF004CF035 /* core */,
 				36B8EB1C17568DAF004CF035 /* ui */,
 			);
@@ -1606,6 +1610,7 @@
 				36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */,
 				36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */,
 				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
+				CE3DFF151A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */,
 				36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */,
 				E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */,
 				36B8EB8E17568DAF004CF035 /* PacoTitleView.m in Sources */,
@@ -1693,6 +1698,7 @@
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
 				361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
+				CE3DFF161A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */,
 				36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
 				361A11A618F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m in Sources */,
 				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,
@@ -1938,6 +1944,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				CE3DFF141A1EC85F00C70BCD /* Paco.xcdatamodel */,
+			);
+			currentVersion = CE3DFF141A1EC85F00C70BCD /* Paco.xcdatamodel */;
+			path = Paco.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 319771BB163F0733000AC06B /* Project object */;
 }
