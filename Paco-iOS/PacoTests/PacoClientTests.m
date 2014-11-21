@@ -138,7 +138,7 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   XCTAssertEqualObjects(first.who, @"testuser@gmail.com", @"should be correct");
   XCTAssertEqualObjects(first.experimentId, @"10948007", @"should be correct");
   XCTAssertEqualObjects(first.experimentName, @"Notification - ESM Test", @"should be correct");
-  XCTAssertEqual(first.experimentVersion, 10, @"should be correct");
+  XCTAssertEqual([first.experimentVersion intValue], 10, @"should be correct");
   XCTAssertNil(first.responseTime, @"should be nil");
   XCTAssertEqualObjects(first.scheduledTime, date1, @"should be correct");
   
@@ -146,7 +146,7 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   XCTAssertEqualObjects(last.who, @"testuser@gmail.com", @"should be correct");
   XCTAssertEqualObjects(last.experimentId, @"10948007", @"should be correct");
   XCTAssertEqualObjects(last.experimentName, @"Notification - ESM Test", @"should be correct");
-  XCTAssertEqual(last.experimentVersion, 10, @"should be correct");
+  XCTAssertEqual([last.experimentVersion intValue], 10, @"should be correct");
   XCTAssertNil(last.responseTime, @"should be nil");
   XCTAssertEqualObjects(last.scheduledTime, date2, @"should be correct");
 }

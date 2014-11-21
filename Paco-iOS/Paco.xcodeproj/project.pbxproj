@@ -30,7 +30,6 @@
 		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
 		363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */; };
-		363E210817AAD028007DE3CE /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210717AAD028007DE3CE /* PacoEvent.m */; };
 		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
 		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
 		363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211517AF88BB007DE3CE /* PacoEventUploader.m */; };
@@ -203,6 +202,7 @@
 		CE3DFF0E1A1EC68500C70BCD /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */; };
 		CE3DFF151A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */; };
 		CE3DFF161A1EC85F00C70BCD /* Paco.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF131A1EC85F00C70BCD /* Paco.xcdatamodeld */; };
+		CE3DFF241A1ED90800C70BCD /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF231A1ED90800C70BCD /* PacoEvent.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
 		E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */; };
 		E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E462379118F9F1E900610F56 /* PacoDatePickerView.m */; };
@@ -313,8 +313,6 @@
 		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
 		363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Paco.m"; sourceTree = "<group>"; };
 		363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSMutableArrayCategoryTests.m; sourceTree = "<group>"; };
-		363E210617AAD028007DE3CE /* PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvent.h; sourceTree = "<group>"; };
-		363E210717AAD028007DE3CE /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
 		363E210917AAD05B007DE3CE /* PacoEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManager.h; sourceTree = "<group>"; };
 		363E210A17AAD05B007DE3CE /* PacoEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventManager.m; sourceTree = "<group>"; };
 		363E211117AF8420007DE3CE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
@@ -570,6 +568,8 @@
 		CE3DFF0C1A1EC68500C70BCD /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
 		CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAppDelegate.m; sourceTree = "<group>"; };
 		CE3DFF141A1EC85F00C70BCD /* Paco.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Paco.xcdatamodel; sourceTree = "<group>"; };
+		CE3DFF221A1ED90800C70BCD /* PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvent.h; sourceTree = "<group>"; };
+		CE3DFF231A1ED90800C70BCD /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
 		E440AB3919140E0800D6FD09 /* PacoOpenSourceLibViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoOpenSourceLibViewController.h; sourceTree = "<group>"; };
@@ -693,8 +693,8 @@
 		363E210517AACFF1007DE3CE /* events */ = {
 			isa = PBXGroup;
 			children = (
-				363E210617AAD028007DE3CE /* PacoEvent.h */,
-				363E210717AAD028007DE3CE /* PacoEvent.m */,
+				CE3DFF221A1ED90800C70BCD /* PacoEvent.h */,
+				CE3DFF231A1ED90800C70BCD /* PacoEvent.m */,
 				363E210917AAD05B007DE3CE /* PacoEventManager.h */,
 				363E210A17AAD05B007DE3CE /* PacoEventManager.m */,
 				363E211417AF88BA007DE3CE /* PacoEventUploader.h */,
@@ -1631,6 +1631,7 @@
 				361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
 				361A11A318F5A89A000E9CA2 /* UIFont+Paco.m in Sources */,
+				CE3DFF241A1ED90800C70BCD /* PacoEvent.m in Sources */,
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
 				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
@@ -1652,7 +1653,6 @@
 				E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */,
 				366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
 				C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */,
-				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
 				36BD6D15194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m in Sources */,
 				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
 				36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,

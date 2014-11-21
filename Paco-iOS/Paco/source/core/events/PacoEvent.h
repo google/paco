@@ -14,6 +14,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
 
 @class PacoExperiment;
 @class PacoExperimentDefinition;
@@ -26,27 +27,29 @@ extern NSString* const kPacoResponseKeyInputId;
 
 
 typedef NS_ENUM(NSInteger, PacoEventType) {
-  PacoEventTypeJoin,
-  PacoEventTypeStop,
-  PacoEventTypeSurvey,
-  PacoEventTypeMiss,
-  PacoEventTypeSelfReport
+    PacoEventTypeJoin,
+    PacoEventTypeStop,
+    PacoEventTypeSurvey,
+    PacoEventTypeMiss,
+    PacoEventTypeSelfReport
 };
 
-@interface PacoEvent : NSObject
+@interface PacoEvent : NSManagedObject
 
-@property (nonatomic, copy) NSString *who;
-@property (nonatomic, retain) NSDate *when;
-@property (nonatomic, assign) long long latitude;
-@property (nonatomic, assign) long long longitude;
-@property (nonatomic, retain) NSDate *responseTime;
-@property (nonatomic, retain) NSDate *scheduledTime;
-@property (nonatomic, readonly, copy) NSString *appId;
-@property (nonatomic, readonly, copy) NSString *pacoVersion;
-@property (nonatomic, copy) NSString *experimentId;
-@property (nonatomic, copy) NSString *experimentName;
-@property (nonatomic, assign) int experimentVersion;
-@property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
+@property (nonatomic, retain) NSString * who;
+@property (nonatomic, retain) NSDate * when;
+@property (nonatomic, retain) NSNumber * latitude;
+@property (nonatomic, retain) NSNumber * longitude;
+@property (nonatomic, retain) NSDate * responseTime;
+@property (nonatomic, retain) NSDate * scheduledTime;
+@property (nonatomic, readonly, copy) NSString * appId;
+@property (nonatomic, readonly, copy) NSString * pacoVersion;
+@property (nonatomic, retain) NSString * experimentId;
+@property (nonatomic, retain) NSString * experimentName;
+@property (nonatomic, retain) NSNumber * experimentVersion;
+@property (nonatomic, retain) id responses;
+@property (nonatomic, retain) NSNumber * isPending;
+
 + (id)pacoEventForIOS;
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)generateJsonObject;
@@ -67,6 +70,5 @@ typedef NS_ENUM(NSInteger, PacoEventType) {
 + (PacoEvent*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail;
-
 
 @end
