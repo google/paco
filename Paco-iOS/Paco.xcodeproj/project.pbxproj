@@ -104,7 +104,6 @@
 		36B8EB6C17568DAF004CF035 /* PacoService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1317568DAF004CF035 /* PacoService.m */; };
 		36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1617568DAF004CF035 /* PacoDateUtility.m */; };
 		36B8EB6E17568DAF004CF035 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1717568DAF004CF035 /* main.m */; };
-		36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */; };
 		36B8EB7117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2217568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m */; };
 		36B8EB7217568DAF004CF035 /* PacoDayOfMonthSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2417568DAF004CF035 /* PacoDayOfMonthSelectionView.m */; };
@@ -181,7 +180,6 @@
 		36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33C18A4DEEE00D8FE59 /* DDLog.m */; };
 		36C4A34918A4DFEC00D8FE59 /* DDTTYLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */; };
 		36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
-		36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D4249F17E64917003BCD61 /* PacoESMDateTests.m */; };
 		36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D8B54E17F153A100F7698E /* PacoClientTests.m */; };
 		36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F02D31180DE16B0027395F /* PacoNSCalendarCategoryTests.m */; };
@@ -202,6 +200,7 @@
 		C5C4F5F617B17520009E9F18 /* JCNotificationBannerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E517B17520009E9F18 /* JCNotificationBannerWindow.m */; };
 		C5C4F5F817B17520009E9F18 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */; };
 		CE3DFF0B1A1EC46300C70BCD /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3DFF091A1EBE7C00C70BCD /* CoreData.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		CE3DFF0E1A1EC68500C70BCD /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
 		E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */; };
 		E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E462379118F9F1E900610F56 /* PacoDatePickerView.m */; };
@@ -412,8 +411,6 @@
 		36B8EB1617568DAF004CF035 /* PacoDateUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtility.m; sourceTree = "<group>"; };
 		36B8EB1717568DAF004CF035 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		36B8EB1817568DAF004CF035 /* Paco-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Paco-Prefix.pch"; sourceTree = "<group>"; };
-		36B8EB1917568DAF004CF035 /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
-		36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAppDelegate.m; sourceTree = "<group>"; };
 		36B8EB1B17568DAF004CF035 /* PacoConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConfig.h; sourceTree = "<group>"; };
 		36B8EB1E17568DAF004CF035 /* PacoEditScheduleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEditScheduleViewController.h; sourceTree = "<group>"; };
 		36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEditScheduleViewController.m; sourceTree = "<group>"; };
@@ -568,6 +565,8 @@
 		C5C4F5E617B17520009E9F18 /* JCNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationCenter.h; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.h; sourceTree = "<group>"; };
 		C5C4F5E717B17520009E9F18 /* JCNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationCenter.m; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.m; sourceTree = "<group>"; };
 		CE3DFF091A1EBE7C00C70BCD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		CE3DFF0C1A1EC68500C70BCD /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
+		CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAppDelegate.m; sourceTree = "<group>"; };
 		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
 		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
 		E440AB3919140E0800D6FD09 /* PacoOpenSourceLibViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoOpenSourceLibViewController.h; sourceTree = "<group>"; };
@@ -761,8 +760,8 @@
 			children = (
 				36B8EB1717568DAF004CF035 /* main.m */,
 				36B8EB1817568DAF004CF035 /* Paco-Prefix.pch */,
-				36B8EB1917568DAF004CF035 /* PacoAppDelegate.h */,
-				36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */,
+				CE3DFF0C1A1EC68500C70BCD /* PacoAppDelegate.h */,
+				CE3DFF0D1A1EC68500C70BCD /* PacoAppDelegate.m */,
 				36B8EB1B17568DAF004CF035 /* PacoConfig.h */,
 				36B8EB0117568DAF004CF035 /* core */,
 				36B8EB1C17568DAF004CF035 /* ui */,
@@ -1570,7 +1569,6 @@
 				E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */,
 				36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */,
 				36B8EB6E17568DAF004CF035 /* main.m in Sources */,
-				36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */,
 				36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */,
 				36B8EB7117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m in Sources */,
 				36B8EB7217568DAF004CF035 /* PacoDayOfMonthSelectionView.m in Sources */,
@@ -1588,6 +1586,7 @@
 				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
 				36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */,
+				CE3DFF0E1A1EC68500C70BCD /* PacoAppDelegate.m in Sources */,
 				36B8EB7F17568DAF004CF035 /* PacoLoginScreenViewController.m in Sources */,
 				36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */,
 				36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */,
@@ -1692,7 +1691,6 @@
 				366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
 				36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
 				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
-				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
 				361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
 				36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
