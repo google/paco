@@ -25,8 +25,6 @@
 #import "NSString+Paco.h"
 #import "UIImage+Paco.h"
 
-static NSString* const kPacoEventEntityName = @"PacoEvent";
-
 static NSString* const kPacoEventKeyWho = @"who";
 static NSString* const kPacoEventKeyWhen = @"when";
 static NSString* const kPacoEventKeyLatitude = @"lat";
@@ -52,6 +50,9 @@ NSString* const kPacoResponseJoin = @"joined";
 @end
 
 @implementation PacoEvent
+{
+    NSManagedObjectContext *context;
+}
 
 @dynamic who;
 @dynamic when;
@@ -69,9 +70,9 @@ NSString* const kPacoResponseJoin = @"joined";
 
 - (id)init {
     
-    NSManagedObjectContext *context = ((PacoAppDelegate *)[UIApplication sharedApplication].delegate).managedObjectContext;
+    context = ((PacoAppDelegate *)[UIApplication sharedApplication].delegate).managedObjectContext;
     
-    self = [NSEntityDescription insertNewObjectForEntityForName:kPacoEventEntityName inManagedObjectContext:context];
+    self = [NSEntityDescription insertNewObjectForEntityForName:PACO_EVENT_ENTITY_NAME inManagedObjectContext:context];
     
     if(self)
     {

@@ -14,14 +14,17 @@
  */
 
 #import "PacoEventManager.h"
+#import "PacoAppDelegate.h"
 #import "PacoEvent.h"
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 #import "PacoClient.h"
 
-static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
-static NSString* const kAllEventsFileName = @"allEvents.plist";
+// TODO: Clean-up unused constants
+
+//static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
+//static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 @interface PacoParticipateStatus ()
@@ -38,57 +41,57 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (instancetype)initWithNotificationNumber:(NSUInteger)numOfNotifications
                        participationNumber:(NSUInteger)numOfParticipations
                           selfReportNumber:(NSUInteger)numOfSelfReports {
-  self = [super init];
-  if (self) {
-    _numberOfNotifications = numOfNotifications;
-    _numberOfParticipations = numOfParticipations;
-    _numberOfSelfReports = numOfSelfReports;
-
-    if (_numberOfNotifications > 0) {
-      _percentageOfParticipation = (float)_numberOfParticipations / (float)_numberOfNotifications;
-      long int percentage = lroundf(_percentageOfParticipation * 100);
-      _percentageText = [[NSString stringWithFormat:@"%ld%%", percentage] copy];
+    self = [super init];
+    if (self) {
+        _numberOfNotifications = numOfNotifications;
+        _numberOfParticipations = numOfParticipations;
+        _numberOfSelfReports = numOfSelfReports;
+        
+        if (_numberOfNotifications > 0) {
+            _percentageOfParticipation = (float)_numberOfParticipations / (float)_numberOfNotifications;
+            long int percentage = lroundf(_percentageOfParticipation * 100);
+            _percentageText = [[NSString stringWithFormat:@"%ld%%", percentage] copy];
+        }
     }
-  }
-  return self;
+    return self;
 }
 
 + (instancetype)statusWithNotificationNumber:(NSUInteger)numOfNotifications
                          participationNumber:(NSUInteger)numOfParticipations
                             selfReportNumber:(NSUInteger)numOfSelfReports {
-  return [[self alloc] initWithNotificationNumber:numOfNotifications
-                              participationNumber:numOfParticipations
-                                 selfReportNumber:numOfSelfReports];
-
+    return [[self alloc] initWithNotificationNumber:numOfNotifications
+                                participationNumber:numOfParticipations
+                                   selfReportNumber:numOfSelfReports];
+    
 }
 
 //assume events are ordered
 + (instancetype)statusWithEvents:(NSArray*)events {
-  if (0 == [events count]) {
-    return [self statusWithNotificationNumber:0 participationNumber:0 selfReportNumber:0];
-  }
-  int numOfMiss = 0;
-  int numOfParticipations = 0;
-  int numOfSelfReports = 0;
-  NSInteger index = [events count] - 1;
-  for (; index >= 0; index--) {
-    PacoEventType eventType = [(PacoEvent *)events[index] type];
-    if (eventType == PacoEventTypeJoin || eventType == PacoEventTypeStop) {
-      break;
+    if (0 == [events count]) {
+        return [self statusWithNotificationNumber:0 participationNumber:0 selfReportNumber:0];
     }
-    if (eventType == PacoEventTypeSurvey) {
-      numOfParticipations++;
-    } else if (eventType == PacoEventTypeMiss) {
-      numOfMiss++;
-    } else if (eventType == PacoEventTypeSelfReport) {
-      numOfSelfReports++;
-    } else {
-      NSAssert(NO, @"invalid type");
+    int numOfMiss = 0;
+    int numOfParticipations = 0;
+    int numOfSelfReports = 0;
+    NSInteger index = [events count] - 1;
+    for (; index >= 0; index--) {
+        PacoEventType eventType = [(PacoEvent *)events[index] type];
+        if (eventType == PacoEventTypeJoin || eventType == PacoEventTypeStop) {
+            break;
+        }
+        if (eventType == PacoEventTypeSurvey) {
+            numOfParticipations++;
+        } else if (eventType == PacoEventTypeMiss) {
+            numOfMiss++;
+        } else if (eventType == PacoEventTypeSelfReport) {
+            numOfSelfReports++;
+        } else {
+            NSAssert(NO, @"invalid type");
+        }
     }
-  }
-  return [self statusWithNotificationNumber:(numOfMiss + numOfParticipations)
-                        participationNumber:numOfParticipations
-                           selfReportNumber:numOfSelfReports];
+    return [self statusWithNotificationNumber:(numOfMiss + numOfParticipations)
+                          participationNumber:numOfParticipations
+                             selfReportNumber:numOfSelfReports];
 }
 
 @end
@@ -108,344 +111,439 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 @implementation PacoEventManager
+{
+    NSManagedObjectContext *context;
+}
 
 - (id)init {
-  self = [super init];
-  if (self) {
-    _uploader = [PacoEventUploader uploaderWithDelegate:self];
-  }
-  return self;
+    self = [super init];
+    if (self) {
+        context = ((PacoAppDelegate *)[UIApplication sharedApplication].delegate).managedObjectContext;
+        
+        _uploader = [PacoEventUploader uploaderWithDelegate:self];
+    }
+    return self;
 }
 
 + (PacoEventManager*)defaultManager {
-  return [[PacoEventManager alloc] init];
+    return [[PacoEventManager alloc] init];
 }
 
-
 #pragma mark Private methods
+
 - (id)loadJsonObjectFromFile:(NSString*)fileName {
-  NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
-  NSError* error = nil;
-  NSData* jsonData = [NSData dataWithContentsOfFile:filePath
-                                            options:NSDataReadingMappedIfSafe
-                                              error:&error];
-  if (error != nil && ![error pacoIsFileNotExistError]) {
-    DDLogError(@"[Error]Failed to load %@: %@",
-          fileName,
-          error.description ? error.description : @"unknown error");
-    return nil;
-  }
-  
-  if (jsonData == nil) {
-    return nil;
-  }
-  NSError *jsonError = nil;
-  id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData
-                                               options:NSJSONReadingAllowFragments
-                                                 error:&jsonError];
-  if (jsonError) {
-    DDLogError(@"[Error]Failed to serialize %@: %@",
-          fileName,
-          error.description ? error.description : @"unknown error");
-    return nil;
-  }
-  return jsonObj;
+    NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
+    NSError* error = nil;
+    NSData* jsonData = [NSData dataWithContentsOfFile:filePath
+                                              options:NSDataReadingMappedIfSafe
+                                                error:&error];
+    if (error != nil && ![error pacoIsFileNotExistError]) {
+        DDLogError(@"[Error]Failed to load %@: %@",
+                   fileName,
+                   error.description ? error.description : @"unknown error");
+        return nil;
+    }
+    
+    if (jsonData == nil) {
+        return nil;
+    }
+    NSError *jsonError = nil;
+    id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                 options:NSJSONReadingAllowFragments
+                                                   error:&jsonError];
+    if (jsonError) {
+        DDLogError(@"[Error]Failed to serialize %@: %@",
+                   fileName,
+                   error.description ? error.description : @"unknown error");
+        return nil;
+    }
+    return jsonObj;
 }
 
 - (NSError*)saveJsonObject:(id)jsonObject toFile:(NSString*)fileName {
-  NSError* jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
-                                                     options:NSJSONWritingPrettyPrinted
-                                                       error:&jsonError];
-  if (jsonError) {
-    DDLogError(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
-    return jsonError;
-  }
-  if (!jsonData) {
-    DDLogError(@"jsonData is nil!");
-  }
-  NSAssert(jsonData != nil, @"jsonData should not be nil!");
-  
-  NSError* saveError = nil;
-  [jsonData writeToFile:[NSString pacoDocumentDirectoryFilePathWithName:fileName]
-                options:NSDataWritingAtomic
-                  error:&saveError];
-  if (saveError) {
-    DDLogError(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
-  }else {
-    DDLogInfo(@"Succeeded to save %@.", fileName);
-  }
-  return saveError;
+    NSError* jsonError = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:&jsonError];
+    if (jsonError) {
+        DDLogError(@"[ERROR]Failed to serialize %@ to NSData: %@", fileName ,jsonError);
+        return jsonError;
+    }
+    if (!jsonData) {
+        DDLogError(@"jsonData is nil!");
+    }
+    NSAssert(jsonData != nil, @"jsonData should not be nil!");
+    
+    NSError* saveError = nil;
+    [jsonData writeToFile:[NSString pacoDocumentDirectoryFilePathWithName:fileName]
+                  options:NSDataWritingAtomic
+                    error:&saveError];
+    if (saveError) {
+        DDLogError(@"[ERROR]Failed to save %@: %@", fileName ,saveError);
+    }else {
+        DDLogInfo(@"Succeeded to save %@.", fileName);
+    }
+    return saveError;
 }
 
 
 - (NSMutableArray*)deserializedEvents:(id)jsonEvents {
-  NSAssert(jsonEvents != nil, @"jsonEvents should not be nil!");  
-  NSAssert([jsonEvents isKindOfClass:[NSArray class]],
-           @"jsonEvents should be a NSArray!");
-  
-  NSMutableArray* deserializedEvents = [NSMutableArray arrayWithCapacity:[jsonEvents count]];
-  for (id eventJson in jsonEvents) {
-    PacoEvent* event = [PacoEvent pacoEventFromJSON:eventJson];
-    NSAssert(event != nil, @"event should not be nil!");
-    [deserializedEvents addObject:event];
-  }
-  return deserializedEvents;
+    NSAssert(jsonEvents != nil, @"jsonEvents should not be nil!");
+    NSAssert([jsonEvents isKindOfClass:[NSArray class]],
+             @"jsonEvents should be a NSArray!");
+    
+    NSMutableArray* deserializedEvents = [NSMutableArray arrayWithCapacity:[jsonEvents count]];
+    for (id eventJson in jsonEvents) {
+        PacoEvent* event = [PacoEvent pacoEventFromJSON:eventJson];
+        NSAssert(event != nil, @"event should not be nil!");
+        [deserializedEvents addObject:event];
+    }
+    return deserializedEvents;
 }
 
 
-- (void)fetchAllEventsIfNecessary {
-  @synchronized(self) {
-    if (self.eventsDict == nil) {
-      NSDictionary* dict = [self loadJsonObjectFromFile:kAllEventsFileName];
-      NSAssert(!(dict != nil && ![dict isKindOfClass:[NSDictionary class]]),
-               @"dict should be a dictionary!");
-      
-      NSMutableDictionary* allEventsDict = [NSMutableDictionary dictionary];
-      for (NSString* definitionId in dict) {
-        id events = dict[definitionId];
-        allEventsDict[definitionId] = [self deserializedEvents:events];
-      }
-      DDLogInfo(@"Fetched all events.");
-      self.eventsDict = allEventsDict;
+- (void)updateLocalAllEventsDictionary {
+    @synchronized(self) {
+//        if (self.eventsDict == nil) {
+//            NSDictionary* dict = [self loadJsonObjectFromFile:kAllEventsFileName];
+//            NSAssert(!(dict != nil && ![dict isKindOfClass:[NSDictionary class]]),
+//                     @"dict should be a dictionary!");
+//            
+//            NSMutableDictionary* allEventsDict = [NSMutableDictionary dictionary];
+//            for (NSString* definitionId in dict) {
+//                id events = dict[definitionId];
+//                allEventsDict[definitionId] = [self deserializedEvents:events];
+//            }
+//            DDLogInfo(@"Fetched all events.");
+//            self.eventsDict = allEventsDict;
+//        }
+
+        if(self.eventsDict == nil) {
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
+            
+            NSError *error = nil;
+            NSArray *allEvents = [context executeFetchRequest:fetchRequest error:&error];
+            
+            if(error)
+            {
+                // TODO: Handle error fetching all events from Core Data
+            }
+            
+            DDLogInfo(@"Fetched all events.");
+            
+            self.eventsDict = [NSMutableDictionary dictionary];
+             
+            for(PacoEvent *event in allEvents)
+            {
+                NSMutableArray *eventsForExperimentId = (self.eventsDict)[event.experimentId];
+                
+                if(!eventsForExperimentId)
+                {
+                    NSMutableArray *newArray = [NSMutableArray arrayWithArray:@[ event ]];
+                    
+                    // add array
+                    [self.eventsDict setValue:newArray forKey:event.experimentId];
+                }
+                else
+                {
+                    // update array
+                    [eventsForExperimentId addObject:event];
+                    [self.eventsDict setValue:eventsForExperimentId forKey:event.experimentId];
+                }
+            }
+        }
     }
-  }
 }
 
-- (void)fetchPendingEventsIfNecessary {
-  @synchronized(self) {
-    if (self.pendingEvents == nil) {
-      NSArray* events = [self loadJsonObjectFromFile:kPendingEventsFileName];
-      NSAssert(!(events != nil && ![events isKindOfClass:[NSArray class]]),
-               @"events should be an array");
-      
-      NSMutableArray* pendingEvents = [NSMutableArray array];
-      if (events != nil) {
-        pendingEvents = [self deserializedEvents:events];
-      }
-      DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
-      self.pendingEvents = pendingEvents;
+- (void)updateLocalPendingEventsArray {
+    @synchronized(self) {
+//        if (self.pendingEvents == nil) {
+//            NSArray* events = [self loadJsonObjectFromFile:kPendingEventsFileName];
+//            NSAssert(!(events != nil && ![events isKindOfClass:[NSArray class]]),
+//                     @"events should be an array");
+//            
+//            NSMutableArray* pendingEvents = [NSMutableArray array];
+//            if (events != nil) {
+//                pendingEvents = [self deserializedEvents:events];
+//            }
+//            DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
+//            self.pendingEvents = pendingEvents;
+//        }
+        
+        if(self.pendingEvents == nil) {
+            
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"isPending == YES"];
+            [fetchRequest setPredicate:predicate];
+            
+            NSError *error = nil;
+            NSArray *pendingEvents = [context executeFetchRequest:fetchRequest error:&error];
+            
+            if(error)
+            {
+                // TODO: Handle error fetching pending events from Core Data
+            }
+            
+            DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
+            
+            self.pendingEvents = [pendingEvents mutableCopy];
+        }
     }
-  }
 }
 
 - (NSMutableArray*)jsonArrayFromEvents:(NSArray*)events {
-  NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
-  for (PacoEvent* event in events) {
-    id json = [event generateJsonObject];
-    NSAssert(json != nil, @"json should not be nil!");
-    [jsonArr addObject:json];
-  }
-  return jsonArr;
-}
-
-- (void)saveAllEventsToFile {
-  @synchronized(self) {
-    //If eventsDict is never loaded, then no need to save anything
-    if (self.eventsDict == nil) {
-      return;
-    }
+    [self updateLocalPendingEventsArray];
     
-    NSMutableDictionary* jsonDict = [NSMutableDictionary dictionary];
-    for (NSString* definitionId in self.eventsDict) {
-      NSMutableArray* eventsArr = [self jsonArrayFromEvents:(self.eventsDict)[definitionId]];
-      NSAssert(eventsArr != nil, @"eventsArr should not be nil!");
-      jsonDict[definitionId] = eventsArr;
+    NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
+    for (PacoEvent* event in events) {
+        id json = [event generateJsonObject];
+        NSAssert(json != nil, @"json should not be nil!");
+        [jsonArr addObject:json];
     }
-    [self saveJsonObject:jsonDict toFile:kAllEventsFileName];
-  }
+    return jsonArr;
 }
 
+// TODO: Clean-up unused methods
 
-- (void)savePendingEventsToFile {
-  //If pendingEvents is never loaded, then no need to save anything
-  if (self.pendingEvents == nil) {
-    return;
-  }
-  DDLogInfo(@"Saving %lu pending events", (unsigned long)[self.pendingEvents count]);
-  NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
-  [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
-}
+//- (void)saveAllEventsToFile {
+//    @synchronized(self) {
+//        //If eventsDict is never loaded, then no need to save anything
+//        if (self.eventsDict == nil) {
+//            return;
+//        }
+//        
+//        NSMutableDictionary* jsonDict = [NSMutableDictionary dictionary];
+//        for (NSString* definitionId in self.eventsDict) {
+//            NSMutableArray* eventsArr = [self jsonArrayFromEvents:(self.eventsDict)[definitionId]];
+//            NSAssert(eventsArr != nil, @"eventsArr should not be nil!");
+//            jsonDict[definitionId] = eventsArr;
+//        }
+//        [self saveJsonObject:jsonDict toFile:kAllEventsFileName];
+//    }
+//}
 
 
+//- (void)savePendingEventsToFile {
+//    //If pendingEvents is never loaded, then no need to save anything
+//    if (self.pendingEvents == nil) {
+//        return;
+//    }
+//    DDLogInfo(@"Saving %lu pending events", (unsigned long)[self.pendingEvents count]);
+//    NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
+//    [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
+//}
 
-#pragma mark PacoEventUploaderDelegate 
+//- (void)saveDataToFile {
+//    @synchronized(self) {
+//        [self savePendingEventsToFile];
+//        [self saveAllEventsToFile];
+//    }
+//}
+
+#pragma mark PacoEventUploaderDelegate
 - (BOOL)hasPendingEvents {
-  @synchronized(self) {
-    [self fetchPendingEventsIfNecessary];
-    return [self.pendingEvents count] > 0;
-  }
+    @synchronized(self) {
+        [self updateLocalPendingEventsArray];
+        return [self.pendingEvents count] > 0;
+    }
 }
 
 - (NSArray*)allPendingEvents {
-  @synchronized(self) {
-    [self fetchPendingEventsIfNecessary];
-    
-    NSArray* result = [NSArray arrayWithArray:self.pendingEvents];
-    return result;
-  }  
+    @synchronized(self) {
+        [self updateLocalPendingEventsArray];
+        
+        NSArray* result = [NSArray arrayWithArray:self.pendingEvents];
+        return result;
+    }
 }
 
 - (void)markEventsComplete:(NSArray*)events {
-  if (0 == [events count]) {
-    return;
-  }
-  
-  @synchronized(self) {
-    NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
-    for (PacoEvent* event in events) {
-      NSUInteger index = [self.pendingEvents indexOfObject:event];
-      if (index == NSNotFound) {
-        DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
-      }
-      [self.pendingEvents removeObject:event];
+    if (0 == [events count]) {
+        return;
     }
     
-    [self savePendingEventsToFile];
-    DDLogInfo(@"[Mark Complete] %lu events! ", (unsigned long)[events count]);
-    DDLogInfo(@"[Pending Events] %lu.", (unsigned long)[self.pendingEvents count]);
-  }
+    @synchronized(self) {
+        NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
+        for (PacoEvent* event in events) {
+//            NSUInteger index = [self.pendingEvents indexOfObject:event];
+//            if (index == NSNotFound) {
+//                DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
+//            }
+//            [self.pendingEvents removeObject:event];
+            
+            // mark complete
+            event.isPending = @NO;
+            
+            // save
+            NSError *saveError = nil;
+            [context save:&saveError];
+            
+            if(saveError)
+            {
+                // TODO: Handle error saving update event to Core Data
+            }
+        }
+        
+//        [self savePendingEventsToFile];
+        DDLogInfo(@"[Mark Complete] %lu events! ", (unsigned long)[events count]);
+        DDLogInfo(@"[Pending Events] %lu.", (unsigned long)[self.pendingEvents count]);
+    }
 }
 
 
 
 #pragma mark Public API
 - (void)saveEvent:(PacoEvent*)event {
-  NSAssert(event != nil, @"nil event cannot be saved!");
-  [self saveEvents:@[event]];
+    NSAssert(event != nil, @"nil event cannot be saved!");
+    [self saveEvents:@[event]];
 }
 
 - (void)saveEvents:(NSArray*)events {
-  @synchronized(self) {
-    NSAssert([events count] > 0, @"events should have more than one element");
-    
-    [self fetchAllEventsIfNecessary];
-    [self fetchPendingEventsIfNecessary];
-    
-    for (PacoEvent* event in events) {
-      NSString* experimentId = event.experimentId;
-      NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
-      
-      NSMutableArray* currentEvents = (self.eventsDict)[experimentId];
-      if (currentEvents == nil) {
-        currentEvents = [NSMutableArray array];
-      }
-      [currentEvents addObject:event];
-      (self.eventsDict)[experimentId] = currentEvents;
-      
-      //add this event to pendingEvent list too
-      [self.pendingEvents addObject:event];
+    @synchronized(self) {
+//        NSAssert([events count] > 0, @"events should have more than one element");
+//        
+//        [self fetchAllEventsIfNecessary];
+//        [self fetchPendingEventsIfNecessary];
+//        
+//        for (PacoEvent* event in events) {
+//            NSString* experimentId = event.experimentId;
+//            NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
+//            
+//            NSMutableArray* currentEvents = (self.eventsDict)[experimentId];
+//            if (currentEvents == nil) {
+//                currentEvents = [NSMutableArray array];
+//            }
+//            [currentEvents addObject:event];
+//            (self.eventsDict)[experimentId] = currentEvents;
+//            
+//            //add this event to pendingEvent list too
+//            [self.pendingEvents addObject:event];
+//        }
+//        [self saveDataToFile];
+        
+        for(PacoEvent *event in events) {
+            NSString *experimentId = event.experimentId;
+            NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
+            
+            // mark event as pending
+            event.isPending = @YES;
+            
+            // save each event to Core Data
+            NSError *saveError = nil;
+            [context save:&saveError];
+            
+            if(saveError)
+            {
+                // TODO: Handle error saving event to Core Data
+            }
+        }
+        
+        [self updateLocalAllEventsDictionary];
+        [self updateLocalPendingEventsArray];
     }
-    [self saveDataToFile];
-  }
 }
 
 - (void)saveAndUploadEvent:(PacoEvent*)event {
-  [self saveEvent:event];
-  [self startUploadingEvents];
+    [self saveEvent:event];
+    [self startUploadingEvents];
 }
 
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule {
-  PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
-  DDLogInfo(@"Save a join event");
-  [self saveAndUploadEvent:joinEvent];
+    PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
+    DDLogInfo(@"Save a join event");
+    [self saveAndUploadEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
-  PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
-  DDLogInfo(@"Save a stop event");
-  [self saveAndUploadEvent:event];
+    PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
+    DDLogInfo(@"Save a stop event");
+    [self saveAndUploadEvent:event];
 }
 
 - (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
                                 andInputs:(NSArray*)visibleInputs {
-  PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
-                                                        withInputs:visibleInputs];
-  DDLogInfo(@"Save a self-report event");
-  [self saveAndUploadEvent:surveyEvent];
+    PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
+                                                          withInputs:visibleInputs];
+    DDLogInfo(@"Save a self-report event");
+    [self saveAndUploadEvent:surveyEvent];
 }
 
 
 - (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime {
-  PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
-                                                             withInputs:inputs
-                                                       andScheduledTime:scheduledTime];
-  DDLogInfo(@"Save a survey submitted event");
-  [self saveAndUploadEvent:surveyEvent];
-}
-
-
-- (void)saveDataToFile {
-  @synchronized(self) {
-    [self savePendingEventsToFile];
-    [self saveAllEventsToFile];
-  }
+    PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
+                                                               withInputs:inputs
+                                                         andScheduledTime:scheduledTime];
+    DDLogInfo(@"Save a survey submitted event");
+    [self saveAndUploadEvent:surveyEvent];
 }
 
 - (void)startUploadingEvents {
-  @synchronized(self) {
-    NSArray* pendingEvents = [self allPendingEvents];
-    if ([pendingEvents count] == 0) {
-      DDLogInfo(@"No pending events to upload.");
-      return;
+    @synchronized(self) {
+        NSArray* pendingEvents = [self allPendingEvents];
+        if ([pendingEvents count] == 0) {
+            DDLogInfo(@"No pending events to upload.");
+            return;
+        }
+        UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+        if (state == UIApplicationStateActive) {
+            DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
+            [self.uploader startUploadingWithBlock:nil];
+        } else {
+            DDLogInfo(@"Won't upload %lu pending events since app is inactive.", (unsigned long)[pendingEvents count]);
+        }
     }
-    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-    if (state == UIApplicationStateActive) {
-      DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
-      [self.uploader startUploadingWithBlock:nil];
-    } else {
-      DDLogInfo(@"Won't upload %lu pending events since app is inactive.", (unsigned long)[pendingEvents count]);
-    }
-  }
 }
 
 
 - (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
-  @synchronized(self) {
-    NSArray* pendingEvents = [self allPendingEvents];
-    if ([pendingEvents count] == 0) {
-      DDLogInfo(@"No pending events to upload.");
-      if (completionBlock) {
-        completionBlock(UIBackgroundFetchResultNewData);
-        DDLogInfo(@"Background fetch finished!");
-      }
-      return;
+    @synchronized(self) {
+        NSArray* pendingEvents = [self allPendingEvents];
+        if ([pendingEvents count] == 0) {
+            DDLogInfo(@"No pending events to upload.");
+            if (completionBlock) {
+                completionBlock(UIBackgroundFetchResultNewData);
+                DDLogInfo(@"Background fetch finished!");
+            }
+            return;
+        }
+        
+        DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
+        UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+        if (state == UIApplicationStateActive) {
+            DDLogInfo(@"App State:UIApplicationStateActive");
+        } else if (state == UIApplicationStateBackground) {
+            DDLogInfo(@"App State:UIApplicationStateBackground");
+        } else {
+            DDLogInfo(@"App State:UIApplicationStateInActive");
+        }
+        [self.uploader startUploadingWithBlock:^(BOOL success) {
+            if (completionBlock) {
+                completionBlock(UIBackgroundFetchResultNewData);
+                DDLogInfo(@"Background fetch finished!");
+            }
+        }];
     }
-    
-    DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
-    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
-    if (state == UIApplicationStateActive) {
-      DDLogInfo(@"App State:UIApplicationStateActive");
-    } else if (state == UIApplicationStateBackground) {
-      DDLogInfo(@"App State:UIApplicationStateBackground");
-    } else {
-      DDLogInfo(@"App State:UIApplicationStateInActive");
-    }
-    [self.uploader startUploadingWithBlock:^(BOOL success) {
-      if (completionBlock) {
-        completionBlock(UIBackgroundFetchResultNewData);
-        DDLogInfo(@"Background fetch finished!");
-      }
-    }];
-  }
 }
 
 - (void)stopUploadingEvents {
-  [self.uploader stopUploading];
+    [self.uploader stopUploading];
 }
 
 
 #pragma mark participation stats
 - (PacoParticipateStatus*)statsForExperiment:(NSString*)experimentId {
-  if (!experimentId) {
-    return nil;
-  }
-  [self fetchAllEventsIfNecessary];
-  return [PacoParticipateStatus statusWithEvents:self.eventsDict[experimentId]];
+    if (!experimentId) {
+        return nil;
+    }
+    
+    [self updateLocalAllEventsDictionary];
+    
+    PacoParticipateStatus *pacoParticipateStatus = [PacoParticipateStatus statusWithEvents:self.eventsDict[experimentId]];
+    return pacoParticipateStatus;
 }
 
 

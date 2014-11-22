@@ -34,6 +34,8 @@ typedef NS_ENUM(NSInteger, PacoEventType) {
     PacoEventTypeSelfReport
 };
 
+static NSString* const PACO_EVENT_ENTITY_NAME = @"PacoEvent";
+
 @interface PacoEvent : NSManagedObject
 
 @property (nonatomic, retain) NSString * who;
