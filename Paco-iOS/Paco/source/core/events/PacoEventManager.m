@@ -21,12 +21,6 @@
 #import "NSError+Paco.h"
 #import "PacoClient.h"
 
-// TODO: Clean-up unused constants
-
-//static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
-//static NSString* const kAllEventsFileName = @"allEvents.plist";
-
-
 @interface PacoParticipateStatus ()
 @property(nonatomic) NSUInteger numberOfNotifications;
 @property(nonatomic) NSUInteger numberOfParticipations;
@@ -100,10 +94,10 @@
 
 @interface PacoEventManager () <PacoEventUploaderDelegate>
 //array of PacoEvent
-@property(atomic, strong) NSMutableArray* pendingEvents;
+//@property(atomic, strong) NSMutableArray* pendingEvents;
 //dictionary: key is experiment's instanceId, value is an array of events, ordered by responseTime,
 //the first event in this array is the oldest
-@property(atomic, strong) NSMutableDictionary* eventsDict;
+//@property(atomic, strong) NSMutableDictionary* eventsDict;
 
 @property(atomic, strong) PacoEventUploader* uploader;
 
@@ -201,100 +195,8 @@
     return deserializedEvents;
 }
 
-
-- (void)updateLocalAllEventsDictionary {
-    @synchronized(self) {
-//        if (self.eventsDict == nil) {
-//            NSDictionary* dict = [self loadJsonObjectFromFile:kAllEventsFileName];
-//            NSAssert(!(dict != nil && ![dict isKindOfClass:[NSDictionary class]]),
-//                     @"dict should be a dictionary!");
-//            
-//            NSMutableDictionary* allEventsDict = [NSMutableDictionary dictionary];
-//            for (NSString* definitionId in dict) {
-//                id events = dict[definitionId];
-//                allEventsDict[definitionId] = [self deserializedEvents:events];
-//            }
-//            DDLogInfo(@"Fetched all events.");
-//            self.eventsDict = allEventsDict;
-//        }
-
-        if(self.eventsDict == nil) {
-            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
-            
-            NSError *error = nil;
-            NSArray *allEvents = [context executeFetchRequest:fetchRequest error:&error];
-            
-            if(error)
-            {
-                // TODO: Handle error fetching all events from Core Data
-            }
-            
-            DDLogInfo(@"Fetched all events.");
-            
-            self.eventsDict = [NSMutableDictionary dictionary];
-             
-            for(PacoEvent *event in allEvents)
-            {
-                NSMutableArray *eventsForExperimentId = (self.eventsDict)[event.experimentId];
-                
-                if(!eventsForExperimentId)
-                {
-                    NSMutableArray *newArray = [NSMutableArray arrayWithArray:@[ event ]];
-                    
-                    // add array
-                    [self.eventsDict setValue:newArray forKey:event.experimentId];
-                }
-                else
-                {
-                    // update array
-                    [eventsForExperimentId addObject:event];
-                    [self.eventsDict setValue:eventsForExperimentId forKey:event.experimentId];
-                }
-            }
-        }
-    }
-}
-
-- (void)updateLocalPendingEventsArray {
-    @synchronized(self) {
-//        if (self.pendingEvents == nil) {
-//            NSArray* events = [self loadJsonObjectFromFile:kPendingEventsFileName];
-//            NSAssert(!(events != nil && ![events isKindOfClass:[NSArray class]]),
-//                     @"events should be an array");
-//            
-//            NSMutableArray* pendingEvents = [NSMutableArray array];
-//            if (events != nil) {
-//                pendingEvents = [self deserializedEvents:events];
-//            }
-//            DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
-//            self.pendingEvents = pendingEvents;
-//        }
-        
-        if(self.pendingEvents == nil) {
-            
-            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
-            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"isPending == YES"];
-            [fetchRequest setPredicate:predicate];
-            
-            NSError *error = nil;
-            NSArray *pendingEvents = [context executeFetchRequest:fetchRequest error:&error];
-            
-            if(error)
-            {
-                // TODO: Handle error fetching pending events from Core Data
-            }
-            
-            DDLogInfo(@"Fetched %lu pending events.", (unsigned long)[pendingEvents count]);
-            
-            self.pendingEvents = [pendingEvents mutableCopy];
-        }
-    }
-}
-
 - (NSMutableArray*)jsonArrayFromEvents:(NSArray*)events {
-    [self updateLocalPendingEventsArray];
-    
-    NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
+    NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self numPendingEvents]];
     for (PacoEvent* event in events) {
         id json = [event generateJsonObject];
         NSAssert(json != nil, @"json should not be nil!");
@@ -303,57 +205,46 @@
     return jsonArr;
 }
 
-// TODO: Clean-up unused methods
-
-//- (void)saveAllEventsToFile {
-//    @synchronized(self) {
-//        //If eventsDict is never loaded, then no need to save anything
-//        if (self.eventsDict == nil) {
-//            return;
-//        }
-//        
-//        NSMutableDictionary* jsonDict = [NSMutableDictionary dictionary];
-//        for (NSString* definitionId in self.eventsDict) {
-//            NSMutableArray* eventsArr = [self jsonArrayFromEvents:(self.eventsDict)[definitionId]];
-//            NSAssert(eventsArr != nil, @"eventsArr should not be nil!");
-//            jsonDict[definitionId] = eventsArr;
-//        }
-//        [self saveJsonObject:jsonDict toFile:kAllEventsFileName];
-//    }
-//}
-
-
-//- (void)savePendingEventsToFile {
-//    //If pendingEvents is never loaded, then no need to save anything
-//    if (self.pendingEvents == nil) {
-//        return;
-//    }
-//    DDLogInfo(@"Saving %lu pending events", (unsigned long)[self.pendingEvents count]);
-//    NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
-//    [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
-//}
-
-//- (void)saveDataToFile {
-//    @synchronized(self) {
-//        [self savePendingEventsToFile];
-//        [self saveAllEventsToFile];
-//    }
-//}
-
 #pragma mark PacoEventUploaderDelegate
 - (BOOL)hasPendingEvents {
     @synchronized(self) {
-        [self updateLocalPendingEventsArray];
-        return [self.pendingEvents count] > 0;
+        return [self numPendingEvents] > 0;
     }
+}
+
+- (NSUInteger *)numPendingEvents
+{
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"isPending == YES"];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setFetchLimit:1];
+    
+    NSError *error = nil;
+    NSUInteger numPendingEvents = [context countForFetchRequest:fetchRequest error:&error];
+    
+    if(error)
+    {
+        //TODO: Handle error counting pending events in Core Data
+    }
+
+    return numPendingEvents;
 }
 
 - (NSArray*)allPendingEvents {
     @synchronized(self) {
-        [self updateLocalPendingEventsArray];
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"isPending == YES"];
+        [fetchRequest setPredicate:predicate];
         
-        NSArray* result = [NSArray arrayWithArray:self.pendingEvents];
-        return result;
+        NSError *error = nil;
+        NSArray *pendingEvents = [context executeFetchRequest:fetchRequest error:&error];
+        
+        if(error)
+        {
+            //TODO: Handle error fetching all events from Core Data
+        }
+        
+        return pendingEvents;
     }
 }
 
@@ -363,15 +254,7 @@
     }
     
     @synchronized(self) {
-        NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
         for (PacoEvent* event in events) {
-//            NSUInteger index = [self.pendingEvents indexOfObject:event];
-//            if (index == NSNotFound) {
-//                DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
-//            }
-//            [self.pendingEvents removeObject:event];
-            
-            // mark complete
             event.isPending = @NO;
             
             // save
@@ -380,13 +263,12 @@
             
             if(saveError)
             {
-                // TODO: Handle error saving update event to Core Data
+                // TODO: Handle error saving updated event to Core Data
             }
         }
         
-//        [self savePendingEventsToFile];
         DDLogInfo(@"[Mark Complete] %lu events! ", (unsigned long)[events count]);
-        DDLogInfo(@"[Pending Events] %lu.", (unsigned long)[self.pendingEvents count]);
+        DDLogInfo(@"[Pending Events] %lu.", (unsigned long)[self numPendingEvents]);
     }
 }
 
@@ -400,27 +282,6 @@
 
 - (void)saveEvents:(NSArray*)events {
     @synchronized(self) {
-//        NSAssert([events count] > 0, @"events should have more than one element");
-//        
-//        [self fetchAllEventsIfNecessary];
-//        [self fetchPendingEventsIfNecessary];
-//        
-//        for (PacoEvent* event in events) {
-//            NSString* experimentId = event.experimentId;
-//            NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
-//            
-//            NSMutableArray* currentEvents = (self.eventsDict)[experimentId];
-//            if (currentEvents == nil) {
-//                currentEvents = [NSMutableArray array];
-//            }
-//            [currentEvents addObject:event];
-//            (self.eventsDict)[experimentId] = currentEvents;
-//            
-//            //add this event to pendingEvent list too
-//            [self.pendingEvents addObject:event];
-//        }
-//        [self saveDataToFile];
-        
         for(PacoEvent *event in events) {
             NSString *experimentId = event.experimentId;
             NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
@@ -437,9 +298,6 @@
                 // TODO: Handle error saving event to Core Data
             }
         }
-        
-        [self updateLocalAllEventsDictionary];
-        [self updateLocalPendingEventsArray];
     }
 }
 
@@ -540,9 +398,25 @@
         return nil;
     }
     
-    [self updateLocalAllEventsDictionary];
+    // fetch events for experimentId
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:PACO_EVENT_ENTITY_NAME];
     
-    PacoParticipateStatus *pacoParticipateStatus = [PacoParticipateStatus statusWithEvents:self.eventsDict[experimentId]];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"experimentId == %@", experimentId];
+    [fetchRequest setPredicate:predicate];
+    
+    // sort by responseTime ascending
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"responseTime" ascending:YES selector:@selector(compare:)];
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
+    
+    NSError *error = nil;
+    NSArray *eventsForExperimentId = [context executeFetchRequest:fetchRequest error:&error];
+    
+    if(error)
+    {
+        // TODO: Handle error fetching events by experimentId from Core Data
+    }
+    
+    PacoParticipateStatus *pacoParticipateStatus = [PacoParticipateStatus statusWithEvents:eventsForExperimentId];
     return pacoParticipateStatus;
 }
 
