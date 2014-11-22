@@ -16,7 +16,7 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-#import "FakePacoEventManager.h"
+#import "PacoEventManager.h"
 #import "PacoEvent.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
@@ -27,7 +27,7 @@
 
 @implementation PacoEventManagerTests
 {
-    FakePacoEventManager *fakePacoEventManager;
+    PacoEventManager *fakePacoEventManager;
     PacoEvent *pacoEvent;
     PacoExperimentDefinition *pacoExperimentDefinition;
 }
@@ -36,14 +36,13 @@
     
     [super setUp];
     
-    fakePacoEventManager = [FakePacoEventManager defaultManager];
+    fakePacoEventManager = [PacoEventManager defaultManager];
     
     pacoExperimentDefinition = [PacoExperimentDefinition testPacoExperimentDefinition];
     
-    pacoEvent = [[PacoEvent alloc] init];
-    
     pacoEvent = [PacoEvent pacoEventForIOS];
     pacoEvent.experimentId = pacoExperimentDefinition.experimentId;
+    pacoEvent.responseTime = [NSDate date];
 }
 
 - (void)tearDown {
@@ -53,6 +52,15 @@
     pacoExperimentDefinition = nil;
     
     [super tearDown];
+}
+
+- (void)testCoreDataCleared
+{
+    // NOTE: Because Core Data is not automatically cleared in tearDown, results vary if Core Data is not manually cleared or if individual tests are run versus running whole PacoEventManagerTests suite
+    
+    BOOL iClearedCoreData = NO;
+    
+    XCTAssertTrue(iClearedCoreData, @"Core Data should be cleared to acheive consistent test results.");
 }
 
 - (void)testParticipateStatusCanBeCreated
@@ -70,8 +78,8 @@
                                 @"name" : @"joined",
                                 @"answer" : @"true",
                                 @"inputId" : @"-1"
-                             }
-                           ];
+                                }
+                            ];
     
     [fakePacoEventManager saveEvent:pacoEvent];
     
@@ -85,12 +93,12 @@
     
     // PacoEventTypeStop
     pacoEvent.responses = @[
-                             @{
-                                 @"name" : @"joined",
-                                 @"answer" : @"false",
-                                 @"inputId" : @"-1"
-                                 }
-                             ];
+                            @{
+                                @"name" : @"joined",
+                                @"answer" : @"false",
+                                @"inputId" : @"-1"
+                                }
+                            ];
     
     [fakePacoEventManager saveEvent:pacoEvent];
     
@@ -104,12 +112,12 @@
     
     // PacoEventTypeSurvey
     pacoEvent.responses = @[
-                             @{
-                                 @"name" : @"not joined",
-                                 @"answer" : @"false",
-                                 @"inputId" : @"-1"
-                                 }
-                           ];
+                            @{
+                                @"name" : @"not joined",
+                                @"answer" : @"false",
+                                @"inputId" : @"-1"
+                                }
+                            ];
     
     pacoEvent.responseTime = [NSDate date];
     pacoEvent.scheduledTime = [NSDate date];
@@ -118,9 +126,9 @@
     
     testParticipateStatus = [fakePacoEventManager statsForExperiment:pacoExperimentDefinition.experimentId];
     
-    XCTAssertEqual(testParticipateStatus.numberOfNotifications, 2);
-    XCTAssertEqual(testParticipateStatus.numberOfParticipations, 2);
-    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 0);
+    XCTAssertEqual(testParticipateStatus.numberOfNotifications, 1);
+    XCTAssertEqual(testParticipateStatus.numberOfParticipations, 1);
+    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 1);
     XCTAssertEqual(testParticipateStatus.percentageOfParticipation, 1);
     XCTAssertTrue([testParticipateStatus.percentageText isEqualToString:@"100%"]);
     
@@ -131,9 +139,9 @@
     
     testParticipateStatus = [fakePacoEventManager statsForExperiment:pacoExperimentDefinition.experimentId];
     
-    XCTAssertEqual(testParticipateStatus.numberOfNotifications, 3);
+    XCTAssertEqual(testParticipateStatus.numberOfNotifications, 1);
     XCTAssertEqual(testParticipateStatus.numberOfParticipations, 0);
-    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 0);
+    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 1);
     XCTAssertEqual(testParticipateStatus.percentageOfParticipation, 0);
     XCTAssertTrue([testParticipateStatus.percentageText isEqualToString:@"0%"]);
     
@@ -147,52 +155,9 @@
     
     XCTAssertEqual(testParticipateStatus.numberOfNotifications, 0);
     XCTAssertEqual(testParticipateStatus.numberOfParticipations, 0);
-    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 4);
+    XCTAssertEqual(testParticipateStatus.numberOfSelfReports, 2);
     XCTAssertEqual(testParticipateStatus.percentageOfParticipation, 0);
     XCTAssertNil(testParticipateStatus.percentageText);
 }
-
-
-//@property(nonatomic, readonly) NSUInteger numberOfNotifications;
-//@property(nonatomic, readonly) NSUInteger numberOfParticipations;
-//@property(nonatomic, readonly) NSUInteger numberOfSelfReports;
-//@property(nonatomic, readonly) float percentageOfParticipation; //0.867
-//@property(nonatomic, copy, readonly) NSString *percentageText; //87%
-//
-//@end
-//
-//
-////YMZ:TODO: fully testing
-////YMZ:TODO: thread safe
-////YMZ:TODO: use async design
-////YMZ:TODO: use core data
-////YMZ:TODO: error handling of file operation
-//@interface PacoEventManager : NSObject
-//
-//+ (PacoEventManager*)defaultManager;
-//
-//- (void)saveEvent:(PacoEvent*)event;
-//- (void)saveEvents:(NSArray*)events;
-//
-//- (void)startUploadingEvents;
-//
-////When background fetch API triggers or location significantly changes, call this method
-////to upload events in a limited time frame, we are allowed to finish our tasks in 30 seconds.
-//- (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
-//
-//- (void)stopUploadingEvents;
-//
-//
-//- (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
-//                       withSchedule:(PacoExperimentSchedule*)schedule;
-//- (void)saveStopEventWithExperiment:(PacoExperiment*)experiment;
-//- (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
-//                                andInputs:(NSArray*)visibleInputs;
-//- (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
-//                                   withInputs:(NSArray*)inputs
-//                             andScheduledTime:(NSDate*)scheduledTime;
-//
-//- (PacoParticipateStatus*)statsForExperiment:(NSString*)experimentId;
-
 
 @end
