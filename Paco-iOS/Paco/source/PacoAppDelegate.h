@@ -14,6 +14,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
 
 @class PacoMainViewController;
 
@@ -26,5 +27,14 @@
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 
 - (void)processNotificationIfNeeded;
+
+#pragma mark - Core Data support
+
+@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
+@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+
+- (void)saveContext;
+
 
 @end
