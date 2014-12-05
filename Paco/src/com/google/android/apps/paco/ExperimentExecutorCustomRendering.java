@@ -17,11 +17,14 @@
 package com.google.android.apps.paco;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -382,10 +385,11 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
 
 private void injectObjectsIntoJavascriptEnvironment() {
   final Map<String,String> map = new HashMap<String, String>();
-  map.put("lastResponse", convertLastEventToJsonString(experiment));
-  map.put("title", experiment.getTitle());
-  map.put("experiment", ExperimentProviderUtil.getJson(experiment));
+  //map.put("lastResponse", convertLastEventToJsonString(experiment));
   map.put("test", "false");
+  map.put("title", experiment.getTitle());
+  //map.put("experiment", ExperimentProviderUtil.getJson(experiment));
+
   map.put("scheduledTime", Long.toString(scheduledTime));
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
@@ -393,7 +397,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   String text = experiment.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
-  webView.addJavascriptInterface(new JavascriptEmail(), "email");
+
   webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
 
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
@@ -403,6 +407,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
+  webView.addJavascriptInterface(new JavascriptEmail(), "email");
   webView.addJavascriptInterface(new JavascriptPhotoService(), "photoService");
   webView.addJavascriptInterface(new JavascriptNotificationService(), "notificationService");
 
@@ -412,7 +417,33 @@ private void injectObjectsIntoJavascriptEnvironment() {
 }
 
 private void loadCustomRendererIntoWebView() {
-  webView.loadUrl("file:///android_asset/custom_skeleton.html");
+  if (true/*experiment.fullyCustom()*/) {
+    //webView.loadUrl("file:///android_asset/custom_skeleton.html");
+    webView.loadUrl("file:///android_asset/polymer.html"); // 6s first load, 5s subsequent loads
+    //webView.loadUrl("file:///android_asset/empty.html"); // 4s first load, 3s subsequent loads, 1-2s if completely empty web view (no js loads, no jquery.ready call)
+  } else {
+    BufferedReader r = null;
+    try {
+      StringBuffer data = new StringBuffer();
+      InputStream in = this.getClassLoader().getResourceAsStream("file:///android_asset/polymer.html");
+      r = new BufferedReader(new InputStreamReader(in));
+      String line;
+      while ((line = r.readLine()) != null) {
+        data.append(line);
+      }
+      webView.loadData(data.toString(), "text/html", "UTF-8");
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (r != null) {
+        try {
+          r.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
 }
 
 private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
@@ -873,6 +904,7 @@ private String findAccount(String userEmail) {
 
   private class JavascriptExperimentLoader {
     private Experiment experiment;
+    private String json;
 
     public JavascriptExperimentLoader(Experiment experiment) {
         this.experiment = experiment;
@@ -880,7 +912,9 @@ private String findAccount(String userEmail) {
 
     public String getExperiment() {
       long t1 = System.currentTimeMillis();
-      String json = ExperimentProviderUtil.getJson(experiment);
+      if (this.json == null) {
+        json = ExperimentProviderUtil.getJson(experiment);
+      }
       long t2= System.currentTimeMillis();
       Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
       return json;
@@ -892,6 +926,7 @@ private String findAccount(String userEmail) {
      * @return json object of an outcome { status: [1|0], error_message : [nil|errorstring] }
      */
     public String saveExperiment(final String experimentJson) {
+      this.json = experimentJson;
       new Thread(new Runnable() {
 
 
