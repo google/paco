@@ -20,8 +20,8 @@
 #import "PacoDateUtility.h"
 
 @interface PacoNotificationManager ()
-
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
+- (void)addNotifications:(NSMutableArray *)allNotifications;
 - (void)processCachedNotificationsWithBlock:(void(^)(NSMutableDictionary*, NSArray*, NSArray*))block;
 - (int)totalNumberOfActiveNotifications;
 
