@@ -1,8 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "JCNotificationBannerPresenter.h"
 
-@interface JCNotificationBannerPresenterSmokeStyle : JCNotificationBannerPresenter
-@property CGFloat minimumHorizontalMargin;
+@interface JCNotificationBannerPresenterIOS7Style : JCNotificationBannerPresenter
 @property CGFloat bannerMaxWidth;
 @property CGFloat bannerHeight;
 @end
