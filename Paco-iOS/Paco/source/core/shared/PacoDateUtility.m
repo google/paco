@@ -329,6 +329,17 @@
   return nil;
 }
 
++ (NSString*)escapedNameForTimeZone:(NSTimeZone *)timeZone {
+    CFStringRef escaped = CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                                  (CFStringRef)[timeZone name], NULL, CFSTR("!*'();:@&=+$,/?%#[]"), kCFStringEncodingUTF8);
+    return CFBridgingRelease(escaped);
+}
+
++ (NSString*)escapedNameForSystemTimeZone {
+    NSTimeZone *timeZone = [NSTimeZone systemTimeZone];
+    return [PacoDateUtility escapedNameForTimeZone:timeZone];
+}
+
 
 
 

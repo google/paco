@@ -57,5 +57,9 @@
                          nth:(int)nth
                     dayFlags:(unsigned int)dayFlags;
 + (NSDate *)nextScheduledDay:(NSUInteger)dayFlags fromDate:(NSDate *)date;
++ (NSString *)escapedNameForTimeZone:(NSTimeZone *)timeZone;
++ (NSString *)escapedNameForSystemTimeZone;
+
+
 
 @end
