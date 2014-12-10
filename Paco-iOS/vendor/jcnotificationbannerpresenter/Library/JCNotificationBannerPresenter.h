@@ -7,9 +7,6 @@ typedef void (^JCNotificationBannerPresenterFinishedBlock)();
 
 @interface JCNotificationBannerPresenter : NSObject
 
-//designated initializer
-- (id)initWithMessageFont:(UIFont*)messageFont;
-
 - (void)willBeginPresentingNotifications;
 - (void)didFinishPresentingNotifications;
 - (void) presentNotification:(JCNotificationBanner*)notification

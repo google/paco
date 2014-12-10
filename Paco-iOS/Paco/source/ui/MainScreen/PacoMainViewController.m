@@ -149,7 +149,7 @@
         message = NSLocalizedString(@"Something went wrong, please try again.", nil);
       }
     }
-    [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
     JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
                                                                        message:message
                                                                        timeout:3.

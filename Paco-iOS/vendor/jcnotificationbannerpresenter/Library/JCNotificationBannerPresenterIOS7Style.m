@@ -1,13 +1,12 @@
-#import "JCNotificationBannerPresenterSmokeStyle.h"
+#import "JCNotificationBannerPresenterIOS7Style.h"
 #import "JCNotificationBannerPresenter_Private.h"
-#import "JCNotificationBannerView.h"
+#import "JCNotificationBannerViewIOS7Style.h"
 #import "JCNotificationBannerViewController.h"
 
-@implementation JCNotificationBannerPresenterSmokeStyle
+@implementation JCNotificationBannerPresenterIOS7Style
 
 - (id) init {
   if (self = [super init]) {
-    self.minimumHorizontalMargin = 10.0;
     self.bannerMaxWidth = 350.0;
     self.bannerHeight = 60.0;
   }
@@ -17,7 +16,7 @@
 - (void) presentNotification:(JCNotificationBanner*)notification
                     inWindow:(JCNotificationBannerWindow*)window
                     finished:(JCNotificationBannerPresenterFinishedBlock)finished {
-  JCNotificationBannerView* banner = [self newBannerViewForNotification:notification];
+  JCNotificationBannerViewIOS7Style* banner = (JCNotificationBannerViewIOS7Style*)[self newBannerViewForNotification:notification];
 
   JCNotificationBannerViewController* bannerViewController = [JCNotificationBannerViewController new];
   window.rootViewController = bannerViewController;
@@ -36,7 +35,7 @@
   CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
   // Make the banner fill the width of the screen, minus any requested margins,
   // up to self.bannerMaxWidth.
-  CGSize bannerSize = CGSizeMake(MIN(self.bannerMaxWidth, originalControllerView.bounds.size.width - self.minimumHorizontalMargin * 2.0), self.bannerHeight);
+  CGSize bannerSize = CGSizeMake(MIN(self.bannerMaxWidth, originalControllerView.bounds.size.width), self.bannerHeight);
   // Center the banner horizontally.
   CGFloat x = (MAX(statusBarSize.width, statusBarSize.height) / 2) - (bannerSize.width / 2);
   // Position the banner offscreen vertically.
@@ -114,6 +113,22 @@
   JCNotificationBannerWindow* window = [super newWindow];
   window.windowLevel = UIWindowLevelStatusBar;
   return window;
+}
+
+- (UIView*) newContainerViewForNotification:(JCNotificationBanner*)notification {
+  UIView* view = [super newContainerViewForNotification:notification];
+  view.autoresizesSubviews = YES;
+  return view;
+}
+
+- (JCNotificationBannerView*) newBannerViewForNotification:(JCNotificationBanner*)notification {
+  JCNotificationBannerViewIOS7Style* view = [[JCNotificationBannerViewIOS7Style alloc]
+                                             initWithNotification:notification];
+  view.userInteractionEnabled = YES;
+  view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin
+  | UIViewAutoresizingFlexibleLeftMargin
+  | UIViewAutoresizingFlexibleRightMargin;
+  return view;
 }
 
 @end

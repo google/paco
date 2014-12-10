@@ -14,15 +14,16 @@
 
   JCNotificationBannerViewController* bannerViewController = [JCNotificationBannerViewController new];
   window.rootViewController = bannerViewController;
-  window.bannerView = banner;
+  UIView* originalControllerView = bannerViewController.view;
 
   UIView* containerView = [self newContainerViewForNotification:notification];
   [containerView addSubview:banner];
   bannerViewController.view = containerView;
 
-  UIView* view = [[[[UIApplication sharedApplication] keyWindow] subviews] objectAtIndex:0];
-  containerView.bounds = view.bounds;
-  containerView.transform = view.transform;
+  window.bannerView = banner;
+
+  containerView.bounds = originalControllerView.bounds;
+  containerView.transform = originalControllerView.transform;
   [banner getCurrentPresentingStateAndAtomicallySetPresentingState:YES];
 
   CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
@@ -95,6 +96,7 @@
       [self rotateLayer:layer fromAngle:0.0 toAngle:90.0 duration:animationDuration onCompleted:^(){
         if ([banner getCurrentPresentingStateAndAtomicallySetPresentingState:NO]) {
           [banner removeFromSuperview];
+          [containerView removeFromSuperview];
           finished();
         }
         // Break the retain cycle
@@ -159,6 +161,7 @@
       break;
 
     case UIInterfaceOrientationPortrait:
+    case UIInterfaceOrientationUnknown:
       break;
 
     case UIInterfaceOrientationPortraitUpsideDown:
