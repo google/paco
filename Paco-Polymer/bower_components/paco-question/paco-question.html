@@ -1,0 +1,47 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+A container to hold a gplus post.
+
+##### Example
+
+    <paco-question></paco-question>
+
+@element paco-question
+@blurb A container to hold a gplus post.
+@status alpha
+@url github.io
+-->
+
+<polymer-element name="paco-question" attributes="choices questionId extra output">
+  <template>
+    <link href="paco-question.css" rel="stylesheet" />
+
+    <div>
+      Please select one: ({{extra}})
+    
+      <template repeat="{{ choice in choiceArray }}">
+        <label>
+          <input type="radio" name="likert_{{questionId}}" value="{{choice}}" on-click="{{radioChanged}}">
+          {{choice}}
+        </label>
+      </template>
+    </div>
+
+  </template>
+  <script>
+    Polymer('paco-question', {
+      choiceArray: [],
+      ready: function() {
+        
+      },
+      choicesChanged: function(oldVal, newVal) {
+        this.choiceArray = JSON.parse(newVal);
+      },
+      radioChanged: function() {
+        //console.log("Hello");$().val();
+        console.log(this.shadowDom.querySelector("input[type=radio]"));
+      }
+    });
+  </script>
+</polymer-element>
