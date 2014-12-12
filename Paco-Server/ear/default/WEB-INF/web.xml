@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2011 Google Inc. All Rights Reserved.
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance  with the License.  
- ~ You may obtain a copy of the License at
- ~
- ~    http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing,
- ~ software distributed under the License is distributed on an
- ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- ~ KIND, either express or implied.  See the License for the
- ~ specific language governing permissions and limitations
- ~ under the License.
- -->
+<!-- ~ Copyright 2011 Google Inc. All Rights Reserved. ~ ~ Licensed under 
+  the Apache License, Version 2.0 (the "License"); ~ you may not use this file 
+  except in compliance with the License. ~ You may obtain a copy of the License 
+  at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless required by 
+  applicable law or agreed to in writing, ~ software distributed under the 
+  License is distributed on an ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY ~ KIND, either express or implied. See the License for the ~ specific 
+  language governing permissions and limitations ~ under the License. -->
 <!DOCTYPE web-app
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
@@ -28,106 +20,105 @@
 
   <!-- 
   <filter>
-   <filter-name>whitelistFilter</filter-name>
-   <filter-class>com.google.sampling.experiential.server.WhitelistFilter</filter-class>
+    <filter-name>dbQuotaFilter</filter-name>
+    <filter-class>com.google.sampling.experiential.server.DBQuotaFilter</filter-class>
   </filter>
- 
-  <filter>
-   <filter-name>dbQuotaFilter</filter-name>
-   <filter-class>com.google.sampling.experiential.server.DBQuotaFilter</filter-class>
-  </filter>
- 
   <filter-mapping>
-   <filter-name>dbQuotaFilter</filter-name>
-   <url-pattern>/events*</url-pattern>
+    <filter-name>dbQuotaFilter</filter-name>
+    <url-pattern>/events*</url-pattern>
   </filter-mapping>
- 
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>mapServlet</servlet-name>
-  </filter-mapping>
- 
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>eventServlet</servlet-name>
-  </filter-mapping>
- 
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>experimentServlet</servlet-name>
-  </filter-mapping>
-  
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>participantServlet</servlet-name>
-  </filter-mapping> 
 
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>whitelistService</servlet-name>
-  </filter-mapping> 
-  
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>remoteLoggingService</servlet-name>
-  </filter-mapping> 
-        
-  <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>jobStatusServlet</servlet-name>
-  </filter-mapping>
-  --> 
-<!-- 
   <filter>
-        <filter-name>appstats</filter-name>
-        <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
-         <init-param>
-          <param-name>calculateRpcCosts</param-name>
-          <param-value>true</param-value>
-      </init-param>
-    </filter>
+  <filter-name>appstats</filter-name>
+  <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
+  <init-param>
+    <param-name>calculateRpcCosts</param-name>
+    <param-value>true</param-value>
+  </init-param>
+</filter>
+  <filter-mapping>
+    <filter-name>appstats</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  -->
 
-    <filter-mapping>
-        <filter-name>appstats</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-     -->
-<!--   <filter-mapping>
-   <filter-name>whitelistFilter</filter-name>
-   <servlet-name>backendReportJobExecutorServlet</servlet-name>
-  </filter-mapping> 
- -->  
-   
   <!-- Servlets -->
+  <!--  gwt endpoints -->
   <servlet>
-    <servlet-name>mapServlet</servlet-name>
+    <servlet-name>pacoServiceServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.PacoServiceImpl</servlet-class>
   </servlet>
-  <servlet>
-    <servlet-name>eventServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.EventServlet</servlet-class>
-    </servlet>
+  <servlet-mapping>
+    <servlet-name>pacoServiceServlet</servlet-name>
+    <url-pattern>/pacoserver/maps</url-pattern>
+  </servlet-mapping>
   
-   <servlet>
+  <servlet>
     <servlet-name>loginService</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.LoginServiceImpl</servlet-class>
   </servlet>
+  <servlet-mapping>
+    <servlet-name>loginService</servlet-name>
+    <url-pattern>/pacoserver/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>remoteLoggingService</servlet-name>
+    <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>remoteLoggingService</servlet-name>
+    <url-pattern>/pacoserver/logging</url-pattern>
+  </servlet-mapping>
+  
+  
+  <!--  model & report endpoints -->
+  <servlet>
+    <servlet-name>eventServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.EventServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>eventServlet</servlet-name>
+    <url-pattern>/events</url-pattern>
+  </servlet-mapping>
   
   <servlet>
     <servlet-name>experimentServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-    <servlet-name>participantServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
-    </servlet>
-    
-    <servlet>
-    <servlet-name>whitelistService</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.WhitelistServiceImpl</servlet-class>
   </servlet>
-    
+  <servlet-mapping>
+    <servlet-name>experimentServlet</servlet-name>
+    <url-pattern>/experiments</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>participationStatsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>participationStatsServlet</servlet-name>
+    <url-pattern>/participantStats</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.JobStatusServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <url-pattern>/jobStatus</url-pattern>
+  </servlet-mapping>
+  
+  
+  <!--  administrative and debugging endpoints -->
+  <servlet>
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.MigrationFrontendServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <url-pattern>/migrate</url-pattern>
+  </servlet-mapping>
 
   <servlet>
     <display-name>Remote API Servlet</display-name>
@@ -135,116 +126,97 @@
     <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
-  
-  <servlet>
-	  <servlet-name>remoteLoggingService</servlet-name>
-	  <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
-	</servlet>
-
-      <servlet>
-    <servlet-name>jobStatusServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.JobStatusServlet</servlet-class>
-  </servlet>
-  	<!--
-    <servlet>
-    <servlet-name>backendReportJobExecutorServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.BackendReportJobExecutorServlet</servlet-class>
-  </servlet>
--->
-    <servlet>   
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MigrationFrontendServlet</servlet-class>
-  </servlet>
-  <!--
-    <servlet>   
-    <servlet-name>migrationBackendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MigrationBackendServlet</servlet-class>
-  </servlet>
-    -->
-    <servlet-mapping>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migrate</url-pattern>
-    </servlet-mapping>
-    <!--
-    <servlet-mapping>
-    <servlet-name>migrationBackendServlet</servlet-name>
-    <url-pattern>/migrateBackend</url-pattern>
-    </servlet-mapping>
-    
-    <servlet-mapping>
-    <servlet-name>backendReportJobExecutorServlet</servlet-name>
-    <url-pattern>/backendReportJobExecutor</url-pattern>
-    </servlet-mapping>
--->
- <servlet-mapping>
-  <servlet-name>jobStatusServlet</servlet-name>
-  <url-pattern>/jobStatus</url-pattern>
-</servlet-mapping>
-    
-<servlet-mapping>
-  <servlet-name>remoteLoggingService</servlet-name>
-  <url-pattern>/pacoserver/logging</url-pattern>
-</servlet-mapping>
-  
-<servlet-mapping>
+  <servlet-mapping>
     <servlet-name>RemoteApiServlet</servlet-name>
     <url-pattern>/remote_api</url-pattern>
-</servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>mapServlet</servlet-name>
-    <url-pattern>/pacoserver/maps</url-pattern>
   </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>eventServlet</servlet-name>
-    <url-pattern>/events</url-pattern>
-    </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>loginService</servlet-name>
-    <url-pattern>/pacoserver/login</url-pattern>
-  </servlet-mapping>  
-
-    <servlet-mapping>
-    <servlet-name>whitelistService</servlet-name>
-    <url-pattern>/pacoserver/whitelist</url-pattern>
-  </servlet-mapping>  
   
- <servlet-mapping>
-    <servlet-name>experimentServlet</servlet-name>
-    <url-pattern>/experiments</url-pattern>
-  </servlet-mapping>  
+  <!-- security constraints -->
+  <!-- ensure https, authenticate as necessary using Userservice or OAuthService in get/post 
+    methods -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/events*</url-pattern>
+      <url-pattern>/experiments*</url-pattern>
+      <url-pattern>/participantStats*</url-pattern>
+      <url-pattern>/jobStatus*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
 
-  <servlet-mapping>
-    <servlet-name>participantServlet</servlet-name>
-    <url-pattern>/participantStats</url-pattern>
-  </servlet-mapping>  
 
-<!-- mapreduce -->
-<!--
+  <!-- gwt-only client endpoints use UserService with https -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/pacoserver/maps*</url-pattern>
+      <url-pattern>/pacoserver/logging*</url-pattern>
+      <url-pattern>/join*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
 
+  <!-- admin only endpoints use UserService, https, and admin role -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/migrate*</url-pattern>
+      <url-pattern>/pacoserver/migrate*</url-pattern>
+      <url-pattern>/remote_api*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+
+  </security-constraint>
+
+  <!-- 
   <servlet>
-    <servlet-name>PipelineServlet</servlet-name>
-    <servlet-class>
-      com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
-    </servlet-class>
+    <servlet-name>appstats</servlet-name>
+    <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
   </servlet>
+  <servlet-mapping>
+    <servlet-name>appstats</servlet-name>
+    <url-pattern>/appstats/*</url-pattern>
+  </servlet-mapping>
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/appstats/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+ -->
+  <!-- mapreduce -->
+  <!-- 
+  <servlet>
+  <servlet-name>PipelineServlet</servlet-name>
+  <servlet-class>
+    com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
+  </servlet-class>
+</servlet>
   <servlet-mapping>
     <servlet-name>PipelineServlet</servlet-name>
     <url-pattern>/_ah/pipeline/*</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>mapreduce</servlet-name>
     <servlet-class>
-      com.google.appengine.tools.mapreduce.MapReduceServlet
-    </servlet-class>
+      com.google.appengine.tools.mapreduce.MapReduceServlet </servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>mapreduce</servlet-name>
     <url-pattern>/mapreduce/*</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>randomcollisions</servlet-name>
     <servlet-class>
@@ -255,7 +227,6 @@
     <servlet-name>randomcollisions</servlet-name>
     <url-pattern>/randomcollisions</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>entitycount</servlet-name>
     <servlet-class>
@@ -266,7 +237,6 @@
     <servlet-name>entitycount</servlet-name>
     <url-pattern>/entitycount</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>bigqueryload</servlet-name>
     <servlet-class>
@@ -277,80 +247,22 @@
     <servlet-name>bigqueryload</servlet-name>
     <url-pattern>/bigqueryload</url-pattern>
   </servlet-mapping>
--->
+  -->
   <!-- In this example we put an admin constraint, since kicking off a MapReduce 
     can use a significant amount of resources. -->
-<!--
+    <!-- 
   <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/bigqueryload</url-pattern>
-      <url-pattern>/randomcollisions</url-pattern>
-      <url-pattern>/entitycount</url-pattern>
-      <url-pattern>/mapreduce/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
-  </security-constraint>
--->
-<!-- mapreduce end -->   
-  	 <security-constraint>
-	   <web-resource-collection>
-	      <url-pattern>/pacoserver/maps*</url-pattern>
-	      <url-pattern>/pacoserver/logging*</url-pattern>
-	      <url-pattern>/remote_api*</url-pattern>
-	      <url-pattern>/events*</url-pattern>
-	      <url-pattern>/experiments*</url-pattern>	      
-	      <url-pattern>/participantStats*</url-pattern>
-	      <!-- <url-pattern>/backendReportJobExecutor*</url-pattern> -->
-	      <url-pattern>/jobStatus*</url-pattern>
-	      <url-pattern>/join*</url-pattern>
-	   </web-resource-collection>
-	   <auth-constraint>
-	       <role-name>*</role-name> 
-	   </auth-constraint>
-	   <user-data-constraint>
-	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-	   </user-data-constraint>
-	
-	 </security-constraint>
-	 
-	 <security-constraint>
-	        <web-resource-collection>
-	            <url-pattern>/whitelist.jsp*</url-pattern>
-	            <url-pattern>/pacoserver/whitelist*</url-pattern>
-<!--              <url-pattern>/migrate*</url-pattern> -->
-              <url-pattern>/pacoserver/migrate*</url-pattern>
-	        </web-resource-collection>
-	        <auth-constraint>
-	            <role-name>admin</role-name>
-	        </auth-constraint>
-	           <user-data-constraint>
-	            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-	   </user-data-constraint>
-	        
-	    </security-constraint>
-      
- <!--
-	     <servlet>
-        <servlet-name>appstats</servlet-name>
-        <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
-    </servlet>
-
-       
-    <servlet-mapping>
-        <servlet-name>appstats</servlet-name>
-        <url-pattern>/appstats/*</url-pattern>
-    </servlet-mapping>
+  <web-resource-collection>
+    <url-pattern>/bigqueryload</url-pattern>
+    <url-pattern>/randomcollisions</url-pattern>
+    <url-pattern>/entitycount</url-pattern>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </web-resource-collection>
+  <auth-constraint>
+    <role-name>admin</role-name>
+  </auth-constraint>
+</security-constraint>
+ -->
+  <!-- mapreduce end -->
  
-    <security-constraint>
-        <web-resource-collection>
-            <url-pattern>/appstats/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>admin</role-name>
-        </auth-constraint>
-    </security-constraint>
-	-->
-   
-	</web-app>
+</web-app>

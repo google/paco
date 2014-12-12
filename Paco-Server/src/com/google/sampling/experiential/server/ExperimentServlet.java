@@ -34,8 +34,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
@@ -59,7 +57,6 @@ public class ExperimentServlet extends HttpServlet {
   private static final int EXPERIMENT_LIMIT_MAX = 50;
   public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
   public static final String DEV_HOST = "<Your machine name here>";
-  private UserService userService;
 
 
 
@@ -168,10 +165,10 @@ public class ExperimentServlet extends HttpServlet {
   IOException {
     resp.setContentType("application/json;charset=UTF-8");
 
-    User user = getWhoFromLogin();
+    User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
-      redirectUserToLogin(req, resp);
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
 
@@ -227,9 +224,6 @@ public class ExperimentServlet extends HttpServlet {
 
 
 
-  private void redirectUserToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-  }
 
   private void logPacoClientVersion(HttpServletRequest req) {
     String pacoVersion = req.getHeader("paco.version");
@@ -254,10 +248,6 @@ public class ExperimentServlet extends HttpServlet {
     return email.toLowerCase();
   }
 
-  private User getWhoFromLogin() {
-    userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
-  }
 
   public static boolean isDevInstance(HttpServletRequest req) {
     try {
@@ -270,8 +260,8 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    userService = UserServiceFactory.getUserService();
-    if (userService.isUserAdmin()) {
+
+    if (AuthUtil.isUserAdmin()) {
       readExperimentDefinitions(req, resp);
     }
   }
@@ -292,7 +282,7 @@ public class ExperimentServlet extends HttpServlet {
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, AuthUtil.getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

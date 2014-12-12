@@ -132,7 +132,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
       public void onSuccess(LoginInfo result) {
         loginInfo = result;
-        if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
+        if (loginInfo.isLoggedIn()) {
           Runnable onLoad = new Runnable() {
             @Override
             public void run() {
@@ -177,13 +177,7 @@ public class Main implements EntryPoint, ExperimentListener {
     loginPanel.add(signInLink);
 
     loginPanel.setVisible(true);
-    if (loginInfo.isLoggedIn() && !loginInfo.isWhitelisted()) {
-      Window.alert(myConstants.notWhiteListed());
-      //loginPanel.add(signOutLink);
-      signInLink.setHref(loginInfo.getLogoutUrl());
-//      signOutLink.setStyleName("paco-HTML-Large");
-//      signOutLink.setVisible(true);
-    }
+
     loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
     RootPanel.get().add(new HTML("<div style=\"text-align:center;\"><a href=\"/privacypolicy.html\">Privacy Policy</a></div>"));
