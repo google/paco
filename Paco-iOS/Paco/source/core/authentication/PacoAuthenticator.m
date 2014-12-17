@@ -265,6 +265,9 @@ Deep Linking:	Enabled
           assert(result);
           self.auth = auth;
           if (auth && !error) {
+            [SSKeychain setPassword:@""
+                         forService:kPacoService
+                            account:auth.userEmail];
             NSLog(@"PACO OAUTH2 LOGIN AUTH SUCCEEDED [%@]", auth.tokenURL.absoluteString);
             self.userLoggedIn = YES;
           } else {
