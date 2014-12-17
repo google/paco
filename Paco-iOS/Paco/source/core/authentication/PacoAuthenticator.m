@@ -233,9 +233,11 @@ Deep Linking:	Enabled
   
   */
   
-  NSString *scopes = @"https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
-  NSString *clientId = @"1051938716780.apps.googleusercontent.com";//@"406945030854.apps.googleusercontent.com";
-  NSString *clientSecret = @"";//@"1tdZTggWAzBo7NgDOx49KFKZ";//nil;//@"rD9_oQ5rbubfkgoFYfy0Pcjl";
+  NSString *scopes = @"https://www.googleapis.com/auth/userinfo.email";
+  NSString *clientId = @"264277160652-8c2t6b1j2c8ndq6bfi2m1p314fp6fofn.apps.googleusercontent.com";
+
+  // ispiro: Apparently the clientSecret parameter can be empty and auth still succeeds.
+  NSString *clientSecret = @""; //@"QZKXhU8evoUEnKqxioISy-l4S";
 
   GTMOAuth2Authentication *keychainAuth =
       [GTMOAuth2ViewControllerTouch
@@ -263,6 +265,7 @@ Deep Linking:	Enabled
           BOOL result = [GTMOAuth2ViewControllerTouch saveParamsToKeychainForName:@"PacoKeychain2"
                                                                    authentication:auth];
           assert(result);
+          // TODO(ispiro): If user presses cancel at the final screen, assert will fail. Should return to splash screen.
           self.auth = auth;
           if (auth && !error) {
             [SSKeychain setPassword:@""
@@ -277,7 +280,7 @@ Deep Linking:	Enabled
           if (completionHandler) {
             completionHandler(nil);
           }
-          
+          // TODO(ispiro): Find a way to hide this window faster.
           [[UIApplication sharedApplication].keyWindow.rootViewController
               dismissViewControllerAnimated:NO completion:^{}];
       }];
