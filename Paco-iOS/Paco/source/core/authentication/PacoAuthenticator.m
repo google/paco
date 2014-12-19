@@ -218,27 +218,11 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   // Standard OAuth2 login flow.
   // See: https://code.google.com/apis/console/#project:406945030854:access
   
-  /*
-  
-  
-Client ID:	
-1051938716780.apps.googleusercontent.com
-Client secret:	
-1tdZTggWAzBo7NgDOx49KFKZ
-Redirect URIs:	urn:ietf:wg:oauth:2.0:oob
-http://localhost
-Application type:	iOS
-Bundle ID:	com.paco.Paco
-Deep Linking:	Enabled
-  
-  */
-  
   NSString *scopes = @"https://www.googleapis.com/auth/userinfo.email";
-  NSString *clientId = @"264277160652-8c2t6b1j2c8ndq6bfi2m1p314fp6fofn.apps.googleusercontent.com";
+  NSString *clientId = @"";
 
   // ispiro: Apparently the clientSecret parameter can be empty and auth still succeeds.
-  NSString *clientSecret = @""; //@"QZKXhU8evoUEnKqxioISy-l4S";
-
+  NSString *clientSecret = @"";
   GTMOAuth2Authentication *keychainAuth =
       [GTMOAuth2ViewControllerTouch
           authForGoogleFromKeychainForName:@"PacoKeychain2"
