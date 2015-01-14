@@ -246,7 +246,12 @@ public class DAOConverter {
 
     experiment.setPublished(experimentDAO.getPublished());
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
-    experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
+    List<String> lowerCaseEmailAddressesForAdmins = lowerCaseEmailAddresses(experimentDAO.getAdmins());
+    String whoFromLoginEmail = whoFromLogin.getEmail().toLowerCase();
+    if (!lowerCaseEmailAddressesForAdmins.contains(whoFromLoginEmail)) {
+      lowerCaseEmailAddressesForAdmins.add(whoFromLoginEmail);
+    }
+    experiment.setAdmins(lowerCaseEmailAddressesForAdmins);
     experiment.setDeleted(experimentDAO.getDeleted());
 
     experiment.setCustomRendering(experimentDAO.isCustomRendering());
