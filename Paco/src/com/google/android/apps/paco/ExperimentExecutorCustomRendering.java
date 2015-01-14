@@ -419,7 +419,8 @@ private void injectObjectsIntoJavascriptEnvironment() {
 private void loadCustomRendererIntoWebView() {
   if (true/*experiment.fullyCustom()*/) {
     //webView.loadUrl("file:///android_asset/custom_skeleton.html");
-    webView.loadUrl("file:///android_asset/polymer.html"); // 6s first load, 5s subsequent loads
+    webView.loadUrl("file:///android_asset/skeleton2.html");
+    //webView.loadUrl("file:///android_asset/polymer.html"); // 6s first load, 5s subsequent loads
     //webView.loadUrl("file:///android_asset/empty.html"); // 4s first load, 3s subsequent loads, 1-2s if completely empty web view (no js loads, no jquery.ready call)
   } else {
     BufferedReader r = null;
