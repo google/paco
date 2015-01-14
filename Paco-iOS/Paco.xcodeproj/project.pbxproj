@@ -119,7 +119,6 @@
 		36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */; };
 		36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */; };
 		36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */; };
-		36B8EB7F17568DAF004CF035 /* PacoLoginScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4317568DAF004CF035 /* PacoLoginScreenViewController.m */; };
 		36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4617568DAF004CF035 /* PacoMainViewController.m */; };
 		36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4817568DAF004CF035 /* PacoMenuButton.m */; };
 		36B8EB8217568DAF004CF035 /* PacoQuestionScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4B17568DAF004CF035 /* PacoQuestionScreenViewController.m */; };
@@ -446,8 +445,6 @@
 		36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentDetailsViewController.m; sourceTree = "<group>"; };
 		36B8EB3F17568DAF004CF035 /* PacoFindMyExperimentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFindMyExperimentsViewController.h; sourceTree = "<group>"; };
 		36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFindMyExperimentsViewController.m; sourceTree = "<group>"; };
-		36B8EB4217568DAF004CF035 /* PacoLoginScreenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoginScreenViewController.h; sourceTree = "<group>"; };
-		36B8EB4317568DAF004CF035 /* PacoLoginScreenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoginScreenViewController.m; sourceTree = "<group>"; };
 		36B8EB4517568DAF004CF035 /* PacoMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMainViewController.h; sourceTree = "<group>"; };
 		36B8EB4617568DAF004CF035 /* PacoMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoMainViewController.m; sourceTree = "<group>"; };
 		36B8EB4717568DAF004CF035 /* PacoMenuButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMenuButton.h; sourceTree = "<group>"; };
@@ -898,7 +895,6 @@
 				366F46A918CF829800789A54 /* PublicExperimentScreen */,
 				E43DA21A185ADDD2007F04F9 /* WebViewController */,
 				E4E8F34F183B21500022613A /* ContactScreen */,
-				36B8EB4117568DAF004CF035 /* LoginScreen */,
 				36B8EB4417568DAF004CF035 /* MainScreen */,
 				E440AB3119140DA700D6FD09 /* OpenSourceLibScreen */,
 				36B8EB3817568DAF004CF035 /* FindExperimentScreen */,
@@ -986,15 +982,6 @@
 				36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */,
 			);
 			path = ExperimentDetailsScreen;
-			sourceTree = "<group>";
-		};
-		36B8EB4117568DAF004CF035 /* LoginScreen */ = {
-			isa = PBXGroup;
-			children = (
-				36B8EB4217568DAF004CF035 /* PacoLoginScreenViewController.h */,
-				36B8EB4317568DAF004CF035 /* PacoLoginScreenViewController.m */,
-			);
-			path = LoginScreen;
 			sourceTree = "<group>";
 		};
 		36B8EB4417568DAF004CF035 /* MainScreen */ = {
@@ -1596,7 +1583,6 @@
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
 				36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */,
 				7F8531D71A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
-				36B8EB7F17568DAF004CF035 /* PacoLoginScreenViewController.m in Sources */,
 				36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */,
 				36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */,
 				36B8EB8217568DAF004CF035 /* PacoQuestionScreenViewController.m in Sources */,
