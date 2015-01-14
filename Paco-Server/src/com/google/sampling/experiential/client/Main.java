@@ -127,7 +127,7 @@ public class Main implements EntryPoint, ExperimentListener {
     LoginServiceAsync loginService = GWT.create(LoginService.class);
     loginService.login(GWT.getHostPageBaseURL(), new AsyncCallback<LoginInfo>() {
       public void onFailure(Throwable error) {
-        Window.alert(myConstants.failedToLogin());
+        //Window.alert(myConstants.failedToLogin());
       }
 
       public void onSuccess(LoginInfo result) {
