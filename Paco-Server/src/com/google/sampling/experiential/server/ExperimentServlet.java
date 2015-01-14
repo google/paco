@@ -260,10 +260,7 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-    if (AuthUtil.isUserAdmin()) {
-      readExperimentDefinitions(req, resp);
-    }
+    readExperimentDefinitions(req, resp);
   }
 
   private void readExperimentDefinitions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
