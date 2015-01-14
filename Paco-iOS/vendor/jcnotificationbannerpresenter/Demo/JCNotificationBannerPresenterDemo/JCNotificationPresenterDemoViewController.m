@@ -2,6 +2,7 @@
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "JCNotificationBannerPresenterIOSStyle.h"
+#import "JCNotificationBannerPresenterIOS7Style.h"
 
 @interface JCNotificationPresenterDemoViewController ()
 
@@ -14,10 +15,17 @@
 @implementation JCNotificationPresenterDemoViewController
 
 - (IBAction) presentNotificationButtonTapped:(id)sender {
-  if (self.styleSwitch.selectedSegmentIndex) {
-    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOSStyle new];
-  } else {
-    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+  switch (self.styleSwitch.selectedSegmentIndex) {
+    case 0:
+      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
+      break;
+    case 1:
+      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOSStyle new];
+      break;
+    case 2:
+    default:
+      [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterIOS7Style new];
+      break;
   }
 
   [JCNotificationCenter
