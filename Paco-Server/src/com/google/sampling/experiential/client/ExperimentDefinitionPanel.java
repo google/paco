@@ -318,8 +318,8 @@ public class ExperimentDefinitionPanel extends Composite {
     userContentPanel.add(instructionLabel);
 
     customRenderingEditor = new AceEditor();
-    customRenderingEditor.setWidth("800px");
-    customRenderingEditor.setHeight("600px");
+    customRenderingEditor.setWidth("1024px");
+    customRenderingEditor.setHeight("800px");
     customRenderingEditor.startEditor();
     customRenderingEditor.setMode(AceEditorMode.JAVASCRIPT);
     customRenderingEditor.setTheme(AceEditorTheme.ECLIPSE);
