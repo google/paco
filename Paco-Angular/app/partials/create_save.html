@@ -1,0 +1,38 @@
+<div ng-repeat="question in questions">
+
+  <select class="question-type" ng-model="experimentType">
+    <option value="likert_smileys">likert smileys</option>
+    <option value="likert">likert</option>
+    <option value="open_text">open text</option>
+    <option value="list">list</option>
+    <option value="number">number</option>
+    <option value="location">location</option>
+    <option value="photo">photo</option>
+  </select>
+
+  <input type="text" ng-model="prompt" placeholder="Question for the Participant">
+  <input type="text" ng-model="label" placeholder="Question 1 Label">
+
+  <div ng-if="experimentType == 'likert_smileys'"></div>
+
+  <div ng-if="experimentType == 'likert'">
+  	Number of steps in scale: <input type=text value='5'>
+  	Left side label:  <input type=text>
+  	Right side label:  <input type=text>
+  </div>
+
+  <div ng-if="experimentType == 'open_text'"></div>
+
+  <div ng-if="experimentType == 'list'" ng-model="choices">
+  	<input type=checkbox ng-model="multiChoice"> Multiple Selections
+  	
+    <li ng-repeat="item in choices">
+      Choice {{$index + 1}}
+      <input type=text ng-model="item.value">
+      <button ng-click="removeChoice($index)" ng-disabled="choices.length == 1">-</button>
+    </li>
+    <button ng-click="choices.push({})">+</button>
+  </div>
+  <hr>
+
+</div>
