@@ -310,7 +310,9 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), fromSignalTimeDAOs(scheduleKey, scheduleDAO.getSignalTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(), scheduleDAO.getOnlyEditableOnJoin());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(),
+        scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(),
+        scheduleDAO.getOnlyEditableOnJoin());
     return schedule;
   }
 
