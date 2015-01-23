@@ -20,7 +20,8 @@
   android:layout_width="wrap_content"
   android:layout_height="fill_parent"
   android:orientation="vertical"
-  android:layout_gravity="center">
+  android:layout_gravity="center"
+  android:id="@+id/scheduleRootView" >
 
   <TextView
     android:layout_width="fill_parent"
@@ -100,7 +101,7 @@
   <ListView
     android:id="@+id/timesList"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
+    android:layout_height="260dp" />
   <Button
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
