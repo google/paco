@@ -1,6 +1,5 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -14,10 +13,10 @@ public class ParticipantReport {
   private String who;
   private List<Event> events;
   private boolean alreadyComputed;
-  
+
   private int scheduled;
   private int selfReportResponses;
-  
+
   private int todaysSelfReportResponses;
   private int todaysScheduled;
   private int todaysSignaledResponses;
@@ -27,7 +26,7 @@ public class ParticipantReport {
   public ParticipantReport(String who, DateTimeZone timeZoneForClient) {
     this.who = who;
     this.timeZoneForClient = timeZoneForClient;
-    this.events = Lists.newArrayList();    
+    this.events = Lists.newArrayList();
   }
 
   public void computeStats() {
@@ -37,12 +36,12 @@ public class ParticipantReport {
     alreadyComputed = true;
     compute();
   }
-  
+
   public void addEvent(Event event) {
     if (alreadyComputed) {
       throw new IllegalArgumentException("Already computed stats");
     }
-    this.events.add(event);    
+    this.events.add(event);
   }
 
   public String getWho() {
@@ -117,7 +116,7 @@ public class ParticipantReport {
         }
       } else if (responseTime != null) {
         selfReportResponses++;
-      }          
+      }
 
     }
     computeTodaysResponses();
@@ -126,7 +125,7 @@ public class ParticipantReport {
   private String getDefaultTimezone() {
     return timeZoneForClient != null ? timeZoneForClient.getID() : null;
   }
-  
+
   private void computeTodaysResponses() {
     todaysSelfReportResponses = 0;
     todaysScheduled = 0;
@@ -145,7 +144,7 @@ public class ParticipantReport {
         }
       } else if (responseTime != null && isToday(responseTime, tz)) {
         todaysSelfReportResponses++;
-      }          
+      }
     }
   }
 
@@ -156,8 +155,8 @@ public class ParticipantReport {
     DateTimeZone tzToUse = null;
     if (tz != null) {
       tzToUse = DateTimeZone.forID(tz);
-    } 
-    if (tzToUse == null) { // this is a legacy case and also a bad data case if a user creates a fake event with a bad timezone. 
+    }
+    if (tzToUse == null) { // this is a legacy case and also a bad data case if a user creates a fake event with a bad timezone.
       tzToUse = timeZoneForClient;
     }
     DateTime date = new DateTime().withZone(tzToUse);
@@ -166,7 +165,7 @@ public class ParticipantReport {
            date.getYear() == scheduledTime.getYear();
 
   }
-  
+
   private void ensureComputed() {
     if (!alreadyComputed) {
       throw new IllegalArgumentException("Have not computed stats yet");
@@ -189,5 +188,5 @@ public class ParticipantReport {
     return scheduled - signaledResponses;
   }
 
-  
+
 }

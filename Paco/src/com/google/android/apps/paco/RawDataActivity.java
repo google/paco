@@ -60,7 +60,6 @@ public class RawDataActivity extends ListActivity {
         return null;
       }
       experiment = experimentProviderUtil.getExperiment(uri);
-      experimentProviderUtil.loadInputsForExperiment(experiment);
       return experiment;
     }
 

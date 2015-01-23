@@ -77,11 +77,11 @@ public class InformedConsentActivity extends Activity {
       } else {
         // TextView title = (TextView)findViewById(R.id.experimentNameIc);
         // title.setText(experiment.getTitle());
-        if (experiment.isLogActions()) {
+        if (experiment.isLogActions() || experiment.declaresLogAppUsageAndBrowserCollection()) {
           TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
           appBrowserUsageView.setVisibility(TextView.VISIBLE);
         }
-        if (experiment.isRecordPhoneDetails()) {
+        if (experiment.isRecordPhoneDetails() || experiment.declaresPhoneDetailsCollection()) {
           TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
           phoneDetailsView.setVisibility(TextView.VISIBLE);
         }

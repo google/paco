@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+   
+  <!-- Servlets -->
+  <servlet>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.BackendReportJobExecutorServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>backendReportJobExecutorServlet</servlet-name>
+    <url-pattern>/backendReportJobExecutor</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>   
+    <servlet-name>migrationBackendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.MigrationBackendServlet</servlet-class>
+  </servlet>    
+  <servlet-mapping>
+    <servlet-name>migrationBackendServlet</servlet-name>
+    <url-pattern>/migrateBackend</url-pattern>
+  </servlet-mapping>
+  
+  <!--  workers are only called internally should not be accessible by others -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/backendReportJobExecutor*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name> 
+    </auth-constraint>
+
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+    
+  </security-constraint>
+  
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/migrate*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+    
+  </security-constraint>
+  
+  
+</web-app>

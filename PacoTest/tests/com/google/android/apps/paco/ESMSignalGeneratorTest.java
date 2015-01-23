@@ -466,7 +466,7 @@ public class ESMSignalGeneratorTest extends TestCase {
 
 
   private Interval createMonthIntervalForCalendarMonthOf(DateTime startDate, long endHourMillis, long startHourMillis,
-      SignalSchedule schedule, Boolean esmWeekends) {
+      SignalingMechanism schedule, Boolean esmWeekends) {
     int daysInPeriod = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
     DateTime firstOfMonth = startDate.dayOfMonth().withMinimumValue();
     return new Interval(firstOfMonth.plus(startHourMillis), firstOfMonth.plusDays(daysInPeriod).plus(endHourMillis));

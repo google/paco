@@ -43,20 +43,54 @@ public class HtmlBlobWriter {
   public HtmlBlobWriter() {
   }
 
-  public String writeNormalExperimentEventsAsHtml(boolean anon, List<Event> events, String jobId, String experimentId, String timeZone)
+  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, String timeZone, String originalQuery, String requestorEmail)
           throws IOException {
     log.info("writing normal Experiment events as html");
 
     Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
     String eventPage;
     try {
-      eventPage = printEvents(events, experiment, timeZone, anon);
+      eventPage = printEvents(eventQueryResultPair, experiment, timeZone, anon, originalQuery, requestorEmail);
     } catch (IOException e) {
       log.severe("Could not run printEvents. " + e.getMessage());
       e.printStackTrace();
       throw e;
     }
 
+    BlobKey blobKey = writeBlobUsingOldApi(eventQueryResultPair, jobId, timeZone, experiment, eventPage);
+    return blobKey.getKeyString();
+
+  }
+
+//  private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
+//                                       Experiment experiment, String eventPage) throws IOException,
+//                                                                               FileNotFoundException {
+//
+//    GcsService gcsService = GcsServiceFactory.createGcsService();
+//    String BUCKETNAME;
+//    String FILENAME;
+//    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
+//    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("public-read")
+//                                                         .addUserMetadata("myfield1", "my field value").build();
+//
+//    GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
+//    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+//    writer.println("The woods are lovely dark and deep.");
+//    writer.println("But I have promises to keep.");
+//    writer.flush();
+//
+//    writeChannel.waitForOutstandingWrites();
+//
+//    writeChannel.write(ByteBuffer.wrap("And miles to go before I sleep.".getBytes("UTF8")));
+//
+//    writeChannel.close();
+//    return newBlobKey(filename);
+//  }
+
+  private BlobKey writeBlobUsingOldApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
+                                       Experiment experiment, String eventPage) throws IOException,
+                                                                               FileNotFoundException,
+                                                                               FinalizationException, LockException {
     FileService fileService = FileServiceFactory.getFileService();
     AppEngineFile file;
     try {
@@ -96,7 +130,7 @@ public class HtmlBlobWriter {
 
 
 
-    out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZone));
+    out.println(printHeader(eventQueryResultPair.getEvents().size(), getExperimentTitle(experiment), timeZone));
     out.println(eventPage);
     out.flush();
     out.close();
@@ -113,8 +147,7 @@ public class HtmlBlobWriter {
     }
 
     BlobKey blobKey = fileService.getBlobKey(file);
-    return blobKey.getKeyString();
-
+    return blobKey;
   }
 
   public String writeEndOfDayExperimentEventsAsHtml(boolean anon, String jobId, String experimentId,
@@ -179,8 +212,8 @@ public class HtmlBlobWriter {
 
   }
 
-  private String printEvents(List<Event> events, Experiment experiment, String clientTimezone, boolean anon) throws IOException {
-    if (events.isEmpty()) {
+  private String printEvents(EventQueryResultPair eventQueryResultPair, Experiment experiment, String clientTimezone, boolean anon, String originalQuery, String whoFromLogin) throws IOException {
+    if (eventQueryResultPair.getEvents().isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
       List<String> inputKeys = Lists.newArrayList();
@@ -202,7 +235,7 @@ public class HtmlBlobWriter {
       out.append("<th>Other Responses</th>");
       out.append("</tr>");
 
-      for (Event event : events) {
+      for (Event event : eventQueryResultPair.getEvents()) {
 
         try {
           out.append("<tr>");
@@ -250,7 +283,19 @@ public class HtmlBlobWriter {
           log.log(Level.INFO, "Exception in event processing " + e.getMessage(), e);
         }
       }
-      out.append("</table></body></html>");
+      out.append("</table>");
+      if (eventQueryResultPair.getNextCursor() != null) {
+        String nextCursorUrl = "/events?q=" +
+                originalQuery +
+                "&who=" + whoFromLogin +
+                "&anon=" + anon +
+                "&tz=" + clientTimezone +
+                "&reportFormat=html" +
+                "&cursor=" + eventQueryResultPair.getNextCursor();
+        out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
+
+      }
+      out.append("</body></html>");
       return out.toString();
     }
   }

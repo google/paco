@@ -11,6 +11,8 @@
 		53B55DE416CD596D0011222B /* JCNotificationBannerPresenterIOSStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B55DE316CD596D0011222B /* JCNotificationBannerPresenterIOSStyle.m */; };
 		53B55DE716CD5A880011222B /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B55DE616CD5A880011222B /* JCNotificationCenter.m */; };
 		6D0CCF3716AF604200A28EB5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D0CCF3616AF604200A28EB5 /* QuartzCore.framework */; };
+		C40C9695187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.m in Sources */ = {isa = PBXBuildFile; fileRef = C40C9694187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.m */; };
+		C40C9698187A471400CC235F /* JCNotificationBannerViewIOS7Style.m in Sources */ = {isa = PBXBuildFile; fileRef = C40C9697187A471400CC235F /* JCNotificationBannerViewIOS7Style.m */; };
 		C41E33061640322C0049334F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41E33051640322C0049334F /* UIKit.framework */; };
 		C41E33081640322C0049334F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41E33071640322C0049334F /* Foundation.framework */; };
 		C41E330A1640322C0049334F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41E33091640322C0049334F /* CoreGraphics.framework */; };
@@ -39,6 +41,10 @@
 		53B55DE516CD5A880011222B /* JCNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCNotificationCenter.h; sourceTree = "<group>"; };
 		53B55DE616CD5A880011222B /* JCNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCNotificationCenter.m; sourceTree = "<group>"; };
 		6D0CCF3616AF604200A28EB5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		C40C9693187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCNotificationBannerPresenterIOS7Style.h; sourceTree = "<group>"; };
+		C40C9694187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCNotificationBannerPresenterIOS7Style.m; sourceTree = "<group>"; };
+		C40C9696187A471400CC235F /* JCNotificationBannerViewIOS7Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JCNotificationBannerViewIOS7Style.h; sourceTree = "<group>"; };
+		C40C9697187A471400CC235F /* JCNotificationBannerViewIOS7Style.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JCNotificationBannerViewIOS7Style.m; sourceTree = "<group>"; };
 		C41E33011640322C0049334F /* JCNotificationBannerPresenterDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JCNotificationBannerPresenterDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C41E33051640322C0049334F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		C41E33071640322C0049334F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -145,6 +151,8 @@
 			children = (
 				53B55DE216CD596D0011222B /* JCNotificationBannerPresenterIOSStyle.h */,
 				53B55DE316CD596D0011222B /* JCNotificationBannerPresenterIOSStyle.m */,
+				C40C9693187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.h */,
+				C40C9694187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.m */,
 				53B55DDD16CD594E0011222B /* JCNotificationBannerPresenter_Private.h */,
 				53B55DDE16CD594E0011222B /* JCNotificationBannerPresenterSmokeStyle.h */,
 				53B55DDF16CD594E0011222B /* JCNotificationBannerPresenterSmokeStyle.m */,
@@ -156,6 +164,8 @@
 				C41E3339164036F20049334F /* JCNotificationBannerView.m */,
 				C49AA7F316CC40FF0079EDAE /* JCNotificationBannerViewIOSStyle.h */,
 				C49AA7F416CC40FF0079EDAE /* JCNotificationBannerViewIOSStyle.m */,
+				C40C9696187A471400CC235F /* JCNotificationBannerViewIOS7Style.h */,
+				C40C9697187A471400CC235F /* JCNotificationBannerViewIOS7Style.m */,
 				C41E333A164036F20049334F /* JCNotificationBannerViewController.h */,
 				C41E333B164036F20049334F /* JCNotificationBannerViewController.m */,
 				C41E333C164036F20049334F /* JCNotificationBannerWindow.h */,
@@ -234,11 +244,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C40C9698187A471400CC235F /* JCNotificationBannerViewIOS7Style.m in Sources */,
 				C41E33121640322C0049334F /* main.m in Sources */,
 				C41E33161640322C0049334F /* JCAppDelegate.m in Sources */,
 				C41E3331164035F70049334F /* JCNotificationPresenterDemoViewController.m in Sources */,
 				C41E333E164036F20049334F /* JCNotificationBanner.m in Sources */,
 				C41E333F164036F20049334F /* JCNotificationBannerPresenter.m in Sources */,
+				C40C9695187A45B600CC235F /* JCNotificationBannerPresenterIOS7Style.m in Sources */,
 				C41E3340164036F20049334F /* JCNotificationBannerView.m in Sources */,
 				C41E3341164036F20049334F /* JCNotificationBannerViewController.m in Sources */,
 				C41E3342164036F20049334F /* JCNotificationBannerWindow.m in Sources */,
@@ -285,9 +297,9 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
+				SDKROOT = iphoneos6.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -307,9 +319,9 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				SDKROOT = iphoneos;
+				SDKROOT = iphoneos6.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

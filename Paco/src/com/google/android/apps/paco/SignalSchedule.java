@@ -32,7 +32,7 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/ {
+public class SignalSchedule extends SignalingMechanism {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;
@@ -74,60 +74,12 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
       ESM_PERIOD_WEEK, ESM_PERIOD_MONTH };
 
 
-//  public static class Creator implements Parcelable.Creator<SignalSchedule> {
-//
-//    public SignalSchedule createFromParcel(Parcel source) {
-//      ClassLoader classLoader = getClass().getClassLoader();
-//      SignalSchedule schedule = new SignalSchedule();
-//      schedule.id = source.readLong();
-//      schedule.serverId = source.readLong();
-//      schedule.experimentId = source.readLong();
-//
-//      schedule.scheduleType = source.readInt();
-//      schedule.esmFrequency = source.readInt();
-//      schedule.esmPeriodInDays = source.readInt();
-//      schedule.esmStartHour = source.readLong();
-//      schedule.esmEndHour = source.readLong();
-//      schedule.esmWeekends = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-//
-//
-//      List<Long> times = new ArrayList<Long>();
-//      schedule.times = times;
-//      int numberOfTimes = source.readInt();
-//      if (numberOfTimes != -1) {
-//        times.add(source.readLong());
-//      }
-//
-//      schedule.repeatRate = source.readInt();
-//      schedule.weekDaysScheduled  = source.readInt();
-//      schedule.nthOfMonth = source.readInt();
-//      schedule.byDayOfMonth = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-//      schedule.dayOfMonth = source.readInt();
-//      schedule.beginDate = source.readLong();
-//
-//      schedule.userEditable = source.readInt() == 1 ? Boolean.TRUE : Boolean.FALSE;
-//      schedule.timeout = source.readInt();
-//      schedule.minimumBuffer = source.readInt();
-//      schedule.snoozeCount = source.readInt();
-//      schedule.snoozeTime = source.readInt();
-//      return schedule;
-//    }
-//
-//    public SignalSchedule[] newArray(int size) {
-//      return new SignalSchedule[size];
-//    }
-//  }
-
-//  public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
   private Long id;
 
   @JsonProperty("id")
   private Long serverId;
-
-  @JsonIgnore
-  private Long experimentId;
 
   private Integer scheduleType;
   private Integer esmFrequency = 3;
@@ -198,9 +150,6 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
     this.onlyEditableOnJoin = onlyEditableOnJoin;
   }
 
-  /**
-       *
-       */
   public SignalSchedule() {
     this.signalTimes = new ArrayList<SignalTime>();
     this.times = new ArrayList<Long>();
@@ -354,46 +303,6 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
     this.serverId = serverId;
   }
 
-  @JsonIgnore
-  public Long getExperimentId() {
-    return experimentId;
-  }
-
-  @JsonIgnore
-  public void setExperimentId(Long experimentId) {
-    this.experimentId = experimentId;
-  }
-
-  // Parcelable apis
-  public int describeContents() {
-    return 0;
-  }
-//
-//  public void writeToParcel(Parcel dest, int flags) {
-//    dest.writeLong(id);
-//    dest.writeLong(serverId);
-//    dest.writeLong(experimentId);
-//    dest.writeInt(scheduleType);
-//    dest.writeInt(esmFrequency);
-//    dest.writeInt(esmPeriodInDays);
-//    dest.writeLong(esmStartHour);
-//    dest.writeLong(esmEndHour);
-//    dest.writeInt(esmWeekends == Boolean.TRUE ? 1 : 0);
-//
-//    dest.writeString(toJson(times));
-//
-//    dest.writeInt(repeatRate);
-//    dest.writeInt(weekDaysScheduled);
-//    dest.writeInt(nthOfMonth);
-//    dest.writeInt(byDayOfMonth == Boolean.TRUE ? 1 : 0);
-//    dest.writeInt(dayOfMonth);
-//    dest.writeLong(beginDate);
-//    dest.writeInt(userEditable == Boolean.TRUE ? 1 : 0);
-//    dest.writeInt(timeout);
-//    dest.writeInt(minimumBuffer);
-//    dest.writeInt(snoozeCount);
-//    dest.writeInt(snoozeTime);
-//  }
 
   public DateTime getNextAlarmTime(DateTime dateTime, Context context, Long experimentServerId) {
     if (!getScheduleType().equals(SignalSchedule.ESM)) {
@@ -544,6 +453,11 @@ public class SignalSchedule extends SignalingMechanism /*implements Parcelable*/
 
   public void setOnlyEditableOnJoin(Boolean value) {
     this.onlyEditableOnJoin = value;
+  }
+
+  @JsonIgnore
+  public String getType() {
+    return SIGNAL_SCHEDULE_TYPE;
   }
 
 }

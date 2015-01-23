@@ -22,7 +22,6 @@
 #import "PacoRunningExperimentsViewController.h"
 #import "PacoTitleView.h"
 #import "PacoClient.h"
-#import "PacoLoginScreenViewController.h"
 #import "PacoContactUsViewController.h"
 #import "PacoWebViewController.h"
 #import "GoogleClientLogin.h"
@@ -140,7 +139,22 @@
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
+}
 
+BOOL loginAttempt = false;
+
+// ispiro: I moved the login code from viewDidLoad to viewDidAppear and this resolves the warning
+// about "Unbalanced calls to begin/end appearance transitions." However, it introduces a new
+// glitch because viewDidAppear may be called more than once in the view's life cycle. For now,
+// I just use a boolean variable to make sure we only attempt the login once. This hack should go
+// away when we switch to the Google+ auth library.
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  if (loginAttempt) {
+    return;
+  }
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
     NSString* message = [self welcomeMessage];
     if (error) {
@@ -149,13 +163,14 @@
         message = NSLocalizedString(@"Something went wrong, please try again.", nil);
       }
     }
-    [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
     JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
                                                                        message:message
                                                                        timeout:3.
                                                                     tapHandler:nil];
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
+  loginAttempt = true;
 }
 
 - (NSString*)welcomeMessage {

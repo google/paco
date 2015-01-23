@@ -380,7 +380,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
             titleFromEvent = " (Deleted)";
           }
           experimentDAOs.add(new ExperimentDAO(id, titleFromEvent, "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM, false, false));
+              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM, false, (String)null, false, false, null));
         }
       } finally {
         if (pm != null) {
@@ -520,7 +520,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String experimentName = experiment.getTitle();
       Set<What> whats = Sets.newHashSet();
       whats.add(new What("joined", "true"));
-      whats.add(new What("schedule", experiment.getSchedule().toString()));
+      whats.add(new What("schedule", experiment.getSchedule() != null ? experiment.getSchedule().toString() : experiment.getTrigger().toString()));
 
       EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform",
           "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz);

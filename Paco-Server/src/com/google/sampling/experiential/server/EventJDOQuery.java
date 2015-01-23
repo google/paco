@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -26,12 +26,12 @@ public class EventJDOQuery extends BaseJDOQuery {
   public boolean hasAWho() {
     return hasAWho;
   }
-  
+
   public void setHasWho(String who) {
     hasAWho = true;
     this.who = who;
   }
-  
+
   public EventJDOQuery(Query newQuery) {
     super(newQuery);
     query.setOrdering("when desc");
@@ -40,5 +40,5 @@ public class EventJDOQuery extends BaseJDOQuery {
   public String who() {
     return who;
   }
-  
+
 }

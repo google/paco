@@ -84,8 +84,6 @@ public class FeedbackActivity extends Activity {
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.feedback);
-      experimentProviderUtil.loadFeedbackForExperiment(experiment);
-      experimentProviderUtil.loadInputsForExperiment(experiment);
       experimentProviderUtil.loadLastEventForExperiment(experiment);
 
 
@@ -374,7 +372,6 @@ public class FeedbackActivity extends Activity {
       return null;
     }
     Experiment experiment = experimentProviderUtil.getExperiment(uri);
-    experimentProviderUtil.loadInputsForExperiment(experiment);
     return experiment;
   }
 

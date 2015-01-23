@@ -335,7 +335,6 @@ public class ExperimentRetriever {
 //        ExperimentDAO newExperimentDAO = DAOConverter.createDAO(experiment);
 //        ExperimentCacheHelper.getInstance().addPublicExperiment(newExperimentDAO);
 //      }
-      addAnyNewPeopleToTheWhitelist(experiment);
     }
     return true;
   }
@@ -348,15 +347,9 @@ public class ExperimentRetriever {
     return UserServiceFactory.getUserService().isUserAdmin();
   }
 
-  private boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
+  public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
     return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail) ||
           experiment.getAdmins().contains(loggedInUserEmail);
-  }
-
-  private void addAnyNewPeopleToTheWhitelist(Experiment experiment) {
-    ArrayList<String> publishedUsers = experiment.getPublishedUsers();
-    publishedUsers.addAll(experiment.getAdmins());
-    new DBWhitelist().addAllUsers(publishedUsers);
   }
 
   private void incrementExperimentVersionNumber(ExperimentDAO experimentDAO, Experiment experiment) {

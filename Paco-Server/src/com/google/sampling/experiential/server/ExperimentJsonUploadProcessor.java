@@ -12,7 +12,6 @@ import org.joda.time.DateTimeZone;
 import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.Outcome;
 import com.google.paco.shared.model.ExperimentDAO;
@@ -99,7 +98,7 @@ public class ExperimentJsonUploadProcessor {
       experimentDAO.setId(null);
     }
 
-    if (!isUserAdminOfSystem() && experiment != null && !experiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
+    if (experiment != null && !experiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");
       return outcome;
     }
@@ -111,7 +110,5 @@ public class ExperimentJsonUploadProcessor {
     return outcome;
   }
 
-  private boolean isUserAdminOfSystem() {
-    return UserServiceFactory.getUserService().isUserAdmin();
-  }
+
 }

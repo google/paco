@@ -160,7 +160,7 @@ public class ProcessService extends Service {
           List<Experiment> joined = eu.getJoinedExperiments();
           for (Experiment experiment : joined) {
             if (!experiment.isOver(now) && experiment.hasAppUsageTrigger()) {
-              Trigger trigger = experiment.getTrigger();
+              Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
               if (trigger != null) {
                 tasks.add(trigger.getSourceIdentifier());
               }
@@ -213,9 +213,11 @@ public class ProcessService extends Service {
           appName = activityName;
         } else if (appName.equals("Google Search")) {
           String[] parts = appName.split(".");
-          String simpleActivityName = parts[parts.length - 1];
-          if (simpleActivityName.equals("GEL")) {
-            appName = "Launcher";
+          if (parts.length > 0) {
+            String simpleActivityName = parts[parts.length - 1];
+            if (simpleActivityName.equals("GEL")) {
+              appName = "Launcher";
+            }
           }
         }
         if (appName.equals("Launcher")) {

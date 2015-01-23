@@ -78,9 +78,7 @@
 
 - (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification {
   DDLogInfo(@"Show a banner of No Survey Needed");
-  JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-  [JCNotificationCenter sharedCenter].presenter = style;
-  
+  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
   NSString* format = @"This notification has expired.\n"
                      @"(It's notifications expire after %d minutes.)";
   NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];

@@ -15,7 +15,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -31,24 +30,24 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class PhotoZipBlobWriter {
-  
+
   private static final Logger log = Logger.getLogger(PhotoZipBlobWriter.class.getName());
   private DateTimeFormatter fileNameDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_FOR_FILENAME).withOffsetParsed();
-  
+
   public PhotoZipBlobWriter() {
   }
 
-  public String writePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId, String timeZoneForClient) {    
+  public String writePhotoZipFile(boolean anon, String experimentId, EventQueryResultPair eventQueryResultPair, String jobId, String timeZoneForClient) {
     log.info("Inside writePhotoZipFile");
-    log.info("Event count: " + events.size());
-    List<Event> eventsWithPhotos = getEventsWithPhotos(events);
+    log.info("Event count: " + eventQueryResultPair.getEvents().size());
+    List<Event> eventsWithPhotos = getEventsWithPhotos(eventQueryResultPair.getEvents());
     log.info("Inside writePhotoZipFile");
 
 
     try {
       FileService fileService = FileServiceFactory.getFileService();
       AppEngineFile file = fileService.createNewBlobFile("application/zip", "photos_" + experimentId + "_" + Long.toString(System.currentTimeMillis())+ ".zip");
-      
+
       FileWriteChannel writeChannel = fileService.openWriteChannel(file, true);
       ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(Channels.newOutputStream(writeChannel)));
 
@@ -56,7 +55,7 @@ public class PhotoZipBlobWriter {
       log.info("Events with photos: " + eventPhotoCount);
       int totalBytes = 0;
       int photoCount = 0;
-      
+
       List<String> existingNames = Lists.newArrayList();
       for (int eventIndex = 0; eventIndex < eventPhotoCount; eventIndex++) {
         Event event = eventsWithPhotos.get(eventIndex);
@@ -65,8 +64,8 @@ public class PhotoZipBlobWriter {
           filenamePrefix += "1_";
         }
         existingNames.add(filenamePrefix);
-        
-        List<PhotoBlob> blobs = event.getBlobs();    
+
+        List<PhotoBlob> blobs = event.getBlobs();
         for (int i=0; i < blobs.size(); i++) {
           PhotoBlob photoBlob = blobs.get(i);
           byte[] photoBytes = photoBlob.getValue();
@@ -75,12 +74,12 @@ public class PhotoZipBlobWriter {
           }
           totalBytes += photoBytes.length;
           photoCount++;
-          log.info("Total photo count: " + photoCount +  ". Byte count: " +totalBytes); 
+          log.info("Total photo count: " + photoCount +  ". Byte count: " +totalBytes);
           zipOutputStream.putNextEntry(new ZipEntry(filenamePrefix + Integer.toString(i) + ".jpg"));
           zipOutputStream.write(photoBytes);
-          zipOutputStream.closeEntry();   
+          zipOutputStream.closeEntry();
           zipOutputStream.flush();
-          
+
           // close file each time and then re-open it.
           zipOutputStream.close();
           writeChannel.close();
@@ -90,13 +89,13 @@ public class PhotoZipBlobWriter {
           zipOutputStream = new ZipOutputStream(new BufferedOutputStream(Channels.newOutputStream(writeChannel)));
         }
       }
-            
+
 
 //      String path = file.getFullPath();
 //      log.info("RE-opening file to finalize");
 //      file = new AppEngineFile(path);
 //      writeChannel = fileService.openWriteChannel(file, true);
-      
+
       writeChannel.closeFinally();
 
       BlobKey blobKey = fileService.getBlobKey(file);
@@ -110,12 +109,12 @@ public class PhotoZipBlobWriter {
     }
   }
 
-  public String XwritePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId) {    
+  public String XwritePhotoZipFile(boolean anon, String experimentId, List<Event> events, String jobId) {
     log.info("Inside writePhotoZipFile");
     log.info("Event count: " + events.size());
     List<Event> eventsWithPhotos = getEventsWithPhotos(events);
     log.info("Inside writePhotoZipFile");
-    
+
     try {
       ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
       BufferedOutputStream bufferedBytesOut = new BufferedOutputStream(bytesOut);
@@ -123,7 +122,7 @@ public class PhotoZipBlobWriter {
       int eventPhotoCount = eventsWithPhotos.size();
       log.info("Events with photos: " + eventPhotoCount);
       int totalBytes = 0;
-      
+
       List<String> existingNames = Lists.newArrayList();
       for (int eventIndex = 0; eventIndex < eventPhotoCount; eventIndex++) {
         Event event = eventsWithPhotos.get(eventIndex);
@@ -132,8 +131,8 @@ public class PhotoZipBlobWriter {
           filenamePrefix += "1_";
         }
         existingNames.add(filenamePrefix);
-        
-        List<PhotoBlob> blobs = event.getBlobs();    
+
+        List<PhotoBlob> blobs = event.getBlobs();
         for (int i=0; i < blobs.size(); i++) {
           PhotoBlob photoBlob = blobs.get(i);
           byte[] photoBytes = photoBlob.getValue();
@@ -141,15 +140,15 @@ public class PhotoZipBlobWriter {
             continue;
           }
           totalBytes += photoBytes.length;
-          log.info("Total Byte count: " +totalBytes); 
+          log.info("Total Byte count: " +totalBytes);
           zipOutputStream.putNextEntry(new ZipEntry(filenamePrefix + Integer.toString(i) + ".jpg"));
           zipOutputStream.write(photoBytes);
-          zipOutputStream.closeEntry();          
+          zipOutputStream.closeEntry();
         }
       }
       zipOutputStream.flush();
       zipOutputStream.close();
-      
+
       log.info("Inside writePhotoZipFile - closing zipstream");
 
       FileService fileService = FileServiceFactory.getFileService();
@@ -167,10 +166,10 @@ public class PhotoZipBlobWriter {
       bufferedZipBlob.close();
       log.info("Inside writePhotoZipFile - finished writing zipBlob");
 
-      
+
 //    if (eventIndex % 10 == 0 && eventIndex < eventPhotoCount - 1) {
 //    zip.close();
-//    String path = file.getFullPath();            
+//    String path = file.getFullPath();
 //    log.info("RE-opening blobfile on event: " + eventIndex);
 //    file = new AppEngineFile(path);
 //    writeChannel = fileService.openWriteChannel(file, lock);
@@ -184,7 +183,7 @@ public class PhotoZipBlobWriter {
       log.info("RE-opening file to finalize");
       file = new AppEngineFile(path);
       writeChannel = fileService.openWriteChannel(file, true);
-      
+
       writeChannel.closeFinally();
       BlobKey blobKey = fileService.getBlobKey(file);
       if (blobKey != null) {
@@ -197,7 +196,7 @@ public class PhotoZipBlobWriter {
     }
   }
 
-  
+
 //  private void ensureOpen() throws IOException {
 //    if (channel != null) {
 //      // This only works if slices are <30 seconds.  TODO(ohler): close and
@@ -218,8 +217,8 @@ public class PhotoZipBlobWriter {
 //      channel.write(bytes);
 //    }
 //  }
-  
-  
+
+
   private void addPhotoEventsToZip(List<Event> eventsWithPhotos, ZipOutputStream zip, boolean anon) throws IOException {
     for (Event event : eventsWithPhotos) {
       createFilesForEventPhotos(zip, event, anon);
@@ -228,8 +227,8 @@ public class PhotoZipBlobWriter {
 
   private void createFilesForEventPhotos(ZipOutputStream zip, Event event, boolean anon) throws IOException {
     String filenamePrefix = anonymize(event.getWho(), anon) + "_" + new DateTime(event.getResponseTime()).toString(fileNameDateFormatter) + "_";
-    
-    List<PhotoBlob> blobs = event.getBlobs();    
+
+    List<PhotoBlob> blobs = event.getBlobs();
     for (int i=0; i < blobs.size(); i++) {
       PhotoBlob photoBlob = blobs.get(i);
       createFileForBytes(zip, filenamePrefix + Integer.toString(i), photoBlob.getValue());
@@ -265,6 +264,6 @@ public class PhotoZipBlobWriter {
       scheduledTimeString = fileNameDateFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
     }
     return scheduledTimeString;
-  } 
+  }
 
 }

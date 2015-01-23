@@ -19,6 +19,8 @@ public class SignalingMechanism {
   public static final String DEFAULT_SIGNALING_GROUP_NAME = "signalGroup1";
   private static final int DEFAULT_TIMEOUT_MINUTES = 59;
   private static final Integer DEFAULT_MINIMUM_BUFFER = 59;
+  public static final String TRIGGER_TYPE = "trigger";
+  public static final String SIGNAL_SCHEDULE_TYPE = "signalSchedule";
 
   protected Integer timeout;
   protected Integer minimumBuffer;

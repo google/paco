@@ -1,1 +1,1 @@
-java -cp lib:../tools/appengine-java-sdk-1.5.0.1/lib/impl/appengine-api.jar:../tools/appengine-java-sdk-1.5.0.1/lib/appengine-remote-api.jar:../Paco-Server/war/WEB-INF/lib/guava-r09.jar:bin com.google.paco.cmdline.RemoteClient
+java -cp lib:../tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar:../tools/appengine-java-sdk-1.9.0/lib/appengine-remote-api.jar:lib/guava-16.0.1.jar:lib/bsh-2.0b4.jar:bin  com.google.paco.cmdline.RemoteClient

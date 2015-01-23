@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xsi:schemaLocation=
+         "http://java.sun.com/xml/ns/javaee
+          http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+
+  <servlet>
+    <servlet-name>PipelineServlet</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PipelineServlet</servlet-name>
+    <url-pattern>/_ah/pipeline/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>mapreduce</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.mapreduce.MapReduceServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>mapreduce</servlet-name>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- In this example we put an admin constraint on everything, since MapReduce
+    can use a significant amount of resources. -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  
+    <!-- mapreduce -->
+  <!-- 
+  <servlet>
+  <servlet-name>PipelineServlet</servlet-name>
+  <servlet-class>
+    com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
+  </servlet-class>
+</servlet>
+  <servlet-mapping>
+    <servlet-name>PipelineServlet</servlet-name>
+    <url-pattern>/_ah/pipeline/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>mapreduce</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.mapreduce.MapReduceServlet </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>mapreduce</servlet-name>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>randomcollisions</servlet-name>
+    <servlet-class>
+      com.google.appengine.demos.mapreduce.randomcollisions.CollisionFindingServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>randomcollisions</servlet-name>
+    <url-pattern>/randomcollisions</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>entitycount</servlet-name>
+    <servlet-class>
+      com.google.appengine.demos.mapreduce.entitycount.ExampleServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>entitycount</servlet-name>
+    <url-pattern>/entitycount</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>bigqueryload</servlet-name>
+    <servlet-class>
+      com.google.appengine.demos.mapreduce.bigqueryload.RandomDataLoadServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bigqueryload</servlet-name>
+    <url-pattern>/bigqueryload</url-pattern>
+  </servlet-mapping>
+  -->
+  <!-- In this example we put an admin constraint, since kicking off a MapReduce 
+    can use a significant amount of resources. -->
+    <!-- 
+  <security-constraint>
+  <web-resource-collection>
+    <url-pattern>/bigqueryload</url-pattern>
+    <url-pattern>/randomcollisions</url-pattern>
+    <url-pattern>/entitycount</url-pattern>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </web-resource-collection>
+  <auth-constraint>
+    <role-name>admin</role-name>
+  </auth-constraint>
+</security-constraint>
+ -->
+  <!-- mapreduce end -->
+  
+</web-app>

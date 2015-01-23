@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -49,11 +49,11 @@ public class ExperimentAlarms {
     }
     return matchingTimes;
   }
-  
 
-  
 
-  public static List<TimeExperiment> arrangeExperimentsByNextTime(List<Experiment> experiments, Context context) {    
+
+
+  public static List<TimeExperiment> arrangeExperimentsByNextTime(List<Experiment> experiments, Context context) {
     return arrangeExperimentsByNextTimeFrom(experiments, new DateTime(), context);
   }
 
@@ -63,11 +63,9 @@ public class ExperimentAlarms {
   private static List<TimeExperiment> arrangeExperimentsByNextTimeFrom(List<Experiment> experiments, DateTime now, Context context) {
     List<TimeExperiment> times = new ArrayList<TimeExperiment>();
     for (Experiment experiment : experiments) {
-      if (experiment.getSchedule() != null) {       // triggered experiments
-        DateTime nextTime = experiment.getNextTime(now, context);
-        if (nextTime != null) {
-          times.add(new TimeExperiment(nextTime, experiment));
-        }
+      DateTime nextTime = experiment.getNextTime(now, context);
+      if (nextTime != null) {
+        times.add(new TimeExperiment(nextTime, experiment));
       }
     }
     Collections.sort(times);

@@ -1,7 +1,5 @@
 package com.google.sampling.experiential.client;
 
-import java.util.List;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
@@ -14,7 +12,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.sampling.experiential.server.Whitelist;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
@@ -32,7 +29,7 @@ public class JoinExperimentModule implements EntryPoint {
   private VerticalPanel contentPanel;
   private VerticalPanel mainPanel;
   private VerticalPanel experimentPanel;
-  
+
   private WhitelistServiceAsync whitelistService = GWT.create(WhitelistService.class);
   private PacoServiceAsync mapService = GWT.create(PacoService.class);
   LoginInfo loginInfo = null;
@@ -60,8 +57,8 @@ public class JoinExperimentModule implements EntryPoint {
       }
 
       public void onSuccess(LoginInfo result) {
-        loginInfo = result; 
-        if (loginInfo.isLoggedIn() && loginInfo.isWhitelisted()) {
+        loginInfo = result;
+        if (loginInfo.isLoggedIn()) {
             loginPanel.setVisible(false);
             createHomePage();
             signOutLink.setHref(loginInfo.getLogoutUrl());
@@ -75,11 +72,11 @@ public class JoinExperimentModule implements EntryPoint {
 
   private void loadLogin() {
     loginPanel.setStyleName("front_page");
-    HTML index2Html  = new HTML(resources.indexHtml().getText());    
+    HTML index2Html  = new HTML(resources.indexHtml().getText());
     signInLink.setHref(loginInfo.getLoginUrl());
     signInLink.setStyleName("paco-HTML-Large");
     signInLink.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-    
+
     loginPanel.add(signInLink);
     loginPanel.add(index2Html);
     RootPanel.get().add(loginPanel);
@@ -103,13 +100,13 @@ public class JoinExperimentModule implements EntryPoint {
     listTitle.setSize("270px", "22");
 
     mainPanel.setCellHorizontalAlignment(listTitle, HasHorizontalAlignment.ALIGN_CENTER);
-    
+
     mainPanel.add(new ExperimentLandingPanel(this));
-  
+
   }
-  
+
   PacoServiceAsync getMapService() {
     return mapService;
   }
- 
+
 }

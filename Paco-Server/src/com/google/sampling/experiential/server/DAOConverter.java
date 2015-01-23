@@ -101,9 +101,16 @@ public class DAOConverter {
 
     Boolean recordPhoneDetails = experiment.isRecordPhoneDetails();
 
+    List<Integer> extraDataCollectionDeclarations = experiment.getExtraDataCollectionDeclarations();
+    if (extraDataCollectionDeclarations != null) {
+      List<Integer> jdoDetachedList = Lists.newArrayList(extraDataCollectionDeclarations);
+      extraDataCollectionDeclarations = jdoDetachedList;
+    }
     ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
             fixedDuration, questionsChange, startDate, endDate, hash, joinDate, modifyDate, published, adminStrArray,
-            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, feedbackType, experiment.shouldLogActions(), recordPhoneDetails);
+            userEmailsStrArray, deleted, null, version, experiment.isCustomRendering(), customRenderingCode, feedbackType,
+            experiment.isBackgroundListen(), experiment.getBackgroundListenSourceIdentifier(), experiment.shouldLogActions(),
+            recordPhoneDetails, extraDataCollectionDeclarations);
     List<Input> inputs = experiment.getInputs();
 
     InputDAO[] inputDAOs = new InputDAO[inputs.size()];
@@ -239,7 +246,12 @@ public class DAOConverter {
 
     experiment.setPublished(experimentDAO.getPublished());
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
-    experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
+    List<String> lowerCaseEmailAddressesForAdmins = lowerCaseEmailAddresses(experimentDAO.getAdmins());
+    String whoFromLoginEmail = whoFromLogin.getEmail().toLowerCase();
+    if (!lowerCaseEmailAddressesForAdmins.contains(whoFromLoginEmail)) {
+      lowerCaseEmailAddressesForAdmins.add(whoFromLoginEmail);
+    }
+    experiment.setAdmins(lowerCaseEmailAddressesForAdmins);
     experiment.setDeleted(experimentDAO.getDeleted());
 
     experiment.setCustomRendering(experimentDAO.isCustomRendering());
@@ -247,6 +259,10 @@ public class DAOConverter {
 
     experiment.setLogActions(experimentDAO.isLogActions());
     experiment.setRecordPhoneDetails(experimentDAO.isRecordPhoneDetails());
+    experiment.setBackgroundListen(experimentDAO.isBackgroundListen());
+    experiment.setBackgroundListenSourceIdentifier(experimentDAO.getBackgroundListenSourceIdentifier());
+
+    experiment.setExtraDataCollectionDeclarations(experimentDAO.getExtraDataCollectionDeclarations());
 
     return experiment;
   }
@@ -294,7 +310,9 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), fromSignalTimeDAOs(scheduleKey, scheduleDAO.getSignalTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(), scheduleDAO.getOnlyEditableOnJoin());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(),
+        scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(),
+        scheduleDAO.getOnlyEditableOnJoin());
     return schedule;
   }
 

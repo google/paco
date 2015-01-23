@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,23 +16,19 @@
 */
 package com.google.android.apps.paco;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+public class Input {
 
-public class Input implements Parcelable {
 
-  
   public static final String LIST = "list";
   public static final String LIKERT = "likert";
   public static final String OPEN_TEXT = "open text";
-  public static final String LIKERT_SMILEYS = "likert_smileys";  
+  public static final String LIKERT_SMILEYS = "likert_smileys";
   public static final String NUMBER = "number";
   public static final String LOCATION = "location";
   public static final String PHOTO = "photo";
@@ -40,50 +36,15 @@ public class Input implements Parcelable {
   public static final String ACTIVITY = "activity";
 
 
-  public static class Creator implements Parcelable.Creator<Input> {
-
-    public Input createFromParcel(Parcel source) {
-      Input input = new Input();
-      input.id = source.readLong();
-      input.experimentId = source.readLong(); 
-      input.serverId = source.readLong();
-      input.name = source.readString();
-      input.text = source.readString();
-      input.setScheduleDateFromLong(source.readLong());
-      input.mandatory = source.readInt() == 1;
-      input.questionType = source.readString();
-      input.responseType = source.readString();
-      
-      if (LIST.equals(input.responseType)) {
-        input.listChoices = new ArrayList<String>();
-        source.readStringList(input.listChoices);        
-      } else if (LIKERT.equals(input.responseType)) {
-        input.likertSteps = source.readInt();
-        input.leftSideLabel = source.readString();
-        input.rightSideLabel = source.readString();
-      }
-      input.conditional = source.readInt() == 1;
-      input.conditionExpression = source.readString();
-      input.multiselect = source.readInt() == 1;
-      return input;
-    }
-
-    public Input[] newArray(int size) {
-      return new Input[size];
-    }
-  }
-  
-  public static final Creator CREATOR = new Creator();
-
   @JsonIgnore
   private Long id;
   private Long experimentId;
   private Long serverId;
   private String text = "";
-  private boolean mandatory;
+  private boolean mandatory = false;
   private String questionType = "";
   private String responseType = "";
-  private Boolean conditional;
+  private Boolean conditional = false;
   private String conditionExpression;
   private List<String> listChoices;
   private Integer likertSteps;
@@ -92,7 +53,7 @@ public class Input implements Parcelable {
   private Long scheduleDate;
   private Date scheduleDateAsDate; // experimenting w/ Jackson json framework
   private String name;
-  private Boolean multiselect;
+  private Boolean multiselect = false;
 
   @JsonIgnore
   public Date getScheduleDate() {
@@ -104,7 +65,7 @@ public class Input implements Parcelable {
     this.scheduleDateAsDate = scheduleDate;
     this.scheduleDate = scheduleDateAsDate.getTime();
   }
-  
+
   @JsonProperty("scheduleDate")
   public Long getScheduleDateAsLong() {
     return scheduleDate;
@@ -115,8 +76,8 @@ public class Input implements Parcelable {
     this.scheduleDate = scheduleDate;
     this.scheduleDateAsDate = new Date(scheduleDate);
   }
-  
-    
+
+
 
   @JsonIgnore
   public Long getId() {
@@ -206,33 +167,6 @@ public class Input implements Parcelable {
     this.likertSteps = likertSteps;
   }
 
-  public int describeContents() {
-    return 0;
-  }
-
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(id);
-    dest.writeLong(experimentId);
-    dest.writeLong(serverId);
-    dest.writeString(name);
-    dest.writeString(text);
-    dest.writeLong(getScheduleDateAsLong());
-    dest.writeInt(mandatory ? 1 : 0);
-    dest.writeString(questionType);
-    dest.writeString(responseType);
-    if (LIST.equals(responseType)) {
-      dest.writeStringList(listChoices);       
-    } else if (LIKERT.equals(responseType)) {
-      dest.writeInt(likertSteps);
-      dest.writeString(leftSideLabel);
-      dest.writeString(rightSideLabel);
-    }
-    
-    dest.writeInt(conditional ? 1 : 0);
-    dest.writeString(conditionExpression);
-    dest.writeInt(multiselect ? 1 : 0);
-  }
-
   public String getResponseType() {
     return responseType;
   }
@@ -244,7 +178,7 @@ public class Input implements Parcelable {
   public String getName() {
     return name;
   }
-  
+
   public void setName(String name) {
     this.name = name;
   }
@@ -268,12 +202,12 @@ public class Input implements Parcelable {
   public boolean isInvisible() {
     return responseType.equals(Input.LOCATION) || responseType.equals(Input.PHOTO);
   }
-  
+
   @JsonIgnore
   public boolean isNumeric() {
-    return 
+    return
     responseType.equals(Input.LIKERT) ||
-    responseType.equals(Input.LIST) || // TODO (bobevans): LIST shoudl be a categorical, not a numeric. 
+    responseType.equals(Input.LIST) || // TODO (bobevans): LIST shoudl be a categorical, not a numeric.
     responseType.equals(Input.NUMBER);
   }
 
@@ -284,7 +218,7 @@ public class Input implements Parcelable {
 	public void setMultiselect(Boolean multiselect) {
 		this.multiselect = multiselect;
 	}
-	
-	
+
+
 
 }

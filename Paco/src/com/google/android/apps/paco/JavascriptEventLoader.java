@@ -33,7 +33,7 @@ public class JavascriptEventLoader {
     final Feedback feedback = experiment.getFeedback().get(0);
     String convertExperimentResultsToJsonString = FeedbackActivity.convertExperimentResultsToJsonString(feedback, experiment);
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time to load all Events: " + (t2 - t1));
+    Log.e(PacoConstants.TAG, "time for loadAllEvents: " + (t2 - t1));
     return convertExperimentResultsToJsonString;
   }
 

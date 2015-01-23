@@ -29,11 +29,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.backends.BackendService;
-import com.google.appengine.api.backends.BackendServiceFactory;
+import org.apache.http.HttpStatus;
+
+import com.google.appengine.api.modules.ModulesService;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 
 /**
  * Servlet that handles migration tasks for data
@@ -50,20 +51,23 @@ public class MigrationFrontendServlet extends HttpServlet {
   IOException {
     resp.setContentType("application/json;charset=UTF-8");
 
-    User user = getWhoFromLogin();
+    User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
-      redirectUserToLogin(req, resp);
-    } else {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else if (AuthUtil.isUserAdmin()) {
       String jobId = sendMigrateRequestToBackend(req);
       resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    } else {
+      resp.sendError(HttpStatus.SC_FORBIDDEN);
     }
   }
 
 
   private String sendMigrateRequestToBackend(HttpServletRequest req) throws IOException {
-    BackendService backendsApi = BackendServiceFactory.getBackendService();
-    String backendAddress = backendsApi.getBackendAddress("reportworker");
+    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+
 
     try {
       BufferedReader reader = null;
@@ -92,20 +96,11 @@ public class MigrationFrontendServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(String backendAddress) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/migrateBackend?who=" + getWhoFromLogin().getEmail().toLowerCase());
+    URL url = new URL("http://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase());
     log.info("URL to backend = " + url.toString());
     InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);
     return reader;
-  }
-
-  private void redirectUserToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-  }
-
-  private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
   }
 
 }

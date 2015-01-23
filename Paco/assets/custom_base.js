@@ -595,12 +595,14 @@ paco.renderer = (function() {
     element.attr("type", "button");
     element.attr("name", input.name);
     element.attr("value", "Click");
+    
+    
     var imgElement = $("<img/>", { src : "file:///android_asset/paco_sil.png"});    
+    imgElement.attr("height", "100");
     element.click(function() {
       function cameraCallback(cameraData) {
-        //confirm("Got CameraData: " + (cameraData ? cameraData.substring(0, 40) : "empty"));
         if (cameraData && cameraData.length > 0) {          
-          imgElement.attr("src", "data:image/png;base64," + cameraData);
+          imgElement.attr("src", "data:image/png;base64," + cameraData);          
           response.answer = cameraData;
           conditionalListener.inputChanged();        
         }
@@ -608,8 +610,12 @@ paco.renderer = (function() {
       paco.photoService.launch(cameraCallback);
       
     });
+    
+    element.css("vertical-align", "bottom").css("margin-bottom", "0");
+    imgElement.css("vertical-align", "bottom");
     parent.append(element);
     parent.append(imgElement);
+    
     
     conditionalListener.addInput(input, response, parent);
 
@@ -765,20 +771,21 @@ paco.renderer = (function() {
   loadCustomExperiment = function(experiment, rootPanel) {    
     var additionsDivId = $(document.createElement("div"));
 
-    var customRenderingCode = experiment.customRenderingCode;
-    var scriptElement = document.createElement("script");
-    scriptElement.type = 'text/javascript';
-    
-    var strippedCode = scriptBody(customRenderingCode);
-    scriptElement.text = strippedCode;
-    
-    additionsDivId.append(scriptElement);
+    var customRenderingCode = experiment.customRenderingCode;        
 
-    var newSpan = $(document.createElement('span'));
+//    var newSpan = $(document.createElement('span'));    
+//    var html = htmlBody(customRenderingCode);
+//    newSpan.html(html);    
+//    additionsDivId.append(newSpan);
+    var newHtml = $(document.createElement('div'));
+    newHtml.html(customRenderingCode);
+    additionsDivId.append(newHtml)
     
-    var html = htmlBody(customRenderingCode);
-    newSpan.html(html);    
-    additionsDivId.append(newSpan);
+//    var scriptElement = document.createElement("script");
+//    scriptElement.type = 'text/javascript';    
+//    var strippedCode = scriptBody(customRenderingCode);
+//    scriptElement.text = strippedCode;    
+//    additionsDivId.append(scriptElement);
 
     rootPanel.append(additionsDivId);
   };
@@ -971,13 +978,17 @@ paco.execute = (function() {
   
 })();
     
-function runCustomExperiment() {
+function runCustomExperiment(s0) {
+  var t0 = Date.now();
   var form_root = $(document.createElement("div"));
   $(document.body).append(form_root);
   var experiment = paco.experiment();
   paco.renderer.loadCustomExperiment(experiment, form_root);
   if (main) {
+    var t1 = Date.now();
     main(paco.experiment(), form_root);
+    var t2 = Date.now();
+    //alert("times: outertot= " + (t2 - s0) + " , total=" + (t2 - t0) + " , setup=" + (t1 - t0) + " , main = " + (t2 - t1));
   } else {
     form_root.html("Could not initialize the experiment");
   }
