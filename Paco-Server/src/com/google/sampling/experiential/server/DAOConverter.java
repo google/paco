@@ -246,7 +246,12 @@ public class DAOConverter {
 
     experiment.setPublished(experimentDAO.getPublished());
     experiment.setPublishedUsers(lowerCaseEmailAddresses(experimentDAO.getPublishedUsers()));
-    experiment.setAdmins(lowerCaseEmailAddresses(experimentDAO.getAdmins()));
+    List<String> lowerCaseEmailAddressesForAdmins = lowerCaseEmailAddresses(experimentDAO.getAdmins());
+    String whoFromLoginEmail = whoFromLogin.getEmail().toLowerCase();
+    if (!lowerCaseEmailAddressesForAdmins.contains(whoFromLoginEmail)) {
+      lowerCaseEmailAddressesForAdmins.add(whoFromLoginEmail);
+    }
+    experiment.setAdmins(lowerCaseEmailAddressesForAdmins);
     experiment.setDeleted(experimentDAO.getDeleted());
 
     experiment.setCustomRendering(experimentDAO.isCustomRendering());
@@ -305,7 +310,9 @@ public class DAOConverter {
         scheduleDAO.getEsmEndHour(), fromSignalTimeDAOs(scheduleKey, scheduleDAO.getSignalTimes()),
         scheduleDAO.getRepeatRate(), scheduleDAO.getWeekDaysScheduled(),
         scheduleDAO.getNthOfMonth(), scheduleDAO.getByDayOfMonth(), scheduleDAO.getDayOfMonth(),
-        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(), scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(), scheduleDAO.getOnlyEditableOnJoin());
+        scheduleDAO.getEsmWeekends(), scheduleDAO.getUserEditable(), scheduleDAO.getTimeout(),
+        scheduleDAO.getMinimumBuffer(), scheduleDAO.getSnoozeCount(), scheduleDAO.getSnoozeTime(),
+        scheduleDAO.getOnlyEditableOnJoin());
     return schedule;
   }
 

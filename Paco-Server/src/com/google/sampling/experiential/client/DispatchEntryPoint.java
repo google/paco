@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -20,15 +20,15 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Window;
 
 /**
- * Dispatch to the correct GWT entry point based on 
- * the url and the requestor. 
- * 
+ * Dispatch to the correct GWT entry point based on
+ * the url and the requestor.
+ *
  *  This allows us to use GWT a little more like regular pages on a server
  *  when the one-monolithic app model doesn't make sense.
- *  
+ *
  *  Also, this will be the point at which we can use a different render for a
  *  mobile version of the server.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -37,11 +37,7 @@ public class DispatchEntryPoint implements EntryPoint {
   @Override
   public void onModuleLoad() {
     String path = Window.Location.getPath();
-//    if (Window.Navigator.getUserAgent().indexOf("mobile") != -1) {
-//      renderMobilePage();
-//    } else {
-      renderDesktopPage(path); 
-//    }
+    renderDesktopPage(path);
   }
 
   private void renderMainPage() {
@@ -49,17 +45,10 @@ public class DispatchEntryPoint implements EntryPoint {
   }
 
   private void renderDesktopPage(String path) {
-    if (path == null || path.isEmpty() || path.endsWith("main.jsp") ||
-        path.endsWith("Experiments.html")) {
-      renderMainPage();
-    } else if (path.endsWith("PacoEventServer.html")) {
-      new PacoEventServer().onModuleLoad();
-    } else if (path.endsWith("PostEvent.html")) {
-      new PostEvent().onModuleLoad();
-    } else if (path.endsWith("whitelist.jsp")) {
-      new WhitelistModule().onModuleLoad();
-    } else if (path.endsWith("join.html")) {
+    if (path.endsWith("join.html")) {
       new JoinExperimentModule().onModuleLoad();
+    } else {
+      renderMainPage();
     }
   }
 

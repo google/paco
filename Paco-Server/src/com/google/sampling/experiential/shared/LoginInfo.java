@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -25,7 +25,6 @@ public class LoginInfo implements Serializable {
   private String logoutUrl;
   private String emailAddress;
   private String nickname;
-  private boolean whitelisted;
 
   public boolean isLoggedIn() {
     return loggedIn;
@@ -67,11 +66,4 @@ public class LoginInfo implements Serializable {
     this.nickname = nickname;
   }
 
-  public void setWhitelisted(boolean b) {
-    this.whitelisted = b;
-  }
-  
-  public boolean isWhitelisted() {
-    return whitelisted;
-  }
 }

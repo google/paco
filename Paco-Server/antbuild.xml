@@ -90,7 +90,7 @@
 
   <target name="runserver_only"
       description="Starts the development server. Must already be built.">
-    <dev_appserver war="war" address="0.0.0.0">
+    <dev_appserver war="ear" address="0.0.0.0">
       <options>
           <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
 	   </options>
@@ -99,43 +99,27 @@
 
   <target name="update" depends="build"
       description="Uploads the application to App Engine.">
-    <appcfg action="update" war="war" />
+    <appcfg action="update" war="ear" />
   </target>
 
-  <target name="update_backends" depends="build"
-      description="updates the backends the application to App Engine.">
-    <appcfg action="backends" war="war">
-        <options>
-        <arg value="update"/>
-      </options>
-      </appcfg>
-  </target>
-  
-  <target name="update_only_backends"
-      description="updates the backends the application to App Engine -- NO BUILD.">
-    <appcfg action="backends update" war="war">
-      </appcfg>
-  </target>
-  
-  
   <target name="update_only" 
       description="Uploads the application to App Engine - NO BUILD.">
-    <appcfg action="update" war="war" />
+    <appcfg action="update" war="ear" />
   </target>
 
   <target name="update_indexes" depends="datanucleusenhance"
       description="Uploads just the datastore index configuration to App Engine.">
-    <appcfg action="update_indexes" war="war" />
+    <appcfg action="update_indexes" war="ear" />
   </target>
 
   <target name="rollback" depends="datanucleusenhance"
       description="Rolls back an interrupted application update.">
-    <appcfg action="rollback" war="war" />
+    <appcfg action="rollback" war="ear" />
   </target>
 
   <target name="request_logs"
       description="Downloads log data from App Engine for the application.">
-    <appcfg action="request_logs" war="war">
+    <appcfg action="request_logs" war="ear">
       <options>
         <arg value="--num_days=5"/>
       </options>
@@ -152,31 +136,31 @@
   <property name="gwt.sdk" location="../tools/gwt-2.6.0" />
 
   <path id="gwt.project.class.path">
-    <pathelement location="war/WEB-INF/classes"/>
+    <pathelement location="ear/default/WEB-INF/classes"/>
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>
     <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
     <fileset dir="${sdk.dir}" includes="*.jar"/>
     <!-- Add any additional non-server libs (such as JUnit) -->
-    <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+    <fileset dir="ear/default/WEB-INF/lib" includes="**/*.jar"/>
   </path>
 
   <target name="libs" description="Copy libs to WEB-INF/lib">
-    <mkdir dir="war/WEB-INF/lib" />
-    <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
-    <copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
-    <copy todir="war/WEB-INF/lib" file="../Shared/dist/shared.jar" />
+    <mkdir dir="ear/default/WEB-INF/lib" />
+    <copy todir="ear/default/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
+    <copy todir="ear/default/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
+    <copy todir="ear/default/WEB-INF/lib" file="../Shared/dist/shared.jar" />
     <!-- Add any additional server libs that need to be copied -->
   </target>
 
   <target name="javac" depends="libs" description="Compile java source to bytecode">
-    <mkdir dir="war/WEB-INF/classes"/>
+    <mkdir dir="ear/default/WEB-INF/classes"/>
     <javac srcdir="src" includes="**" encoding="utf-8"
-        destdir="war/WEB-INF/classes"
+        destdir="ear/default/WEB-INF/classes"
         source="1.5" target="1.5" nowarn="true"
         debug="true" debuglevel="lines,vars,source">
       <classpath refid="gwt.project.class.path"/>
     </javac>
-    <copy todir="war/WEB-INF/classes">
+    <copy todir="ear/default/WEB-INF/classes">
       <fileset dir="src" excludes="**/*.java"/>
     </copy>
   </target>
@@ -190,12 +174,18 @@
       <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
       <jvmarg value="-Xmx256M"/>
       <arg line="-war"/>
-      <arg value="war"/>
+      <arg value="ear/default"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
       <arg value="com.google.sampling.experiential.PacoEventserver"/>
     </java>
   </target>
+
+  <target name="symlinks_for_reportworker">
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes"/>
+  </target>
+
 
   <target name="devmode" depends="javac" description="Run development mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
@@ -207,7 +197,7 @@
       <arg value="-startupUrl"/>
       <arg value="index.html"/>
       <arg line="-war"/>
-      <arg value="war"/>
+      <arg value="ear/default"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
       <arg value="com.google.sampling.experiential.PacoEventserver"/>
@@ -276,18 +266,15 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--  <antcall target="test.prod" /> -->
   </target>
 
+  <target name="build" depends="copyjars,gwtc,datanucleusenhance,symlinks_for_reportworker" description="Build this project" />
 
-  <target name="hosted" depends="devmode" description="Run development mode (NOTE: the 'hosted' target is deprecated)" />
-
-  <target name="build" depends="copyjars,gwtc,datanucleusenhance" description="Build this project" />
-
-  <target name="war" depends="build" description="Create a war file">
-    <zip destfile="paco.war" basedir="war"/>
+  <target name="ear" depends="build" description="Create an ear file">
+    <zip destfile="paco.ear" basedir="ear"/>
   </target>
 
   <target name="clean" description="Cleans this project">
-    <delete dir="war/WEB-INF/classes" failonerror="false" />
-    <delete dir="war/pacoserver" failonerror="false" />
+    <delete dir="ear/default/WEB-INF/classes" failonerror="false" />
+    <delete dir="ear/default/pacoserver" failonerror="false" />
   </target>
 
 

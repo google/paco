@@ -47,8 +47,6 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -68,10 +66,9 @@ public class EventServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();
+    User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       String anonStr = req.getParameter("anon");
       boolean anon = false;
@@ -114,11 +111,6 @@ public class EventServlet extends HttpServlet {
 
   private boolean isDevInstance(HttpServletRequest req) {
     return ExperimentServlet.isDevInstance(req);
-  }
-
-  private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
   }
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
@@ -169,7 +161,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
@@ -187,7 +179,7 @@ public class EventServlet extends HttpServlet {
 
 
   private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
@@ -203,7 +195,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
@@ -267,12 +259,13 @@ public class EventServlet extends HttpServlet {
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
                                        String backendAddress, String reportFormat, String cursor) throws MalformedURLException, IOException {
     String httpScheme = "https";
-    if (req.getLocalAddr().matches("127.0.0.1")) {
+    String localAddr = req.getLocalAddr();
+    if (localAddr != null && localAddr.matches("127.0.0.1")) {
       httpScheme = "http";
     }
     URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
             req.getParameter("q") +
-            "&who="+getWhoFromLogin().getEmail().toLowerCase() +
+            "&who="+AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
             "&anon=" + req.getParameter("anon") +
             "&tz=" + timeZoneForClient +
             "&reportFormat=" + reportFormat +
@@ -300,23 +293,16 @@ public class EventServlet extends HttpServlet {
 
   private List<Event> getEventsWithQuery(HttpServletRequest req,
                                          List<com.google.sampling.experiential.server.Query> queries, int offset, int limit) {
-    User whoFromLogin = getWhoFromLogin();
-    if (!isDevInstance(req) && whoFromLogin == null) {
-      throw new IllegalArgumentException("Must be logged in to retrieve data.");
-    }
-    String who = null;
-    if (whoFromLogin != null) {
-      who = whoFromLogin.getEmail().toLowerCase();
-    }
-    return EventRetriever.getInstance().getEvents(queries, who, TimeUtil.getTimeZoneForClient(req), offset, limit);
+    User whoFromLogin = AuthUtil.getWhoFromLogin();
+    return EventRetriever.getInstance().getEvents(queries, whoFromLogin.getEmail().toLowerCase(), TimeUtil.getTimeZoneForClient(req), offset, limit);
   }
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
-    User who = getWhoFromLogin();
+    User who = AuthUtil.getWhoFromLogin();
     if (who == null) {
-      throw new IllegalArgumentException("Must be logged in!");
+      AuthUtil.redirectUserToLogin(req, resp);
     }
 
     // TODO(bobevans): Add security check, and length check for DoS
@@ -333,7 +319,7 @@ public class EventServlet extends HttpServlet {
     resp.setContentType("text/html;charset=UTF-8");
     PrintWriter out = resp.getWriter(); // TODO move all req/resp writing to here.
     try {
-      new EventCsvUploadProcessor().processCsvUpload(getWhoFromLogin(), fileUploadTool.getItemIterator(req), out);
+      new EventCsvUploadProcessor().processCsvUpload(AuthUtil.getWhoFromLogin(), fileUploadTool.getItemIterator(req), out);
     } catch (FileUploadException e) {
         log.severe("FileUploadException: " + e.getMessage());
         out.println("Error in receiving file.");
@@ -354,7 +340,7 @@ public class EventServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

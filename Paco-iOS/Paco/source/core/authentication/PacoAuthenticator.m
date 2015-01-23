@@ -218,25 +218,11 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   // Standard OAuth2 login flow.
   // See: https://code.google.com/apis/console/#project:406945030854:access
   
-  /*
-  
-  
-Client ID:	
-1051938716780.apps.googleusercontent.com
-Client secret:	
-1tdZTggWAzBo7NgDOx49KFKZ
-Redirect URIs:	urn:ietf:wg:oauth:2.0:oob
-http://localhost
-Application type:	iOS
-Bundle ID:	com.paco.Paco
-Deep Linking:	Enabled
-  
-  */
-  
-  NSString *scopes = @"https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
-  NSString *clientId = @"1051938716780.apps.googleusercontent.com";//@"406945030854.apps.googleusercontent.com";
-  NSString *clientSecret = @"";//@"1tdZTggWAzBo7NgDOx49KFKZ";//nil;//@"rD9_oQ5rbubfkgoFYfy0Pcjl";
+  NSString *scopes = @"https://www.googleapis.com/auth/userinfo.email";
+  NSString *clientId = @"1051938716780.apps.googleusercontent.com";
 
+  // ispiro: Apparently the clientSecret parameter can be empty and auth still succeeds.
+  NSString *clientSecret = @"";
   GTMOAuth2Authentication *keychainAuth =
       [GTMOAuth2ViewControllerTouch
           authForGoogleFromKeychainForName:@"PacoKeychain2"
@@ -263,8 +249,12 @@ Deep Linking:	Enabled
           BOOL result = [GTMOAuth2ViewControllerTouch saveParamsToKeychainForName:@"PacoKeychain2"
                                                                    authentication:auth];
           assert(result);
+          // TODO(ispiro): If user presses cancel at the final screen, assert will fail. Should return to splash screen.
           self.auth = auth;
           if (auth && !error) {
+            [SSKeychain setPassword:@""
+                         forService:kPacoService
+                            account:auth.userEmail];
             NSLog(@"PACO OAUTH2 LOGIN AUTH SUCCEEDED [%@]", auth.tokenURL.absoluteString);
             self.userLoggedIn = YES;
           } else {
@@ -274,7 +264,7 @@ Deep Linking:	Enabled
           if (completionHandler) {
             completionHandler(nil);
           }
-          
+          // TODO(ispiro): Find a way to hide this window faster.
           [[UIApplication sharedApplication].keyWindow.rootViewController
               dismissViewControllerAnimated:NO completion:^{}];
       }];

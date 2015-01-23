@@ -365,15 +365,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 #pragma mark bring up login flow if necessary
-- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
-{
-  UINavigationController* navi = (UINavigationController*)
-      ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
-  if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
-    PacoLoginScreenViewController *loginViewController =
-        [PacoLoginScreenViewController controllerWithCompletionBlock:block];
-    [navi presentViewController:loginViewController animated:YES completion:nil];
-  }  
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block {  
+  [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:block];
 }
 
 - (void)startWorkingAfterLogIn {

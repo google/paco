@@ -37,8 +37,6 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Strings;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -59,15 +57,14 @@ public class JobStatusServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();
+    User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       boolean cmdline = getParam(req, "cmdline") != null;
       String location = getParam(req, "location");
       String jobId = getParam(req, "jobId");
-      String who = getWhoFromLogin().getEmail().toLowerCase();
+      String who = user.getEmail().toLowerCase();
       if (!Strings.isNullOrEmpty(jobId) && !Strings.isNullOrEmpty(location)) {
         ReportJobStatus jobReport = getJobReport(who, jobId);
         if (jobReport != null && jobReport.getRequestor().equals(who)) {
@@ -195,15 +192,6 @@ public class JobStatusServlet extends HttpServlet {
       DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);
       return jodaTimeZone;
     }
-  }
-
-  private boolean isDevInstance(HttpServletRequest req) {
-    return ExperimentServlet.isDevInstance(req);
-  }
-
-  private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
   }
 
   private static String getParam(HttpServletRequest req, String paramName) {

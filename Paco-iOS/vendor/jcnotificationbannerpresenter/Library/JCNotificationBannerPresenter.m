@@ -7,27 +7,7 @@
 #import "JCNotificationBannerViewController.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface JCNotificationBannerPresenter ()
-
-@property(nonatomic, strong) UIFont* messageFont;
-
-@end
-
-
 @implementation JCNotificationBannerPresenter
-
-- (id)init {
-  return [self initWithMessageFont:nil];
-}
-
-- (id)initWithMessageFont:(UIFont*)messageFont{
-  self = [super init];
-  if (self) {
-    _messageFont = messageFont;
-  }
-  return self;
-}
-
 
 // JCNotificationCenter calls this whenever a presenter
 // is about to be used to present one or more notifications.
@@ -67,6 +47,7 @@
   [self presentNotification:notification
                    inWindow:bannerWindow
                    finished:finished];
+
 }
 
 #pragma mark - View helpers
@@ -90,8 +71,8 @@
 }
 
 - (JCNotificationBannerView*) newBannerViewForNotification:(JCNotificationBanner*)notification {
-  JCNotificationBannerView* view = [[JCNotificationBannerView alloc] initWithNotification:notification
-                                                                           andMessageFont:self.messageFont];
+  JCNotificationBannerView* view = [[JCNotificationBannerView alloc]
+                                    initWithNotification:notification];
   view.userInteractionEnabled = YES;
   view.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin
                         | UIViewAutoresizingFlexibleLeftMargin
