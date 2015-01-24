@@ -1,3 +1,0 @@
-function q8b(a){this.b=a}
-function Oyc(){Yi(this,Dr($doc,'file'));this.db[o5c]='gwt-FileUpload'}
-XIb(869,1,e3c,q8b);_.Hc=function r8b(a){var b;b=this.b.db.value;b.length==0?Upc('You must select a file to upload'):Upc('File uploaded!')};_.b=null;XIb(870,1,h3c);_.qc=function v8b(){var a,b,c;ALb(this.b,(a=new iMc,fMc(a,new Pwc('<b>Select a file:<\/b>')),b=new Oyc,MLc(b.db,P4c,'cwFileUpload'),fMc(a,b),c=new wsc('Upload File'),vj(c,new q8b(b),(tx(),tx(),sx)),fMc(a,new Pwc('<br>')),fMc(a,c),a))};XIb(1113,104,w2c,Oyc);_.Vb=function Pyc(a){Aj(this,a)};var Fyb=wTc(wad,'CwFileUpload$1',869),eCb=wTc(vad,'FileUpload',1113);W3c(In)(20);

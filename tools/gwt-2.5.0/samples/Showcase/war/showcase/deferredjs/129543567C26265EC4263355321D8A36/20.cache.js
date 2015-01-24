@@ -1,5 +1,0 @@
-function YSb(){}
-function Csb(a){this.b=a}
-function TSb(){Ni(this,pr($doc,'file'));this.db[lpc]='gwt-FileUpload';this.b=new YSb;this.b.d=this;this._==-1?xJb(this.db,4096|(this.db.__eventBits||0)):(this._|=4096)}
-function XSb(a,b){switch(vKb(b.type)){case 1024:if(!a.b){a.c=true;return false}break;case 4096:if(a.c){a.b=true;Ar(a.d.db,xr($doc,$pc,false,true));a.b=false;a.c=false}}return true}
-h1(781,1,bnc,Csb);_.Dc=function Dsb(a){var b;b=this.b.db.value;b.length==0?cKb('You must select a file to upload'):cKb('File uploaded!')};_.b=null;h1(782,1,enc);_.mc=function Hsb(){var a,b,c;M3(this.b,(a=new r4b,o4b(a,new UQb('<b>Select a file:<\/b>')),b=new TSb,V3b(b.db,Moc,'cwFileUpload'),o4b(a,b),c=new BMb('Upload File'),kj(c,new Csb(b),(Uw(),Uw(),Tw)),o4b(a,new UQb('<br>')),o4b(a,c),a))};h1(1022,102,tmc,TSb);_.Rb=function USb(a){XSb(this.b,a)&&pj(this,a)};_.b=null;h1(1023,1,{});h1(1024,1023,{},YSb);_.b=false;_.c=false;_.d=null;var SS=ubc(Ptc,'CwFileUpload$1',781),rW=ubc(Otc,'FileUpload',1022),qW=ubc(Otc,'FileUpload$FileUploadImpl',1023),pW=ubc(Otc,'FileUpload$FileUploadImplOpera',1024);Tnc(wn)(20);

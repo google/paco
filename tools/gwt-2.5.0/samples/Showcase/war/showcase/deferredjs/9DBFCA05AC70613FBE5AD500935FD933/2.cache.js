@@ -1,2 +1,0 @@
-function tsb(){}
-z1(778,1,Onc,tsb);_.Dc=function usb(a){CKb('\u4E0D\u8981\u518D\u70B9\u4E86\uFF01')};z1(779,1,Rnc);_.lc=function ysb(){var a,b,c;h4(this.a,(a=new RVb,a.e[Gtc]=10,b=new gNb('\u5E38\u89C4\u6309\u94AE',new tsb),z4b(b.cb,xpc,'cwBasicButton-normal'),OVb(a,b),c=new fNb('\u7981\u7528\u6309\u94AE'),z4b(c.cb,xpc,'cwBasicButton-disabled'),c.cb[ovc]=true,OVb(a,c),a))};var ZS=fcc(vuc,'CwBasicButton$1',778);Eoc(wn)(2);
