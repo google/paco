@@ -21,6 +21,8 @@ package com.google.sampling.experiential.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -130,9 +132,9 @@ public class ResponseViewPanel extends Composite {
     rightSideText = new TextBox();
     outer.add(rightSideText);
     setLikertValueInWidget();
-    ChangeHandler handler = new ChangeHandler() {
+    ValueChangeHandler<String> handler = new ValueChangeHandler<String>() {
       @Override
-      public void onChange(ChangeEvent event) {
+      public void onValueChange(ValueChangeEvent<String> event) {
         getLikertStepsFromText();
       }
 
@@ -170,9 +172,9 @@ public class ResponseViewPanel extends Composite {
         parent.addLikertStepsError(stepsText.getMessage());
       }
     };
-    stepsText.addChangeHandler(handler);
-    leftSideText.addChangeHandler(handler);
-    rightSideText.addChangeHandler(handler);
+    stepsText.addValueChangeHandler(handler);
+    leftSideText.addValueChangeHandler(handler);
+    rightSideText.addValueChangeHandler(handler);
     
     // Let InputsPanel handle mouse down events due to InputsPanel draggability.
     stepsText.addMouseDownHandler(parent);

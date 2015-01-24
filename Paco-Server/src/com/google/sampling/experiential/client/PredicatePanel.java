@@ -1,22 +1,29 @@
 package com.google.sampling.experiential.client;
 
+import com.google.gwt.core.shared.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.MouseDownHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.paco.shared.model.InputDAO;
 
-public class PredicatePanel extends Composite {
+public class PredicatePanel extends Composite implements ChangeHandler {
 
+  private MyConstants myConstants;
   private HorizontalPanel mainPanel;
-  private ListBox predicateListBox;
-  private TextBox predicateTextBox;
-
   private String responseType;
   private ConditionalExpressionPanel parent;
+  
+  // Visible for testing
+  protected ListBox predicateListBox;
+  protected MouseOverTextBoxBase predicateTextBox;
 
   public PredicatePanel(MouseDownHandler precedenceMouseDownHandler, ConditionalExpressionPanel parent) {
+    myConstants = GWT.create(MyConstants.class); 
     this.parent = parent;
     
     mainPanel = new HorizontalPanel();
@@ -24,20 +31,64 @@ public class PredicatePanel extends Composite {
 
     predicateListBox = new ListBox();
     predicateListBox.addMouseDownHandler(precedenceMouseDownHandler);
-    predicateListBox.addChangeHandler(parent);
+    predicateListBox.addChangeHandler(this);
 
-    predicateTextBox = new TextBox();
+    predicateTextBox = new MouseOverTextBoxBase(MouseOverTextBoxBase.TEXT_BOX, myConstants.predicateError());
     predicateTextBox.addMouseDownHandler(precedenceMouseDownHandler);
-    predicateTextBox.addChangeHandler(parent);
+    // Use value change events for error-checking.
+    predicateTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<String> event) {
+        String text = predicateTextBox.getText();
+        try {
+          Integer conditionalNumber = Integer.parseInt(text);
+          if (isValidNumberValue(conditionalNumber)) {
+            ensurePredicateErrorNotFired();
+          } else {
+            handlePredicateError();
+          }
+        } catch (NumberFormatException nfe) {
+          handlePredicateError();
+        }    
+      }
+    });
+    predicateTextBox.addChangeHandler(this);
 
     mainPanel.add(predicateListBox);
   }
+  
+  private void handlePredicateError() {
+    ExperimentCreationPanel.setPanelHighlight(mainPanel, false);
+    addPredicateError();
+    predicateTextBox.enableMouseOver();
+  }
+  
+  public void addPredicateError() {
+    parent.addPredicateError();
+  }
+  
+  private void ensurePredicateErrorNotFired() {
+    ExperimentCreationPanel.setPanelHighlight(mainPanel, true);
+    predicateTextBox.disableMouseOver();
+    removePredicateError();
+  }
+  
+  public void removePredicateError() {
+    parent.removePredicateError();
+  }
 
   public void configureForInput(InputDAO input) {
+    // Get old values for value restoration purposes
     Integer oldValue = getValueAsInt();
     String oldText = getSelectedText();
+    
+    // Reset state.
     mainPanel.clear();
     predicateListBox.clear();
+    ensurePredicateErrorNotFired();
+    
+    // Configure predicate item.  Restore old value if possible.
+    // Otherwise, set a default value.
     responseType = input.getResponseType();
     if (responseType.equals(InputDAO.LIKERT)) {
       for (Integer i = 1; i <= input.getLikertSteps(); ++i) {
@@ -49,7 +100,7 @@ public class PredicatePanel extends Composite {
       for (Integer i = 1; i <= input.getListChoices().length; ++i) {
         predicateListBox.addItem(input.getListChoices()[i - 1], i.toString());
       }
-      restoreListSelectedItem(oldText);
+      restoreListSelectedItemOrDefault(oldText);
       mainPanel.add(predicateListBox);
     } else if (responseType.equals(InputDAO.LIKERT_SMILEYS)) {
       for (Integer i = 1; i <= 5; ++i) {
@@ -58,14 +109,26 @@ public class PredicatePanel extends Composite {
       setListBoxSelectedIndex(oldValue, false);
       mainPanel.add(predicateListBox);
     } else if (responseTypeRequiresTextBox()) {
-      predicateTextBox.setValue(oldValue.toString(), true);
+      setPredicateTextBoxValueOrDefault(oldValue);
       mainPanel.add(predicateTextBox);
     }
   }
   
+  private void setPredicateTextBoxValueOrDefault(Integer oldValue) {
+    if (isValidNumberValue(oldValue)) {
+      predicateTextBox.setValue(oldValue.toString(), true);
+    } else {
+      predicateTextBox.setValue("0", true);
+    }
+  }
+
+  private boolean isValidNumberValue(Integer oldValue) {
+    return oldValue != null && oldValue >= 0;
+  }
+  
   // TODO: this will have strange behavior if there are two list
   // items with the same text.
-  private void restoreListSelectedItem(String oldText) {
+  private void restoreListSelectedItemOrDefault(String oldText) {
     int selectedIndex = 0;
     for (int i = 0; i < predicateListBox.getItemCount(); ++i) {
       if (predicateListBox.getItemText(i).equals(oldText)) {
@@ -76,21 +139,33 @@ public class PredicatePanel extends Composite {
     predicateListBox.setSelectedIndex(selectedIndex);
   }
 
-  public void setEnabled(boolean isEnabled) {
+  protected void setEnabled(boolean isEnabled) {
     predicateListBox.setEnabled(isEnabled);
     predicateTextBox.setEnabled(isEnabled);
   }
 
   public String getValue() {
     if (responseType == null) {
-      return null;
+      return "";
     }
     if (responseTypeRequiresListBox()) {
-      return predicateListBox.getValue(predicateListBox.getSelectedIndex());
+      return getListBoxValue();
     } else if (responseTypeRequiresTextBox()) {
       return predicateTextBox.getValue();
     }
+    // In case input cannot be conditionalized.
+    return "";
+  }
+
+  private String getListBoxValue() {
+    if (listBoxHasValidValue()) {
+      return predicateListBox.getValue(predicateListBox.getSelectedIndex());
+    }
     return null;
+  }
+  
+  private boolean listBoxHasValidValue() {
+    return predicateListBox.getSelectedIndex() != -1;
   }
   
   public int getValueAsInt() {
@@ -108,9 +183,17 @@ public class PredicatePanel extends Composite {
       return null;
     }
     if (responseTypeRequiresListBox()) {
+      return getListBoxText();
+    }
+    return null;
+  }
+
+  private String getListBoxText() {
+    if (listBoxHasValidValue()) {
       return predicateListBox.getItemText(predicateListBox.getSelectedIndex());
     }
     return null;
+    
   }
   
   public int getTextBoxIntValue() {
@@ -122,32 +205,47 @@ public class PredicatePanel extends Composite {
   }
   
   public void setValue(Integer value) {
+    setValue(value, false);
+  }
+
+  public void setValue(Integer value, boolean fireUpdateEvents) {
     if (value == null) {
       throw new IllegalArgumentException("Predicate value cannot be null.");
     }
     if (responseTypeRequiresListBox()) {
       setListBoxSelectedIndex(value, true);
     } else if (responseTypeRequiresTextBox()) {
-      predicateTextBox.setValue(value.toString());
+      predicateTextBox.setValue(value.toString(), true);
+    }
+    if (fireUpdateEvents) {
+      updateExpression();
     }
   }
 
-  private boolean responseTypeRequiresTextBox() {
+  private void updateExpression() {
+    parent.updateExpression();
+  }
+
+  // Visible for testing
+  protected boolean responseTypeRequiresTextBox() {
     return responseType.equals(InputDAO.NUMBER);
   }
   
-  private boolean responseTypeRequiresListBox() {
+  // Visible for testing
+  protected boolean responseTypeRequiresListBox() {
     return responseType.equals(InputDAO.LIKERT) || responseType.equals(InputDAO.LIST)
         || responseType.equals(InputDAO.LIKERT_SMILEYS);
   }
 
-  private void setListBoxSelectedIndex(Integer value, boolean shouldInvalidateSelection) {
+  private void setListBoxSelectedIndex(Integer value, boolean shouldNotCushionError) {
     // Note: error-checking is done this way because ListBox objects do not throw
     // exceptions when given an illegal index.
+    ensurePredicateErrorNotFired();
     int selectedIndex = value - 1;
     boolean valueIsOutOfBounds = valueIsOutOfBounds(selectedIndex);
-    if (valueIsOutOfBounds && shouldInvalidateSelection) {
-      invalidateSelection();
+    if (valueIsOutOfBounds && shouldNotCushionError) {
+      handlePredicateError();
+      predicateListBox.setSelectedIndex(-1); // No item is selected.
     } else if (valueIsOutOfBounds) {
       predicateListBox.setSelectedIndex(0);
     } else if (!valueIsOutOfBounds) {
@@ -158,9 +256,15 @@ public class PredicatePanel extends Composite {
   private boolean valueIsOutOfBounds(Integer value) {
     return value < 0 || value >= predicateListBox.getItemCount();
   }
-  
-  private void invalidateSelection() {
-    parent.invalidateSelection();
+
+  @Override
+  public void onChange(ChangeEvent event) {
+    // This method only gets called when the user selects a text box item.
+    // It is never called programmatically.  Thus, there can be no list box errors.
+    if (event.getSource().equals(predicateListBox)) {
+      ensurePredicateErrorNotFired();
+    }
+    updateExpression();
   }
 
 }

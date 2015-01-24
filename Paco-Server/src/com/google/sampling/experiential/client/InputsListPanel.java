@@ -302,8 +302,7 @@ public class InputsListPanel extends Composite {
     @Override
     public void onDragEnd(DragEndEvent event) { 
         updateInputPanelsList();
-        updateExperimentInputs();
-        updateAllConditionalsForOrdering();
+        updateModelInputsAndConditionals();
     }
 
     @Override
@@ -335,6 +334,12 @@ public class InputsListPanel extends Composite {
         return first.getAbsoluteTop() - second.getAbsoluteTop();
       }
     });
+  }
+  
+  // Visible for testing
+  protected void updateModelInputsAndConditionals() {
+    updateExperimentInputs();
+    updateAllConditionalsForOrdering();
   }
   
   // Visible for testing

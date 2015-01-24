@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.DisclosurePanelImages;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.paco.shared.model.InputDAO;
 
@@ -41,6 +40,7 @@ public class ConditionalExpressionsPanel extends Composite {
   private static final String WHITESPACE = "\\s*";
   private static final String LEFT_PARENS = "((?:\\(*" + WHITESPACE + ")*)";
   private static final String RIGHT_PARENS = "((?:" + WHITESPACE + "\\))*)";
+  private static final String INVALID_PANEL_CONDITIONAL = "[" + LEFT_PARENS + RIGHT_PARENS + WHITESPACE + "]*";
   private static final String NO_OP_CONDITIONAL_REGEX = LEFT_PARENS + WHITESPACE + NAME_REGEX + WHITESPACE 
       + COMP_REGEX + WHITESPACE + PREDICATE_REGEX + RIGHT_PARENS;
   private static final String OP_CONDITIONAL_REGEX = OP_REGEX + WHITESPACE + NO_OP_CONDITIONAL_REGEX;
@@ -55,15 +55,17 @@ public class ConditionalExpressionsPanel extends Composite {
   private HorizontalPanel textEntryPanel;
   private DisclosurePanel conditionalListDisclosurePanel;
   private VerticalPanel conditionalListPanel;
-  private MouseOverTextBoxBase conditionDisplayTextBox;
   private Button parenCancelButton;
 
   private InputDAO input;
   private InputsPanel parent;
 
-  private List<ConditionalExpressionPanel> conditionPanels;
   private List<String> conditionalExpressions;
   private ConditionalExpressionPanel unbalancedParenPanel;
+  
+  // Visible for testing
+  protected MouseOverTextBoxBase conditionDisplayTextBox;
+  protected List<ConditionalExpressionPanel> conditionPanels;
 
   public ConditionalExpressionsPanel(InputDAO input, InputsPanel parent) {
     super();
@@ -72,6 +74,7 @@ public class ConditionalExpressionsPanel extends Composite {
     this.parent = parent;
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
+    mainPanel.setStyleName("paco-Input");
     conditionPanels = new ArrayList<ConditionalExpressionPanel>();
     conditionalExpressions = new ArrayList<String>();
     createPanel();
@@ -132,7 +135,6 @@ public class ConditionalExpressionsPanel extends Composite {
 
     conditionalListPanel = new VerticalPanel();
     createLonePanel();
-    updateListDisplayExpression(input.getConditionExpression());
 
     conditionalListDisclosurePanel.setContent(conditionalListPanel);
 
@@ -187,10 +189,52 @@ public class ConditionalExpressionsPanel extends Composite {
     int index = conditionPanels.indexOf(conditionalExpressionPanel);
     conditionalExpressions.set(index, conditionalExpressionPanel.constructExpression());
   }
-
+  
   private String constructConditionalExpression() {
-    String expression = Joiner.on(" ").join(conditionalExpressions);
-    return expression;
+    return constructConditionalExpression(conditionalExpressions);
+  }
+
+  // Visible for testing
+  protected String constructConditionalExpression(List<String> conditionalExpressions) {
+    if (conditionalExpressions == null) {
+      throw new IllegalStateException("Conditional expressions array cannot be null.");
+    }
+    // Get first valid expression.
+    String newFirstExpression = "";
+    int firstExpressionIndex = conditionalExpressions.size();
+    for (int i = 0; i < conditionalExpressions.size(); ++i) {
+      String firstExpression = conditionalExpressions.get(i);
+      if (!firstExpression.matches(INVALID_PANEL_CONDITIONAL)) {
+        newFirstExpression = firstExpression;
+        firstExpressionIndex = i;
+        break;
+      }
+    }
+    newFirstExpression = replaceOpsInFirstExpression(newFirstExpression);
+    // Get rest of conditional expressions joined.
+    return createModifiedExpression(conditionalExpressions, newFirstExpression, firstExpressionIndex);
+  }
+
+  private String replaceOpsInFirstExpression(String newFirstExpression) {
+    for (int i = 1; i < OPS.length; ++i) {
+      if (newFirstExpression.contains(OPS[i])) {
+        newFirstExpression = newFirstExpression.replaceAll(OPS[i], "");
+      }
+    }
+    return newFirstExpression;
+  }
+
+  private String createModifiedExpression(List<String> conditionalExpressions, String newFirstExpression,
+                                          int firstExpressionIndex) {
+    Joiner joiner = Joiner.on(" ");
+    List<String> precedingExpressions = conditionalExpressions.subList(0, firstExpressionIndex);
+    String precedingExpressionsString = joiner.join(precedingExpressions);
+    List<String> restOfConditionalExpressions = firstExpressionIndex == conditionalExpressions.size() 
+        ? new ArrayList<String>() 
+        : conditionalExpressions.subList(firstExpressionIndex + 1, conditionalExpressions.size());
+    String restOfConditionalExpressionsString = joiner.join(restOfConditionalExpressions);
+    return joiner.join(precedingExpressionsString, newFirstExpression, 
+                       restOfConditionalExpressionsString);
   }
 
   private void updateConditionalModelAndText(String expression) {
@@ -199,8 +243,11 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   private void updateExpressionUsingTextPanel(String expression) {
-    updateInputModelExpression(expression);
-    updateListDisplayExpression(expression);
+    boolean isValid = updateListDisplayExpression(expression);
+    // Only keep valid values in the model.
+    if (isValid) {
+      updateInputModelExpression(expression);
+    }
   }
 
   private void updateInputModelExpression(String expression) {
@@ -209,25 +256,27 @@ public class ConditionalExpressionsPanel extends Composite {
 
   private void updateTextDisplayExpression(String expression) {
     conditionDisplayTextBox.setValue(expression, false);
+    resetTextDisplayValidityForMenuUpdate();
   }
 
   // TODO: clean this up with more error-checking visible to the user.
-  private void updateListDisplayExpression(String expression) {
-    clearConditionalPanelLists();
-
+  private boolean updateListDisplayExpression(String expression) {
     // TODO: callbacks to ExperimentCreationPanel when there are errors.
     // TODO: check for unbalanced parentheses errors.
     if (expression == null || expression.isEmpty()) {
+      ensureConditionalErrorNotFired(); // An empty conditional is acceptable.
       createLonePanel();
-      return;
-    } else if (!expression.matches(OVERALL_CONDITIONAL_REGEX) || !parensAreBalanced(expression)) {
+      return true;
+    } else if (!expressionIsValid(expression)) {
       indicateConditionalError();
-      createLonePanel();
-      return;
+      return false;
     }
     
+    // Restore clean state.
+    clearConditionalPanelLists();
     ensureConditionalErrorNotFired();
 
+    // Tokenize and create menu panels corresponding to the expression.
     RegExp pattern = RegExp.compile(SINGLE_CONDITIONAL_REGEX, "g");
     MatchResult result = null;
     while ((result = pattern.exec(expression)) != null) {
@@ -237,12 +286,39 @@ public class ConditionalExpressionsPanel extends Composite {
       String comp = result.getGroup(4);
       String val = result.getGroup(5);
       String rightParens = result.getGroup(6);
+            
       ConditionalExpressionPanel repPanel = 
           new ConditionalExpressionPanel(this, parent, getOperatorIndex(op), name, 
                                          getComparatorIndex(comp), getPredicateValue(val),
                                          getNumParens(leftParens), getNumParens(rightParens));
       addConditionalPanelToLists(repPanel);
     }
+    
+    return resetTextDisplayValidityForMenuUpdate();
+  }
+
+  private boolean resetTextDisplayValidityForMenuUpdate() {
+    boolean isValid = allPanelsAreValid();
+    if (isValid) {
+      ensureConditionalErrorNotFired();
+    } else {
+      indicateConditionalError();
+    }    
+    return isValid;
+  }
+
+  private boolean allPanelsAreValid() {
+    for (ConditionalExpressionPanel panel : conditionPanels) {
+      if (panel.isConfigured() && !panel.isValid()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Visible for testing
+  protected boolean expressionIsValid(String expression) {
+    return expression.matches(OVERALL_CONDITIONAL_REGEX) && parensAreBalanced(expression);
   }
 
   private void ensureConditionalErrorNotFired() {
@@ -269,6 +345,7 @@ public class ConditionalExpressionsPanel extends Composite {
   }
 
   private void createLonePanel() {
+    clearConditionalPanelLists();
     ConditionalExpressionPanel conditionalPanel = new ConditionalExpressionPanel(this, parent, NO_OP);
     addConditionalPanelToLists(conditionalPanel);
   }
@@ -433,9 +510,6 @@ public class ConditionalExpressionsPanel extends Composite {
   }
   
   protected void deleteConditionPanel(ConditionalExpressionPanel sender) {
-//    if (conditionPanels.size() == 1) {
-//      return;
-//    }
     if (sender.equals(unbalancedParenPanel)) {
       restorePreviousParenState();
     }

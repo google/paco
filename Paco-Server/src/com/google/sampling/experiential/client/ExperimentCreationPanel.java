@@ -105,7 +105,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
 
-    leftMenuBar = createLeftMenuBar();
+    leftMenuBar = createLeftMenuBar(experiment);
     mainPanel.add(leftMenuBar);
     
     // Experiment validation error messages
@@ -127,9 +127,10 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     mainPanel.add(viewPanel);
     
     contentPanel = createContentPanel();
+    
+    createButtonPanel(viewPanel, contentPanel.getButtonPanel());
+    
     viewPanel.add(contentPanel);
-
-    createButtonPanel(viewPanel);
     
     // Entry view is description panel.
     showPanel(descriptionPanel);
@@ -141,8 +142,8 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     return new ExperimentCreationContentPanel(this, panels);
   }
 
-  private ExperimentCreationMenuBar createLeftMenuBar() {
-    return new ExperimentCreationMenuBar(this);
+  private ExperimentCreationMenuBar createLeftMenuBar(ExperimentDAO experiment) {
+    return new ExperimentCreationMenuBar(this, isNewExperiment(experiment));
   }
 
   private ExperimentDescriptionPanel createDescriptionPanel() {
@@ -184,12 +185,19 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
     contentPanel.changeShowingView(showingPanel, buttonPanelId);
   }
 
-  private void createButtonPanel(Panel parent) {
-    HorizontalPanel buttonPanel = new HorizontalPanel();
-    buttonPanel.add(createSubmitButton(experiment));
-    buttonPanel.add(createCancelButton());
-    parent.add(buttonPanel);
-    buttonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+  private void createButtonPanel(Panel parent, HorizontalPanel navigationButtonPanel) {
+    HorizontalPanel masterButtonPanel = new HorizontalPanel();
+    parent.add(masterButtonPanel);
+    masterButtonPanel.setWidth("100%");
+    
+    HorizontalPanel submitButtonPanel = new HorizontalPanel();
+    submitButtonPanel.add(createSubmitButton(experiment));
+    submitButtonPanel.add(createCancelButton());
+    submitButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+    masterButtonPanel.add(submitButtonPanel);
+    
+    navigationButtonPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+    masterButtonPanel.add(navigationButtonPanel);
   }
 
   // Visible for testing
@@ -327,7 +335,7 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
   
   private Widget createSubmitButton(final ExperimentDAO experiment) {
 
-    Button whatButton = new Button(experiment.getId() == null ? myConstants.createExperiment()
+    Button whatButton = new Button(isNewExperiment(experiment) ? myConstants.createExperiment()
                                                              : myConstants.updateExperiment());
     whatButton.addClickHandler(new ClickHandler() {
       
@@ -338,6 +346,10 @@ public class ExperimentCreationPanel extends Composite implements ExperimentCrea
 
     });
     return whatButton;
+  }
+
+  private boolean isNewExperiment(final ExperimentDAO experiment) {
+    return experiment.getId() == null;
   }
   
   private void submitEventWithValidation() {

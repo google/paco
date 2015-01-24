@@ -37,16 +37,18 @@ public class ExperimentCreationContentPanel extends Composite {
     myConstants = GWT.create(MyConstants.class);
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
-    mainPanel.setSpacing(10);
+    mainPanel.setSpacing(5);
     this.listener = listener;
-    createButtonPanel();
     
     scrollInner = new VerticalPanel();
     scrollPanel = new ScrollPanel(scrollInner);
-    scrollPanel.setSize("900px", "600px");
+    scrollPanel.setSize("900px", "650px");
     mainPanel.add(scrollPanel);
     scrollPanel.setStyleName("paco-Input");
     addShowingViews(showingViews);
+    
+    // Please see note in method header.
+    createButtonPanel();
   }
   
   public void changeShowingView(Composite view, int buttonPanelId) {
@@ -70,7 +72,8 @@ public class ExperimentCreationContentPanel extends Composite {
       buttonPanel.add(addNewSignalGroupButton);
       break;
     case ADD_CREATE_EXPERIMENT_BUTTON:
-      buttonPanel.add(createExperimentButton);
+      // For now, not needed because buttons are at top.
+//      buttonPanel.add(createExperimentButton);
       break;
     default:
       break;
@@ -102,6 +105,9 @@ public class ExperimentCreationContentPanel extends Composite {
     }
   }
 
+ // For now, this button panel is sent to the ExperimentCreationPanel for layout purposes,
+ // and thus is not added to the panel at this time.
+ // TODO: refactor into a "smart" button panel class that takes care of its own configurations.
   private void createButtonPanel() {
     buttonPanel = new HorizontalPanel();
     numStandardButtons = 0;
@@ -109,7 +115,7 @@ public class ExperimentCreationContentPanel extends Composite {
     addStandardButton(createNextButton());
     addNewSignalGroupButton = createNewSignalGroupButton();
     createExperimentButton = createCreateExperimentButton();
-    mainPanel.add(buttonPanel);
+//    mainPanel.add(buttonPanel);
   }
   
   private void addStandardButton(Widget button) {
@@ -159,6 +165,10 @@ public class ExperimentCreationContentPanel extends Composite {
       }
     });
     return createExperimentButton;
+  }
+  
+  protected HorizontalPanel getButtonPanel() {
+    return buttonPanel;
   }
 
   private void fireExperimentCreationCode(int code) {
