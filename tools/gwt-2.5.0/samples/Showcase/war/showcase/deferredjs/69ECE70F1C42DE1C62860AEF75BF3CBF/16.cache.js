@@ -1,2 +1,0 @@
-function _Db(){var a,b,c,d,e;b=new G5b(4,4);d=b.i;c=b.g;for(e=0;e<d;++e){for(a=0;a<c;++a){$4b(b,e,a,new aWb((ujb(),jjb)))}}S4b(b,'cwGrid');return b}
-Leb(769,1,XAc);_.qc=function fEb(){ohb(this.b,_Db())};KBc(In)(16);

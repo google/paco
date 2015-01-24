@@ -219,7 +219,7 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   // See: https://code.google.com/apis/console/#project:406945030854:access
   
   NSString *scopes = @"https://www.googleapis.com/auth/userinfo.email";
-  NSString *clientId = @"";
+  NSString *clientId = @"1051938716780.apps.googleusercontent.com";
 
   // ispiro: Apparently the clientSecret parameter can be empty and auth still succeeds.
   NSString *clientSecret = @"";

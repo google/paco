@@ -1,6 +1,0 @@
-function iEb(a){this.b=a}
-function lEb(a){this.b=a}
-function K5b(a,b){(a.b.eh(0,1),a.b.j.rows[0].cells[1])[kKc]=b}
-function eEb(a){var b;b=a.j.rows.length;if(b>1){i5b(a,b-1);K5b(MU(a.k,99),b-1)}}
-function dEb(a){var b;b=a.j.rows.length;o5b(a,b,0,new qWb((Njb(),Cjb)));o5b(a,b,1,new qWb(Cjb));K5b(MU(a.k,99),b+1)}
-cfb(769,1,qBc,iEb);_.Lc=function jEb(a){dEb(this.b)};_.b=null;cfb(770,1,qBc,lEb);_.Lc=function mEb(a){eEb(this.b)};_.b=null;cfb(771,1,tBc);_.qc=function qEb(){var a,b,c,d,e;Hhb(this.b,(a=new u5b,b=MU(a.k,99),pj(a.db,'cw-FlexTable',true),a.db.style[CDc]='32em',a.p[xHc]=5,a.p[yHc]=3,G5b(b,1,(B6b(),x6b)),l5b(a,0,0,"Ceci est un tableau flexible qui prend en charge les <B>plages de colonne<\/B> et les <B>plages de ligne<\/B>. Vous pouvez l'utiliser pour mettre en forme votre page ou en tant que tableau r\xE9serv\xE9 \xE0 un but pr\xE9cis."),D5b(b,0)[lJc]=2,c=new B$b('Ajouter une ligne',new iEb(a)),pj(c.db,nKc,true),d=new B$b('Supprimer une ligne',new lEb(a)),pj(d.db,nKc,true),e=new pic,e.db[BDc]='cw-FlexTable-buttonPanel',mic(e,c),mic(e,d),o5b(a,0,1,e),I5b(b,0,1,(I6b(),H6b)),dEb(a),dEb(a),g5b(a,'cwFlexTable'),a))};var n4=Hpc(qIc,'CwFlexTable$1',769),o4=Hpc(qIc,'CwFlexTable$2',770);gCc(Jn)(17);

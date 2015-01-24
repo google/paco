@@ -1,3 +1,0 @@
-function eGb(a){this.b=a}
-function C4b(){Yi(this,Dr($doc,'file'));this.db[cDc]='gwt-FileUpload'}
-Leb(807,1,UAc,eGb);_.Hc=function fGb(a){var b;b=this.b.db.value;b.length==0?IXb('Vous devez s\xE9lectionner un fichier \xE0 envoyer'):IXb('Fichier t\xE9l\xE9charg\xE9!')};_.b=null;Leb(808,1,XAc);_.qc=function jGb(){var a,b,c;ohb(this.b,(a=new Yhc,Vhc(a,new D2b('<b>Choisissez un fichier:<\/b>')),b=new C4b,Ahc(b.db,DCc,'cwFileUpload'),Vhc(a,b),c=new k$b('Envoyer un fichier'),vj(c,new eGb(b),(tx(),tx(),sx)),Vhc(a,new D2b('<br>')),Vhc(a,c),a))};Leb(1051,104,kAc,C4b);_.Vb=function D4b(a){Aj(this,a)};var t4=kpc(QHc,'CwFileUpload$1',807),U7=kpc(PHc,'FileUpload',1051);KBc(In)(20);

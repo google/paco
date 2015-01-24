@@ -181,6 +181,12 @@
     </java>
   </target>
 
+  <target name="symlinks_for_reportworker">
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes"/>
+  </target>
+
+
   <target name="devmode" depends="javac" description="Run development mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
       <classpath>
@@ -260,7 +266,7 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--  <antcall target="test.prod" /> -->
   </target>
 
-  <target name="build" depends="copyjars,gwtc,datanucleusenhance" description="Build this project" />
+  <target name="build" depends="copyjars,gwtc,datanucleusenhance,symlinks_for_reportworker" description="Build this project" />
 
   <target name="ear" depends="build" description="Create an ear file">
     <zip destfile="paco.ear" basedir="ear"/>

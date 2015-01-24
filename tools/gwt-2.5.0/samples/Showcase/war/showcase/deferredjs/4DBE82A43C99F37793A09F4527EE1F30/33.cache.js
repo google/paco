@@ -1,1 +1,0 @@
-K1(719,1,joc);_.lc=function epb(){var a,b,c;s4(this.a,(a=new rUb,a.o[$tc]=6,b=UH(a.j,100),iUb(a,0,0,'\u8F93\u5165\u641C\u7D22\u6761\u4EF6'),AUb(b,0)[Rvc]=2,DUb(b,0,(wVb(),qVb)),iUb(a,1,0,'\u540D:'),lUb(a,1,1,new QZb),iUb(a,2,0,vwc),lUb(a,2,1,new QZb),c=new _Qb,Kj(c,a),c))};Yoc(vn)(33);

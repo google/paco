@@ -1,7 +1,0 @@
-function Qnc(){Qnc=SQc;Ajc()}
-function kcc(a){hcc();!!gcc&&ydc(gcc,a)}
-function Rnc(a,b){qyc(a.b,tTc,b);qyc(a.db,b,'wrapper')}
-function bXb(a,b){var c;c=new Tnc(b,dzb(a));Rnc(c,'cwHyperlink-'+a.e);return c}
-function Tnc(a,b){var c;Qnc();Snc.call(this,$doc.createElement(ZTc));Djc(this.c,a,false);this.d=b;c=(hcc(),gcc?xdc(b):b);this.b[y$c]=UUc+c}
-function Snc(a){this.b=$doc.createElement(aXc);if(!a){Yi(this,this.b)}else{this.db=a;Jbc(this.db,this.b)}this._==-1?ldc(this.db,1|(this.db.__eventBits||0)):(this._|=1);this.db[UTc]='gwt-Hyperlink';this.c=new Ejc(this.b,true)}
-Bvb(855,1,NRc);_.qc=function hXb(){var a;eyb(this.b,(a=new Oyc,Lyc(a,new tjc('<b>\u0627\u062E\u062A\u064A\u0627\u0631 \u0627\u062D\u062F \u0627\u0644\u0627\u0642\u0633\u0627\u0645:<\/b>')),a.f[_Xc]=5,Lyc(a,bXb(dlb,FWc)),Lyc(a,bXb(plb,JWc)),Lyc(a,bXb(clb,DWc)),Lyc(a,bXb(flb,GWc)),Lyc(a,bXb(llb,IWc)),Lyc(a,bXb(ilb,HWc)),a))};Bvb(1116,104,aRc,Tnc);_.Vb=function Unc(a){var b,c,d,e,f,g,i,j;Aj(this,a);if(Rcc(a.type)==1&&(b=Or(a),c=!!a.altKey,d=!!a.ctrlKey,e=!!a.metaKey,f=!!a.shiftKey,g=c||d||e||f,i=b==4,j=b==2,!g&&!i&&!j)){kcc(this.d);a.preventDefault()}};_.Ib=function Vnc(a){Rnc(this,a)};_.c=null;_.d=null;var epb=aGc(PYc,'Hyperlink',1116);ASc(In)(22);

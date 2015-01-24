@@ -1,2 +1,0 @@
-function Zrb(){}
-h1(772,1,bnc,Zrb);_.Dc=function $rb(a){cKb('Stop poking me!')};h1(773,1,enc);_.mc=function csb(){var a,b,c;M3(this.b,(a=new pVb,a.f[_sc]=10,b=new CMb('Normal Button',new Zrb),V3b(b.db,Moc,'cwBasicButton-normal'),mVb(a,b),c=new BMb('Disabled Button'),V3b(c.db,Moc,'cwBasicButton-disabled'),c.db[Kuc]=true,mVb(a,c),a))};var JS=ubc(Ptc,'CwBasicButton$1',772);Tnc(wn)(2);
