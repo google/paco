@@ -1,3 +1,0 @@
-function ZFb(a){this.a=a}
-function F4b(){Ni(this,pr($doc,'file'));this.cb[gDc]='gwt-FileUpload'}
-zeb(808,1,YAc,ZFb);_.Dc=function $Fb(a){var b;b=this.a.cb.value;b.length==0?RXb('Vous devez s\xE9lectionner un fichier \xE0 envoyer'):RXb('Fichier t\xE9l\xE9charg\xE9!')};_.a=null;zeb(809,1,_Ac);_.lc=function cGb(){var a,b,c;hhb(this.a,(a=new dic,aic(a,new G2b('<b>Choisissez un fichier:<\/b>')),b=new F4b,Hhc(b.cb,HCc,'cwFileUpload'),aic(a,b),c=new n$b('Envoyer un fichier'),jj(c,new ZFb(b),(jx(),jx(),ix)),aic(a,new G2b('<br>')),aic(a,c),a))};zeb(1052,102,oAc,F4b);_.Qb=function G4b(a){oj(this,a)};var g4=ppc(LHc,'CwFileUpload$1',808),I7=ppc(KHc,'FileUpload',1052);OBc(vn)(20);

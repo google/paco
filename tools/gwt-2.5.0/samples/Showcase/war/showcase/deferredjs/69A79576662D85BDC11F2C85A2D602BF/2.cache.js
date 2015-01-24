@@ -1,2 +1,0 @@
-function Usb(){}
-c2(777,1,qoc,Usb);_.Lc=function Vsb(a){ZKb('Stop poking me!')};c2(778,1,toc);_.qc=function Zsb(){var a,b,c;H4(this.b,(a=new mWb,a.f[tuc]=10,b=new BNb('Normal Button',new Usb),T4b(b.db,aqc,'cwBasicButton-normal'),jWb(a,b),c=new ANb('Disabled Button'),T4b(c.db,aqc,'cwBasicButton-disabled'),c.db[dwc]=true,jWb(a,c),a))};var BT=Hcc(ivc,'CwBasicButton$1',777);gpc(Jn)(2);

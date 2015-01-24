@@ -1,2 +1,0 @@
-function Dpb(){var a,b,c;b=new JUb;K4b(b.db,Npc,'cwFlowPanel');for(c=0;c<30;++c){a=new FNb(kwc+c);oj(a.db,'cw-FlowPanel-checkBox',true);gMb(b,a,b.db)}return b}
-W1(724,1,foc);_.qc=function Jpb(){z4(this.b,Dpb())};Uoc(In)(8);
