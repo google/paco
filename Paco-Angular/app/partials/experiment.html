@@ -1,0 +1,53 @@
+<nav>
+  <a href="#/experiment/{{previousIdx}}" ng-show="previousIdx != -1">&lt;</a>
+  <a href="#/experiment/{{experimentIdx}}">{{experimentIdx}}</a>
+  <a href="#/experiment/{{nextIdx}}" ng-show="nextIdx != -1">&gt;</a>
+</nav>
+
+<hr>
+
+<label for="title">Title</label>
+<input type="text" ng-model="experiment.title" id="title">
+
+<label for="description">Description</label>
+<input type="text" ng-model="experiment.description" id="description">
+
+<label for="consent">Informed Consent</label>
+<input type="text" ng-model="experiment.informedConsentForm" id="consent">
+
+<label for="creator">Creator</label>
+<input type="text" ng-model="experiment.creator" id="creator">
+
+<label for="fixed">Fixed Duration</label>
+<input type="checkbox" ng-model="experiment.fixedDuration" id="fixed">
+
+<label for="experimentId">ID</label>
+<input type="text" ng-model="experiment.id" disabled id="experimentId">
+
+<label for="date">Modification Date</label>
+<input type="text" ng-model="experiment.modifyDate" id="date">
+
+<label for="inputs">Inputs</label><button ng-click="experiment.inputs.push({'id':100})">+</button>
+
+<div class="input" ng-repeat="input in experiment.inputs">
+  <label for="inputText{{$index}}">Question {{$index + 1}}</label>
+   <select ng-model="input.responseType">
+    <option value="" disabled selected>Response Type</option>
+    <option ng-selected="{{type == input.responseType}}"
+            ng-repeat="type in responseTypes"
+            value="{{type}}">{{type}}</option>
+  </select>
+  
+  <button ng-click="removeInput($index)">-</button>
+  <input type="text" ng-model="input.text" id="inputText{{$index}}" placeholder="Question for the participant">
+
+
+ 
+</div>
+
+
+
+
+<textarea>
+  {{experiment}}
+</textarea>

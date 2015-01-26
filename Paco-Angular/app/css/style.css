@@ -1,0 +1,35 @@
+body, html {
+  font-family: arial;
+}
+
+nav a {
+  border: 1px solid gray;
+  color: black;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  width: 30px;
+}
+
+label {
+  margin-left: 10px;
+}
+
+input {
+  margin: 0 0 20px 10px;
+  display: block;
+}
+
+input[type=text] {
+  width: 600px;
+}
+
+textarea {
+  height: 200px;
+  margin: 10px;
+	width: 600px;
+}
+
+.input {
+  margin-left: 20px;
+}
