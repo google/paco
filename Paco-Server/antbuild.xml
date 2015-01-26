@@ -78,8 +78,8 @@
     </dev_appserver>
   </target>
 
-<target name="runserver_debug" depends="build" description="Starts the development server in debug mode.">
-    <dev_appserver war="ear/default" port="8888" address="0.0.0.0">
+<target name="runserver_debug" description="Starts the development server in debug mode.">
+    <dev_appserver war="ear" port="8888" address="0.0.0.0">
       <options>
         <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
         <arg value="--jvm_flag=-Xdebug"/>
@@ -182,8 +182,8 @@
   </target>
 
   <target name="symlinks_for_reportworker">
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib"/>
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" />
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" />
   </target>
 
 
