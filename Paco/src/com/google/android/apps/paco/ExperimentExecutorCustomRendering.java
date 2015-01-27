@@ -420,10 +420,13 @@ private void loadCustomRendererIntoWebView() {
   if (true/*experiment.fullyCustom()*/) {
     // url-based loading of webview
     webView.loadUrl("file:///android_asset/custom_skeleton.html");
+
     // polymer experimentation
    // webView.loadUrl("file:///android_asset/skeleton2.html");
-    //webView.loadUrl("file:///android_asset/polymer.html"); // 6s first load, 5s subsequent loads
-    //webView.loadUrl("file:///android_asset/empty.html"); // 4s first load, 3s subsequent loads, 1-2s if completely empty web view (no js loads, no jquery.ready call)
+    //webView.loadUrl("file:///android_asset/polymer.html");
+    //webView.loadUrl("file:///android_asset/empty.html");
+    //webView.loadUrl("file:///android_asset/vulcanized-simple.html");
+    //webView.loadUrl("file:///android_asset/vulcanized-paper.html");
   } else {
     // data-based loading of webview
     BufferedReader r = null;
