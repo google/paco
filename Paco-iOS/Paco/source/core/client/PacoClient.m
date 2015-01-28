@@ -141,7 +141,11 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)invalidateUserAccount {
   [self.authenticator invalidateCurrentAccount];
-  [self showLoginScreenWithCompletionBlock:nil];
+  [self showLoginScreenWithCompletionBlock:^(NSError *error) {
+     if (!error) {
+       [self startWorkingAfterLogIn];
+     }
+   }];
 }
 
 - (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {

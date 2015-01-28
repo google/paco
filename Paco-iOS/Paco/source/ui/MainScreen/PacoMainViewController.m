@@ -250,11 +250,12 @@ BOOL loginAttempt = false;
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
                                                                     NSLocalizedString(@"Send Logs to Paco Team", nil),
                                                                     NSLocalizedString(@"Configure Server Address", nil),
-                                                                    NSLocalizedString(@"Open Source Libraries", nil), nil];
+                                                                    NSLocalizedString(@"Open Source Libraries", nil),
+                                                                    NSLocalizedString(@"Sign Out", nil), nil];
   [actionSheet showInView:self.view];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
   switch (buttonIndex) {
     case 0: {
       [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
@@ -270,6 +271,10 @@ BOOL loginAttempt = false;
     }
     case 3: {
       [self opensourceCreditsPage];
+      break;
+    }
+    case 4: {
+      [self signOut];
       break;
     }
     default:
@@ -318,6 +323,10 @@ BOOL loginAttempt = false;
 - (void)opensourceCreditsPage {
   PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
   [self.navigationController pushViewController:creditsViewController animated:YES];
+}
+
+- (void)signOut {
+  [[PacoClient sharedInstance] invalidateUserAccount];
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {
