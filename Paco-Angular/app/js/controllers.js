@@ -1,24 +1,23 @@
 var pacoControllers = angular.module('pacoControllers', []);
 
-
 pacoControllers.controller('ExperimentCtrl', function ($scope, $http, $routeParams){
 
   $scope.responseTypes = ["likert", "likert_smileys", "open text", "list", "photo"];
-
-
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
   $scope.previousIdx = -1;
   $scope.nextIdx = -1;
 
+  $scope.removeInput = function(idx) {
+    console.log("Removing " + idx);
+    $scope.experiment.inputs.splice(idx,1);
+  };
+
+  $scope.removeChoice = function(input, idx) {
+    input.splice(idx,1);
+  };
+
   $http.get('js/experiments.json').success(function(data) {
-    
     $scope.experiment = data[$scope.experimentIdx];
-
-
-    $scope.removeInput = function(idx) {
-      console.log("Removing " + idx);
-      $scope.experiment.inputs.splice(idx,1);
-    };
 
     if ($scope.experimentIdx < data.length - 1) {
       $scope.nextIdx = $scope.experimentIdx + 1;
@@ -29,14 +28,6 @@ pacoControllers.controller('ExperimentCtrl', function ($scope, $http, $routePara
     }
   });  
 });
-
-
-
-
-
-
-
-
 
 pacoControllers.controller('CreateCtrl', function ($scope, $http){
   $scope.questions = [{}];

@@ -12,24 +12,49 @@ nav a {
 }
 
 label {
-  margin-left: 10px;
+  display: block;
 }
 
-input {
-  margin: 0 0 20px 10px;
-  display: block;
+label.inline {
+  display: inline;
 }
 
 input[type=text] {
   width: 600px;
 }
 
+input.short {
+  width: 400px;
+}
+
 textarea {
-  height: 200px;
-  margin: 10px;
-	width: 600px;
+  font-family: monospace;
+  height: 100%;
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 400px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .input {
   margin-left: 20px;
+}
+
+.input p {
+  margin: 2px;
+}
+
+.likert input[type=text] {
+  width: 60px;
+}
+
+.likert label {
+  display: inline;
+}
+
+.list input[type=text] {
+  width: 200px;
 }
