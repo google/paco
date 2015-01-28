@@ -164,7 +164,7 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("Could not parse json. " + e.getMessage());
     }
-    return null;
+    return Lists.newArrayList();
   }
 
   public static Map<String, Object> fromEntitiesJson(String resultsJson) {

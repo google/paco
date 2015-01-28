@@ -17,8 +17,6 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -34,6 +32,8 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
@@ -239,23 +239,29 @@ public class ExperimentServlet extends HttpServlet {
 
   private String getEmailOfUser(HttpServletRequest req, User user) {
     String email = user != null ? user.getEmail() : null;
-    if (email == null && isDevInstance(req)) {
-      email = "<put your email here to test in developer mode>";
-    }
     if (email == null) {
-      throw new IllegalArgumentException("You must login!");
+      throw new IllegalArgumentException("User not logged in");
+    }
+    if (isDevInstance(req)) {
+      if ("example@example.com".equalsIgnoreCase(email)) {
+        throw new IllegalArgumentException("You need to specify a test acct to return when testing mobile clients.");
+        // uncomment the line below and put in the test acct. This is necessary because the dev appengine server
+        // only returns example@example.com as the user!!
+        //return "<your test google acct here";
+      } else {
+        User currentUser = UserServiceFactory.getUserService().getCurrentUser();
+        if (currentUser != null) {
+          return currentUser.getEmail().toLowerCase();
+        } else {
+          return null;
+        }
+      }
     }
     return email.toLowerCase();
   }
 
-
   public static boolean isDevInstance(HttpServletRequest req) {
-    try {
-      return DEV_HOST.equals(InetAddress.getLocalHost().toString());
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-    return false;
+    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
   @Override
