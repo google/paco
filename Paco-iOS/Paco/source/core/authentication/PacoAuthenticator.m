@@ -112,6 +112,8 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   if ([self hasAccountInKeyChain]) {
     [self deleteAllAccountsFromKeyChain];
   }
+  // Remove auth from keychain to prevent future auto sign-in as (null).
+  [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:@"PacoKeychain2"];
 }
 
 - (BOOL)isLoggedIn
