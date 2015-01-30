@@ -1,117 +1,58 @@
-<nav>
-  <a href="#/experiment/{{previousIdx}}" ng-show="previousIdx != -1">&lt;</a>
-  <a href="#/experiment/{{experimentIdx}}">{{experimentIdx}}</a>
-  <a href="#/experiment/{{nextIdx}}" ng-show="nextIdx != -1">&gt;</a>
-</nav>
+<md-toolbar class="md-tall">
 
-<p>
-  <label for="title">Title</label>
-  <input type="text" ng-model="experiment.title" id="title">
-</p>
+    <img src="img/paco256.png" class="paco">
+    <span class="title">Paco</span>
+    <span class="subtitle">The Personal Analytics Companion</span>
 
-<p>
-  <label for="description">Description</label>
-  <input type="text" ng-model="experiment.description" id="description">
-</p>
+</md-toolbar>
 
-<p>
-  <label for="consent">Informed Consent</label>
-  <input type="text" ng-model="experiment.informedConsentForm" id="consent">
-</p>
+<md-tabs class="md-accent" md-selected="selectedIndex">
+    <md-tab id="tab1">
+        Basics
+    </md-tab>
+    <md-tab id="tab2">
+        Questions
+    </md-tab>
+    <md-tab id="tab3">
+        Admin
+    </md-tab>
+    <md-tab id="tab4">
+        Consent
+    </md-tab>
 
-<p>
-  <label for="creator">Creator</label>
-  <input type="text" ng-model="experiment.creator" id="creator">
-</p>
+    <md-button class="md-raised">
+      Publish
+    </md-button>
 
-<p>
-  <label for="fixed" class="inline">Fixed Duration</label>
-  <input type="checkbox" ng-model="experiment.fixedDuration" id="fixed">
-</p>
+    <nav>
+      <a href="#/experiment/{{previousIdx}}" ng-show="previousIdx != -1">&lt;</a>
+      <a href="#/experiment/{{experimentIdx}}">{{experimentIdx}}</a>
+      <a href="#/experiment/{{nextIdx}}" ng-show="nextIdx != -1">&gt;</a>
+    </nav>
 
-<p>
-  <label for="experimentId">Id</label>
-  <input type="text" ng-model="experiment.id" id="experimentId">
-</p>
+</md-tabs>
 
-<p>
-  <label for="date">Modification Date</label>
-  <input type="text" ng-model="experiment.modifyDate" id="date">
-</p>
 
-<p>
-  <label for="inputs" class="inline">Questions</label>
-  <button ng-click="experiment.inputs.push({})">+</button >
-</p>
 
-<div class="input" ng-repeat="input in experiment.inputs">
-  <br>
-  
-  <p>
-    <label class="inline">Question {{$index + 1}}</label>
-    <button ng-click="removeInput($index)">-</button>
-  </p>
-
-  <p>
-    <label class="inline" for="name{{$index}}">Name</label>
-    <input ng-model="input.name" id="name{{$index}}">
-  </p>
-
-  <p>
-    <label for="text{{$index}}">Text Prompt for Input</label>
-    <input type="text" ng-model="input.text" id="text{{$index}}">
-  </p>
-
-  <p>
-    <label class="inline" for="required{{$index}}">Required</label>
-    <input type="checkbox" ng-model="input.mandatory" id="required{{$index}}">
-  </p>
-
-  <p>
-    <label class="inline" for="conditional{{$index}}">Conditional</label>
-    <input type="checkbox" ng-model="input.conditional" id="conditional{{$index}}">
-    <input type="text" class="short" ng-model="input.conditionExpression" ng-if="input.conditional">
-  </p>
-
-  <p>
-    <label class="inline" for="invisible{{$index}}">Invisible</label>
-    <input type="checkbox" ng-model="input.invisibleInput" id="invisible{{$index}}">
-  </p>
-  <p>
-    <label class="inline">Response Type</label>
-    <select ng-model="input.responseType">
-      <option value="" disabled selected>Response Type</option>
-      <option ng-selected="{{type == input.responseType}}"
-              ng-repeat="type in responseTypes"
-              value="{{type}}">{{type}}</option>
-    </select>
-  </p>
-
-  <div class="likert" ng-if="input.responseType == 'likert'">
-    <label for="likertSteps{{$index}}">Likert Steps</label>
-    <input type="text" ng-model="input.likertSteps" id="likertSteps{{$index}}">
-    
-    <label for="leftSideLabel{{$index}}">Left Side Label</label>
-    <input type="text" ng-model="input.leftSideLabel" id="leftSideLabel{{$index}}">
-    
-    <label for="rightSideLabel{{$index}}">Right Side Label</label>
-    <input type="text" ng-model="input.rightSideLabel" id="rightSideLabel{{$index}}">
+<ng-switch on="selectedIndex" class="tabpanel-container">
+  <div role="tabpanel"  ng-switch-when="0">
+    <div ng-include="'/partials/basics.html'" class="padded"></div>
   </div>
-
-  <div class="list" ng-if="input.responseType == 'list'">
-    <label class="inline" for="multi{{$index}}">Multiple selections</label>
-    <input type="checkbox" ng-model="input.multiselect" id="multi{{$index}}">
-    <button ng-click="input.listChoices.push('')">+</button >
-
-    <div class="input" ng-repeat="choice in input.listChoices track by $index">
-      <label class="inline">Choice {{$index + 1}}</label>
-      <input type="text" ng-model="input.listChoices[$index]">
-      <button ng-click="removeChoice(input.listChoices, $index)">-</button>
+  <div role="tabpanel" ng-switch-when="1">
+    <div ng-include="'/partials/questions.html'"></div>
+  </div>
+  <div role="tabpanel" ng-switch-when="2" class="padded admin">
+    <div class="padded">
+      Admin
+      <br />
+      <textarea>
+        {{experiment | json}}
+      </textarea>
     </div>
   </div>
+  <div role="tabpanel" ng-switch-when="3">
+    <div ng-include="'/partials/consent.html'" class="padded"></div>
+  </div>
+</ng-switch>
 
-</div>
 
-<textarea>
-  {{experiment | json}}
-</textarea>

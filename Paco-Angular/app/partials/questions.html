@@ -1,0 +1,87 @@
+<div class="scheduling">
+
+  <h1>Scheduling Group</h1>
+  <p>
+    <b>Signaling</b> Daily at 12PM <a href="#">Edit Signaling</a>
+  </p>
+  <p>
+    <b>Duration</b> Fixed for 2 weeks <a href="#">Edit Duration</a>
+  </p>
+</div>
+
+<div class="input" ng-repeat="input in experiment.inputs">
+
+    <h2>
+        <label class="inline">Question {{$index + 1}}</label>
+        <button ng-click="removeInput($index)">x</button>
+    </h2>
+
+    <div class="padded">
+
+
+       <div class="column0">
+     
+          <select ng-model="input.responseType">
+              <option value="" disabled selected>Response Type</option>
+              <option ng-selected="{{type == input.responseType}}" ng-repeat="type in responseTypes" value="{{type}}">{{type}}</option>
+          </select>
+      </div>
+
+      <div class="column1">
+
+        <md-input-container>
+          <label>Question for the Participant</label>
+          <input ng-model="input.text" md-maxlength="60">
+        </md-input-container>
+
+        <md-checkbox ng-model="input.conditional">
+          Make this question conditional
+        </md-checkbox>
+
+      </div>
+      <div class="column2">
+ 
+        <md-input-container>
+          <label>Question {{$index + 1}} Label</label>
+          <input ng-model="input.name">
+        </md-input-container>
+
+        <md-checkbox ng-model="input.mandatory">
+          Mandatory
+        </md-checkbox>
+      </div>
+
+      
+      <p  ng-if="input.conditional">
+        <label>Condition</label>
+        <input type="text" class="short" ng-model="input.conditionExpression" ng-if="input.conditional">
+      </p>
+
+      <label class="inline" for="invisible{{$index}}">Invisible</label>
+      <input type="checkbox" ng-model="input.invisibleInput" id="invisible{{$index}}">
+      
+
+      <div class="likert" ng-if="input.responseType == 'likert'">
+          <label for="likertSteps{{$index}}">Likert Steps</label>
+          <input type="text" ng-model="input.likertSteps" id="likertSteps{{$index}}">
+
+          <label for="leftSideLabel{{$index}}">Left Side Label</label>
+          <input type="text" ng-model="input.leftSideLabel" id="leftSideLabel{{$index}}">
+
+          <label for="rightSideLabel{{$index}}">Right Side Label</label>
+          <input type="text" ng-model="input.rightSideLabel" id="rightSideLabel{{$index}}">
+      </div>
+
+      <div class="list" ng-if="input.responseType == 'list'">
+          <label class="inline" for="multi{{$index}}">Multiple selections</label>
+          <input type="checkbox" ng-model="input.multiselect" id="multi{{$index}}">
+          <button ng-click="input.listChoices.push('')">+</button>
+
+          <div class="input" ng-repeat="choice in input.listChoices track by $index">
+              <label class="inline">Choice {{$index + 1}}</label>
+              <input type="text" ng-model="input.listChoices[$index]">
+              <button ng-click="removeChoice(input.listChoices, $index)">-</button>
+          </div>
+      </div>
+    </div>
+</div>

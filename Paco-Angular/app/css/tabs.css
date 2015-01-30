@@ -1,0 +1,84 @@
+body, html {
+  background: #e5e5e5;
+}
+
+#body {
+  width: 1024px;
+  position: relative;
+}
+
+md-tab {
+  background: #e0e0e0;
+  color: #3f51b5 !important;
+}
+
+md-tabs-ink-bar {
+  background-color: #ff5722 !important;
+}
+
+md-tab.active {
+  background-color: #3f51b5 !important;
+  color: white !important;
+}
+.md-header {
+  background: #e0e0e0 !important; 
+}
+
+md-toolbar {
+  background: #5c6bc0 !important;
+  vertical-align: middle;
+}
+
+md-toolbar .paco {
+  background: white;
+  border-radius: 50%;
+  height: 96px;
+  margin: 12px;
+  padding: 12px;
+  width: 96px;
+}
+
+md-toolbar .title {
+  font-size: 34px;
+  position: absolute;
+  left: 120px;
+  top: 24px;
+  text-transform: uppercase;
+}
+
+md-toolbar .subtitle {
+  font-size: 18px;
+  position: absolute;
+  left: 120px;
+  top: 64px;
+}
+
+.md-button {
+  height: 30px !important;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+div[role="tabpanel"] {
+  background: white;
+  width: 100%;
+  position: absolute;
+}
+
+.padded {
+  padding: 24px;
+}
+
+nav {
+  margin-left: 20px;
+}
+
+nav a {
+  color: black;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 30px;
+  margin-top: 15px; 
+}

@@ -6,9 +6,9 @@ pacoControllers.controller('ExperimentCtrl', function ($scope, $http, $routePara
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
   $scope.previousIdx = -1;
   $scope.nextIdx = -1;
+  $scope.selectedIndex = 1;
 
   $scope.removeInput = function(idx) {
-    console.log("Removing " + idx);
     $scope.experiment.inputs.splice(idx,1);
   };
 
@@ -39,22 +39,3 @@ pacoControllers.controller('CreateCtrl', function ($scope, $http){
     console.dir(angular.toJson($scope.questions));
   }
  });
-
-pacoControllers.controller('QuestionCtrl', function ($scope, $http){
-
-  $scope.questionType = 'likert';
-  $scope.choices = [{}];
-  $scope.multiChoice = false;
-  $scope.removeChoice = function(index) {
-    $scope.choices.splice(index, 1);
-  }
- });
-
-pacoControllers.controller('ExperimentsCtrl', function ($scope, $http){
-  $http.get('js/experiments.json').success(function(data) {
-    $scope.experiments = data;
-  });
-
-  $scope.sortField = 'title';
-  $scope.reverse = true;
-});

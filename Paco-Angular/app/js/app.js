@@ -1,15 +1,12 @@
 var pacoApp = angular.module('pacoApp', [
   'ngRoute',
+  'ngMaterial',
   'pacoControllers'
   ]);
 
 pacoApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
-    when('/create', {
-      templateUrl: 'partials/create.html',
-      controller: 'CreateCtrl'
-    }).
     when('/experiment/:experimentIdx', {
       templateUrl: 'partials/experiment.html',
       controller: 'ExperimentCtrl',
@@ -17,11 +14,8 @@ pacoApp.config(['$routeProvider',
     when('/experiment/', {
       redirectTo: '/experiment/1'
     }).
-    when('/experiments', {
-      templateUrl: 'partials/experiments.html',
-    }).
     otherwise({
-      redirectTo: '/create'
+      redirectTo: '/experiment/1'
     });
   }]);
 
