@@ -25,6 +25,9 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /img
+  static_dir: img
+
 - url: /css
   static_dir: css
 
@@ -33,3 +36,6 @@ handlers:
 
 - url: /angular
   static_dir: angular
+
+- url: /bower_components
+  static_dir: bower_components
