@@ -1,85 +1,148 @@
 package com.google.android.apps.paco.utils;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Set;
+
+import org.mozilla.javascript.ClassShutter;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
-import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.google.common.collect.ImmutableSet;
+
 public class JsInterpreter {
 
-  private android.content.Context androidContext;
+  public static class RestrictedContextFactory extends ContextFactory {
+    private static final Set<String> ALLOWED_CLASS_NAMES = 
+              ImmutableSet.of("java.util.ArrayList",
+                              com.google.android.apps.paco.Experiment.class.getName(),
+                              com.google.android.apps.paco.Event.class.getName(),
+                              com.google.android.apps.paco.SignalSchedule.class.getName(),
+                              com.google.android.apps.paco.SignalTime.class.getName(),
+                              com.google.android.apps.paco.Trigger.class.getName(),
+                              com.google.android.apps.paco.SignalingMechanism.class.getName(),
+                              com.google.android.apps.paco.Output.class.getName(),
+                              com.google.android.apps.paco.JavascriptEventLoader.class.getName(),
+                              com.google.android.apps.paco.JavascriptExperimentLoader.class.getName()
+                              );
+    @Override
+    protected Context makeContext() {
+      Context context = super.makeContext();
 
-  public JsInterpreter(android.content.Context context) {
+      context.setClassShutter(new ClassShutter() {
+          @Override
+          public boolean visibleToScripts(String className) {
+            // TODO restrict this to just the specific classes scripts need
+            // e.g. 
+            if (className.startsWith("com.google.android.apps.paco.")) {
+              return true;
+            }
+
+            if (className.startsWith("com.pacoapp.paco.")) {
+              return true;
+            }
+
+            // Check against the remaining libraries.
+            return ALLOWED_CLASS_NAMES.contains(className);
+          }
+        });
+      context.getWrapFactory().setJavaPrimitiveWrap(false);
+
+      return context;
+    }
+  }
+
+  private ScriptableObject rootScope;
+  private Object securityDomain;
+  private RestrictedContextFactory contextFactory;
+
+  public JsInterpreter() {
     super();
-    this.androidContext = context;
+    contextFactory = new RestrictedContextFactory(); 
+    securityDomain = null;
+    try {
+      Context context = contextFactory.enterContext();
+      // Turn compilation off. Necessary for Android.
+      context.setOptimizationLevel(-1);
+      rootScope = context.initStandardObjects(null, true);      
+    } finally {
+      Context.exit();
+    }
+
   }
 
-  public Object doit(String code) {
-    // Create an execution environment.
-    Context cx = Context.enter();
-
-    // Turn compilation off.
-    cx.setOptimizationLevel(-1);
-
+  public Object eval(String code) {
     try {
-      // Initialize a variable scope with bindings for
-      // standard objects (Object, Function, etc.
-      Scriptable scope = cx.initStandardObjects();
-      // Set a global variable that holds the activity instance.
-      ScriptableObject.putProperty(scope, "TheActivity", Context.javaToJS(this, scope));
-
-      // Evaluate the script.
-      return cx.evaluateString(scope, code, "doit:", 1, null);
+      Context context = contextFactory.enterContext();
+      return context.evaluateString(rootScope, code, "doit:", 1, securityDomain);
+    } catch (JavaScriptException jse) {
+      // log
+      throw jse;
+    } catch (RhinoException re) {
+      // log
+      throw new IllegalStateException(re);
     } finally {
       Context.exit();
     }
   }
 
-  private static final String RHINO_LOG = "var log = Packages.io.vec.ScriptAPI.log;";
-
-  public static void log(String msg) {
-    android.util.Log.i("RHINO_LOG", msg);
+  public void bind(String name, Object value) {    
+    rootScope.put(name, rootScope, value);    
   }
-
-  public void runScript(String script) {
-    // Get the JavaScript in previous section
-    String functionName = "hello";
-    Object[] functionParams = new Object[] { "Android" };
-
-    // Every Rhino VM begins with the enter()
-    // This Context is not Android's Context
-    Context rhino = Context.enter();
-
-    // Turn off optimization to make Rhino Android compatible
-    rhino.setOptimizationLevel(-1);
+  
+  public void bind(Object object, String name, Object value) {
     try {
-      Scriptable scope = rhino.initStandardObjects();
-
-      // This line set the javaContext variable in JavaScript
-      ScriptableObject.putProperty(scope, "javaContext", Context.javaToJS(androidContext, scope));
-
-      // Note the forth argument is 1, which means the JavaScript source has
-      // been compressed to only one line using something like YUI
-      rhino.evaluateString(scope, RHINO_LOG + script, "ScriptAPI", 1, null);
-
-      // We get the hello function defined in JavaScript
-      Function function = (Function) scope.get(functionName, scope);
-
-      // Call the hello function with params
-      NativeObject result = (NativeObject) function.call(rhino, scope, scope, functionParams);
-      // After the hello function is invoked, you will see logcat output
-
-      // Finally we want to print the result of hello function
-      String foo = (String) Context.jsToJava(result.get("foo", result), String.class);
-      log(foo);
+      ScriptableObject scriptable = (ScriptableObject) object;
+      contextFactory.enterContext();
+      scriptable.defineProperty(name, value, ScriptableObject.CONST);
+    } catch (JavaScriptException e) {
+      // log
+      throw e;
+    } catch (RhinoException e) {
+      // log
+      throw new IllegalStateException(String.format("Error binding: %s.", name), e);
     } finally {
-      // We must exit the Rhino VM
       Context.exit();
     }
   }
 
-  public static void main(String[] args) {
-   System.out.println(new JsInterpreter(null).doit("4 + 5"));
+  public Scriptable getValue(String string) {
+    if (rootScope != null) {
+      return (Scriptable) rootScope.get(string, rootScope);
+    }
+    return null;
+  }
+  
+  public Object callFunction(String script, String functionName, Object... args)
+      throws IOException, NoSuchMethodException {
+    Reader reader = new StringReader(script);
+    return callFunction(reader, functionName, args);
+  }
+
+  public Object callFunction(Reader reader, String functionName, Object... args)
+      throws IOException, NoSuchMethodException {
+    try {
+      Context context = contextFactory.enterContext();
+      context.evaluateReader(rootScope, reader, null, 0, null);
+      Object functionObj = rootScope.get(functionName, rootScope);
+      if (!(functionObj instanceof Function)) {
+        throw new NoSuchMethodException(String.format("Function %s is not a function or doesn't exist.", functionName));
+      }
+      Function function = (Function) functionObj;
+      return function.call(context, rootScope, rootScope, args);
+    } catch (JavaScriptException e) {
+      throw e;
+    } catch (RhinoException e) {
+      throw new IllegalStateException(String.format("Error calling function: %s.", functionName),
+          e);
+    } finally {
+      Context.exit();
+    }
   }
 }

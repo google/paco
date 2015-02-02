@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Paco"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="/Shared/lib/js.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

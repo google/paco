@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,14 +83,13 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.pacoapp.paco.R;
 
 public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener  {
 
-  private Experiment experiment;
-  private ExperimentProviderUtil experimentProviderUtil;
+  Experiment experiment;
+  ExperimentProviderUtil experimentProviderUtil;
   private List<InputLayout> inputs = new ArrayList<InputLayout>();
   private LayoutInflater inflater;
   private LinearLayout mainLayout;
@@ -398,7 +395,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(text, "additions");
 
 
-  webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
+  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experiment), "experimentLoader");
 
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
 
@@ -407,9 +404,9 @@ private void injectObjectsIntoJavascriptEnvironment() {
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
-  webView.addJavascriptInterface(new JavascriptEmail(), "email");
-  webView.addJavascriptInterface(new JavascriptPhotoService(), "photoService");
-  webView.addJavascriptInterface(new JavascriptNotificationService(), "notificationService");
+  webView.addJavascriptInterface(new JavascriptEmail(this), "email");
+  webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this), "notificationService");
 
   env = new Environment(map);
   webView.addJavascriptInterface(env, "env");
@@ -651,7 +648,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 }
 
 
-private boolean sendEmail(String body, String subject, String userEmail) {
+boolean sendEmail(String body, String subject, String userEmail) {
   userEmail = findAccount(userEmail);
   Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
   String aEmailList[] = { userEmail};
@@ -900,77 +897,6 @@ private String findAccount(String userEmail) {
     }
   }
 
-  private class JavascriptEmail {
-    public void sendEmail(String body, String subject, String userEmail) {
-      ExperimentExecutorCustomRendering.this.sendEmail(body, subject, userEmail);
-    }
-  }
-
-  private class JavascriptExperimentLoader {
-    private Experiment experiment;
-    private String json;
-
-    public JavascriptExperimentLoader(Experiment experiment) {
-        this.experiment = experiment;
-    }
-
-    public String getExperiment() {
-      long t1 = System.currentTimeMillis();
-      if (this.json == null) {
-        json = ExperimentProviderUtil.getJson(experiment);
-      }
-      long t2= System.currentTimeMillis();
-      Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
-      return json;
-    }
-    /**
-     * Takes the json of an experiment.
-     *
-     * @param experimentJson
-     * @return json object of an outcome { status: [1|0], error_message : [nil|errorstring] }
-     */
-    public String saveExperiment(final String experimentJson) {
-      this.json = experimentJson;
-      new Thread(new Runnable() {
-
-
-        @Override
-        public void run() {
-          try {
-            long t1 = System.currentTimeMillis();
-            Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(experimentJson);
-            long t2= System.currentTimeMillis();
-            Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
-            experimentProviderUtil.updateExistingExperiments(Lists.newArrayList(experiment), true);
-            long t3= System.currentTimeMillis();
-            Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
-            startService(new Intent(ExperimentExecutorCustomRendering.this, BeeperService.class));
-            if (experiment.shouldWatchProcesses()) {
-              BroadcastTriggerReceiver.initPollingAndLoggingPreference(ExperimentExecutorCustomRendering.this);
-              BroadcastTriggerReceiver.startProcessService(ExperimentExecutorCustomRendering.this);
-            } else {
-              BroadcastTriggerReceiver.stopProcessingService(ExperimentExecutorCustomRendering.this);
-            }
-            long t4 = System.currentTimeMillis();
-            Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));
-          } catch (JsonParseException e) {
-            e.printStackTrace();
-            //return "{ \"status\" : 0, \"error_message\" : \"json parse error: " + e.getMessage() + "\" }";
-          } catch (JsonMappingException e) {
-            e.printStackTrace();
-            //return "{ \"status\" : 0, \"error_message\" : \"json mapping error: " + e.getMessage() + "\" }";
-          } catch (IOException e) {
-            e.printStackTrace();
-            //return "{ \"status\" : 0, \"error_message\" : \"io error: " + e.getMessage() + "\" }";
-          }
-          //return "{ \"status\" : 1, \"error_message\" : \"\" }";
-        }
-
-      }).start();
-      return null;
-    }
-  }
-
   private class JavascriptExecutorListener {
     private Experiment experiment;
     public JavascriptExecutorListener(Experiment experiment) {
@@ -993,32 +919,11 @@ private String findAccount(String userEmail) {
     }
   }
 
-  private class JavascriptNotificationService {
-
-    public void createNotification(String message) {
-      createNotification(message, true, true, 1000 * 60 * 60 * 24); // timeout in 24 hours.
-    }
-
-    private void createNotification(String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
-      NotificationCreator.create(ExperimentExecutorCustomRendering.this).createNotificationsForCustomGeneratedScript(experiment, message, makeSound, makeVibrate, timeoutMillis);
-    }
-
-    public void removeNotification() {
-      NotificationCreator.create(ExperimentExecutorCustomRendering.this).removeNotificationsForCustomGeneratedScript(experiment);
-    }
-  }
-
-
-  private class JavascriptPhotoService {
-
-    public void launch() {
-      renderCameraOrGalleryChooser();
-    }
-  }
+  
 
 //start duplicate from inputlayout for photo service
 
-  private void renderCameraOrGalleryChooser() {
+  void renderCameraOrGalleryChooser() {
     String title = getString(R.string.please_choose_the_source_of_your_image);
     Dialog chooserDialog = new AlertDialog.Builder(this).setTitle(title)
             .setNegativeButton(getString(R.string.camera), new Dialog.OnClickListener() {
