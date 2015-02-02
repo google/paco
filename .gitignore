@@ -26,6 +26,7 @@ PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
 PacoTest/gen/*
+PacoTest/libs/js.jar
 PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
