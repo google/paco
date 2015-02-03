@@ -437,6 +437,7 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
     BOOL shouldRefresh = [self shouldRefreshAccessToken];
 
     if (shouldRefresh) {
+      NSLog(@"Should refresh. Thread: %@\n", [NSThread currentThread].description);
       // attempt to refresh now; once we have a fresh access token, we will
       // authorize the request and call back to the user
       didAttempt = YES;
@@ -468,6 +469,8 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
 finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
        error:(NSError *)error {
   @synchronized(authorizationQueue_) {
+    NSLog(@"auth:FinishedRefreshWithFetcher:error done. Thread: %@\n", [NSThread currentThread].description);
+
     // If there's an error, we want to try using the old access token anyway,
     // in case it's a backend problem preventing refresh, in which case
     // access tokens past their expiration date may still work
@@ -618,7 +621,8 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
   // Invoke any callbacks on the proper thread
   if (args.delegate || args.completionHandler) {
     NSThread *targetThread = args.thread;
-    BOOL isSameThread = [targetThread isEqual:[NSThread currentThread]];
+    NSThread *currentThread = [NSThread currentThread];
+    BOOL isSameThread = [targetThread isEqual:currentThread];
 
     if (isSameThread) {
       [self invokeCallbackArgs:args];
@@ -632,10 +636,13 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
                                                      object:args] autorelease];
         [delegateQueue addOperation:op];
       } else {
-        [self performSelector:sel
-                     onThread:targetThread
-                   withObject:args
-                waitUntilDone:NO];
+          NSLog(@"sel: %@\n thread: %@\n error: %@\n request:%@\n args.selector:%@\n args.delegate:%d\n ", NSStringFromSelector(sel), targetThread, args.error, args.request.description,
+                NSStringFromSelector(args.selector), (args.delegate == nil));
+//        [self performSelector:sel
+//                     onThread:targetThread
+//                   withObject:args
+//                waitUntilDone:NO];
+        [self performSelectorOnMainThread:sel withObject:args waitUntilDone:NO];
       }
     }
   }
