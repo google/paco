@@ -17,6 +17,7 @@
 
 
 #import "GTMHTTPFetcher.h"
+#import "GTMHTTPFetcherLogging.h"
 #import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
@@ -63,6 +64,7 @@
   [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
+    [GTMHTTPFetcher setLoggingEnabled:YES];
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];
   //Set delegateQueue so that fetcher can work in a background thread

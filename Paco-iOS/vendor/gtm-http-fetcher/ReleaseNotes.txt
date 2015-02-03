@@ -1,0 +1,42 @@
+GTM HTTP Fetcher Release Notes
+
+Project site:     http://code.google.com/p/gtm-http-fetcher/
+Discussion group: http://groups.google.com/group/google-toolbox-for-mac
+
+8-July-2011
+
+Added shouldFetchInBackground property (thanks justin a)
+
+
+24-Mar-2011
+
+Added authorizer support
+
+
+7-Feb-2011
+
+Made cookies set by a redirect immediately available in the new request (thanks ehoracek)
+Added getter for static cookie storage
+
+
+16-Nov-2010
+
+Added fetcher comment property for logging
+
+
+27-Oct-2010
+
+Added downloadPath and downloadFileHandle properties
+Added waitForCompletionWithTimeout:
+Renamed GTMAssertSelectorNilOrImplementedWithArgs()
+
+
+4-Oct-2010
+
+Ensure that delegate is nil when not retained.
+
+   
+Release 1.0.0
+9-Sept-2010
+
+Initial public release.
