@@ -638,11 +638,10 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
       } else {
           NSLog(@"sel: %@\n thread: %@\n error: %@\n request:%@\n args.selector:%@\n args.delegate:%d\n ", NSStringFromSelector(sel), targetThread, args.error, args.request.description,
                 NSStringFromSelector(args.selector), (args.delegate == nil));
-//        [self performSelector:sel
-//                     onThread:targetThread
-//                   withObject:args
-//                waitUntilDone:NO];
-        [self performSelectorOnMainThread:sel withObject:args waitUntilDone:NO];
+        [self performSelector:sel
+                     onThread:targetThread
+                   withObject:args
+                waitUntilDone:NO];
       }
     }
   }

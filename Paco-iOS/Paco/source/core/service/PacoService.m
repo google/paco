@@ -67,9 +67,8 @@
     [GTMHTTPFetcher setLoggingEnabled:YES];
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];
-  //Set delegateQueue so that fetcher can work in a background thread
-  fetcher.delegateQueue = [[NSOperationQueue alloc] init];
-  
+  fetcher.delegateQueue = [NSOperationQueue mainQueue];
+
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       if (error) {
