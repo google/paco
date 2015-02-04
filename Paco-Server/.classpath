@@ -27,5 +27,6 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/joda-time-2.2.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/opencsv-2.3.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>

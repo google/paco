@@ -121,13 +121,13 @@ public class SimonServlet extends BaseServlet {
   }
 
   protected JsonNode getConfigList(String email) throws IOException, JSONException, AddressException {
-    ArrayNode results = JSON_MAPPER.createArrayNode();
+    ArrayNode results = JSON.createArrayNode();
     List<SimonConfig> configs = SimonConfigEntity.getSimonConfigs(email);
     for (SimonConfig config : configs) {
       results.add(config.toJson());
     }
 
-    ObjectNode jsonResults = JSON_MAPPER.createObjectNode();
+    ObjectNode jsonResults = JSON.createObjectNode();
     jsonResults.put("results", results);
     return (JsonNode) jsonResults;
   }
