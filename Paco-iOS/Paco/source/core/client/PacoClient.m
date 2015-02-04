@@ -78,8 +78,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   self = [super init];
   if (self) {
     [self checkIfUserFirstLaunchPaco];
+    [self checkIfUserFirstLaunchOAuth2];
     
-    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
+    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch|_firstOAuth2];
     self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
@@ -111,6 +112,18 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     _firstLaunch = YES;
   } else {
     _firstLaunch = NO;
+  }
+}
+
+- (void)checkIfUserFirstLaunchOAuth2 {
+  NSString* launchedKey = @"oauth2_launched";
+  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+  if (value == nil) { //first launch
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _firstOAuth2 = YES;
+  } else {
+    _firstOAuth2 = NO;
   }
 }
 

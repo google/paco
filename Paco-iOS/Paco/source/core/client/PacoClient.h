@@ -58,6 +58,7 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
 @property (nonatomic, assign, readonly) BOOL firstLaunch;
+@property (nonatomic, assign, readonly) BOOL firstOAuth2;
 
 
 + (PacoClient *)sharedInstance;
