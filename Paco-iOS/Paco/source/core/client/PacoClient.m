@@ -440,40 +440,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     }
     return;
   }
-
-  
-  if ([self.authenticator setupWithCookie]) {
-    DDLogInfo(@"Valid cookie detected, no need to log in!");
-    [self startWorkingAfterLogIn];
-    
-    if (block != nil) {
-      block(nil);
-    }
-    return;
-  }
   
   if (![self isUserAccountStored]) {
     [self showLoginScreenWithCompletionBlock:block];
   } else {
     [self reAuthenticateUserWithBlock:block];
   }
-}
-
-
-- (void)loginWithClientLogin:(NSString *)email
-                    password:(NSString *)password
-           completionHandler:(void (^)(NSError *))completionHandler {
-  NSAssert(![self isLoggedIn], @"user should not be logged in!");
-  [self.authenticator authenticateWithClientLogin:email
-                                         password:password
-                                completionHandler:^(NSError *error) {
-                                  if (!error) {
-                                    [self startWorkingAfterLogIn];
-                                    completionHandler(nil);
-                                  } else {
-                                    completionHandler(error);
-                                  }
-                                }];    
 }
 
 

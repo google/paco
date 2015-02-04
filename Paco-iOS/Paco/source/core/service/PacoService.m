@@ -47,9 +47,6 @@
     // OAuth2
     [fetcher setAuthorizer:self.authenticator.auth];
     
-  } else if (self.authenticator.cookie) {
-    // Client Login
-    [request setValue:self.authenticator.cookie forHTTPHeaderField:@"Cookie"];
   } else {
     DDLogError(@"Error authenticating request.");
   }
