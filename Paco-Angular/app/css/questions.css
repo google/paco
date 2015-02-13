@@ -40,13 +40,15 @@
 
 .input h2 {
   background: #e0e0e0;
-  font-weight: 400;
+  font-weight: 300;
   padding: 12px;
   margin: 0;
 }
 
 .input h2 button {
   float: right;
+  font-size: 12px;
+  margin: 0;
 }
 
 .column0 {
@@ -65,41 +67,7 @@
   width: 200px;
 }
 
-/*
-label {
-  display: block;
-}
-
-label.inline {
-  display: inline;
-}
-
-input[type=text] {
-  width: 600px;
-}
-
-input.short {
-  width: 400px;
-}
-
-
-
-.input {
-  margin-left: 20px;
-}
-
-.input p {
-  margin: 2px;
-}
-
-.likert input[type=text] {
-  width: 60px;
-}
-
-.likert label {
-  display: inline;
-}
-
-.list input[type=text] {
+.short {
   width: 200px;
-}*/
+  display: inline-block;
+}
