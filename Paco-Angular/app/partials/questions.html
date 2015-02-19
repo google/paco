@@ -1,108 +1,178 @@
-<div class="scheduling">
+<md-card ng-controller="GroupCtrl" ng-class="{expand: expand}">
+  <h2 ng-click="toggleExpand()">Scheduling</h2>
+  <md-card-content ng-show="expand">
 
-  <h1>Scheduling Group</h1>
-  <p>
-    <b>Signaling</b> Daily at 12PM <a href="#">Edit Signaling</a>
-  </p>
-  <p>
-    <b>Duration</b> Fixed for 2 weeks <a href="#">Edit Duration</a>
-  </p>
-</div>
+    <div class="scheduling" ng-controller="ScheduleCtrl">
+
+      <div>
+        <select ng-model="experiment.schedule.scheduleType">
+          <option value="" disabled selected>Signal Schedule</option>
+          <option ng-selected="{{$index == experiment.schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">{{type}}</option>
+        </select>
+      </div>
+
+      <div ng-if="experiment.schedule.scheduleType==0">
+        Repeat every
+        <select ng-model="experiment.schedule.repeatRate">
+          <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+        </select>
+        days
+      </div>
+
+       <div ng-if="experiment.schedule.scheduleType==2">
+        Repeat every
+        <select ng-model="experiment.schedule.repeatRate">
+          <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+        </select>
+        weeks
+      </div>
+      
+      <div ng-if="experiment.schedule.scheduleType==3">
+        Repeat every
+        <select ng-model="experiment.schedule.repeatRate">
+          <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+        </select>
+        months
+      </div>
+
+      <div ng-repeat="time in experiment.schedule.signalTimes"
+        ng-if="experiment.schedule.scheduleType >= 0 && experiment.schedule.scheduleType <= 3">
+        Signal Time
+        <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
+        <input type="text" ng-model="time.label" placeholder="Label">
+        <md-button class="md-raised" ng-click="removeTime(experiment.schedule.signalTimes, $index)" ng-disabled="experiment.schedule.signalTimes.length <= 1">-
+        </md-button>
+        <md-button class="md-raised" ng-click="addTime(experiment.schedule.signalTimes, $index)">+</md-button>
+      </div>
+      
+      <div class="snooze">
+        <p>
+          <label>Timeout</label> 
+          <input type="number" min=0 max=479 ng-model="experiment.schedule.timeout">
+        </p>
+        <p>    
+          <label>Snooze repeats</label> 
+          <input type="number" min=0 max=1 ng-model="experiment.schedule.snoozeCount">
+        </p>
+        <p>
+          <label>Snooze time</label> 
+          <input type="number" ng-model="experiment.schedule.snoozeTimeInMinutes"> (minutes)
+        </p>
+        <p>
+          <label for="userEdit">User editable</label> 
+          <input type="checkbox" id="userEdit" ng-model="experiment.schedule.userEditable">
+        </p>
+        <p>
+          <label for="editOnJoin">Editable on Join</label> 
+          <input type="checkbox" id="editOnJoin" ng-model="experiment.schedule.onlyEditableOnJoin">
+        </p>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+  </md-card-content>
+</md-card>
+
+
+
+
+
+
 
 <div class="input" ng-repeat="input in experiment.inputs">
 
-    <h2>
+  <h2>
         <label class="inline">Question {{$index + 1}}</label>
         <md-button class="md-raised" ng-click="removeInput($index)">x</md-button>
-
-
-     <!--  <div class="icon icon-av-black icon-ic_play_circle_outline_black_24dp" style="width: 36px; height: 36px;"></div>
- -->
-
     </h2>
 
-    <div class="padded">
-       <div class="column0">
-          <select ng-model="input.responseType">
-              <option value="" disabled selected>Response Type</option>
-              <option ng-selected="{{type == input.responseType}}" ng-repeat="type in responseTypes" value="{{type}}">{{type}}</option>
-          </select>
+  <div class="padded">
+    <div class="column0">
+      <select ng-model="input.responseType">
+        <option value="" disabled selected>Response Type</option>
+        <option ng-selected="{{type == input.responseType}}" ng-repeat="type in responseTypes" value="{{type}}">{{type}}</option>
+      </select>
 
-        <md-checkbox ng-model="input.invisibleInput">
-          Invisible
-        </md-checkbox>
-  
-
-      </div>
-
-      <div class="column1">
-
-        <md-input-container>
-          <label>Question for the Participant</label>
-          <input ng-model="input.text" md-maxlength="60">
-        </md-input-container>
-
-        <md-checkbox ng-model="input.conditional">
-          Make this question conditional
-        </md-checkbox>
-
-      </div>
-      <div class="column2">
- 
-        <md-input-container>
-          <label>Question {{$index + 1}} Label</label>
-          <input ng-model="input.name">
-        </md-input-container>
-
-        <md-checkbox ng-model="input.mandatory">
-          Mandatory
-        </md-checkbox>
-      </div>
-
-      
-      <p ng-if="input.conditional">
-        <md-input-container>
-          <label>Condition</label>
-          <input ng-model="input.conditionExpression">
-        </md-input-container>
-      </p> 
-
-      <div class="likert" ng-if="input.responseType == 'likert'">
-
-        
-        <md-input-container class="short">
-          <label>Likert Steps</label>
-          <input ng-model="input.likertSteps">
-        </md-input-container>
-        
-        <md-input-container class="short">
-          <label>Left Side Label</label>
-          <input ng-model="input.leftSideLabel">
-        </md-input-container>
-      
-        <md-input-container class="short">
-          <label>Right Side Label</label>
-          <input ng-model="input.rightSideLabel">
-        </md-input-container>
-
-      </div>
-
-      <div class="list" ng-if="input.responseType == 'list'">    
-          <md-checkbox ng-model="input.multiselect">
-            Multiple selections
-          </md-checkbox>
-
-          <div class="input" ng-repeat="choice in input.listChoices track by $index">
-              
-            <md-input-container class="short">
-              <label>Choice {{$index + 1}}</label>
-              <input ng-model="input.listChoices[$index]">
-            </md-input-container>
-              <md-button class="md-raised" ng-click="removeChoice(input.listChoices, $index)">-</md-button>
-          </div>
-          
-          <md-button class="md-raised" ng-click="input.listChoices.push('')">+</md-button>
-
-      </div>
+      <md-checkbox ng-model="input.invisibleInput">
+        Invisible
+      </md-checkbox>
     </div>
+
+    <div class="column1">
+
+      <md-input-container>
+        <label>Question for the Participant</label>
+        <input ng-model="input.text" md-maxlength="60">
+      </md-input-container>
+
+      <md-checkbox ng-model="input.conditional">
+        Make this question conditional
+      </md-checkbox>
+
+    </div>
+    <div class="column2">
+
+      <md-input-container>
+        <label>Question {{$index + 1}} Label</label>
+        <input ng-model="input.name">
+      </md-input-container>
+
+      <md-checkbox ng-model="input.mandatory">
+        Mandatory
+      </md-checkbox>
+    </div>
+
+
+    <p ng-if="input.conditional">
+      <md-input-container>
+        <label>Condition</label>
+        <input ng-model="input.conditionExpression">
+      </md-input-container>
+    </p>
+
+    <div class="likert" ng-if="input.responseType == 'likert'">
+
+      <md-input-container class="short">
+        <label>Likert Steps</label>
+        <input ng-model="input.likertSteps">
+      </md-input-container>
+
+      <md-input-container class="short">
+        <label>Left Side Label</label>
+        <input ng-model="input.leftSideLabel">
+      </md-input-container>
+
+      <md-input-container class="short">
+        <label>Right Side Label</label>
+        <input ng-model="input.rightSideLabel">
+      </md-input-container>
+
+    </div>
+
+    <div class="list" ng-if="input.responseType == 'list'">
+      <md-checkbox ng-model="input.multiselect">
+        Multiple selections
+      </md-checkbox>
+
+      <div class="input" ng-repeat="choice in input.listChoices track by $index">
+
+        <md-input-container class="short">
+          <label>Choice {{$index + 1}}</label>
+          <input ng-model="input.listChoices[$index]">
+        </md-input-container>
+        <md-button class="md-raised" ng-click="removeChoice(input.listChoices, $index)">-</md-button>
+      </div>
+
+      <md-button class="md-raised" ng-click="input.listChoices.push('')">+</md-button>
+
+    </div>
+  </div>
 </div>

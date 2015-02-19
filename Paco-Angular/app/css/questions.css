@@ -1,5 +1,3 @@
-
-
 .admin textarea {
   border: 1px solid #e5e5e5;
   font-family: monospace;
@@ -26,16 +24,18 @@
   text-transform: uppercase;
 }
 
-.scheduling {
-  background-image: url('/img/ic_access_time_48px.svg');
-  background-position: 12px 18px;
-  background-repeat: no-repeat;
-  padding: 12px 0px 12px 72px;
-}
-
 .scheduling p {
   margin: 0;
   padding: 0;
+}
+
+.snooze label {
+  display: inline-block;
+  width: 120px;
+}
+
+.snooze input {
+  width: 80px;
 }
 
 .input h2 {
@@ -71,3 +71,24 @@
   width: 200px;
   display: inline-block;
 }
+
+md-card {
+  background: url('/img/ic_unfoldMore.svg') no-repeat;
+  background-position: calc(100% - 16px) 16px;
+  margin: 16px;
+  overflow: hidden;
+}
+
+md-card.expand {
+  background: url('/img/ic_unfoldLess.svg') no-repeat;
+  background-position: calc(100% - 16px) 16px;
+}
+
+md-card h2 {
+  cursor: pointer;
+  margin: 16px;
+  font-size: 18px;
+  font-weight: 400;
+  -webkit-user-select: none;
+}
+
