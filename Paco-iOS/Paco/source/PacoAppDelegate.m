@@ -132,7 +132,8 @@
   logger.logFileManager.maximumNumberOfLogFiles = 7;
   [DDLog addLogger:logger];
 
-  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1) {   
+  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 ||
+      [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
     UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
     UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
     [application registerUserNotificationSettings:mySettings];
