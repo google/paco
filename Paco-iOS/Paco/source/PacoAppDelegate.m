@@ -131,6 +131,12 @@
   logger.rollingFrequency = 2 * 24 * 60 * 60; //48 hours rolling
   logger.logFileManager.maximumNumberOfLogFiles = 7;
   [DDLog addLogger:logger];
+
+  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1) {   
+    UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+    UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+    [application registerUserNotificationSettings:mySettings];
+  }
   
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[UIColor pacoBlue]];
