@@ -60,9 +60,7 @@ static int const kMaxNumOfEventsToUpload = 50;
     NSAssert([pendingEvents count] > 0, @"there should be pending events!");
     
     self.isWorking = YES;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [self submitAllPendingEvents:pendingEvents];
-    });
+    [self submitAllPendingEvents:pendingEvents];
   }
 }
 
@@ -74,50 +72,47 @@ static int const kMaxNumOfEventsToUpload = 50;
   
   __block int numOfFinishedEvents = 0;
   __block int numOfSuccessUploading = 0;
-
+  
   while (size > 0) {
     NSRange range = NSMakeRange(start, size);
     NSArray* events = [allPendingEvents subarrayWithRange:range];
     NSAssert([events count] > 0, @"events should have at least one element!");
     
     void(^finalBlock)(NSArray*, NSError*) = ^(NSArray* successEventIndexes, NSError* error){
-      //Since this block is fired on main thread, send it to a background thread
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSAssert([successEventIndexes count] <= [events count],
-                 @"successEventIndexes count is not correct!");
-        
-        numOfFinishedEvents += [events count];
-        
-        if (error) {
-          //offline error, authentication error, server 500 error, client 400 error, etc.
-          DDLogError(@"Failed to upload %lu events! Error: %@", (unsigned long)[events count], [error description]);
+      NSAssert([successEventIndexes count] <= [events count],
+               @"successEventIndexes count is not correct!");
+      
+      numOfFinishedEvents += [events count];
+      
+      if (error) {
+        //offline error, authentication error, server 500 error, client 400 error, etc.
+        DDLogError(@"Failed to upload %lu events! Error: %@", (unsigned long)[events count], [error description]);
+      } else {
+        if ([successEventIndexes count] < [events count]) {
+          DDLogError(@"[Error]%lu events successfully uploaded, %lu events failed!",
+                     (unsigned long)[successEventIndexes count], (unsigned long)([events count] - [successEventIndexes count]));
         } else {
-          if ([successEventIndexes count] < [events count]) {
-            DDLogError(@"[Error]%lu events successfully uploaded, %lu events failed!",
-                       (unsigned long)[successEventIndexes count], (unsigned long)([events count] - [successEventIndexes count]));
-          } else {
-            DDLogInfo(@"%lu events successfully uploaded!", (unsigned long)[successEventIndexes count]);
-          }
-          
-          NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
-          for (NSNumber* indexNum in successEventIndexes) {
-            [successEvents addObject:events[[indexNum intValue]]];
-          }
-          if ([successEvents count] > 0) {
-            [self.delegate markEventsComplete:successEvents];
-            numOfSuccessUploading += [successEvents count];
-          }
+          DDLogInfo(@"%lu events successfully uploaded!", (unsigned long)[successEventIndexes count]);
         }
         
-        if (numOfFinishedEvents == totalNumOfEvents) {
-          DDLogInfo(@"Finished uploading!");
-          [self stopUploading];
-          BOOL success = (numOfSuccessUploading > 0) ? YES : NO;
-          if (self.completionBlock) {
-            self.completionBlock(success);
-          }
+        NSMutableArray* successEvents = [NSMutableArray arrayWithCapacity:[successEventIndexes count]];
+        for (NSNumber* indexNum in successEventIndexes) {
+          [successEvents addObject:events[[indexNum intValue]]];
         }
-      });
+        if ([successEvents count] > 0) {
+          [self.delegate markEventsComplete:successEvents];
+          numOfSuccessUploading += [successEvents count];
+        }
+      }
+      
+      if (numOfFinishedEvents == totalNumOfEvents) {
+        DDLogInfo(@"Finished uploading!");
+        [self stopUploading];
+        BOOL success = (numOfSuccessUploading > 0) ? YES : NO;
+        if (self.completionBlock) {
+          self.completionBlock(success);
+        }
+      }
     };
     
     [[PacoClient sharedInstance].service submitEventList:events
@@ -133,14 +128,6 @@ static int const kMaxNumOfEventsToUpload = 50;
 #pragma mark Public API
 - (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock {
   @synchronized(self) {
-    //if user is not logged in yet, wait until log in finishes
-    if (![[PacoClient sharedInstance] isLoggedIn]) {
-      DDLogError(@"EventUploader failed to start uploading since user is not logged in");
-      if (completionBlock) {
-        completionBlock(NO);
-      }
-      return;
-    }
     if (self.isWorking) {
       DDLogWarn(@"EventUploading is already working.");
       if (completionBlock) {
