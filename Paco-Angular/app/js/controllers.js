@@ -44,7 +44,9 @@ app.controller('GroupCtrl', ['$scope', function($scope) {
 app.controller('ScheduleCtrl', ['$scope', function($scope) {
 
   $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
-  $scope.repeatRates = range(0, 30);
+  $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
+  $scope.repeatRates = range(1, 30);
+  $scope.daysOfMonth = range(1, 31);
 
   function range(start, end) {
     var arr = [];
@@ -61,6 +63,24 @@ app.controller('ScheduleCtrl', ['$scope', function($scope) {
   $scope.addTime = function(times, idx) {
     times.splice(idx + 1, 0, {'fixedTimeMillisFromMidnight': 0});
   };
+
+
+  $scope.$watchCollection('experiment.schedule.days', function() {
+    console.log($scope.experiment.schedule.days);
+    var sum = 0;
+    for (var i = 0; i < 7; i++) {
+      if ($scope.experiment.schedule.days[i]) {
+        sum += Math.pow(2, i);
+      }
+    }
+    $scope.experiment.schedule.weekDaysScheduled = sum;
+  });
+  
+  $scope.$watch('experiment.schedule.scheduleType', function() {
+    if ($scope.experiment.schedule.signalTimes.length == 0) {
+      $scope.experiment.schedule.signalTimes = [{}]; 
+    }
+  });
 
 }]);
 

@@ -31,11 +31,11 @@
 
 .snooze label {
   display: inline-block;
-  width: 120px;
+  width: 20 0px;
 }
 
 .snooze input {
-  width: 80px;
+  width: 200px;
 }
 
 .input h2 {
@@ -92,3 +92,24 @@ md-card h2 {
   -webkit-user-select: none;
 }
 
+.scheduling .days {
+  margin-bottom: 24px;
+}
+
+.scheduling .days md-checkbox {
+  display: inline-block;
+  height: 64px;
+  position: relative;
+  width: 18px;
+  margin: 8px;
+}
+
+.scheduling .days md-checkbox .md-label {
+  position: absolute;
+  top: 36px;
+  left: -12px;
+}
+
+.scheduling .inline {
+  display: inline-block;
+}
