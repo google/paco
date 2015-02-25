@@ -1,11 +1,10 @@
 .admin textarea {
   border: 1px solid #e5e5e5;
+  box-sizing: border-box;
   font-family: monospace;
   height: 600px;
-  
-  width: 100%;
   padding: 20px;
-  box-sizing: border-box;
+  width: 100%;
 }
 
 .scheduling h1 {
@@ -22,6 +21,10 @@
   color: #3f51b5;
   text-decoration: none;
   text-transform: uppercase;
+}
+
+.scheduling {
+  padding: 16px;
 }
 
 .scheduling p {
@@ -73,13 +76,20 @@
 }
 
 md-card {
-  background: url('/img/ic_unfoldMore.svg') no-repeat;
-  background-position: calc(100% - 16px) 16px;
   margin: 16px;
   overflow: hidden;
 }
 
-md-card.expand {
+md-card-content {
+  background: url('/img/ic_unfoldMore.svg') no-repeat;
+  background-position: calc(100% - 16px) 16px;
+}
+
+md-card md-card-content {
+  padding: 0;
+}
+
+md-card.expand, md-card-content.expand  {
   background: url('/img/ic_unfoldLess.svg') no-repeat;
   background-position: calc(100% - 16px) 16px;
 }
