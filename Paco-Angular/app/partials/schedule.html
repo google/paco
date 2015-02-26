@@ -1,0 +1,98 @@
+<div>
+  <select ng-model="experiment.schedule.scheduleType">
+    <option value="" disabled selected>Signal Schedule</option>
+    <option ng-selected="{{$index==experiment.schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">{{type}}</option>
+  </select>
+</div>
+
+<div ng-if="experiment.schedule.scheduleType==0">
+  Repeat every
+  <select ng-model="experiment.schedule.repeatRate">
+    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+  </select>
+  days
+</div>
+
+<div ng-if="experiment.schedule.scheduleType==2">
+  Repeat every
+  <select ng-model="experiment.schedule.repeatRate">
+    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+  </select>
+  weeks
+</div>
+
+<div ng-if="experiment.schedule.scheduleType==3">
+  Repeat every
+  <select ng-model="experiment.schedule.repeatRate">
+    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+  </select>
+  months
+</div>
+
+<div ng-if="experiment.schedule.scheduleType==3">
+  <md-radio-group ng-model="experiment.schedule.byDayOfMonth">
+    <md-radio-button value="true" class="inline">Day of Month</md-radio-button>
+
+    <select ng-model="experiment.schedule.dayOfMonth" ng-if="experiment.schedule.byDayOfMonth=='true'">
+      <option ng-selected="{{day == experiment.schedule.dayOfMonth}}" ng-repeat="day in daysOfMonth" value="{{day}}">{{day}}</option>
+    </select>
+
+    <md-radio-button value="false">Day of Week </md-radio-button>
+  </md-radio-group>
+</div>
+
+<div ng-if="experiment.schedule.scheduleType==2 || (experiment.schedule.scheduleType==3 && experiment.schedule.byDayOfMonth=='false')" class="days">
+  Repeat on ({{experiment.schedule.weekDaysScheduled}})
+  <md-checkbox ng-model="experiment.schedule.days[0]">Su</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[1]">M</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[2]">Tu</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[3]">W</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[4]">Th</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[5]">F</md-checkbox>
+  <md-checkbox ng-model="experiment.schedule.days[6]">Sa</md-checkbox>
+</div>
+
+<div ng-repeat="time in experiment.schedule.signalTimes" ng-if="experiment.schedule.scheduleType >= 0 && experiment.schedule.scheduleType <= 3">
+
+  <md-input-container class="short">
+    <label>Time {{time.fixedTimeMillisFromMidnight}}</label>
+    <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
+  </md-input-container>
+
+  <md-input-container class="short">
+    <label>Label</label>
+    <input type="text" ng-model="time.label">
+  </md-input-container>
+
+
+  <md-button class="md-raised" ng-click="removeTime(experiment.schedule.signalTimes, $index)" 
+    ng-disabled="experiment.schedule.signalTimes.length <= 1">-
+  </md-button>
+  <md-button class="md-raised" ng-click="addTime(experiment.schedule.signalTimes, $index)">+</md-button>
+</div>
+
+<div class="snooze" ng-if="experiment.schedule.scheduleType < 5">
+
+  <md-input-container>
+    <label>Timeout</label>
+    <input type="number" min=0 max=479 ng-model="experiment.schedule.timeout">
+  </md-input-container>
+
+  <md-input-container>
+    <label>Snooze repeats</label>
+    <input type="number" min=0 max=1 ng-model="experiment.schedule.snoozeCount">
+  </md-input-container>
+
+  <md-input-container>
+    <label>Snooze time</label>
+    <input type="number" ng-model="experiment.schedule.snoozeTimeInMinutes">
+  </md-input-container>
+
+  <md-checkbox ng-model="experiment.schedule.userEditable" aria-label="User editable">
+    User editable
+  </md-checkbox>
+
+  <md-checkbox ng-model="experiment.schedule.onlyEditableOnJoin" aria-label="User editable on join">
+    Editable on Join
+  </md-checkbox>
+</div>

@@ -42,7 +42,7 @@
 }
 
 .input h2 {
-  background: #e0e0e0;
+  background: #E8EAF6;
   font-weight: 300;
   padding: 12px;
   margin: 0;
@@ -76,6 +76,7 @@
 }
 
 md-card {
+  background: white;
   margin: 16px;
   overflow: hidden;
 }
