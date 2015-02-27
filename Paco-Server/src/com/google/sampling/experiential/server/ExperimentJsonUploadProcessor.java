@@ -43,7 +43,7 @@ public class ExperimentJsonUploadProcessor {
   }
 
   private String toJson(List<Outcome> outcomes) {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
       return mapper.writeValueAsString(outcomes);
