@@ -141,8 +141,10 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    // TODO Auto-generated method stub
-    return null;
+    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(lowerCase);
+    experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(lowerCase));
+    List<ExperimentDAO> experiments = getExperimentsById(experimentIds, lowerCase, timeZoneForClient);
+    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
 
   @Override

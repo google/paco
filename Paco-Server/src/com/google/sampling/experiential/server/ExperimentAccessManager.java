@@ -24,6 +24,8 @@ public class ExperimentAccessManager {
   private static final String EXPERIMENT_ID = "experimentId";
   private static final String ADMIN_USER_KIND = "admin_user";
   private static final String ADMIN_ID = "admin_id";
+  private static final String PUBLISHED_USER_KIND = "published_user";
+  private static final String USER_ID = "user_id";
 
   public static boolean isUserAllowedToDeleteExperiment(Long experimentId, String loggedInUserEmail) {
     return isUserAdmin(experimentId, loggedInUserEmail);
@@ -58,8 +60,8 @@ public class ExperimentAccessManager {
     Object experimentKey = ExperimentJsonEntityManager.createkeyForId(experimentId);
     try {
       deleteAdminTableEntries(tx, ds, experimentKey);
-      updateParticipantTable(tx, ds, experimentKey);
-      updatePublicTable(tx, ds, experimentKey);
+      deleteParticipantTableEntries(tx, ds, experimentKey);
+      deletePublicTableEntries(tx, ds, experimentKey);
       tx.commit();
       return true;
     } catch (Exception e) {
@@ -70,13 +72,13 @@ public class ExperimentAccessManager {
     return false;
   }
 
-  private static void updatePublicTable(Transaction tx, DatastoreService ds, Object experimentKey) {
+  private static void deletePublicTableEntries(Transaction tx, DatastoreService ds, Object experimentKey) {
     // TODO Auto-generated method stub
 
   }
 
-  private static void updateParticipantTable(Transaction tx, DatastoreService ds, Object experimentKey) {
-    // TODO Auto-generated method stub
+  private static void deleteParticipantTableEntries(Transaction tx, DatastoreService ds, Object experimentKey) {
+
 
   }
 
@@ -101,8 +103,37 @@ public class ExperimentAccessManager {
   }
 
   private static void updateParticipantTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
-    // TODO Auto-generated method stub
+    List<String> newPublishedList = experiment.getPublishedUsers();
+    List<Entity> existingPublishedList = getExistingPublishedUsersForExperiment(tx, ds, experimentKey);
 
+    List<Key> toBeRemovedList = Lists.newArrayList();
+    List<String> notToBeModified = Lists.newArrayList();
+
+    for (Entity entity : existingPublishedList) {
+      String userName = (String) entity.getProperty(USER_ID);
+      if (!newPublishedList.contains(userName)) {
+        toBeRemovedList.add(entity.getKey());
+      } else {
+        notToBeModified.add(userName);
+      }
+    }
+    // build add list
+    newPublishedList.removeAll(notToBeModified);
+
+    // add new users
+    List<Entity> userAccessRules = Lists.newArrayList();
+    for (String admin : newPublishedList) {
+      Entity userAccess = new Entity(PUBLISHED_USER_KIND);
+      userAccess.setProperty(EXPERIMENT_ID, experimentKey.getId());
+      userAccess.setProperty(USER_ID, admin);
+      userAccessRules.add(userAccess);
+    }
+    if (!userAccessRules.isEmpty()) {
+      ds.put(tx, userAccessRules);
+    }
+    if (!toBeRemovedList.isEmpty()) {
+      ds.delete(tx, toBeRemovedList);
+    }
   }
 
   private static void updateAdminTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
@@ -165,49 +196,26 @@ public class ExperimentAccessManager {
     return keys;
   }
 
-//  static List<Entity> getExistingExperimentsForAdmin(String adminEmail) {
-//    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-//    Query query = new com.google.appengine.api.datastore.Query(ADMIN_USER_KIND);
-//    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, adminEmail);
-//    PreparedQuery preparedQuery = ds.prepare(query);
-//    List<Entity> results = preparedQuery.asList(getFetchOptions());
-//    return results;
-//  }
+  public static List<Long> getExistingPublishedExperimentIdsForUser(String userEmail) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
+    query.addFilter(USER_ID, FilterOperator.EQUAL, userEmail);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    List<Entity> results = preparedQuery.asList(getFetchOptions());
+    List<Long> keys = Lists.newArrayList();
+    for (Entity entity : results) {
+      keys.add((Long) entity.getProperty(EXPERIMENT_ID));
+    }
+    return keys;
+  }
 
+  private static List<Entity> getExistingPublishedUsersForExperiment(Transaction tx, DatastoreService ds, Key experimentKey) {
+    Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
+    query.addFilter(EXPERIMENT_ID, FilterOperator.EQUAL, experimentKey.getId());
+    PreparedQuery preparedQuery = ds.prepare(query);
+    List<Entity> results = preparedQuery.asList(getFetchOptions());
+    return results;
+  }
 
-//  public static List<Long> getExistingExperimentsForAdminOld(String email) {
-//    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-//    List<Long> experimentIds = Lists.newArrayList();
-//    Key key = KeyFactory.createKey(ADMIN_USER_KIND, email);
-//    Query query = new com.google.appengine.api.datastore.Query(key);
-//    PreparedQuery preparedQuery = ds.prepare(query);
-//    List<Entity> results = preparedQuery.asList(null);
-//    for (Entity entity : results) {
-//      experimentIds.add((Long) entity.getProperty(EXPERIMENT_ID));
-//
-//    }
-//    return experimentIds;
-//  }
-//
-//  public static List<Long> getExistingExperimentsForAdmin(String email) {
-//    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-//    List<Long> experimentIds = Lists.newArrayList();
-//    Key key = KeyFactory.createKey(ADMIN_USER_KIND, email);
-//
-//    Filter keyFilter =
-//            new FilterPredicate(Entity.KEY_RESERVED_PROPERTY,
-//                                FilterOperator.EQUAL,
-//                                key);
-//          Query q =  new Query(ADMIN_USER_KIND).setFilter(keyFilter);
-//    Query query = new com.google.appengine.api.datastore.Query(key);
-//    PreparedQuery preparedQuery = ds.prepare(query);
-//    List<Entity> results = preparedQuery.asList(null);
-//    for (Entity entity : results) {
-//      experimentIds.add((Long) entity.getProperty(EXPERIMENT_ID));
-//
-//    }
-//    return experimentIds;
-//  }
-//
 
 }
