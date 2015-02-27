@@ -553,13 +553,19 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Action Triggers")
   String actionTriggers();
 
-  @DefaultStringValue("Add Scheduled Activity")
+  @DefaultStringValue("Add Scheduled Trigger")
   String scheduleTriggerButton();
 
-  @DefaultStringValue("Add Event Activity")
+  @DefaultStringValue("Add Event Trigger")
   String interruptTriggerButton();
 
   @DefaultStringValue("Choose Action Moments")
   String chooseActionMoments();
+
+  @DefaultStringValue("Click to edit the action's custom script")
+  String clickToEditCustomScript();
+
+  @DefaultStringValue("Click to close the custom script editor")
+  String clickToCloseCustomScriptEditor();
 
 }

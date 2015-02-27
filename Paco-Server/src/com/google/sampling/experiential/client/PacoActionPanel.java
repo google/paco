@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -24,6 +25,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DisclosureEvent;
+import com.google.gwt.user.client.ui.DisclosureHandler;
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.DisclosurePanelImages;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -35,6 +41,11 @@ import com.google.paco.shared.model2.PacoAction;
 import com.google.paco.shared.model2.PacoActionAllOthers;
 import com.google.paco.shared.model2.PacoNotificationAction;
 
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorCallback;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorMode;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
+
 /**
  * Trigger Cue configuration.
  *
@@ -43,12 +54,14 @@ public class PacoActionPanel extends Composite {
 
   private MyConstants myConstants;
   private PacoAction pacoAction;
-  private Widget customScriptEditorPanel;
+
+
   private PacoActionListPanel parent;
   private VerticalPanel mainPanel;
   private TimeoutPanel timeoutPanel;
   private SnoozePanel snoozePanel;
   private Widget delayChooser;
+  private Widget customScriptEditorPanel;
 
   public PacoActionPanel(PacoActionListPanel actionListPanel, PacoAction pacoAction) {
     this.pacoAction = pacoAction;
@@ -107,7 +120,8 @@ public class PacoActionPanel extends Composite {
       line.add(createCustomScriptEditor());
       line.setVisible(pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE);
 
-      customScriptEditorPanel = line;
+
+      customScriptEditorPanel = createCustomScriptEditorDisclosurePanel();
       mainPanel.add(customScriptEditorPanel);
 
       if (delayChooser != null) {
@@ -132,7 +146,7 @@ public class PacoActionPanel extends Composite {
 
   private HorizontalPanel createListMgmtButtons() {
     HorizontalPanel upperLinePanel = new HorizontalPanel();
-    Button deleteButton = new Button("-");
+    Button deleteButton = new Button("Delete Action");
     deleteButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         parent.deleteAction(PacoActionPanel.this);
@@ -140,7 +154,7 @@ public class PacoActionPanel extends Composite {
     });
     upperLinePanel.add(deleteButton);
 
-    Button addButton = new Button("+");
+    Button addButton = new Button("Add Action");
     upperLinePanel.add(addButton);
 
     addButton.addClickHandler(new ClickHandler() {
@@ -149,17 +163,6 @@ public class PacoActionPanel extends Composite {
       }
     });
     return upperLinePanel;
-  }
-
-  private Widget createCustomScriptEditorPanel() {
-    // TODO replace with ACe Editor widget in disclosure panel
-    HorizontalPanel line = createHorizontalContainer();
-    line.add(createLabel(myConstants.triggerCustomScript()));
-
-    line.add(createCustomScriptEditor());
-    line.setVisible(pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE);
-
-    return line;
   }
 
   private Widget createCustomScriptEditor() {
@@ -269,5 +272,80 @@ public class PacoActionPanel extends Composite {
     });
     return valueBox;
   }
+
+  final DisclosurePanelImages images = (DisclosurePanelImages) GWT.create(DisclosurePanelImages.class);
+
+  class DisclosurePanelHeader extends HorizontalPanel {
+    public DisclosurePanelHeader(boolean isOpen, String html) {
+      add(isOpen ? images.disclosurePanelOpen().createImage()
+                 : images.disclosurePanelClosed().createImage());
+      add(new HTML(html));
+    }
+  }
+  private Widget createCustomScriptEditorDisclosurePanel() {
+    mainPanel.add(makeIOSIncompatibleMessage()); // TODO make a container panel or just get rid of this when iOS is ready
+
+    final DisclosurePanel customScriptPanel = new DisclosurePanel();
+
+    final DisclosurePanelHeader closedHeaderWidget =
+            new DisclosurePanelHeader(false, "<b>" + myConstants.clickToEditCustomScript() + "</b>");
+    final DisclosurePanelHeader openHeaderWidget =
+            new DisclosurePanelHeader(true, "<b>" + myConstants.clickToCloseCustomScriptEditor() + "</b >");
+
+    final PacoActionAllOthers pacoActionScript = (PacoActionAllOthers)pacoAction;
+    if (pacoActionScript.getCustomScript() != null) {
+      customScriptPanel.setHeader(openHeaderWidget);
+      customScriptPanel.setOpen(true);
+    } else {
+      customScriptPanel.setHeader(closedHeaderWidget);
+      customScriptPanel.setOpen(false);
+    }
+    customScriptPanel.addEventHandler(new DisclosureHandler() {
+      public void onClose(DisclosureEvent event) {
+        boolean currentlyVisible = customScriptPanel.getHeader().isVisible();
+        customScriptPanel.setHeader(closedHeaderWidget);
+        closedHeaderWidget.setVisible(currentlyVisible);
+      }
+
+      public void onOpen(DisclosureEvent event) {
+        boolean currentlyVisible = customScriptPanel.getHeader().isVisible();
+        customScriptPanel.setHeader(openHeaderWidget);
+        openHeaderWidget.setVisible(currentlyVisible);
+      }
+    });
+
+    VerticalPanel userContentPanel = new VerticalPanel();
+    Label instructionLabel = new Label(myConstants.triggerCustomScript());
+    userContentPanel.add(instructionLabel);
+
+    final AceEditor customScriptEditor = new AceEditor();
+    customScriptEditor.setWidth("800px");
+    customScriptEditor.setHeight("600px");
+    customScriptEditor.startEditor();
+    customScriptEditor.setMode(AceEditorMode.JAVASCRIPT);
+    customScriptEditor.setTheme(AceEditorTheme.ECLIPSE);
+
+    if (pacoActionScript.getCustomScript() != null) {
+      customScriptEditor.setText(pacoActionScript.getCustomScript());
+    }
+
+    userContentPanel.add(customScriptEditor);
+    customScriptPanel.setContent(userContentPanel);
+    customScriptEditor.addOnChangeHandler(new AceEditorCallback() {
+
+      @Override
+      public void invokeAceCallback(JavaScriptObject obj) {
+        pacoActionScript.setCustomScript(customScriptEditor.getText());
+      }
+
+    });
+    return customScriptPanel;
+  }
+
+  private HTML makeIOSIncompatibleMessage() {
+    HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
+    return html;
+  }
+
 
 }

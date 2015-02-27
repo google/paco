@@ -79,7 +79,7 @@ public class SchedulePanel extends Composite {
 
   private HorizontalPanel createListMgmtButtons() {
     HorizontalPanel upperLinePanel = new HorizontalPanel();
-    Button deleteButton = new Button("-");
+    Button deleteButton = new Button("Delete Schedule");
     deleteButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         parent.deleteSchedule(SchedulePanel.this);
@@ -87,7 +87,7 @@ public class SchedulePanel extends Composite {
     });
     upperLinePanel.add(deleteButton);
 
-    Button addButton = new Button("+");
+    Button addButton = new Button("Add Schedule");
     upperLinePanel.add(addButton);
 
     addButton.addClickHandler(new ClickHandler() {

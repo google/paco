@@ -158,7 +158,7 @@ public class ExperimentGroupPanel extends Composite {
 
   private HorizontalPanel createListMgmtButtons() {
     HorizontalPanel upperLinePanel = new HorizontalPanel();
-    Button deleteButton = new Button("-");
+    Button deleteButton = new Button("Delete Experiment Group");
     deleteButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
         parent.deleteGroup(ExperimentGroupPanel.this);
@@ -166,7 +166,7 @@ public class ExperimentGroupPanel extends Composite {
     });
     upperLinePanel.add(deleteButton);
 
-    Button addButton = new Button("+");
+    Button addButton = new Button("Add Experiment Group");
     upperLinePanel.add(addButton);
 
     addButton.addClickHandler(new ClickHandler() {

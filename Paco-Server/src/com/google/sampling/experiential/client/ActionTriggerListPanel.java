@@ -43,6 +43,7 @@ public class ActionTriggerListPanel extends Composite {
   private ExperimentGroup experimentGroup;
   private LinkedList<ActionTriggerPanel> actionTriggerPanelsList;
   private MyConstants myConstants;
+  private Widget actionTriggerButtonPanel;
 
   public ActionTriggerListPanel(ExperimentGroup group) {
     myConstants = GWT.create(MyConstants.class);
@@ -73,7 +74,8 @@ public class ActionTriggerListPanel extends Composite {
         actionTriggerPanelsList.add(actionTriggerPanel);
       }
     }
-    rootPanel.add(createActionTriggerButtonPanel());
+    actionTriggerButtonPanel = createActionTriggerButtonPanel();
+    rootPanel.add(actionTriggerButtonPanel);
   }
 
   private Widget createActionTriggerButtonPanel() {
@@ -131,7 +133,15 @@ public class ActionTriggerListPanel extends Composite {
   private void addActionTrigger(ActionTriggerPanel newActionTriggerPanel,
                                ActionTrigger actionTrigger) {
     experimentGroup.getActionTriggers().add(actionTrigger);
+
+    rootPanel.remove(actionTriggerButtonPanel);
+
     rootPanel.add(newActionTriggerPanel);
+    actionTriggerPanelsList.add(newActionTriggerPanel);
+
+    actionTriggerButtonPanel = createActionTriggerButtonPanel();
+
+    rootPanel.add(actionTriggerButtonPanel);
   }
 
   private InterruptTrigger createBlankInterruptTrigger() {

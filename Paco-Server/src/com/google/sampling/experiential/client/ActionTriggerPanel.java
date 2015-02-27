@@ -47,7 +47,7 @@ public abstract class ActionTriggerPanel extends Composite {
 
   protected Widget createDeleteButton() {
     HorizontalPanel buttonPanel = new HorizontalPanel();
-    Button deleteButton = new Button("-");
+    Button deleteButton = new Button("Delete Action Trigger");
     buttonPanel.add(deleteButton);
     deleteButton.addClickHandler(new ClickHandler() {
 
