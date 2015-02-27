@@ -65,9 +65,9 @@ public class ExperimentDetailActivity extends Activity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
+    super.onCreate(savedInstanceState);
 
-	setContentView(R.layout.experiment_detail);
+    setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
     uri = intent.getData();
     useMyExperimentsDiskFile = intent.getExtras() != null ? intent.getExtras().getBoolean(ID_FROM_MY_EXPERIMENTS_FILE) : false;

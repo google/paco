@@ -61,7 +61,9 @@ public class InformedConsentActivity extends Activity {
     final Intent intent = getIntent();
     uri = intent.getData();
 
-    boolean myExperiments = intent.getExtras() != null ? intent.getExtras().getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE) : false;
+    boolean myExperiments = intent.getExtras() != null ? intent.getExtras()
+                                                               .getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE)
+                                                      : false;
 
     if (uri != null) {
       showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
@@ -179,8 +181,7 @@ public class InformedConsentActivity extends Activity {
   }
 
   private void runScheduleActivity() {
-    Intent intent = new Intent(InformedConsentActivity.this,
-                               ExperimentScheduleActivity.class);
+    Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleActivity.class);
     intent.setAction(Intent.ACTION_EDIT);
     intent.setData(uri);
     intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
@@ -193,17 +194,21 @@ public class InformedConsentActivity extends Activity {
     uri = experimentProviderUtil.insertFullJoinedExperiment(experiment);
   }
 
-    protected Dialog onCreateDialog(int id, Bundle args) {
+  protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
     case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
       return getRefreshJoinedDialog();
-    } case DownloadHelper.INVALID_DATA_ERROR: {
+    }
+    case DownloadHelper.INVALID_DATA_ERROR: {
       return getUnableToJoinDialog(getString(R.string.invalid_data));
-    } case DownloadHelper.SERVER_ERROR: {
+    }
+    case DownloadHelper.SERVER_ERROR: {
       return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-    } case DownloadHelper.NO_NETWORK_CONNECTION: {
+    }
+    case DownloadHelper.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
-    } default: {
+    }
+    default: {
       return null;
     }
     }
@@ -216,38 +221,34 @@ public class InformedConsentActivity extends Activity {
 
   private ProgressDialog getRefreshJoinedDialog() {
     return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                               getString(R.string.retrieving_your_joined_experiment_from_the_server),
-                               true, true);
+                               getString(R.string.retrieving_your_joined_experiment_from_the_server), true, true);
   }
 
   private AlertDialog getUnableToJoinDialog(String message) {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
-    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
-    .setMessage(message)
-    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved).setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog, int which) {
+                        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                        finish();
+                      }
+                    });
     return unableToJoinBldr.create();
   }
 
   private AlertDialog getNoNetworkDialog() {
     AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
-    noNetworkBldr.setTitle(R.string.network_required)
-    .setMessage(getString(R.string.need_network_connection))
-    .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        showNetworkConnectionActivity();
-      }
-    })
-    .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
+    noNetworkBldr.setTitle(R.string.network_required).setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                     showNetworkConnectionActivity();
+                   }
+                 }).setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                     finish();
+                   }
+                 });
     return noNetworkBldr.create();
   }
 
@@ -256,8 +257,7 @@ public class InformedConsentActivity extends Activity {
   }
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) || status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
       showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
     } else {
       showDialog(DownloadHelper.SERVER_ERROR, null);
@@ -272,6 +272,5 @@ public class InformedConsentActivity extends Activity {
   public Uri getExperimentUri() {
     return uri;
   }
-
 
 }
