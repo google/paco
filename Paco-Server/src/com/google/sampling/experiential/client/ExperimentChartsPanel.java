@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,14 +21,15 @@ import java.util.List;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.EventDAO;
 
 /**
  * Container component for holding a bunch of charts.
- * 
- * 
+ *
+ *
  * @author Bob Evans
  *
  */
@@ -39,12 +40,13 @@ public class ExperimentChartsPanel extends Composite {
 
   public ExperimentChartsPanel(ExperimentDAO experiment, List<EventDAO> eventList) {
     this.experiment = experiment;
+    ExperimentGroup firstExperimentGroup = experiment.getGroups().get(0);
     this.eventList = eventList;
     VerticalPanel verticalPanel = new VerticalPanel();
     verticalPanel.setSpacing(2);
 
     initWidget(verticalPanel);
-    String title = experiment.getTitle();
+    String title = experiment.getTitle() + " : " + firstExperimentGroup.getName();
     if (title == null) {
       title = "Experiment";
     }
@@ -52,9 +54,10 @@ public class ExperimentChartsPanel extends Composite {
     lblChartsForExperiment.setStyleName("paco-HTML-Large");
     verticalPanel.add(lblChartsForExperiment);
 
-    for (InputDAO input : experiment.getInputs()) {
+
+    for (Input2 input : firstExperimentGroup.getInputs()) {
       ChartPanel cp = new ChartPanel(input, eventList);
-      if (cp != null) { 
+      if (cp != null) {
         verticalPanel.add(cp);
       }
     }

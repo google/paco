@@ -48,6 +48,7 @@ import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.datastore.JsonConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 
@@ -122,7 +123,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId) {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
       List<EventDAO> eventDAOs = Lists.newArrayList();

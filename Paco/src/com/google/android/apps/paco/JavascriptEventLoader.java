@@ -18,7 +18,7 @@ public class JavascriptEventLoader {
   /**
    *
    */
-  JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment experiment) {
+  public JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment experiment) {
     this.experimentProviderUtil = experimentProviderUtil;
     this.experiment = experiment;
   }

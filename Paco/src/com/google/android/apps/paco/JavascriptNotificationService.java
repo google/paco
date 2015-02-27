@@ -1,17 +1,19 @@
 package com.google.android.apps.paco;
 
+import android.content.Context;
+
 public class JavascriptNotificationService {
 
-  /**
-   * 
-   */
-  private final ExperimentExecutorCustomRendering innerType;
+  private Context context;
+  private Experiment experiment;
 
   /**
+   * @param experiment
    * @param experimentExecutorCustomRendering
    */
-  JavascriptNotificationService(ExperimentExecutorCustomRendering experimentExecutorCustomRendering) {
-    innerType = experimentExecutorCustomRendering;
+  public JavascriptNotificationService(Context context, Experiment experiment) {
+    this.context = context;
+    this.experiment = experiment;
   }
 
   public void createNotification(String message) {
@@ -19,10 +21,10 @@ public class JavascriptNotificationService {
   }
 
   private void createNotification(String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
-    NotificationCreator.create(innerType).createNotificationsForCustomGeneratedScript(innerType.experiment, message, makeSound, makeVibrate, timeoutMillis);
+    NotificationCreator.create(context).createNotificationsForCustomGeneratedScript(experiment, message, makeSound, makeVibrate, timeoutMillis);
   }
 
   public void removeNotification() {
-    NotificationCreator.create(innerType).removeNotificationsForCustomGeneratedScript(innerType.experiment);
+    NotificationCreator.create(context).removeNotificationsForCustomGeneratedScript(experiment);
   }
 }

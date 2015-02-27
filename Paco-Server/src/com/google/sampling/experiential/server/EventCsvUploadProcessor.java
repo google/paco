@@ -11,18 +11,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -31,16 +26,15 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.paco.shared.Outcome;
-import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
+import com.google.paco.shared.comm.Outcome;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class EventCsvUploadProcessor {
-  
+
   private static final Logger log = Logger.getLogger(EventCsvUploadProcessor.class.getName());
 
   void processCsvUpload(User loggedInWho, FileItemIterator iterator, PrintWriter out) {
@@ -121,7 +115,7 @@ public class EventCsvUploadProcessor {
     return map;
   }
 
-  public void postEventFromRowAsHash(HashMap<String, String> rowData, long eventId, User loggedInWho) 
+  public void postEventFromRowAsHash(HashMap<String, String> rowData, long eventId, User loggedInWho)
       throws ParseException {
 
     if (loggedInWho == null) {
@@ -150,6 +144,8 @@ public class EventCsvUploadProcessor {
 
     String experimentId = null;
     String experimentName = null;
+    String groupName = null;
+
     Date responseTime = null;
     Date scheduledTime = null;
 
@@ -168,11 +164,18 @@ public class EventCsvUploadProcessor {
       if (!Strings.isNullOrEmpty(experimentVersionStr)) {
         try {
           experimentVersion = Integer.parseInt(experimentVersionStr);
-        } catch (NumberFormatException nfe) {          
+        } catch (NumberFormatException nfe) {
         }
       }
     }
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+
+    if (rowData.containsKey("groupName")) {
+      groupName = rowData.get("groupName");
+      rowData.remove("groupName");
+    }
+
+
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -188,11 +191,11 @@ public class EventCsvUploadProcessor {
       log.info("There are " + rowData.keySet().size() + " csv columns left");
       for (String name : rowData.keySet()) {
         String answer = rowData.get(name);
-        Input input = null;
+        Input2 input = null;
         if (experiment != null) {
-          input = experiment.getInputWithName(name);
+          input = experiment.getInputWithName(name, groupName);
         }
-        if (input != null && input.getResponseType() != null && input.getResponseType().equals(InputDAO.PHOTO)) {
+        if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
@@ -223,7 +226,7 @@ public class EventCsvUploadProcessor {
                                            experimentName, experimentVersion, responseTime, scheduledTime, blobs, null);
 
   }
-  
+
   private Date parseDate(SimpleDateFormat df, SimpleDateFormat oldDf, String when) throws ParseException {
     return df.parse(when);
   }

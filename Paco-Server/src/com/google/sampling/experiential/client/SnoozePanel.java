@@ -8,25 +8,25 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model2.PacoNotificationAction;
 
 public class SnoozePanel extends Composite {
 
-  private SignalingMechanismDAO signalingMechanism;
+  private PacoNotificationAction pacoNotificationAction;
   private VerticalPanel mainPanel;
 
-  public SnoozePanel(final SignalingMechanismDAO schedule) {
+  public SnoozePanel(final PacoNotificationAction action) {
     MyConstants myConstants = GWT.create(MyConstants.class);
-    this.signalingMechanism = schedule;
+    this.pacoNotificationAction = action;
     mainPanel = new VerticalPanel();
     initWidget(mainPanel);
     mainPanel.setSpacing(2);
 
-    mainPanel.add(createSnoozeCountPanel(schedule, myConstants));
-    mainPanel.add(createSnoozeTimePanel(schedule, myConstants));
+    mainPanel.add(createSnoozeCountPanel(action, myConstants));
+    mainPanel.add(createSnoozeTimePanel(action, myConstants));
   }
 
-  private HorizontalPanel createSnoozeCountPanel(final SignalingMechanismDAO schedule, MyConstants myConstants) {
+  private HorizontalPanel createSnoozeCountPanel(final PacoNotificationAction action, MyConstants myConstants) {
     HorizontalPanel snoozeCountPanel = new HorizontalPanel();
 
     Label snoozeCountLabel = new Label(myConstants.snoozeCount() +":");
@@ -38,7 +38,7 @@ public class SnoozePanel extends Composite {
     snoozeCountTextBox.setMaxLength(5);
     snoozeCountPanel.add(snoozeCountTextBox);
 
-    snoozeCountTextBox.setText(Integer.toString(signalingMechanism.getSnoozeCount()));
+    snoozeCountTextBox.setText(Integer.toString(pacoNotificationAction.getSnoozeCount()));
 
     Label repeatOptionsWarningLabel = new Label("(" + myConstants.only1SnoozeRepeat() + ")");
     repeatOptionsWarningLabel.setStyleName("paco-small");
@@ -51,7 +51,7 @@ public class SnoozePanel extends Composite {
 
         try {
           int snoozeCount = Integer.parseInt(text);
-          schedule.setSnoozeCount(snoozeCount);
+          action.setSnoozeCount(snoozeCount);
         } catch (NumberFormatException nfe) {
 
         }
@@ -61,7 +61,7 @@ public class SnoozePanel extends Composite {
     return snoozeCountPanel;
   }
 
-  private HorizontalPanel createSnoozeTimePanel(final SignalingMechanismDAO schedule, MyConstants myConstants) {
+  private HorizontalPanel createSnoozeTimePanel(final PacoNotificationAction action, MyConstants myConstants) {
     HorizontalPanel snoozeTimePanel = new HorizontalPanel();
 
     Label snoozeTimeLabel = new Label(myConstants.snoozeTime() +":");
@@ -73,7 +73,7 @@ public class SnoozePanel extends Composite {
     snoozeTimeTextBox.setMaxLength(5);
     snoozeTimePanel.add(snoozeTimeTextBox);
 
-    snoozeTimeTextBox.setText(Integer.toString(signalingMechanism.getSnoozeTimeInMinutes()));
+    snoozeTimeTextBox.setText(Integer.toString(pacoNotificationAction.getSnoozeTimeInMinutes()));
 
     Label minutesLabel = new Label("(" + myConstants.minutes() + ")");
     minutesLabel.setStyleName("paco-small");
@@ -86,7 +86,7 @@ public class SnoozePanel extends Composite {
 
         try {
           int snoozeCount = Integer.parseInt(text);
-          schedule.setSnoozeTimeInMinutes(snoozeCount);
+          action.setSnoozeTimeInMinutes(snoozeCount);
         } catch (NumberFormatException nfe) {
 
         }

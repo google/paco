@@ -16,7 +16,7 @@ import android.util.Log;
 
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
-import com.google.paco.shared.Outcome;
+import com.google.paco.shared.comm.Outcome;
 
 public class EventUploader {
 

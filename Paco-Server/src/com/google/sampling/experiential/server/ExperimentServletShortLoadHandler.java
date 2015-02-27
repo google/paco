@@ -3,7 +3,7 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
 
 

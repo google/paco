@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentQueryResult;
 import com.google.sampling.experiential.datastore.JsonConverter;
 
 abstract class ExperimentServletHandler {
@@ -31,7 +31,7 @@ abstract class ExperimentServletHandler {
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult result = ExperimentCacheHelper.getInstance().getJoinableExperiments(email, timezone, limit, cursor);
+    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getAllJoinableExperiments(email, timezone, limit, cursor);
     cursor = result.getCursor();
     return result.getExperiments();
   }

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -34,7 +34,8 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.LegendPosition;
 import com.google.gwt.visualization.client.visualizations.LineChart;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
@@ -52,7 +53,7 @@ public class StatsPanel extends Composite {
   private ExperimentDAO experiment;
   private boolean isAdmin;
   private List<ExperimentListener> listeners;
-  private MyConstants myConstants; 
+  private MyConstants myConstants;
 
   public StatsPanel(ExperimentStatsDAO stats, ExperimentDAO experiment, boolean joinView, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
@@ -138,13 +139,13 @@ public class StatsPanel extends Composite {
    * @param experiment2
    * @return
    */
-  private boolean isAdmin(ExperimentDAO experiment2, String loggedInUser) {
-    String[] admins = experiment.getAdmins();
+  private boolean isAdmin(ExperimentDAOCore experiment2, String loggedInUser) {
+    List<String> admins = experiment.getAdmins();
     if (admins == null) {
       return false;
     }
-    for (int i = 0; i < admins.length; i++) {
-      if (admins[i].toLowerCase().equals(loggedInUser)) return true;
+    for (int i = 0; i < admins.size(); i++) {
+      if (admins.get(i).toLowerCase().equals(loggedInUser)) return true;
     }
     return false;
   }

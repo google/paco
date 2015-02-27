@@ -21,8 +21,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 
 public class ParticipantStatServlet extends HttpServlet {
 
@@ -45,7 +45,7 @@ public class ParticipantStatServlet extends HttpServlet {
         return;
       } else {
         final boolean alpha = req.getParameter("alpha") != null;
-        Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+        ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),

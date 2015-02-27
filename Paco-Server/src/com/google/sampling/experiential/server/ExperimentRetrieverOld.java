@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.jdo.Transaction;
@@ -19,7 +18,6 @@ import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -30,8 +28,6 @@ import com.google.paco.shared.model.ExperimentQueryResult;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model.TriggerDAO;
-import com.google.sampling.experiential.datastore.ExperimentVersionEntity;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
@@ -40,25 +36,25 @@ import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
 import com.google.sampling.experiential.model.Trigger;
 
-public class ExperimentRetriever {
+public class ExperimentRetrieverOld {
 
   private static final int DEFAULT_LIMIT_SIZE = 50;
 
   private static final int MAX_LIMIT_SIZE = 80;
 
-  private static final Logger log = Logger.getLogger(ExperimentRetriever.class.getName());
+  private static final Logger log = Logger.getLogger(ExperimentRetrieverOld.class.getName());
 
-  private static ExperimentRetriever instance;
+  private static ExperimentRetrieverOld instance;
 
-  public synchronized static ExperimentRetriever getInstance() {
+  public synchronized static ExperimentRetrieverOld getInstance() {
     if (instance == null) {
-      instance = new ExperimentRetriever();
+      instance = new ExperimentRetrieverOld();
     }
     return instance;
   }
 
   @VisibleForTesting
-  ExperimentRetriever() {};
+  ExperimentRetrieverOld() {};
 
   public Experiment getExperiment(String experimentIdStr) {
     Long longId = Long.valueOf(experimentIdStr);
@@ -134,7 +130,7 @@ public class ExperimentRetriever {
       List<Experiment> experiments = (List<Experiment>) q.execute(email.toLowerCase());
       if (experiments != null) {
         for (Experiment experiment : experiments) {
-          experimentDAOs.add(DAOConverter.createDAO(experiment));
+          experimentDAOs.add(DAOConverterOld.createDAO(experiment));
         }
       }
       tx.commit();
@@ -235,10 +231,10 @@ public class ExperimentRetriever {
     for (ExperimentDAO experiment : experiments) {
       String creatorEmail = experiment.getCreator().toLowerCase();
       boolean isCreator = creatorEmail.equals(email);
-      boolean isAdmin = ExperimentRetriever.arrayContains(experiment.getAdmins(), email);
+      boolean isAdmin = ExperimentRetrieverOld.arrayContains(experiment.getAdmins(), email);
       boolean isPublished = experiment.getPublished() != null && experiment.getPublished() == true;
       boolean isPublishedToAll = experiment.getPublishedUsers().length == 0;
-      boolean isPublishedUser = ExperimentRetriever.arrayContains(experiment.getPublishedUsers(), email);
+      boolean isPublishedUser = ExperimentRetrieverOld.arrayContains(experiment.getPublishedUsers(), email);
 
       if (isCreator || isAdmin || (isPublished && (isPublishedToAll || isPublishedUser))) {
         availableExperiments.add(experiment);
@@ -246,7 +242,7 @@ public class ExperimentRetriever {
     }
 
     sortExperiments(availableExperiments);
-    ExperimentRetriever.removeSensitiveFields(availableExperiments);
+    ExperimentRetrieverOld.removeSensitiveFields(availableExperiments);
     return filterFinishedAndDeletedExperiments(dateTimeZone, availableExperiments);
   }
 
@@ -259,85 +255,85 @@ public class ExperimentRetriever {
     });
   }
 
-  public boolean saveExperiment(ExperimentDAO experimentDAO, User loggedInUser, String userTz) {
-    String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    Experiment experiment = null;
-
-    // workaround for appengine bug where dependent entities are not deleted when assigned null.
-    boolean deletingTrigger = false;
-    boolean deletingSchedule = false;
-
-    if (experimentDAO.getId() != null) {
-      experiment = retrieveExperimentForDAO(experimentDAO, pm);
-      SignalingMechanismDAO newSignalingMechanism = experimentDAO.getSignalingMechanisms()[0];
-      if (experiment.getTrigger() != null && (!(newSignalingMechanism instanceof TriggerDAO))) {
-        deletingTrigger = true;
-      }
-      if (experiment.getSchedule() != null && (!(newSignalingMechanism instanceof SignalScheduleDAO))) {
-        deletingSchedule = true;
-      }
-    } else {
-      experiment = new Experiment();
-      experiment.setVersion(1);
-    }
-
-    if (experiment.getId() != null) {
-      if (!hasAdministrativeRightsOnExperiment(loggedInUserEmail, experiment)) {
-        return false;
-      }
-
-    }
-
-    Transaction tx = null;
-    boolean committed = false;
-    try {
-      tx = pm.currentTransaction();
-      tx.begin();
-
-      if (experiment.getId() != null) {
-        incrementExperimentVersionNumber(experimentDAO, experiment);
-      }
-
-      if (deletingTrigger) {
-        pm.deletePersistent(experiment.getTrigger());
-      }
-      if (deletingSchedule) {
-        pm.deletePersistent(experiment.getSchedule());
-      }
-
-      DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
-
-      JDOHelper.makeDirty(experiment, "inputs");
-      JDOHelper.makeDirty(experiment, "feedback");
-      JDOHelper.makeDirty(experiment, "schedule");
-      JDOHelper.makeDirty(experiment, "trigger");
-
-
-      pm.makePersistent(experiment);
-
-
-      tx.commit();
-      committed  = true;
-    } finally {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      pm.close();
-    }
-
-    if (committed) {
-      ExperimentVersionEntity.saveExperimentAsEntity(experiment);
-      PublicExperimentList.updatePublicExperimentsList(experiment, TimeUtil.getNowInUserTimezone(userTz));
-
-//      ExperimentCacheHelper.getInstance().clearCache(); // TODO do we need this
-//      if (experiment.getPublished() && experiment.getPublishedUsers().size() == 0) {
-//        ExperimentDAO newExperimentDAO = DAOConverter.createDAO(experiment);
-//        ExperimentCacheHelper.getInstance().addPublicExperiment(newExperimentDAO);
+//  public boolean saveExperiment(ExperimentDAO experimentDAO, User loggedInUser, String userTz) {
+//    String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
+//    PersistenceManager pm = PMF.get().getPersistenceManager();
+//    Experiment experiment = null;
+//
+//    // workaround for appengine bug where dependent entities are not deleted when assigned null.
+//    boolean deletingTrigger = false;
+//    boolean deletingSchedule = false;
+//
+//    if (experimentDAO.getId() != null) {
+//      experiment = retrieveExperimentForDAO(experimentDAO, pm);
+//      ActionTrigger newSignalingMechanism = experimentDAO.getActionTriggers()[0];
+//      if (experiment.getTrigger() != null && (!(newSignalingMechanism instanceof InterruptTrigger))) {
+//        deletingTrigger = true;
 //      }
-    }
-    return true;
-  }
+//      if (experiment.getSchedule() != null && (!(newSignalingMechanism instanceof Schedule))) {
+//        deletingSchedule = true;
+//      }
+//    } else {
+//      experiment = new Experiment();
+//      experiment.setVersion(1);
+//    }
+//
+//    if (experiment.getId() != null) {
+//      if (!hasAdministrativeRightsOnExperiment(loggedInUserEmail, experiment)) {
+//        return false;
+//      }
+//
+//    }
+//
+//    Transaction tx = null;
+//    boolean committed = false;
+//    try {
+//      tx = pm.currentTransaction();
+//      tx.begin();
+//
+//      if (experiment.getId() != null) {
+//        incrementExperimentVersionNumber(experimentDAO, experiment);
+//      }
+//
+//      if (deletingTrigger) {
+//        pm.deletePersistent(experiment.getTrigger());
+//      }
+//      if (deletingSchedule) {
+//        pm.deletePersistent(experiment.getSchedule());
+//      }
+//
+//      DAOConverter.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
+//
+//      JDOHelper.makeDirty(experiment, "inputs");
+//      JDOHelper.makeDirty(experiment, "feedback");
+//      JDOHelper.makeDirty(experiment, "schedule");
+//      JDOHelper.makeDirty(experiment, "trigger");
+//
+//
+//      pm.makePersistent(experiment);
+//
+//
+//      tx.commit();
+//      committed  = true;
+//    } finally {
+//      if (tx.isActive()) {
+//        tx.rollback();
+//      }
+//      pm.close();
+//    }
+//
+//    if (committed) {
+//      ExperimentVersionEntity.saveExperimentVersionAsEntity(experiment);
+//      PublicExperimentList.updatePublicExperimentsList(experiment, TimeUtil.getNowInUserTimezone(userTz));
+//
+////      ExperimentCacheHelper.getInstance().clearCache(); // TODO do we need this
+////      if (experiment.getPublished() && experiment.getPublishedUsers().size() == 0) {
+////        ExperimentDAO newExperimentDAO = DAOConverter.createDAO(experiment);
+////        ExperimentCacheHelper.getInstance().addPublicExperiment(newExperimentDAO);
+////      }
+//    }
+//    return true;
+//  }
 
   private boolean hasAdministrativeRightsOnExperiment(String loggedInUserEmail, Experiment experiment) {
     return isExperimentAdministrator(loggedInUserEmail, experiment) || isSystemAdministrator();
@@ -391,7 +387,6 @@ public class ExperimentRetriever {
             return Boolean.FALSE;
        }
        pm.deletePersistent(experiment);
-       ExperimentCacheHelper.getInstance().clearCache();
        PublicExperimentList.deletePublicExperiment(experiment);
        return Boolean.TRUE;
     } finally {
@@ -417,7 +412,7 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
       List<Experiment> experiments = (List<Experiment>) q.execute();
       Cursor newCursor = JDOCursorHelper.getCursor(experiments);
       String newCursorString = newCursor.toWebSafeString();
-      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+      List<ExperimentDAO> experimentDAOs = DAOConverterOld.createDAOsFor(experiments);
       markEndOfDayExperiments(pm, experimentDAOs);
       return new ExperimentQueryResult(newCursorString, filterSortAndSanitizeExperimentsUnavailableToUser(experimentDAOs, email, dateTimeZone));
     } finally {
@@ -450,7 +445,7 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
           triggerLoadingOfMemberObjects(experiment);
         }
 
-        List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+        List<ExperimentDAO> experimentDAOs = DAOConverterOld.createDAOsFor(experiments);
         experimentDAOs = filterSortAndSanitizeExperimentsUnavailableToUser(experimentDAOs, email, timezone);
 
         markEndOfDayExperiments(pm, experimentDAOs);
@@ -476,7 +471,7 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
 
       experimentSet.addAll(experimentsPublishedToMe);
       List<Experiment> totalSetAsList = Lists.newArrayList(experimentSet);
-      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(totalSetAsList);
+      List<ExperimentDAO> experimentDAOs = DAOConverterOld.createDAOsFor(totalSetAsList);
 //      markEndOfDayExperiments(pm, experiments);
       removeSensitiveFields(experimentDAOs);
       sortExperiments(experimentDAOs);
@@ -510,8 +505,10 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
   }
 
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone dateTimeZone, Integer limit, String cursorString) {
+    long t0 = System.currentTimeMillis();
     List<Long> publicExperimentIds = PublicExperimentList.getPublicExperiments(dateTimeZone.getID());
-
+    long t1 = System.currentTimeMillis();
+    System.out.println("getPublicExperimentsIds: " + (t1 - t0));
 //    Iterable<String> publicExperimentIdStrings = Longs.stringConverter().reverse().convertAll(publicExperimentIds);
 //    String idsInQuery = Joiner.on(",").join(publicExperimentIdStrings);
     if (publicExperimentIds.isEmpty()) {
@@ -531,8 +528,11 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
         objIds.add(pm.newObjectIdInstance(Experiment.class, id));
       }
 
-
+      long t2 = System.currentTimeMillis();
+      System.out.println("build ExpId query: " + (t2 - t1));
       List<Experiment> experiments = (List<Experiment>) pm.getObjectsById(objIds);
+      long t3 = System.currentTimeMillis();
+      System.out.println("retrieve experiemnts: " + (t3 - t2));
 //      Query newQuery = pm.newQuery("select from " + Experiment.class.getName() + " where :keys.contains(id)");
 //      newQuery.setOrdering("title asc");
 //
@@ -555,10 +555,17 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
         newCursorString = newCursor.toWebSafeString();
       }
 
-      List<ExperimentDAO> experimentDAOs = DAOConverter.createDAOsFor(experiments);
+      List<ExperimentDAO> experimentDAOs = DAOConverterOld.createDAOsFor(experiments);
+      long t4 = System.currentTimeMillis();
+      System.out.println("after create DAOs: " + (t4 - t3));
+
       markEndOfDayExperiments(pm, experimentDAOs);
       removeSensitiveFields(experimentDAOs);
       sortExperiments(experimentDAOs);
+
+      long t5 = System.currentTimeMillis();
+      System.out.println("mark, filter fields, sort: " + (t5 - t4));
+
       // fakey pagination since we can load everything quickly in memory by id at the moment
       int startIndex = 0;
       if (cursorString != null) {
@@ -580,7 +587,11 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
 
       }
       //List<ExperimentDAO> results = filterFinishedAndDeletedExperiments(dateTimeZone, experimentDAOs);
-      return new ExperimentQueryResult(newCursorString, experimentDAOs);
+      ExperimentQueryResult experimentQueryResult = new ExperimentQueryResult(newCursorString, experimentDAOs);
+      long t6 = System.currentTimeMillis();
+      System.out.println("all done: " + (t6 - t5));
+      return experimentQueryResult;
+
     } finally {
       if (pm != null) {
         pm.close();

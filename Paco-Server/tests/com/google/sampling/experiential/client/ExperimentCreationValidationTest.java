@@ -1,8 +1,11 @@
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
+
 import com.google.gwt.junit.client.GWTTestCase;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.LoginInfo;
 
 public class ExperimentCreationValidationTest extends GWTTestCase {
@@ -10,10 +13,12 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private static final String LATER_DAY = "2013/25/07";
   private static final String EARLIER_DAY = "2013/24/07";
 
-  private ExperimentDefinitionPanel experimentDefinitionPanel;
+  private ExperimentGroupPanel experimentGroupPanel;
 
   private LoginInfo loginInfo;
+  private ExperimentGroup experimentGroup;
   private ExperimentDAO experiment;
+  private ExperimentDefinitionPanel experimentDefinitionPanel;
 
   private static final String VALID_EMAIL_STRING_0 = "donti@google.com, yimingzhang@google.com, rbe5000@gmail.com";
   private static final String VALID_EMAIL_STRING_1 = "donti@google.com,  yimingzhang@google.com,, rbe5000@gmail.com";
@@ -29,15 +34,16 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   protected void gwtSetUp() {
     loginInfo = createLoginInfo();
-    createValidOngoingExperiment();
+    createValidOngoingExperimentGroup();
   }
 
   public void testValidExperimentIsSubmittable() {
-    createValidExperimentDefinitionPanel();
-    assertTrue(experimentDefinitionPanel.canSubmit());
+    createValidExperimentGroupPanel();
+    assertTrue(experimentGroupPanel.canSubmit());
   }
 
   public void testTitleIsMandatory() {
+    createValidOngoingExperiment();
     createValidExperimentDefinitionPanel();
     experimentDefinitionPanel.setTitleInPanel("");
     assertFalse(experimentDefinitionPanel.canSubmit());
@@ -50,13 +56,19 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 //  }
 
   public void testAdminsMustBeValid() {
+    createValidOngoingExperiment();
     createValidExperimentDefinitionPanel();
     experimentDefinitionPanel.setAdminsInPanel(INVALID_EMAIL_STRING_0);
-    assertFalse(experimentDefinitionPanel.canSubmit());
+    assertFalse(experimentGroupPanel.canSubmit());
+  }
+
+  private void createValidExperimentDefinitionPanel() {
+    createValidOngoingExperiment();
+    experimentDefinitionPanel = new ExperimentDefinitionPanel(experiment, loginInfo, null);
   }
 
   public void testPublishedUsersMustBeValid() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentGroupPanel();
     experimentDefinitionPanel.setPublishedUsersInPanel(INVALID_EMAIL_STRING_0);
     assertFalse(experimentDefinitionPanel.canSubmit());
   }
@@ -73,96 +85,102 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   }
 
   public void testValidFixedDurationIsAccepted() {
-    experiment.setFixedDuration(true);
-    experiment.setStartDate(EARLIER_DAY);
-    experiment.setEndDate(LATER_DAY);
-    createExperimentDefinitionPanel(experiment);
-    assertTrue(experimentDefinitionPanel.canSubmit());
+    experimentGroup.setFixedDuration(true);
+    experimentGroup.setStartDate(EARLIER_DAY);
+    experimentGroup.setEndDate(LATER_DAY);
+    createExperimentDefinitionPanel(experimentGroup);
+    assertTrue(experimentGroupPanel.canSubmit());
   }
 
   public void testInvalidFixedDurationIsNotAccepted() {
-    experiment.setFixedDuration(true);
-    experiment.setStartDate(LATER_DAY);
-    experiment.setEndDate(EARLIER_DAY);
-    createExperimentDefinitionPanel(experiment);
-    assertFalse(experimentDefinitionPanel.canSubmit());
+    experimentGroup.setFixedDuration(true);
+    experimentGroup.setStartDate(LATER_DAY);
+    experimentGroup.setEndDate(EARLIER_DAY);
+    createExperimentDefinitionPanel(experimentGroup);
+    assertFalse(experimentGroupPanel.canSubmit());
   }
 
   public void testDurationPanelAcceptsStartDateBeforeEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentGroupPanel();
     setDurationOnDurationPanel(EARLIER_DAY, LATER_DAY);
-    assertTrue(experimentDefinitionPanel.startDateIsNotAfterEndDate());
+    assertTrue(experimentGroupPanel.startDateIsNotAfterEndDate());
   }
 
   public void testDurationPanelAcceptsStartDateSameAsEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentGroupPanel();
     setDurationOnDurationPanel(EARLIER_DAY, EARLIER_DAY);
-    assertTrue(experimentDefinitionPanel.startDateIsNotAfterEndDate());
+    assertTrue(experimentGroupPanel.startDateIsNotAfterEndDate());
   }
 
   public void testDurationPanelDisallowsStartDateAfterEndDate() {
-    createValidExperimentDefinitionPanel();
+    createValidExperimentGroupPanel();
     setDurationOnDurationPanel(LATER_DAY, EARLIER_DAY);
-    assertFalse(experimentDefinitionPanel.startDateIsNotAfterEndDate());
+    assertFalse(experimentGroupPanel.startDateIsNotAfterEndDate());
   }
 
   public void testInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[]{createNameInputWithoutVarName(InputDAO.LIKERT)});
-    createExperimentDefinitionPanel(experiment);
-    assertFalse(experimentDefinitionPanel.canSubmit());
+    ArrayList inputDAOs = new java.util.ArrayList();
+    inputDAOs.add(createNameInputWithoutVarName(Input2.LIKERT));
+    experimentGroup.setInputs(inputDAOs);
+    createExperimentDefinitionPanel(experimentGroup);
+    assertFalse(experimentGroupPanel.canSubmit());
   }
 
   public void testListWithOnlyValidInputsIsAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
-                                         createValidNameInput(InputDAO.LOCATION),
-                                         createValidListInput()});
-    createExperimentDefinitionPanel(experiment);
-    assertTrue(experimentDefinitionPanel.canSubmit());
+    ArrayList inputDAOs = new java.util.ArrayList();
+    inputDAOs.add(createValidNameInput(Input2.LIKERT_SMILEYS));
+    inputDAOs.add(createValidNameInput(Input2.LOCATION));
+    inputDAOs.add(createValidListInput());
+    experimentGroup.setInputs(inputDAOs);
+    createExperimentDefinitionPanel(experimentGroup);
+    assertTrue(experimentGroupPanel.canSubmit());
   }
 
   public void testListWithInvalidInputNotAccepted() {
-    experiment.setInputs(new InputDAO[] {createValidNameInput(InputDAO.LIKERT_SMILEYS),
-                                         createValidNameInput(InputDAO.LOCATION),
-                                         createListInputWithoutFirstOption(),
-                                         createValidListInput()});
-    createExperimentDefinitionPanel(experiment);
-    assertFalse(experimentDefinitionPanel.canSubmit());
+    ArrayList inputDAOs = new java.util.ArrayList();
+    inputDAOs.add(createValidNameInput(Input2.LIKERT_SMILEYS));
+    inputDAOs.add(createValidNameInput(Input2.LOCATION));
+    inputDAOs.add(createListInputWithoutFirstOption());
+    inputDAOs.add(createValidListInput());
+    experimentGroup.setInputs(inputDAOs);
+    createExperimentDefinitionPanel(experimentGroup);
+    assertFalse(experimentGroupPanel.canSubmit());
   }
 
   public void testLikertInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LIKERT)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LIKERT)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LIKERT)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.LIKERT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.LIKERT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.LIKERT)));
   }
 
   public void testLikertSmileysInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LIKERT_SMILEYS)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LIKERT_SMILEYS)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LIKERT_SMILEYS)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.LIKERT_SMILEYS)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.LIKERT_SMILEYS)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.LIKERT_SMILEYS)));
   }
 
   public void testOpenTextInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.OPEN_TEXT)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.OPEN_TEXT)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.OPEN_TEXT)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.OPEN_TEXT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.OPEN_TEXT)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.OPEN_TEXT)));
   }
 
   public void testNumberInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.NUMBER)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.NUMBER)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.NUMBER)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.NUMBER)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.NUMBER)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.NUMBER)));
   }
 
   public void testLocationInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.LOCATION)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.LOCATION)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.LOCATION)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.LOCATION)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.LOCATION)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.LOCATION)));
   }
 
   public void testPhotoInputProperlyValidated() {
-    assertTrue(inputsPanelIsValid(createValidNameInput(InputDAO.PHOTO)));
-    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(InputDAO.PHOTO)));
-    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(InputDAO.PHOTO)));
+    assertTrue(inputsPanelIsValid(createValidNameInput(Input2.PHOTO)));
+    assertFalse(inputsPanelIsValid(createNameInputWithoutVarName(Input2.PHOTO)));
+    assertFalse(inputsPanelIsValid(createNameInputWithSpaceyVarName(Input2.PHOTO)));
   }
 
   public void testListInputProperlyValidated() {
@@ -171,7 +189,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     assertFalse(inputsPanelIsValid(createListInputWithSpaceyVarName()));
   }
 
-  private boolean inputsPanelIsValid(InputDAO input) {
+  private boolean inputsPanelIsValid(Input2 input) {
     InputsPanel panel = new InputsPanel(null, input);
     return panel.checkListItemsHaveAtLeastOneOptionAndHighlight()
         && panel.checkVarNameFilledWithoutSpacesAndHighlight();
@@ -185,65 +203,71 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
     return info;
   }
 
-  private void createValidExperimentDefinitionPanel() {
-    createExperimentDefinitionPanel(experiment);
+  private void createValidExperimentGroupPanel() {
+    createExperimentDefinitionPanel(experimentGroup);
   }
+
 
   private void createValidOngoingExperiment() {
     experiment = new ExperimentDAO();
     experiment.setTitle("title");
-    experiment.setInformedConsentForm("informed consent");
-    experiment.setFixedDuration(false);
-    experiment.setInputs(new InputDAO[]{createValidNameInput(InputDAO.LIKERT)});
+  }
+  private void createValidOngoingExperimentGroup() {
+    experimentGroup = new ExperimentGroup();
+    experimentGroup.setName("title");
+    experimentGroup.setFixedDuration(false);
+    ArrayList inputDAOs = new java.util.ArrayList();
+    inputDAOs.add(createValidNameInput(Input2.LIKERT));
+    experimentGroup.setInputs(inputDAOs);
   }
 
-  private InputDAO createValidNameInput(String type) {
-    assertTrue(!type.equals(InputDAO.LIST));
-    InputDAO input = new InputDAO(null, "inputName", null, "");
+  private Input2 createValidNameInput(String type) {
+    assertTrue(!type.equals(Input2.LIST));
+    Input2 input = new Input2("inputName", "");
     input.setResponseType(type);
     return input;
   }
 
-  private InputDAO createNameInputWithoutVarName(String type) {
-    assertTrue(!type.equals(InputDAO.LIST));
-    InputDAO input = new InputDAO(null, "", null, "inputPrompt");
+  private Input2 createNameInputWithoutVarName(String type) {
+    assertTrue(!type.equals(Input2.LIST));
+    Input2 input = new Input2("", "inputPrompt");
     input.setResponseType(type);
     return input;
   }
 
-  private InputDAO createNameInputWithSpaceyVarName(String type) {
-    assertTrue(!type.equals(InputDAO.LIST));
-    InputDAO input = new InputDAO(null, "varName with space", null, "inputPrompt");
+  private Input2 createNameInputWithSpaceyVarName(String type) {
+    assertTrue(!type.equals(Input2.LIST));
+    Input2 input = new Input2("varName with space", "inputPrompt");
     input.setResponseType(type);
     return input;
   }
 
-  private InputDAO createValidListInput() {
-    InputDAO input = new InputDAO(null, "inputName", null, "inputPrompt");
-    input.setResponseType(InputDAO.LIST);
+  private Input2 createValidListInput() {
+    Input2 input = new Input2("inputName", "inputPrompt");
+    input.setResponseType(Input2.LIST);
     input.setListChoices(new String[]{"option1"});
     return input;
   }
 
-  private InputDAO createListInputWithoutFirstOption() {
-    InputDAO input = new InputDAO(null, "inputName", null, "inputPrompt");
-    input.setResponseType(InputDAO.LIST);
+  private Input2 createListInputWithoutFirstOption() {
+    Input2 input = new Input2("inputName", "inputPrompt");
+    input.setResponseType(Input2.LIST);
     return input;
   }
 
-  private InputDAO createListInputWithSpaceyVarName() {
-    InputDAO input = new InputDAO(null, "varName with space", null, "inputPrompt");
-    input.setResponseType(InputDAO.LIST);
+  private Input2 createListInputWithSpaceyVarName() {
+    Input2 input = new Input2("varName with space", "inputPrompt");
+    input.setResponseType(Input2.LIST);
     input.setListChoices(new String[]{"option1"});
     return input;
   }
 
-  private void createExperimentDefinitionPanel(ExperimentDAO experiment) {
-    experimentDefinitionPanel = new ExperimentDefinitionPanel(experiment,loginInfo, null);
+  private void createExperimentDefinitionPanel(ExperimentGroup experiment2) {
+    experimentGroupPanel = new ExperimentGroupPanel(new ExperimentGroupListPanel(experiment), experiment2);
   }
 
   private void setDurationOnDurationPanel(String startDate, String endDate) {
-    DurationView durationPanel = experimentDefinitionPanel.getDurationPanel();
+    DurationView durationPanel = experimentGroupPanel.getDurationPanel();
     durationPanel.setFixedDuration(true);
     durationPanel.setStartDate(startDate);
     durationPanel.setEndDate(endDate);

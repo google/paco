@@ -26,6 +26,7 @@ public class SignalingMechanism {
   protected Integer minimumBuffer;
   protected Integer snoozeCount = SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT;
   protected Integer snoozeTime = SignalingMechanismDAO.SNOOZE_TIME_DEFAULT;
+
   protected String name = DEFAULT_SIGNALING_GROUP_NAME;
 
   public Integer getTimeout() {

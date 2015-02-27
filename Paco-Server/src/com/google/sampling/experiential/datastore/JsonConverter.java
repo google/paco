@@ -17,14 +17,15 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentDAOCore;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model.TriggerDAO;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
+import com.google.paco.shared.model2.InterruptTrigger;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoActionAllOthers;
+import com.google.paco.shared.model2.PacoNotificationAction;
+import com.google.paco.shared.model2.ScheduleTrigger;
 
 public class JsonConverter {
 
@@ -55,9 +56,6 @@ public class JsonConverter {
         }
         return mapper.writeValueAsString(experiments);
       } else if (pacoProtocolFloat >= 3.0) {
-        if (pacoProtocolFloat == 3.0) {
-          mapSignalTimesToTimesFor30BackwardCompatibility(experiments);
-        }
         Map<String, Object> preJsonObject = buildV3ProtocolJson(experiments, limit, cursor);
         return mapper.writeValueAsString(preJsonObject);
       }
@@ -70,31 +68,6 @@ public class JsonConverter {
       log.severe("IO error getting experiments: " + e.getMessage());
     }
     return null;
-  }
-
-  private static void mapSignalTimesToTimesFor30BackwardCompatibility(List<? extends ExperimentDAOCore> experiments) {
-    for (ExperimentDAOCore experimentDAOCore : experiments) {
-      if (experimentDAOCore instanceof ExperimentDAO) {
-        ExperimentDAO experiment = (ExperimentDAO)experimentDAOCore;
-        SignalingMechanismDAO signalingMechanism = experiment.getSignalingMechanisms()[0];
-        if (signalingMechanism instanceof SignalScheduleDAO) {
-          SignalScheduleDAO schedule = (SignalScheduleDAO)signalingMechanism;
-          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT) {
-            List<SignalTimeDAO> signalTimes = schedule.getSignalTimes();
-            List<Long> times = Lists.newArrayList();
-            for (SignalTimeDAO signalTimeDAO : signalTimes) {
-              if (signalTimeDAO.getType() == SignalTimeDAO.FIXED_TIME) {
-                times.add(new Long(signalTimeDAO.getFixedTimeMillisFromMidnight()));
-              }
-            }
-            schedule.setTimes(times);
-
-          }
-
-        }
-      }
-    }
-
   }
 
   private static Map<String, Object> buildV3ProtocolJson(List<? extends ExperimentDAOCore> experiments, Integer limit,
@@ -121,24 +94,23 @@ public class JsonConverter {
 
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
     List<ExperimentDAOCore> shortExperiments = new ArrayList<ExperimentDAOCore>();
-    for (ExperimentDAO experiment : experiments) {
+    for (ExperimentDAOCore experiment : experiments) {
       shortExperiments.add(experimentDAOCoreFromExperimentDAO(experiment));
     }
     return shortExperiments;
 
   }
 
-  private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
+  private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAOCore experiment) {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
         experiment.getInformedConsentForm(), experiment.getCreator(),
-        experiment.getFixedDuration(),
-        experiment.getStartDate(), experiment.getEndDate(), experiment.getJoinDate(),
-        experiment.isBackgroundListen(), experiment.getBackgroundListenSourceIdentifier(),
-        experiment.isLogActions(), experiment.isRecordPhoneDetails(), experiment.getExtraDataCollectionDeclarations());
+        experiment.getJoinDate(),
+        experiment.getRecordPhoneDetails(), experiment.getDeleted(), experiment.getExtraDataCollectionDeclarations(),
+        experiment.getOrganization(), experiment.getContactPhone(), experiment.getContactEmail());
   }
 
-  public static String jsonify(ExperimentDAO experiment) {
-    ObjectMapper mapper = new ObjectMapper();
+  public static String jsonify(ExperimentDAOCore experiment) {
+    ObjectMapper mapper = getObjectMapper();
     mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
       return mapper.writeValueAsString(experiment);
@@ -203,10 +175,12 @@ public class JsonConverter {
     return null;
   }
 
-  private static ObjectMapper getObjectMapper() {
+  public static ObjectMapper getObjectMapper() {
     ObjectMapper mapper = new ObjectMapper();
     mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.getDeserializationConfig().addMixInAnnotations(SignalingMechanismDAO.class, SignalingMechanismDAOMixIn.class);
+    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    mapper.getDeserializationConfig().addMixInAnnotations(ActionTrigger.class, ActionTriggerMixIn.class);
+    mapper.getDeserializationConfig().addMixInAnnotations(PacoAction.class, PacoActionMixIn.class);
     return mapper;
   }
 
@@ -216,12 +190,25 @@ public class JsonConverter {
                 include = JsonTypeInfo.As.PROPERTY,
                 property = "type")
             @JsonSubTypes({
-                @Type(value = SignalScheduleDAO.class, name = "signalSchedule"),
-                @Type(value = TriggerDAO.class, name = "trigger") })
-  private class SignalingMechanismDAOMixIn
+                @Type(value = ScheduleTrigger.class, name = "scheduleTrigger"),
+                @Type(value = InterruptTrigger.class, name = "interruptTrigger") })
+  private class ActionTriggerMixIn
   {
     // Nothing to be done here. This class exists for the sake of its annotations.
   }
+
+  @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.PROPERTY,
+                property = "type")
+            @JsonSubTypes({
+              @Type(value = PacoActionAllOthers.class, name = "pacoActionAllOthers"),
+                @Type(value = PacoNotificationAction.class, name = "pacoNotificationAction")})
+  private class PacoActionMixIn
+  {
+    // Nothing to be done here. This class exists for the sake of its annotations.
+  }
+
 
 }
 

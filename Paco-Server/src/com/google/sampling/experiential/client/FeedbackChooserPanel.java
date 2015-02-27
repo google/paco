@@ -32,8 +32,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Feedback;
 
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorCallback;
@@ -52,7 +52,7 @@ public class FeedbackChooserPanel extends Composite {
 
   private static final int MAXIMUM_SHORT_TEXT_LENGTH = 500;
 
-  private ExperimentDAO experiment;
+  private ExperimentGroup experiment;
 
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
@@ -72,8 +72,8 @@ public class FeedbackChooserPanel extends Composite {
   }
 
 
-  public FeedbackChooserPanel(ExperimentDAO experiment) {
-    this.experiment = experiment;
+  public FeedbackChooserPanel(ExperimentGroup group) {
+    this.experiment = group;
     myConstants = GWT.create(MyConstants.class);
 
     rootPanel = new VerticalPanel();
@@ -99,28 +99,25 @@ public class FeedbackChooserPanel extends Composite {
 
     choicePanel.add(feedbackChoices);
 
-    if (experiment.getFeedback() == null || experiment.getFeedback().length == 0) {
-      FeedbackDAO[] feedback = new FeedbackDAO[1];
-      FeedbackDAO feedbackDAO = new FeedbackDAO();
-      feedbackDAO.setText(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
-
-      feedback[0] = feedbackDAO;
-      experiment.setFeedback(feedback);
-      experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE);
+    if (group.getFeedback() == null) {
+      Feedback feedback = new Feedback();
+      feedback.setText(Feedback.DEFAULT_FEEDBACK_MSG);
+      group.setFeedback(feedback);
+      group.setFeedbackType(Feedback.FEEDBACK_TYPE_STATIC_MESSAGE);
       feedbackChoices.setItemSelected(0, true);
     } else {
-      Integer feedbackType = experiment.getFeedbackType();
+      Integer feedbackType = group.getFeedbackType();
       int selectedIndex = 0;
       if (feedbackType == null) {
         // no existing experiments will have a feedback type unless we write a migration script
         // so, it is either default feedback or custom feedback;
         // assign appropriately
         if (hasNonDefaultFeedback()) {
-          selectedIndex = FeedbackDAO.FEEDBACK_TYPE_CUSTOM; // we were retrospective by default
-          experiment.setFeedbackType(selectedIndex);
+          selectedIndex = Feedback.FEEDBACK_TYPE_CUSTOM; // we were retrospective by default
+          group.setFeedbackType(selectedIndex);
         } else {
-          selectedIndex = FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE;
-          experiment.setFeedbackType(selectedIndex);
+          selectedIndex = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
+          group.setFeedbackType(selectedIndex);
         }
       } else {
         selectedIndex = feedbackType;
@@ -143,11 +140,11 @@ public class FeedbackChooserPanel extends Composite {
   private void respondToListSelection(int index) {
     experiment.setFeedbackType(index);
     switch (index) {
-    case FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE:
-      experiment.getFeedback()[0].setText(FeedbackDAO.DEFAULT_FEEDBACK_MSG);
+    case Feedback.FEEDBACK_TYPE_STATIC_MESSAGE:
+      experiment.getFeedback().setText(Feedback.DEFAULT_FEEDBACK_MSG);
       break;
     default:
-      experiment.getFeedback()[0].setText("");
+      experiment.getFeedback().setText("");
       break;
     }
 
@@ -157,18 +154,18 @@ public class FeedbackChooserPanel extends Composite {
   private void updatePanel() {
     detailsPanel.clear();
     switch (experiment.getFeedbackType()) {
-      case FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE:
+      case Feedback.FEEDBACK_TYPE_STATIC_MESSAGE:
         detailsPanel.add(createStaticMessagePanel());
         break;
-      case FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE:
+      case Feedback.FEEDBACK_TYPE_RETROSPECTIVE:
         break;
-      case FeedbackDAO.FEEDBACK_TYPE_RESPONSIVE:
+      case Feedback.FEEDBACK_TYPE_RESPONSIVE:
         detailsPanel.add(createResponsiveFeedbackDisclosurePanel());
         break;
-      case FeedbackDAO.FEEDBACK_TYPE_CUSTOM:
+      case Feedback.FEEDBACK_TYPE_CUSTOM:
         detailsPanel.add(createCustomFeedbackDisclosurePanel());
         break;
-      case FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK:
+      case Feedback.FEEDBACK_TYPE_HIDE_FEEDBACK:
         break;
       default:
         break;
@@ -181,8 +178,7 @@ public class FeedbackChooserPanel extends Composite {
 
   private boolean oldMethodBasedOnNonDefaultFeedbackText() {
     return experiment.getFeedback() != null &&
-        experiment.getFeedback().length > 0 &&
-        !defaultFeedback(experiment.getFeedback()[0]);
+        !defaultFeedback(experiment.getFeedback());
   }
 
   /**
@@ -204,7 +200,7 @@ public class FeedbackChooserPanel extends Composite {
                                                                                  + myConstants.clickToCloseCustomFeedbackEditor()
                                                                                  + "</b>");
 
-    if (experiment.getFeedback()[0].getId() == null) {
+    if (experiment.getFeedback() != null && experiment.getFeedback().getText() == null) {
       customFeedbackPanel.setHeader(openHeaderWidget);
       customFeedbackPanel.setOpen(true);
     } else {
@@ -237,10 +233,10 @@ public class FeedbackChooserPanel extends Composite {
     customFeedbackEditor.setTheme(AceEditorTheme.ECLIPSE);
 
 
-    FeedbackDAO[] feedbacks = experiment.getFeedback();
+    Feedback feedback = experiment.getFeedback();
 
-    if (feedbacks != null && feedbacks.length > 0 && !defaultFeedback(feedbacks[0])) {
-      customFeedbackEditor.setText(feedbacks[0].getText());
+    if (feedback != null && !defaultFeedback(feedback)) {
+      customFeedbackEditor.setText(feedback.getText());
     } else {
       customFeedbackEditor.setText(generateDefaultCustomCode());
     }
@@ -251,7 +247,7 @@ public class FeedbackChooserPanel extends Composite {
 
       @Override
       public void invokeAceCallback(JavaScriptObject obj) {
-        experiment.getFeedback()[0].setText(customFeedbackEditor.getText());
+        experiment.getFeedback().setText(customFeedbackEditor.getText());
       }
 
     });
@@ -268,8 +264,8 @@ public class FeedbackChooserPanel extends Composite {
    * @param feedbackDAO
    * @return
    */
-  private boolean defaultFeedback(FeedbackDAO feedbackDAO) {
-    return FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(feedbackDAO.getText());
+  private boolean defaultFeedback(Feedback feedbackDAO) {
+    return Feedback.DEFAULT_FEEDBACK_MSG.equals(feedbackDAO.getText());
   }
 
 
@@ -285,13 +281,13 @@ public class FeedbackChooserPanel extends Composite {
     final TextBox textBox = new TextBox();
     textBox.setWidth(SHORT_TEXTBOX_WIDTH);
     textBox.setMaxLength(MAXIMUM_SHORT_TEXT_LENGTH);
-    String feedbackText = experiment.getFeedback()[0].getText();
+    String feedbackText = experiment.getFeedback().getText();
     textBox.setText(feedbackText);
     textBox.addChangeHandler(new ChangeHandler() {
 
       @Override
       public void onChange(ChangeEvent event) {
-        experiment.getFeedback()[0].setText(textBox.getText());
+        experiment.getFeedback().setText(textBox.getText());
       }
     });
     container.add(textBox);

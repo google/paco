@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model2.SignalTime;
 
 /**
  * Panel to configure an individual time that an experiment is scheduled.
@@ -48,7 +48,7 @@ public class TimePanel extends Composite {
 
   private TimeListPanel timeList;
   private TimePickerFixed timeBox;
-  private SignalTimeDAO signalTime;
+  private SignalTime signalTime;
   private HorizontalPanel mainPanel;
   private Widget typeDetailsPanel;
   private VerticalPanel middlePanel;
@@ -58,7 +58,7 @@ public class TimePanel extends Composite {
   private HorizontalPanel missedBehaviorPanel;
   private MyConstants myConstants;
 
-  public TimePanel(TimeListPanel timeList, final SignalTimeDAO signalTime, boolean firstTime) {
+  public TimePanel(TimeListPanel timeList, final SignalTime signalTime, boolean firstTime) {
     myConstants = GWT.create(MyConstants.class);
 
     this.timeList = timeList;
@@ -84,10 +84,10 @@ public class TimePanel extends Composite {
         int newType = typeChooser.getSelectedIndex();
         signalTime.setType(newType);
         if (currentType != newType) {
-          if (newType == SignalTimeDAO.FIXED_TIME) {
-            signalTime.setMissedBasisBehavior(SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME);
+          if (newType == SignalTime.FIXED_TIME) {
+            signalTime.setMissedBasisBehavior(SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME);
           } else {
-            signalTime.setMissedBasisBehavior(SignalTimeDAO.MISSED_BEHAVIOR_SKIP);
+            signalTime.setMissedBasisBehavior(SignalTime.MISSED_BEHAVIOR_SKIP);
           }
         }
         updateTypeDetailsPanel();
@@ -99,7 +99,7 @@ public class TimePanel extends Composite {
     middlePanel = new VerticalPanel();
     mainPanel.add(middlePanel);
 
-    if (signalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+    if (signalTime.getType() == SignalTime.FIXED_TIME) {
       typeDetailsPanel = createFixedTimePanel(signalTime);
     } else {
       typeDetailsPanel = createOffsetTimePanel();
@@ -152,7 +152,7 @@ public class TimePanel extends Composite {
   private void updateTypeDetailsPanel() {
     int index = middlePanel.getWidgetIndex(typeDetailsPanel);
     middlePanel.remove(typeDetailsPanel);
-    if (signalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+    if (signalTime.getType() == SignalTime.FIXED_TIME) {
       typeDetailsPanel = createFixedTimePanel(signalTime);
     } else {
       typeDetailsPanel = createOffsetTimePanel();
@@ -220,7 +220,7 @@ public class TimePanel extends Composite {
     return container;
   }
 
-  private Widget createFixedTimePanel(SignalTimeDAO signalTime2) {
+  private Widget createFixedTimePanel(SignalTime signalTime2) {
 
     timeBox = new TimePickerFixed(getFixedTimeAsDate(), DateTimeFormat.getFormat("aa"),
                                   DateTimeFormat.getFormat("hh"), DateTimeFormat.getFormat("mm"), null);
@@ -247,7 +247,7 @@ public class TimePanel extends Composite {
     timeList.deleteTime(this);
   }
 
-  public SignalTimeDAO getTime() {
+  public SignalTime getTime() {
     return signalTime;
   }
 

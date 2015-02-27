@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.Input2;
 
 /**
  *
@@ -48,7 +48,7 @@ import com.google.paco.shared.model.InputDAO;
 public class InputsPanel extends Composite {
 
   private InputsListPanel parent;
-  private InputDAO input;
+  private Input2 input;
   private VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
@@ -59,7 +59,7 @@ public class InputsPanel extends Composite {
   private VerticalPanel varNamePanel;
   MyConstants myConstants = GWT.create(MyConstants.class);
 
-  public InputsPanel(InputsListPanel parent, InputDAO input) {
+  public InputsPanel(InputsListPanel parent, Input2 input) {
     this.input = input;
     this.parent = parent;
     mainPanel = new VerticalPanel();
@@ -104,7 +104,7 @@ public class InputsPanel extends Composite {
     parent.deleteInput(this);
   }
 
-  public InputDAO getInput() {
+  public Input2 getInput() {
     return input;
   }
 
@@ -113,7 +113,7 @@ public class InputsPanel extends Composite {
   }
 
   public boolean checkListItemsHaveAtLeastOneOptionAndHighlight() {
-    if (input.getResponseType().equals(InputDAO.LIST)) {
+    if (input.getResponseType().equals(Input2.LIST)) {
       return checkLChoicesAreNotEmptyAndHighlight();
     } else {
       return true;
@@ -240,12 +240,12 @@ public class InputsPanel extends Composite {
     mandatoryLabel.setStyleName("keyLabel");
     mp.add(mandatoryLabel);
     final CheckBox valueBox = new CheckBox();
-    valueBox.setValue(input.getMandatory());
+    valueBox.setValue(input.getRequired());
     mp.add(valueBox);
     valueBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent arg0) {
-        input.setMandatory(valueBox.getValue());
+        input.setRequired(valueBox.getValue());
       }
     });
   }
@@ -258,19 +258,19 @@ public class InputsPanel extends Composite {
     rp.add(responseTypeLabel);
 
     final ListBox responseTypeListBox = new ListBox();
-    responseTypeListBox.addItem(InputDAO.LIKERT_SMILEYS);
-    responseTypeListBox.addItem(InputDAO.LIKERT);
-    responseTypeListBox.addItem(InputDAO.OPEN_TEXT);
-    responseTypeListBox.addItem(InputDAO.LIST);
-    responseTypeListBox.addItem(InputDAO.NUMBER);
-    responseTypeListBox.addItem(InputDAO.LOCATION);
-    responseTypeListBox.addItem(InputDAO.PHOTO);
+    responseTypeListBox.addItem(Input2.LIKERT_SMILEYS);
+    responseTypeListBox.addItem(Input2.LIKERT);
+    responseTypeListBox.addItem(Input2.OPEN_TEXT);
+    responseTypeListBox.addItem(Input2.LIST);
+    responseTypeListBox.addItem(Input2.NUMBER);
+    responseTypeListBox.addItem(Input2.LOCATION);
+    responseTypeListBox.addItem(Input2.PHOTO);
     // responseType.addItem(InputDAO.SOUND);
     // responseType.addItem(InputDAO.ACTIVITY);
     responseTypeListBox.setVisibleItemCount(1);
     int responseTypeSelectedIndex = 0;
-    for (int i = 0; i < InputDAO.RESPONSE_TYPES.length; i++) {
-      if (InputDAO.RESPONSE_TYPES[i].equals(input.getResponseType())) {
+    for (int i = 0; i < Input2.RESPONSE_TYPES.length; i++) {
+      if (Input2.RESPONSE_TYPES[i].equals(input.getResponseType())) {
         responseTypeSelectedIndex = i;
         break;
       }
@@ -300,7 +300,6 @@ public class InputsPanel extends Composite {
       valueText.setText(input.getText());
     }
     inputPromptTextPanel.add(valueText);
-    inputPromptTextPanel.setVisible(!input.isInvisibleInput());
     valueText.addValueChangeHandler(new ValueChangeHandler<String>() {
 
       @Override

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -12,14 +13,16 @@ import com.google.common.collect.Lists;
 
 public class JavascriptExperimentLoader {
   /**
-   * 
+   *
    */
-  private final ExperimentExecutorCustomRendering innerType;
   private Experiment experiment;
   private String json;
+  private ExperimentProviderUtil experimentProvider;
+  private Context context;
 
-  public JavascriptExperimentLoader(ExperimentExecutorCustomRendering experimentExecutorCustomRendering, Experiment experiment) {
-      innerType = experimentExecutorCustomRendering;
+  public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider, Experiment experiment) {
+    this.context = context;
+      this.experimentProvider = experimentProvider;
       this.experiment = experiment;
   }
 
@@ -50,15 +53,15 @@ public class JavascriptExperimentLoader {
           Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(experimentJson);
           long t2= System.currentTimeMillis();
           Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
-          JavascriptExperimentLoader.this.innerType.experimentProviderUtil.updateExistingExperiments(Lists.newArrayList(experiment), true);
+          experimentProvider.updateExistingExperiments(Lists.newArrayList(experiment), true);
           long t3= System.currentTimeMillis();
           Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
-          JavascriptExperimentLoader.this.innerType.startService(new Intent(innerType, BeeperService.class));
+          context.startService(new Intent(context, BeeperService.class));
           if (experiment.shouldWatchProcesses()) {
-            BroadcastTriggerReceiver.initPollingAndLoggingPreference(innerType);
-            BroadcastTriggerReceiver.startProcessService(innerType);
+            BroadcastTriggerReceiver.initPollingAndLoggingPreference(context);
+            BroadcastTriggerReceiver.startProcessService(context);
           } else {
-            BroadcastTriggerReceiver.stopProcessingService(innerType);
+            BroadcastTriggerReceiver.stopProcessService(context);
           }
           long t4 = System.currentTimeMillis();
           Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));

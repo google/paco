@@ -53,10 +53,10 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.comm.Outcome;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
+import com.google.paco.shared.model2.ExperimentQueryResult;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -615,7 +615,7 @@ public class Main implements EntryPoint, ExperimentListener {
     }
   }
 
-  private void joinExperiment(ExperimentDAO experiment) {
+  private void joinExperiment(ExperimentDAOCore experiment) {
     statusLabel.setVisible(true);
 
     pacoService.joinExperiment(experiment.getId(), new AsyncCallback<Boolean>() {
@@ -709,7 +709,7 @@ public class Main implements EntryPoint, ExperimentListener {
 
   }
 
-  private void showExperimentReferencePanel(ExperimentDAO experiment) {
+  private void showExperimentReferencePanel(ExperimentDAOCore experiment) {
     statusLabel.setVisible(true);
     ExperimentReferenceDialog experimentReferenceDialog = new ExperimentReferenceDialog(experiment.getId());
     experimentReferenceDialog.center();
@@ -719,24 +719,16 @@ public class Main implements EntryPoint, ExperimentListener {
   private void copyExperiment(ExperimentDAO experiment) {
     experiment.setId(null);
     experiment.setTitle(myConstants.copyOfExperimentTitlePrefix() + experiment.getTitle());
-    experiment.getSignalingMechanisms()[0].setId(null);
     experiment.setPublished(false);
-    experiment.setPublishedUsers(new String[]{});
-    experiment.setAdmins(new String[]{});
-
-    for(InputDAO input : experiment.getInputs()) {
-      input.setId(null);
-    }
-    for (FeedbackDAO feedback : experiment.getFeedback()) {
-      feedback.setId(null);
-    }
+    experiment.setPublishedUsers(new java.util.ArrayList());
+    experiment.setAdmins(new java.util.ArrayList());
   }
 
 
   private void saveToServer(ExperimentDAO experiment) {
     statusLabel.setVisible(true);
 
-    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Outcome>() {
 
       // PRIYA - see how this is
       @Override
@@ -748,12 +740,17 @@ public class Main implements EntryPoint, ExperimentListener {
       }
 
       @Override
-      public void onSuccess(Void result) {
-        Window.alert(myConstants.success());
-        contentPanel.clear();
-        loadAdministeredExperiments(true);
-
-        statusLabel.setVisible(false);
+      public void onSuccess(Outcome result) {
+        if (result.succeeded()) {
+          Window.alert(myConstants.success());
+          contentPanel.clear();
+          statusLabel.setVisible(false);
+          loadAdministeredExperiments(true);
+        } else {
+          Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure() + "\n"
+                       + myConstants.errorMessage() + ": " + result.getErrorMessage());
+          statusLabel.setVisible(false);
+        }
       }
     });
   }
@@ -763,21 +760,25 @@ public class Main implements EntryPoint, ExperimentListener {
     // toggle
     experiment.setDeleted(experiment.getDeleted() == null || !experiment.getDeleted());
 
-    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Void>() {
+    pacoService.saveExperiment(experiment, TimeUtil.getTimezone(), new AsyncCallback<Outcome>() {
 
       @Override
       public void onFailure(Throwable caught) {
         Window.alert(myConstants.failure());
         statusLabel.setVisible(false);
-
       }
 
       @Override
-      public void onSuccess(Void result) {
-        Window.alert(myConstants.success());
-        loadAdministeredExperiments(true);
-
-        statusLabel.setVisible(false);
+      public void onSuccess(Outcome result) {
+        if (result.succeeded()) {
+          Window.alert(myConstants.success());
+          statusLabel.setVisible(false);
+          loadAdministeredExperiments(true);
+        } else {
+          Window.alert(myConstants.failure() + ": " + myConstants.saveToServerFailure() + "\n"
+                       + myConstants.errorMessage() + ": " + result.getErrorMessage());
+          statusLabel.setVisible(false);
+        }
       }
     });
   }

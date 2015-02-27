@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.widgetideas.client.SpinnerListener;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model2.Schedule;
 
 /**
  * Panel for configuring the ESM scheduling for an experiment.
@@ -42,9 +42,9 @@ import com.google.paco.shared.model.SignalScheduleDAO;
  */
 public class EsmPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
 
-  public EsmPanel(final SignalScheduleDAO schedule) {
+  public EsmPanel(final Schedule schedule) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -75,15 +75,15 @@ public class EsmPanel extends Composite {
     horizontalPanel.add(lblPeriod);
 
     final ListBox listBox = new ListBox();
-    for (int i = 0; i < SignalScheduleDAO.ESM_PERIODS.length; i++) {
-      listBox.addItem(SignalScheduleDAO.ESM_PERIODS_NAMES[i]);
+    for (int i = 0; i < Schedule.ESM_PERIODS.length; i++) {
+      listBox.addItem(Schedule.ESM_PERIODS_NAMES[i]);
     }
     horizontalPanel.add(listBox);
     listBox.setVisibleItemCount(1);
     Integer period = schedule.getEsmPeriodInDays();
     if (period == null) {
-      period = SignalScheduleDAO.DEFAULT_ESM_PERIOD;
-      schedule.setEsmPeriodInDays(SignalScheduleDAO.DEFAULT_ESM_PERIOD);
+      period = Schedule.DEFAULT_ESM_PERIOD;
+      schedule.setEsmPeriodInDays(Schedule.DEFAULT_ESM_PERIOD);
     }
     listBox.setSelectedIndex(period);
     listBox.addClickHandler(new ClickHandler() {
@@ -194,18 +194,14 @@ public class EsmPanel extends Composite {
       }
     });
 
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
-    verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
-
-    MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
-    verticalPanel.add(minimumBufferPanel);
-    minimumBufferPanel.setWidth("286px");
-
-    SnoozePanel snoozePanel = new SnoozePanel(schedule);
-    verticalPanel.add(snoozePanel);
-    snoozePanel.setWidth("286px");
-
+    verticalPanel.add(createMinimumBufferPanel());
   }
+
+  protected MinimumBufferPanel createMinimumBufferPanel() {
+    MinimumBufferPanel minimumBufferPanel = new MinimumBufferPanel(schedule);
+    minimumBufferPanel.setWidth("286px");
+    return minimumBufferPanel;
+  }
+
 
 }

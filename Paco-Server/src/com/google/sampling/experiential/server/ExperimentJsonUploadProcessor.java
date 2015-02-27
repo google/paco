@@ -13,22 +13,23 @@ import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.Outcome;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.comm.Outcome;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.datastore.JsonConverter;
-import com.google.sampling.experiential.model.Experiment;
 
 public class ExperimentJsonUploadProcessor {
 
   private static final Logger log = Logger.getLogger(ExperimentJsonUploadProcessor.class.getName());
-  private ExperimentRetriever experimentRetriever;
+  private ExperimentService experimentService;
 
-  public ExperimentJsonUploadProcessor(ExperimentRetriever experimentRetriever) {
-    this.experimentRetriever = experimentRetriever;
+  public ExperimentJsonUploadProcessor(ExperimentService experimentService) {
+    this.experimentService = experimentService;
   }
 
   public static ExperimentJsonUploadProcessor create() {
-    return new ExperimentJsonUploadProcessor(ExperimentRetriever.getInstance());
+    ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
+    return new ExperimentJsonUploadProcessor(experimentService);
   }
 
   public String processJsonExperiments(String postBodyString, User userFromLogin, String appIdHeader, String pacoVersion, DateTimeZone timezone) {
@@ -64,7 +65,7 @@ public class ExperimentJsonUploadProcessor {
     try {
       results.add(postObject(currentObject, 0, userFromLogin, appIdHeader, pacoVersionHeader, timezone));
     } catch (Throwable e) {
-      results.add(new Outcome(0, "Exception posting event: 0. "+ e.getMessage()));
+      results.add(new Outcome(0, "Exception posting event: 0. " + e.getMessage()));
     }
     return results;
   }
@@ -90,22 +91,28 @@ public class ExperimentJsonUploadProcessor {
 
     Long id = experimentDAO.getId();
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());
-    Experiment experiment = null;
+    ExperimentDAO existingExperiment = null;
     if (id != null) {
-      experiment = experimentRetriever.getExperiment(id);
+      existingExperiment = experimentService.getExperiment(id);
     }
-    if (experiment == null) {
+    if (existingExperiment == null) {
       experimentDAO.setId(null);
     }
 
-    if (experiment != null && !experiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
+    if (existingExperiment != null && !existingExperiment.isAdmin(userFromLogin.getEmail().toLowerCase())) {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");
       return outcome;
     }
 
-    if (!experimentRetriever.saveExperiment(experimentDAO, userFromLogin, timezone.getID())) {
+    List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO, userFromLogin, timezone);
+    if (saveExperimentErrorResults != null) {
+      StringBuilder buf = new StringBuilder();
+      for (ValidationMessage validationMessage : saveExperimentErrorResults) {
+        buf.append(validationMessage.toString());
+        buf.append("\n");
+      }
       outcome.setError("Could not save experiment: " + objectId +". ExperimentId: " + experimentDAO.getId()
-                       + ". title: " + experimentDAO.getTitle());
+                       + ". title: " + experimentDAO.getTitle() +"\nErrors:\n" + buf.toString());
     }
     return outcome;
   }

@@ -10,9 +10,8 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.datastore.JsonConverter;
-import com.google.sampling.experiential.model.Experiment;
 
 public class ExperimentRetrieverTest extends TestCase {
 
@@ -50,7 +49,7 @@ public class ExperimentRetrieverTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
     List<Long> experimentList = Lists.newArrayList(1l);
-    List<Experiment> experiments = ExperimentRetriever.getInstance().getExperimentsFor(experimentList);
+    List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentList, email, null);
     assertTrue(experiments.size() == 1);
     assertEquals(experiments.get(0).getId(), experimentList.get(0));
   }
@@ -59,7 +58,7 @@ public class ExperimentRetrieverTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
     List<Long> experimentList = Lists.newArrayList(1l, 6l);
-    List<Experiment> experiments = ExperimentRetriever.getInstance().getExperimentsFor(experimentList);
+    List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentList, email, null);
     assertTrue(experiments.size() == 2);
     assertEquals(experiments.get(0).getId(), experimentList.get(0));
     assertEquals(experiments.get(1).getId(), experimentList.get(1)); // TODO unsure of ordering from server.
@@ -69,11 +68,11 @@ public class ExperimentRetrieverTest extends TestCase {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_ADMIN);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER2_ADMIN);
     DateTimeZone email1Timezone = DateTime.now().getZone();
-    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
+    List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 1);
     assertEquals("PhotoMonkeyUser1", experiments.get(0).getTitle());
 
-    experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user2@gmail.com", email1Timezone, null, null).getExperiments();
+    experiments = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments("user2@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 2);
     assertEquals("PhotoMonkeyUser1", experiments.get(0).getTitle());
     assertEquals("PhotoMonkeyUser2", experiments.get(1).getTitle());
@@ -82,7 +81,7 @@ public class ExperimentRetrieverTest extends TestCase {
   public void testRetrieveMyExperimentsUserPublishedUserButNotPublished() throws Exception {
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_PUBLISHED_USER_NOT_PUBLISHED);
     DateTimeZone email1Timezone = DateTime.now().getZone();
-    List<ExperimentDAO> experiments = ExperimentRetriever.getInstance().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
+    List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 0);
   }
 

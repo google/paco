@@ -57,7 +57,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
             createScreenOnPacoEvents(context);
             startProcessService(context);
           } else if (isScreenOff(intent)) {
-            stopProcessingService(context);
+            stopProcessService(context);
 //            if (BroadcastTriggerReceiver.shouldLogActions(context)) {
 //              createBrowserHistoryEndSnapshot(context);
 //            }
@@ -253,7 +253,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     context.startService(intent);
   }
 
-  public static void stopProcessingService(Context context) {
+  public static void stopProcessService(Context context) {
     Log.i(PacoConstants.TAG, "Stopping App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, false);
   }

@@ -60,6 +60,9 @@ public class ExperimentProviderUtil {
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
+    if (context == null) {
+      throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
+    }
     this.contentResolver = context.getContentResolver();
   }
 

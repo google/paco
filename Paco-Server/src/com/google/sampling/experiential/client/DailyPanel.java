@@ -20,7 +20,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model2.Schedule;
 
 /**
  * Panel for configuring daily scheduling for an experiment.
@@ -30,9 +30,9 @@ import com.google.paco.shared.model.SignalScheduleDAO;
  */
 public class DailyPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
 
-  public DailyPanel(SignalScheduleDAO schedule) {
+  public DailyPanel(Schedule schedule) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -42,7 +42,7 @@ public class DailyPanel extends Composite {
     initWidget(verticalPanel);
 
     if (schedule.getScheduleType() == null
-        || schedule.getScheduleType() == SignalScheduleDAO.DAILY) {
+        || schedule.getScheduleType() == Schedule.DAILY) {
       RepeatEveryNPanel repeatWeeksPanel = new RepeatEveryNPanel(myConstants.repeatTypeDays(), schedule);
       verticalPanel.add(repeatWeeksPanel);
       repeatWeeksPanel.setWidth("239px");
@@ -51,13 +51,6 @@ public class DailyPanel extends Composite {
     verticalPanel.add(timeListPanel);
     timeListPanel.setWidth("286px");
 
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
-    verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
-
-    SnoozePanel snoozePanel = new SnoozePanel(schedule);
-    verticalPanel.add(snoozePanel);
-    snoozePanel.setWidth("286px");
   }
 
 }

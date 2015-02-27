@@ -488,7 +488,7 @@ public class EventRetriever {
       log.info("dev mode or user querying self data");
       executeQuery(allEvents, eventJDOQuery);
     } else if (hasAnExperimentIdFilter(query) && !eventJDOQuery.hasAWho() &&
-            ExperimentRetriever.isExperimentAdministrator(requestorEmail,
+            EventRetriever.isExperimentAdministrator(requestorEmail,
                                                           getExperimentById(getExperimentIdFromFilter(query), pm))) {
       log.info("Admin query for an experiment");
       executeQuery(allEvents, eventJDOQuery);
@@ -506,6 +506,12 @@ public class EventRetriever {
     sortList(newArrayList);
     return newArrayList;
   }
+
+  public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
+    return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail) ||
+          experiment.getAdmins().contains(loggedInUserEmail);
+  }
+
 
   private EventDSQuery createDSQueryFrom(PersistenceManager pm,
                                          List<com.google.sampling.experiential.server.Query> query,

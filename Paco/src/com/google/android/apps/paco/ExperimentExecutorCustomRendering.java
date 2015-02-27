@@ -38,8 +38,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -382,22 +380,19 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
 
 private void injectObjectsIntoJavascriptEnvironment() {
   final Map<String,String> map = new HashMap<String, String>();
-  //map.put("lastResponse", convertLastEventToJsonString(experiment));
   map.put("test", "false");
-  map.put("title", experiment.getTitle());
-  //map.put("experiment", ExperimentProviderUtil.getJson(experiment));
 
+  map.put("title", experiment.getTitle());
   map.put("scheduledTime", Long.toString(scheduledTime));
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
+  env = new Environment(map);
+  webView.addJavascriptInterface(env, "env");
 
   String text = experiment.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
-
-  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experiment), "experimentLoader");
-
-  webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
+  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment), "experimentLoader");
 
   JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment);
   webView.addJavascriptInterface(javascriptEventLoader, "db");
@@ -405,11 +400,9 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
-  webView.addJavascriptInterface(new JavascriptNotificationService(this), "notificationService");
-
-  env = new Environment(map);
-  webView.addJavascriptInterface(env, "env");
+  webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
 
 }
 
@@ -648,47 +641,6 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 }
 
 
-boolean sendEmail(String body, String subject, String userEmail) {
-  userEmail = findAccount(userEmail);
-  Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-  String aEmailList[] = { userEmail};
-  emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-  emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-  emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-  emailIntent.setType("plain/text");
-  try {
-    startActivity(emailIntent);
-    return true;
-  } catch (ActivityNotFoundException anf) {
-    Log.i(PacoConstants.TAG, "No email client configured");
-    return false;
-  }
-}
-
-private String findAccount(String userEmail) {
-  String domainName = null;
-  if (userEmail.startsWith("@")) {
-    domainName = userEmail.substring(1);
-  }
-  Account[] accounts = AccountManager.get(this).getAccounts();
-  for (Account account : accounts) {
-    if (userEmail == null || userEmail.length() == 0) {
-      return account.name; // return first
-    }
-
-    if (domainName != null) {
-      int atIndex = account.name.indexOf('@');
-      if (atIndex != -1) {
-        String accountDomain = account.name.substring(atIndex + 1);
-        if (accountDomain.equals(domainName)) {
-          return account.name;
-        }
-      }
-    }
-  }
-  return "";
-}
-
 /// saving and external service callouts
   private void save() {
     try {
@@ -919,7 +871,7 @@ private String findAccount(String userEmail) {
     }
   }
 
-  
+
 
 //start duplicate from inputlayout for photo service
 

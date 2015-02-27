@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -20,12 +20,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-
-import com.google.common.collect.Maps;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -35,18 +34,13 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
 
-/**
- * Component for holding an individual chart for an Input's responses.
- * 
- * @author Bob Evans
- *
- */
 public class ExperimentLandingPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
@@ -89,41 +83,41 @@ public class ExperimentLandingPanel extends Composite {
     mainPanel.add(titleLabel);
     mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-    
+
     buttonTable = new FlexTable();
     mainPanel.add(buttonTable);
     mainPanel.add(contentPanel);
-    
-    Button join = new Button("Join Study");   
+
+    Button join = new Button("Join Study");
     Button leave = new Button("Leave Study");
     Button respond = new Button("Respond to End of Day Study");
-    
+
     buttonTable.add(join);
     buttonTable.add(respond);
     buttonTable.add(leave);
 
     loadExperiment();
-    
+
     join.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         contentPanel.clear();
         contentPanel.add(new JoinPanel());
       }
     });
-    
+
     respond.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         contentPanel.clear();
         showReferredExperimentExecutor(experiment);
       }
     });
-    
+
     leave.addClickHandler(new ClickHandler() {
-      
+
       @Override
       public void onClick(ClickEvent event) {
         contentPanel.clear();
@@ -134,9 +128,9 @@ public class ExperimentLandingPanel extends Composite {
 
   protected void showReferredExperimentExecutor(final ExperimentDAO experiment) {
     statusLabel.setVisible(true);
-    
+
     final ExperimentDAO referencedExperiment = null;
-    
+
     AsyncCallback<List<EventDAO>> callback = new AsyncCallback<List<EventDAO>>() {
 
       @Override
@@ -153,37 +147,37 @@ public class ExperimentLandingPanel extends Composite {
           statusLabel.setVisible(false);
           return;
         }
-        
-        ExperimentDAO referredExperiment = null;
+
+        ExperimentDAOCore referredExperiment = null;
         ExperimentListener experimentListener = new ExperimentListener() {
           @Override
           public void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView) {
             String scheduledTime = formatTime(new Date());
             Map<String, String> kvPairs = Maps.newHashMap();
-            container.getMapService().saveEvent(container.loginInfo.getEmailAddress(), 
-                                 scheduledTime, 
-                                 formatTime(new Date()), 
-                                 experiment.getId().toString(), 
-                                 kvPairs, 
+            container.getMapService().saveEvent(container.loginInfo.getEmailAddress(),
+                                 scheduledTime,
+                                 formatTime(new Date()),
+                                 experiment.getId().toString(),
+                                 kvPairs,
                                  experiment.getVersion(),
-                                 false, 
+                                 false,
                                  new AsyncCallback<Void>() {
 
                                     @Override
                                     public void onFailure(Throwable caught) {
                                       Window.alert("Could not save responses.");
                                     }
-  
+
                                     @Override
                                     public void onSuccess(Void result) {
                                       Window.alert(myConstants.success());
                                     }
-              
+
                                  });
           }
-          
+
         };
-        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(experimentListener, mapService, 
+        AbstractExperimentExecutorPanel ep = new EndOfDayExperimentExecutorPanel(experimentListener, mapService,
                                                                                  experiment, eventList, null, referencedExperiment);
         contentPanel.add(ep);
         statusLabel.setVisible(false);
@@ -191,16 +185,16 @@ public class ExperimentLandingPanel extends Composite {
     };
     String queryText = "experimentId=" + referencedExperiment.getId() + ":who=" + loginInfo.getEmailAddress();
     mapService.eventSearch(queryText, callback);
-    
+
   }
 
   private void loadExperiment() {
 //    mapService.getExperimentsForUser(new AsyncCallback<List<ExperimentDAO>>() {
 //
-//      
+//
 //      @Override
 //      public void onFailure(Throwable caught) {
-//        Window.alert("Could not load Experiment");        
+//        Window.alert("Could not load Experiment");
 //      }
 //
 //      @Override
@@ -213,10 +207,10 @@ public class ExperimentLandingPanel extends Composite {
 //            Window.alert("Could not load experiment");
 //          }
 //        }
-//        
+//
 //      }
 //    });
-    
+
   }
 
 
@@ -228,5 +222,5 @@ public class ExperimentLandingPanel extends Composite {
   }
 
 
-  
+
 }

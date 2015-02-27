@@ -48,7 +48,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -61,7 +61,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
-  private InputDAO input;
+  private Input2 input;
   private List<EventDAO> data;
 
   private MapWidget map;
@@ -73,7 +73,7 @@ public class ChartPanel extends Composite {
   private VerticalPanel rootPanel;
   private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(InputDAO input, List<EventDAO> eventList, int mapWidth, int mapHeight, boolean showLabel) {
+  public ChartPanel(Input2 input, List<EventDAO> eventList, int mapWidth, int mapHeight, boolean showLabel) {
     this.input = input;
     this.data = eventList;
     this.mapWidth = mapWidth;
@@ -94,21 +94,21 @@ public class ChartPanel extends Composite {
 
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
-    if (input.getResponseType().equals(InputDAO.OPEN_TEXT) &&
+    if (input.getResponseType().equals(Input2.OPEN_TEXT) &&
         dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
       rootPanel.add(cm.createWordCloud("", eventList, input.getName()));
-    } else if (input.getResponseType().equals(InputDAO.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       rootPanel.add(createPhotoSlider());
-    } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
+    } else if (input.getResponseType().equals(Input2.LOCATION)) {
       renderEventsOnMap();
       //rootPanel.add();
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           input.getListChoices(), input.getMultiselect()));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           getLikertCategories(), false));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT_SMILEYS)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
       getLikertSmileyCategories(), false));
     } else {
@@ -116,7 +116,7 @@ public class ChartPanel extends Composite {
     }
   }
 
-  public ChartPanel(InputDAO input, List<EventDAO> events) {
+  public ChartPanel(Input2 input, List<EventDAO> events) {
     this(input, events, 800, 600, true);
   }
 

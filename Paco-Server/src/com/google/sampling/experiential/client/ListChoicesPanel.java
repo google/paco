@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.Input2;
 
 /**
  * A collection of all the ListChoicePanels to define the choices for a given
@@ -37,19 +37,19 @@ import com.google.paco.shared.model.InputDAO;
  */
 public class ListChoicesPanel extends Composite {
 
-  private InputDAO input;
+  private Input2 input;
   private VerticalPanel mainPanel;
   private LinkedList<ListChoicePanel> choicePanelsList;
 
   /**
    * @param input
    */
-  public ListChoicesPanel(final InputDAO input) {
+  public ListChoicesPanel(final Input2 input) {
     this.input = input;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
-    
+
     final CheckBox multiselect = new CheckBox("Multiple selections");
     multiselect.setValue(input.getMultiselect());
     multiselect.addClickHandler(new ClickHandler() {
@@ -58,10 +58,10 @@ public class ListChoicesPanel extends Composite {
       public void onClick(ClickEvent event) {
         input.setMultiselect(multiselect.getValue());
       }
-      
+
     });
     mainPanel.add(multiselect);
-    
+
     Label lblSignalTimes = new Label("List Choice (s)");
     lblSignalTimes.setStyleName("gwt-Label-Header");
     mainPanel.add(lblSignalTimes);
@@ -120,11 +120,11 @@ public class ListChoicesPanel extends Composite {
     int index = choicePanelsList.indexOf(choicePanel);
     input.getListChoices()[index] = choicePanel.getChoice();
   }
-  
+
   public ListChoicePanel getFirstChoicePanel() {
     return getChoicePanel(0);
   }
-  
+
   private ListChoicePanel getChoicePanel(int index) {
     return choicePanelsList.get(index);
   }

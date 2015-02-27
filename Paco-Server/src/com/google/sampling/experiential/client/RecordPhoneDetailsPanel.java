@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * Record Phone Details configuration panel.
@@ -33,13 +33,13 @@ import com.google.paco.shared.model.ExperimentDAO;
  */
 public class RecordPhoneDetailsPanel extends Composite {
 
-  private final ExperimentDAO experiment;
+  private final ExperimentDAOCore experiment;
 
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private HorizontalPanel recordPhoneDetailsCheckboxPanel;
 
-  public RecordPhoneDetailsPanel(ExperimentDAO experiment) {
+  public RecordPhoneDetailsPanel(ExperimentDAOCore experiment) {
     this.experiment = experiment;
     myConstants = GWT.create(MyConstants.class);
 
@@ -64,7 +64,7 @@ public class RecordPhoneDetailsPanel extends Composite {
     recordPhoneDetailsCheckboxPanel.add(checkBoxLabel);
 
 
-    shouldRecordCheckbox.setValue(experiment.isRecordPhoneDetails() != null && experiment.isRecordPhoneDetails());
+    shouldRecordCheckbox.setValue(experiment.getRecordPhoneDetails() != null && experiment.getRecordPhoneDetails());
 
     shouldRecordCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 

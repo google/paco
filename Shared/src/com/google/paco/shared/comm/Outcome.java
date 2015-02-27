@@ -1,6 +1,6 @@
-package com.google.paco.shared;
+package com.google.paco.shared.comm;
 
-public class Outcome {
+public class Outcome implements java.io.Serializable {
 
   private long eventId;
   private boolean status = true;
@@ -48,7 +48,7 @@ public class Outcome {
   public void setError(String errorMessage) {
     this.status = false;
     this.errorMessage = errorMessage;
-    
+
   }
 
 }

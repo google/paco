@@ -11,7 +11,8 @@ import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestCo
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.sampling.experiential.datastore.JsonConverter;
 import com.google.sampling.experiential.shared.PacoService;
 
@@ -185,10 +186,10 @@ public class ExperimentServletHandlerTest extends TestCase {
 
     List<String> experimentsGroup1Names = Lists.newArrayList();
     for (int i=0; i < experiments.size(); i++) {
-      ExperimentDAO experimentDAO = experiments.get(i);
+      ExperimentDAOCore experimentDAO = experiments.get(i);
       experimentsGroup1Names.add(experimentDAO.getTitle());
     }
-    for (ExperimentDAO experimentDAO : experiments2) {
+    for (ExperimentDAOCore experimentDAO : experiments2) {
       assertTrue(experimentDAO.getTitle() + " should not be in first page of experiments", !experimentsGroup1Names.contains(experimentDAO.getTitle()));
     }
 

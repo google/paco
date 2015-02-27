@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model2.Schedule;
 
 /**
  * Panel that allows configuration of a weekly experiment schedule.
@@ -32,10 +32,10 @@ import com.google.paco.shared.model.SignalScheduleDAO;
  */
 public class WeeklyPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
   private MyConstants myConstants;
 
-  public WeeklyPanel(SignalScheduleDAO schedule) {
+  public WeeklyPanel(Schedule schedule) {
     myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -53,15 +53,6 @@ public class WeeklyPanel extends Composite {
     TimeListPanel timeListPanel = new TimeListPanel(schedule);
     verticalPanel.add(timeListPanel);
     timeListPanel.setWidth("286px");
-
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
-    verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
-
-    SnoozePanel snoozePanel = new SnoozePanel(schedule);
-    verticalPanel.add(snoozePanel);
-    snoozePanel.setWidth("286px");
-
   }
 
   private void createRepeatWeeklyPanel(VerticalPanel verticalPanel) {

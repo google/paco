@@ -71,4 +71,5 @@
   <entry-point class='com.google.sampling.experiential.client.DispatchEntryPoint'/>
   <source path='client'/>
   <source path='shared'/>
+  <add-linker name="xsiframe"/>
 </module>

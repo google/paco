@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Paco-Server"/>
 	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
 	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.0/lib/appengine-remote-api.jar"/>
+	<classpathentry kind="src" path="/Shared"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

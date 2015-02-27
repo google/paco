@@ -28,9 +28,9 @@ import com.google.sampling.experiential.model.SignalTime;
 import com.google.sampling.experiential.model.Trigger;
 import com.google.sampling.experiential.shared.TimeUtil;
 
-public class DAOConverter {
+public class DAOConverterOld {
 
-  private DAOConverter() {
+  private DAOConverterOld() {
     super();
   }
 

@@ -2,7 +2,7 @@
 
 <!--  <application>quantifiedself</application> -->
   <module>mapreduce</module>
-  <version>112</version>
+  <version>113</version>
   <threadsafe>true</threadsafe>
 
   <!-- Larger / higher memory instances are useful for their improved sorting performance -->

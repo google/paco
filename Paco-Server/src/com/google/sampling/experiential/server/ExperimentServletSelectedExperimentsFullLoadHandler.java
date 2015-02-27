@@ -8,7 +8,7 @@ import org.joda.time.DateTimeZone;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentDAO;
 
 public class ExperimentServletSelectedExperimentsFullLoadHandler extends ExperimentServletHandler {
 
@@ -33,7 +33,7 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
   }
 
   protected List<ExperimentDAO> getFullExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
-    return ExperimentCacheHelper.getInstance().getExperimentsById(experimentIds, email, timezone);
+    return ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentIds, email, timezone);
   }
 
   private List<Long> parseExperimentIds(String expStr) {

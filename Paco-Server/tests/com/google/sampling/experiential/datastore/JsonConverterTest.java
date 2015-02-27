@@ -1,13 +1,13 @@
 package com.google.sampling.experiential.datastore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentDAO;
 
 public class JsonConverterTest extends TestCase {
 
@@ -20,14 +20,13 @@ public class JsonConverterTest extends TestCase {
     experimentList = Lists.newArrayList();
     experimentList.add(new ExperimentDAO());
 
-    SignalingMechanismDAO[] signalingMechanisms = new SignalingMechanismDAO[1];
-    signalingMechanisms[0] = null;
-    String[] publishedAdmins = new String[1];
-    publishedAdmins[0] = "example@example.com";
+    List<ActionTrigger> signalingMechanisms = new java.util.ArrayList<ActionTrigger>();
+    ArrayList publishedAdmins = new java.util.ArrayList();
+    publishedAdmins.add("example@example.com");
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
-                                         signalingMechanisms, true, false, null , null, null,
-                                         null, null, false, publishedAdmins, publishedAdmins,
-                                         false, false, 1, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_STATIC_MESSAGE, false, (String)null, false, false, null));
+                                         null, null, null,
+                                         publishedAdmins, publishedAdmins,
+                                         false, 1, false, null, null));
   }
 
   public void testShortJsonifyShortening() throws Exception {
