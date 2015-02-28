@@ -51,23 +51,21 @@
 .input h2 button {
   float: right;
   font-size: 12px;
-  margin: 0;
+  margin-top: -4px;
+  margin-right: -6px;
 }
 
 .column0 {
   display: inline-block;
-  width: 200px;
+  vertical-align: top;
+  width: 250px;
 }
 
 .column1 {
   display: inline-block;
-  width: 500px;
+  vertical-align: top;
   margin-right: 24px;
-}
-
-.column2 {
-  display: inline-block;
-  width: 200px;
+  width: 650px;
 }
 
 .short {
@@ -103,6 +101,15 @@ md-card h2 {
   -webkit-user-select: none;
 }
 
+.list md-input-container {
+  display: inline-block;
+  width: 500px;
+}
+
+.list md-input-container input {
+  width: 100%;
+}
+
 .scheduling .days {
   margin-bottom: 24px;
 }
@@ -123,4 +130,8 @@ md-card h2 {
 
 .scheduling .inline {
   display: inline-block;
+}
+
+.scheduling md-radio-group {
+  border: none;
 }

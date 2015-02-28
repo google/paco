@@ -1,7 +1,7 @@
 <div class="input" ng-repeat="input in experiment.inputs">
   <h2>
     <label class="inline">Question {{$index + 1}}</label>
-    <md-button class="md-raised" ng-click="removeInput($index)">x</md-button>
+    <md-button class="md-raised" ng-click="removeInput($index)">Delete</md-button>
   </h2>
 
   <div class="padded">
@@ -12,69 +12,77 @@
           ng-repeat="type in responseTypes" value="{{type}}">{{type}}</option>
       </select>
 
-      <md-checkbox ng-model="input.invisibleInput" aria-label="Invisible">
-        Invisible
+      <md-checkbox ng-model="input.mandatory" aria-label="Mandatory">
+        Mandatory
       </md-checkbox>
+
+      <md-checkbox ng-model="input.conditional" aria-label="Conditional">
+        Conditional
+      </md-checkbox>
+      
+      <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections"
+         ng-if="input.responseType == 'list'">
+        Multiple selections
+      </md-checkbox>
+  
+    <div ng-if="input.conditional">
+      <md-input-container>
+        <label>Condition</label>
+        <input ng-model="input.conditionExpression">
+      </md-input-container>
+    </div>
+
     </div>
 
     <div class="column1">
-
       <md-input-container>
         <label>Question for the Participant</label>
         <input ng-model="input.text" md-maxlength="60">
       </md-input-container>
 
-      <md-checkbox ng-model="input.conditional" aria-label="Conditional">
-        Make this question conditional
-      </md-checkbox>
-
-    </div>
-    <div class="column2">
-
-      <md-input-container>
+      <md-input-container class="short">
         <label>Question {{$index + 1}} Label</label>
         <input ng-model="input.name">
       </md-input-container>
+    
+      <div class="likert" ng-if="input.responseType == 'likert'">
+        <md-input-container class="short">
+          <label>Likert Steps</label>
+          <input ng-model="input.likertSteps" type="number">
+        </md-input-container>
 
-      <md-checkbox ng-model="input.mandatory" aria-label="Mandatory">
-        Mandatory
-      </md-checkbox>
+        <md-input-container class="short">
+          <label>Left Side Label</label>
+          <input ng-model="input.leftSideLabel">
+        </md-input-container>
+
+        <md-input-container class="short">
+          <label>Right Side Label</label>
+          <input ng-model="input.rightSideLabel">
+        </md-input-container>
+      </div>
+
+      <div class="list" ng-if="input.responseType == 'list'">     
+
+        <div class="input" ng-repeat="choice in input.listChoices track by $index">
+          <md-input-container>
+            <label>Choice {{$index + 1}}</label>
+            <input ng-model="input.listChoices[$index]">
+          </md-input-container>
+          <md-button class="md-raised" ng-click="removeChoice(input.listChoices, $index)">Delete</md-button>
+        </div>
+
+        <md-button class="md-raised" ng-click="input.listChoices.push('')">New</md-button>
     </div>
 
-
-    <p ng-if="input.conditional">
-      <md-input-container>
-        <label>Condition</label>
-        <input ng-model="input.conditionExpression">
-      </md-input-container>
-    </p>
-
-    <div class="likert" ng-if="input.responseType == 'likert'">
-
-      <md-input-container class="short">
-        <label>Likert Steps</label>
-        <input ng-model="input.likertSteps" type="number">
-      </md-input-container>
-
-      <md-input-container class="short">
-        <label>Left Side Label</label>
-        <input ng-model="input.leftSideLabel">
-      </md-input-container>
-
-      <md-input-container class="short">
-        <label>Right Side Label</label>
-        <input ng-model="input.rightSideLabel">
-      </md-input-container>
-
     </div>
 
-    <div class="list" ng-if="input.responseType == 'list'">
+    <!-- <div class="list" ng-if="input.responseType == 'list'">
       <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections">
         Multiple selections
       </md-checkbox>
 
       <div class="input" ng-repeat="choice in input.listChoices track by $index">
-
         <md-input-container class="short">
           <label>Choice {{$index + 1}}</label>
           <input ng-model="input.listChoices[$index]">
@@ -83,7 +91,7 @@
       </div>
 
       <md-button class="md-raised" ng-click="input.listChoices.push('')">+</md-button>
+    </div> -->
 
-    </div>
   </div>
 </div>

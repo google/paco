@@ -1,6 +1,6 @@
 
-<!-- <div ng-repeat="experiment in db|limitTo:5"> -->
-<md-card>
+<!-- <div ng-repeat="experiment in db|limitTo:5">
+ --><md-card>
   <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
     <h2 ng-click="toggleExpand()">Group {{$index+1}} Scheduling</h2>
     <div class="scheduling" ng-controller="ScheduleCtrl" ng-show="expand"

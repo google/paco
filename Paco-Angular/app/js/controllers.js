@@ -44,7 +44,7 @@ app.controller('InputsCtrl', ['$scope', function($scope) {
 
 
 app.controller('ExpandCtrl', ['$scope', function($scope) {
-  $scope.expand = $scope.loaded;
+  $scope.expand = false;
 
   $scope.toggleExpand = function() {
     $scope.expand = !$scope.expand;
@@ -59,6 +59,8 @@ app.controller('ExpandCtrl', ['$scope', function($scope) {
 app.controller('ScheduleCtrl', ['$scope', function($scope) {
 
   $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
+  $scope.weeksOfMonth = ["First", "Second", "Third", "Fourth", "Fifth"];
+  $scope.esmPeriods = ["Day","Week","Month"];
   $scope.repeatRates = range(1, 30);
   $scope.daysOfMonth = range(1, 31);
 
@@ -97,7 +99,6 @@ app.controller('ScheduleCtrl', ['$scope', function($scope) {
       $scope.experiment.schedule.signalTimes = [{}]; 
     }
   });
-
 }]);
 
 

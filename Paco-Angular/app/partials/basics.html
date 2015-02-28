@@ -1,6 +1,9 @@
 <p>Let's define some of the basics for your experiment.</p>
 
-<h2>Title and Organization</h2>
+<md-card>
+  <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+
+<h2>Experiment Listing</h2>
 
 <md-input-container>
   <label>Title</label>
@@ -28,8 +31,8 @@
 
 <h2>Upload an image</h2>
   <div class="padded upload" file-dropzone="[image/png, image/jpeg, image/gif]"
-                  file="image" dragging="highlight" file-name="imageFileName" data-max-file-size="5">
-  <div class="dropzone" ng-style="{ 'background-image': image }" ng-class="{highlight: highlight}"></div>
+    file="image" dragging="highlight" file-name="imageFileName" data-max-file-size="5">
+  <div class="dropzone" ng-style="{'background-image': image}" ng-class="{highlight: highlight}"></div>
   <div class="x" ng-click="image=null" ng-show="image">x</div>
   <div class="text">
     <b>Choose an image from your computer</b>
@@ -37,3 +40,5 @@
     <p>Choose an image that best represents your experiment, and your organization for credibility.</p>
   </div>
 </div>
+  </md-card-content>
+</md-card>
