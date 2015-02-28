@@ -568,4 +568,13 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Click to close the custom script editor")
   String clickToCloseCustomScriptEditor();
 
+  @DefaultStringValue("This is an end-of-day group")
+  String endOfDayGroupLabel();
+
+  @DefaultStringValue("Specify the name of the group to which this group refers")
+  String endOfDayReferredGroupIdentifierLabel();
+
+  @DefaultStringValue("Group Name")
+  String experimentGroupNameLabel();
+
 }

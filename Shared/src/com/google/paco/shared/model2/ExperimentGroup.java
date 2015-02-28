@@ -10,8 +10,6 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
   private Boolean customRendering = false;
   private String customRenderingCode;
 
-  private Boolean webRecommended = false;
-
   private Boolean fixedDuration = false;
   private String startDate;
   private String endDate;
@@ -23,6 +21,9 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   private List<ActionTrigger> actionTriggers;
   private List<Input2> inputs;
+  private Boolean endOfDayGroup = false;
+  private String endOfDayReferredGroupName;
+
   private Feedback feedback;
   private Integer feedbackType;
 
@@ -83,14 +84,6 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setInputs(List<Input2> inputs) {
     this.inputs = inputs;
-  }
-
-  public Boolean getWebRecommended() {
-    return webRecommended;
-  }
-
-  public void setWebRecommended(Boolean webRecommended) {
-    this.webRecommended = webRecommended;
   }
 
   public Boolean getFixedDuration() {
@@ -170,14 +163,36 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
     }
     validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
-    validator.isNotNull(webRecommended, "webrecommended is not properly initialized");
+
     for (ActionTrigger actionTrigger : actionTriggers) {
       actionTrigger.validateWith(validator);
     }
+
     for (Input2 input : inputs) {
       input.validateWith(validator);
     }
+
+    validator.isNotNull(endOfDayGroup, "endOfDayGroup is not properly initialized");
+    if (endOfDayGroup != null && endOfDayGroup) {
+      validator.isNotNullAndNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
+    }
     feedback.validateWith(validator);
+  }
+
+  public Boolean getEndOfDayGroup() {
+    return endOfDayGroup;
+  }
+
+  public void setEndOfDayGroup(Boolean endOfDayGroup) {
+    this.endOfDayGroup = endOfDayGroup;
+  }
+
+  public String getEndOfDayReferredGroupName() {
+    return endOfDayReferredGroupName;
+  }
+
+  public void setEndOfDayReferredGroupName(String endOfDayReferredGroupName) {
+    this.endOfDayReferredGroupName = endOfDayReferredGroupName;
   }
 
 

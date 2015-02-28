@@ -133,10 +133,12 @@ public class ExperimentGroupPanel extends Composite {
   }
 
   private void createExperimentForm() {
-    PanelPair namePanelPair = createTitlePanel(group);
+    PanelPair namePanelPair = createNamePanel(group);
     createListMgmtButtons();
     namePanel = (TextBox) namePanelPair.valueHolder;
     formPanel.add(namePanelPair.container);
+
+    formPanel.add(createEndOfDayCheckPanel());
 
     VerticalPanel inputsContainerPanel = new VerticalPanel();
     inputsContainerPanel.setStyleName("bordered");
@@ -154,6 +156,10 @@ public class ExperimentGroupPanel extends Composite {
 
     formPanel.add(createFeedbackEntryPanel(group));
     formPanel.add(createListMgmtButtons());
+  }
+
+  private Widget createEndOfDayCheckPanel() {
+    return new EndOfDayCheckPanel(group);
   }
 
   private HorizontalPanel createListMgmtButtons() {
@@ -295,12 +301,12 @@ public class ExperimentGroupPanel extends Composite {
   }
 
 
-  private PanelPair createTitlePanel(ExperimentGroup group2) {
-    return createFormLine(myConstants.experimentTitle(), group2.getName(), "keyLabel");
+  private PanelPair createNamePanel(ExperimentGroup group2) {
+    return createFormLine(myConstants.experimentGroupNameLabel(), group2.getName(), "keyLabel");
   }
 
   private HTML createInputsHeader() {
-    HTML questionsPrompt = new HTML("<h2>" + myConstants.enterAtLeastOneQuestion() + ":</h2>");
+    HTML questionsPrompt = new HTML(myConstants.enterAtLeastOneQuestion() + ":");
     questionsPrompt.setStyleName("keyLabel");
     return questionsPrompt;
   }

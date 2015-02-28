@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 
 
@@ -193,9 +194,27 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     if (publishedUsers != null && !publishedUsers.isEmpty()) {
       validator.isValidCollectionOfEmailAddresses(publishedUsers, "published users should contain valid email addresses");
     }
+    List<String> groupNames = Lists.newArrayList();
+    List<ExperimentGroup> endOfDayGroups = Lists.newArrayList();
     for (ExperimentGroup group : groups) {
+      groupNames.add(group.getName());
       group.validateWith(validator);
+      if (group.getEndOfDayGroup()) {
+        endOfDayGroups.add(group);
+      }
     }
+
+    if (!endOfDayGroups.isEmpty()) {
+      for (ExperimentGroup experimentGroup : endOfDayGroups) {
+        String referredGroup = experimentGroup.getEndOfDayReferredGroupName();
+        if (referredGroup != null) {
+          validator.isTrue(groupNames.contains(referredGroup),
+                           "the group to which the end of day group refers does not exist");
+        }
+      }
+    }
+
+
     validator.isNotNull(version, "version is unspecified");
     if (version != null && version > 1) {
       validator.isNotNull(id, "editing an existing version, database id should not be null");

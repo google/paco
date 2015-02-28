@@ -40,6 +40,7 @@
 <inherits name="com.google.paco.shared.Shared" />
 <inherits name='edu.ycp.cs.dh.acegwt.AceGWT'/>
 <inherits name='com.google.gwt.maps.Maps' />
+ <inherits name="com.google.web.bindery.autobean.AutoBean"/> <!--  json preview -->
  
 <extend-property name="locale" values="fi"/>
  <extend-property name="locale" values="ja"/>

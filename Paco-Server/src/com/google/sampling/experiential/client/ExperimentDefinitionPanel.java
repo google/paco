@@ -50,6 +50,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.sampling.experiential.shared.LoginInfo;
+import com.google.web.bindery.autobean.shared.AutoBean;
+import com.google.web.bindery.autobean.shared.AutoBeanCodex;
+import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 
 /**
  * The main panel for viewing the details of an experiment Also used as the
@@ -241,6 +244,7 @@ public class ExperimentDefinitionPanel extends Composite {
     HorizontalPanel buttonPanel = new HorizontalPanel();
     buttonPanel.add(createSubmitButton(experiment));
     buttonPanel.add(createCancelButton());
+    buttonPanel.add(createPreviewButton(experiment));
     formPanel.add(buttonPanel);
   }
 
@@ -507,6 +511,38 @@ public class ExperimentDefinitionPanel extends Composite {
 
     });
     return whatButton;
+  }
+
+  private Widget createPreviewButton(final ExperimentDAO experiment) {
+
+    Button whatButton = new Button("Preview Json");
+    whatButton.addClickListener(new ClickListener() {
+
+      @Override
+      public void onClick(Widget sender) {
+        previewJson(experiment);
+      }
+
+    });
+    return whatButton;
+  }
+
+  public native String stringify(Object s) /*-{
+  return JSON.stringify(s, null, 2);
+}-*/;
+
+  public native void showPreview(String s) /*-{
+    var x=window.open();
+    x.document.open();
+    x.document.write(s);
+    x.document.close();
+  }-*/;
+
+  protected void previewJson(ExperimentDAO experiment2) {
+    AutoBean<ExperimentDAO> bean = AutoBeanUtils.getAutoBean(experiment2);
+    String json = AutoBeanCodex.encode(bean).getPayload();
+    //Window.open("<h2>Experiment json</h2><br>" + stringify(experiment2), "JSON Preview", null);
+    showPreview("<pre>" + stringify(experiment2) + "</pre>");
   }
 
   // Visible for testing
