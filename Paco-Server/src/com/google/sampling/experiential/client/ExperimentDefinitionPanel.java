@@ -102,6 +102,9 @@ public class ExperimentDefinitionPanel extends Composite {
   private List<String> errorMessagesToDisplay;
   private ExperimentGroupListPanel experimentGroupListPanel;
 
+  private TextBox organizationPanel;
+  private TextBox contactEmailPanel;
+
   public ExperimentDefinitionPanel(ExperimentDAO experiment, LoginInfo loginInfo, ExperimentListener listener) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
@@ -179,9 +182,18 @@ public class ExperimentDefinitionPanel extends Composite {
     titlePanel = (TextBox) titlePanelPair.valueHolder;
     formPanel.add(titlePanelPair.container);
 
+    PanelPair organizationPanelPair = createOrganizationPanel(experiment);
+    organizationPanel = (TextBox) organizationPanelPair.valueHolder;
+    formPanel.add(organizationPanelPair.container);
+
+    PanelPair contactEmailPanelPair = createContactEmailPanel(experiment);
+    contactEmailPanel = (TextBox) contactEmailPanelPair.valueHolder;
+    formPanel.add(contactEmailPanelPair.container);
+
     PanelPair creatorPanelPair = createCreatorPanel(experiment);
     creatorPanel = (Label) creatorPanelPair.valueHolder;
     formPanel.add(creatorPanelPair.container);
+
 
     formPanel.add(createIdPanel(experiment).container);
     formPanel.add(createVersionPanel(experiment).container);
@@ -235,6 +247,17 @@ public class ExperimentDefinitionPanel extends Composite {
     return createDisplayLine(myConstants.experimentCreator(),
                              experiment.getCreator() != null ? experiment.getCreator() : loginInfo.getEmailAddress());
   }
+
+  private PanelPair createOrganizationPanel(ExperimentDAOCore experiment) {
+    return createFormLine(myConstants.experimentOrganization(),
+                                 experiment.getOrganization(), "keyLabel");
+  }
+
+  private PanelPair createContactEmailPanel(ExperimentDAOCore experiment) {
+    return createFormLine(myConstants.experimentContactEmail(),
+                             experiment.getContactEmail(), "keyLabel");
+  }
+
 
   private PanelPair createInformedConsentPanel(ExperimentDAOCore experiment) {
     return createFormArea(myConstants.informedConsent(), experiment.getInformedConsentForm(), 100, "200");
@@ -413,6 +436,7 @@ public class ExperimentDefinitionPanel extends Composite {
     valueBox.setWidth("100%");
     line.add(keyLabel);
     line.add(valueBox);
+
     return new PanelPair(line, valueBox);
   }
 
@@ -636,6 +660,8 @@ public class ExperimentDefinitionPanel extends Composite {
   private void submitEvent(ExperimentDAO experiment) {
     try {
       setTitleOn(experiment);
+      setContactEmailOn();
+      setOrganizationOn();
       setDescriptionOn(experiment);
       setCreatorOn(experiment);
       setAdminsOn(experiment);
@@ -647,6 +673,14 @@ public class ExperimentDefinitionPanel extends Composite {
     } catch (Throwable t) {
       Window.alert("Throwable: " + t.getMessage());
     }
+  }
+
+  private void setOrganizationOn() {
+    experiment.setOrganization(organizationPanel.getText());
+  }
+
+  private void setContactEmailOn() {
+      experiment.setContactEmail(contactEmailPanel.getText());
   }
 
   private void setCreatorOn(ExperimentDAOCore experiment) {

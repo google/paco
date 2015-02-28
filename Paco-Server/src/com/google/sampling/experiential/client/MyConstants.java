@@ -577,4 +577,10 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Group Name")
   String experimentGroupNameLabel();
 
+  @DefaultStringValue("Organization Name")
+  String experimentOrganization();
+
+  @DefaultStringValue("Contact Email (support email for participants if different than creator email)")
+  String experimentContactEmail();
+
 }
