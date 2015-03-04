@@ -33,19 +33,23 @@
 - (id)initWithText:(NSString*)text andIcon:(NSString*)iconName{
   self = [super initWithFrame:CGRectZero];
   if (self) {
+    self.backgroundColor = [UIColor blueColor];
     if (iconName) {
       _icon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:iconName]];
       [self addSubview:_icon];
       [_icon sizeToFit];
     }
     _title = [[UILabel alloc] initWithFrame:CGRectZero];
+    
+    CGRect titleFrame = _title.frame;
     _title.text = text;
     _title.font = [UIFont pacoNavbarTitleFont];
     _title.textColor = [UIColor pacoDarkBlue];
-    _title.backgroundColor = [UIColor clearColor];
+    _title.backgroundColor = [UIColor redColor];
     _title.adjustsFontSizeToFitWidth = YES;
     _title.minimumScaleFactor = 0.8;
     [self addSubview:_title];
+    titleFrame = _title.frame;
     [_title sizeToFit];
   }
   return self;
@@ -69,6 +73,9 @@
   CGRect frame = self.frame;
   frame.origin.y = 8;
   frame.size = bounds2.size;
+  
+  //ISPIRO: Uncomment this line to prevent iPhone6+ from entering infinite loop
+  //frame.size.width = 97;
   self.frame = frame;
   [PacoLayout splitHorizontalRect:bounds2 xOffset:(_icon.frame.size.width + 20) leftOut:&left rightOut:&right];
   CGRect iconFrame = [PacoLayout centerRect:_icon.frame.size inRect:left];
