@@ -131,7 +131,6 @@
 		36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5F17568DAF004CF035 /* PacoTableCell.m */; };
 		36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB6117568DAF004CF035 /* PacoTableTextCell.m */; };
 		36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB6317568DAF004CF035 /* PacoTableView.m */; };
-		36B8EB8E17568DAF004CF035 /* PacoTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB6617568DAF004CF035 /* PacoTitleView.m */; };
 		36B8EBD617568E29004CF035 /* calculator.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9617568E29004CF035 /* calculator.png */; };
 		36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9717568E29004CF035 /* current_experiments_disabled.png */; };
 		36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9817568E29004CF035 /* current_experiments_focused.png */; };
@@ -217,6 +216,9 @@
 		7F8531DC1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531CF1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m */; };
 		7F8531DD1A37BE680028BA23 /* JCNotificationBannerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531D11A37BE680028BA23 /* JCNotificationBannerWindow.m */; };
 		7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531D31A37BE680028BA23 /* JCNotificationCenter.m */; };
+		7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607E1AA8C305008D2327 /* paco32@2x.png */; };
+		7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607F1AA8C305008D2327 /* paco32@3x.png */; };
+		7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -517,8 +519,6 @@
 		36B8EB6217568DAF004CF035 /* PacoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableView.h; sourceTree = "<group>"; };
 		36B8EB6317568DAF004CF035 /* PacoTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTableView.m; sourceTree = "<group>"; };
 		36B8EB6417568DAF004CF035 /* PacoTableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableViewDelegate.h; sourceTree = "<group>"; };
-		36B8EB6517568DAF004CF035 /* PacoTitleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTitleView.h; sourceTree = "<group>"; };
-		36B8EB6617568DAF004CF035 /* PacoTitleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTitleView.m; sourceTree = "<group>"; };
 		36B8EB9117568E22004CF035 /* Paco-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Paco-Info.plist"; sourceTree = "<group>"; };
 		36B8EB9617568E29004CF035 /* calculator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = calculator.png; sourceTree = "<group>"; };
 		36B8EB9717568E29004CF035 /* current_experiments_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_disabled.png; sourceTree = "<group>"; };
@@ -649,6 +649,9 @@
 		7F8531D11A37BE680028BA23 /* JCNotificationBannerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerWindow.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerWindow.m; sourceTree = "<group>"; };
 		7F8531D21A37BE680028BA23 /* JCNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationCenter.h; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.h; sourceTree = "<group>"; };
 		7F8531D31A37BE680028BA23 /* JCNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationCenter.m; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.m; sourceTree = "<group>"; };
+		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
+		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
+		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1124,10 +1127,9 @@
 				36B8EB6217568DAF004CF035 /* PacoTableView.h */,
 				36B8EB6317568DAF004CF035 /* PacoTableView.m */,
 				36B8EB6417568DAF004CF035 /* PacoTableViewDelegate.h */,
+				7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */,
 				E462379018F9F1E900610F56 /* PacoDatePickerView.h */,
 				E462379118F9F1E900610F56 /* PacoDatePickerView.m */,
-				36B8EB6517568DAF004CF035 /* PacoTitleView.h */,
-				36B8EB6617568DAF004CF035 /* PacoTitleView.m */,
 				368C2EDF178DFFBA00546918 /* PacoAlertView.h */,
 				368C2EE0178DFFBA00546918 /* PacoAlertView.m */,
 				369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */,
@@ -1174,6 +1176,8 @@
 				36B8EBAB17568E29004CF035 /* find_experiments_normal.png */,
 				36B8EBAC17568E29004CF035 /* find_experiments_pressed.png */,
 				36B8EBB517568E29004CF035 /* paco32.png */,
+				7FB6607E1AA8C305008D2327 /* paco32@2x.png */,
+				7FB6607F1AA8C305008D2327 /* paco32@3x.png */,
 				36B8EBB817568E29004CF035 /* question.png */,
 				36B8EBBB17568E29004CF035 /* smile_icon1.png */,
 				36B8EBBC17568E29004CF035 /* smile_icon1_re.png */,
@@ -1671,6 +1675,7 @@
 			files = (
 				4448BCDD1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
+				7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */,
 				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
@@ -1679,6 +1684,7 @@
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
+				7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */,
 				4448BCAA1A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */,
 				4448BCB61A808E7A0034FCE9 /* UnitTests-Info.plist in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
@@ -1697,6 +1703,7 @@
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
 				367171FD183AFE33005A5058 /* help.html in Resources */,
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
+				7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */,
 				E480BE201896F3E100662432 /* Localizable.strings in Resources */,
 				36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */,
 				36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */,
@@ -1812,7 +1819,6 @@
 				7F8531DA1A37BE680028BA23 /* JCNotificationBannerViewController.m in Sources */,
 				E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */,
 				4448BCA21A808E7A0034FCE9 /* GTMHTTPFetcher.m in Sources */,
-				36B8EB8E17568DAF004CF035 /* PacoTitleView.m in Sources */,
 				4448BCA41A808E7A0034FCE9 /* GTMHTTPFetcherLogViewController.m in Sources */,
 				36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */,
 				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
