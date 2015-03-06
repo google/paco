@@ -147,8 +147,10 @@ public class EventPanel extends Composite {
         }
         value = new HTML(new SafeHtmlBuilder().appendEscaped(valueString).toSafeHtml().asString());
       }
-      addColumnToGrid(grid, rowIndex, displayText, value);
-      rowIndex = rowIndex + 2;
+      if (valueString != null && valueString.length() > 0) {
+        addColumnToGrid(grid, rowIndex, displayText, value);
+        rowIndex = rowIndex + 2;
+      }
     }
   }
 
