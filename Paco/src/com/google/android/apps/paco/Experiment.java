@@ -35,6 +35,7 @@ import android.os.Parcelable;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model.TriggerDAO;
 
 public class Experiment implements Parcelable {
 
@@ -605,7 +606,7 @@ public class Experiment implements Parcelable {
     for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
       if (signalingMechanism instanceof Trigger) {
         Trigger trigger = (Trigger)signalingMechanism;
-        if (trigger.getEventCode() == Trigger.APP_USAGE || trigger.getEventCode() == Trigger.APP_CLOSED) {
+        if (trigger.getEventCode() == TriggerDAO.APP_USAGE || trigger.getEventCode() == TriggerDAO.APP_CLOSED) {
           return true;
         }
       }
@@ -710,7 +711,7 @@ public class Experiment implements Parcelable {
 		for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
 			if (signalingMechanism instanceof Trigger) {
 				Trigger trigger = (Trigger) signalingMechanism;
-				if (trigger.getEventCode() == Trigger.APP_CLOSED) {
+				if (trigger.getEventCode() == TriggerDAO.APP_CLOSED) {
 					return true;
 				}
 			}

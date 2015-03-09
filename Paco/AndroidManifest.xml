@@ -229,6 +229,7 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
                 <action android:name="android.intent.action.SCREEN_ON" />
                 <action android:name="android.intent.action.SCREEN_OFF" />    
+                <action android:name="com.android.music.playstatechanged" />
                 <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
             </intent-filter>
         </receiver>

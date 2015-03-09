@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.TriggerDAO;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
@@ -28,6 +29,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  private static final Object ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
 
 
 	@Override
@@ -38,7 +40,10 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerUserPresent(context, intent);
     } else if (intent.getAction().equals(PACO_TRIGGER_INTENT)) {
       triggerPacoTriggerReceived(context, intent);
+    } else if (intent.getAction().equals(ANDROID_PLAY_MUSIC_ACTION)) {
+      triggerMusicStateAction(context, intent);
     }
+    
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                                                     "Paco BroadcastTriggerService wakelock");
@@ -71,6 +76,17 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     };
     (new Thread(runnable)).start();
 
+  }
+
+  private void triggerMusicStateAction(Context context, Intent intent) {
+    if(intent.hasExtra("playing")) {
+      boolean playing = intent.getBooleanExtra("playing", false);
+      if (playing) {
+        triggerEvent(context, TriggerDAO.MUSIC_STARTED);
+      } else {
+        triggerEvent(context, TriggerDAO.MUSIC_STOPPED);
+      }
+    }    
   }
 
   protected void createScreenOnPacoEvents(Context context) {
@@ -366,7 +382,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     if (sourceIdentifier == null || sourceIdentifier.length() == 0) {
       Log.d(PacoConstants.TAG, "No source identifier specified for PACO_TRIGGER");
     } else {
-      triggerEvent(context, Trigger.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
+      triggerEvent(context, TriggerDAO.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
     }
   }
 
@@ -377,11 +393,11 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private void triggerUserPresent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "User present trigger");
-    triggerEvent(context, Trigger.USER_PRESENT);
+    triggerEvent(context, TriggerDAO.USER_PRESENT);
   }
 
   private void triggerPhoneHangup(Context context, Intent intent) {
-    triggerEvent(context, Trigger.HANGUP);
+    triggerEvent(context, TriggerDAO.HANGUP);
   }
 
   private void triggerEvent(Context context, int triggerEventCode) {

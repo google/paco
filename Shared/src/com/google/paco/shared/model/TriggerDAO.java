@@ -10,9 +10,11 @@ public class TriggerDAO extends SignalingMechanismDAO implements Serializable {
   public static final int PACO_ACTION_EVENT = 3;
   public static final int APP_USAGE = 4;
   public static final int APP_CLOSED = 5;
+  public static final int MUSIC_STARTED = 6;
+  public static final int MUSIC_STOPPED = 7;
 
-  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE, APP_CLOSED};
-  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT", "Paco Action", "App Started", "App Stopped"};
+  public static final int[] EVENTS = new int[] {HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE, APP_CLOSED, MUSIC_STARTED, MUSIC_STOPPED};
+  public static final String[] EVENT_NAMES = new String[] {"HANGUP", "USER_PRESENT", "Paco Action", "App Started", "App Stopped", "Music Started", "Music Stopped"};
 
   private int eventCode;
   private long delay = 5000;

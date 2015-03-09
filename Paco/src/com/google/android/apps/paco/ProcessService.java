@@ -20,6 +20,7 @@ import android.util.Log;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model.TriggerDAO;
 
 public class ProcessService extends Service {
 
@@ -214,12 +215,12 @@ public class ProcessService extends Service {
 
         private void triggerAppUsed(String appIdentifier) {
           Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
-          triggerCodeForAppTrigger(appIdentifier, Trigger.APP_USAGE);
+          triggerCodeForAppTrigger(appIdentifier, TriggerDAO.APP_USAGE);
         }
         
         private void triggerAppClosed(String appIdentifier) {
             Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
-            triggerCodeForAppTrigger(appIdentifier, Trigger.APP_CLOSED);
+            triggerCodeForAppTrigger(appIdentifier, TriggerDAO.APP_CLOSED);
           }
 
 		private void triggerCodeForAppTrigger(String appIdentifier,
