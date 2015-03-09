@@ -20,7 +20,6 @@
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
-#import "PacoTitleView.h"
 #import "PacoClient.h"
 #import "PacoContactUsViewController.h"
 #import "PacoWebViewController.h"
@@ -39,8 +38,8 @@
 {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
-    self.navigationItem.titleView = title;
+    NSArray *nibContents = [[NSBundle mainBundle] loadNibNamed:@"PacoTitleView" owner:nil options:nil];
+    self.navigationItem.titleView = [nibContents lastObject];
 
     UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
     [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
