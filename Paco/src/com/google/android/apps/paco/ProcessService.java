@@ -52,7 +52,9 @@ public class ProcessService extends Service {
         public void run() {
           running = true;
           List<String> tasksOfInterest = initializeTasksToWatch();
-          List<String> previousTaskNames = null;
+          List<String> previousTaskNames = null;          
+          List<String> tasksOfInterestForClosing = initializeCloseTriggerTasksToWatch();          
+          
           boolean inBrowser = BroadcastTriggerReceiver.isInBrowser(getApplicationContext());
 
           try {
@@ -74,8 +76,13 @@ public class ProcessService extends Service {
                     BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), false);
                     BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
                   }
-                  createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
-
+                  
+                  if (newlyUsedTasks.size() > 0) {
+                    createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
+                    createTriggerForNewlyStoppedTaskOfInterest(newlyUsedTasks.get(0));
+                    markNewlyUsedTaskToWatchForClosing(tasksOfInterestForClosing, newlyUsedTasks.get(0));
+                  }
+                  
                   if (BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
                     logProcessesUsedSinceLastPolling(newlyUsedTasks);
                   }
@@ -103,6 +110,14 @@ public class ProcessService extends Service {
           }
         }
 
+        private void markNewlyUsedTaskToWatchForClosing(List<String> tasksOfInterestForClosing,
+                                                         String mruTask) {
+          if (tasksOfInterestForClosing.contains(mruTask)) {
+            BroadcastTriggerReceiver.setAppToWatchStarted(getApplicationContext(), mruTask);
+          }
+                   
+        }
+
         private boolean isBrowserTask(String topTask) {
           return topTask.equals("com.android.browser/com.android.browser.BrowserActivity")
                  || topTask.startsWith("com.android.chrome/") || topTask.startsWith("org.mozilla.firefox/");
@@ -118,10 +133,21 @@ public class ProcessService extends Service {
               tasksToSendTrigger.add(taskName);
             }
           }
+          
           for (String taskName : tasksToSendTrigger) {
             triggerAppUsed(taskName);
           }
+          
         }
+
+        private void createTriggerForNewlyStoppedTaskOfInterest(String mruTask) {         
+          String appStarted = BroadcastTriggerReceiver.getAppToWatch(getApplicationContext());
+          if (appStarted != null && !mruTask.equals(appStarted)) {
+            BroadcastTriggerReceiver.unsetAppToWatchStarted(getApplicationContext());
+            triggerAppClosed(appStarted);
+          }
+        }
+
 
         protected List<String> checkForNewlyUsedTasks(List<String> lastTaskNames, List<String> tasksOfInterest,
                                                       List<String> recentTaskNames) {
@@ -164,6 +190,27 @@ public class ProcessService extends Service {
               if (trigger != null) {
                 tasks.add(trigger.getSourceIdentifier());
               }
+            } else if (!experiment.isOver(now) && experiment.hasAppStartTrigger()) {
+            	Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
+                if (trigger != null) {
+                  tasks.add(trigger.getSourceIdentifier());                  
+                }	
+            }
+          }
+          return tasks;
+        }
+        
+        private List<String> initializeCloseTriggerTasksToWatch() {
+          List<String> tasks = Lists.newArrayList();
+          ExperimentProviderUtil eu = new ExperimentProviderUtil(ProcessService.this);
+          DateTime now = new DateTime();
+          List<Experiment> joined = eu.getJoinedExperiments();
+          for (Experiment experiment : joined) {
+            if (!experiment.isOver(now) && experiment.hasAppCloseTrigger()) {
+              Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
+              if (trigger != null) {
+                tasks.add(trigger.getSourceIdentifier());
+              }
             }
           }
           return tasks;
@@ -171,14 +218,31 @@ public class ProcessService extends Service {
 
         private void triggerAppUsed(String appIdentifier) {
           Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
-          Context context = getApplicationContext();
-          Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
-          broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME,
-                                                 DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
-          broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, Trigger.APP_USAGE);
-          broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_SOURCE_IDENTIFIER, appIdentifier);
-          context.startService(broadcastTriggerServiceIntent);
+          int triggerCode = Trigger.APP_USAGE;
+          triggerCodeForAppTrigger(appIdentifier, triggerCode);
         }
+        
+        private void triggerAppStarted(String appIdentifier) {
+            triggerAppUsed(appIdentifier);
+          }
+        
+        private void triggerAppClosed(String appIdentifier) {
+            Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+            int triggerCode = Trigger.APP_USAGE;
+            triggerCodeForAppTrigger(appIdentifier, triggerCode);
+          }
+
+		private void triggerCodeForAppTrigger(String appIdentifier,
+				int triggerCode) {
+			Context context = getApplicationContext();
+			  Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
+			  broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME,
+			                                         DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
+			  
+			broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, triggerCode);
+			  broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_SOURCE_IDENTIFIER, appIdentifier);
+			  context.startService(broadcastTriggerServiceIntent);
+		}
 
       };
       (new Thread(runnable)).start();

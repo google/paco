@@ -402,5 +402,25 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     context.startService(broadcastTriggerServiceIntent);
   }
 
+  public static void setAppToWatchStarted(Context context, String newTask) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.putString("ClosedAppTriggerStarted", newTask);
+    editor.commit();    
+  }
+  
+  public static String getAppToWatch(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    return prefs.getString("ClosedAppTriggerStarted", null);
+  }
+
+  
+  public static void unsetAppToWatchStarted(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.remove("ClosedAppTriggerStarted");
+    editor.commit();    
+  }
+
 
 }

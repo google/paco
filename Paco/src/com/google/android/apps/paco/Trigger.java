@@ -11,6 +11,8 @@ public class Trigger extends SignalingMechanism {
   public static final int USER_PRESENT = 2;
   public static final int PACO_ACTION_EVENT = 3;
   public static final int APP_USAGE = 4;
+  public static final int APP_STARTED = 5;
+  public static final int APP_CLOSED = 6;
 
 
   public static final Map<Integer, String> EVENT_NAMES;
@@ -20,6 +22,8 @@ public class Trigger extends SignalingMechanism {
     EVENT_NAMES.put(USER_PRESENT, "User Present");
     EVENT_NAMES.put(PACO_ACTION_EVENT, "Paco Action");
     EVENT_NAMES.put(APP_USAGE, "App Usage");
+    EVENT_NAMES.put(APP_USAGE, "App Started");
+    EVENT_NAMES.put(APP_USAGE, "App Closed");
   }
 
 
