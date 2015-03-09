@@ -12,10 +12,10 @@ pacoApp.config(['$routeProvider',
       controller: 'ExperimentCtrl',
     }).
     when('/experiment/', {
-      redirectTo: '/experiment/1'
+      redirectTo: '/experiment/0'
     }).
     otherwise({
-      redirectTo: '/experiment/1'
+      redirectTo: '/experiment/0'
     });
   }]);
 

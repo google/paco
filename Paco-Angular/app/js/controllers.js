@@ -6,26 +6,34 @@ var app = angular.module('pacoControllers', []);
 app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
 
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
-  $scope.previousIdx = -1;
-  $scope.nextIdx = -1;
   $scope.selectedIndex = 1;
   $scope.loaded = false;
 
-  $http.get('js/experiments.json').success(function(data) {
+  $http.get('js/experiment.json').success(function(data) {
     $scope.experiment = data[$scope.experimentIdx];
-    $scope.db = data;
+    //$scope.db = data;
     
-    if ($scope.experimentIdx < data.length - 1) {
-      $scope.nextIdx = $scope.experimentIdx + 1;
-    }
+    // if ($scope.experimentIdx < data.length - 1) {
+    //   $scope.nextIdx = $scope.experimentIdx + 1;
+    // }
 
-    if ($scope.experimentIdx > 0) {
-      $scope.previousIdx = $scope.experimentIdx - 1;
-    }
+    // if ($scope.experimentIdx > 0) {
+    //   $scope.previousIdx = $scope.experimentIdx - 1;
+    // }
     
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');
   });
+
+  $scope.addInput = function(inputs,event) {
+    inputs.push({});
+    event.stopPropagation();
+  }
+
+
+  $scope.removeGroup = function(groups, idx) {
+    groups.splice(idx, 1);
+  };
 }]);
 
 
@@ -33,13 +41,20 @@ app.controller('InputsCtrl', ['$scope', function($scope) {
 
   $scope.responseTypes = ["likert", "likert_smileys", "open text", "list", "photo", "location"];
 
-  $scope.removeInput = function(idx) {
-    $scope.experiment.inputs.splice(idx, 1);
+  $scope.removeInput = function(input, idx) {
+    input.splice(idx, 1);
   };
 
   $scope.removeChoice = function(input, idx) {
     input.splice(idx, 1);
   };
+
+  $scope.addChoice = function(input) {
+    if (input.listChoices === undefined) {
+      input.listChoices = [];
+    }
+    input.listChoices.push('');
+  }
 }]);
 
 

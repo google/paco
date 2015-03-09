@@ -1,17 +1,56 @@
+<div class="groups">
+  <div class="group" ng-repeat="group in experiment.groups">
 
-<!-- <div ng-repeat="experiment in db|limitTo:5">
- --><md-card>
-  <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
-    <h2 ng-click="toggleExpand()">Group {{$index+1}} Scheduling</h2>
-    <div class="scheduling" ng-controller="ScheduleCtrl" ng-show="expand"
-    ng-include="'/partials/schedule.html'"></div>
-  </md-card-content>
+    <div class="header" ng-if="experiment.groups.length>1">
+      <md-input-container ng-if="experiment.groups.length>1">
+        <label>Group {{$index+1}}</label>
+        <input ng-model="group.name">
+      </md-input-container>
+      <a href="" class="removeGroup" ng-click="removeGroup(experiment.groups,$index)"></a>
+    </div>
 
-  <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
-    <md-divider></md-divider>
-    <h2 ng-click="toggleExpand()">Group {{$index+1}} Inputs</h2>
-    <div  ng-controller="InputsCtrl"  ng-show="expand" 
-      ng-include="'/partials/inputs.html'"></div>
-  </md-card-content>
-</md-card>
-<!-- </div> -->
+    <md-card>
+      <md-card-content ng-repeat="trigger in group.actionTriggers" 
+        ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span> Triggers
+          </div>
+          <md-button add-icon
+            ng-click="experiment.groups.push({});$event.stopPropagation()">
+            Scheduled Trigger
+          </md-button>
+          <md-button add-icon
+            ng-click="experiment.groups.push({});$event.stopPropagation()">
+            Event Trigger
+          </md-button>
+        </div>
+
+        <div ng-repeat="schedule in trigger.schedules" class="scheduling" 
+          ng-controller="ScheduleCtrl" ng-show="expand" 
+          ng-include="'/partials/schedule.html'">
+        </div>
+      </md-card-content>
+
+      <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+        <md-divider></md-divider>
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Inputs
+          </div>
+          <md-button add-icon
+            ng-click="addInput(group.inputs,$event);">
+            Input
+          </md-button>
+        </div>
+        <div ng-controller="InputsCtrl" ng-show="expand" 
+          ng-include="'/partials/inputs.html'">
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <md-button class="md-raised" ng-click="experiment.groups.push({})">
+    Add Experiment Group
+  </md-button>
+</div>

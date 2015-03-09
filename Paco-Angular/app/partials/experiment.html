@@ -1,41 +1,36 @@
 <md-toolbar class="md-tall">
 
-    <img src="img/paco256.png" class="paco">
-    <span class="title">Paco</span>
-    <span class="subtitle">The Personal Analytics Companion</span>
-  
-    <nav>
+  <img src="img/paco256.png" class="paco">
+  <span class="title">Paco</span>
+  <span class="subtitle">The Personal Analytics Companion</span>
+
+  <!--     <nav>
       <a href="#/experiment/{{previousIdx}}" ng-show="previousIdx != -1">&lt;</a>
       <a href="#/experiment/{{nextIdx}}" ng-show="nextIdx != -1">&gt;</a>
-    </nav>
+    </nav> -->
 
 </md-toolbar>
 
 <md-tabs class="md-accent" md-selected="selectedIndex">
-    <md-tab id="tab1">
-        Basics
-    </md-tab>
-    <md-tab id="tab2">
-        Questions
-    </md-tab>
-    <md-tab id="tab3">
-        Admin
-    </md-tab>
-    <md-tab id="tab4">
-        Consent
-    </md-tab>
-    <md-tab id="tab5">
-        Preview
-    </md-tab>
-
-  <!--   <md-button class="md-raised">
-      Publish
-    </md-button> -->
-
+  <md-tab id="tab1">
+    Basics
+  </md-tab>
+  <md-tab id="tab2">
+    Questions
+  </md-tab>
+  <md-tab id="tab3">
+    Admin
+  </md-tab>
+  <md-tab id="tab4">
+    Consent
+  </md-tab>
+  <md-tab id="tab5">
+    Preview
+  </md-tab>
 </md-tabs>
 
 <ng-switch on="selectedIndex" class="tabpanel-container">
-  <div role="tabpanel"  ng-switch-when="0">
+  <div role="tabpanel" ng-switch-when="0">
     <div ng-include="'/partials/basics.html'" class="basics"></div>
   </div>
   <div role="tabpanel" ng-switch-when="1">
@@ -54,5 +49,3 @@
     <div ng-include="'/partials/consent.html'" class="padded"></div>
   </div>
 </ng-switch>
-
-

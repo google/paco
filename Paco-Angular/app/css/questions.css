@@ -41,6 +41,16 @@
   width: 200px;
 }
 
+.choice {
+  position: relative;
+}
+
+.choice .remove-button {
+  position: absolute;
+  top: 32px;
+  right: -40px;
+}
+
 .input h2 {
   background: #E8EAF6;
   font-weight: 300;
@@ -48,12 +58,27 @@
   margin: 0;
 }
 
-.input h2 button {
+.remove-button {
+  background: url('/img/ic_clear_24px.svg') no-repeat;
   float: right;
-  font-size: 12px;
-  margin-top: -4px;
-  margin-right: -6px;
+  height: 24px;
+  opacity: .5;
+  width: 24px;
 }
+
+.add-button {
+  background: url('/img/ic_add_circle_outline_24px.svg') no-repeat;
+  float: right;
+  height: 24px;
+  margin-right: 8px;
+  opacity: .5;
+  width: 24px;
+}
+
+.remove-button:hover, .add-button:hover {
+  opacity: 1;
+}
+
 
 .column0 {
   display: inline-block;
@@ -73,6 +98,35 @@
   display: inline-block;
 }
 
+.groups > button {
+  margin: 16px;
+}
+
+.group {
+  margin-top: 32px;
+  position: relative;
+}
+
+.group .removeGroup {
+  background: url('/img/ic_clear_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  position: absolute;
+  right: 31px;
+  top: 31px;
+  width: 26px;
+}
+
+.group .removeGroup:hover {
+  opacity: 1;
+}
+
+.group .header > md-input-container {
+  margin: 16px;
+  padding-bottom: 0;
+  width: 200px
+}
+
 md-card {
   background: white;
   margin: 16px;
@@ -80,30 +134,44 @@ md-card {
 }
 
 md-card-content {
+  position: relative;
+}
+
+md-card-content::after {
   background: url('/img/ic_unfoldMore.svg') no-repeat;
-  background-position: calc(100% - 16px) 16px;
+  content: "";
+  height: 24px;
+  opacity: .5;
+  pointer-events: none;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 24px;
+}
+
+md-card-content:hover::after {
+  opacity: 1;
+}
+
+md-card-content.expand::after  {
+  background: url('/img/ic_unfoldLess.svg') no-repeat;
 }
 
 md-card md-card-content {
   padding: 0;
 }
 
-md-card.expand, md-card-content.expand  {
-  background: url('/img/ic_unfoldLess.svg') no-repeat;
-  background-position: calc(100% - 16px) 16px;
-}
-
-md-card h2 {
+md-card .section {
   cursor: pointer;
-  margin: 16px;
   font-size: 18px;
   font-weight: 400;
+  padding: 0 16px 16px 16px;
   -webkit-user-select: none;
 }
 
-.list md-input-container {
+md-card .section .title {
   display: inline-block;
-  width: 500px;
+  width: 200px
 }
 
 .list md-input-container input {

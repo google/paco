@@ -1,156 +1,150 @@
 <div class="column0">
+  <div>
+    <select ng-model="schedule.scheduleType">
+      <option value="" disabled selected>Signal Schedule</option>
+      <option ng-selected="{{$index==schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">{{type}}</option>
+    </select>
+  </div>
 
-<div>
-  <select ng-model="experiment.schedule.scheduleType">
-    <option value="" disabled selected>Signal Schedule</option>
-    <option ng-selected="{{$index==experiment.schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">{{type}}</option>
-  </select>
-</div>
+  <div class="snooze" ng-if="schedule.scheduleType < 5">
 
-<div class="snooze" ng-if="experiment.schedule.scheduleType < 5">
+    <md-input-container>
+      <label>Timeout</label>
+      <input type="number" min=0 max=479 ng-model="schedule.timeout">
+    </md-input-container>
 
-  <md-input-container>
-    <label>Timeout</label>
-    <input type="number" min=0 max=479 ng-model="experiment.schedule.timeout">
-  </md-input-container>
+    <md-input-container ng-if="schedule.scheduleType == 4">
+      <label>Minimum between</label>
+      <input type="number" ng-model="schedule.minimumBuffer">
+    </md-input-container>
 
-  <md-input-container ng-if="experiment.schedule.scheduleType == 4">
-    <label>Minimum between</label>
-    <input type="number" ng-model="experiment.schedule.minimumBuffer">
-  </md-input-container>
+    <md-input-container>
+      <label>Snooze repeats</label>
+      <input type="number" min=0 max=1 ng-model="schedule.snoozeCount">
+    </md-input-container>
 
-  <md-input-container>
-    <label>Snooze repeats</label>
-    <input type="number" min=0 max=1 ng-model="experiment.schedule.snoozeCount">
-  </md-input-container>
+    <md-input-container>
+      <label>Snooze time</label>
+      <input type="number" ng-model="schedule.snoozeTimeInMinutes">
+    </md-input-container>
 
-  <md-input-container>
-    <label>Snooze time</label>
-    <input type="number" ng-model="experiment.schedule.snoozeTimeInMinutes">
-  </md-input-container>
+    <md-checkbox ng-model="schedule.userEditable" aria-label="User editable">
+      User editable
+    </md-checkbox>
 
-  <md-checkbox ng-model="experiment.schedule.userEditable" aria-label="User editable">
-    User editable
-  </md-checkbox>
-
-  <md-checkbox ng-model="experiment.schedule.onlyEditableOnJoin" aria-label="User editable on join">
-    Editable on Join
-  </md-checkbox>
-</div>
-
-
-
+    <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable on join">
+      Editable on Join
+    </md-checkbox>
+  </div>
 </div>
 
 <div class="column1">
 
-<div ng-if="experiment.schedule.scheduleType==0">
-  Repeat every
-  <select ng-model="experiment.schedule.repeatRate">
-    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
-  </select>
-  days
-</div>
+  <div ng-if="schedule.scheduleType==0">
+    Repeat every
+    <select ng-model="schedule.repeatRate">
+      <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+    </select>
+    days
+  </div>
 
-<div ng-if="experiment.schedule.scheduleType==2">
-  Repeat every
-  <select ng-model="experiment.schedule.repeatRate">
-    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
-  </select>
-  weeks
-</div>
+  <div ng-if="schedule.scheduleType==2">
+    Repeat every
+    <select ng-model="schedule.repeatRate">
+      <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+    </select>
+    weeks
+  </div>
 
-<div ng-if="experiment.schedule.scheduleType==3">
-  Repeat every
-  <select ng-model="experiment.schedule.repeatRate">
-    <option ng-selected="{{rate == experiment.schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
-  </select>
-  months
-</div>
+  <div ng-if="schedule.scheduleType==3">
+    Repeat every
+    <select ng-model="schedule.repeatRate">
+      <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates" value="{{rate}}">{{rate}}</option>
+    </select>
+    months
+  </div>
 
-<div ng-if="experiment.schedule.scheduleType==3">
-  <md-radio-group ng-model="experiment.schedule.byDayOfMonth">
-    
-    <div>
-    <md-radio-button value="true" class="inline">Day of Month</md-radio-button>
-      <select ng-model="experiment.schedule.dayOfMonth" ng-if="experiment.schedule.byDayOfMonth=='true'">
-        <option ng-selected="{{day == experiment.schedule.dayOfMonth}}" ng-repeat="day in daysOfMonth" value="{{day}}">{{day}}</option>
-      </select>
-    </div>
-    <div>
-      <md-radio-button value="false" class="inline">Day of Week </md-radio-button>
-      <select ng-init="experiment.schedule.weekOfMonth=0" ng-model="experiment.schedule.weekOfMonth" ng-if="experiment.schedule.byDayOfMonth=='false'">
-        <option ng-repeat="week in weeksOfMonth" value="{{$index}}">{{week}}</option>
-      </select>
-    </div>
+  <div ng-if="schedule.scheduleType==3">
+    <md-radio-group ng-model="schedule.byDayOfMonth">
 
-  </md-radio-group>
-</div>
+      <div>
+        <md-radio-button value="true" class="inline">Day of Month</md-radio-button>
+        <select ng-model="schedule.dayOfMonth" ng-if="schedule.byDayOfMonth=='true'">
+          <option ng-selected="{{day == schedule.dayOfMonth}}" ng-repeat="day in daysOfMonth" value="{{day}}">{{day}}</option>
+        </select>
+      </div>
+      <div>
+        <md-radio-button value="false" class="inline">Day of Week </md-radio-button>
+        <select ng-init="schedule.weekOfMonth=0" ng-model="schedule.weekOfMonth" ng-if="schedule.byDayOfMonth=='false'">
+          <option ng-repeat="week in weeksOfMonth" value="{{$index}}">{{week}}</option>
+        </select>
+      </div>
 
-
-
-<div ng-if="experiment.schedule.scheduleType==2 || (experiment.schedule.scheduleType==3 && experiment.schedule.byDayOfMonth=='false')" class="days">
-  Repeat on ({{experiment.schedule.weekDaysScheduled}})
-  <md-checkbox ng-model="experiment.schedule.days[0]">Su</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[1]">M</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[2]">Tu</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[3]">W</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[4]">Th</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[5]">F</md-checkbox>
-  <md-checkbox ng-model="experiment.schedule.days[6]">Sa</md-checkbox>
-</div>
-
-<div ng-repeat="time in experiment.schedule.signalTimes" 
-  ng-if="experiment.schedule.scheduleType >= 0 && experiment.schedule.scheduleType <= 3">
-
-  <md-input-container class="short">
-    <label>Time {{time.fixedTimeMillisFromMidnight}}</label>
-    <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
-  </md-input-container>
-
-  <md-input-container class="short">
-    <label>Label</label>
-    <input type="text" ng-model="time.label">
-  </md-input-container>
-
-  <md-button class="md-raised" ng-click="removeTime(experiment.schedule.signalTimes, $index)" 
-    ng-disabled="experiment.schedule.signalTimes.length <= 1">Delete
-  </md-button>
-  <md-button class="md-raised" ng-click="addTime(experiment.schedule.signalTimes, $index)">New</md-button>
-</div>
+    </md-radio-group>
+  </div>
 
 
-<div ng-if="experiment.schedule.scheduleType==4">
 
-  <md-input-container class="short">
-    <label>Frequency</label>
-    <input type="number" min="0" max="100" ng-model="experiment.schedule.esmFrequency">
-  </md-input-container>
+  <div ng-if="schedule.scheduleType==2 || (schedule.scheduleType==3 && schedule.byDayOfMonth=='false')" class="days">
+    Repeat on ({{schedule.weekDaysScheduled}})
+    <md-checkbox ng-model="schedule.days[0]">Su</md-checkbox>
+    <md-checkbox ng-model="schedule.days[1]">M</md-checkbox>
+    <md-checkbox ng-model="schedule.days[2]">Tu</md-checkbox>
+    <md-checkbox ng-model="schedule.days[3]">W</md-checkbox>
+    <md-checkbox ng-model="schedule.days[4]">Th</md-checkbox>
+    <md-checkbox ng-model="schedule.days[5]">F</md-checkbox>
+    <md-checkbox ng-model="schedule.days[6]">Sa</md-checkbox>
+  </div>
 
-  <select ng-model="experiment.schedule.esmPeriodInDays">
-    <option value="1">Day</option>
-    <option value="7">Week</option>
-    <option value="30">Month</option>
-  </select>
+  <div ng-repeat="time in schedule.signalTimes" ng-if="schedule.scheduleType >= 0 && schedule.scheduleType <= 3">
 
-  <div>
     <md-input-container class="short">
-      <label>Start Time {{experiment.schedule.esmStartHour}}</label>
-      <input type="time" milli ng-model="experiment.schedule.esmStartHour">
+      <label>Time {{time.fixedTimeMillisFromMidnight}}</label>
+      <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
     </md-input-container>
 
     <md-input-container class="short">
-      <label>End Time {{experiment.schedule.esmEndHour}}</label>
-      <input type="time" milli ng-model="experiment.schedule.esmEndHour">
+      <label>Label</label>
+      <input type="text" ng-model="time.label">
     </md-input-container>
-    
-    <md-checkbox ng-model="experiment.schedule.esmWeekends" aria-label="Include weekends">
-      Include weekends
-    </md-checkbox>
+
+    <md-button class="md-raised" ng-click="removeTime(schedule.signalTimes, $index)" ng-disabled="schedule.signalTimes.length <= 1">Delete
+    </md-button>
+    <md-button class="md-raised" ng-click="addTime(schedule.signalTimes, $index)">New</md-button>
+  </div>
+
+
+  <div ng-if="schedule.scheduleType==4">
+
+    <md-input-container class="short">
+      <label>Frequency</label>
+      <input type="number" min="0" max="100" ng-model="schedule.esmFrequency">
+    </md-input-container>
+
+    <select ng-model="schedule.esmPeriodInDays">
+      <option value="1">Day</option>
+      <option value="7">Week</option>
+      <option value="30">Month</option>
+    </select>
+
+    <div>
+      <md-input-container class="short">
+        <label>Start Time {{schedule.esmStartHour}}</label>
+        <input type="time" milli ng-model="schedule.esmStartHour">
+      </md-input-container>
+
+      <md-input-container class="short">
+        <label>End Time {{schedule.esmEndHour}}</label>
+        <input type="time" milli ng-model="schedule.esmEndHour">
+      </md-input-container>
+
+      <md-checkbox ng-model="schedule.esmWeekends" aria-label="Include weekends">
+        Include weekends
+      </md-checkbox>
+
+    </div>
 
   </div>
-  
-</div>
 
 
 
