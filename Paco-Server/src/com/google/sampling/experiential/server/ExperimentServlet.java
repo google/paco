@@ -32,7 +32,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
@@ -174,7 +173,7 @@ public class ExperimentServlet extends HttpServlet {
 
       logPacoClientVersion(req);
 
-      String email = getEmailOfUser(req, user);
+      String email = AuthUtil.getEmailOfUser(req, user);
 
       String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
@@ -235,33 +234,6 @@ public class ExperimentServlet extends HttpServlet {
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
-  }
-
-  private String getEmailOfUser(HttpServletRequest req, User user) {
-    String email = user != null ? user.getEmail() : null;
-    if (email == null) {
-      throw new IllegalArgumentException("User not logged in");
-    }
-    if (isDevInstance(req)) {
-      if ("example@example.com".equalsIgnoreCase(email)) {
-        throw new IllegalArgumentException("You need to specify a test acct to return when testing mobile clients.");
-        // uncomment the line below and put in the test acct. This is necessary because the dev appengine server
-        // only returns example@example.com as the user!!
-        //return "<your test google acct here";
-      } else {
-        User currentUser = UserServiceFactory.getUserService().getCurrentUser();
-        if (currentUser != null) {
-          return currentUser.getEmail().toLowerCase();
-        } else {
-          return null;
-        }
-      }
-    }
-    return email.toLowerCase();
-  }
-
-  public static boolean isDevInstance(HttpServletRequest req) {
-    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
   @Override

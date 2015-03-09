@@ -79,8 +79,9 @@ public class ProcessService extends Service {
                   
                   if (newlyUsedTasks.size() > 0) {
                     createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
-                    createTriggerForNewlyStoppedTaskOfInterest(newlyUsedTasks.get(0));
                     markNewlyUsedTaskToWatchForClosing(tasksOfInterestForClosing, newlyUsedTasks.get(0));
+                    createTriggerForNewlyStoppedTaskOfInterest(newlyUsedTasks.get(0));
+                    
                   }
                   
                   if (BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
@@ -135,7 +136,7 @@ public class ProcessService extends Service {
           }
           
           for (String taskName : tasksToSendTrigger) {
-            triggerAppUsed(taskName);
+            triggerAppUsed(taskName); 
           }
           
         }
@@ -190,11 +191,6 @@ public class ProcessService extends Service {
               if (trigger != null) {
                 tasks.add(trigger.getSourceIdentifier());
               }
-            } else if (!experiment.isOver(now) && experiment.hasAppStartTrigger()) {
-            	Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
-                if (trigger != null) {
-                  tasks.add(trigger.getSourceIdentifier());                  
-                }	
             }
           }
           return tasks;
@@ -218,18 +214,12 @@ public class ProcessService extends Service {
 
         private void triggerAppUsed(String appIdentifier) {
           Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
-          int triggerCode = Trigger.APP_USAGE;
-          triggerCodeForAppTrigger(appIdentifier, triggerCode);
+          triggerCodeForAppTrigger(appIdentifier, Trigger.APP_USAGE);
         }
-        
-        private void triggerAppStarted(String appIdentifier) {
-            triggerAppUsed(appIdentifier);
-          }
         
         private void triggerAppClosed(String appIdentifier) {
             Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
-            int triggerCode = Trigger.APP_USAGE;
-            triggerCodeForAppTrigger(appIdentifier, triggerCode);
+            triggerCodeForAppTrigger(appIdentifier, Trigger.APP_CLOSED);
           }
 
 		private void triggerCodeForAppTrigger(String appIdentifier,

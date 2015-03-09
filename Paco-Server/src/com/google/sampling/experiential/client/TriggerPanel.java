@@ -76,8 +76,14 @@ public class TriggerPanel extends Composite {
     HorizontalPanel line = createHorizontalContainer();
     line.add(createLabel(myConstants.chooseTriggerSourceIdentifier()));
     line.add(createSourceIdentifierTextEdit());
-    line.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT || trigger.getEventCode() == TriggerDAO.APP_USAGE);
+    line.setVisible(usedSourceIdentifier());
     return line;
+  }
+
+  private boolean usedSourceIdentifier() {
+    return trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT 
+            || trigger.getEventCode() == TriggerDAO.APP_USAGE  
+            || trigger.getEventCode() == TriggerDAO.APP_CLOSED;
   }
 
   private Widget createSourceIdentifierTextEdit() {
@@ -170,7 +176,7 @@ public class TriggerPanel extends Composite {
 
   private void respondToListSelection(int index) {
     trigger.setEventCode(TriggerDAO.EVENTS[index - 1]);
-    sourceIdentifierPanel.setVisible(trigger.getEventCode() == TriggerDAO.PACO_ACTION_EVENT || trigger.getEventCode() == TriggerDAO.APP_USAGE);
+    sourceIdentifierPanel.setVisible(usedSourceIdentifier());
   }
 
 

@@ -605,7 +605,7 @@ public class Experiment implements Parcelable {
     for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
       if (signalingMechanism instanceof Trigger) {
         Trigger trigger = (Trigger)signalingMechanism;
-        if (trigger.getEventCode() == Trigger.APP_USAGE) {
+        if (trigger.getEventCode() == Trigger.APP_USAGE || trigger.getEventCode() == Trigger.APP_CLOSED) {
           return true;
         }
       }
@@ -706,18 +706,6 @@ public class Experiment implements Parcelable {
     this.extraDataCollectionDeclarations = extraDataDeclarations;
   }
 
-	public boolean hasAppStartTrigger() {
-		for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
-			if (signalingMechanism instanceof Trigger) {
-				Trigger trigger = (Trigger) signalingMechanism;
-				if (trigger.getEventCode() == Trigger.APP_STARTED) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	public boolean hasAppCloseTrigger() {
 		for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
 			if (signalingMechanism instanceof Trigger) {
