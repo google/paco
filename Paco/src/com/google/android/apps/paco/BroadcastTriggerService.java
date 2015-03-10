@@ -51,6 +51,10 @@ public class BroadcastTriggerService extends Service {
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
+    
+    // TODO pass the duration along to the experiment somehow (either log it at the moment it happened, or, pass it in the notification (yuck)? 
+    final long duration = extras.getLong(Experiment.TRIGGER_PHONE_CALL_DURATION);
+    
     DateTime time = null;
     if (timeStr != null) {
       time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);

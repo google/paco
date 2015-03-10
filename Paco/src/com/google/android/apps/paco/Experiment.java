@@ -110,6 +110,7 @@ public class Experiment implements Parcelable {
   public static final String TRIGGERED_TIME = "triggeredTime";
   public static final String TRIGGER_EVENT = "trigger_event";
   public static final String TRIGGER_SOURCE_IDENTIFIER = "sourceIdentifier";
+  public static final String TRIGGER_PHONE_CALL_DURATION = "phoneCallDurationMillis";
 
 
   public String getModifyDate() {
