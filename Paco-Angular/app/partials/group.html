@@ -10,18 +10,17 @@
     </div>
 
     <md-card>
-      <md-card-content ng-repeat="trigger in group.actionTriggers" 
-        ng-controller="ExpandCtrl" ng-class="{expand: expand}">
-        <div class="section" ng-click="toggleExpand()">
+      <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+        <div ng-init="trigger=group.actionTriggers[0]" class="section" ng-click="toggleExpand()">
           <div class="title">
             <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span> Triggers
           </div>
           <md-button add-icon
-            ng-click="experiment.groups.push({});$event.stopPropagation()">
+            ng-click="group.actionTriggers.push({});$event.stopPropagation()">
             Scheduled Trigger
           </md-button>
           <md-button add-icon
-            ng-click="experiment.groups.push({});$event.stopPropagation()">
+            ng-click="group.actionTriggers.push({});$event.stopPropagation()">
             Event Trigger
           </md-button>
         </div>
@@ -39,7 +38,7 @@
             <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Inputs
           </div>
           <md-button add-icon
-            ng-click="addInput(group.inputs,$event);">
+            ng-click="addInput(group.inputs,$event,toggleExpand);">
             Input
           </md-button>
         </div>

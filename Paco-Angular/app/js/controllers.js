@@ -10,23 +10,14 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($s
   $scope.loaded = false;
 
   $http.get('js/experiment.json').success(function(data) {
-    $scope.experiment = data[$scope.experimentIdx];
-    //$scope.db = data;
-    
-    // if ($scope.experimentIdx < data.length - 1) {
-    //   $scope.nextIdx = $scope.experimentIdx + 1;
-    // }
-
-    // if ($scope.experimentIdx > 0) {
-    //   $scope.previousIdx = $scope.experimentIdx - 1;
-    // }
-    
+    $scope.experiment = data[$scope.experimentIdx];    
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');
   });
 
-  $scope.addInput = function(inputs,event) {
+  $scope.addInput = function(inputs,event,expandFn) {
     inputs.push({});
+    expandFn(true);
     event.stopPropagation();
   }
 
@@ -61,8 +52,12 @@ app.controller('InputsCtrl', ['$scope', function($scope) {
 app.controller('ExpandCtrl', ['$scope', function($scope) {
   $scope.expand = false;
 
-  $scope.toggleExpand = function() {
-    $scope.expand = !$scope.expand;
+  $scope.toggleExpand = function(flag) {
+    if (flag === undefined) {
+      $scope.expand = !$scope.expand;
+    } else {
+      $scope.expand = flag;
+    }
   }
 
   $scope.$on('experimentChange', function(event, args) {
