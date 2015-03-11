@@ -1,12 +1,9 @@
 <div class="input" ng-repeat="input in group.inputs">
-  <h2>
-    <label class="inline">Input {{$index + 1}}</label>
-
-    <a class="remove-button" href="" ng-click="removeInput(group.inputs,$index)"></a>
+  <div class="section">
+   Input {{$index + 1}}
+    <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
     <a class="add-button" href="" ng-click="group.inputs.push({})"></a>
-
-
-  </h2>
+  </div>
 
  <div class="padded">
   <div class="column0">
@@ -71,7 +68,7 @@
           <label>Choice {{$index + 1}}</label>
           <input ng-model="input.listChoices[$index]">
         </md-input-container>
-        <a href="" class="remove-button" ng-click="removeChoice(input.listChoices, $index)"></a>
+        <a href="" class="remove-button" ng-click="remove(input.listChoices, $index)"></a>
       </div>
 
       <md-button add-icon ng-click="addChoice(input)">Choice</md-button>

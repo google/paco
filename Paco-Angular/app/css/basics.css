@@ -23,7 +23,6 @@
   position: relative;
 }
 
-
 .upload .dropzone {
   background: url('/img/mountain.png') #d8d8d8 no-repeat;
   background-size: cover;

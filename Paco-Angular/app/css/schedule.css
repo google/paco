@@ -1,0 +1,54 @@
+.trigger .header {
+  background: #E8EAF6;
+}
+
+.schedule h1 {
+  font-weight: 400;
+  margin: 12px 0 0 0;
+}
+
+.schedule b {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.schedule a {
+  color: #3f51b5;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.schedule {
+  padding: 16px;
+}
+
+.schedule p {
+  margin: 0;
+  padding: 0;
+}
+
+.days {
+  margin-bottom: 24px;
+}
+
+.days md-checkbox {
+  display: inline-block;
+  height: 64px;
+  position: relative;
+  width: 18px;
+  margin: 8px;
+}
+
+.days md-checkbox .md-label {
+  position: absolute;
+  top: 36px;
+  left: -12px;
+}
+
+.schedule .inline {
+  display: inline-block;
+}
+
+.schedule md-radio-group {
+  border: none;
+}

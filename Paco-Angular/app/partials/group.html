@@ -1,55 +1,69 @@
 <div class="groups">
-  <div class="group" ng-repeat="group in experiment.groups">
+  <div class="group" ng-repeat="group in experiment.groups track by $index">
 
     <div class="header" ng-if="experiment.groups.length>1">
       <md-input-container ng-if="experiment.groups.length>1">
         <label>Group {{$index+1}}</label>
         <input ng-model="group.name">
       </md-input-container>
-      <a href="" class="removeGroup" ng-click="removeGroup(experiment.groups,$index)"></a>
+
+      <a href="" ng-if="experiment.groups.length>1" class="removeGroup"
+        ng-click="remove(experiment.groups, $index)">
+      </a>
     </div>
 
     <md-card>
-      <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
-        <div ng-init="trigger=group.actionTriggers[0]" class="section" ng-click="toggleExpand()">
+      <md-card-content expandable ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+        <div class="section" ng-click="toggleExpand()">
+
           <div class="title">
-            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span> Triggers
+            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span> 
+            Triggers <span class="light">({{group.actionTriggers.length}})</span>
           </div>
-          <md-button add-icon
-            ng-click="group.actionTriggers.push({});$event.stopPropagation()">
+          <md-button add-icon ng-click="addScheduleTrigger(group.actionTriggers, $event, toggleExpand)">
             Scheduled Trigger
           </md-button>
-          <md-button add-icon
-            ng-click="group.actionTriggers.push({});$event.stopPropagation()">
+          <md-button add-icon ng-click="addEventTrigger(group.actionTriggers, $event, toggleExpand)">
             Event Trigger
           </md-button>
         </div>
 
-        <div ng-repeat="schedule in trigger.schedules" class="scheduling" 
-          ng-controller="ScheduleCtrl" ng-show="expand" 
-          ng-include="'/partials/schedule.html'">
+        <div ng-repeat="trigger in group.actionTriggers track by $index" ng-show="expand" class="trigger" ng-include="'/partials/trigger.html'">
         </div>
       </md-card-content>
 
-      <md-card-content ng-controller="ExpandCtrl" ng-class="{expand: expand}">
+      <md-card-content expandable ng-controller="ExpandCtrl" ng-class="{expand: expand}">
         <md-divider></md-divider>
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Inputs
+            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Inputs  <span class="light">({{group.inputs.length}})</span>
           </div>
-          <md-button add-icon
-            ng-click="addInput(group.inputs,$event,toggleExpand);">
+          <md-button add-icon 
+            ng-click="addInput(group.inputs, $event, toggleExpand)">
             Input
           </md-button>
         </div>
-        <div ng-controller="InputsCtrl" ng-show="expand" 
-          ng-include="'/partials/inputs.html'">
+        <div ng-controller="InputsCtrl" ng-show="expand" ng-include="'/partials/inputs.html'">
         </div>
+      </md-card-content>
+
+
+      <md-card-content>
+        <md-divider></md-divider>
+        <md-checkbox class="end" ng-model="group.endOfDayGroup" aria-label="End of day group">
+          End of day group
+        </md-checkbox>
+
+        <select class="reference" ng-if="group.endOfDayGroup">
+          <option disabled selected>Reference group</option>
+          <option>Group 1</option>
+        </select>
+
       </md-card-content>
     </md-card>
   </div>
 
-  <md-button class="md-raised" ng-click="experiment.groups.push({})">
+  <md-button class="md-raised" ng-click="addGroup()">
     Add Experiment Group
   </md-button>
 </div>

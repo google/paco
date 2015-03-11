@@ -1,0 +1,45 @@
+<div ng-controller="TriggerCtrl">
+  <div class="header section">
+    <div class="title">
+      <span ng-if="trigger.type=='scheduleTrigger'">Scheduled</span>
+      <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
+    </div>
+
+    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon 
+      ng-click="trigger.schedules.push({type:'scheduleTrigger'})">
+      Schedule
+    </md-button>
+
+    <md-button add-icon ng-click="trigger.actions.push({type:'eventTrigger'})">
+      Action
+    </md-button>
+
+    <a class="remove-button" ng-if="group.actionTriggers.length>1"  href="" 
+      ng-click="remove(group.actionTriggers, $index)">
+    </a>
+  </div>
+
+  <div ng-repeat="schedule in trigger.schedules track by $index">
+    <div class="section">
+      Schedule {{$index+1}}
+      <md-button ng-click="showSchedule($event, schedule)">
+        Edit
+      </md-button>
+    <a class="remove-button" ng-if="trigger.schedules.length>1" href="" 
+      ng-click="remove(trigger.schedules, $index)"></a>
+    </div>
+  </div>
+
+
+  <div ng-repeat="action in trigger.actions track by $index">
+    <div class="section">
+      Action {{$index+1}}
+      <md-button ng-click="">
+        Edit
+      </md-button>
+    <a class="remove-button" ng-if="trigger.actions.length>1" href="" 
+      ng-click="remove(trigger.actions, $index)"></a>
+    </div>
+  </div>
+
+</div>

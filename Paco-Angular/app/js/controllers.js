@@ -1,6 +1,8 @@
 var app = angular.module('pacoControllers', []);
 
-
+var groupTemplate = {actionTriggers:[],inputs:[]};
+var scheduleTriggerTemplate = {type:'scheduleTrigger', actions:[{}], schedules:[{}]};
+var eventTriggerTemplate = {type:'interruptTrigger', actions:[{}]};
 
 
 app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
@@ -15,30 +17,39 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($s
     $scope.$broadcast('experimentChange');
   });
 
-  $scope.addInput = function(inputs,event,expandFn) {
+  $scope.addGroup = function() {
+    $scope.experiment.groups.push(groupTemplate);
+  }
+
+  $scope.addInput = function(inputs, event, expandFn) {
     inputs.push({});
     expandFn(true);
     event.stopPropagation();
   }
 
+  $scope.addScheduleTrigger = function(triggers, event, expandFn) {
+    triggers.push(scheduleTriggerTemplate);
+    expandFn(true);
+    event.stopPropagation();
+  }
 
-  $scope.removeGroup = function(groups, idx) {
-    groups.splice(idx, 1);
+  $scope.addEventTrigger = function(triggers, event, expandFn) {
+    triggers.push(eventTriggerTemplate);
+    expandFn(true);
+    event.stopPropagation();
+  }
+
+  $scope.remove = function(arr, idx) {
+    arr.splice(idx, 1);
   };
 }]);
+
+
 
 
 app.controller('InputsCtrl', ['$scope', function($scope) {
 
   $scope.responseTypes = ["likert", "likert_smileys", "open text", "list", "photo", "location"];
-
-  $scope.removeInput = function(input, idx) {
-    input.splice(idx, 1);
-  };
-
-  $scope.removeChoice = function(input, idx) {
-    input.splice(idx, 1);
-  };
 
   $scope.addChoice = function(input) {
     if (input.listChoices === undefined) {
@@ -47,6 +58,8 @@ app.controller('InputsCtrl', ['$scope', function($scope) {
     input.listChoices.push('');
   }
 }]);
+
+
 
 
 app.controller('ExpandCtrl', ['$scope', function($scope) {
@@ -66,8 +79,36 @@ app.controller('ExpandCtrl', ['$scope', function($scope) {
 }]);
 
 
-app.controller('ScheduleCtrl', ['$scope', function($scope) {
 
+
+
+
+app.controller('TriggerCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog) {
+
+  $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
+  $scope.showSchedule = function(event,sc) {
+
+    $mdDialog.show({
+      parent: angular.element(document.body),
+      targetEvent: event,
+      templateUrl: 'partials/schedule.html',
+      locals: {
+        schedule: sc
+      },
+      controller: 'ScheduleCtrl'
+    })
+    .then(function(answer) {
+      $scope.alert = 'You said the information was "' + answer + '".';
+    }, function() {
+      $scope.alert = 'You cancelled the dialog.';
+    });
+  };
+}]);
+
+
+app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($scope, $mdDialog, schedule) {
+  
+  $scope.schedule = schedule;
   $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
   $scope.weeksOfMonth = ["First", "Second", "Third", "Fourth", "Fifth"];
   $scope.esmPeriods = ["Day","Week","Month"];
@@ -82,53 +123,29 @@ app.controller('ScheduleCtrl', ['$scope', function($scope) {
     return arr;
   }
 
-  $scope.removeTime = function(times, idx) {
-    times.splice(idx, 1);
-  };
-
   $scope.addTime = function(times, idx) {
     times.splice(idx + 1, 0, {'fixedTimeMillisFromMidnight': 0});
   };
 
-  $scope.$watchCollection('experiment.schedule.days', function(days) {
+  $scope.hide = function() {
+    $mdDialog.hide();
+  };
 
+  $scope.$watchCollection('schedule.days', function(days) {
     var sum = 0;
-
     if (days) {
       for (var i = 0; i < 7; i++) {
-        if ($scope.experiment.schedule.days[i]) {
+        if ($scope.schedule.days[i]) {
           sum += Math.pow(2, i);
         }
       }
-      $scope.experiment.schedule.weekDaysScheduled = sum;
+      $scope.schedule.weekDaysScheduled = sum;
     }
   });
   
-  $scope.$watch('experiment.schedule.scheduleType', function(times) {
+  $scope.$watch('schedule.scheduleType', function(times) {
     if (times) {
-      $scope.experiment.schedule.signalTimes = [{}]; 
+      $scope.schedule.signalTimes = [{}]; 
     }
   });
 }]);
-
-
-app.directive('milli', function() {
-  return {
-    restrict: 'A',
-    require: 'ngModel',
-    link: function(scope, element, attr, ngModel) {
-      var UTCOffset = 60 * 1000 * (new Date()).getTimezoneOffset();
-
-      function dateToMillis(text) {
-        var dd = Date.parse(text);
-        return dd - UTCOffset;
-      }
-
-      function millisToDate(text) {
-        return new Date(parseInt(text) + UTCOffset);
-      }
-      ngModel.$parsers.push(dateToMillis);
-      ngModel.$formatters.push(millisToDate);
-    }
-  };
-});

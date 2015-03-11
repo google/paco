@@ -7,31 +7,6 @@
   width: 100%;
 }
 
-.scheduling h1 {
-  font-weight: 400;
-  margin: 12px 0 0 0;
-}
-
-.scheduling b {
-  font-weight: 400;
-  text-transform: uppercase;
-}
-
-.scheduling a {
-  color: #3f51b5;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.scheduling {
-  padding: 16px;
-}
-
-.scheduling p {
-  margin: 0;
-  padding: 0;
-}
-
 .snooze label {
   display: inline-block;
   width: 20 0px;
@@ -51,8 +26,11 @@
   right: -40px;
 }
 
-.input h2 {
+.input .section {
   background: #E8EAF6;
+}
+
+.section {
   font-weight: 300;
   padding: 12px;
   margin: 0;
@@ -137,7 +115,18 @@ md-card-content {
   position: relative;
 }
 
-md-card-content::after {
+md-card-content .end {
+  margin-left: 236px;
+  width: 200px;
+}
+
+md-card-content .reference {
+  position: absolute;
+  left: 420px;
+  top: 20px;
+}
+
+md-card-content[expandable]::after {
   background: url('/img/ic_unfoldMore.svg') no-repeat;
   content: "";
   height: 24px;
@@ -149,7 +138,7 @@ md-card-content::after {
   width: 24px;
 }
 
-md-card-content:hover::after {
+md-card-content[expandable]:hover::after {
   opacity: 1;
 }
 
@@ -165,41 +154,20 @@ md-card .section {
   cursor: pointer;
   font-size: 18px;
   font-weight: 400;
-  padding: 0 16px 16px 16px;
+  padding: 16px;
   -webkit-user-select: none;
 }
 
 md-card .section .title {
   display: inline-block;
-  width: 200px
+  width: 200px;
+  height: 24px;
 }
 
 .list md-input-container input {
   width: 100%;
 }
 
-.scheduling .days {
-  margin-bottom: 24px;
-}
-
-.scheduling .days md-checkbox {
-  display: inline-block;
-  height: 64px;
-  position: relative;
-  width: 18px;
-  margin: 8px;
-}
-
-.scheduling .days md-checkbox .md-label {
-  position: absolute;
-  top: 36px;
-  left: -12px;
-}
-
-.scheduling .inline {
-  display: inline-block;
-}
-
-.scheduling md-radio-group {
-  border: none;
+.light {
+  color: #9FA8DA;
 }

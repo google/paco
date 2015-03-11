@@ -66,9 +66,11 @@ md-toolbar .subtitle {
 }
 
 .md-button {
-  height: 30px !important;
-  margin-top: 10px;
-  margin-left: 10px;
+  height: 32px !important;
+  margin-top: -4px;
+  margin-bottom: -4px;
+/*  margin-top: 10px;
+  margin-left: 10px;*/
 }
 
 .md-button[add-icon] {
