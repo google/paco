@@ -86,8 +86,45 @@ app.controller('ExpandCtrl', ['$scope', function($scope) {
 app.controller('TriggerCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog) {
 
   $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
-  $scope.showSchedule = function(event,sc) {
+  
+  $scope.getType = function(idx) {
+    return $scope.scheduleTypes[idx];
+  };
 
+  $scope.getDescription = function(trigger) {
+
+    var str = '';
+
+    if (trigger.scheduleType === 0) {
+      if (trigger.repeatRate === 1) {
+        str = 'Every day';
+      } else {
+        str = 'Every ' + trigger.repeatRate + ' days'
+      }
+    }
+
+    if (trigger.scheduleType === 1) {
+      str = 'Every weekday';
+    }
+
+    if (trigger.scheduleType === 2) {
+      if (trigger.repeatRate === 1) {
+        str = 'Every week';
+      } else {
+        str = 'Every ' + trigger.repeatRate + ' weeks'
+      }
+    }
+
+
+
+
+    if (trigger.scheduleType === 4) {
+      str = $scope.scheduleTypes[trigger.scheduleType];
+    }
+    return str;
+  };
+
+  $scope.showSchedule = function(event,sc) {
     $mdDialog.show({
       parent: angular.element(document.body),
       targetEvent: event,

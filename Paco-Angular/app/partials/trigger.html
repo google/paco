@@ -5,8 +5,7 @@
       <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
     </div>
 
-    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon 
-      ng-click="trigger.schedules.push({type:'scheduleTrigger'})">
+    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="trigger.schedules.push({type:'scheduleTrigger'})">
       Schedule
     </md-button>
 
@@ -14,32 +13,47 @@
       Action
     </md-button>
 
-    <a class="remove-button" ng-if="group.actionTriggers.length>1"  href="" 
-      ng-click="remove(group.actionTriggers, $index)">
+    <a class="remove-button" ng-if="group.actionTriggers.length>1" href="" ng-click="remove(group.actionTriggers, $index)">
     </a>
   </div>
 
   <div ng-repeat="schedule in trigger.schedules track by $index">
     <div class="section">
-      Schedule {{$index+1}}
-      <md-button ng-click="showSchedule($event, schedule)">
-        Edit
-      </md-button>
-    <a class="remove-button" ng-if="trigger.schedules.length>1" href="" 
-      ng-click="remove(trigger.schedules, $index)"></a>
+      <div class="title">
+        <md-button ng-click="showSchedule($event, schedule)">
+          Edit
+        </md-button>
+        Schedule {{$index+1}}
+      </div>
+      
+      <label ng-bind="getDescription(schedule)"></label>
+   
+      <span ng-if="schedule.scheduleType==4">
+        <span ng-bind="schedule.esmFrequency"></span> times, 
+        <input type="time" disabled milli ng-model="schedule.esmStartHour"> to 
+        <input type="time" disabled milli ng-model="schedule.esmEndHour">
+      </span>
+
+      <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)"></a>
     </div>
+    <md-divider></md-divider>
+
   </div>
 
 
   <div ng-repeat="action in trigger.actions track by $index">
     <div class="section">
-      Action {{$index+1}}
-      <md-button ng-click="">
-        Edit
-      </md-button>
-    <a class="remove-button" ng-if="trigger.actions.length>1" href="" 
-      ng-click="remove(trigger.actions, $index)"></a>
+      <div class="title">
+        <md-button ng-click="">
+          Edit
+        </md-button>
+        Action {{$index+1}}
+      </div>
+
+      <a class="remove-button" ng-if="trigger.actions.length>1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
+    <md-divider></md-divider>
+
   </div>
 
 </div>
