@@ -62,6 +62,18 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($s
   $scope.remove = function(arr, idx) {
     arr.splice(idx, 1);
   };
+
+  $scope.save = function() {
+    var json = JSON.stringify($scope.experiment);
+    var result = $http.post('/save', json);
+    result.success(function(data, status, headers, config) {
+      alert("success");
+    });
+    result.error(function(data, status, headers, config) {
+      alert( "failure message: " + JSON.stringify({data: data}));
+    });
+  }
+
 }]);
 
 
