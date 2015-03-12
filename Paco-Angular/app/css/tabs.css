@@ -14,7 +14,7 @@ body::before {
 }
 
 #body {
-  width: 1024px;
+  width: 960px;
   position: relative;
   left: 50%;
   margin-left: -512px;
@@ -69,8 +69,6 @@ md-toolbar .subtitle {
   height: 32px !important;
   margin-top: -4px;
   margin-bottom: -4px;
-/*  margin-top: 10px;
-  margin-left: 10px;*/
 }
 
 .md-button[add-icon] {

@@ -56,11 +56,17 @@
 .md-actions {
   bottom: 0;
   position: absolute;
-  width: 100%;
+  right: 0;
+  width: 100px;
 }
 
 .section input[type=time] {
   border: none!important;
   color: black;
   margin-right: -28px;
+}
+
+.column1 .remove-button {
+  position: relative;
+  top: 26px;
 }

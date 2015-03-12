@@ -54,9 +54,10 @@
           End of day group
         </md-checkbox>
 
-        <select class="reference" ng-if="group.endOfDayGroup">
+        <select class="reference"  ng-model="group.endOfDayReferredGroupName" 
+          ng-if="group.endOfDayGroup">
           <option disabled selected>Reference group</option>
-          <option>Group 1</option>
+          <option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}</option>
         </select>
 
       </md-card-content>

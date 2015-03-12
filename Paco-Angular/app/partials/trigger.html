@@ -18,6 +18,8 @@
   </div>
 
   <div ng-repeat="schedule in trigger.schedules track by $index">
+    <md-divider></md-divider>
+
     <div class="section">
       <div class="title">
         <md-button ng-click="showSchedule($event, schedule)">
@@ -25,34 +27,31 @@
         </md-button>
         Schedule {{$index+1}}
       </div>
-      
-      <label ng-bind="getDescription(schedule)"></label>
-   
-      <span ng-if="schedule.scheduleType==4">
-        <span ng-bind="schedule.esmFrequency"></span> times, 
-        <input type="time" disabled milli ng-model="schedule.esmStartHour"> to 
-        <input type="time" disabled milli ng-model="schedule.esmEndHour">
-      </span>
 
-      <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)"></a>
+      <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
+
+      <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)">
+      </a>
     </div>
-    <md-divider></md-divider>
 
   </div>
 
 
   <div ng-repeat="action in trigger.actions track by $index">
+    <md-divider></md-divider>
+
     <div class="section">
       <div class="title">
-        <md-button ng-click="">
+        <md-button ng-click="showAction($event, action)">
           Edit
         </md-button>
         Action {{$index+1}}
       </div>
 
+      <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
+
       <a class="remove-button" ng-if="trigger.actions.length>1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
-    <md-divider></md-divider>
 
   </div>
 

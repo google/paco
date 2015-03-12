@@ -68,7 +68,7 @@
   display: inline-block;
   vertical-align: top;
   margin-right: 24px;
-  width: 650px;
+  width: 550px;
 }
 
 .short {
@@ -116,7 +116,7 @@ md-card-content {
 }
 
 md-card-content .end {
-  margin-left: 236px;
+  margin-left: 226px;
   width: 200px;
 }
 

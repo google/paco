@@ -1,9 +1,29 @@
 var app = angular.module('pacoControllers', []);
 
-var groupTemplate = {actionTriggers:[],inputs:[]};
-var scheduleTriggerTemplate = {type:'scheduleTrigger', actions:[{}], schedules:[{}]};
-var eventTriggerTemplate = {type:'interruptTrigger', actions:[{}]};
 
+//TODO(ispiro):Move these into a factory or service
+var groupTemplate = {
+  actionTriggers: [],
+  inputs: []
+};
+var scheduleTriggerTemplate = {
+  type: 'scheduleTrigger',
+  actions: [{}],
+  schedules: [{}]
+};
+var eventTriggerTemplate = {
+  type: 'interruptTrigger',
+  actions: [{}]
+};
+var scheduleTypes = ['Daily', 'Weekdays', 'Weekly', 'Monthly',
+  'Random sampling (ESM)', 'Self Report'
+];
+
+var actionTypes = ['Create notification to participate',
+  'Create notification message',
+  'Log data',
+  'Execute script'
+];
 
 app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
 
@@ -12,7 +32,7 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($s
   $scope.loaded = false;
 
   $http.get('js/experiment.json').success(function(data) {
-    $scope.experiment = data[$scope.experimentIdx];    
+    $scope.experiment = data[$scope.experimentIdx];
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');
   });
@@ -81,74 +101,62 @@ app.controller('ExpandCtrl', ['$scope', function($scope) {
 
 
 
-
-
 app.controller('TriggerCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog) {
 
-  $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
-  
+  $scope.scheduleTypes = scheduleTypes;
+
   $scope.getType = function(idx) {
     return $scope.scheduleTypes[idx];
   };
 
-  $scope.getDescription = function(trigger) {
-
-    var str = '';
-
-    if (trigger.scheduleType === 0) {
-      if (trigger.repeatRate === 1) {
-        str = 'Every day';
-      } else {
-        str = 'Every ' + trigger.repeatRate + ' days'
-      }
-    }
-
-    if (trigger.scheduleType === 1) {
-      str = 'Every weekday';
-    }
-
-    if (trigger.scheduleType === 2) {
-      if (trigger.repeatRate === 1) {
-        str = 'Every week';
-      } else {
-        str = 'Every ' + trigger.repeatRate + ' weeks'
-      }
-    }
-
-
-
-
-    if (trigger.scheduleType === 4) {
-      str = $scope.scheduleTypes[trigger.scheduleType];
-    }
-    return str;
-  };
-
-  $scope.showSchedule = function(event,sc) {
+  $scope.showSchedule = function(event, schedule) {
     $mdDialog.show({
-      parent: angular.element(document.body),
       targetEvent: event,
       templateUrl: 'partials/schedule.html',
       locals: {
-        schedule: sc
+        schedule: schedule
       },
       controller: 'ScheduleCtrl'
-    })
-    .then(function(answer) {
-      $scope.alert = 'You said the information was "' + answer + '".';
-    }, function() {
-      $scope.alert = 'You cancelled the dialog.';
     });
   };
+
+  $scope.showAction = function(event, action) {
+    $mdDialog.show({
+      targetEvent: event,
+      templateUrl: 'partials/action.html',
+      locals: {
+        action: action
+      },
+      controller: 'ActionCtrl'
+    });
+  };
+
+
 }]);
 
 
+
+
+app.controller('ActionCtrl', ['$scope', '$mdDialog', 'action', function($scope, $mdDialog, action) {
+
+  $scope.action = action;
+  $scope.actionTypes = actionTypes;
+
+  $scope.hide = function() {
+    $mdDialog.hide();
+  };
+
+}]);
+
+
+
+
 app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($scope, $mdDialog, schedule) {
-  
+
   $scope.schedule = schedule;
-  $scope.scheduleTypes = ["Daily", "Weekdays", "Weekly", "Monthly", "Random sampling (ESM)", "Self Report"];
+  $scope.scheduleTypes = scheduleTypes;
   $scope.weeksOfMonth = ["First", "Second", "Third", "Fourth", "Fifth"];
-  $scope.esmPeriods = ["Day","Week","Month"];
+  $scope.esmPeriods = ["Day", "Week", "Month"];
   $scope.repeatRates = range(1, 30);
   $scope.daysOfMonth = range(1, 31);
 
@@ -161,7 +169,13 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($sco
   }
 
   $scope.addTime = function(times, idx) {
-    times.splice(idx + 1, 0, {'fixedTimeMillisFromMidnight': 0});
+    times.splice(idx + 1, 0, {
+      'fixedTimeMillisFromMidnight': 0
+    });
+  };
+
+  $scope.remove = function(arr, idx) {
+    arr.splice(idx, 1);
   };
 
   $scope.hide = function() {
@@ -179,10 +193,74 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($sco
       $scope.schedule.weekDaysScheduled = sum;
     }
   });
-  
+
   $scope.$watch('schedule.scheduleType', function(times) {
     if (times) {
-      $scope.schedule.signalTimes = [{}]; 
+      $scope.schedule.signalTimes = [{}];
     }
   });
+}]);
+
+
+app.controller('SummaryCtrl', ['$scope', function($scope) {
+
+  $scope.getActionSummary = function() {
+    if ($scope.action.actionCode !== undefined) {
+      return actionTypes[$scope.action.actionCode];
+    } else {
+      return 'Undefined';
+    }
+  };
+
+  $scope.getScheduleSummary = function() {
+    var sched = $scope.schedule;
+    var str = '';
+
+    //ispiro:using === for these comparisons breaks on schedule edit
+    if (sched.scheduleType == 0) {
+      if (sched.repeatRate == 1) {
+        str += 'Every day';
+      } else {
+        str += 'Every ' + sched.repeatRate + ' days'
+      }
+    } else if (sched.scheduleType == 1) {
+      str += 'Every weekday';
+    } else if (sched.scheduleType == 2) {
+      if (sched.repeatRate == 1) {
+        str += 'Every week';
+      } else {
+        str += 'Every ' + sched.repeatRate + ' weeks'
+      }
+    } else if (sched.scheduleType == 3) {
+      if (sched.repeatRate == 1) {
+        str += 'Every month';
+      } else {
+        str += 'Every ' + sched.repeatRate + ' months'
+      }
+    } else if (sched.scheduleType == 4) {
+      str += scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
+      if (sched.esmFrequency > 1) {
+        str += 's per day';
+      } else {
+        str += ' per day';
+      }
+      //TODO(ispiro):Use period when model supports it
+    } else if (sched.scheduleType == 5) {
+      str = 'Self report only';
+    } else {
+      str = 'Undefined';
+    }
+
+    if (sched.scheduleType >= 0 && sched.scheduleType <= 3) {
+      str += ', ' + sched.signalTimes.length;
+      if (sched.signalTimes.length == 1) {
+        str += ' time each';
+      } else {
+        str += ' times each';
+      }
+    }
+
+    return str;
+  };
+
 }]);
