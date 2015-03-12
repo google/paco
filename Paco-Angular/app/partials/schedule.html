@@ -89,13 +89,13 @@
 
       <div ng-if="schedule.scheduleType==2 || (schedule.scheduleType==3 && schedule.byDayOfMonth=='false')" class="days">
         Repeat on
-        <md-checkbox ng-model="schedule.days[0]">Su</md-checkbox>
-        <md-checkbox ng-model="schedule.days[1]">M</md-checkbox>
-        <md-checkbox ng-model="schedule.days[2]">Tu</md-checkbox>
-        <md-checkbox ng-model="schedule.days[3]">W</md-checkbox>
-        <md-checkbox ng-model="schedule.days[4]">Th</md-checkbox>
-        <md-checkbox ng-model="schedule.days[5]">F</md-checkbox>
-        <md-checkbox ng-model="schedule.days[6]">Sa</md-checkbox>
+        <md-checkbox ng-model="schedule.days[0]" aria-label="Sunday">Su</md-checkbox>
+        <md-checkbox ng-model="schedule.days[1]" aria-label="Monday">M</md-checkbox>
+        <md-checkbox ng-model="schedule.days[2]" aria-label="Tuesday">Tu</md-checkbox>
+        <md-checkbox ng-model="schedule.days[3]" aria-label="Wednesday">W</md-checkbox>
+        <md-checkbox ng-model="schedule.days[4]" aria-label="Thursday">Th</md-checkbox>
+        <md-checkbox ng-model="schedule.days[5]" aria-label="Friday">F</md-checkbox>
+        <md-checkbox ng-model="schedule.days[6]" aria-label="Saturday">Sa</md-checkbox>
       </div>
 
       <div ng-repeat="time in schedule.signalTimes" 
