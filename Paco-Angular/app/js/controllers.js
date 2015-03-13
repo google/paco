@@ -30,8 +30,10 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($s
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
   $scope.selectedIndex = 1;
   $scope.loaded = false;
+http://localhost:8080/experiments?id=5629499534213120
 
-  $http.get('js/experiment.json').success(function(data) {
+  $http.get('/experiments?id=5629499534213120').success(function(data) {
+  //$http.get('js/experiment.json').success(function(data) {
     $scope.experiment = data[$scope.experimentIdx];
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');

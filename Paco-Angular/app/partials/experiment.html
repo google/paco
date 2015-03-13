@@ -31,10 +31,10 @@
 
 <ng-switch on="selectedIndex" class="tabpanel-container">
   <div role="tabpanel" ng-switch-when="0">
-    <div ng-include="'/partials/basics.html'" class="basics"></div>
+    <div ng-include="'partials/basics.html'" class="basics"></div>
   </div>
   <div role="tabpanel" ng-switch-when="1">
-    <div ng-include="'/partials/group.html'"></div>
+    <div ng-include="'partials/group.html'"></div>
   </div>
   <div role="tabpanel" ng-switch-when="2" class="padded admin">
     <div class="padded">
@@ -46,6 +46,6 @@
     </div>
   </div>
   <div role="tabpanel" ng-switch-when="3">
-    <div ng-include="'/partials/consent.html'" class="padded"></div>
+    <div ng-include="'partials/consent.html'" class="padded"></div>
   </div>
 </ng-switch>

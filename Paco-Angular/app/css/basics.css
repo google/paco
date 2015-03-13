@@ -24,7 +24,7 @@
 }
 
 .upload .dropzone {
-  background: url('/img/mountain.png') #d8d8d8 no-repeat;
+  background: url('../img/mountain.png') #d8d8d8 no-repeat;
   background-size: cover;
   border: 3px dashed #9E9E9E;
   border-radius: 50%;
